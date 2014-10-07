@@ -1,0 +1,81 @@
+<form name="newUser" class="form-horizontal" role="form" ng-submit="create(newUser.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'USERS.NEW' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': newUser.username.$invalid}">
+      <label for="username_id" class="col-lg-3 control-label">
+        {{'USERS.USERNAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="username_id" ng-model="user.username" name="username" required="" placeholder="{{'USERS.USERNAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newUser.password.$invalid || newUser.confirmPwd.$invalid}">
+      <label for="password_id" class="col-lg-3 control-label">
+        {{'USERS.PASSWORD' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <div class="col-xs-6">
+          <input type="password" class="form-control" id="password_id" ng-model="user.password" name="password" required="" placeholder="{{'USERS.PASSWORD' | translate}}">
+        </div>
+        <div class="col-xs-6">
+          <input type="password" class="form-control" id="confirmPwd_id" ng-model="confirmPwd" name="confirmPwd" required="" value-match="user.password" placeholder="{{'USERS.CONFIRM_PASSWORD_HOLDER' | translate}}">
+        </div>
+        <span ng-if="!newUser.confirmPwd.$error.required && newUser.confirmPwd.$error.valueMatch"
+          class="text-danger col-lg-12"> {{ 'USERS.CONFIRM_PASSWORD_ERROR' | translate}}</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="firstName_id" class="col-lg-3 control-label">
+        {{'USERS.FIRST_NAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+          <input type="text" class="form-control" id="firstName_id" ng-model="user.firstName" name="firstName" placeholder="{{'USERS.FIRST_NAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="lastName_id" class="col-lg-3 control-label">
+        {{'USERS.LAST_NAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+         <input type="text" class="form-control" id="lastName_id" ng-model="user.lastName" name="lastName" placeholder="{{'USERS.LAST_NAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newUser.email.$invalid}">
+      <label for="email_id" class="col-lg-3 control-label">
+        {{'USERS.EMAIL' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="email" class="form-control" id="email_id" ng-model="user.email" name="email" placeholder="{{'USERS.EMAIL' | translate}}">
+        <span ng-if="newUser.email.$error.email" class="text-danger">{{'USERS.EMAIL_INVALID' | translate }}</span>
+      </div>
+    </div>
+    <div class="form-group" >
+      <label for="roles_id" class="col-lg-3 control-label">
+        {{'USERS.ROLES' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <ul class="liste-no-style" role="menu" ng-click="preventClose($event)">
+            <li  ng-repeat="role in alienRoles.data | orderBy:'toString()' ">
+              <a id="newrole__{{role}}"
+                 ng-class="{'checked_role':( roleChecked = user.roles.indexOf(role) > -1)}"
+                 ng-click="handleRoleSelection(user, role)">
+                <i class="fa fa-fw"
+                   ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
+                {{role}}
+             </a>
+           </li>
+         </ul>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button ng-disabled="newUser.$invalid" class="btn btn-primary">
+      {{'CREATE' | translate}}
+    </button>
+    <a class="btn btn-default" ng-click="cancel()">
+      {{'CANCEL' | translate}}
+    </a>
+  </div>
+</form>

@@ -1,0 +1,335 @@
+<div class="row">
+  <!-- Topology and deployment detail section -->
+  <div class="col-md-6">
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-md-12">
+        <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + deploymentStatus | translate }}" tooltip-append-to-body="true" ng-class="{
+            'fa-circle text-success' : deploymentStatus == 'DEPLOYED',
+            'fa-circle text-muted' : deploymentStatus == 'UNDEPLOYED',
+            'fa-warning text-warning' : deploymentStatus == 'WARNING',
+            'fa-circle text-danger' : deploymentStatus == 'FAILURE',
+            'fa-question-circle text-muted' : deploymentStatus == 'UNKNOWN',
+            'fa-spinner fa-spin' : deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' || deploymentStatus == 'UNDEPLOYMENT_IN_PROGRESS'
+            }">
+        </i>
+      </div>
+    </div>
+    <!--             deployment -->
+    <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
+      <div class="col-md-8">
+        <!-- Cloud selection -->
+        <select id="cloud-select" ng-if="topologyId" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)">
+          <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
+        </select>
+
+        <!-- DEPLOYMENT_MANAGER specific -->
+        <div style="margin-top: 20px;" ng-if="!validTopologyDTO.valid && !isManager">
+          <p class="text-danger">{{ 'APPLICATIONS.DEPLOYMENT_MANAGER_INVALID' | translate }}</p>
+        </div>
+        <!-- END : DEPLOYMENT_MANAGER specific -->
+
+        <!-- Plugin deployment properties -->
+        <div ng-if="deploymentPropertyDefinitions != null && deploymentPropertyDefinitions != {}" ng-init="isPropertiesCollapsed = false">
+          <div class="topology-node-expand clickable" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
+            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
+            <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</span>
+          </div>
+          <div collapse="isPropertiesCollapsed">
+            <table class="table table-condensed" id="nodeTemplateProperties">
+              <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
+                <td id="p_{{propertyKey}}">
+                  <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
+                  </property-display>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <!-- END : Plugin deployment properties -->
+      </div>
+
+      <div class="col-md-4">
+        <!-- DEPLOY BUTTON -->
+        <button type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying" ng-click="deploy()" ng-show="deploymentStatus == 'UNDEPLOYED'">
+          <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+        </button>
+        <button type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
+          deploymentStatus == 'DEPLOYED' ||
+          deploymentStatus == 'WARNING' ||
+          deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' ||
+          deploymentStatus == 'FAILURE'">
+          <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <!-- todo list -->
+    <div class="row" style="margin-top: 20px;" ng-if="!validTopologyDTO.valid && isManager">
+      <div class="col-md-12">
+        <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> <strong>{{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</strong></span>
+        <div class="task-list-box">
+<!--                   case the topology is not created -->
+          <span ng-if="!topologyId">
+            {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
+          </span>
+
+<!--                   case the topology is empty -->
+          <span ng-if="!validTopologyDTO.taskList && topologyId">
+            {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
+          </span>
+
+          <!--                     Replacement tasks  -->
+          <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
+
+            <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToReplaceNodesCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{{'SUGGESTIONS' | translate}}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat=" toReplaceNodeTask in toReplaceNodeTasks">
+                    <td>
+                      <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
+                      <span>({{toReplaceNodeTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
+                        <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
+                          {{nodeType.elementId}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--                     Implementation tasks  -->
+          <div ng-if="(toImplementNodeTasks = (validTopologyDTO.taskList | filter:{code:'IMPLEMENT'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToImplementNodesCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <tbody>
+                  <tr ng-repeat=" toImplementNodeTask in toImplementNodeTasks">
+                    <td>
+                      <span>{{toImplementNodeTask.nodeTemplateName}}</span>
+                      <span>({{toImplementNodeTask.component.elementId}})</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--                     LowerBound not satisfied tasks  -->
+          <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToAddRelationsCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th></th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat=" lowerBoundTask in lowerBoundTasks">
+                    <td>
+                      <span>{{lowerBoundTask.nodeTemplateName}}</span>
+                      <span>({{lowerBoundTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <div class="row" ng-repeat=" req in lowerBoundTask.requirementsToImplement">
+                        <div class="col-md-10">
+                          <span>{{req.name}}</span>
+                          <span>({{req.type}})</span>
+                        </div>
+                        <div class="col-md-2">
+                          <span>{{req.remainingBound}}</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--                     required properties tasks  -->
+          <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTY_REQUIRED'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isRequiredPropertiesCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th></th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat=" requiredPropertiesTask in requiredPropertiesTasks">
+                    <td>
+                      <span>{{requiredPropertiesTask.nodeTemplateName}}</span>
+                      <span>({{requiredPropertiesTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in requiredPropertiesTask.properties">
+                          {{property}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Input properties  -->
+    <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
+      <div class="col-md-12">
+        <span>
+          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
+        </span>
+        <table class="table table-condensed" id="inputPropertiesTable">
+          <tr>
+            <td colspan="2">
+            </td>
+          </tr>
+          <tr ng-repeat="(propertyKey,propertyValue) in inputProperties">
+            <td>
+              <span>{{propertyKey}}</span>
+            </td>
+            <td id="p_{{propertyKey}}">
+
+              <ul>
+                <li ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
+                  {{inputPropertyValue}} :
+                  <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
+                    {{nodeTemplates[propertyKey].properties[inputPropertyValue]}} <i class="fa fa-pencil-square-o"></i>
+                  </span>
+                </li>
+              </ul>
+
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Output properties  -->
+    <div class="row" style="margin-top: 20px;" ng-if="outputNodes.length > 0">
+      <div class="col-md-12">
+        <span>
+          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
+        </span>
+        <table class="table table-condensed" id="outputPropertiesTable">
+          <tr>
+            <td colspan="2">
+            </td>
+          </tr>
+          <tr ng-repeat="nodeId in outputNodes">
+            <td>
+              <span>{{nodeId}}</span>
+            </td>
+            <td>
+              <ul>
+                <li ng-if="outputPropertiesSize > 0">
+                  <strong>{{ 'properties' | translate }}</strong>
+                  <ul>
+                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
+                      {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
+                    </li>
+                  </ul>
+                </li>
+                <li ng-if="outputAttributesSize > 0">
+                  <strong>{{ 'attributes' | translate }}</strong>
+                  <ul>
+                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
+                      {{'INSTANCE' | translate}} {{instanceId}}
+                      <ul>
+                        <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
+                          {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Input artifacts  -->
+    <div class="row" style="margin-top: 20px;" ng-if="inputArtifactsSize>0">
+      <div class="col-md-12">
+        <span>
+          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_INPUTS' | translate}}</strong>
+        </span>
+        <table class="table table-condensed" id="inputArtifactsTable">
+          <tr>
+            <td colspan="2">
+            </td>
+          </tr>
+          <tr ng-repeat="(artifactKey,artifactValue) in inputArtifacts">
+            <td>
+              <span>{{artifactKey}}</span>
+            </td>
+            <td id="a_{{artifactKey}}">
+              <ul>
+                <li ng-repeat="(inputArtifactKey,inputArtifactValue) in inputArtifacts[artifactKey]">
+                  {{inputArtifactValue}}
+                  <div class="topology-level" collapse="isArtifactCollapsed">
+                    <div class="row">
+                      <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                      <div class="col-md-9">{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactType}}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
+                      <div class="col-md-9">
+                        <div ng-if="!uploads[inputArtifactValue].isUploading">
+                          <span tooltip="{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName.length > 20]}}">{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName | truncate:20}}</span>
+                          <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                            <span>
+                              <i class="fa fa-upload text-primary"></i>
+                            </span>
+                            <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
+                          </div>
+                        </div>
+                        <progressbar ng-if="uploads[inputArtifactValue].isUploading" class="progress-striped active" value="uploads[inputArtifactValue].uploadProgress" type="{{uploads[inputArtifactValue].type}}" />
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

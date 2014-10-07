@@ -1,0 +1,43 @@
+package alien4cloud.tosca.container.validation;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class ToscaPropertyConstraintValidator implements ConstraintValidator<ToscaPropertyConstraint, PropertyDefinition> {
+
+    @Override
+    public void initialize(ToscaPropertyConstraint constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(PropertyDefinition value, ConstraintValidatorContext context) {
+        if (value.getConstraints() == null) {
+            return true;
+        }
+        ToscaType toscaType = ToscaType.fromYamlTypeName(value.getType());
+        if (toscaType == null) {
+            return true;
+        }
+        boolean isValid = true;
+        for (int i = 0; i < value.getConstraints().size(); i++) {
+            PropertyConstraint constraint = value.getConstraints().get(i);
+            try {
+                constraint.initialize(toscaType);
+            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                log.info("Constraint definition error", e);
+                context.buildConstraintViolationWithTemplate("CONSTRAINTS.VALIDATION.TYPE").addPropertyNode("constraints")
+                        .addBeanNode().inIterable().atIndex(i)
+                        .addConstraintViolation();
+                isValid = false;
+            }
+        }
+        return isValid;
+    }
+}

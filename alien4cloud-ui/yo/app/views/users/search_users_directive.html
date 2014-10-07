@@ -1,0 +1,128 @@
+<div ng-controller="UsersDirectiveCtrl">
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-6" ng-show="crudSupport">
+      <button class="btn btn-success" ng-click="openNewUserModal()">
+        <i class="fa fa-plus-circle"></i> {{'USERS.NEW' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-2">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-10">
+      <div class="table-responsive large-data-container" id="users-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'USERS.FIRST_NAME' | translate}}</th>
+              <th>{{ 'USERS.LAST_NAME' | translate}}</th>
+              <th>{{ 'USERS.USERNAME' | translate}}</th>
+              <th ng-if="displayAll || displayEmail">{{ 'USERS.EMAIL' | translate}}</th>
+              <th>{{ 'USERS.GROUPS' | translate}}</th>
+              <th ng-if="displayAll || displayRoles">{{ 'USERS.ROLES' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="user in usersData.data | orderBy:'firstName'" id="user_{{user.username}}">
+              <td>
+                <i class="fa fa-user fa-2x" ng-if="!user.imageId"></i>
+                <img ng-if="user.imageId" ng-src="'img?id=' + user.imageId + '&quality=QUALITY_32'" />
+              </td>
+              <td id="user_{{user.username}}_firstName">
+                <span ng-if="user.internalDirectory && crudSupport" class="form-input-editable" editable-text="user.firstName" buttons="no" onaftersave="userChanged(user, 'firstName', user.firstName)" blur="submit">
+                  {{user.firstName || '---' }} <i class="fa fa-pencil-square-o"></i>
+                </span>
+                <span ng-if="!user.internalDirectory || !crudSupport">{{user.firstName || '---' }}</span>
+              </td>
+              <td id="user_{{user.username}}_lastName">
+                <span ng-if="user.internalDirectory && crudSupport" class="form-input-editable" editable-text="user.lastName" buttons="no" onaftersave="userChanged(user, 'lastName', user.lastName)" blur="submit">
+                  {{user.lastName || '---' }} <i class="fa fa-pencil-square-o"></i>
+                </span>
+                <span ng-if="!user.internalDirectory || !crudSupport">{{user.lastName || '---' }}</span>
+              </td>
+              <td>{{user.username || '---' }}</td>
+              <td id="user_{{user.username}}_email" ng-if="displayAll || displayEmail">
+                <span ng-if="user.internalDirectory && crudSupport" class="form-input-editable" editable-email="user.email" buttons="no" onaftersave="userChanged(user, 'email', user.email)" blur="submit">
+                  {{user.email || '---' }} <i class="fa fa-pencil-square-o"></i>
+                </span>
+                <span ng-if="!user.internalDirectory || !crudSupport">{{user.email || '---' }}</span>
+              </td>
+              <td name="groups">
+                <span ng-if="!(userGroupsEmpty = !user.groups || user.groups.length <= 0)">
+                  <ul class="td_list">
+                    <li ng-repeat="userGroup in user.groups | orderBy:'toString()' ">
+                      {{ groupsMap[userGroup].name}}
+                    </li>
+                  </ul>
+                </span>
+                <span ng-if="userGroupsEmpty">---</span>
+              </td>
+              <td ng-if="displayAll || displayRoles" name="roles">
+                <span ng-if="user.allRoles.size > 0">
+                  <ul class="td_list">
+                    <li ng-repeat="(role, from) in user.allRoles" ng-if="role!='size'">
+                      {{role}} <i ng-repeat="f in from" ng-class="{'fa fa-user': f=='u' , 'fa fa-users' : f=='g'}"><span ng-hide="$last">|</span>
+                </i>
+                </li>
+                </ul>
+                </span>
+                <span ng-if="user.allRoles.size == 0">---</span>
+              </td>
+              <td>
+
+                <!-- groups management -->
+                <div class="btn-group" ng-if="crudSupport">
+                  <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" ng-click="searchGroups()" tooltip="{{'USERS.EDIT_GROUPS' | translate}}" tooltip-append-to-body="true"><i class="fa fa-users"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
+                    <li role="presentation" class="dropdown-header">{{'USERS.EDIT_GROUP_HEADER' | translate }}</li>
+                    <li class="dropdown-header">
+                      <input type="text" class="form-control" placeholder="{{'SEARCH'|translate}}..." ng-model="groupQuery">
+                    </li>
+                    <li ng-repeat="group in groups | filter:{name:groupQuery} | orderBy:'name'">
+                      <a id="{{user.username}}_{{group.name}}" ng-class="{'checked_role':( checked = checkIfGroupSelected(user, group.id))}" ng-click="onSelectGroupCallback({invalid: false, user: user, groupId: group.id})">
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : checked,  'fa-square-o': !checked}"></i>
+                        {{group.name}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- roles management -->
+                <div class="btn-group">
+                  <a id="edit-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'USERS.EDIT_ROLE' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
+                    <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>
+                    <li ng-repeat="role in managedRoleList | orderBy:'toString()' ">
+                      <a id="{{user.username}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfRoleSelected(user, role))}" ng-click="onSelectRoleCallback({user:user, role:role})">
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
+                        {{role}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="btn-group">
+                  <!-- Delete a user -->
+                  <delete-confirm id="user_{{user.username}}_delete" ng-if="crudSupport && user.internalDirectory" func="remove(user)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  </delete-confirm>
+                </div>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+  </div>
+</div>

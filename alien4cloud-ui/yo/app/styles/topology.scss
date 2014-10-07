@@ -1,0 +1,81 @@
+.topology-row {
+  display: table;
+/*   margin-left: -10px; */
+/*   margin-right: -10px; */
+  border-spacing: 10px 0px;
+  width: 100%;
+}
+
+.topology-columns {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.topology-details {
+  width: 450px;
+}
+
+.topology-components {
+  width: 500px;
+}
+
+/* slide side bar*/
+.close-search{
+  margin-bottom:5px;
+}
+
+.well.topology {
+  padding: 0px;
+  margin-bottom: 4px;
+  cursor: move;
+}
+
+.topology-node-expand {
+  font-weight: bold;
+  margin-top:10px;
+  border-top: 1px solid #dddddd;
+  padding-left:5px;
+  padding-top:10px;
+  padding-bottom:5px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  background-color: whitesmoke;
+}
+
+.topology-level {
+  padding-left:20px;
+}
+
+.cardinalities_show {
+  cursor: text;
+/*   pointer-events: none; */
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  box-shadow: none;
+}
+
+.cardinalities_show:HOVER, .cardinalities_show:FOCUS, .cardinalities_show:ACTIVE {
+  background-color: white;
+  border-color: #cccccc;
+}
+
+.input-xs {
+  height: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+.fa.pull-left {
+  margin-top: .2em;
+}
+
+h4 .editable-error {
+  font-size: 14px;
+}

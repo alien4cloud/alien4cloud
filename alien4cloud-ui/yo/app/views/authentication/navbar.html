@@ -1,0 +1,69 @@
+<nav ng-controller="alienNavBarCtrl" class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#alien-navbar-collapse">
+      <span class="sr-only">Toggle navigation</span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#">
+      <img ng-src="{{menu.navbrandimg}}" style="height:50px;" class="pull-left">
+    </a>
+  </div>
+  <div class="collapse navbar-collapse" id="alien-navbar-collapse">
+    <div ng-if="status.currentStatus.data.isLogged">
+      <ul class="nav navbar-nav">
+        <li ng-repeat="menuItem in menu.left" ng-if="menuItem.hasRole" ui-sref-active="active"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> {{menuItem.key | translate}}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="nav navbar-nav navbar-right" style="padding-right:10px">
+      <div ng-hide="status.currentStatus.data.isLogged" class="nav navbar-nav">
+        <form class="navbar-form" role="login" ng-submit="signIn()">
+          <div class="form-group">
+            <input type="text" class="form-control" ng-model="login.username" required />
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control" ng-model="login.password" required />
+          </div>
+          <button type="submit" class="btn btn-success" name="btn-login"><i class="fa fa-sign-in"></i> {{ 'NAVBAR.BUTTON_LOGIN' | translate }}</button>
+        </form>
+      </div>
+      <div ng-show="status.currentStatus.data.isLogged" class="nav navbar-nav">
+        <div class="collapse navbar-collapse" id="alien-navbar-collapse">
+          <form class="nav navbar-nav navbar-form" role="search" ng-submit="">
+            <div class="form-group">
+              <input type="text" ng-model="itemSelected" class="form-control" placeholder="{{ 'NAVBAR.INPUT_SEARCH_MESSAGE' | translate }}" typeahead="item as item.elementId || item.name for item in quickSearchHandler.doQuickSearch($viewValue)" typeahead-on-select="quickSearchHandler.onItemSelected(itemSelected);"
+              typeahead-min-length="quickSearchHandler.minLength" typeahead-wait-ms="quickSearchHandler.waitBeforeRequest" typeahead-loading="searching" typeahead-template-url="views/authentication/quick_search.html">
+            </div>
+          </form>
+        </div>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a ng-if="status.currentStatus.data.isLogged" id="navbar-rightdrop" href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-user"></i> {{ status.currentStatus.data.username }} <b class="caret"></b>
+          </a>
+          <a ng-if="!status.currentStatus.data.isLogged" id="navbar-rightdrop" href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <img alt="" ng-src="images/flags/flags_iso/24/{{ 'CODE' | translate }}.png" /> <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu navbar-logout-dropdown">
+            <li>
+              <a ng-click="changeLanguage('fr-fr')" name="link-language-fr">
+                <img alt="" src="images/flags/flags_iso/24/fr-fr.png" class="language flag-fr" />Français
+              </a>
+            </li>
+            <li>
+              <a ng-click="changeLanguage('en-us')" name="link-language-us">
+                <img alt="" src="images/flags/flags_iso/24/en-us.png" />English
+              </a>
+            </li>
+            <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
+            <li ng-show="status.currentStatus.data.isLogged">
+              <a ng-click="logout()" name="btn-logout">
+                <i class="fa fa-sign-out"></i> {{ 'NAVBAR.BUTTON_LOGOUT' | translate }}
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

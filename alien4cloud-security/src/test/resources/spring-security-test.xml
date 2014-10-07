@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:sec="http://www.springframework.org/schema/security" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mockito="http://www.mockito.org/spring/mockito" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.2.xsd
+	http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+  <context:annotation-config />
+  <aop:aspectj-autoproxy />
+
+  <context:component-scan base-package="alien4cloud.utils.services, alien4cloud.rest, alien4cloud.security, alien4cloud.ldap">
+    <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.ElasticSearchUserDao" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.groups.ElasticSearchGroupDao" />
+    <context:exclude-filter type="regex" expression="alien4cloud.rest.security.GroupController" />
+  </context:component-scan>
+
+  <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+  <bean id="alienconfig" class="alien4cloud.spring.config.YamlPropertiesFactoryBean">
+    <property name="resources" value="classpath:alien4cloud-config.yaml" />
+  </bean>
+  <context:property-placeholder properties-ref="alienconfig" />
+
+  <bean id="alien-authentication-provider" class="alien4cloud.security.Alien4CloudAuthenticationProvider">
+    <property name="wrappedProvider" ref="wrapped-authentication-provider" />
+    <property name="alienUserDao" ref="user-dao" />
+  </bean>
+
+  <bean id="user-dao" class="alien4cloud.security.InMemoryUserDao" />
+
+  <bean id="wrapped-authentication-provider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="user-service" />
+  </bean>
+
+  <sec:user-service id="user-service">
+    <sec:user name="user" password="user" authorities="ROLE_USER" />
+    <sec:user name="admin" password="admin" authorities="ROLE_USER, ROLE_ADMIN" />
+  </sec:user-service>
+
+  <mockito:mock id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate" />
+  <mockito:mock id="group-dao" class="alien4cloud.security.groups.IAlienGroupDao" />
+</beans>

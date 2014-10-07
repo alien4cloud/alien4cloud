@@ -1,0 +1,6 @@
+name: myJavaProgram
+version: 1.0.snapshot
+license: Apache
+created_by: mkv
+definitions:
+  - /Definitions/myJavaProgram.yaml

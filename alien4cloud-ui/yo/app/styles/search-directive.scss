@@ -1,0 +1,71 @@
+.search-row {
+  border-spacing: 10px 0px;
+  padding: 0px;
+}
+
+.search-details{
+  width: 400px;
+}
+
+.search-filter-side{
+  @media (max-width: 950px){
+    width: 100%;
+  }
+  width: 318px;
+}
+
+.overflowmedia .media, .overflowmedia .media-body {
+  height: 64px;
+  overflow: visible;
+}
+
+#comp-search-result-panel .media p.small, #rel-search-result-panel .media p.small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.version-select {
+  display: block;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #555555;
+  vertical-align: middle;
+  background-color: white;
+  background-image: none;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+/* responsive*/
+
+/* change the layout*/
+$max-width: 950px;
+$min-width: 951px;
+
+@media(max-width: $max-width) {
+  .search-columns{
+    display: block;
+    width: 100%;
+    min-width: 400px;
+  }
+
+  .search-details{
+     display: none;
+  }
+}
+
+@media ( min-width : $min-width) {
+  .search-columns {
+    display: table-cell;
+    vertical-align: top;
+  }
+}
+
+.btn select{
+  border: 0px;
+  cursor: pointer;
+}

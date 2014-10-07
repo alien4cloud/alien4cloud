@@ -1,0 +1,55 @@
+<!--   search results -->
+<ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
+  <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data.data" >
+    <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}"
+         alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component"
+         ng-click="handleItemSelection(component)">
+      <a class="pull-left" href="#">
+        <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64"/>
+      </a>
+      <div class="media-body">
+        <h4 class="media-heading">
+          <span >{{component.elementId}}</span>
+          <img ng-if="component.abstract"
+               class="icon_16"
+               alt="abstract_ico_16"
+               tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
+               tooltip-placement="top"
+               src="images/abstract_ico.png"/>
+          <div class="pull-right center">
+            <div>
+              <div class="btn-group-vertical btn-group-xs">
+                <span class="btn btn-default disabled">
+                  <i class="fa fa-archive"></i> {{component.archiveName}}
+                </span>
+                <div class="btn-group btn-group-xs">
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id = "{{component.id}}_versions">
+                    {{component.selectedVersion || component.archiveVersion}}
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+                    <li class="option-selected"><a id="{{component.id}}_version_{{component.archiveVersion}}" ng-click="$event.stopPropagation()">{{component.archiveVersion}}</a></li>
+                    <li ng-repeat="olderVersion in component.olderVersions"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="small">{{component.description}}</p>
+        </h4>
+      </div>
+    </div>
+  </li>
+</ul>
+
+<!-- pagination bar -->
+<div id="pagination-div" class="pagination-div">
+  <pagination
+      class="pagination-sm"
+      total-items="pagination.totalItems"
+      page="currentPage" max-size="pagination.maxSize"
+      items-per-page="pagination.maxItemsPerPage"
+      boundary-links="true" rotate="false" num-pages="numPages"
+      on-select-page="pagination.onSelectPage(page)">
+  </pagination>
+</div>

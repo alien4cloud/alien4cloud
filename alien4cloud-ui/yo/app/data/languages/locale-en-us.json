@@ -1,0 +1,655 @@
+{
+  "LANGUAGE": "Langugage",
+  "DATE_FORMAT": "MM-dd-yyyy",
+  "BUTTON_RUN": "Start",
+  "CLOSE": "Close",
+  "CODE": "en-us",
+  "CANCEL": "Cancel",
+  "CREATE": "Create",
+  "DELETE": "Delete",
+  "DELETE_CONFIRM": "Do you really want to remove this element ?",
+  "APPLICATION": "Application",
+  "CSAR": "Csar",
+  "NAVBAR": {
+    "BUTTON_LOGIN": "Login",
+    "BUTTON_LOGOUT": "Logout",
+    "MENU_APPS": "Applications",
+    "MENU_COMPONENTS": "Components",
+    "MENU_CSARS": "CSARS",
+    "MENU_ADMIN": "Administration",
+    "MENU_TOPOLOGY_TEMPLATE": "Topology templates",
+    "INPUT_SEARCH_MESSAGE": "What do you need ?"
+  },
+  "NAVADMIN": {
+    "MENU_USERS": "Users",
+    "MENU_PLUGINS": "Plugins",
+    "MENU_TAGS": "Meta-properties",
+    "MENU_CLOUDS": "Clouds",
+    "MENU_METRICS": "Alien 4 Cloud's Metrics",
+    "MENU_CLOUD_IMAGES": "Cloud Images"
+  },
+  "MAIN": {
+    "WELCOME": "Welcome on",
+    "BUTTON_LOGIN": "Log in",
+    "CONTACT": "Please contact your Alien 4 Cloud administrator.",
+    "RESTRICTED_START": "You are not enough",
+    "RESTRICTED_END": "to access to this resource."
+  },
+  "UPLOAD": {
+    "COMPLETE": "Complete"
+  },
+  "COMPONENTS": {
+    "UPLOAD": "Upload CSAR",
+    "DRAG_DROP_UPLOAD": "Drop archive files to upload here",
+    "DEFINE_CSAR": "Define a CSAR",
+    "COMPLETE": "Complete",
+    "UPLOAD_ERROR": {
+      "LABEL": "Errors",
+      "FILE_PATH": "File path",
+      "SUPER_TYPE_NOT_FOUND": "Error while compiling type [ {{invalidElementName}} ] : Super type not found [ {{notFoundType}} ]",
+      "TYPE_NOT_FOUND": "Error while compiling type [ {{invalidElementName}} ] : Referenced type not found [ {{notFoundType}} ]",
+      "401": "A CSAR with the same name and the same version already exists in the repository. ",
+      "201": "The archive has mal-formed YAML file.",
+      "ERRONEOUS_ARCHIVE_FILE": "Archive file is not parsable, please make sure it's a valid zip file",
+      "DUPLICATED_DEFINITION_DECLARATION": "This definition is declared more than once in this archive's meta-data file",
+      "DUPLICATED_ELEMENT_DECLARATION": "The element [ {{invalidElementName}} ] is declared more than once in this definition file",
+      "ERRONEOUS_ICON_FILE": "The icon is not a valid image file",
+      "MISSING_ICON_FILE": "The icon cannot be found in the archive",
+      "ERRONEOUS_DEFINITION_FILE": "Definition file is not a valid Yaml file",
+      "MAPPING_ERROR_DEFINITION_FILE": "Definition file is not a valid TOSCA file (line {{lineNr}}, char {{colNr}}).",
+      "UNRECOGNIZED_PROP_ERROR_DEFINITION_FILE": "Definition file is not a valid TOSCA file: unrecognized property '{{propertyName}}' (ligne {{lineNr}}, charactère {{colNr}}).",
+      "MISSING_DEFINITION_FILE": "The definition file cannot be found in the archive",
+      "ERRONEOUS_METADATA_FILE": "CSAR metadata file is not valid Yaml file",
+      "MAPPING_ERROR_DEFINITION_FILE": "CSAR metadata file is not valid (line {{lineNr}}, char {{colNr}}).",
+      "UNRECOGNIZED_PROP_ERROR_DEFINITION_FILE": "CSAR metadata file is not valid: unrecognized property '{{propertyName}}' (ligne {{lineNr}}, charactère {{colNr}}).",
+      "MISSING_METADATA_FILE": "The CSAR metadata file cannot be found in the archive",
+      "NotNull": "The property [ {{path}} ] cannot be null",
+      "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
+      "ToscaPropertyType": "Property [ {{path}} ] has an invalid type, please check supported TOSCA types. Details [ {{message}} ]",
+      "ToscaPropertyConstraint": "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
+      "ToscaPropertyConstraintDuplicate": "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
+      "ToscaPropertyDefaultValueType": "The default value for the property [ {{path}} ] do not follow its type.",
+      "ToscaPropertyDefaultValueConstraints": "The default value for the property [ {{path}} ] do not respect its constraint."
+    },
+    "UPLOAD_MODAL": {
+      "HEADER": "Upload Cloud Service Archive",
+      "OK": "Ok"
+    },
+    "COMPONENT": {
+      "NAME": "Component name",
+      "DETAILS_TITLE": "Details",
+      "DOC_TITLE": "Description",
+      "PROPERTIES": "Properties",
+      "ATTRIBUTES": "Attributes",
+      "INTERFACES": "Interfaces",
+      "OPERATION": "Operations",
+      "RECOMMEND_MESSAGE": "Define this component as default for this capability.",
+      "UNRECOMMEND_MESSAGE": "Undifine this component as default for this capability.",
+      "ABSTRACT_COMPONENT": "Abstract component"
+    },
+    "RELATIONSHIPS": {
+      "SOURCE": "Source",
+      "TARGET": "Target"
+    },
+    "CONFIRM_RECOMMENDATION_MODAL": {
+      "HEADER": "Confirm the default component",
+      "MESSAGE": "A component [ {{componentId}} ] is already set as default for capability [ {{capability}} ]. Would you like to overwrite it?",
+      "OK": "Overwrite"
+    },
+    "FORM_ERRORS": {
+      "TAG_KEY": "Tag name can only contain characters a to Z, -, _ without spaces"
+    },
+    "CAPABILITIES": {
+      "TYPE": "Capabilities"
+    },
+    "DEFAULTCAPABILITIES": "Default Capabilities",
+    "DERIVEDFROM": "Derived from",
+    "REQUIREMENTS": {
+      "TYPE": "Prerequisites"
+    },
+    "SEARCH": {
+      "SHOW_ADV_SEARCH": "Advanced search...",
+      "SIMPLE_SEARCH": "Simple search...",
+      "SEARCH_COMP": "Search for components"
+    },
+    "ACTIVE_FILTERS": "Active filters",
+    "RESULT_TITLE": "Components",
+    "ARCHIVE": "Archive",
+    "ARCHIVE_VERSION": "Archive version",
+    "ARCHIVE_NAME": "Archive name",
+    "GET_DETAILS": "Details",
+    "VALIDSOURCE": "Valid Source",
+    "VALIDTARGET": "Valid Target",
+    "CARDINALITIES_TOOLTIP": "lowerBound..upperBound"
+  },
+  "CSAR": {
+    "BUTTON_NEWCSAR": "Create a SNAPSHOT CSAR",
+    "MODAL_NEWCSAR": "New CSAR",
+    "BUTTON_DELETE": "Delete",
+    "BUTTON_MODIFY": "Modify",
+    "FIELD_NAME": "Name",
+    "FIELD_DESCRIPTION": "Description",
+    "FIELD_VERSION": "Version",
+    "BC_CSAR": "CSAR",
+    "DETAILS_TITLE": "CSAR details",
+    "TEST_TOPOLOGY": "Test topology's status",
+    "DETAILS": {
+      "BUTTON_ADD_NODE_TYPE": "Add new component",
+      "ARCHIVE_COMPONENTS": "Archive's component",
+      "COMPONENT_FORM_TITLE": "New Component"
+    }
+  },
+  "GENERIC_FORM": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "ADD": "Add",
+    "EDIT": "Edit",
+    "GOTO": "Go to",
+    "ROOT": "Root",
+    "MAP_KEY_PLACEHOLDER": "Enter a new key",
+    "UNDEFINED": "Click to edit",
+    "TRUE": "Yes",
+    "FALSE": "No",
+    "REQUIRED": "Mandatory fields",
+    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved :",
+    "SAVE_IS_DONE": "Saved",
+    "VALIDATION_ERROR": {
+      "greaterOrEqual": "Value must be >= {{reference}}",
+      "greaterThan": "Value must be > {{reference}}",
+      "inRange": "Value must be in [ {{reference}} ]",
+      "length": "Value length must be {{reference}}",
+      "lessOrEqual": "Value must be <= {{reference}}",
+      "lessThan": "Value must be < {{reference}}",
+      "maxLength": "Max value length is {{reference}}",
+      "minLength": "Min value length is {{reference}}",
+      "pattern": "Value must match the pattern {{reference}}"
+    }
+  },
+  "USERS": {
+    "NEW": "New User",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "USERNAME": "Username",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm",
+    "CONFIRM_PASSWORD_HOLDER": "Confirm",
+    "EMAIL": "Email",
+    "CONFIRM_PASSWORD_ERROR": "Passwords do not match.",
+    "EMAIL_INVALID": "Invalid Email.",
+    "GROUPS": "Groups",
+    "EDIT_GROUPS": "Edit groups",
+    "NEW_GROUP_HEADER": "Add new group",
+    "EDIT_GROUP_HEADER": "Add or remove groups",
+    "ROLES": "Roles",
+    "EDIT_ROLE": "Edit roles",
+    "EDIT_ROLE_HEADER": "Add or remove roles",
+    "OPERATIONS": "Operations",
+    "DELETE": "Delete"
+  },
+  "GROUPS": {
+    "NEW": "New Group",
+    "NAME": "Name",
+    "DESC": "Description",
+    "EMAIL": "Email",
+    "EMAIL_INVALID": "Invalid Email.",
+    "GROUPS": "Groups",
+    "EDIT_GROUPS": "Edit groups",
+    "NEW_GROUP_HEADER": "Add new group",
+    "EDIT_GROUP_HEADER": "Add or remove groups",
+    "ROLES": "Roles",
+    "EDIT_ROLE": "Edit roles",
+    "EDIT_ROLE_HEADER": "Add or remove roles",
+    "DELETE": "Delete",
+    "OPERATIONS": "Operations"
+  },
+  "NAVAPPLICATIONS": {
+    "MENU_INFO": "Informations",
+    "MENU_TOPOLOGY": "Topology",
+    "MENU_PLAN": "Topology's workflows",
+    "MENU_DEPLOYMENT": "Deployments",
+    "MENU_RUNTIME": "Runtime",
+    "MENU_USERS": "Users and Groups"
+  },
+  "ROLE_TABS": {
+    "USERS": "Users",
+    "GROUPS": "Groups"
+  },
+  "APPLICATIONS": {
+    "APPLICATION": "Application",
+    "NEW": "New Application",
+    "NAME": "Name",
+    "DESC": "Description",
+    "RESULT_TITLE": "Applications",
+    "DETAILS_TITLE": "Application's details",
+    "IMAGE_UPLOAD": "Upload new image",
+    "OWNER": "Owner",
+    "STATUS": "Status",
+    "DEPLOYED": "Deployed",
+    "UNDEPLOYED": "Undeployed",
+    "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
+    "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
+    "WARNING": "Warning",
+    "FAILURE": "Failed",
+    "DEPLOY": "Deploy",
+    "UNDEPLOY": "Undeploy",
+    "MANAGE_ROLES": "Manage roles",
+    "DEPLOYMENT_MANAGER_INVALID": "The topology is not valid, you can't deploy it. Please contact an application manager to make it valid.",
+    "META_PROPERTIES": "Meta-properties",
+    "RUNTIME": {
+      "RUNTIME": "Runtime",
+      "INSTANCE": "Instance",
+      "STATE": "State",
+      "STATUS": "Status",
+      "KEY": "Key",
+      "VALUE": "Value",
+      "BACK": "Back",
+      "SCALE_BUTTON": "Scale this node",
+      "EVENTS_TAB": "Events",
+      "EVENTS": {
+        "ALL": "All events",
+        "STATUS": "Deployment status",
+        "INSTANCES": "Instance status",
+        "MESSAGES": "Message",
+        "DATE": "Date",
+        "TYPE": "Type",
+        "MESSAGE": "Message",
+        "DEPLOYMENT_STATUS_MESSAGE": "{{status | translate}}",
+        "INSTANCE_STATE_MESSAGE": "Instance {{nodeId}}/{{instanceId}} changed status to {{state}}",
+        "INSTANCE_DELETED_MESSAGE": "Instance {{nodeId}}/{{instanceId}} has been removed",
+        "MESSAGE_EVENT": {
+          "STATUS_DEPLOYMENT_CHANGED": "Status changed",
+          "INSTANCE_STATE_CHANGED": "Instance changed status"
+        }
+      },
+      "OPERATION_EXECUTION": {
+        "RESULT_TITLE": "Execution result for operation {{operation}}"
+      }
+    },
+    "TOPOLOGY": {
+      "LABEL": "Topology",
+      "VISUAL_DETAILED": "Detailed view",
+      "VISUAL_SIMPLE": "Condensed view",
+      "YAML": "yaml",
+      "MODIFY_TOPOLOGY": "Modify",
+      "ADD_NODETEMPLATE": "Add Node Template",
+      "DEPENDENCY": "Dependencies",
+      "DEPENDENCY_NAME": "Name",
+      "DEPENDENCY_VERSION": "Version",
+      "SELECT_NODETYPE": "Select a Node Type",
+      "TOPOLOGY": "Topology",
+      "TYPE": "Type",
+      "ARCHIVE": "Archive",
+      "ATTRIBUTES": "Attributes",
+      "PROPERTIES": "Properties",
+      "PROPERTIES_INPUTS": "Input properties",
+      "PROPERTIES_OUTPUTS": "Output properties",
+      "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
+      "REQUIREMENTS": "Prerequisites",
+      "CAPABILITIES": "Capabilities",
+      "ADD_RELATIONSHIP": "Add relationship to another node",
+      "REMOVE_RELATIONSHIP": "Remove",
+      "REMOVE_NODE": "Remove node",
+      "RELATIONSHIPS": "Relationships",
+      "REFERENCE": "Reference",
+      "ARTIFACTS": "Artifacts",
+      "ARTIFACTS_INPUTS": "Artifacts inputs",
+      "UPDATE_ARTIFACT": "Update artifact",
+      "SCALE": "Scale",
+      "UNSCALE": "Unscale",
+      "SCALING_POLICY": "Scaling",
+      "NAME": "Nom",
+      "DESC": "Description",
+      "SEARCH_RELATIONSHIP_MODAL": {
+        "NO_TARGETS": "No elements in the topology can satisfy the requirement.",
+        "SELECT_TARGET_HEADER": "Select relationship's target",
+        "SELECT_RELATIONSHIP_HEADER": "Select relationship type",
+        "SELECT_NAME_HEADER": "Select name for relationship",
+        "NAME": "Name",
+        "FINISH": "Finish",
+        "BACK": "Back"
+      },
+      "TASK": {
+        "LABEL": "Todo list",
+        "ABSTRACT_LABEL": "Abstract components",
+        "IMPLEMENT_LABEL": "To implement",
+        "IMPLEMENT": "Implement the node",
+        "REPLACE_LABEL": "To replace",
+        "REPLACE": "Replace by one of the suggested",
+        "TOADD_RELATIONSHIP_LABEL": "Unsatisfied requirements (relationship should be added)",
+        "REQUIRED_PROPERTIES_LABEL": "Required properties",
+        "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
+        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
+      },
+      "REPLACE_NODETEMPLATE": "Replace",
+      "TEMPLATE_BASE": "Topology template",
+      "TEMPLATE_SELECT": "-- Select a topology template --",
+      "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
+      "CLOUD_SELECT": "-- Cloud --",
+      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
+      "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
+    },
+    "ERRORS": {
+      "DELETE_TITLE": "Delete an application",
+      "DELETING_FAILED": "Unable to delete the application. First, undeploy it and retry."
+    }
+  },
+  "TEMPLATE": {
+    "NEW": "New Template",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "BREADCRUMB": {
+      "TEMPLATE_LIST": "Topology templates"
+    }
+  },
+  "PLUGINS": {
+    "UPLOAD": "Uploader a plugin",
+    "DRAG_DROP_UPLOAD": "Drop plugin files to upload here",
+    "ID": "Id",
+    "VERSION": "Version",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "BEANS": "Components",
+    "ENABLED": "Enabled",
+    "DEPRECATED": "Deprecated",
+    "ENABLE": "Enable",
+    "DISABLE": "Disable",
+    "CONFIGURE": "Configure",
+    "ERRORS": {
+      "350_TITLE": "Delete / Disable a plugin",
+      "350": "Deleting or disabling this plugin is not possible since it is used by one or more resources"
+    },
+    "ENABLED_true": "Enabled",
+    "ENABLED_false": "Disabled",
+    "TYPES": {
+      "IPAASPROVIDER": "Provider PaaS"
+    }
+  },
+  "CLOUDS": {
+    "CLOUDS": "Clouds",
+    "NEW": "New cloud",
+    "NAME": "Name",
+    "STATE": "State",
+    "PAAS_PROVIDER": "PaaS provider",
+    "DEPLOYMENTS": "Deployments",
+    "DEPLOYMENT_SOURCE": "Source",
+    "DEPLOYMENT_TYPE": "Type",
+    "NO_PROVIDERS": "No PaaS providers can be found. You should update a plugin.",
+    "DETAILS": "Details",
+    "CLOUD": "Cloud",
+    "IAAS_TYPE": "IaaS type",
+    "ENVIRONMENT_TYPE": "Environment type",
+    "ENABLE": "Enable cloud",
+    "DISABLE": "Disable cloud",
+    "CONFIGURATION": "Configuration",
+    "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
+    "MANAGE_ROLES": "Authorizations",
+    "AUTHORIZED_GROUPS": "Authorized groups",
+    "AUTHORIZED_USERS": "Authorized users",
+    "IAAS": {
+      "OTHER": "Other",
+      "OPENSTACK": "OpenStack",
+      "VMWARE": "VMware",
+      "AMAZON": "Amazon",
+      "VIRTUALBOX": "Virtual box"
+    },
+    "ENVIRONMENT": {
+      "OTHER": "Other",
+      "DEVELOPMENT": "Development",
+      "INTEGRATION_TESTS": "Integration tests",
+      "USER_ACCEPTANCE_TESTS": "UAT",
+      "PRE_PRODUCTION": "Pre-production",
+      "PRODUCTION": "production"
+    },
+    "DRIVER": {
+      "CLOUDIFY": {
+        "CLOUDIFY_CONNECTION_CONFIGURATION": "Connection configuration",
+        "CONNECTION_CONFIGURATION": {
+          "CLOUDIFY_URL": "Cloudify URL",
+          "USER_NAME": "User name",
+          "PASSWORD": "Password"
+        },
+        "COMPUTE_TEMPLATES": "Compute templates",
+        "COMPUTE_TEMPLATE": {
+          "ID": "Identifier",
+          "NUM_CPU": "Number of CPUs",
+          "DISK_SIZE": "Disk size",
+          "MEM_SIZE": "Memory size",
+          "OS_ARCH": "OS Architecture",
+          "OS_TYPE": "OS Type",
+          "OS_DISTRIBUTION": "OS Distribution",
+          "OS_VERSION": "OS Version",
+          "IP_ADDRESS": "IP Address"
+        },
+        "STORAGE_TEMPLATES": "Storage templates",
+        "STORAGE_TEMPLATE": {
+          "ID": "Identifier",
+          "SIZE": "Size (Gb)",
+          "FS": "File system"
+        },
+        "SYNCHRONOUS_DEPLOYMENT": "Synchronous deployment",
+        "PE": {
+          "MAIL_CONFIGURATION": "Mail configuration",
+          "MAIL": {
+            "ACTIVATED": "Activated",
+            "DEFAULT_ENCODING": "Default encoding",
+            "FROM": "From",
+            "SMTP_HOST": "SMTP host",
+            "SMTP_PORT": "SMTP port",
+            "SUBJECT": "Subject",
+            "TO": "To"
+          },
+          "POLLER_CONFIGURATION": "Poller configuration",
+          "POLLER": {
+            "FOLDER_TO_POLL": "Folder to poll"
+          },
+          "SKIP_CSV_VALIDATION": "Skip CSV validation"
+        }
+      }
+    },
+    "ERRORS": {
+      "DELETING_FAILED_TITLE": "Delete a cloud",
+      "DELETING_FAILED": "Unable to delete the cloud. It is used by some resources.",
+      "DISABLING_FAILED_TITLE": "Disable a cloud",
+      "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources."
+    },
+    "ENABLED_true": "Enabled",
+    "ENABLED_false": "Disabled"
+  },
+  "ERRORS": {
+    "INTERNAL": "Internal error",
+    "UNKNOWN": "Unknown error",
+    "100": "Authentication required",
+    "101": "Authentication error, please check your login and password",
+    "102": "Insufficient rights for this module or this resource",
+    "200": "Unexpected error happened while parsing CSAR",
+    "300": "Unexpected error happened while accessing to CSAR indexing service",
+    "371": {
+      "TITLE": "Operation execution failed {{operation}}",
+      "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
+    },
+    "400": "Unexpected error happened while accessing to CSAR repository",
+    "500": "Unknown error",
+    "501": "Illegal parameter",
+    "502": "Object already exists",
+    "503": "The upload of image has encountered unexpected error",
+    "504": "Object not found",
+    "601": "Application failed to deploy",
+    "602": "Application failed to undeploy",
+    "800": {
+      "equal": "Value is constant equals to {{reference}}",
+      "greaterOrEqual": "Value must be >= {{reference}}",
+      "greaterThan": "Value must be > {{reference}}",
+      "inRange": "Value must be in [ {{reference}} ]",
+      "length": "Value length must be {{reference}}",
+      "lessOrEqual": "Value must be <= {{reference}}",
+      "lessThan": "Value must be < {{reference}}",
+      "maxLength": "Max value length is {{reference}}",
+      "minLength": "Min value length is {{reference}}",
+      "pattern": "Value must match the pattern {{reference}}",
+      "validValues": "Value must be in values [ {{reference}} ]"
+    },
+    "804": "{{value}} type is not {{type}}",
+    "805": {
+      "TITLE": "Operation execution failed {{operation}}",
+      "MESSAGE": "One or several parameters are required : {{value}}"
+    }
+  },
+  "TAG_CONFIG": {
+    "TAGS": "Meta-properties",
+    "TARGET": "Target",
+    "NAME": "Name",
+    "TYPE": "Type",
+    "DESCRIPTION": "Description",
+    "CREATE": "New meta-property",
+    "DEFAULT": "Default value"
+  },
+  "CONSTRAINT": {
+    "EQUAL": "Equal",
+    "GREATER_OR_EQUAL": "Greater or equal",
+    "LESS_OR_EQUAL": "Less or equal",
+    "GREATER_THAN": "Greater than",
+    "LESS_THAN": "Less than",
+    "IN_RANGE": "In range",
+    "LENGTH": "Length equal",
+    "MIN_LENGTH": "Length minimum",
+    "MAX_LENGTH": "Length maximum",
+    "PATTERN": "Pattern",
+    "VALID_VALUES": "Valid values"
+  },
+  "CREATION_DATE": "Creation date",
+  "UPDATE_DATE": "Update date",
+  "START_DATE": "Start date",
+  "END_DATE": "End date",
+  "id": "Identifier",
+  "final": "Inextensible",
+  "derivedFrom": "Heritage",
+  "properties": "Properties",
+  "attributes": "Attributes",
+  "requirements": "Prerequisites",
+  "capabilities": "Capabilities",
+  "instanceStates": "Component's states",
+  "interfaces": "Interfaces",
+  "type": "Type",
+  "scope": "Scope",
+  "default": "By default",
+  "description": "Description",
+  "lowerBound": "Lower bound",
+  "upperBound": "Upper bound",
+  "operations": "Operations",
+  "ACTIONS": "Actions",
+  "SUGGESTIONS": "suggestions",
+  "REQUIRED": "Required",
+  "required": "Required",
+  "OPTIONAL": "Optional",
+  "PROVIDED": "Provided",
+  "INSTANCE": "Instance",
+  "EXECUTE": "Execute",
+  "DETAILS": "Details",
+  "STATIC": "Static",
+  "RUNTIME": "Runtime",
+  "BOUNDS": "Bounds",
+  "RECOMMEND": "Recommend",
+  "name": "Name",
+  "target": "Target",
+  "constraints": "Constraints",
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "The value defined in constraint do not match its declared type",
+      "DEFAULT_VALUE_TYPE": "The default value defined in constraint do not match its declared type",
+      "ROOT": "The constraint is not valid"
+    }
+  },
+  "SEARCH": "Search",
+  "STATES": {
+    "unknown": "Wating for the orchestrator",
+    "creating": "Creating",
+    "created": "Created",
+    "configuring": "Configuring",
+    "configured": "Configured",
+    "starting": "Starting",
+    "started": "Started",
+    "stopping": "Stopping",
+    "stopped": "Stopped",
+    "deleting": "Deleting",
+    "deleted": "Deleted",
+    "uninstalling": "Uninstalling",
+    "uninstalled": "Uninstalled"
+  },
+  "metrics": {
+    "title": "Alien 4 Cloud's Metrics",
+    "refresh.button": "Refresh",
+    "health": {
+      "title": "Health checks",
+      "database": "Database: ",
+      "email": "Email: ",
+      "stacktrace": "Stacktrace"
+    },
+    "jvm": {
+      "title": "JVM Metrics",
+      "memory": {
+        "title": "Memory",
+        "total": "Total Memory",
+        "heap": "Heap Memory",
+        "nonheap": "Non-Heap Memory"
+      },
+      "threads": {
+        "title": "Threads",
+        "all": "All",
+        "runnable": "Runnable",
+        "timedwaiting": "Timed waiting",
+        "waiting": "Waiting",
+        "blocked": "Blocked",
+        "dump": {
+          "title": "Threads dump",
+          "id": "Id: ",
+          "blockedtime": "Blocked Time",
+          "blockedcount": "Blocked Count",
+          "waitedtime": "Waited Time",
+          "waitedcount": "Waited Count",
+          "lockname": "Lock name",
+          "stacktrace": "Stacktrace",
+          "show": "Show",
+          "hide": "Hide"
+        }
+      },
+      "gc": {
+        "title": "Garbage collections",
+        "marksweepcount": "Mark Sweep count",
+        "marksweeptime": "Mark Sweep time",
+        "scavengecount": "Scavenge count",
+        "scavengetime": "Scavenge time"
+      },
+      "http": {
+        "title": "HTTP requests (events per second)",
+        "active": "Active requests:",
+        "total": "Total requests:",
+        "table": {
+          "code": "Code",
+          "count": "Count",
+          "mean": "Mean",
+          "average": "Average"
+        },
+        "code": {
+          "ok": "Ok",
+          "notfound": "Not found",
+          "servererror": "Server Error"
+        }
+      }
+    },
+    "servicesstats": {
+      "title": "Services statistics (time in millisecond)",
+      "table": {
+        "name": "Service name",
+        "count": "Count",
+        "mean": "Mean",
+        "min": "Min",
+        "max": "Max",
+        "p50": "p50",
+        "p75": "p75",
+        "p95": "p95",
+        "p99": "p99"
+      }
+    }
+  }
+}

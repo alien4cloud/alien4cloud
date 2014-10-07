@@ -1,0 +1,147 @@
+<div class="row">
+  <div class=col-md-6>
+    <div class="col-md-4" style="text-align: center;">
+      <!-- Image section -->
+      <div class="drop-box" ng-show="!application.imageId && isManager" ng-file-drop="onImageSelected($files)">{{'APPLICATIONS.IMAGE_UPLOAD' | translate}}</div>
+      <img ng-show="noshow = (application.imageId && isManager)" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+      <img ng-show="!noshow && application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" />
+    </div>
+    <!-- Details section -->
+    <div class="col-md-8">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="h1" style="display: inline-block;" id="app-name" ng-switch="isManager">
+            <span ng-switch-when="true" editable-text="application.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateApplication('name',$data)" blur="submit" ng-if="isManager">
+              {{application.name}} <i class="fa fa-edit"></i>
+            </span>
+            <span ng-switch-default>
+              {{application.name}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="col-md-12" style="margin-top: 20px;">
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-4">
+          <strong>{{'APPLICATIONS.DESC' | translate }}</strong>
+        </div>
+        <div class="col-md-8" id="app-desc" ng-switch="isManager">
+          <span ng-switch-when="true" editable-textarea="application.description" buttons="no" e-required onbeforesave="updateApplication('description',$data)" blur="submit">
+            {{application.description}} <i class="fa fa-edit"></i>
+          </span>
+          <span ng-switch-default>
+            {{application.description}}
+          </span>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-4">
+          <strong>{{'CREATION_DATE' | translate }}</strong>
+        </div>
+        <div class="col-md-8">{{application.creationDate | date:'medium'}}</div>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <div class="col-md-4">
+          <strong>{{'UPDATE_DATE' | translate }}</strong>
+        </div>
+        <div class="col-md-8">{{application.lastUpdateDate | date:'medium'}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta Properties and tags -->
+  <div class=col-md-6>
+    <div class="row" style="margin-top: 10px;">
+      <div ng-if="isManager" class="pull-right">
+        <delete-confirm id="btn-delete-app" ng-if="isManager" func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+        </delete-confirm>
+      </div>
+    </div>
+    <!-- Meta Properties display -->
+    <div class="row" style="margin-top: 10px;" ng-if="isManager">
+      <div class="col-md-12">
+        <strong>{{ 'APPLICATIONS.META_PROPERTIES' | translate}}</strong>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10px;" ng-if="isManager">
+      <div class="col-md-12">
+        <table class="table table-condensed" id="tabProperties">
+          <tr ng-repeat="definition in configurationProperties">
+            <!-- Obliged to put <td> to give definition value -->
+            <td>
+              <property-display ng-init="condensed = true" ng-if="application.metaProperties && configurationProperties" definition="definition" property-value="application.metaProperties[definition.id]" on-save="updateProperties(propertyDefinition,propertyValue)"
+              editable="true" condensed="condensed">
+              </property-display>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <!-- End Meta Properties display -->
+
+    <!-- Tags display -->
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-md-12">
+        <strong>Tags</strong>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-md-12">
+        <div class="table-responsive">
+          <table class="table table-condensed">
+            <tr ng-repeat="tag in application.tags" ng-if="!isInternalTag(tag.name)">
+              <td>
+                <span>
+                  <strong>{{tag.name}}</strong>
+                </span>
+              </td>
+              <td ng-switch="isManager">
+                <span ng-switch-when="true" editable-text="application.tags[$index].value" ng-show="isManager" buttons="no" e-required onaftersave="updateTag(tag.name,$data)" blur="submit">
+                  {{tag.value}}
+                  <i class="fa fa-pencil-square-o"></i>
+                </span>
+                <span ng-switch-default="true">
+                  {{tag.value}}
+                </span>
+              </td>
+              <td>
+                <a ng-click="deleteTag(tag)" ng-show="isManager">
+                  <i class="fa fa-trash-o"></i>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3" ng-show="isManager">
+                <form name="formAddTag" class="form-inline" ng-submit="addTag(newTag)">
+                  <div ng-class="{'form-group':true, 'has-error': formAddTag.tagkey.$invalid}">
+                    <label class="sr-only" for="tagkey">Tag key</label>
+                    <input type="text" class="form-control" id="input-key" name="tagkey" ng-model="newTag.key" ng-pattern="tagKeyPattern" typeahead="item for item in tagSuggestion.get($viewValue)" typeahead-min-length="tagSuggestion.minLength" />
+                  </div>
+                  <!-- Don't remove : Space between 2 inputs -->
+                  <div class="form-group">
+                    <label class="sr-only" for="tagvalue">Tag value</label>
+                    <input type="text" class="form-control" id="input-value" name="tagvalue" ng-model="newTag.val" required />
+                  </div>
+                  <div class="form-group">
+                    <button ng-disabled="formAddTag.tagkey.$invalid" type="submit" class="btn btn-primary btn-sm" id="btn-add-tag">
+                      <i class="fa fa-plus-circle"></i>
+                    </button>
+                  </div>
+                  <div class="form-group">
+                    <p ng-class="{'text-danger': formAddTag.tagkey.$invalid}" ng-show="formAddTag.tagkey.$invalid">
+                      {{ 'COMPONENTS.FORM_ERRORS.TAG_KEY' | translate }}
+                    </p>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- End Tags display -->
+  </div>
+</div>

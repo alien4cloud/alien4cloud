@@ -1,0 +1,63 @@
+
+name: apache-lb
+namespace: fastconnect
+description: apacheLB recipe.
+
+node_types:
+  fastconnect.nodes.apacheLB:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      This is the definition of the Apache LB Recipe.
+      This is based on Cloudify Apache LB groovy recipe.
+    tags:
+      icon: /images/apache.png
+    properties:
+      version:
+        type: version
+        default: 2
+        constraints:
+          - equal: 2
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/alien_apacheLB_install.groovy"
+          start:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_start.groovy"
+          stop:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_stop.groovy"
+          delete:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_uninstall.groovy"
+      fastconnect.cloudify.extensions:
+        operations:
+          start_detection:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: scripts/apacheLB_startDetection.groovy
+      custom:
+        operations:
+          addNode:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_addNode.groovy"
+          removeNode:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_removeNode.groovy"
+    capabilities:
+      httpEndpoint:
+        type: alien4cloud.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: scripts

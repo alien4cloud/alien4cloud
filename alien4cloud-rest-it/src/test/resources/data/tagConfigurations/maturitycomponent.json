@@ -1,0 +1,10 @@
+{
+  "name": "maturity",
+  "target": "component",
+  "type": "string",
+  "constraints": [
+    {
+      "validValues": ["Good", "Bad"]
+    }
+  ]
+}

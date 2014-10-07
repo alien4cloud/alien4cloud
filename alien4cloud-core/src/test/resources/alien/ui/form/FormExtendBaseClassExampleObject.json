@@ -1,0 +1,18 @@
+{
+  "_type" : "complex",
+  "_order" : [ "a", "b", "c", "d" ],
+  "_propertyType" : {
+    "d" : {
+      "_type" : "string"
+    },
+    "b" : {
+      "_type" : "string"
+    },
+    "c" : {
+      "_type" : "string"
+    },
+    "a" : {
+      "_type" : "string"
+    }
+  }
+}

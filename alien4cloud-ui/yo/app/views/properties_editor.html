@@ -1,0 +1,12 @@
+<script type="text/ng-template"  id="tree_item_renderer.html">
+    {{data.name}}
+    <button ng-click="add(data)">Add node</button>
+    <button ng-click="delete(data)" ng-show="data.nodes.length > 0">Delete nodes</button>
+    <ul>
+        <li ng-repeat="data in data.nodes" ng-include="'tree_item_renderer.html'"></li>
+    </ul>
+</script>
+
+<ul ng-app="Application" ng-controller="TreeController">
+    <li ng-repeat="data in tree" ng-include="'tree_item_renderer.html'"></li>
+</ul>

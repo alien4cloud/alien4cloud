@@ -1,0 +1,14 @@
+id: alien4cloud-mock-paas-provider
+name: Mock PaaS provider
+version: 1.0
+description: >
+  Plugin that contains a single paas provider for deployments' mocking.
+configuration_class: alien4cloud.plugin.mock.MockPaaSProviderPluginConfiguration
+component_descriptors:
+  - bean_name: mock-paas-provider
+    name: Mock PaaS Provider
+    description: >
+      A PaaS provider that just mocks deployment.
+      Used for our automated tests the plugin suceed for every application except an application named:
+       - BAD-APPLICATION: The deployment will fail.
+       - WARN-APPLICATION: The deployment will ends up in a warning state.

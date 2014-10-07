@@ -1,0 +1,73 @@
+{
+    "id" : "fastconnect.nodes.JavaChef",
+    "description" : "A Java Virtual Machine Software Component.\n",
+    "tags" : {
+      "icon" : "/images/java.png",
+      "marurity" : "very bad"
+    },
+    "derivedFrom" : "fastconnect.nodes.Java",
+    "properties" : {
+      "version" : {
+        "type" : "version",
+        "required": false,
+        "description" : null,
+        "constraints" : [ {
+          "greaterOrEqual" : "1.5"
+        } ],
+        "default" : "1.6"
+      },
+      "vendor" : {
+        "type" : "string",
+        "required": false,
+        "description" : null,
+        "constraints" : null,
+        "default" : null
+      },
+      "os_name" : {
+        "type" : "string",
+        "required": false,
+        "description" : null,
+        "constraints" : null,
+        "default" : null
+      },
+      "os_arch" : {
+        "type" : "string",
+        "required": false,
+        "description" : null,
+        "constraints" : null,
+        "default" : null
+      }
+    },
+    "requirements" : {
+      "container" : {
+        "id" : "container",
+        "type" : "tosca.capabilities.Container",
+        "lowerBound" : 1,
+        "upperBound" : 1
+      },
+      "featureYup" : {
+        "id" : "featureYup",
+        "type" : "tosca.capabilities.Feature",
+        "lowerBound" : 0,
+        "upperBound" : "unbounded"
+      }
+    },
+    "capabilities" : {
+      "feature" : {
+        "id" : "feature",
+        "type" : "tosca.capabilities.Feature",
+        "lowerBound" : 1,
+        "upperBound" : "unbounded"
+      },
+      "runner" : {
+        "id" : "runner",
+        "type" : "fastconnect.capabilities.Runner",
+        "lowerBound" : 1,
+        "upperBound" : "unbounded"
+      }
+    },
+    "instanceStates" : null,
+    "interfaces" : null,
+    "abstract" : false,
+    "final" : false
+  }

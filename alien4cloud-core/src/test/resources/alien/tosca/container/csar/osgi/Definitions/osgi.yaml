@@ -1,0 +1,77 @@
+# tosca_definitions_version: tosca_simple_yaml_1_0
+
+name: osgi-types
+namespace: alien
+description: Contains definitions for osgi types.
+
+node_types:
+
+  fastconnect.nodes.Karaf:
+    description: >
+      This type represents an Apache Karaf application server
+    tags:
+      icon: /images/karaf.png
+    properties:
+      version:
+        type: version
+        default: "3.0.0"
+    requirements:
+      java:
+        type: tosca.capabilities.Java
+    capabilities:
+      kar_container:
+        type: tosca.capabilities.KarContainer
+      osgi_container:
+        type: tosca.capabilities.OsgiContainer
+
+  fastconnect.nodes.Equinox:
+    description: >
+      This type represents an Equinox application server
+    tags:
+      icon: /images/equinox.png
+    properties:
+      version:
+        type: version
+        default: "3.9.1.v20140110-1610"
+    requirements:
+      java:
+        type: tosca.capabilities.Java
+    capabilities:
+      osgi_container:
+        type: tosca.capabilities.OsgiContainer
+
+  fastconnect.nodes.Kar:
+    description: >
+      This type represents an Apache Karaf archive .kar
+    tags:
+      icon: /images/karaf.png
+    requirements:
+      karaf:
+        type: tosca.capabilities.KarContainer
+
+  fastconnect.nodes.OsgiBundle:
+    description: >
+      This type represents an application/service packaged as an osgi bundle
+    tags:
+      icon: /images/equinox.png
+    requirements:
+      osgi:
+        type: tosca.capabilities.OsgiContainer
+
+capability_types:
+
+  tosca.capabilities.KarContainer:
+    derived_from: tosca.capabilities.Feature
+
+  tosca.capabilities.OsgiContainer:
+    derived_from: tosca.capabilities.Feature
+
+relationship_types:
+
+  fastconnect.relationships.KarDeployedOn:
+    valid_sources: [ fastconnect.nodes.Kar ]
+    valid_targets: [ fastconnect.nodes.Karaf ]
+
+  fastconnect.relationships.OsgiBundleDeployedOn:
+    valid_sources: [ fastconnect.nodes.OsgiBundle ]
+    valid_targets: [ fastconnect.nodes.Karaf, fastconnect.nodes.Equinox ]

@@ -1,0 +1,445 @@
+<div class="row">
+<div class="col-md-12">
+<tabset>
+<tab heading="{{'CLOUDS.DETAILS' | translate}}">
+  <div class="row">
+    <div class="col-md-2 center visible-md visible-lg">
+      <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" />
+    </div>
+    <div class="col-md-8">
+
+      <div class="h1" style="display: inline-block;">
+              <span editable-text="cloud.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateCloud({'name' : $data})" blur="submit">
+                {{cloud.name}} <i class="fa fa-edit fa-smaller"></i>
+              </span>
+      </div>
+
+      <div class="confirm-button-delete">
+        <delete-confirm id="btn-cloud-delete" func="removeCloud(cloud.id)" position="right" bssize="btn-sm" fastyle="fa-trash-o">
+        </delete-confirm>
+      </div>
+
+    </div>
+    <div class="col-md-2">
+      <i ng-if="enablePending" class="fa fa-spinner fa-spin"></i>
+      <a id="cloud-enable-button" ng-if="!enablePending && !cloud.enabled" ng-click="enableCloud()" class="btn btn-success">
+        <i class="fa fa-play"></i> {{'CLOUDS.ENABLE' | translate}}</a>
+      <a id="cloud-disable-button" ng-if="!enablePending && cloud.enabled" ng-click="disableCloud()" class="btn btn-danger">
+        <i class="fa fa-stop"></i> {{'CLOUDS.DISABLE' | translate}}</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <fieldset>
+        <legend>
+          <h4><i class="fa fa-cloud"></i> {{'CLOUDS.CLOUD' | translate }}</h4>
+        </legend>
+        <div class="row">
+          <div class="col-md-3">
+            <strong>{{'CLOUDS.PAAS_PROVIDER' | translate }}</strong>
+          </div>
+          <div class="col-md-9">{{cloud.paasProviderName}}</div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-3">
+            <strong>{{'CLOUDS.IAAS_TYPE' | translate }}</strong>
+          </div>
+          <div class="col-md-7">
+            <select ng-model="cloud.iaaSType" ng-change="updateCloud({'iaaSType': cloud.iaaSType})"
+                    ng-options="'CLOUDS.IAAS.'+iaas | translate for iaas in iaasTypes"></select> <i class="fa"
+                                                                                                    ng-class="{'fa-spinner fa-spin': cloudSaving, 'text-success fa-check': cloudSavedSuccess, 'text-danger fa-times': cloudSavedError}"></i>
+          </div>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-3">
+            <strong>{{'CLOUDS.ENVIRONMENT_TYPE' | translate }}</strong>
+          </div>
+          <div class="col-md-7">
+            <select ng-model="cloud.environmentType" ng-change="updateCloud({'environmentType': cloud.environmentType})"
+                    ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa"
+                                                                                                        ng-class="{'fa-spinner fa-spin': cloudSaving, 'text-success fa-check': cloudSavedSuccess, 'text-danger fa-times': cloudSavedError}"></i>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div class=col-md-6 id="deployments-div">
+      <fieldset>
+        <legend>
+          <h4><i class="fa fa-cloud-upload"></i> {{'CLOUDS.DEPLOYMENTS' | translate}}</h4>
+        </legend>
+        <div class="table-responsive topology-level">
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th>{{'CLOUDS.DEPLOYMENT_SOURCE' | translate}}</th>
+                <th>{{'CLOUDS.DEPLOYMENT_TYPE' | translate}}</th>
+                <th>{{'START_DATE' | translate}}</th>
+                <th>{{'END_DATE' | translate}}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="deploymentDTO in deployments" name="app_{{deploymentDTO.source.name}}">
+                <td>
+                  {{deploymentDTO.source.name}}
+                </td>
+                <td>
+                  {{deploymentDTO.deployment.sourceType | translate}}
+                </td>
+                <td>
+                  {{deploymentDTO.deployment.startDate | date:'medium'}}
+                </td>
+                <td>
+                  {{deploymentDTO.deployment.endDate | date:'medium' || '---'}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</tab>
+<tab select="tabs.newTemplates = 0">
+  <tab-heading>
+    {{'CLOUDS.TEMPLATE' | translate}}
+  <span ng-if="tabs.newTemplates != 0" class="badge">
+    <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
+  </span>
+  </tab-heading>
+  <div class="row">
+    <div class="col-md-6">
+      <fieldset>
+        <legend class="text-center">
+          <h4>
+            <i class="fa fa-desktop"></i> {{'CLOUDS.TEMPLATE' | translate }}
+            <span style="font-size: 14px">({{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}<span
+                ng-if="templateFilteredCount > 0">, {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}</span>)</span>
+          </h4>
+        </legend>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-12" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+            <div class="table-responsive large-data-container">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th class="col-md-1">{{ 'CLOUDS.TEMPLATES.ENABLE' | translate}}</th>
+                    <th class="col-md-3"></th>
+                    <th class="col-md-4">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
+                    <th class="col-md-4">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                  </tr>
+                </thead>
+                <tbody ng-mouseleave="deleteTemplateSelection()">
+                  <tr id='computeTemplate_{{template.cloudImageId + "_" + template.cloudImageFlavorId}}'
+                      ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'"
+                      ng-class="{'warning text-muted' : !template.enabled}"
+                      ng-init="cloudImage = images[template.cloudImageId]; flavor = flavors[template.cloudImageFlavorId]"
+                      ng-mouseover="selectTemplate(template)"
+                      style="height: 81px;">
+                    <td>
+                      <input type="checkbox" ng-checked="template.enabled" ng-click="toggleEnableTemplate(template)">
+                    </td>
+                    <td>
+                      <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                      <img ng-if="cloudImage.iconId"
+                           ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+                    </td>
+                    <td>{{cloudImage.name}}</td>
+                    <td>{{flavor.id}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <div ng-if="selectedTemplate" class="col-md-6">
+      <div id="cloud-template-details">
+        <fieldset>
+          <legend class="text-center">
+            <h4><i class="fa fa-file"></i> {{'CLOUDS.TEMPLATE_DETAILS' | translate }}</h4>
+          </legend>
+          <div class="row" style="margin-top: 10px;">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  {{images[selectedTemplate.cloudImageId].name}}
+                </div>
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].osDistribution}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].osType}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].osVersion}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].osArch}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.numCPUs">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.numCPUs}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.diskSize">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.diskSize | bytes}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.memSize">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.memSize | bytes}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  {{flavors[selectedTemplate.cloudImageFlavorId].id}}
+                </div>
+                <div class="panel-body">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].numCPUs}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].diskSize | bytes}}</span>
+                    </div>
+                  </div>
+                  <div class="row" style="margin-top: 5px">
+                    <div class="col-md-4">
+                      <span class="text-muted">{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].memSize | bytes}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</tab>
+<tab heading="{{'CLOUDS.IMAGE' | translate}}">
+  <div class="row">
+    <div class="col-md-12">
+      <fieldset>
+        <legend class="text-center">
+          <h4>
+            <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+          </h4>
+        </legend>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+            <div class="table-responsive large-data-container" id="cloud-images-table">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{{ 'CLOUD_IMAGES.NAME' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="cloudImageId in cloud.images"
+                      id='cloudImage_{{images[cloudImageId].id}}'
+                      style="height: 81px;">
+                    <td>
+                      <i ng-if="!images[cloudImageId].iconId" class="fa fa-image fa-3x"></i>
+                      <img ng-if="images[cloudImageId].iconId"
+                           ng-src="{{images[cloudImageId].iconId?('img?id=' + images[cloudImageId].iconId + '&quality=QUALITY_64'):null}}" />
+                    </td>
+                    <td>{{images[cloudImageId].name}}</td>
+                    <td>{{images[cloudImageId].osDistribution}}</td>
+                    <td>{{images[cloudImageId].osType}}</td>
+                    <td>{{images[cloudImageId].osVersion}}</td>
+                    <td>{{images[cloudImageId].osArch}}</td>
+                    <td>{{images[cloudImageId].requirement.numCPUs || '---'}}</td>
+                    <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
+                    <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-success btn-sm pull-right" ng-click="openAddCloudImageModal()">
+              <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</tab>
+<tab heading="{{'CLOUDS.FLAVOR' | translate}}">
+  <div class="row">
+    <div class="col-md-12">
+      <fieldset>
+        <legend class="text-center">
+          <h4>
+            <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
+          </h4>
+        </legend>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+            <div class="table-responsive large-data-container" id="cloud-flavors-table">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>{{ 'CLOUDS.FLAVORS.ID' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="flavor in cloud.flavors" id='cloud_flavor_{{flavor.id}}'>
+                    <td>{{flavor.id}}</td>
+                    <td>{{flavor.numCPUs}}</td>
+                    <td>{{flavor.diskSize | bytes}}</td>
+                    <td>{{flavor.memSize | bytes}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-success btn-sm pull-right" ng-click="openFlavorCreationModal()">
+              <i class="fa fa-plus"></i> {{'CLOUDS.FLAVORS.NEW' | translate}}
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</tab>
+<tab heading="{{'CLOUDS.CONFIGURATION' | translate}}">
+  <div class="alert alert-info">
+    {{'CLOUDS.CONFIGURATION_REQUIRES_DISABLE' | translate}}
+  </div>
+  <div class="row">
+    <div class=col-md-12>
+      <generic-form
+          root-object="cloudConfig"
+          form-title="{{cloud.name}}"
+          type="cloudConfigDefinition"
+          form-style="window"
+          suggest="suggest(searchConfiguration, text)"
+          save="saveConfiguration(object)">
+      </generic-form>
+    </div>
+  </div>
+</tab>
+<!-- manage applications roles -->
+<tab heading="{{'CLOUDS.MANAGE_ROLES' | translate}}" id="rights-tab">
+
+  <!-- Cloud roles lists -->
+  <div class="row">
+    <div class="col-md-3 resource-user-roles" ng-repeat="cloudRole in cloudRoles">
+      <div class="thumbnail">
+        <h5>{{cloudRole}}</h5>
+        <ul class="td_list liste-no-style">
+          <li ng-repeat="(username, userCloudRoles) in cloud.userRoles | orderBy:'username.toString()' " ng-show="userCloudRoles.indexOf(cloudRole) >=0">
+            <i class="fa fa-user"></i>
+            <span>{{ relatedUsers[username].firstName }}</span>
+            <span>{{ relatedUsers[username].lastName}}</span>
+            <span>({{username}})</span>
+          </li>
+          <li ng-repeat="(groupId, groupCloudRoles) in cloud.groupRoles | orderBy:'relatedGroups[groupId].name' "
+              ng-show="groupCloudRoles.indexOf(cloudRole) >=0">
+            <i class="fa fa-users"></i>
+            <span>{{ relatedGroups[groupId].name }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SubTabs : USERS / GROUPS -->
+  <div class="row" id="app-user-role">
+    <div class="col-md-12">
+      <hr class="separator-h">
+    </div>
+    <div class="col-md-12">
+      <tabset>
+        <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+          <alien-search-user crud-support="false" managed-role-list="cloudRoles" check-role-selected-callback="checkCloudRoleSelectedForUser(user, role)"
+                            on-select-role-callback="handleRoleSelectionForUser(user, role)">
+          </alien-search-user>
+        </tab>
+        <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
+          <alien-search-group crud-support="false" managed-role-list="cloudRoles"
+                             check-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)"
+                             on-select-role-callback="handleRoleSelectionForGroup(group, role)">
+          </alien-search-group>
+        </tab>
+      </tabset>
+    </div>
+  </div>
+
+</tab>
+</tabset>
+</div>
+</div>

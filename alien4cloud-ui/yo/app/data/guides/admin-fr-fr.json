@@ -1,0 +1,33 @@
+{
+  "id": "admin-hopscotch",
+  "i18n": {
+    "nextBtn": "Suivant",
+    "prevBtn": "Retour",
+    "doneBtn": "Ok!",
+    "closeTooltip": "Arrêter le tour."
+  },
+  "steps": [
+    {
+      "title": "Configurer Alien 4 Cloud",
+      "content": "Cliquez ici pour configurer vos utilisateurs, les clouds disponibles ainsi que visualiser les métriques d'Alien 4 Cloud.",
+      "target": "menu.admin",
+      "placement": "bottom",
+      "multipage": true,
+      "nextOnTargetClick": true,
+      "showNextButton": false
+    },
+    {
+      "title": "Configurez les utilisateurs",
+      "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
+      "target": "am.admin.users",
+      "placement": "right",
+      "nextOnTargetClick": true
+    },
+    {
+      "title": "Configurez les plugins",
+      "content": "Cliquez ici pour ajouter et configurer les plugins. A noter qu'il est nécessaire d'avoir au moins un plugin de PaaS provider afin de pouvoir configurer des clouds.",
+      "target": "am.admin.plugins",
+      "placement": "right"
+    }
+  ]
+}

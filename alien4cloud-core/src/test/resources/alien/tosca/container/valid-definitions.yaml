@@ -1,0 +1,111 @@
+# tosca_definitions_version: tosca_simple_1_0
+
+name: tosca-base-types
+description: Contains the normative types definition.
+
+node_types:
+  tosca.nodes.root:
+    abstract: true
+    description: Root type that every node should derive.
+    requirements:
+      dependency:
+        type: tosca.requirements.feature
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      feature:
+        type: tosca.capabilities.feature
+        lower_bound: 0
+        upper_bound: unbounded
+    interfaces:
+      lifecycle:
+        description: Default lifecycle for nodes in TOSCA.
+        operations:
+          create:
+            description: Basic lifecycle create operation.
+          configure:
+            description: Basic lifecycle configure operation.
+          start:
+            description: Basic lifecycle start operation.
+          stop:
+            description: Basic lifecycle stop operation.
+          delete:
+            description: Basic lifecycle delete operation.
+
+  # Grouping node
+  tosca.nodes.tier:
+    description: A logical node that allows to group several nodes together.
+    properties:
+      name:
+        type: string
+        constraints:
+          - required: true
+
+  # Infrastructure components
+  tosca.nodes.compute:
+    derived_from: tosca.nodes.root
+    description: Represents a compute instance in the IaaS layer.
+
+  tosca.nodes.volume:
+    derived_from: tosca.nodes.root
+    description: A storage volume in the IaaS layer.
+
+  tosca.nodes.object_store:
+    abstract: true
+    derived_from: tosca.nodes.root
+    description: An object store provided by the IaaS layer.
+
+  tosca.nodes.network:
+    derived_from: tosca.nodes.root
+    description: TODO
+
+  tosca.nodes.router:
+    derived_from: tosca.nodes.root
+
+  tosca.nodes.load_balancer:
+    derived_from: tosca.nodes.root
+
+  tosca.nodes.virtual_ip:
+    derived_from: tosca.nodes.root
+
+  # Software components or middleware ?
+  tosca.nodes.software_component:
+    derived_from: tosca.nodes.root
+    description: Root type for every node that is a software component.
+
+  tosca.nodes.middleware:
+    derived_from: tosca.nodes.root
+
+  tosca.nodes.db_server:
+    derived_from: tosca.nodes.middleware
+
+  tosca.nodes.web_server:
+    derived_from: tosca.nodes.middleware
+
+  tosca.nodes.app_server:
+    derived_from: tosca.nodes.middleware
+
+  tosca.nodes.message_bus:
+    derived_from: tosca.nodes.middleware
+
+  tosca.nodes.enterprise_service_bus:
+    derived_from: tosca.nodes.middleware
+
+capability_types:
+  tosca.capabilities.feature:
+  tosca.capabilities.container:
+    derived_from: tosca.capabilities.feature
+  tosca.capabilities.endpoint:
+    derived_from: tosca.capabilities.feature
+
+relationship_types:
+  tosca.relations.depends_on:
+    valid_target: tosca.nodes.root
+  tosca.relations.hosted_on:
+    derived_from: tosca.relations.depends_on
+  tosca.relations.connected_to:
+    derived_from: tosca.relations.depends_on
+
+artifact_types:
+  shell_script:
+    description: A shell script (.sh file)

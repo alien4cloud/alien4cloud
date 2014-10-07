@@ -1,0 +1,26 @@
+<div class="topology-row">
+  <div class="row">
+    <div class="col-md-4 h1" id="template_{{topologyTemplate.name}}_name">
+      <span editable-text="topologyTemplate.name"
+            buttons="no"
+            e-required
+            e-class="input-lg"
+            onbeforesave="updateTopologyTemplate('name', $data)"
+            blur="submit">
+        {{topologyTemplate.name}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+    <div class="col-md-8" style="margin-top: 36px" id="template_{{topologyTemplate.name}}_description">
+      <strong>{{'APPLICATIONS.DESC' | translate }} : </strong>
+      <span editable-textarea="topologyTemplate.description"
+            buttons="no"
+            e-class="input-lg"
+            onbeforesave="updateTopologyTemplate('description', $data)"
+            blur="submit">
+        {{topologyTemplate.description}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+  </div>
+</div>
+
+<ui-view />

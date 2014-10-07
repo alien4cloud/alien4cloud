@@ -1,0 +1,165 @@
+
+name: tomcat
+namespace: fastconnect
+description: Tomcat recipe.
+
+node_types:
+  fastconnect.nodes.War:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      A war element
+    requirements:
+      host:
+        type: alien4cloud.capabilities.WarHosting
+        lower_bound: 1
+        upper_bound: 1
+    artifacts:
+      war_file:
+        artifact_type: fastconnect.artifacts.WarFile
+        artifact_ref: "content/webarchive.war"
+
+  fastconnect.nodes.Tomcat:
+    derived_from: tosca.nodes.ApplicationServer
+    description: >
+      Installation of Tomcat using Cloudify scripts
+    tags:
+      icon: /images/tomcat.gif
+    properties:
+      version:
+        type: version
+        default: 7.0.23
+        constraints:
+          - equal: 7.0.23
+    capabilities:
+      httpEndpoint:
+        type: alien4cloud.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+      war_host:
+        type: alien4cloud.capabilities.WarHosting
+        lower_bound: 0
+        upper_bound: 1
+    requirements:
+      httpEndpoint:
+        type: alien4cloud.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+      jdbc_resource:
+        type: alien4cloud.capabilities.JdbcEndpoint
+        lower_bound: 0
+        upper_bound: 1
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/tomcat_installAlien.groovy"
+          start:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/tomcat_start.groovy"
+          stop:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/tomcat_stop.groovy"
+      fastconnect.cloudify.extensions:
+        operations:
+          start_detection:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: scripts/tomcat_startDetection.groovy
+      custom:
+        operations:
+          updateWar:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/updateWarUrl.groovy"
+          updateWarFile:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/updateWarFile.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"
+
+relationship_types:
+  fastconnect.relationships.cloudify.ConnectsTomcatToPostgre:
+    derived_from: tosca.relationships.ConnectsTo
+    description: >
+      Connects Tomcat to an PostgreSQL
+    valid_sources: [ alien4cloud.capabilities.JdbcEndpoint ]
+    valid_targets: [ alien4cloud.capabilities.JdbcEndpoint ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          pre_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "relationshipScripts/tomcat_configureDatasource.groovy"
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "relationshipScripts/tomcat_postgreAddUser.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: relationshipScripts
+
+  fastconnect.relationships.cloudify.ConnectsToApacheLB:
+    derived_from: tosca.relationships.ConnectsTo
+    description: >
+      Connects Tomcat to an ApacheLB
+    valid_sources: [ alien4cloud.capabilities.HttpEndpoint ]
+    valid_targets: [ alien4cloud.capabilities.HttpEndpoint ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          add_target:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "relationshipScripts/tomcat_connectto_apache_addtarget.groovy"
+          remove_target:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "relationshipScripts/tomcat_connectto_apache_removetarget.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: relationshipScripts
+
+  fastconnect.relationships.cloudify.WarHostedOnTomcat:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to deploy a war on tomcat.
+    valid_sources: [ alien4cloud.capabilities.WarHosting ]
+    valid_targets: [ alien4cloud.capabilities.WarHosting ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_source:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "relationshipScripts/war_hostedon_tomcat_postsource.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: relationshipScripts
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+  fastconnect.artifacts.ResourceDirectory:
+    description: A directory that contains resources files that are required for a node to be deployed.
+  fastconnect.artifacts.WarFile:
+    description: A war file (Web Archive).
+
+capability_types:
+  alien4cloud.capabilities.WarHosting:
+    derived_from: tosca.capabilities.Container
+  alien4cloud.capabilities.TomcatJdbcEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+  alien4cloud.capabilities.JdbcEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+  alien4cloud.capabilities.HttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint

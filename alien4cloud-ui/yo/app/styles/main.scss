@@ -1,0 +1,339 @@
+$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap";
+@import "bootstrap_variables";
+
+$fa-font-path: "../bower_components/font-awesome/fonts" !default;
+@import "font-awesome/scss/font-awesome";
+
+@import 'bootstrap-sass-official/assets/stylesheets/bootstrap';
+
+@import "editable";
+@import "ace-editor";
+@import "form-generator";
+@import "dragdrop";
+@import "fileupload";
+@import "topology";
+@import "topology-svg";
+@import "topology-plan";
+@import "lang";
+@import "search-directive";
+@import "users";
+@import "application";
+@import "plans";
+@import "vertical-menu";
+
+/* change the layout*/
+$screen-sm-min: 768px;
+$screen-md-min: 1015px;
+
+.navbar-logout-dropdown {
+  z-index: 2000;
+
+}
+
+.navbar-brand {
+  padding: 0 5px;
+
+}
+
+.main-view {
+  margin-top: 64px;
+
+}
+
+@media(min-width: $screen-sm-min) {
+  .main-view {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 114px;
+  }
+
+}
+
+@media(min-width: $screen-md-min) {
+  .main-view {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 64px;
+  }
+
+}
+
+.well {
+  background-color: white;
+
+}
+
+a {
+  cursor: pointer;
+
+}
+
+.fa-smaller {
+  font-size: 0.6666666666em;
+
+}
+
+.form-control-noheightlimit {
+  height: auto;
+  min-height: $input-height-base;
+  @extend .form-control;
+
+}
+
+/*pagination*/
+.pagination-div {
+  text-align: center;
+
+}
+
+.pagination-div ul {
+  cursor: pointer;
+
+}
+
+a.accordion-toggle[ng-click] {
+  text-decoration: none;
+
+}
+
+.facet-category {
+  border-top: 1px solid #ddd;
+  font-weight: bold;
+  margin-top: 10px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-top: 10px;
+
+}
+
+.facet-category:hover {
+  background-color: whitesmoke;
+
+}
+
+.facet-choice .nav > li > a {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 5px;
+}
+
+.facet-choice .nav > li > a:hover {
+  background-color: transparent;
+  border-left: 1px solid #d9534f;
+  color: #d9534f;
+  padding-left: 4px;
+  text-decoration: none;
+}
+
+.facet-option .nav > li > a {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 5px;
+}
+
+.facet-option .nav > li > a:hover {
+  background-color: transparent;
+  border-left: 1px solid #428bca;
+  padding-left: 4px;
+  text-decoration: none;
+}
+
+.filter-category {
+  border-top: 1px solid #ddd;
+  margin-top: 10px;
+  padding-top: 10px;
+
+}
+
+.clickable-media:hover {
+  background-color: whitesmoke;
+  cursor: pointer;
+
+}
+
+.well.component-detail-side.affix {
+  top: 60px;
+  width: 373px;
+
+}
+
+.center {
+  text-align: center;
+
+}
+
+.detail-bloc {
+  margin-top: 20px;
+
+}
+
+fieldset legend {
+  border-bottom: 1px solid #428bca;
+
+}
+
+.detail-bloc > div {
+  background-color: white;
+
+}
+
+.table tr:first-child td {
+  border-top: none;
+
+}
+
+.separator-h {
+  border-top: 1px solid #428bca;
+
+}
+
+#sideBar {
+  position: fixed;
+
+}
+
+/* Components */
+
+.application-deploy-button {
+  width: 115px;
+
+}
+
+.starHover {
+  color: #428bca;
+
+}
+
+.searchModal .modal-dialog {
+  overflow-y: auto;
+  width: 95%;
+
+}
+
+/* icons*/
+img.icon_16 {
+  height: 16px;
+  width: 16px;
+}
+
+img.icon_24 {
+  height: 24px;
+  width: 24px;
+}
+
+img.icon_32 {
+  height: 32px;
+  width: 32px;
+
+}
+
+.input-group {
+  border-spacing: 0;
+
+}
+
+.info {
+  cursor: pointer;
+
+}
+
+.vertical-center {
+  vertical-align: middle;
+
+}
+
+.large-data-container {
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 6px;
+
+}
+
+.option-selected {
+  font-style: italic;
+
+}
+
+.option-selected:HOVER,
+.option-selected > a,
+.option-selected > a:HOVER {
+  cursor: default;
+
+}
+
+/* Toaster directive div : error message */
+.toast-top-right {
+  right: 12px;
+  top: 55px;
+  width: 100%;
+}
+
+#toast-container.toast-top-right > div {
+  width: 96%;
+
+}
+
+@media(min-width: $screen-sm-min) {
+  .toast-top-right {
+    width: 50%;
+  }
+
+}
+
+@media(min-width: $screen-md-min) {
+  .toast-top-right {
+    width: 600px;
+  }
+
+}
+
+/* End : Toaster directive div : error message */
+
+/* Vertical aligne for delete button in details pages (with xeditable spans) */
+.confirm-button-delete {
+  display: inline-block;
+  margin-top: $line-height-computed + 3;
+  vertical-align: top;
+
+}
+
+/* Restected logo customized */
+.restricted-img {
+  -moz-filter: grayscale(1);
+  -ms-filter: grayscale(1);
+  -o-filter: grayscale(1);
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
+}
+
+.clouds-add-image .modal-dialog {
+  overflow-y: auto;
+  width: 70%;
+  height: 95%;
+}
+
+.new-images-selected-modal {
+  overflow: auto;
+  height: 362px;
+}
+
+.new-images-selected-modal .images-not-selected {
+  text-align: center;
+  font-size: 25px;
+  color: #C8C8C8;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#cloud-template-details {
+  position: fixed;
+  top: 117px;
+  width: 46%;
+}

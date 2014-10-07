@@ -1,0 +1,60 @@
+<div>
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-9">
+      <button id="new-cloud-image-button" class="btn btn-success" ng-click="openNewModal()">
+        <i class="fa fa-plus-circle"></i> {{'CLOUD_IMAGES.NEW' | translate}}
+      </button>
+    </div>
+    <div class="col-md-3 pull-right">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+      <div class="table-responsive large-data-container" id="cloud-images-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'CLOUD_IMAGES.NAME' | translate}}</th>
+              <th>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</th>
+              <th>{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</th>
+              <th>{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</th>
+              <th>{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="cloudImage in data.data" id='cloudImage_{{cloudImage.id}}' name="{{cloudImage.name}}" ng-click="goToCloudImage(cloudImage.id)"
+                class="clickable" style="height: 81px;">
+              <td>
+                <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                <img ng-if="cloudImage.iconId"
+                     ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+              </td>
+              <td>{{cloudImage.name || '---' }}</td>
+              <td>{{cloudImage.osDistribution || '---' }}</td>
+              <td>{{cloudImage.osType || '---' }}</td>
+              <td>{{cloudImage.osVersion || '---' }}</td>
+              <td>{{cloudImage.osArch || '---' }}</td>
+              <td>
+                <delete-confirm id="{{'btn-delete-cloud-image' + cloudImage.name}}" func="delete(cloudImage.id)"
+                                position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+#---------------------------------------
+# 		JAVA Project Ignored files
+#---------------------------------------
+
+# Eclipse IDE files
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+test-output/**
+test-output/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+**/.settings
+.settings/**
+.settings/**/*
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Generated files in java based project
+**/target/*
+*.class
+alien4cloud-ui/.tern-project
+alien4cloud-common/src/test/java/META-INF/MANIFEST.MF
+alien4cloud-common/.gitignore
+alien4cloud-paas-core/.gitignore
+alien4cloud-rest-api/.gitignore
+alien4cloud-auth-rest/.gitignore
+alien4cloud-compilation-tool/.gitignore
+alien4cloud-mock-paas-provider-plugin/.gitignore
+
+/data/
+/target/

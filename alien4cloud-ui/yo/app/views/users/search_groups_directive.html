@@ -1,0 +1,96 @@
+<div ng-controller="GroupsDirectiveCtrl">
+  <div class="row" style="margin-bottom: 10px;">
+    <div class="col-md-6" ng-show="crudSupport">
+      <button class="btn btn-success" ng-click="openNewGroupModal()">
+        <i class="fa fa-plus-circle"></i> {{'GROUPS.NEW' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-2">
+      <form role="search" ng-submit="searchService.search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-10">
+      <div class="table-responsive large-data-container" id="groups-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'GROUPS.NAME' | translate}}</th>
+              <th ng-if="displayAll || displayEmail">{{ 'GROUPS.EMAIL' | translate}}</th>
+              <th>{{ 'GROUPS.DESC' | translate}}</th>
+              <th ng-if="displayAll || displayRoles">{{ 'GROUPS.ROLES' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="group in groupsData.data | orderBy:'name'" id="group_{{group.name}}">
+              <td>
+                <i class="fa fa-users fa-2x" ng-if="!group.imageId"></i>
+                <img ng-if="group.imageId" ng-src="'img?id=' + group.imageId + '&quality=QUALITY_32'" />
+              </td>
+              <td id="group_{{group.name}}_name">
+                <span class="form-input-editable" editable-text="group.name" buttons="no" onaftersave="groupChanged(group, 'name', group.name)"
+                      blur="submit">
+                  {{group.name}} <i class="fa fa-pencil-square-o"></i>
+                </span>
+              </td>
+              <td id="group_{{group.name}}_email" ng-if="displayAll || displayEmail">
+                <span class="form-input-editable" editable-email="group.email" buttons="no" onaftersave="groupChanged(group, 'email', group.email)"
+                      blur="submit">
+                  {{group.email || '---' }} <i class="fa fa-pencil-square-o"></i>
+                </span>
+              </td>
+              <td id="group_{{group.name}}_description">
+                <span class="form-input-editable" editable-textarea="group.description" buttons="no"
+                      onaftersave="groupChanged(group, 'description', group.description)"
+                      blur="submit">
+                  {{ group.description || '---' }} <i class="fa fa-pencil-square-o"></i>
+                </span>
+              </td>
+              <td ng-if="displayAll || displayRoles" name="roles">
+                <span ng-if="!(groupRolesEmpty = !group.roles || group.roles.length <= 0)">
+                  <ul class="td_list">
+                    <li ng-repeat="groupRole in group.roles | orderBy:'toString()'">{{groupRole}}</li>
+                  </ul>
+                </span>
+                <span ng-if="groupRolesEmpty">---</span>
+              </td>
+              <td>
+                <div class="btn-group">
+                  <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'GROUPS.EDIT_ROLE' | translate }}"
+                     tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
+                    <li role="presentation" class="dropdown-header">{{'GROUPS.EDIT_ROLE_HEADER' | translate }}</li>
+                    <li ng-repeat="role in managedRoleList | orderBy:'toString()' ">
+                      <a id="{{group.name}}_{{role}}"
+                         ng-class="{'checked_role':( roleChecked = checkIfRoleSelected(group, role))}"
+                         ng-click="onSelectRoleCallback({group:group, role:role})">
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
+                        {{role}}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div class="btn-group">
+                  <!-- Delete a group -->
+                  <delete-confirm id="group_{{group.name}}_delete" ng-if="crudSupport" func="remove(group)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  </delete-confirm>
+                </div> 
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+  </div>
+</div>

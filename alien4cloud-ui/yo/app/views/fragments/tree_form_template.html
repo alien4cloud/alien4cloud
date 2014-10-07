@@ -1,0 +1,16 @@
+<div class="row">
+  <div class="form-tree-element">
+    <i ng-click="isCollapsed = !isCollapsed"
+       class="form-tree-expand fa"
+       ng-class="{'fa-chevron-down' : !isCollapsed, 'fa-chevron-right': isCollapsed}"></i>
+    <span id="{{idPrefix + 'label'}}"
+          class="form-tree-label"
+          ng-class="{'form-tree-label-active': isActivePath}"
+          ng-click="goTo()">{{labelName | translate | truncate:20}}</span>
+    <i class="fa fa-check text-success"
+       ng-if="hasChildren()"></i>
+  </div>
+  <div collapse="isCollapsed">
+    <div class="form-tree-level" id="{{treeContainerElementId}}"></div>
+  </div>
+</div>

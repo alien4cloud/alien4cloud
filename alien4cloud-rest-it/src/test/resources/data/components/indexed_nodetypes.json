@@ -1,0 +1,191 @@
+[{
+  "id": "javaNode:3.0",
+  "elementId": "javaNode",
+  "archiveName": "Archive-0",
+  "archiveVersion": "3.0",
+  "capabilities": [
+  	{
+  		"id": "jndi",
+  		"type": "jndi"
+  	},
+  	{
+  		"id": "websocket",
+  		"type": "websocket"
+  	}
+  ],
+  "requirements": [
+  	{
+  		"id": "nodejs",
+  		"type": "nodejs"
+  	},
+  	{
+  		"id": "linux",
+  		"type": "linux"
+  	},
+  	{
+  		"id": ".net",
+  		"type": ".net"
+  	},
+  	{
+  		"id": "network",
+  		"type": "network"
+  	}
+  ],
+  "derivedFrom": [
+     "NodeOpenstack",
+     "NodeWebContainer",
+     "NodeNodejs"
+  ],
+  "defaultCapabilities": [
+     "websocket"
+  ],
+  "properties": {
+    "disk_size": {
+    "type": "long",
+    "constraints": [{
+      "greaterThan":0
+    }]
+    
+    }
+  },
+  "interfaces": {
+    "lifecycle": {
+      "implementationArtifact": null,
+      "description": "Default lifecycle for nodes in TOSCA.",
+      "operations": {
+        "stop": {
+          "implementationArtifact": null,
+          "outputParameters": null,
+          "inputParameters": null,
+          "description": "Basic lifecycle stop operation."
+        }
+      }
+    }
+  }
+},
+{
+  "id": "whatever:3.0",
+  "elementId": "whatever",
+  "archiveName": "Archive-1",
+  "archiveVersion": "3.0",
+  "capabilities": [
+  	{
+  		"id": "jar",
+  		"type": "jar"
+  	},
+  	{
+  		"id": "jndi",
+  		"type": "jndi"
+  	}
+  ],
+  "requirements": [
+  	{
+  		"id": "java",
+  		"type": "java"
+  	},
+  	{
+  		"id": "nodejs",
+  		"type": "nodejs"
+  	},
+  	{
+  		"id": "network",
+  		"type": "network"
+  	}
+  ],
+  "derivedFrom": [
+     "NodeWebContainer",
+     "NodeNetwork",
+     "NodeNodejs"
+  ],
+  "defaultCapabilities": [
+     "jndi"
+  ],
+  "properties": {
+    "os_distribution": {
+    "type": "string",
+    "constraints": [{
+      "greaterThan":0
+    }]
+    }
+  },
+  "interfaces": {
+    "lifecycle": {
+      "implementationArtifact": null,
+      "description": "Default lifecycle for nodes in TOSCA.",
+      "operations": {
+        "stop": {
+          "implementationArtifact": null,
+          "outputParameters": null,
+          "inputParameters": null,
+          "description": "Basic lifecycle stop operation."
+        }
+      }
+    }
+  }
+},
+{
+  "id": "warNode:3.2",
+  "elementId": "warNode",
+  "archiveName": "Archive-2",
+  "archiveVersion": "3.2",
+  "capabilities": [
+  	{
+  		"id": "jar",
+  		"type": "jar"
+  	},
+  	{
+  		"id": "jndi",
+  		"type": "jndi"
+  	},
+  	{
+  		"id": "war",
+  		"type": "war"
+  	},
+  	{
+  		"id": "websocket",
+  		"type": "websocket"
+  	}
+  ],
+  "requirements": [
+  	{
+  		"id": "java",
+  		"type": "java"
+  	},
+  	{
+  		"id": "linux",
+  		"type": "linux"
+  	},
+  	{
+  		"id": "nodejs",
+  		"type": "nodejs"
+  	},
+  	{
+  		"id": "network",
+  		"type": "network"
+  	}
+  ],
+  "derivedFrom": [
+     "NodeOpenstack",
+     "NodeWebContainer",
+     "NodeNetwork",
+     "NodeNodejs"
+  ],
+  "defaultCapabilities": [
+     "jar",
+     "war"
+  ],
+  "interfaces": {
+    "lifecycle": {
+      "implementationArtifact": null,
+      "description": "Default lifecycle for nodes in TOSCA.",
+      "operations": {
+        "stop": {
+          "implementationArtifact": null,
+          "outputParameters": null,
+          "inputParameters": null,
+          "description": "Basic lifecycle stop operation."
+        }
+      }
+    }
+  }
+}]

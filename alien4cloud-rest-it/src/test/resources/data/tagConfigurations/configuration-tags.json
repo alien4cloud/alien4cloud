@@ -1,0 +1,61 @@
+[{
+  "type": "string",
+  "constraints": [{
+    "validValues": ["A", "B", "C", "D"]
+  }],
+  "name": "_ALIEN_LIST",
+  "target": "application",
+  "id": "8d1bbb6d-c91c-4a66-ab8f-c590a497d4bf",
+  "required": true,
+  "password": false
+}, {
+  "type": "boolean",
+  "name": "_ALIEN_BOOLEAN",
+  "target": "application",
+  "id": "eb983e06-8888-4e8f-9df6-fe8d79e2ac66",
+  "required": false,
+  "password": true
+}, {
+  "type": "string",
+  "constraints": [{
+    "maxLength": 10
+  }],
+  "name": "_ALIEN_TEXT",
+  "target": "application",
+  "id": "a5a2be2f-3ee7-4796-8c1a-7e85951ddf54",
+  "required": false,
+  "password": false
+}, {
+  "type": "string",
+  "constraints": [{
+    "minLength": 4
+  }],
+  "name": "_ALIEN_PASSWORD_MIN4",
+  "target": "application",
+  "id": "a40d6107-7b93-4d59-aa75-944b5512df60",
+  "required": true,
+  "password": true
+}, {
+  "type": "integer",
+  "constraints": [{
+    "inRange": ["2", "30"],
+    "rangeMinValue": "2",
+    "rangeMaxValue": "30"
+  }],
+  "name": "_RANGE_BORNE",
+  "target": "application",
+  "id": "3a8f7dc0-2f0a-401f-9790-f73dc5a55a88",
+  "required": false,
+  "password": false
+}, {
+  "type": "version",
+  "description": "Version de l'application",
+  "constraints": [{
+    "greaterThan": "1.6"
+  }],
+  "name": "_ALIEN_DEFAULT_JAVA",
+  "target": "application",
+  "id": "e53e221e-8ad9-4122-bc21-502d6503a457",
+  "required": true,
+  "password": false
+}]

@@ -1,0 +1,47 @@
+name: my_java_application
+namespace: myNameSpace
+description: A Basic Java Program To test
+
+node_types:
+  test.java.app:
+    properties:
+      thread_pool_size:
+        type: integer
+        constraints:
+          - greater_than: 0
+          - less_than: 128
+      jmx_port:
+        type: integer
+        constraints:
+          - greater_or_equal: 8000
+          - less_or_equal: 9000
+      rest_port:
+        type: integer
+        constraints:
+          - in_range: [8888,9999]
+      db_connection:
+        type: string
+        constraints:
+          - equal: "jdbc://localhost:1212"
+      http_port:
+        type: integer
+        constraints:
+          - equal: 2
+      target_jvm_version:
+        type: version
+        constraints:
+          - equal: "1.7"
+          - greater_than: "1.6"
+          - in_range: ["1.5","1.7"]
+          - valid_values: ["1.5","1.6","1.7"]
+      name:
+        type: string
+        constraints:
+          - length: 4
+          - min_length: 5
+          - max_length: 6
+          - pattern: "a+b+c+.*"
+      user:
+        type: string
+        constraints:
+          - valid_values: [cedric,luc,khang,igor]
