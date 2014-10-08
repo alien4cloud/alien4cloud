@@ -3,31 +3,52 @@
   "i18n": {
     "nextBtn": "Next",
     "prevBtn": "Back",
-    "doneBtn": "Ok!",
+    "doneBtn": "Terminate",
     "closeTooltip": "Stop the tour."
   },
-  "steps": [
-    {
-      "title": "Configure Alien 4 Cloud",
-      "content": "Click here to setup users, clouds as well as monitor Alien 4 Cloud.",
-      "target": "menu.admin",
-      "placement": "bottom",
-      "multipage": true,
-      "nextOnTargetClick": true,
-      "showNextButton": false
-    },
-    {
-      "title": "User configuration",
-      "content": "Click here to setup users, groups and their roles.",
-      "target": "am.admin.users",
-      "placement": "right",
-      "nextOnTargetClick": true
-    },
-    {
-      "title": "Plugin configuration",
-      "content": "Click here to add/remove and setup plugins. Plugins are mandatory to setup clouds as you need at least one PaaS provider plugin.",
-      "target": "am.admin.plugins",
-      "placement": "right"
-    }
-  ]
+  "steps": [{
+    "title": "Configure Alien 4 Cloud",
+    "content": "Click here to setup users, clouds as well as monitor Alien 4 Cloud.",
+    "target": "menu.admin",
+    "placement": "bottom",
+    "multipage": true,
+    "nextOnTargetClick": true,
+    "showNextButton": false
+  }, {
+    "title": "Users configuration",
+    "content": "Click here to setup users, groups and their roles.",
+    "target": "am.admin.users",
+    "placement": "right",
+    "nextOnTargetClick": true
+  }, {
+    "title": "Plugins configuration here...",
+    "content": "Click here to add/remove and setup plugins. Plugins are mandatory to setup clouds as you need at least one PaaS provider plugin.",
+    "target": "am.admin.plugins",
+    "placement": "right"
+  }, {
+    "title": "and also here...",
+    "content": "You can also use links on main administration page corresponding to the left menu buttons.",
+    "target": "homepage.am.admin.plugins",
+    "placement": "bottom"
+  }, {
+    "title": "Clouds configuration",
+    "content": "Click here to create a cloud associated to PaaS provider plugin added previously.",
+    "target": "am.admin.clouds.list",
+    "placement": "right"
+  }, {
+    "title": "Cloud images configuration",
+    "content": "Click here to configure images provided by your cloud in order to use it in application deployment step.",
+    "target": "homepage.am.admin.cloud-images.list",
+    "placement": "right"
+  }, {
+    "title": "Optional : meta-properties",
+    "content": "Meta-properties are additional data required by administrator and targeting application or component. Those properties are used for administration purpose.",
+    "target": "homepage.am.admin.metaprops.list",
+    "placement": "right"
+  }, {
+    "title": "Optional : A4C metrics",
+    "content": "Technical informations about your running Alien 4 Cloud (memory, cpu,...)",
+    "target": "homepage.am.admin.metrics",
+    "placement": "left"
+  }]
 }

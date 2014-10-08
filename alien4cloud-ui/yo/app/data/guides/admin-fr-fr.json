@@ -3,31 +3,52 @@
   "i18n": {
     "nextBtn": "Suivant",
     "prevBtn": "Retour",
-    "doneBtn": "Ok!",
+    "doneBtn": "Terminer",
     "closeTooltip": "Arrêter le tour."
   },
-  "steps": [
-    {
-      "title": "Configurer Alien 4 Cloud",
-      "content": "Cliquez ici pour configurer vos utilisateurs, les clouds disponibles ainsi que visualiser les métriques d'Alien 4 Cloud.",
-      "target": "menu.admin",
-      "placement": "bottom",
-      "multipage": true,
-      "nextOnTargetClick": true,
-      "showNextButton": false
-    },
-    {
-      "title": "Configurez les utilisateurs",
-      "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
-      "target": "am.admin.users",
-      "placement": "right",
-      "nextOnTargetClick": true
-    },
-    {
-      "title": "Configurez les plugins",
-      "content": "Cliquez ici pour ajouter et configurer les plugins. A noter qu'il est nécessaire d'avoir au moins un plugin de PaaS provider afin de pouvoir configurer des clouds.",
-      "target": "am.admin.plugins",
-      "placement": "right"
-    }
-  ]
+  "steps": [{
+    "title": "Configurer Alien 4 Cloud",
+    "content": "Cliquez ici pour configurer vos utilisateurs, les clouds disponibles ainsi que visualiser les métriques d'Alien 4 Cloud.",
+    "target": "menu.admin",
+    "placement": "bottom",
+    "multipage": true,
+    "nextOnTargetClick": true,
+    "showNextButton": false
+  }, {
+    "title": "Configurer les utilisateurs",
+    "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
+    "target": "am.admin.users",
+    "placement": "right",
+    "nextOnTargetClick": true
+  }, {
+    "title": "Configurer les plugins ici",
+    "content": "Cliquez ici pour ajouter/enlever et configurer les plugins. A noter qu'il est nécessaire d'avoir au moins un plugin de PaaS provider afin de pouvoir configurer des clouds.",
+    "target": "am.admin.plugins",
+    "placement": "right"
+  }, {
+    "title": "ou encore ici...",
+    "content": "Vous pouvez aussi passer par les liens sur la page centrale d'administration qui correspondent au memu latéral à gauche.",
+    "target": "homepage.am.admin.plugins",
+    "placement": "bottom"
+  }, {
+    "title": "Configurer les clouds",
+    "content": "Cliquez ensuite ici pour créer votre cloud qui sera associé à un plugin de PaaS provider que vous aurez ajouté au préalable.",
+    "target": "am.admin.clouds.list",
+    "placement": "right"
+  }, {
+    "title": "Configurer les images de cloud",
+    "content": "Vous pourrez configurer les images qui vous seront fournis par votre cloud pour y avoir accès lors du déploiement d'une application.",
+    "target": "homepage.am.admin.cloud-images.list",
+    "placement": "right"
+  }, {
+    "title": "Optionnel : méta-properiétés",
+    "content": "Les méta-propriétés sont des données supplémentaires demandés par l'administrateur et ont pour cible des applications ou des composants. Ces données sont utiles à des fins d'administration.",
+    "target": "homepage.am.admin.metaprops.list",
+    "placement": "right"
+  }, {
+    "title": "Optionnel : métriques de A4C",
+    "content": "Visualisez ici des informations techniques concernant votre instance d'Alien 4 Cloud (mémoire, processeur,...)",
+    "target": "homepage.am.admin.metrics",
+    "placement": "left"
+  }]
 }

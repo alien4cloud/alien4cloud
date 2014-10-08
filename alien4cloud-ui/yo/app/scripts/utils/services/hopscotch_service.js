@@ -2,6 +2,12 @@
 
 angular.module('alienUiApp').factory('hopscotchService', ['$http', '$translate',
   function($http, $translate) {
+
+    // configuration object
+    var defaultOptions = {
+      zindex: 1000
+    };
+
     return {
       currentTour: null,
       startTour: function(tourName) {
@@ -18,14 +24,15 @@ angular.module('alienUiApp').factory('hopscotchService', ['$http', '$translate',
             console.log('hopscotch tour ended', hopscotch.getCurrTarget());
           }
           hopscotch.endTour(true);
+          hopscotch.configure(defaultOptions); // see above
           hopscotch.startTour(instance.currentTour);
         });
       },
       resumeTour: function(expectedStep, step) {
-        if (this.currentTour !== null && hopscotch.getState() === expectedStep+':'+step) {
+        if (this.currentTour !== null && hopscotch.getState() === expectedStep + ':' + step) {
           hopscotch.startTour(this.currentTour, step);
         }
       }
     };
-  }]
-);
+  }
+]);
