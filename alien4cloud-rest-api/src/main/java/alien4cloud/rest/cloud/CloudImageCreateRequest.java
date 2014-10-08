@@ -12,6 +12,7 @@ public class CloudImageCreateRequest {
 
     @NotBlank
     private String name;
+
     /**
      * The architect x64 or x86
      */
@@ -35,4 +36,19 @@ public class CloudImageCreateRequest {
      */
     @NotBlank
     private String osVersion;
+
+    /**
+     * Number of CPUs
+     */
+    private Integer numCPUs;
+
+    /**
+     * Size of disk
+     */
+    private Long diskSize;
+
+    /**
+     * Size of memory
+     */
+    private Long memSize;
 }

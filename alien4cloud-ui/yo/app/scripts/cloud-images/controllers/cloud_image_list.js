@@ -26,13 +26,12 @@ angular.module('alienUiApp').controller(
       $scope.openNewModal = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/cloud-images/new_cloud_image.html',
-          controller: 'NewCloudImageController'
+          controller: 'NewCloudImageController',
+          windowClass: 'newImageModal'
         });
 
-        modalInstance.result.then(function(cloudImage) {
-          cloudImageServices.create({}, angular.toJson(cloudImage), function(success) {
-            $scope.goToCloudImage(success.data);
-          }, undefined);
+        modalInstance.result.then(function(cloudImageId) {
+          $scope.goToCloudImage(cloudImageId);
         });
       };
 

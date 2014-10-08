@@ -43,21 +43,12 @@ angular.module('alienUiApp').controller(
         }, angular.toJson(object));
       };
 
-      $scope.saveRequirement = function(requirement) {
-        var updatedRequirement;
-        if (UTILS.isUndefinedOrNull($scope.cloudImage.requirement)) {
-          $scope.cloudImage.requirement = {};
-          updatedRequirement = requirement;
-        } else {
-          updatedRequirement = UTILS.mergeObjects(requirement, $scope.cloudImage.requirement);
-        }
+      $scope.updateName = function(name) {
         cloudImageServices.update({
           id: $scope.cloudImage.id
         }, angular.toJson({
-          'requirement': updatedRequirement
-        }), function() {
-          $scope.cloudImage.requirement = updatedRequirement;
-        });
+          'name': name
+        }), null);
       };
     }
   ]);

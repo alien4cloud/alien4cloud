@@ -40,7 +40,7 @@
                 <img ng-if="cloudImage.iconId"
                      ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
               </td>
-              <td>{{cloudImage.name || '---' }}</td>
+              <td id="{{'cloudImageName_' + cloudImage.name}}">{{cloudImage.name || '---' }}</td>
               <td>{{cloudImage.osDistribution || '---' }}</td>
               <td>{{cloudImage.osType || '---' }}</td>
               <td>{{cloudImage.osVersion || '---' }}</td>

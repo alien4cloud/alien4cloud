@@ -5,39 +5,35 @@
   <div class="modal-body">
     <div class="row">
       <div class="col-md-6">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="panel panel-primary">
-              <div class="panel-heading">
-                {{'CLOUDS.IMAGES.TO_BE_ADDED_TITLE' | translate}}
-              </div>
-              <div class="panel-body">
-                <div class="new-images-selected-modal">
-                  <ul ng-if="images.length > 0" class="list-group">
-                    <li class="list-group-item clickable-media" ng-repeat="cloudImage in images">
-                      <div class="media" id="li_{{cloudImage.id}}" ng-click="unSelectImage(cloudImage)">
-                        <div class="media-body">
-                          <h4 class="media-heading">
-                            <div class="row">
-                              <div class="col-md-2">
-                                <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
-                                <img ng-if="cloudImage.iconId"
-                                     ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
-                              </div>
-                              <div class="col-md-10">
-                                <span>{{cloudImage.name}}</span>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            {{'CLOUDS.IMAGES.TO_BE_ADDED_TITLE' | translate}}
+          </div>
+          <div class="panel-body">
+            <div class="new-images-selected-modal">
+              <ul ng-if="images.length > 0" class="list-group">
+                <li class="list-group-item clickable-media" ng-repeat="cloudImage in images">
+                  <div class="media" id="li_{{cloudImage.id}}" ng-click="unSelectImage(cloudImage)">
+                    <div class="media-body">
+                      <h4 class="media-heading">
+                        <div class="row">
+                          <div class="col-md-2">
+                            <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                            <img ng-if="cloudImage.iconId"
+                                 ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+                          </div>
+                          <div class="col-md-10">
+                            <span>{{cloudImage.name}}</span>
 
-                                <p class="small" style="margin-top: 10px;">{{cloudImage.osDistribution}} {{cloudImage.osVersion}}</p>
-                              </div>
-                            </div>
-                          </h4>
+                            <p class="small" style="margin-top: 10px;">{{cloudImage.osDistribution}} {{cloudImage.osVersion}}</p>
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  </ul>
-                  <span class="images-not-selected" ng-if="images.length === 0">{{'CLOUDS.IMAGES.NO_SELECTED_IMAGES' | translate}}</span>
-                </div>
-              </div>
+                      </h4>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+              <span class="images-not-selected" ng-if="images.length === 0">{{'CLOUDS.IMAGES.NO_SELECTED_IMAGES' | translate}}</span>
             </div>
           </div>
         </div>
@@ -91,7 +87,7 @@
     </div>
   </div>
   <div class="modal-footer">
-    <a class="btn btn-primary" ng-click="ok()">
+    <a id="clouds-new-image-add-button" class="btn btn-primary" ng-click="ok()">
       {{'CLOUDS.IMAGES.NEW' | translate}}
     </a>
     <a class="btn btn-default" ng-click="cancel()">

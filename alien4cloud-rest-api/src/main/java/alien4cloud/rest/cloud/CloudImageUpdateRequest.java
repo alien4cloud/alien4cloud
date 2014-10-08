@@ -10,29 +10,4 @@ import lombok.Setter;
 public class CloudImageUpdateRequest {
 
     private String name;
-
-    /**
-     * The architect x64 or x86
-     */
-    private String osArch;
-
-    /**
-     * OS type
-     */
-    private String osType;
-
-    /**
-     * OS Distribution
-     */
-    private String osDistribution;
-
-    /**
-     * OS Version
-     */
-    private String osVersion;
-
-    /**
-     * Requirement for the image
-     */
-    private CloudImageRequirement requirement;
 }

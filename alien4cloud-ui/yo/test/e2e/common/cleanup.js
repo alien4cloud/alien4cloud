@@ -138,6 +138,10 @@ function cleanGroups() {
   return cleanElasticSearch('group');
 }
 
+function cleanCloudImage() {
+  return cleanElasticSearch('cloudimage');
+}
+
 function cleanup() {
   flow.execute(cleanApplication);
   flow.execute(cleanTopology);
@@ -149,6 +153,7 @@ function cleanup() {
   flow.execute(cleanDeployments);
   flow.execute(cleanTagConfigurationElement);
   flow.execute(cleanGroups);
+  flow.execute(cleanCloudImage);
   cleanAlienRepository();
 }
 module.exports.cleanup = cleanup;
