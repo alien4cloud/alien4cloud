@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.initialization.Security;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -30,10 +33,13 @@ import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * GroupController allows ALIEN administrators to create, delete, update, or search groups.
- *
+ * A default internal group is created to make some security check easier ({@link Security})
+ * Event ADMIN role can't make CRUD operation on this Group
+ * 
  * @author igor ngouagna
  */
 @RestController
+@Slf4j
 @RequestMapping("/rest/groups")
 public class GroupController {
 
@@ -62,7 +68,11 @@ public class GroupController {
     @RequestMapping(value = "/{groupId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Update a group by merging the groupUpdateRequest into the existing group")
     public RestResponse<Void> update(@PathVariable String groupId, @RequestBody UpdateGroupRequest groupUpdateRequest) {
-        groupService.updateGroup(groupId, groupUpdateRequest);
+        if (!isInternalAllUserGroup(groupId)) {
+            groupService.updateGroup(groupId, groupUpdateRequest);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -76,9 +86,11 @@ public class GroupController {
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Group> getGroup(@PathVariable String groupId) {
         if (groupId == null || groupId.isEmpty()) {
-            throw new InvalidArgumentException("groupId cannot be null or empty");
+            throw new InvalidArgumentException("Group with id <" + groupId + "> does not exist");
         }
-        return RestResponseBuilder.<Group> builder().data(alienGroupDao.find(groupId)).build();
+        Group group = alienGroupDao.find(groupId);
+
+        return RestResponseBuilder.<Group> builder().data(group).build();
     }
 
     /**
@@ -93,11 +105,15 @@ public class GroupController {
     @RequestMapping(value = "/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> deleteGroup(@PathVariable String groupId) throws ClassNotFoundException, IOException {
         if (groupId == null || groupId.isEmpty()) {
-            throw new InvalidArgumentException("groupId cannot be null or empty");
+            throw new InvalidArgumentException("Group with id <" + groupId + "> does not exist");
         }
-        groupService.deleteGroup(groupId);
-        // Delete group references in other models implementing ISecuredResource
-        resourceRoleService.deleteGroupRoles(groupId);
+        if (!isInternalAllUserGroup(groupId)) {
+            groupService.deleteGroup(groupId);
+            // Delete group references in other models implementing ISecuredResource
+            resourceRoleService.deleteGroupRoles(groupId);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -127,7 +143,11 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        groupService.addRoleToGroup(groupId, role);
+        if (!isInternalAllUserGroup(groupId)) {
+            groupService.addRoleToGroup(groupId, role);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -144,7 +164,11 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        groupService.removeRoleFromGroup(groupId, role);
+        if (isInternalAllUserGroup(groupId)) {
+            groupService.removeRoleFromGroup(groupId, role);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -153,16 +177,21 @@ public class GroupController {
      *
      * @param groupId The group in which to add the given user.
      * @param username The username of the user to add to the group.
-     * @return an empty (void) rest {@link RestResponse}.
+     * @return added user
      */
     @ApiOperation(value = "Add a user to a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<User> addUserToGroup(@PathVariable String groupId, @PathVariable String username) {
+
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-
-        User user = groupService.addUserToGroup(username, groupId);
+        User user = null;
+        if (isInternalAllUserGroup(groupId)) {
+            user = groupService.addUserToGroup(username, groupId);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<User> builder().data(user).build();
     }
 
@@ -171,7 +200,7 @@ public class GroupController {
      *
      * @param groupId The group from which to remove the given user.
      * @param username The username of the user to remove from the group.
-     * @return an empty (void) rest {@link RestResponse}.
+     * @return
      */
     @ApiOperation(value = "Remove a user from a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -179,9 +208,12 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-
-        User user = groupService.removeUserFromGroup(username, groupId);
-
+        User user = null;
+        if (isInternalAllUserGroup(groupId)) {
+            user = groupService.removeUserFromGroup(username, groupId);
+        } else {
+            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
+        }
         return RestResponseBuilder.<User> builder().data(user).build();
     }
 
@@ -199,5 +231,19 @@ public class GroupController {
         }
         List<Group> groups = alienGroupDao.find(ids.toArray(new String[ids.size()]));
         return RestResponseBuilder.<List<Group>> builder().data(groups).build();
+    }
+
+    /**
+     * Determines if the requested group is the internal corresponding to "All users"
+     *
+     * @param groupId
+     * @return boolean
+     */
+    private boolean isInternalAllUserGroup(String groupId) {
+        Group group = alienGroupDao.find(groupId);
+        if (group != null && Security.GROUP_NAME_ALL_USERS.equals(group.getName())) {
+            return true;
+        }
+        return false;
     }
 }
