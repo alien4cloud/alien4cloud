@@ -27,4 +27,9 @@ public class ArtifactLocalRepository extends AbstractLocalRepository {
             Files.createDirectories(repositoryPath);
         }
     }
+
+    @Override
+    public void checkRepository() throws IOException {
+        setRepositoryPath(repositoryPath.toString());
+    }
 }

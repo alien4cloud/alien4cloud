@@ -40,6 +40,7 @@ public abstract class AbstractLocalRepository implements IFileRepository {
     @Override
     public void storeFile(String id, InputStream data) {
         try {
+            checkRepository();
             Files.copy(data, resolveFile(id), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RepositoryIOException("Could not store file with UID [" + id + "]", e);
@@ -51,4 +52,6 @@ public abstract class AbstractLocalRepository implements IFileRepository {
     }
 
     public abstract Path getRepositoryPath();
+
+    public abstract void checkRepository() throws IOException;
 }
