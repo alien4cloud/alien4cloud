@@ -164,7 +164,7 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        if (isInternalAllUserGroup(groupId)) {
+        if (!isInternalAllUserGroup(groupId)) {
             groupService.removeRoleFromGroup(groupId, role);
         } else {
             log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
@@ -187,7 +187,7 @@ public class GroupController {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
         User user = null;
-        if (isInternalAllUserGroup(groupId)) {
+        if (!isInternalAllUserGroup(groupId)) {
             user = groupService.addUserToGroup(username, groupId);
         } else {
             log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
@@ -209,7 +209,7 @@ public class GroupController {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
         User user = null;
-        if (isInternalAllUserGroup(groupId)) {
+        if (!isInternalAllUserGroup(groupId)) {
             user = groupService.removeUserFromGroup(username, groupId);
         } else {
             log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Security.GROUP_NAME_ALL_USERS);
