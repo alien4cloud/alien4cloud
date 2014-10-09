@@ -1241,11 +1241,11 @@ ShredHttpClient.prototype.execute = function(obj) {
 
 ShredHttpClient.prototype.buildUrl = function(base, url) {
       var endOfPath, parts;
-      base = base.substring(0,base.lastIndexOf('api-doc'));
+      base = base.substring(0, base.lastIndexOf('api-doc'));
       log("swagger.js: base is <" + base+ "> url is <"+url+">");
       if (url.indexOf("/") === 0) {
-        parts = base.split("/");
-        base = parts[0] + "//" + parts[2];
+        // parts = base.split("/");
+        // base = parts[0] + "//" + parts[2];
         return base + url;
       } else {
         endOfPath = base.length;
