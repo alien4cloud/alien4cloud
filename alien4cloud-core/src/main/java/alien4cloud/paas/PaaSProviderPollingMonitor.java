@@ -11,7 +11,6 @@ import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.utils.TypeScanner;
 
 /**
@@ -61,16 +60,13 @@ public class PaaSProviderPollingMonitor implements Runnable {
     @Override
     public void run() {
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
-        Date monitorEvent = null;
         if (auditEvents != null && auditEvents.length > 0) {
             dao.save(auditEvents);
+            Date eventDate = null;
             for (AbstractMonitorEvent event : auditEvents) {
-                if (event instanceof PaaSInstanceStateMonitorEvent) {
-                    PaaSInstanceStateMonitorEvent instanceStateMonitorEvent = (PaaSInstanceStateMonitorEvent) event;
-                    monitorEvent = new Date(instanceStateMonitorEvent.getDate());
-                    if (monitorEvent.after(lastPollingDate)) {
-                        lastPollingDate = monitorEvent;
-                    }
+                eventDate = new Date(event.getDate());
+                if (eventDate.after(lastPollingDate)) {
+                    lastPollingDate = eventDate;
                 }
             }
             for (IPaasEventListener listener : listeners) {

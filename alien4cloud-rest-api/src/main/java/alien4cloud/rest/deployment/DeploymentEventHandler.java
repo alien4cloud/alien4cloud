@@ -101,7 +101,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     public void eventHappened(AbstractMonitorEvent event) {
         send(event);
         if (log.isDebugEnabled()) {
-            log.debug("Pushed event {} for deployment {}", event);
+            log.debug("Pushed event {} for deployment {}", event, event.getDeploymentId());
         }
     }
 
