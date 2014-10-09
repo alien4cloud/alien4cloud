@@ -3,6 +3,8 @@ package alien4cloud.security;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
+
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,12 +13,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import alien4cloud.Constants;
+import alien4cloud.security.groups.IAlienGroupDao;
+
 import com.google.common.collect.Sets;
 
 /**
  * Applications and topologies concerns
  */
 public final class AuthorizationUtil {
+
+    @Resource
+    private static IAlienGroupDao alienGroupDao;
 
     private AuthorizationUtil() {
     }
@@ -233,6 +241,9 @@ public final class AuthorizationUtil {
             // Trick for topology's template
             return true;
         }
+        if (hasAllUsersDefaultGroup(resource)) {
+            return true;
+        }
         Set<String> alienRoles = getRoles(user);
         // With ADMIN role, all rights
         if (alienRoles.contains(Role.ADMIN.toString())) {
@@ -241,4 +252,25 @@ public final class AuthorizationUtil {
         Set<String> appRoles = getRolesForResource(user, resource);
         return hasAtLeastOneRole(appRoles, resourceAdminRole, expectedRoles);
     }
+
+    /**
+     * True when the defaultGroupName is present on the given resource
+     * 
+     * @param resource
+     * @param defaultGroupName
+     * @return boolean
+     */
+    private static boolean hasAllUsersDefaultGroup(ISecuredResource resource) {
+        if (resource.getGroupRoles() != null) {
+            String groupName = null;
+            for (String groupId : resource.getGroupRoles().keySet()) {
+                groupName = alienGroupDao.find(groupId).getName();
+                if (groupName.equals(Constants.GROUP_NAME_ALL_USERS)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }

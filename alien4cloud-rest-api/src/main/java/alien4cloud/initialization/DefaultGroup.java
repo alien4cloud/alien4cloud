@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.Constants;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.security.groups.GroupService;
 
@@ -18,9 +19,8 @@ import alien4cloud.security.groups.GroupService;
  */
 @Slf4j
 @Component
-public class Security {
+public class DefaultGroup {
 
-    public static final String GROUP_NAME_ALL_USERS = "ALL";
     private final String DESCRIPTION = "A internal group representing all alien users.";
 
     @Resource
@@ -29,12 +29,12 @@ public class Security {
     @PostConstruct
     public void createDefaulAlltGroup() {
         try {
-            String createdGroupId = groupService.createGroup(GROUP_NAME_ALL_USERS, null, DESCRIPTION, null, null);
+            String createdGroupId = groupService.createGroup(Constants.GROUP_NAME_ALL_USERS, null, DESCRIPTION, null, null);
             if (createdGroupId != null) {
-                log.info("Default group <{}> created in your system with id <{}>", GROUP_NAME_ALL_USERS, createdGroupId);
+                log.info("Default group <{}> created in your system with id <{}>", Constants.GROUP_NAME_ALL_USERS, createdGroupId);
             }
         } catch (AlreadyExistException e) {
-            log.info("Default group <{}> already exists in your system", GROUP_NAME_ALL_USERS);
+            log.info("Default group <{}> already exists in your system", Constants.GROUP_NAME_ALL_USERS);
         }
 
     }
