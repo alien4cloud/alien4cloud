@@ -3,15 +3,15 @@ package alien4cloud.security;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
 import alien4cloud.security.groups.IAlienGroupDao;
@@ -21,10 +21,15 @@ import com.google.common.collect.Sets;
 /**
  * Applications and topologies concerns
  */
+@Component
 public final class AuthorizationUtil {
 
-    @Resource
     private static IAlienGroupDao alienGroupDao;
+
+    @Autowired
+    public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
+        this.alienGroupDao = alienGroupDao;
+    }
 
     private AuthorizationUtil() {
     }
@@ -260,10 +265,11 @@ public final class AuthorizationUtil {
      * @param defaultGroupName
      * @return boolean
      */
-    private static boolean hasAllUsersDefaultGroup(ISecuredResource resource) {
-        if (resource.getGroupRoles() != null) {
+    public static boolean hasAllUsersDefaultGroup(ISecuredResource resource) {
+        Map<String, Set<String>> groupRoles = resource.getGroupRoles();
+        if (groupRoles != null) {
             String groupName = null;
-            for (String groupId : resource.getGroupRoles().keySet()) {
+            for (String groupId : groupRoles.keySet()) {
                 groupName = alienGroupDao.find(groupId).getName();
                 if (groupName.equals(Constants.GROUP_NAME_ALL_USERS)) {
                     return true;
@@ -272,5 +278,4 @@ public final class AuthorizationUtil {
         }
         return false;
     }
-
 }
