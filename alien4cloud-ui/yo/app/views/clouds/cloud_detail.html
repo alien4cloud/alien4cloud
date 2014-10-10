@@ -3,12 +3,12 @@
 <tabset>
 <tab heading="{{'CLOUDS.DETAILS' | translate}}">
   <div class="row">
-    <div class="col-md-2 center visible-md visible-lg">
-      <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" />
+    <div class="col-md-2 center visible-md visible-lg" style="height: 127px;">
+      <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" class="center" />
     </div>
     <div class="col-md-8">
 
-      <div class="h1" style="display: inline-block;">
+      <div id="cloud_name_input" class="h1" style="display: inline-block;">
               <span editable-text="cloud.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateCloud({'name' : $data})" blur="submit">
                 {{cloud.name}} <i class="fa fa-edit fa-smaller"></i>
               </span>
@@ -99,7 +99,116 @@
     </div>
   </div>
 </tab>
-<tab select="tabs.newTemplates = 0">
+<tab heading="{{'CLOUDS.IMAGE' | translate}}" id="tab-clouds-image">
+  <div class="row">
+    <div class="col-md-12">
+      <fieldset>
+        <legend class="text-center">
+          <h4>
+            <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+          </h4>
+        </legend>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+            <div class="table-responsive large-data-container" id="cloud-images-table">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{{ 'CLOUD_IMAGES.NAME' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</th>
+                    <th>{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="cloudImageId in cloud.images"
+                      id='cloudImage_{{images[cloudImageId].id}}'
+                      style="height: 81px;">
+                    <td>
+                      <i ng-if="!images[cloudImageId].iconId" class="fa fa-image fa-3x"></i>
+                      <img ng-if="images[cloudImageId].iconId"
+                           ng-src="{{images[cloudImageId].iconId?('img?id=' + images[cloudImageId].iconId + '&quality=QUALITY_64'):null}}" />
+                    </td>
+                    <td>{{images[cloudImageId].name}}</td>
+                    <td>{{images[cloudImageId].osDistribution}}</td>
+                    <td>{{images[cloudImageId].osType}}</td>
+                    <td>{{images[cloudImageId].osVersion}}</td>
+                    <td>{{images[cloudImageId].osArch}}</td>
+                    <td>{{images[cloudImageId].requirement.numCPUs || '---'}}</td>
+                    <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
+                    <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button id="clouds-image-add-button" class="btn btn-success btn-sm pull-right" ng-click="openAddCloudImageModal()">
+              <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</tab>
+<tab heading="{{'CLOUDS.FLAVOR' | translate}}" id="tab-clouds-flavor">
+  <div class="row">
+    <div class="col-md-12">
+      <fieldset>
+        <legend class="text-center">
+          <h4>
+            <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
+          </h4>
+        </legend>
+        <div class="row" style="margin-top: 10px;">
+          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+            <div class="table-responsive large-data-container" id="cloud-flavors-table">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>{{ 'CLOUDS.FLAVORS.ID' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</th>
+                    <th>{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="flavor in cloud.flavors" id='cloud_flavor_{{flavor.id}}'>
+                    <td>{{flavor.id}}</td>
+                    <td>{{flavor.numCPUs}}</td>
+                    <td>{{flavor.diskSize | bytes}}</td>
+                    <td>{{flavor.memSize | bytes}}</td>
+                    <td>
+                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button id="clouds-flavor-add-button" class="btn btn-success btn-sm pull-right" ng-click="openFlavorCreationModal()">
+              <i class="fa fa-plus"></i> {{'CLOUDS.FLAVORS.NEW' | translate}}
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</tab>
+<tab select="tabs.newTemplates = 0" id="tab-clouds-template">
   <tab-heading>
     {{'CLOUDS.TEMPLATE' | translate}}
   <span ng-if="tabs.newTemplates != 0" class="badge">
@@ -263,115 +372,6 @@
           </div>
         </fieldset>
       </div>
-    </div>
-  </div>
-</tab>
-<tab heading="{{'CLOUDS.IMAGE' | translate}}">
-  <div class="row">
-    <div class="col-md-12">
-      <fieldset>
-        <legend class="text-center">
-          <h4>
-            <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
-          </h4>
-        </legend>
-        <div class="row" style="margin-top: 10px;">
-          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
-            <div class="table-responsive large-data-container" id="cloud-images-table">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>{{ 'CLOUD_IMAGES.NAME' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</th>
-                    <th>{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr ng-repeat="cloudImageId in cloud.images"
-                      id='cloudImage_{{images[cloudImageId].id}}'
-                      style="height: 81px;">
-                    <td>
-                      <i ng-if="!images[cloudImageId].iconId" class="fa fa-image fa-3x"></i>
-                      <img ng-if="images[cloudImageId].iconId"
-                           ng-src="{{images[cloudImageId].iconId?('img?id=' + images[cloudImageId].iconId + '&quality=QUALITY_64'):null}}" />
-                    </td>
-                    <td>{{images[cloudImageId].name}}</td>
-                    <td>{{images[cloudImageId].osDistribution}}</td>
-                    <td>{{images[cloudImageId].osType}}</td>
-                    <td>{{images[cloudImageId].osVersion}}</td>
-                    <td>{{images[cloudImageId].osArch}}</td>
-                    <td>{{images[cloudImageId].requirement.numCPUs || '---'}}</td>
-                    <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
-                    <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
-                    <td>
-                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-success btn-sm pull-right" ng-click="openAddCloudImageModal()">
-              <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-            </button>
-          </div>
-        </div>
-      </fieldset>
-    </div>
-  </div>
-</tab>
-<tab heading="{{'CLOUDS.FLAVOR' | translate}}">
-  <div class="row">
-    <div class="col-md-12">
-      <fieldset>
-        <legend class="text-center">
-          <h4>
-            <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
-          </h4>
-        </legend>
-        <div class="row" style="margin-top: 10px;">
-          <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
-            <div class="table-responsive large-data-container" id="cloud-flavors-table">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>{{ 'CLOUDS.FLAVORS.ID' | translate}}</th>
-                    <th>{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</th>
-                    <th>{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</th>
-                    <th>{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr ng-repeat="flavor in cloud.flavors" id='cloud_flavor_{{flavor.id}}'>
-                    <td>{{flavor.id}}</td>
-                    <td>{{flavor.numCPUs}}</td>
-                    <td>{{flavor.diskSize | bytes}}</td>
-                    <td>{{flavor.memSize | bytes}}</td>
-                    <td>
-                      <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i></button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-success btn-sm pull-right" ng-click="openFlavorCreationModal()">
-              <i class="fa fa-plus"></i> {{'CLOUDS.FLAVORS.NEW' | translate}}
-            </button>
-          </div>
-        </div>
-      </fieldset>
     </div>
   </div>
 </tab>

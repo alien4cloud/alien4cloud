@@ -213,6 +213,16 @@ fieldset legend {
 
 }
 
+.newImageModal .modal-dialog {
+  width: 50%;
+
+}
+
+.newImageModal .modal-dialog #genericformtypescontainer{
+  height: 450px;
+  overflow: inherit;
+
+}
 /* icons*/
 img.icon_16 {
   height: 16px;

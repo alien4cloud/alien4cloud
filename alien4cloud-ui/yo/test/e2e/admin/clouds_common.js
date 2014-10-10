@@ -6,10 +6,11 @@ var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var rolesCommon = require('../common/roles_common');
 var navigation = require('../common/navigation');
+var genericForm = require('../generic_form/generic_form');
+
 
 // Create and enable a default cloud
 var beforeWithCloud = function() {
-
   common.before();
   authentication.login('admin');
   goToCloudList();
@@ -43,6 +44,7 @@ var createNewCloud = function(newCloudName) {
 module.exports.createNewCloud = createNewCloud;
 
 var goToCloudDetail = function(cloudName) {
+  goToCloudList();
   browser.element(by.name(cloudName)).click();
   browser.waitForAngular();
 };
@@ -138,3 +140,49 @@ var giveRightsOnCloudToGroup = function(cloudName, group, cloudRole) {
   selectRightsTabCloud(cloudName, 'groups-tab', group, cloudRole);
 };
 module.exports.giveRightsOnCloudToGroup = giveRightsOnCloudToGroup;
+
+var goToCloudDetailImage = function() {
+  element(by.id('tab-clouds-image')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailImage = goToCloudDetailImage;
+
+var goToCloudDetailFlavor = function() {
+  element(by.id('tab-clouds-flavor')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailFlavor = goToCloudDetailFlavor;
+
+var goToCloudDetailTemplate = function() {
+  element(by.id('tab-clouds-template')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailTemplate = goToCloudDetailTemplate;
+
+var countCloud = function() {
+  return element.all(by.repeater('cloud in data.data')).count();
+};
+module.exports.countCloud = countCloud;
+
+var countImageCloud = function() {
+  return element.all(by.repeater('cloudImageId in cloud.images')).count();
+};
+module.exports.countImageCloud = countImageCloud;
+
+var countFlavorCloud = function() {
+  return element.all(by.repeater('flavor in cloud.flavors')).count();
+};
+module.exports.countFlavorCloud = countFlavorCloud;
+
+var countTemplateCloud = function() {
+  return element.all(by.repeater('template in cloud.computeTemplates')).count();
+};
+module.exports.countTemplateCloud = countTemplateCloud;
+
+var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
+  browser.element(by.id('clouds-flavor-add-button')).click();
+  genericForm.sendValueToPrimitive('id', name, false, 'input');
+  genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
+  genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
+  genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
+  element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE')).click();
+  common.dismissAlertIfPresent();
+};
+module.exports.addNewFlavor = addNewFlavor;

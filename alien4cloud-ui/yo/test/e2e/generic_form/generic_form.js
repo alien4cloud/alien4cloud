@@ -171,5 +171,9 @@ function saveForm() {
   browser.actions().click(browser.element(by.binding('GENERIC_FORM.SAVE'))).perform();
   common.dismissAlertIfPresent();
 }
-
 module.exports.saveForm = saveForm;
+
+function cancelForm() {
+  browser.actions().click(browser.element(by.binding('GENERIC_FORM.CANCEL'))).perform();
+}
+module.exports.cancelForm = cancelForm;
