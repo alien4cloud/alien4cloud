@@ -20,16 +20,16 @@
       </form>
     </div>
     <div class="col-md-10">
-
-      <ul class="list-group">
-        <li class="list-group-item clickable-media overflowmedia" style="padding:6px;" ng-repeat="application in searchResult.data.data" ng-click="openApplication(application.id)" id="app_{{application.name}}">
-          <div class="media">
-            <i class="pull-left media-object fa fa-desktop fa-4x" ng-show="!application.imageId"></i>
-            <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_64'):null}}" ng-file-drop="onImageSelected($files)" />
-            <div class="media-body">
-              <div class="pull-right">
-
-                <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + application.status | translate }}" tooltip-append-to-body="true" ng-class="{
+      <div class="application-thumbnail" ng-repeat="application in searchResult.data.data" ng-click="openApplication(application.id)" id="app_{{application.name}}">
+        <div class="flip-container" ontouchstart="this.classList.toggle('hover');">
+        	<div class="flipper">
+        		<div class="front">
+        			<div class="application-icon">
+                <i class="fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
+                <img class="application-icon" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId):null}}" ng-file-drop="onImageSelected($files)" />
+              </div>
+              <div class="application-name">
+                <i class="pull-left fa fa-2x vertical-center" ng-class="{
                     'fa-circle text-success' : application.status == 'DEPLOYED',
                     'fa-circle text-muted' : application.status == 'UNDEPLOYED',
                     'fa-warning text-warning' : application.status == 'WARNING',
@@ -37,24 +37,38 @@
                     'fa-question-circle text-muted' : application.status == 'UNKNOWN',
                     'fa-spinner fa-spin' : application.status == 'DEPLOYMENT_IN_PROGRESS' || application.status == 'UNDEPLOYMENT_IN_PROGRESS'
                     }"></i>
-
-                <!-- Delete button with confirm -->
-                <delete-confirm id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                </delete-confirm>
-
+                <span class="h4">{{application.name}}</span>
               </div>
+        		</div>
 
-              <h4 class="media-heading">
-                <span>{{application.name}}</span>
-                <p class="small">{{application.description}}</p>
-              </h4>
-
-            </div>
-          </div>
-        </li>
-      </ul>
+        		<div class="back application-back">
+              <div class="application-icon">
+                <div class="application-icon-small">
+                  <i class="pull-left media-object fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
+                  <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+                  <span class="h4">{{application.name}}</span>
+                </div>
+                <div class="small">
+                  {{application.description}}
+                </div>
+              </div>
+              <div class="application-name">
+                <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + application.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                    'fa-circle text-success' : application.status == 'DEPLOYED',
+                    'fa-circle text-muted' : application.status == 'UNDEPLOYED',
+                    'fa-warning text-warning' : application.status == 'WARNING',
+                    'fa-circle text-danger' : application.status == 'FAILURE',
+                    'fa-question-circle text-muted' : application.status == 'UNKNOWN',
+                    'fa-spinner fa-spin' : application.status == 'DEPLOYMENT_IN_PROGRESS' || application.status == 'UNDEPLOYMENT_IN_PROGRESS'
+                    }"></i>
+                <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </div>
+        		</div>
+        	</div>
+        </div>
+      </div>
     </div>
-
   </div>
 
   <script type="text/ng-template" id="newApplication.html">
