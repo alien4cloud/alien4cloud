@@ -3,6 +3,8 @@ package alien4cloud.security;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
+import alien4cloud.security.groups.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
 
 import com.google.common.collect.Sets;
@@ -21,6 +24,7 @@ import com.google.common.collect.Sets;
 /**
  * Applications and topologies concerns
  */
+@Slf4j
 @Component
 public final class AuthorizationUtil {
 
@@ -125,20 +129,28 @@ public final class AuthorizationUtil {
 
     /**
      * Add a filter that check for authorizations on resources
+     * Takes also in account the ALL_USER group
      */
     public static FilterBuilder getResourceAuthorizationFilters() {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        FilterBuilder filterBuilder = null;
         if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ADMIN.toString()))) {
-            return null;
+            return filterBuilder;
         } else {
             User user = (User) auth.getPrincipal();
+            String groupId = getAllUsersGroupId();
             if (user.getGroups() != null && !user.getGroups().isEmpty()) {
-                return FilterBuilders.boolFilter().should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
+                filterBuilder = FilterBuilders.boolFilter()
+                        .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
                         .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
             } else {
-                return FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
+                filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
             }
+            // add ALL_USERS group as OR filter
+            filterBuilder = FilterBuilders.orFilter(filterBuilder,
+                    FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
         }
+        return filterBuilder;
     }
 
     /**
@@ -262,7 +274,6 @@ public final class AuthorizationUtil {
      * True when the defaultGroupName is present on the given resource
      * 
      * @param resource
-     * @param defaultGroupName
      * @return boolean
      */
     public static boolean hasAllUsersDefaultGroup(ISecuredResource resource) {
@@ -277,5 +288,19 @@ public final class AuthorizationUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Recover the group id for the default ALL_USER group
+     * 
+     * @return
+     */
+    private static String getAllUsersGroupId() {
+        Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);
+        if (group == null) {
+            log.info("Default all users group <{}> not found", Constants.GROUP_NAME_ALL_USERS);
+            return "";
+        }
+        return group.getId();
     }
 }

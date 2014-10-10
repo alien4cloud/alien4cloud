@@ -68,4 +68,11 @@ public interface IAlienGroupDao {
      */
     List<Group> find(String... ids);
 
+    /**
+     * Find a group by name
+     * 
+     * @return
+     */
+    Group findByName(String groupName);
+
 }
