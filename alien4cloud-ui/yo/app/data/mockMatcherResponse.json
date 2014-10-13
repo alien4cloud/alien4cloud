@@ -1,0 +1,86 @@
+[
+  {
+    "_id": "5437e938d715ba746b6c64d0",
+    "name": "very-small",
+    "numCPUs": 16,
+    "diskSize": 500,
+    "memSize": 2056
+  },
+  {
+    "_id": "5437e93861590ba7f85b27b9",
+    "name": "smart",
+    "numCPUs": 4,
+    "diskSize": 500,
+    "memSize": 1024
+  },
+  {
+    "_id": "5437e93846e88ea25c279ff0",
+    "name": "very-small",
+    "numCPUs": 4,
+    "diskSize": 250,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e938a7d65e22d51bef69",
+    "name": "medium",
+    "numCPUs": 8,
+    "diskSize": 1000,
+    "memSize": 2056
+  },
+  {
+    "_id": "5437e938e7d77c41cf1019ed",
+    "name": "very-small",
+    "numCPUs": 16,
+    "diskSize": 1000,
+    "memSize": 1024
+  },
+  {
+    "_id": "5437e93842fecb0bff4d9cb5",
+    "name": "very-small",
+    "numCPUs": 8,
+    "diskSize": 20000,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e9384a4e5980b3d57f59",
+    "name": "small",
+    "numCPUs": 4,
+    "diskSize": 500,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e938851e27377a8887e1",
+    "name": "small",
+    "numCPUs": 8,
+    "diskSize": 500,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e938a243503e210a7d46",
+    "name": "very-small",
+    "numCPUs": 16,
+    "diskSize": 20000,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e938ca2c3937bea5206b",
+    "name": "small",
+    "numCPUs": 4,
+    "diskSize": 1000,
+    "memSize": 256
+  },
+  {
+    "_id": "5437e9380e75701f5d44497b",
+    "name": "medium",
+    "numCPUs": 4,
+    "diskSize": 20000,
+    "memSize": 2056
+  },
+  {
+    "_id": "5437e938ecf6908cfb95497c",
+    "name": "small",
+    "numCPUs": 8,
+    "diskSize": 500,
+    "memSize": 2056
+  }
+]

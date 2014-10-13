@@ -11,10 +11,10 @@
             'fa-question-circle text-muted' : deploymentStatus == 'UNKNOWN',
             'fa-spinner fa-spin' : deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' || deploymentStatus == 'UNDEPLOYMENT_IN_PROGRESS'
             }">
-        </i>
+        </i> <h3 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + deploymentStatus | translate}}</h3>
       </div>
     </div>
-    <!--             deployment -->
+    <!-- Deployment -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
       <div class="col-md-8">
         <!-- Cloud selection -->
@@ -28,24 +28,6 @@
         </div>
         <!-- END : DEPLOYMENT_MANAGER specific -->
 
-        <!-- Plugin deployment properties -->
-        <div ng-if="deploymentPropertyDefinitions != null && deploymentPropertyDefinitions != {}" ng-init="isPropertiesCollapsed = false">
-          <div class="topology-node-expand clickable" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
-            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
-            <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</span>
-          </div>
-          <div collapse="isPropertiesCollapsed">
-            <table class="table table-condensed" id="nodeTemplateProperties">
-              <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
-                <td id="p_{{propertyKey}}">
-                  <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
-                  </property-display>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <!-- END : Plugin deployment properties -->
       </div>
 
       <div class="col-md-4">
@@ -65,21 +47,22 @@
   </div>
   <div class="col-md-6">
     <!-- todo list -->
-    <div class="row" style="margin-top: 20px;" ng-if="!validTopologyDTO.valid && isManager">
+    <div class="row" ng-if="showTodoList()">
       <div class="col-md-12">
-        <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> <strong>{{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</strong></span>
+        <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i>
+          {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
         <div class="task-list-box">
-<!--                   case the topology is not created -->
+          <!-- case the topology is not created -->
           <span ng-if="!topologyId">
             {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
           </span>
 
-<!--                   case the topology is empty -->
+          <!-- case the topology is empty -->
           <span ng-if="!validTopologyDTO.taskList && topologyId">
             {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
           </span>
 
-          <!--                     Replacement tasks  -->
+          <!--  Replacement tasks  -->
           <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
 
             <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
@@ -114,7 +97,7 @@
             </div>
           </div>
 
-          <!--                     Implementation tasks  -->
+          <!--  Implementation tasks  -->
           <div ng-if="(toImplementNodeTasks = (validTopologyDTO.taskList | filter:{code:'IMPLEMENT'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
@@ -135,7 +118,7 @@
             </div>
           </div>
 
-          <!--                     LowerBound not satisfied tasks  -->
+          <!--  LowerBound not satisfied tasks  -->
           <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
@@ -171,7 +154,7 @@
             </div>
           </div>
 
-          <!--                     required properties tasks  -->
+          <!--  Required properties tasks  -->
           <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTY_REQUIRED'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
@@ -206,6 +189,20 @@
         </div>
       </div>
     </div>
+
+    <!-- Plugin deployment properties -->
+    <div ng-if="!showTodoList() && showProperty()" ng-init="isPropertiesCollapsed = false">
+        <h3><i class="fa fa-cog">   </i>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
+        <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
+          <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
+            <td id="p_{{propertyKey}}">
+              <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
+              </property-display>
+            </td>
+          </tr>
+        </table>
+    </div>
+    <!-- END : Plugin deployment properties -->
 
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
@@ -331,5 +328,48 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- Matcher -->
+  <div class="col-md-12" style="padding-top:20px;" ng-if="!showTodoList()">
+    <h3>Association des ressources du cloud</h3>
+    <div class="col-md-4">
+      <ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
+        <li style="font-weight: bold;">
+          <div class="col-md-4">Nom du composant</div>
+          <div class="col-md-4">Nom de l'image</div>
+          <div class="col-md-4">Nom du gabarit</div>
+        </li>
+        <li ng-repeat="(key, node) in nodeTemplates" ng-mouseover="setImage(node)"
+        class="list-group-item clickable-media" style="height:40px;" ng-re>
+            <div class="col-md-4">{{key}}</div>
+            <div class="col-md-4">Ubuntu 8</div>
+            <div class="col-md-4">small</div>
+        </li>
+      </ul>
+    </div>
+    <div style="overflow-y:scroll;  max-height:550px;" ng-if="displayMatcherPannel">
+      <ul class="list-group" ng-scrollbar style="overflow: auto; margin-bottom: 0px; {{listHeight}} ">
+        <li style="font-weight: bold;">
+            <div class="col-md-4">Distribution</div>
+            <div class="col-md-2">Type</div>
+            <div class="col-md-3">Version</div>
+            <div class="col-md-3">Architecture</div>
+            <div class="col-md-2">Type</div>
+            <div class="col-md-2">Version</div>
+            <div class="col-md-2">Architecture</div>
+        </li>
+        <li ng-repeat="image in fakeMatcher" class="list-group-item clickable-media" style="height:80px;"
+        ng-class="(isSelected(image._id)) ? 'active' : ''" ng-click="changeSelectedImage(image._id)" id="{{'li_' + image._id}}">
+            <div class="col-md-4">{{image.name}}</div>
+            <div class="col-md-2">{{image.numCPUs}}</div>
+            <div class="col-md-3">{{image.diskSize}}</div>
+            <div class="col-md-3">{{image.memSize}}</div>
+            <div class="col-md-2">Type</div>
+            <div class="col-md-2">Version</div>
+            <div class="col-md-2">Architecture</div>
+        </li>
+      </ul>
+    <div>
   </div>
 </div>
