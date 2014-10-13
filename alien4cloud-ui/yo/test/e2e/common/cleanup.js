@@ -82,8 +82,8 @@ function cleanElasticSearch(indexName) {
   return defer.promise;
 }
 
-function cleanTagConfigurationElement() {
-  return cleanElasticSearch('tagconfiguration');
+function cleanMetaPropConfigurationElement() {
+  return cleanElasticSearch('metapropconfiguration');
 }
 
 function cleanToscaElement() {
@@ -151,7 +151,7 @@ function cleanup() {
   flow.execute(cleanClouds);
   flow.execute(cleanCloudConfigurations);
   flow.execute(cleanDeployments);
-  flow.execute(cleanTagConfigurationElement);
+  flow.execute(cleanMetaPropConfigurationElement);
   flow.execute(cleanGroups);
   flow.execute(cleanCloudImage);
   cleanAlienRepository();
