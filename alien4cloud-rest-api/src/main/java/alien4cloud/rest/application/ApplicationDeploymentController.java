@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.rest.cloud.CloudResourceMatchResult;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -271,5 +272,12 @@ public class ApplicationDeploymentController {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+
+    @ApiOperation(value = "Match a topology to a cloud, get all available resources for all matchable elements of the topology", notes = "Only user with ADMIN role can enable a cloud template.")
+    @RequestMapping(value = "/{applicationId}/templates/{imageId}/{flavorId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<CloudResourceMatchResult> matchCloudResources(@PathVariable String cloudId, @PathVariable String topologyId) {
+
     }
 }

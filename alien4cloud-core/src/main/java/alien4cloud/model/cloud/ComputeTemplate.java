@@ -1,6 +1,5 @@
 package alien4cloud.model.cloud;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,6 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class ComputeTemplate {
 
@@ -19,4 +17,9 @@ public class ComputeTemplate {
     private String cloudImageFlavorId;
 
     private boolean enabled = true;
+
+    public ComputeTemplate(String cloudImageId, String cloudImageFlavorId) {
+        this.cloudImageId = cloudImageId;
+        this.cloudImageFlavorId = cloudImageFlavorId;
+    }
 }
