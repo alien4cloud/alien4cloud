@@ -1,4 +1,4 @@
-package alien4cloud.rest.cloud;
+package alien4cloud.cloud;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class CloudResourceMatchResult {
+public class CloudResourceTopologyMatchResult {
 
     private Map<String, CloudImage> images;
 

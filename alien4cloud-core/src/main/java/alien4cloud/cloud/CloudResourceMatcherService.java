@@ -37,12 +37,42 @@ public class CloudResourceMatcherService {
     public static final String COMPUTE_TYPE = "tosca.nodes.Compute";
 
     /**
+     * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
+     * 
+     * @param topology the topology to check
+     * @param cloud the cloud
+     * @return match result which contains the images that can be used, the flavors that can be used and their possible association
+     */
+    public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud) {
+        Map<String, NodeTemplate> matchableNodes = getMatchableTemplates(topology);
+        Map<String, List<ComputeTemplate>> matchResult = Maps.newHashMap();
+        Set<String> imageIds = Sets.newHashSet();
+        Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
+        for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
+            List<ComputeTemplate> computeTemplates = Lists.newArrayList();
+            List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
+            for (CloudImage image : images) {
+                imageIds.add(image.getId());
+                List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
+                for (CloudImageFlavor flavor : flavors) {
+                    flavorMap.put(flavor.getId(), flavor);
+                    ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
+                    computeTemplates.add(template);
+                }
+            }
+            matchResult.put(templateEntry.getKey(), computeTemplates);
+        }
+        Map<String, CloudImage> imageMap = cloudImageService.getMultiple(imageIds);
+        return new CloudResourceTopologyMatchResult(imageMap, flavorMap, matchResult);
+    }
+
+    /**
      * This method browse topology's node templates and return those that need to be matched to cloud's resources
      * 
      * @param topology the topology to check
      * @return all node template that must be matched
      */
-    public Map<String, NodeTemplate> getMatchableTemplates(Topology topology) {
+    private Map<String, NodeTemplate> getMatchableTemplates(Topology topology) {
         Map<String, NodeTemplate> allNodeTemplates = topology.getNodeTemplates();
         Map<String, NodeTemplate> matchableNodeTemplates = Maps.newHashMap();
         if (allNodeTemplates == null) {
@@ -64,7 +94,7 @@ public class CloudResourceMatcherService {
      * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
      */
-    public List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate) {
+    private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate) {
         if (!COMPUTE_TYPE.equals(nodeTemplate.getType())) {
             throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
@@ -117,7 +147,7 @@ public class CloudResourceMatcherService {
      * @param cloudImage the image
      * @return the available flavors for the compute and the image on the given cloud
      */
-    public List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {
+    private List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {
         if (!COMPUTE_TYPE.equals(nodeTemplate.getType())) {
             throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
@@ -152,26 +182,6 @@ public class CloudResourceMatcherService {
         }
         Collections.sort(matchedFlavors);
         return matchedFlavors;
-    }
-
-    /**
-     * Get available compute templates
-     * 
-     * @param cloud the cloud
-     * @param nodeTemplate the compute to search for templates
-     * @return sorted list of templates, the first element is the most matching one
-     */
-    public List<ComputeTemplate> getAvailableComputeTemplates(Cloud cloud, NodeTemplate nodeTemplate) {
-        List<ComputeTemplate> computeTemplates = Lists.newArrayList();
-        List<CloudImage> images = getAvailableImagesForCompute(cloud, nodeTemplate);
-        for (CloudImage image : images) {
-            List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, nodeTemplate, image);
-            for (CloudImageFlavor flavor : flavors) {
-                ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
-                computeTemplates.add(template);
-            }
-        }
-        return computeTemplates;
     }
 
     private static interface ValueParser<T> {

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.cloud.CloudImageService;
-import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.Cloud;
@@ -51,8 +50,6 @@ public class CloudController {
     private CloudService cloudService;
     @Resource
     private CloudImageService cloudImageService;
-    @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
     @Resource
     private ResourceRoleService resourceRoleService;
 
