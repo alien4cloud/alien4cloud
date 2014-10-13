@@ -2,14 +2,26 @@
 
 angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide',
   function($provide) {
-    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService',
-      function($resource, $state, $http, alienNavBarService) {
+    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService', 'groupServices',
+      function($resource, $state, $http, alienNavBarService, groupServices) {
         // isArray needed when results is JSON with nested object
         var userStatusResource = $resource('rest/auth/status', {}, {
           'query': {
             method: 'GET',
             isArray: false
           }
+        });
+
+        // get default allusers group
+        var allusers = null;
+        var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
+          'query': {
+            method: 'GET',
+            isArray: false
+          }
+        }).get(function(result) {
+          console.log('ALL USERS results', result);
+          allusers = result.data;
         });
 
         var onCurrentStatus = function() {
@@ -153,8 +165,16 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
         var hasResourceRoleIn = function(resource, roles) {
           return authorizationCheck(
             function(userStatus) {
-              //check all accessible roles first
+              // check all accessible roles first
               if (userStatus.roles.indexOf(allAccessAdminRole) > -1) {
+                return true;
+              }
+              // check if the resource has ALL_USERS group rights
+              console.log('IS DEFINED DATA ', defaultAllUsersGroup.data, '----', allusers);
+              console.log('IS DEFINED ', UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data));
+              // console.log('IS HAS OWN ', resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id));
+              if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data) && resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id)) {
+                console.log('IS ALL_USERS GROUP', resource);
                 return true;
               }
               // check if the user has the role.

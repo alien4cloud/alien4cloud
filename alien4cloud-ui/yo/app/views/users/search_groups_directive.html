@@ -63,7 +63,7 @@
                 </span>
                 <span ng-if="groupRolesEmpty">---</span>
               </td>
-              <td ng-if="ALL_USERS_GROUP != group.name">
+              <td>
                 <div class="btn-group">
                   <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'GROUPS.EDIT_ROLE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
@@ -75,7 +75,7 @@
                     </li>
                   </ul>
                 </div>
-                <div class="btn-group">
+                <div class="btn-group" ng-if="ALL_USERS_GROUP != group.name">
                   <!-- Delete a group -->
                   <delete-confirm id="group_{{group.name}}_delete" ng-if="crudSupport" func="remove(group)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                   </delete-confirm>

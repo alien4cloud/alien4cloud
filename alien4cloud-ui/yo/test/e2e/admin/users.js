@@ -35,6 +35,11 @@ module.exports.groups = {
   shire: {
     name: 'shire',
     email: 'shire@middleearth.nz'
+  },
+  allusers: {
+    name: 'ALL_USERS',
+    email: 'all@alien4cloud.fr',
+    description: 'Default alien internal group'
   }
 };
 

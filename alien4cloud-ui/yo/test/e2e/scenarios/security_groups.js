@@ -94,4 +94,5 @@ describe('Security management for group in action', function() {
     authentication.reLogin('bilbo');
     components.checkComponentManager(false);
   });
+
 });

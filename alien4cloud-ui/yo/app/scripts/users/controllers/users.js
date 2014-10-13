@@ -16,25 +16,29 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
         groupServices.addRole([], {
           groupId: group.id,
           role: role
-        }, function() {
-          if (UTILS.isUndefinedOrNull(group.roles)) {
-            group.roles = [];
+        }, function success(result) {
+          if (UTILS.isUndefinedOrNull(result.error)) {
+            if (UTILS.isUndefinedOrNull(group.roles)) {
+              group.roles = [];
+            }
+            group.roles.push(role);
+            $rootScope.$emit('groupsChanged');
           }
-          group.roles.push(role);
-          $rootScope.$emit('groupsChanged');
         });
       } else {
         groupServices.removeRole([], {
           groupId: group.id,
           role: role
-        }, function() {
-          if (UTILS.isDefinedAndNotNull(group.roles)) {
-            var roleIndex = group.roles.indexOf(role);
-            if (roleIndex > -1) {
-              group.roles.splice(roleIndex, 1);
+        }, function success(result) {
+          if (UTILS.isUndefinedOrNull(result.error)) {
+            if (UTILS.isDefinedAndNotNull(group.roles)) {
+              var roleIndex = group.roles.indexOf(role);
+              if (roleIndex > -1) {
+                group.roles.splice(roleIndex, 1);
+              }
             }
+            $rootScope.$emit('groupsChanged');
           }
-          $rootScope.$emit('groupsChanged');
         });
       }
     };
@@ -90,4 +94,5 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
       }
       return false;
     };
-  }]);
+  }
+]);
