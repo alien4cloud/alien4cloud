@@ -6,7 +6,7 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(features = { "classpath:alien/rest/groups/default_all_group.feature" }, format = { "pretty", "html:target/cucumber/groups",
+@CucumberOptions(features = { "classpath:alien/rest/groups" }, format = { "pretty", "html:target/cucumber/groups",
         "json:target/cucumber/cucumber-groups.json" })
 public class RunGroupsIT {
 }

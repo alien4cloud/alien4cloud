@@ -36,6 +36,7 @@ public enum RestErrorCode {
     IMAGE_UPLOAD_ERROR(503),
     NOT_FOUND_ERROR(504),
     ILLEGAL_STATE_OPERATION(505),
+    INTERNAL_OBJECT_ERROR(506),
 
     // Application handling errors : code 600+
     APPLICATION_UNDEPLOYMENT_ERROR(602),

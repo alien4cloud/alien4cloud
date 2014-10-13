@@ -20,9 +20,9 @@ Scenario: Creating a new group with roles and users
   Given There is a "sauron" user in the system 
   When I create a new group in the system with name "lordOfRing" , a role "ADMIN" and a user "sauron" 
   Then I should receive a RestResponse with no error 
-  And the group "lordOfRing" should have the folowing roles 
+  And the group "lordOfRing" should have the following roles 
     | ADMIN |
-  And the group "lordOfRing" should have the folowing users 
+  And the group "lordOfRing" should have the following users 
     | sauron |
     
 Scenario: Creating a new group with wrong roles or users should fail 
@@ -77,7 +77,7 @@ Scenario: Search for groups should return the expected number of groups
   Then I should receive a RestResponse with no error 
   And there should be 4 groups in the response 
   
-Scenario: 
+Scenario: I can delete a group even if there are users in this group
   Deleting a group having members should be able to update the members groups. 
   Given There is a "lordOfRing" group in the system 
   And There is a "sauron" user in the system 

@@ -9,7 +9,7 @@ Feature: Creating a new group
   Scenario: Adding a role to a group should succeed.
     When I add the role "COMPONENTS_BROWSER" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing roles
+    And the group "lordOfRing" should have the following roles
       | COMPONENTS_BROWSER |
 
   Scenario: Adding a wrong role to a group should fail.
@@ -22,13 +22,13 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
     When I remove the role "COMPONENTS_BROWSER" from the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing roles
+    And the group "lordOfRing" should have the following roles
       | COMPONENTS_MANAGER |
 
   Scenario: Adding a user to a group should succeed.
     When I add the user "sauron" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing users
+    And the group "lordOfRing" should have the following users
       | sauron |
 
   Scenario: Removing a user from a group should succeed.
@@ -37,7 +37,7 @@ Feature: Creating a new group
       | gandalf |
     When I remove the user "gandalf" from the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing users
+    And the group "lordOfRing" should have the following users
       | sauron |
 
   Scenario: Adding a role to a group should succeed and update all the related users grouproles.
@@ -45,9 +45,9 @@ Feature: Creating a new group
       | sauron |
     When I add the role "COMPONENTS_BROWSER" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing roles
+    And the group "lordOfRing" should have the following roles
       | COMPONENTS_BROWSER |
-    And the user "sauron" should have the folowing group roles
+    And the user "sauron" should have the following group roles
       | COMPONENTS_BROWSER |
 
   Scenario: Adding a user to a group should succeed and update the related user's grouproles.
@@ -56,11 +56,11 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
     When I add the user "sauron" to the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing users
+    And the group "lordOfRing" should have the following users
       | sauron |
-    And the user "sauron" should have the folowing group
+    And the user "sauron" should have the following group
       | lordOfRing |
-    And the user "sauron" should have the folowing group roles
+    And the user "sauron" should have the following group roles
       | COMPONENTS_BROWSER |
       | COMPONENTS_MANAGER |
 
@@ -72,9 +72,9 @@ Feature: Creating a new group
       | COMPONENTS_MANAGER |
     When I remove the role "COMPONENTS_BROWSER" from the group "lordOfRing"
     Then I should receive a RestResponse with no error
-    And the group "lordOfRing" should have the folowing roles
+    And the group "lordOfRing" should have the following roles
       | COMPONENTS_MANAGER |
-    And the user "sauron" should have the folowing group roles
+    And the user "sauron" should have the following group roles
       | COMPONENTS_MANAGER |
 
   Scenario: Removing a user from a group should succeed and update the related user's grouproles.
@@ -100,21 +100,21 @@ Feature: Creating a new group
     #Adding gandalf to a second group
     When I add the user "gandalf" to the group "theHobbit"
     Then I should receive a RestResponse with no error
-    And the group "theHobbit" should have the folowing users
+    And the group "theHobbit" should have the following users
       | gandalf |
-    And the group "lordOfRing" should have the folowing users
+    And the group "lordOfRing" should have the following users
       | gandalf |
-    And the user "gandalf" should have the folowing group
+    And the user "gandalf" should have the following group
       | lordOfRing |
       | theHobbit  |
-    And the user "gandalf" should have the folowing group roles
+    And the user "gandalf" should have the following group roles
       | COMPONENTS_BROWSER |
       | COMPONENTS_MANAGER |
     #Removing gandalf from a group
     When I remove the user "gandalf" from the group "lordOfRing"
     Then I should receive a RestResponse with no error
     And the group "lordOfRing" should not have any users
-    And the user "gandalf" should have the folowing group
+    And the user "gandalf" should have the following group
       | theHobbit |
-    And the user "gandalf" should have the folowing group roles
+    And the user "gandalf" should have the following group roles
       | COMPONENTS_MANAGER |
