@@ -1,6 +1,6 @@
 /**
- * Cleanup is responsible of cleaning ElasticSearch repository and Alien4Cloud resources folders in order to make each test independant from the others.
- */
+* Cleanup is responsible of cleaning ElasticSearch repository and Alien4Cloud resources folders in order to make each test independant from the others.
+*/
 
 /* global protractor */
 
@@ -13,7 +13,7 @@ var http = require('http');
 
 var flow = protractor.promise.controlFlow();
 
-function deleteFolderRecursive(folderPath, mustRemove) {
+function deleteFolderRecursive (folderPath, mustRemove) {
   if (fs.existsSync(folderPath)) {
     fs.readdirSync(folderPath).forEach(function(file) {
       var curPath = folderPath + path.sep + file;
@@ -82,7 +82,7 @@ function cleanElasticSearch(indexName) {
   return defer.promise;
 }
 
-function cleanTagConfigurationElement() {
+function cleanMetaPropConfigurationElement() {
   return cleanElasticSearch('metapropconfiguration');
 }
 
@@ -151,7 +151,7 @@ function cleanup() {
   flow.execute(cleanClouds);
   flow.execute(cleanCloudConfigurations);
   flow.execute(cleanDeployments);
-  flow.execute(cleanTagConfigurationElement);
+  flow.execute(cleanMetaPropConfigurationElement);
   flow.execute(cleanGroups);
   flow.execute(cleanCloudImage);
   cleanAlienRepository();
