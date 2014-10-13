@@ -275,7 +275,7 @@ public class ApplicationDeploymentController {
     }
 
     @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology")
-    @RequestMapping(value = "/{applicationId}/cloud-resources", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
