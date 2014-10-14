@@ -18,10 +18,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.selectedComputeTemplates = {};
 
-    $http.get('/data/mockMatcherResponse.json').success (function(data){
-      $scope.matchedCloudResources = data.matchResult;
-      $scope.images = data.images;
-      $scope.flavors = data.flavors;
+    applicationServices.matchResources({
+      applicationId: $scope.application.id
+    },undefined,function(response) {
+      $scope.matchedCloudResources = response.data.matchResult;
+      $scope.images = response.data.images;
+      $scope.flavors = response.data.flavors;
       for(var key in $scope.matchedCloudResources) {
         if($scope.matchedCloudResources.hasOwnProperty(key)) {
           var templates = $scope.matchedCloudResources[key];
@@ -59,34 +61,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       return key === $scope.currentNodeTemplateId;
     };
 
-    var fakeMatcher = $http.get('/data/mockMatcherResponse.json').success (function(data){
-      $scope.fakeMatcher = data;
-      $scope.currentSelectedImage = data[0]._id;;
-    });
-
     $scope.showProperty = function() {
       return $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
     };
 
     $scope.showTodoList = function() {
       return !$scope.validTopologyDTO.valid && $scope.isManager;
-    };
-
-    $scope.isSelected = function(id) {
-      return id === $scope.currentSelectedImage;
-    };
-
-    $scope.changeSelectedImage = function(id) {
-      // TODO: send new value to server
-      angular.element($('li_' + $scope.currentSelectedImage)).removeClass('active');
-      angular.element($('li_' + $scope.currentSelectedImage)).addClass('active');
-      $scope.currentSelectedImage = id;
-    };
-
-    $scope.setImage = function(node) {
-      $scope.displayMatcherPannel = true;
-      $scope.idFlavor = "5437e93861590ba7f85b27b9";
-      $scope.node = node;
     };
 
     $scope.isAllowedModify = function() {
@@ -107,6 +87,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         topologyId: $scope.topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
+        $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;

@@ -120,7 +120,7 @@ public class CloudImageController {
      * Search for clouds.
      *
      * @param searchRequest Query to find the cloud images.
-     * @return A {@link RestResponse} that contains a {@link calm.dao.model.GetMultipleDataResult} that contains the clouds.
+     * @return A {@link RestResponse} that contains a {@link alien4cloud.dao.model.GetMultipleDataResult} that contains the clouds.
      */
     @ApiOperation(value = "Search for cloud images.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/search", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

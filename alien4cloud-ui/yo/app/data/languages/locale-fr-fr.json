@@ -268,10 +268,11 @@
     },
     "DEPLOYMENT": {
       "NAME_MATCHER": "Association des ressources du cloud",
+      "TITLE_NODE_ICON" : "Icone du noeud",
       "TITLE_COMPOSANT" : "Nom du composant",
       "TITLE_IMAGE" : "Nom de l'image",
       "TITLE_FLAVOR" : "Nom du gabarit",
-
+      "TITLE_IMAGE_ICON" : "Icone de l'image",
       "TITLE_DISTRIBUTION" : "Distribution",
       "TITLE_TYPE" : "Type",
       "TITLE_VERSION" : "Version",

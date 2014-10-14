@@ -206,7 +206,6 @@
         </div>
       </div>
     </div>
-
     <!-- END : Plugin deployment properties -->
 
     <!-- Input properties  -->
@@ -336,25 +335,21 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-md-12">
-  <!-- Matcher -->
-    <div class="row" ng-if="!showTodoList()" style="padding-top:20px;">
-      <div class="col-md-12" ng-if="!showTodoList()">
-        <legend class="text-center title-border">
-          <h3><i class="fa fa-random"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
-        </legend>
-      </div>
-    </div>
+<!-- Matcher -->
+<div class="row" ng-if="!showTodoList()" style="padding-top:10px;">
+  <div class="col-md-12" ng-if="!showTodoList()">
+    <legend class="text-center title-border">
+      <h3><i class="fa fa-random"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
+    </legend>
   </div>
 </div>
-
-<div class="row" style="padding-top:20px;">
+<div class="row" ng-if="!showTodoList()">
   <div class="col-md-4">
     <div class="table-responsive large-data-container">
       <table class="table table-hover">
         <thead>
           <tr>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_NODE_ICON' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPOSANT' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
@@ -363,6 +358,10 @@
         <tbody>
           <tr ng-repeat="(key, templates) in matchedCloudResources" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
             class="clickable-media" ng-class="{'info': isSelectedTemplate(key)}">
+            <td>
+              <i ng-if="!nodeTypeImage" class="fa fa-image fa-3x"></i>
+              <img ng-if="nodeTypeImage" ng-src="{{nodeTypeImage?('img?id=' + nodeTypeImage + '&quality=QUALITY_64'):null}}" />
+            </td>
             <td>{{key}}</td>
             <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
             <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
@@ -376,7 +375,7 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DISTRIBUTION' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE_ICON' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
             <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
@@ -388,19 +387,20 @@
         <tbody>
           <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
               ng-class="{'info' : isSelected(template)}" ng-click="changeSelectedImage(template)">
-            <td>{{images[template.cloudImageId].type}}</td>
-            <td>{{images[cloudImageId].osType}}</td>
-            <td>{{images[cloudImageId].osVersion}}</td>
-            <td>{{images[cloudImageId].osArch}}</td>
+            <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
+              <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
+              <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
+            </td>
+            <td>{{images[template.cloudImageId].osType}}</td>
+            <td>{{images[template.cloudImageId].osVersion}}</td>
+            <td>{{images[template.cloudImageId].osArch}}</td>
             <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
-            <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
-            <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
-</div>
-
 </div>
 </div>
