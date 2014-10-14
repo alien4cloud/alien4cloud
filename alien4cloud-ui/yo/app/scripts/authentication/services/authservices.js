@@ -13,16 +13,12 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
         });
 
         // get default allusers group
-        var allusers = null;
         var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
           'query': {
             method: 'GET',
             isArray: false
           }
-        }).get(function(result) {
-          console.log('ALL USERS results', result);
-          allusers = result.data;
-        });
+        }).query();
 
         var onCurrentStatus = function() {
           for (var i = 0; i < alienNavBarService.menu.left.length; i++) {
@@ -170,11 +166,7 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
                 return true;
               }
               // check if the resource has ALL_USERS group rights
-              console.log('IS DEFINED DATA ', defaultAllUsersGroup.data, '----', allusers);
-              console.log('IS DEFINED ', UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data));
-              // console.log('IS HAS OWN ', resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id));
               if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data) && resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id)) {
-                console.log('IS ALL_USERS GROUP', resource);
                 return true;
               }
               // check if the user has the role.

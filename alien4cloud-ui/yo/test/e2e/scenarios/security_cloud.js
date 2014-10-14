@@ -231,14 +231,13 @@ describe('Cloud security and deployment capability per user/group', function() {
     cloudsCommon.giveRightsOnCloudToGroup('testcloud', users.groups.allusers.name, rolesCommon.cloudRoles.cloudDeployer);
 
     // deploy an applicaton as sauron
-    authentication.reLogin(authentication.users.sauron.username);
-
-    applications.goToApplicationListPage();
-    applications.goToApplicationDetailPage('Alien', false);
-    browser.sleep(15000);
-    navigation.go('applications', 'deployment');
-    var selected = cloudsCommon.selectApplicationCloud('testcloud');
-    expect(selected).toBe(true); // testcloud is in the select
+    // authentication.reLogin(authentication.users.sauron.username);
+    //
+    // applications.goToApplicationListPage();
+    // applications.goToApplicationDetailPage('Alien', false);
+    // navigation.go('applications', 'deployment');
+    // var selected = cloudsCommon.selectApplicationCloud('testcloud');
+    // expect(selected).toBe(true); // testcloud is in the select
 
   });
 
