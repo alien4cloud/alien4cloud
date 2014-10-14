@@ -11,8 +11,10 @@ angular.module('alienUiApp').controller(
 
       $scope.cloudImage = {};
 
-      $scope.save = function() {
-        $modalInstance.close($scope.cloudImage);
+      $scope.save = function(cloudImage) {
+        return cloudImageServices.create({}, angular.toJson(cloudImage)).$promise.then(function(success){
+          $modalInstance.close(success.data);
+        });
       };
 
       $scope.cancel = function() {

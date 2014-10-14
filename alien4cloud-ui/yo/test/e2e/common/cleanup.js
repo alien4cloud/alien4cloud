@@ -82,8 +82,8 @@ function cleanElasticSearch(indexName) {
   return defer.promise;
 }
 
-function cleanTagConfigurationElement() {
-  return cleanElasticSearch('tagconfiguration');
+function cleanMetaPropConfigurationElement() {
+  return cleanElasticSearch('metapropconfiguration');
 }
 
 function cleanToscaElement() {
@@ -138,6 +138,10 @@ function cleanGroups() {
   return cleanElasticSearch('group');
 }
 
+function cleanCloudImage() {
+  return cleanElasticSearch('cloudimage');
+}
+
 function cleanup() {
   flow.execute(cleanApplication);
   flow.execute(cleanTopology);
@@ -147,8 +151,9 @@ function cleanup() {
   flow.execute(cleanClouds);
   flow.execute(cleanCloudConfigurations);
   flow.execute(cleanDeployments);
-  flow.execute(cleanTagConfigurationElement);
+  flow.execute(cleanMetaPropConfigurationElement);
   flow.execute(cleanGroups);
+  flow.execute(cleanCloudImage);
   cleanAlienRepository();
 }
 module.exports.cleanup = cleanup;

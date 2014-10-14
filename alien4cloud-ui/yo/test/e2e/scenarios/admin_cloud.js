@@ -4,24 +4,84 @@
 var common = require('../common/common');
 var authentication = require('../authentication/authentication');
 var cloudsCommon = require('../admin/clouds_common');
+var cloudImageCommon = require('../admin/cloud_image');
 
-describe('Disabling / Enabling cloud: ', function() {
+
+describe('Test the cloud management: ', function() {
+  var reset = true;
+  var after = false;
+
   beforeEach(function() {
-    common.before();
-    authentication.login('admin');
-    cloudsCommon.goToCloudList();
-    cloudsCommon.createNewCloud('testcloud');
-    cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.enableCloud();
+    if(reset) {
+      reset = false;
+      common.before();
+      authentication.login('admin');
+    }
   });
 
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    if(after) {
+      common.after();
+    }
+  });
+
+
+  it('should be rename a cloud.', function() {
+    console.log('################# should be rename a cloud.');
+    expect(browser.isElementPresent(by.name('testcloud'))).toBe(false);
+    cloudsCommon.goToCloudList();
+    cloudsCommon.createNewCloud('test-rename');
+    cloudsCommon.goToCloudDetail('test-rename');
+    cloudsCommon.enableCloud();
+    common.sendValueToXEditable('cloud_name_input', 'testcloud', false);
+    cloudsCommon.goToCloudList();
+    expect(browser.isElementPresent(by.name('testcloud'))).toBe(true);
+  });
+
+  it('should reject a new cloud if a cloud with the same name already exist.', function() {
+    console.log('################# should reject a new cloud if a cloud with the same name already exist.');
+    cloudsCommon.goToCloudList();
+    expect(cloudsCommon.countCloud()).toBe(1);
+    cloudsCommon.createNewCloud('testcloud');
+    expect(cloudsCommon.countCloud()).toBe(1);
+  });
+
+  it('should be select an image for a cloud.', function() {
+    console.log('################# should be select an image for a cloud.');
+    cloudsCommon.goToCloudDetail('testcloud');
+    expect(cloudsCommon.countImageCloud()).toBe(0);
+    cloudImageCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.goToCloudDetailImage();
+    browser.element(by.id('clouds-image-add-button')).click();
+    var imageLi =  element.all(by.repeater('cloudImage in data.data')).first();
+    var imageDiv = imageLi.element(by.css('div[ng-click^="selectImage"]'));
+    browser.actions().click(imageDiv).perform();
+    browser.element(by.id('clouds-new-image-add-button')).click();
+    browser.waitForAngular();
+    expect(cloudsCommon.countImageCloud()).toBe(1);
+  });
+
+  it('should be create a flavor for a cloud.', function() {
+    console.log('################# should be create a flavor for a cloud.')
+    expect(cloudsCommon.countFlavorCloud()).toBe(0);
+    cloudsCommon.goToCloudDetailFlavor();
+    cloudsCommon.addNewFlavor("small", "1", "10", "256");
+    expect(cloudsCommon.countFlavorCloud()).toBe(1);
+  });
+
+  it('should be create a flavor who matching with an image for a cloud.', function() {
+    console.log('################# should be create a flavor who matching with an image for a cloud.')
+    expect(cloudsCommon.countTemplateCloud()).toBe(0);
+    cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
+    cloudsCommon.goToCloudDetailTemplate('testcloud');
+    expect(cloudsCommon.countTemplateCloud()).toBe(1);
   });
 
   it('should be able to disable / delete a cloud when nothing is deployed.', function() {
+    after = true;
     console.log('################# should be able to disable / delete a cloud when nothing is deployed.');
     cloudsCommon.goToCloudList();
     cloudsCommon.goToCloudDetail('testcloud');
@@ -31,4 +91,5 @@ describe('Disabling / Enabling cloud: ', function() {
     cloudsCommon.deleteCloud();
     expect(browser.isElementPresent(by.name('testcloud'))).toBe(false);
   });
+
 });

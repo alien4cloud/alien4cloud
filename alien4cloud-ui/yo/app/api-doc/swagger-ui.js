@@ -1282,7 +1282,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
     SwaggerUi.prototype.buildUrl = function(base, url) {
       var endOfPath, parts;
-      base = base.substring(0,base.lastIndexOf('api-docs'));
+      base = base.substring(0,base.lastIndexOf('api-doc'));
       log("swagger-ui.js: base is <" + base+ "> url is <"+url+">");
       if (url.indexOf("/") === 0) {
         parts = base.split("/");
@@ -1342,26 +1342,12 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
     }
 
     HeaderView.prototype.events = {
-      'click #show-pet-store-icon': 'showPetStore',
-      'click #show-wordnik-dev-icon': 'showWordnikDev',
       'click #explore': 'showCustom',
       'keyup #input_baseUrl': 'showCustomOnKeyup',
       'keyup #input_apiKey': 'showCustomOnKeyup'
     };
 
     HeaderView.prototype.initialize = function() {};
-
-    HeaderView.prototype.showPetStore = function(e) {
-      return this.trigger('update-swagger-ui', {
-        url: "http://petstore.swagger.wordnik.com/api/api-docs"
-      });
-    };
-
-    HeaderView.prototype.showWordnikDev = function(e) {
-      return this.trigger('update-swagger-ui', {
-        url: "http://api.wordnik.com/v4/resources.json"
-      });
-    };
 
     HeaderView.prototype.showCustomOnKeyup = function(e) {
       if (e.keyCode === 13) {

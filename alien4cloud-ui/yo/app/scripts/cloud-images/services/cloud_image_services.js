@@ -3,54 +3,10 @@
 angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
   function($resource) {
 
-    var cloudImageRequirementFormDescriptor = {
-      "_type": "complex",
-      "_order": [ "numCPUs", "diskSize", "memSize"],
-      "_propertyType": {
-        "numCPUs": {
-          "_label": "CLOUD_IMAGES.NUM_CPUS",
-          "_type": "number",
-          "_notNull": false,
-          "_step": 1,
-          "_constraints": [
-            {
-              "greaterOrEqual": 1
-            }
-          ]
-        },
-        "diskSize": {
-          "_label": "CLOUD_IMAGES.DISK_SIZE",
-          "_type": "number",
-          "_notNull": false,
-          "_step": 0.01,
-          "_unit": "GB",
-          "_multiplier": 1024 * 1024 * 1024,
-          "_constraints": [
-            {
-              "greaterThan": 0
-            }
-          ]
-        },
-        "memSize": {
-          "_label": "CLOUD_IMAGES.MEM_SIZE",
-          "_type": "number",
-          "_notNull": false,
-          "_step": 1,
-          "_unit": "MB",
-          "_multiplier": 1024 * 1024,
-          "_constraints": [
-            {
-              "greaterOrEqual": 1
-            }
-          ]
-        }
-      }
-    };
-
     var cloudImageFormDescriptorFactory = function() {
       return {
         "_type": "complex",
-        "_order": [ "name", "osType", "osArch", "osDistribution", "osVersion"],
+        "_order": [ "name", "osType", "osArch", "osDistribution", "osVersion", "numCPUs", "diskSize", "memSize"],
         "_propertyType": {
           "name": {
             "_label": "CLOUD_IMAGES.NAME",
@@ -86,6 +42,43 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
               "x86_64",
               "x86_32"
             ]
+          },
+          "numCPUs": {
+            "_label": "CLOUD_IMAGES.NUM_CPUS",
+            "_type": "number",
+            "_notNull": false,
+            "_step": 1,
+            "_constraints": [
+              {
+                "greaterOrEqual": 1
+              }
+            ]
+          },
+          "diskSize": {
+            "_label": "CLOUD_IMAGES.DISK_SIZE",
+            "_type": "number",
+            "_notNull": false,
+            "_step": 0.01,
+            "_unit": "GB",
+            "_multiplier": 1024 * 1024 * 1024,
+            "_constraints": [
+              {
+                "greaterThan": 0
+              }
+            ]
+          },
+          "memSize": {
+            "_label": "CLOUD_IMAGES.MEM_SIZE",
+            "_type": "number",
+            "_notNull": false,
+            "_step": 1,
+            "_unit": "MB",
+            "_multiplier": 1024 * 1024,
+            "_constraints": [
+              {
+                "greaterOrEqual": 1
+              }
+            ]
           }
         }
       };
@@ -108,7 +101,6 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
       'create': crudCloudImage.save,
       'get': crudCloudImage.get,
       'getFormDescriptor': getFormDescriptor,
-      'requirementDescriptor': cloudImageRequirementFormDescriptor,
       'update': crudCloudImage.update,
       'remove': crudCloudImage.remove
     };

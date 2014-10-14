@@ -22,6 +22,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.cloud.CloudImageRequirement;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.utils.ReflectionUtil;
@@ -60,6 +61,11 @@ public class CloudImageController {
         cloudImage.setOsDistribution(request.getOsDistribution());
         cloudImage.setOsType(request.getOsType());
         cloudImage.setOsVersion(request.getOsVersion());
+        cloudImage.setRequirement(new CloudImageRequirement());
+        cloudImage.getRequirement().setDiskSize(request.getDiskSize());
+        cloudImage.getRequirement().setMemSize(request.getMemSize());
+        cloudImage.getRequirement().setNumCPUs(request.getNumCPUs());
+        cloudImageService.ensureCloudImageUniqueness(cloudImage);
         cloudImageService.saveCloudImage(cloudImage);
         return RestResponseBuilder.<String> builder().data(cloudImage.getId()).build();
     }
@@ -106,8 +112,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Get details of a cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudImage> get(
-            @ApiParam(value = "Id of the cloud image for which to get details.", required = true) @PathVariable String id) {
+    public RestResponse<CloudImage> get(@ApiParam(value = "Id of the cloud image for which to get details.", required = true) @PathVariable String id) {
         return RestResponseBuilder.<CloudImage> builder().data(cloudImageService.getCloudImageFailIfNotExist(id)).build();
     }
 
@@ -115,7 +120,7 @@ public class CloudImageController {
      * Search for clouds.
      *
      * @param searchRequest Query to find the cloud images.
-     * @return A {@link RestResponse} that contains a {@link alien4cloud.dao.model.GetMultipleDataResult} that contains the clouds.
+     * @return A {@link RestResponse} that contains a {@link calm.dao.model.GetMultipleDataResult} that contains the clouds.
      */
     @ApiOperation(value = "Search for cloud images.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/search", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -140,8 +145,7 @@ public class CloudImageController {
         try {
             iconId = imageDAO.writeImage(image.getBytes());
         } catch (IOException e) {
-            throw new ImageUploadException("Unable to read image from file upload [" + image.getOriginalFilename() + "] to update cloud image ["
-                    + id + "]", e);
+            throw new ImageUploadException("Unable to read image from file upload [" + image.getOriginalFilename() + "] to update cloud image [" + id + "]", e);
         }
         cloudImage.setIconId(iconId);
         cloudImageService.saveCloudImage(cloudImage);

@@ -26,6 +26,7 @@ public class CloudImage {
      * Short descriptive name of the image
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
+    @TermFilter
     private String name;
 
     /**

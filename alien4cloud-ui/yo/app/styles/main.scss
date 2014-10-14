@@ -20,6 +20,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "application";
 @import "plans";
 @import "vertical-menu";
+@import "flip-card";
 
 /* change the layout*/
 $screen-sm-min: 768px;
@@ -212,6 +213,16 @@ fieldset legend {
 
 }
 
+.newImageModal .modal-dialog {
+  width: 50%;
+
+}
+
+.newImageModal .modal-dialog #genericformtypescontainer{
+  height: 450px;
+  overflow: inherit;
+
+}
 /* icons*/
 img.icon_16 {
   height: 16px;

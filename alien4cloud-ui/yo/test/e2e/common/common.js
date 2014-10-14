@@ -17,12 +17,17 @@ var dismissAlert = function() { // toast-close-button
 };
 module.exports.dismissAlert = dismissAlert;
 
+var flow = protractor.promise.controlFlow();
+
 var dismissAlertIfPresent = function() { // toast-close-button
-  var closeAlertButton = element(by.css('.toast-close-button'));
-  if (closeAlertButton.isPresent() && closeAlertButton.isDisplayed()) {
-    closeAlertButton.click();
-    browser.waitForAngular();
-  }
+  flow.execute(function() {
+      var closeAlertButton = element(by.css('.toast-close-button'));
+      closeAlertButton.click();
+      browser.waitForAngular();
+    }).then(function(value) {
+    }, function(error) {
+      return true;
+    });
 };
 module.exports.dismissAlertIfPresent = dismissAlertIfPresent;
 
