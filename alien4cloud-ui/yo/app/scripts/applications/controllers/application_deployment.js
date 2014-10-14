@@ -14,6 +14,50 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.outputAttributesValue = {};
     $scope.outputPropertiesValue = {};
+    $scope.validTopologyDTO = false;
+
+    $scope.selectedComputeTemplates = {};
+
+    $http.get('/data/mockMatcherResponse.json').success (function(data){
+      $scope.matchedCloudResources = data.matchResult;
+      $scope.images = data.images;
+      $scope.flavors = data.flavors;
+      for(var key in $scope.matchedCloudResources) {
+        if($scope.matchedCloudResources.hasOwnProperty(key)) {
+          var templates = $scope.matchedCloudResources[key];
+          if(!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+            $scope.selectedComputeTemplates[key] = templates[0];
+          }
+        }
+      }
+    });
+
+    $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
+      $scope.displayMatcherPannel = true;
+      $scope.currentNodeTemplateId = name;
+      $scope.currentMatchedComputeTemplates = currentMatchedComputeTemplates;
+    };
+
+    $scope.changeSelectedImage = function(template) {
+      // TODO: send new value to server
+      $scope.selectedComputeTemplates[$scope.currentNodeTemplateId] = template;
+    };
+
+    $scope.showProperty = function() {
+      return $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
+    };
+
+    $scope.showTodoList = function() {
+      return !$scope.validTopologyDTO.valid && $scope.isManager;
+    };
+
+    $scope.isSelected = function(template) {
+      return template === $scope.selectedComputeTemplates[$scope.currentNodeTemplateId];
+    };
+
+    $scope.isSelectedTemplate = function(key) {
+      return key === $scope.currentNodeTemplateId;
+    };
 
     var fakeMatcher = $http.get('/data/mockMatcherResponse.json').success (function(data){
       $scope.fakeMatcher = data;

@@ -266,6 +266,20 @@
         "RESULT_TITLE": "Execution result for operation {{operation}}"
       }
     },
+    "DEPLOYMENT": {
+      "NAME_MATCHER": "Association of cloud resources",
+      "TITLE_COMPOSANT" : "Component name",
+      "TITLE_IMAGE" : "Image name",
+      "TITLE_FLAVOR" : "Flavor name",
+
+      "TITLE_DISTRIBUTION" : "Distribution",
+      "TITLE_TYPE" : "Type",
+      "TITLE_VERSION" : "Version",
+      "TITLE_ARCH" : "Architecture",
+      "TITLE_CPUS" : "CPUs",
+      "TITLE_SIZE_DISK" : "Disk",
+      "TITLE_RAM" : "RAM"
+    },
     "TOPOLOGY": {
       "LABEL": "Topology",
       "VISUAL_DETAILED": "Detailed view",

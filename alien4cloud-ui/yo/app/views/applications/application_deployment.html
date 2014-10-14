@@ -191,17 +191,22 @@
     </div>
 
     <!-- Plugin deployment properties -->
-    <div ng-if="!showTodoList() && showProperty()" ng-init="isPropertiesCollapsed = false">
-        <h3><i class="fa fa-cog">   </i>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
-        <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
-          <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
-            <td id="p_{{propertyKey}}">
-              <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
-              </property-display>
-            </td>
-          </tr>
-        </table>
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-if="!showTodoList() && showProperty()" ng-init="isPropertiesCollapsed = false">
+            <h3><i class="fa fa-cog">   </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
+            <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
+              <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
+                <td id="p_{{propertyKey}}">
+                  <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
+                  </property-display>
+                </td>
+              </tr>
+            </table>
+        </div>
+      </div>
     </div>
+
     <!-- END : Plugin deployment properties -->
 
     <!-- Input properties  -->
@@ -329,47 +334,73 @@
       </div>
     </div>
   </div>
+</div>
 
+<div class="row">
+  <div class="col-md-12">
   <!-- Matcher -->
-  <div class="col-md-12" style="padding-top:20px;" ng-if="!showTodoList()">
-    <h3>Association des ressources du cloud</h3>
-    <div class="col-md-4">
-      <ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
-        <li style="font-weight: bold;">
-          <div class="col-md-4">Nom du composant</div>
-          <div class="col-md-4">Nom de l'image</div>
-          <div class="col-md-4">Nom du gabarit</div>
-        </li>
-        <li ng-repeat="(key, node) in nodeTemplates" ng-mouseover="setImage(node)"
-        class="list-group-item clickable-media" style="height:40px;" ng-re>
-            <div class="col-md-4">{{key}}</div>
-            <div class="col-md-4">Ubuntu 8</div>
-            <div class="col-md-4">small</div>
-        </li>
-      </ul>
+    <div class="row" ng-if="!showTodoList()" style="padding-top:20px;">
+      <div class="col-md-12" ng-if="!showTodoList()">
+        <legend class="text-center title-border">
+          <h3><i class="fa fa-random"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
+        </legend>
+      </div>
     </div>
-    <div style="overflow-y:scroll;  max-height:550px;" ng-if="displayMatcherPannel">
-      <ul class="list-group" ng-scrollbar style="overflow: auto; margin-bottom: 0px; {{listHeight}} ">
-        <li style="font-weight: bold;">
-            <div class="col-md-4">Distribution</div>
-            <div class="col-md-2">Type</div>
-            <div class="col-md-3">Version</div>
-            <div class="col-md-3">Architecture</div>
-            <div class="col-md-2">Type</div>
-            <div class="col-md-2">Version</div>
-            <div class="col-md-2">Architecture</div>
-        </li>
-        <li ng-repeat="image in fakeMatcher" class="list-group-item clickable-media" style="height:80px;"
-        ng-class="(isSelected(image._id)) ? 'active' : ''" ng-click="changeSelectedImage(image._id)" id="{{'li_' + image._id}}">
-            <div class="col-md-4">{{image.name}}</div>
-            <div class="col-md-2">{{image.numCPUs}}</div>
-            <div class="col-md-3">{{image.diskSize}}</div>
-            <div class="col-md-3">{{image.memSize}}</div>
-            <div class="col-md-2">Type</div>
-            <div class="col-md-2">Version</div>
-            <div class="col-md-2">Architecture</div>
-        </li>
-      </ul>
-    <div>
   </div>
+</div>
+
+<div class="row" style="padding-top:20px;">
+  <div class="col-md-4">
+    <div class="table-responsive large-data-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPOSANT' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, templates) in matchedCloudResources" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
+            class="clickable-media" ng-class="{'info': isSelectedTemplate(key)}">
+            <td>{{key}}</td>
+            <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
+            <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="table-responsive large-data-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DISTRIBUTION' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
+              ng-class="{'info' : isSelected(template)}" ng-click="changeSelectedImage(template)">
+            <td>{{images[template.cloudImageId].type}}</td>
+            <td>{{images[cloudImageId].osType}}</td>
+            <td>{{images[cloudImageId].osVersion}}</td>
+            <td>{{images[cloudImageId].osArch}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
+            <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
+            <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
 </div>
