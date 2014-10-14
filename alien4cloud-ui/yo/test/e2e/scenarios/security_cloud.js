@@ -70,7 +70,7 @@ describe('Cloud security and deployment capability per user/group', function() {
     common.after();
   });
 
-  xit('should add rights to some users on a cloud without error', function() {
+  it('should add rights to some users on a cloud without error', function() {
 
     console.log('################# should add rights to some users on a cloud without error');
 
@@ -85,7 +85,7 @@ describe('Cloud security and deployment capability per user/group', function() {
 
   });
 
-  xit('should add rights to a user and check that he can use this cloud', function() {
+  it('should add rights to a user and check that he can use this cloud', function() {
 
     console.log('################# should add rights to a user in check that he can use this cloud');
 
@@ -108,7 +108,7 @@ describe('Cloud security and deployment capability per user/group', function() {
   });
 
 
-  xit('should add rights to some groups on a cloud without error', function() {
+  it('should add rights to some groups on a cloud without error', function() {
 
     console.log('################# should add rights to some groups on a cloud without error');
 
@@ -130,7 +130,7 @@ describe('Cloud security and deployment capability per user/group', function() {
   });
 
 
-  xit('should add rights to a group and check that user from this group can use this cloud', function() {
+  it('should add rights to a group and check that user from this group can use this cloud', function() {
     console.log('################# should add rights to a group and check that user from this group can use this cloud');
 
     createSimpleApp();
@@ -163,7 +163,7 @@ describe('Cloud security and deployment capability per user/group', function() {
   });
 
 
-  xit('should add rights to a group and to a user from this group to check rights', function() {
+  it('should add rights to a group and to a user from this group to check rights', function() {
     console.log('################# should add rights to a group and to a user from this group to check rights');
 
     createSimpleApp();
@@ -205,7 +205,7 @@ describe('Cloud security and deployment capability per user/group', function() {
 
   });
 
-  it('should add right to ALL_USERS group on a cloud and check that any user can use this cloud', function() {
+  it('should add right ALL_USERS group on a cloud and check that any user can use this cloud', function() {
     console.log('################# should add right to ALL_USERS group on a cloud and check that any user can use this cloud');
 
     // first create 1 group
@@ -231,8 +231,8 @@ describe('Cloud security and deployment capability per user/group', function() {
     cloudsCommon.giveRightsOnCloudToGroup('testcloud', users.groups.allusers.name, rolesCommon.cloudRoles.cloudDeployer);
 
     // deploy an applicaton as sauron
+    // TODO : find workaround, working in application but not in protractor tests (left submenu not present)
     // authentication.reLogin(authentication.users.sauron.username);
-    //
     // applications.goToApplicationListPage();
     // applications.goToApplicationDetailPage('Alien', false);
     // navigation.go('applications', 'deployment');
