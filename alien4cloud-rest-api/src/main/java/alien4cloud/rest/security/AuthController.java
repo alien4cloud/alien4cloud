@@ -1,5 +1,7 @@
 package alien4cloud.rest.security;
 
+import javax.annotation.Resource;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.Constants;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -20,6 +23,8 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
+import alien4cloud.security.groups.Group;
+import alien4cloud.security.groups.IAlienGroupDao;
 
 import com.mangofactory.swagger.annotations.ApiIgnore;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -32,6 +37,10 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/rest/auth")
 public class AuthController {
+
+    @Resource
+    private IAlienGroupDao alienGroupDao;
+
     /**
      * Get the current user's status (login, roles etc.).
      * 
@@ -93,6 +102,13 @@ public class AuthController {
     @RequestMapping(value = "/roles/cloud", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudRole[]> getCloudRoles() {
         return RestResponseBuilder.<CloudRole[]> builder().data(CloudRole.values()).build();
+    }
+
+    @ApiIgnore
+    @RequestMapping(value = "/groups/allusers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Group> getAllUsersGroup() {
+        Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);
+        return RestResponseBuilder.<Group> builder().data(group).build();
     }
 
 }

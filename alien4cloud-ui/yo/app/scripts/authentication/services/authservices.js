@@ -2,8 +2,8 @@
 
 angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide',
   function($provide) {
-    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService',
-      function($resource, $state, $http, alienNavBarService) {
+    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService', 'groupServices',
+      function($resource, $state, $http, alienNavBarService, groupServices) {
         // isArray needed when results is JSON with nested object
         var userStatusResource = $resource('rest/auth/status', {}, {
           'query': {
@@ -11,6 +11,14 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
             isArray: false
           }
         });
+
+        // get default allusers group
+        var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
+          'query': {
+            method: 'GET',
+            isArray: false
+          }
+        }).query();
 
         var onCurrentStatus = function() {
           for (var i = 0; i < alienNavBarService.menu.left.length; i++) {
@@ -153,8 +161,12 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
         var hasResourceRoleIn = function(resource, roles) {
           return authorizationCheck(
             function(userStatus) {
-              //check all accessible roles first
+              // check all accessible roles first
               if (userStatus.roles.indexOf(allAccessAdminRole) > -1) {
+                return true;
+              }
+              // check if the resource has ALL_USERS group rights
+              if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data) && resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id)) {
                 return true;
               }
               // check if the user has the role.

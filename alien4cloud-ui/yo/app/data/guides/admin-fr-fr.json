@@ -12,14 +12,12 @@
     "target": "menu.admin",
     "placement": "bottom",
     "multipage": true,
-    "nextOnTargetClick": true,
-    "showNextButton": false
+    "nextOnTargetClick": true
   }, {
     "title": "Configurer les utilisateurs",
     "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
     "target": "am.admin.users",
-    "placement": "right",
-    "nextOnTargetClick": true
+    "placement": "right"
   }, {
     "title": "Configurer les plugins ici",
     "content": "Cliquez ici pour ajouter/enlever et configurer les plugins. A noter qu'il est nécessaire d'avoir au moins un plugin de PaaS provider afin de pouvoir configurer des clouds.",

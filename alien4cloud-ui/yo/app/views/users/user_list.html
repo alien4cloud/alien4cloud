@@ -1,17 +1,8 @@
 <tabset>
   <tab heading="{{'NAVADMIN.MENU_USERS' | translate}}" id="users-tab" select="tabSelected('users')">
-    <alien-search-user
-      crud-support=true
-      managed-role-list="alienRoles"
-      on-select-role-callback="handleRoleSelection(user, role)"
-      on-select-group-callback="handleGroupSelection(invalid, user, groupId)"
-      display-all=true></alien-search-user>
+    <alien-search-user crud-support=true managed-role-list="alienRoles" on-select-role-callback="handleRoleSelection(user, role)" on-select-group-callback="handleGroupSelection(invalid, user, groupId)" display-all=true></alien-search-user>
   </tab>
   <tab heading="{{'USERS.GROUPS' | translate}}" id="groups-tab">
-    <alien-search-group
-        crud-support=true
-        managed-role-list="alienRoles"
-        on-select-role-callback="handleGroupRoleSelection(group, role)"
-        display-all=true></alien-search-group>
+    <alien-search-group crud-support=true managed-role-list="alienRoles" on-select-role-callback="handleGroupRoleSelection(group, role)" display-all=true></alien-search-group>
   </tab>
 </tabset>

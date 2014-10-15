@@ -89,7 +89,7 @@ public class GroupService {
         return user;
     }
 
-    public String createGroup(String name, String email, String description, Set<String> roles, Set<String> users) {
+    public String createGroup(String name, String email, String description, Set<String> roles, Set<String> users) throws AlreadyExistException {
         checkGroupNameUnicity(name);
         Group group = new Group(name);
         group.setId(UUID.randomUUID().toString());
@@ -173,7 +173,7 @@ public class GroupService {
      * 
      * @param groupName
      */
-    private void checkGroupNameUnicity(String groupName) {
+    private void checkGroupNameUnicity(String groupName) throws AlreadyExistException {
         if (alienGroupDao.isGroupWithNameExist(groupName)) {
             log.debug("Create group <{}> impossible (already exists)", groupName);
             // a group already exist with the given id.

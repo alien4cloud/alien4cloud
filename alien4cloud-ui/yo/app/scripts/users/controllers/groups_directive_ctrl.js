@@ -33,6 +33,7 @@ angular.module('alienUiApp').controller('GroupsDirectiveCtrl', ['$scope', '$root
   function($scope, $rootScope, $modal, groupServices, searchServiceFactory) {
 
     $scope.query = '';
+    $scope.ALL_USERS_GROUP = UTILS.ALL_USERS_GROUP;
     $scope.onSearchCompleted = function(searchResult) {
       $scope.groupsData = searchResult.data;
     };

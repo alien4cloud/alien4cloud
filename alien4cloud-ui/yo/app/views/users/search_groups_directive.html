@@ -38,23 +38,22 @@
                 <img ng-if="group.imageId" ng-src="'img?id=' + group.imageId + '&quality=QUALITY_32'" />
               </td>
               <td id="group_{{group.name}}_name">
-                <span class="form-input-editable" editable-text="group.name" buttons="no" onaftersave="groupChanged(group, 'name', group.name)"
-                      blur="submit">
+                <span ng-if="ALL_USERS_GROUP != group.name" class="form-input-editable" editable-text="group.name" buttons="no" onaftersave="groupChanged(group, 'name', group.name)" blur="submit">
                   {{group.name}} <i class="fa fa-pencil-square-o"></i>
                 </span>
+                <span ng-if="ALL_USERS_GROUP == group.name">{{group.name}}</span>
               </td>
               <td id="group_{{group.name}}_email" ng-if="displayAll || displayEmail">
-                <span class="form-input-editable" editable-email="group.email" buttons="no" onaftersave="groupChanged(group, 'email', group.email)"
-                      blur="submit">
+                <span ng-if="ALL_USERS_GROUP != group.name" class="form-input-editable" editable-email="group.email" buttons="no" onaftersave="groupChanged(group, 'email', group.email)" blur="submit">
                   {{group.email || '---' }} <i class="fa fa-pencil-square-o"></i>
                 </span>
+                <span ng-if="ALL_USERS_GROUP == group.name">{{group.email}}</span>
               </td>
               <td id="group_{{group.name}}_description">
-                <span class="form-input-editable" editable-textarea="group.description" buttons="no"
-                      onaftersave="groupChanged(group, 'description', group.description)"
-                      blur="submit">
+                <span ng-if="ALL_USERS_GROUP != group.name" class="form-input-editable" editable-textarea="group.description" buttons="no" onaftersave="groupChanged(group, 'description', group.description)" blur="submit">
                   {{ group.description || '---' }} <i class="fa fa-pencil-square-o"></i>
                 </span>
+                <span ng-if="ALL_USERS_GROUP == group.name">{{group.description}}</span>
               </td>
               <td ng-if="displayAll || displayRoles" name="roles">
                 <span ng-if="!(groupRolesEmpty = !group.roles || group.roles.length <= 0)">
@@ -66,25 +65,21 @@
               </td>
               <td>
                 <div class="btn-group">
-                  <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'GROUPS.EDIT_ROLE' | translate }}"
-                     tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'GROUPS.EDIT_ROLE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'GROUPS.EDIT_ROLE_HEADER' | translate }}</li>
                     <li ng-repeat="role in managedRoleList | orderBy:'toString()' ">
-                      <a id="{{group.name}}_{{role}}"
-                         ng-class="{'checked_role':( roleChecked = checkIfRoleSelected(group, role))}"
-                         ng-click="onSelectRoleCallback({group:group, role:role})">
-                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
-                        {{role}}
+                      <a id="{{group.name}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfRoleSelected(group, role))}" ng-click="onSelectRoleCallback({group:group, role:role})">
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
                       </a>
                     </li>
                   </ul>
                 </div>
-                <div class="btn-group">
+                <div class="btn-group" ng-if="ALL_USERS_GROUP != group.name">
                   <!-- Delete a group -->
                   <delete-confirm id="group_{{group.name}}_delete" ng-if="crudSupport" func="remove(group)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                   </delete-confirm>
-                </div> 
+                </div>
               </td>
             </tr>
           </tbody>

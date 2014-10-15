@@ -30,9 +30,9 @@
     "d3-tip": "0.6.4",
     "angularjs-toaster": "git://github.com/fastconnect/AngularJS-Toaster.git#master",
     "angular-animate": "~1.2.8",
-    "angular-utils": "git://github.com/fastconnect/angular-utils.git#latest",
+    "fc-angular-utils": "0.0.2",
     "angular-tree-control": "0.2.2",
-    "hopscotch": "0.2.2"
+    "hopscotch": "git://github.com/alien4cloud/hopscotch.git#master"
   },
   "devDependencies": {
     "angular-mocks": "1.2.12",

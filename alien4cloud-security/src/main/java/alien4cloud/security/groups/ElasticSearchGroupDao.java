@@ -68,4 +68,10 @@ public class ElasticSearchGroupDao extends ESGenericSearchDAO implements IAlienG
     public List<Group> find(String... ids) {
         return super.findByIds(Group.class, ids);
     }
+
+    @Override
+    public Group findByName(String groupName) {
+        return super.customFind(Group.class, QueryBuilders.termQuery("name", groupName));
+    }
+
 }

@@ -117,8 +117,8 @@
     "ARCHIVE_VERSION": "Version de l'archive",
     "ARCHIVE_NAME": "Nom de l'archive",
     "GET_DETAILS": "Détails",
-    "VALIDSOURCE": "Source Valide",
-    "VALIDTARGET": "Cible Valide",
+    "VALIDSOURCES": "Sources Valides",
+    "VALIDTARGET": "Cibles Valides",
     "CARDINALITIES_TOOLTIP": "minimun..maximum"
   },
   "CSAR": {

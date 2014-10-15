@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state',

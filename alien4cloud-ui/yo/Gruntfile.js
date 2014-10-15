@@ -414,10 +414,10 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-             baseUrl: 'http://localhost:9999',
-//            baseUrl: 'http://localhost:8088',
+            baseUrl: 'http://localhost:9999',
+            // baseUrl: 'http://localhost:8088',
             specs: [
-//              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/setup-scenario/before-all.js',
               // 'test/e2e/scenarios/homepage.js',
               // 'test/e2e/scenarios/language_test.js',
               // 'test/e2e/scenarios/authentication.js',
@@ -425,8 +425,8 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/admin_groups_management.js',
               // 'test/e2e/scenarios/plugins.js',
               // 'test/e2e/scenarios/admin_metaprops_configuration.js',
-              'test/e2e/scenarios/admin_cloud_image.js',
-              'test/e2e/scenarios/admin_cloud.js',
+              // 'test/e2e/scenarios/admin_cloud_image.js',
+              // 'test/e2e/scenarios/admin_cloud.js',
 
               // 'test/e2e/scenarios/csar_upload.js',
               // 'test/e2e/scenarios/component_details.js',
@@ -453,7 +453,7 @@ module.exports = function(grunt) {
 
               // 'test/e2e/scenarios/security_users.js',
               // 'test/e2e/scenarios/security_groups.js',
-              // 'test/e2e/scenarios/security_cloud.js',
+              'test/e2e/scenarios/security_cloud.js',
               // 'test/e2e/scenarios/*'
 
             ]

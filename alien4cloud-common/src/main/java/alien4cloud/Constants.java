@@ -10,6 +10,8 @@ public final class Constants {
     public static final String ALIEN_INTERNAL_TAG = "icon";
     public static final String DEFAULT_CAPABILITY_FIELD_NAME = "defaultCapabilities";
 
+    public static final String GROUP_NAME_ALL_USERS = "ALL_USERS";
+
     private Constants() {
     }
 }
