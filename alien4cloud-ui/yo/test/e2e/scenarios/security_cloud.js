@@ -1,6 +1,7 @@
 /* global by, element */
 'use strict';
 
+var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var topologyEditorCommon = require('../topology/topology_editor_common');
 var authentication = require('../authentication/authentication');
@@ -10,6 +11,7 @@ var rolesCommon = require('../common/roles_common.js');
 var topologyTemplates = require('../topology/topology_templates_common');
 var navigation = require('../common/navigation');
 var users = require('../admin/users');
+var componentData = require('../topology/component_data');
 
 function assertUserOrGroupHasCloudRole(roleRepeater, targetedRole, userOrGroupName) {
   roleRepeater.each(function(cloudRole) {
@@ -129,12 +131,11 @@ describe('Cloud security and deployment capability per user/group', function() {
 
 
   it('should add rights to a group and check that user from this group can use this cloud', function() {
-
     console.log('################# should add rights to a group and check that user from this group can use this cloud');
 
     createSimpleApp();
 
-    // first create 2 groups
+    // first create 1 group
     authentication.reLogin('admin');
     // create and check a group
     users.createGroup(users.groups.managers);
@@ -163,7 +164,6 @@ describe('Cloud security and deployment capability per user/group', function() {
 
 
   it('should add rights to a group and to a user from this group to check rights', function() {
-
     console.log('################# should add rights to a group and to a user from this group to check rights');
 
     createSimpleApp();
@@ -202,6 +202,42 @@ describe('Cloud security and deployment capability per user/group', function() {
 
     // checks
     assertUserOrGroupHasRoleOnCloud(false);
+
+  });
+
+  it('should add right ALL_USERS group on a cloud and check that any user can use this cloud', function() {
+    console.log('################# should add right to ALL_USERS group on a cloud and check that any user can use this cloud');
+
+    // first create 1 group
+    authentication.reLogin('admin');
+
+    users.navigationUsers();
+    users.createUser(authentication.users.sauron);
+
+    // create all users group (should be default, created by ALIEN)
+    users.createGroup(users.groups.allusers);
+
+    // create an app Alien
+    applications.createApplication('Alien', 'Great Application');
+
+    applications.goToApplicationDetailPage('Alien');
+    navigation.go('applications', 'users');
+    element(by.id('groups-tab')).element(by.tagName('a')).click();
+
+    // give appManager role to group ALL_USERS
+    rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appManager);
+
+    // give rights to ALL_USERS group on the cloud
+    cloudsCommon.giveRightsOnCloudToGroup('testcloud', users.groups.allusers.name, rolesCommon.cloudRoles.cloudDeployer);
+
+    // deploy an applicaton as sauron
+    // TODO : find workaround, working in application but not in protractor tests (left submenu not present)
+    // authentication.reLogin(authentication.users.sauron.username);
+    // applications.goToApplicationListPage();
+    // applications.goToApplicationDetailPage('Alien', false);
+    // navigation.go('applications', 'deployment');
+    // var selected = cloudsCommon.selectApplicationCloud('testcloud');
+    // expect(selected).toBe(true); // testcloud is in the select
 
   });
 

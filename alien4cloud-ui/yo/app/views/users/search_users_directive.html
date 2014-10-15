@@ -91,8 +91,7 @@
                     </li>
                     <li ng-repeat="group in groups | filter:{name:groupQuery} | orderBy:'name'">
                       <a id="{{user.username}}_{{group.name}}" ng-class="{'checked_role':( checked = checkIfGroupSelected(user, group.id))}" ng-click="onSelectGroupCallback({invalid: false, user: user, groupId: group.id})">
-                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : checked,  'fa-square-o': !checked}"></i>
-                        {{group.name}}
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : checked,  'fa-square-o': !checked}"></i> {{group.name}}
                       </a>
                     </li>
                   </ul>
@@ -104,8 +103,7 @@
                     <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>
                     <li ng-repeat="role in managedRoleList | orderBy:'toString()' ">
                       <a id="{{user.username}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfRoleSelected(user, role))}" ng-click="onSelectRoleCallback({user:user, role:role})">
-                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
-                        {{role}}
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
                       </a>
                     </li>
                   </ul>

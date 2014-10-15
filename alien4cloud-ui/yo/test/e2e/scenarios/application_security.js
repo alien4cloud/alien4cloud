@@ -51,10 +51,12 @@ describe('Security management on applications', function() {
     authentication.login('admin');
     users.navigationUsers();
     users.createUser(authentication.users.sauron);
+    users.createUser(authentication.users.sauron);
 
     // create group
     users.navigationGroups();
     users.createGroup(users.groups.mordor);
+    users.createGroup(users.groups.allusers); // this group is created at alien bootstrap
   });
 
   afterEach(function() {
@@ -171,4 +173,47 @@ describe('Security management on applications', function() {
     rolesCommon.editGroupRole('mordor', rolesCommon.appRoles.appDevops);
     rolesCommon.assertGroupHasRoles('mordor', rolesCommon.appRoles.appDevops);
   });
+
+  it('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
+    console.log('################# Authenticated users even withoput any roles should see applications with ALL_USERS group rights on it');
+
+    // create 4 applications
+    authentication.reLogin('applicationManager');
+    applications.createApplication('Application', 'Great great app...');
+    applications.createApplication('Alien_1', 'Great Application 1');
+    applications.createApplication('Alien_2', 'Great Application 2');
+
+    // Go to the app details page / user roles management
+    applications.goToApplicationDetailPage('Alien_2');
+    goToApplicationRoleManagementTab();
+    goToApplicationGroupRoleManagementTab();
+
+    // give appUser role to group ALL_USERS
+    rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appUser);
+    rolesCommon.assertGroupHasRoles('ALL_USERS', rolesCommon.appRoles.appUser);
+
+    // Log as sauron who has no roles on application Alien_2
+    authentication.reLogin('sauron');
+    applications.goToApplicationListPage();
+    // only 1 app (Alien_2) is visible for sauron user
+    var applicationsList = element.all(by.repeater('application in searchResult.data.data'));
+    expect(applicationsList.count()).toEqual(1);
+    expect(applicationsList.first().getText()).toContain('Alien_2');
+
+    // log as admin and give right appManager to ALL_USERS
+    authentication.reLogin('admin');
+    applications.goToApplicationDetailPage('Application');
+    goToApplicationRoleManagementTab();
+    goToApplicationGroupRoleManagementTab();
+
+    // give appDevops role to group ALL_USERS
+    rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appManager);
+    rolesCommon.assertGroupHasRoles('ALL_USERS', rolesCommon.appRoles.appManager);
+
+    // now any user as sauron should have at least 2 applications in the list
+    authentication.reLogin('sauron');
+    applications.goToApplicationListPage();
+    expect(applicationsList.count()).toEqual(2);
+  });
+
 });

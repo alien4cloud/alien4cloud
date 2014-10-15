@@ -36,7 +36,7 @@ module.exports = function(config) {
       'app/bower_components/js-yaml/js-yaml.js',
       'app/bower_components/angular-animate/angular-animate.min.js',
       'app/bower_components/angularjs-toaster/toaster.js',
-      'app/bower_components/angular-utils/button-confirm/button-confirm.js',
+      'app/bower_components/fc-angular-utils/button-confirm/button-confirm.js',
       'app/bower_components/sockjs/sockjs.js',
       'app/bower_components/stomp-websocket/lib/stomp.js',
 
@@ -139,8 +139,12 @@ module.exports = function(config) {
       'app/scripts/authentication/services/navbar.js',
       'app/scripts/authentication/services/userServices.js',
 
-      'app/bower_components/jasmine-jquery/lib/jasmine-jquery.js',
-      {pattern: 'test/mock/*.json', watched: true, served: true, included: false},
+      'app/bower_components/jasmine-jquery/lib/jasmine-jquery.js', {
+        pattern: 'test/mock/*.json',
+        watched: true,
+        served: true,
+        included: false
+      },
       'test/unit/**/*.js'
     ],
 

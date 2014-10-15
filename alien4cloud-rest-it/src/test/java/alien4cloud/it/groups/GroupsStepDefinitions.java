@@ -113,8 +113,8 @@ public class GroupsStepDefinitions {
                 Context.getRestClientInstance().put("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/roles/" + role));
     }
 
-    @Then("^the group \"([^\"]*)\" should have the folowing roles$")
-    public void the_group_should_have_the_folowing_roles(String groupName, List<String> expectedRoles) throws Throwable {
+    @Then("^the group \"([^\"]*)\" should have the following roles$")
+    public void the_group_should_have_the_following_roles(String groupName, List<String> expectedRoles) throws Throwable {
         I_get_the_group(groupName);
         RestResponse<Group> response = JsonUtil.read(Context.getInstance().getRestResponse(), Group.class);
         Group group = response.getData();
@@ -143,8 +143,8 @@ public class GroupsStepDefinitions {
                 Context.getRestClientInstance().put("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
     }
 
-    @Then("^the group \"([^\"]*)\" should have the folowing users$")
-    public void the_group_should_have_the_folowing_users(String groupName, List<String> expectedUsers) throws Throwable {
+    @Then("^the group \"([^\"]*)\" should have the following users$")
+    public void the_group_should_have_the_following_users(String groupName, List<String> expectedUsers) throws Throwable {
         I_get_the_group(groupName);
         RestResponse<Group> response = JsonUtil.read(Context.getInstance().getRestResponse(), Group.class);
         Group group = response.getData();
@@ -167,8 +167,8 @@ public class GroupsStepDefinitions {
                 Context.getRestClientInstance().delete("/rest/groups/" + Context.getInstance().getGroupId(groupName) + "/users/" + username));
     }
 
-    @Then("^the user \"([^\"]*)\" should have the folowing group roles$")
-    public void the_user_should_have_the_folowing_group_roles(String username, List<String> expectedGroupRoles) throws Throwable {
+    @Then("^the user \"([^\"]*)\" should have the following group roles$")
+    public void the_user_should_have_the_following_group_roles(String username, List<String> expectedGroupRoles) throws Throwable {
         String response = Context.getRestClientInstance().get("/rest/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
@@ -177,8 +177,8 @@ public class GroupsStepDefinitions {
 
     }
 
-    @Then("^the user \"([^\"]*)\" should have the folowing group$")
-    public void the_user_should_have_the_folowing_group(String username, List<String> expectedGroups) throws Throwable {
+    @Then("^the user \"([^\"]*)\" should have the following group$")
+    public void the_user_should_have_the_following_group(String username, List<String> expectedGroups) throws Throwable {
         String response = Context.getRestClientInstance().get("/rest/users/" + username);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);

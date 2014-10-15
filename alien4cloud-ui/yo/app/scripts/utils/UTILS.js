@@ -2,9 +2,10 @@
 
 var UTILS = {};
 
-// Constant
+// Constants
 UTILS.maxNodeNameDrawSize = 17;
 UTILS.maxNodeNameSplitSize = 30;
+UTILS.ALL_USERS_GROUP = 'ALL_USERS';
 
 UTILS.compareArray = function(left, right) {
   // if the other array is a falsy value, return

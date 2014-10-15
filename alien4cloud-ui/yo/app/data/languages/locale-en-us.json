@@ -118,8 +118,8 @@
     "ARCHIVE_VERSION": "Archive version",
     "ARCHIVE_NAME": "Archive name",
     "GET_DETAILS": "Details",
-    "VALIDSOURCE": "Valid Source",
-    "VALIDTARGET": "Valid Target",
+    "VALIDSOURCES": "Valid Sources",
+    "VALIDTARGET": "Valid Targets",
     "CARDINALITIES_TOOLTIP": "lowerBound..upperBound"
   },
   "CSAR": {

@@ -32,7 +32,7 @@ import alien4cloud.tosca.container.exception.CSARValidationException;
  */
 @Slf4j
 @Component
-public class ComponentsInitialization {
+public class Components {
     private static final String ARCHIVES_FOLDER = "/WEB-INF/archives";
     private static final String ARCHIVES_UPLOAD_PROPERTIES = "upload.properties";
 

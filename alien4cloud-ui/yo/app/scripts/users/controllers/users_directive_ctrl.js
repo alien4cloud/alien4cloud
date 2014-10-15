@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, $modalInstance, userServices) {
@@ -23,125 +25,132 @@ var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, 
 }];
 
 angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootScope', '$modal', 'userServices', 'searchServiceFactory', 'groupServices',
-  function($scope, $rootScope, $modal, userServices, searchServiceFactory, groupServices) {
+    function($scope, $rootScope, $modal, userServices, searchServiceFactory, groupServices) {
 
-    $scope.query = '';
-    $scope.onSearchCompleted = function(searchResult) {
-      $scope.usersData = searchResult.data;
-      for (var i = 0; i < $scope.usersData.data.length; i++) {
-        var user = $scope.usersData.data[i];
-        userServices.initRolesToDisplay(user);
-      }
-    };
-    $scope.searchService = searchServiceFactory('rest/users/search', false, $scope, 20);
-    $scope.searchService.search();
+      $scope.query = '';
+      $scope.onSearchCompleted = function(searchResult) {
+        $scope.usersData = searchResult.data;
+        for (var i = 0; i < $scope.usersData.data.length; i++) {
+          var user = $scope.usersData.data[i];
+          userServices.initRolesToDisplay(user);
+        }
+      };
+      $scope.searchService = searchServiceFactory('rest/users/search', false, $scope, 20);
+      $scope.searchService.search();
 
-    /** handle Modal form for user creation */
-    $scope.openNewUserModal = function() {
-      var modalInstance = $modal.open({
-        templateUrl: 'views/users/new_user.html',
-        controller: NewUserCtrl
+      /** handle Modal form for user creation */
+      $scope.openNewUserModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/users/new_user.html',
+          controller: NewUserCtrl
+        });
+
+        modalInstance.result.then(function(newUser) {
+          userServices.create([], angular.toJson(newUser), function() {
+            $scope.searchService.search();
+          });
+        });
+      };
+
+      //prevent closing when clicking on a role
+      $scope.preventClose = function(event) {
+        event.stopPropagation();
+      };
+
+      //check if a role is selected for a user
+      $scope.checkIfRoleSelected = function(user, role) {
+        if ($scope.checkRoleSelectedCallback) {
+          return $scope.checkRoleSelectedCallback({
+            user: user,
+            role: role
+          });
+        } else {
+          //default checker
+          if (user.roles) {
+            return user.roles.indexOf(role) > -1;
+          }
+        }
+
+        //return false either
+        return false;
+      };
+
+      $scope.checkIfGroupSelected = function(user, group) {
+        return UTILS.arrayContains(user.groups, group);
+      };
+
+      $scope.$watch('managedRoleList', function(newVal) {
+        if (!newVal) {
+          return;
+        }
+        $scope.searchService.search();
       });
 
-      modalInstance.result.then(function(newUser) {
-        userServices.create([], angular.toJson(newUser), function() {
+      /*get groups*/
+      $scope.searchGroups = function(groupQuery) {
+        var searchRequest = {
+          query: groupQuery,
+          from: 0,
+          size: 20
+        };
+        groupServices.search([], angular.toJson(searchRequest), function(results) {
+          $scope.tempGroups = results.data.data;
+          $scope.groups = [];
+          $scope.groupsMap = {};
+          $scope.tempGroups.forEach(function(group) {
+            $scope.groupsMap[group.id] = group;
+            // remove UTILS.ALL_USERS_GROUP
+            if (group.name != UTILS.ALL_USERS_GROUP) {
+              $scope.groups.push(group);
+            }
+          });
+        });
+      };
+
+      $scope.searchGroups();
+
+      $scope.filteredGroups = function(groups, user) {
+        if (UTILS.isUndefinedOrNull(user.groups) || UTILS.isUndefinedOrNull(groups)) {
+          return groups;
+        }
+        var filteredGroups = [];
+        for (var int = 0; int < groups.length; int++) {
+          if (!UTILS.arrayContains(user.groups, groups[int].name)) {
+            filteredGroups.push(groups[int]);
+          }
+        }
+        return filteredGroups;
+      };
+
+      $rootScope.$on('groupsChanged', function() {
+        $scope.mustRefreshUsers = true;
+      });
+
+      $rootScope.$on('usersViewActive', function() {
+        if ($scope.mustRefreshUsers) {
+          $scope.searchService.search();
+          $scope.searchGroups();
+          $scope.mustRefreshUsers = false;
+        }
+      });
+
+      $scope.userChanged = function(user, fieldName, fieldValue) {
+        var updateUserRequest = {};
+        updateUserRequest[fieldName] = fieldValue;
+        userServices.update({
+          username: user.username
+        }, angular.toJson(updateUserRequest));
+      };
+
+      $scope.remove = function(user) {
+        userServices.remove({
+          username: user.username
+        }, function() {
           $scope.searchService.search();
         });
-      });
-    };
-
-    //prevent closing when clicking on a role
-    $scope.preventClose = function(event) {
-      event.stopPropagation();
-    };
-
-    //check if a role is selected for a user
-    $scope.checkIfRoleSelected = function(user, role) {
-      if ($scope.checkRoleSelectedCallback) {
-        return $scope.checkRoleSelectedCallback({
-          user: user,
-          role: role
-        });
-      } else {
-        //default checker
-        if (user.roles) {
-          return user.roles.indexOf(role) > -1;
-        }
-      }
-
-      //return false either
-      return false;
-    };
-
-    $scope.checkIfGroupSelected = function(user, group) {
-      return UTILS.arrayContains(user.groups, group);
-    };
-
-    $scope.$watch('managedRoleList', function(newVal) {
-      if (!newVal) {
-        return;
-      }
-      $scope.searchService.search();
-    });
-
-    /*get groups*/
-    $scope.searchGroups = function(groupQuery) {
-      var searchRequest = {
-        query: groupQuery,
-        from: 0,
-        size: 20
       };
-      groupServices.search([], angular.toJson(searchRequest), function(results) {
-        $scope.groups = results.data.data;
-        $scope.groupsMap = {};
-        $scope.groups.forEach(function(group) {
-          $scope.groupsMap[group.id] = group;
-        });
-
-      });
-    };
-
-    $scope.searchGroups();
-
-    $scope.filteredGroups = function(groups, user) {
-      if (UTILS.isUndefinedOrNull(user.groups) || UTILS.isUndefinedOrNull(groups)) {
-        return groups;
-      }
-      var filteredGroups = [];
-      for (var int = 0; int < groups.length; int++) {
-        if (!UTILS.arrayContains(user.groups, groups[int].name)) {
-          filteredGroups.push(groups[int]);
-        }
-      }
-      return filteredGroups;
-    };
-
-    $rootScope.$on('groupsChanged', function() {
-      $scope.mustRefreshUsers = true;
-    });
-
-    $rootScope.$on('usersViewActive', function() {
-      if ($scope.mustRefreshUsers) {
-        $scope.searchService.search();
-        $scope.searchGroups();
-        $scope.mustRefreshUsers = false;
-      }
-    });
-
-    $scope.userChanged = function(user, fieldName, fieldValue) {
-      var updateUserRequest = {};
-      updateUserRequest[fieldName] = fieldValue;
-      userServices.update({ username: user.username}, angular.toJson(updateUserRequest));
-    };
-
-    $scope.remove = function(user) {
-      userServices.remove({
-        username: user.username
-      }, function() {
-        $scope.searchService.search();
-      });
-    };
-  }])
+    }
+  ])
   .directive('valueMatch', function() {
     return {
       require: 'ngModel',
