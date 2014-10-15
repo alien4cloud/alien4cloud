@@ -39,3 +39,4 @@ alien4cloud-mock-paas-provider-plugin/.gitignore
 
 /data/
 /target/
+alien4cloud-rest-api/data/
