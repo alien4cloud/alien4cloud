@@ -21,13 +21,12 @@ var flow = protractor.promise.controlFlow();
 
 var dismissAlertIfPresent = function() { // toast-close-button
   flow.execute(function() {
-      var closeAlertButton = element(by.css('.toast-close-button'));
-      closeAlertButton.click();
-      browser.waitForAngular();
-    }).then(function(value) {
-    }, function(error) {
-      return true;
-    });
+    var closeAlertButton = element(by.css('.toast-close-button'));
+    closeAlertButton.click();
+    browser.waitForAngular();
+  }).then(function(value) {}, function(error) {
+    return true;
+  });
 };
 module.exports.dismissAlertIfPresent = dismissAlertIfPresent;
 
