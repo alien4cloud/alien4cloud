@@ -1,0 +1,40 @@
+{
+  "id": "applications.detail.info-hopscotch",
+  "i18n": {
+    "nextBtn": "Suivant",
+    "prevBtn": "Retour",
+    "doneBtn": "Terminer",
+    "closeTooltip": "Arrêter le tour."
+  },
+  "steps": [{
+    "title": "Détails de l'application",
+    "content": "Sur cette page vous trouverez les détails de l'application et vous aurez la possibilité de modifier des informations basiques.",
+    "target": "am.applications.info",
+    "placement": "right"
+  }, {
+    "title": "Créer et modifier la topologie d'une application",
+    "content": "Ici vous pourrez voir et éditer la topologie d'une application en y ajoutant, enlevant de liant des composants (noeuds).",
+    "target": "am.applications.detail.topology",
+    "placement": "right"
+  }, {
+    "title": "Visualiser le workflow du cycle de vie de l'application",
+    "content": "Ici on peut visualiser le workflow global du déploiement de la topologie et voir des détails concernants composants.",
+    "target": "am.applications.detail.plans",
+    "placement": "right"
+  }, {
+    "title": "Configurer et déployer la topologie",
+    "content": "C'est ici que vous pourrez configurer et associer les composants de votre application à des resources réelles disponibles sur votre cloud. Il ne vous restera plus qu'a déployer votre application.",
+    "target": "am.applications.detail.deployment",
+    "placement": "right"
+  }, {
+    "title": "Visualiser l'état du déploiement",
+    "content": "Après le déploiement, cette vue synthétise la vue de la topology en y ajoutant des informations relatives au déploiement sur le cloud. Un tableau reprend aussi les évènements en détail et en temps réel qui se produisent pour les services.",
+    "target": "am.applications.detail.runtime",
+    "placement": "right"
+  }, {
+    "title": "Gestion des droits sur l'application",
+    "content": "Cette pate permet de gérer les différents droits que peuvent avoir un untilisateur ou un groupe sur l'application.",
+    "target": "am.applications.detail.users",
+    "placement": "right"
+  }]
+}

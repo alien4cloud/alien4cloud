@@ -1,0 +1,25 @@
+{
+  "id": "applications.detail.topology-hopscotch",
+  "i18n": {
+    "nextBtn": "Next",
+    "prevBtn": "Back",
+    "doneBtn": "Terminate",
+    "closeTooltip": "Stop the tour."
+  },
+  "steps": [{
+    "title": "Commencer la creation d'une topologie d'application",
+    "content": "Depuis cet onglet vous allez pouvoir rechercher et filtrer les composants qui votn servir à la composition de votre application.",
+    "target": "components-search",
+    "placement": "left"
+  }, {
+    "title": "Choisir les composants de l'application",
+    "content": "Ici vous avez la liste des composants disponibles dans votre outil A4C. Pour choisir un composant vous devez faire un glisser/déposer depuis ce composant vers la zone centrale et il apparaîtra dans cette zone. Avant de glisser votre composant vous pouvez éventuellement sélectionner une version.",
+    "target": "comp-search-result-panel",
+    "placement": "left"
+  }, {
+    "title": "Propriétés et détails d'un composant",
+    "content": "En sélectionnant un des composants du graphique représant votre architecture d'application, l'onglet <b>Propriétés</b> s'activera automatiquement affichant les informations du composant.",
+    "target": "nodetemplate-details",
+    "placement": "left"
+  }]
+}
