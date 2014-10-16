@@ -26,9 +26,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -49,7 +47,7 @@ import com.google.common.collect.Maps;
 @Slf4j
 @Component("plugin-manager")
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class PluginManager implements ApplicationListener<ContextRefreshedEvent> {
+public class PluginManager {
     private static final String LIB_DIRECTORY = "lib";
     private static final String PLUGIN_DESCRIPTOR_FILE = "META-INF/plugin.yml";
 
@@ -64,24 +62,9 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
     @Getter
     private List<PluginLinker> linkers = null;
 
-    private boolean initialized = false;
-
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (initialized) {
-            return;
-        }
-        initialized = true;
-        try {
-            initialize();
-        } catch (IOException e) {
-            log.error("Error while loading plugins.", e);
-        }
-    }
-
     /**
      * Initialize the plugins for alien.
-     *
+     * 
      * @throws IOException In case we fail to iterate over the plugin directory.
      */
     public void initialize() throws IOException {
@@ -127,7 +110,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Upload a plugin from a given path.
-     *
+     * 
      * @param pluginPath The path of the plugin to upload.
      * @throws IOException In case there is an issue with the access to the plugin file.
      * @throws PluginLoadingException
@@ -158,7 +141,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Disable a plugin.
-     *
+     * 
      * @param pluginId The id of the plugin to disable.
      * @param remove If true the plugin is not only disabled but also removed from the plugin repository.
      * @return Empty list if the plugin was successfully disabled (and removed), or a list of usages that prevent the plugin to be disabled/removed.
@@ -208,7 +191,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Enable a plugin in alien.
-     *
+     * 
      * @param pluginId The id of the plugin to load.
      * @throws PluginLoadingException In case plugin loading fails.
      */
@@ -264,7 +247,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Actually load and link a plugin in Alien 4 Cloud.
-     *
+     * 
      * @param pluginJarPath The path to the file that contains the plugin.
      * @throws IOException In case there is an IO issue with the file.
      * @throws ClassNotFoundException If we cannot load the class
@@ -330,7 +313,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * The the plugin descriptor for a given plugin.
-     *
+     * 
      * @param pluginId The id of the plugin for which to get the descriptor.
      * @return The plugin descriptor for the given plugin.
      */
@@ -345,7 +328,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
     /**
      * Return true if the plugin can be configured using a configuration object (basically if the plugin spring context contains an instance of
      * {@link IPluginConfigurator}.
-     *
+     * 
      * @param pluginId Id of the plugin for which to know if configurable.
      * @return True if the plugin can be configured, false if not.
      */
@@ -357,7 +340,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Get the class of the configuration object for a given plugin.
-     *
+     * 
      * @param pluginId Id of the plugin for which to get configuration object's class.
      * @return The class of the plugin configuration object.
      */
@@ -373,7 +356,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Get the instance of the {@link IPluginConfigurator} for a given plugin.
-     *
+     * 
      * @param pluginId Id of the plugin for which to get a the {@link IPluginConfigurator}
      * @return Null if no {@link IPluginConfigurator} is defined within the plugin's spring context or the first instance of {@link IPluginConfigurator}.
      */
@@ -389,7 +372,7 @@ public class PluginManager implements ApplicationListener<ContextRefreshedEvent>
 
     /**
      * Get the ClassLoader for a given plugin.
-     *
+     * 
      * @param pluginId The id of the plugin for which to get a classloader.
      * @return The classloader used for the plugin.
      */
