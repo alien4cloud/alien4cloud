@@ -193,7 +193,7 @@
     <!-- Plugin deployment properties -->
     <div class="row">
       <div class="col-md-12">
-        <div ng-if="!showTodoList() && showProperty()" ng-init="isPropertiesCollapsed = false">
+        <div ng-if="showProperty()" ng-init="isPropertiesCollapsed = false">
             <h3><i class="fa fa-cog">   </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
             <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
               <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
@@ -336,14 +336,15 @@
 </div>
 
 <!-- Matcher -->
-<div id="div-deployment-matcher" class="row" ng-if="!showTodoList()" style="padding-top:10px;">
-  <div class="col-md-12" ng-if="!showTodoList()">
+<div id="div-deployment-matcher" ng-if="!showTodoList() && clouds.length > 0"  style="padding-top:10px;">
+<div class="row">
+  <div class="col-md-12">
     <legend class="text-center title-border">
       <h3><i class="fa fa-random"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
     </legend>
   </div>
 </div>
-<div class="row" ng-if="!showTodoList()">
+<div class="row">
   <div class="col-md-4">
     <div class="table-responsive large-data-container">
       <table class="table table-hover">
@@ -356,7 +357,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, templates) in matchedCloudResources" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
+          <tr ng-repeat="(key, templates) in matchedCloudResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
             class="clickable-media" ng-class="{'info': isSelectedTemplate(key)}">
             <td>
               <i ng-if="!nodeTypeImage" class="fa fa-image fa-3x"></i>

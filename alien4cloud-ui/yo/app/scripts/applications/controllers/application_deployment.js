@@ -46,7 +46,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.showProperty = function() {
-      return $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
+      return !$scope.showTodoList() && $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
     };
 
     $scope.showTodoList = function() {

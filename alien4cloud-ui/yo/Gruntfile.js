@@ -449,6 +449,7 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/application_security.js',
 
               // 'test/e2e/scenarios/deployment.js',
+              'test/e2e/scenarios/deployment_matcher.js',
 
               // 'test/e2e/scenarios/quick_search.js',
 
