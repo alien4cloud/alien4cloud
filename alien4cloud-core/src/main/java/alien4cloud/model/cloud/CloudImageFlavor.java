@@ -59,7 +59,7 @@ public class CloudImageFlavor implements Comparable<CloudImageFlavor> {
         } else if (right.getMemSize() > this.getMemSize()) {
             rightPoint++;
         }
-        if (thisPoint < rightPoint) {
+        if (thisPoint > rightPoint) {
             return 1;
         } else if (rightPoint > thisPoint) {
             return -1;
