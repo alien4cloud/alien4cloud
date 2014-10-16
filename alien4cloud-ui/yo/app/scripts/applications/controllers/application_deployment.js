@@ -18,24 +18,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.selectedComputeTemplates = {};
 
-    applicationServices.matchResources({
-      applicationId: $scope.application.id
-    },undefined,function(response) {
-      $scope.matchedCloudResources = response.data.matchResult;
-      $scope.images = response.data.images;
-      $scope.flavors = response.data.flavors;
-      for(var key in $scope.matchedCloudResources) {
-        if($scope.matchedCloudResources.hasOwnProperty(key)) {
-          var templates = $scope.matchedCloudResources[key];
-          if(!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-            $scope.selectedComputeTemplates[key] = templates[0];
-          }
-        }
-      }
-    });
-
     $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
-      $scope.displayMatcherPannel = true;
       $scope.currentNodeTemplateId = name;
       $scope.currentMatchedComputeTemplates = currentMatchedComputeTemplates;
     };
@@ -353,6 +336,27 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }
     };
 
+    var refreshCloudResources = function() {
+      if ($scope.selectedCloud) {
+        delete $scope.currentMatchedComputeTemplates;
+        applicationServices.matchResources({
+          applicationId: $scope.application.id
+        }, undefined, function(response) {
+          $scope.matchedCloudResources = response.data.matchResult;
+          $scope.images = response.data.images;
+          $scope.flavors = response.data.flavors;
+          for (var key in $scope.matchedCloudResources) {
+            if ($scope.matchedCloudResources.hasOwnProperty(key)) {
+              var templates = $scope.matchedCloudResources[key];
+              if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+                $scope.selectedComputeTemplates[key] = templates[0];
+              }
+            }
+          }
+        });
+      }
+    };
+
     // search for clouds
     var Cloud = $resource('rest/clouds/search', {}, {});
     var refreshCloudList = function() {
@@ -368,6 +372,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           while (!found && i < clouds.length) {
             if (clouds[i].id === $scope.environment.cloudId) {
               $scope.selectedCloud = clouds[i];
+              refreshCloudResources();
               refreshDeploymentPropertyDefinitions();
               found = true;
             }
@@ -379,7 +384,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     /** change the cloud for the topology */
     $scope.changeCloud = function(selectedCloud) {
-
+      $scope.selectedComputeTemplates = {};
       if (!selectedCloud) {
         // reset deployment property bloc
         $scope.deploymentPropertyDefinitions = null;
@@ -392,6 +397,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.selectedCloud = selectedCloud;
           $scope.environment.cloudId = selectedCloud.id;
           refreshDeploymentStatus(true);
+          refreshCloudResources();
           refreshDeploymentPropertyDefinitions();
         }
       });

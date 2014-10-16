@@ -10,14 +10,13 @@ var componentData = require('../topology/component_data');
 var topologyEditorCommon = require('../topology/topology_editor_common');
 
 
-
 describe('Application Deployment :', function() {
   var reset = true;
   var after = false;
 
   /* Before each spec in the tests suite */
   beforeEach(function() {
-    if(reset) {
+    if (reset) {
       reset = false;
       common.before();
       authentication.login('admin');
@@ -29,7 +28,7 @@ describe('Application Deployment :', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    if(after) {
+    if (after) {
       common.after();
     }
   });
@@ -66,8 +65,6 @@ describe('Application Deployment :', function() {
   it('should propose match between the node and the templates.', function() {
     after = true;
     console.log('################# should propose match between the node and the templates.');
-    applications.goToApplicationTopologyPage();
-    applications.goToApplicationDeploymentPage();
     element(by.id("tr-node-Compute")).click();
     var templates = element.all(by.repeater('template in currentMatchedComputeTemplates'));
     expect(templates.count()).toBe(2);

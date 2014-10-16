@@ -336,7 +336,7 @@
 </div>
 
 <!-- Matcher -->
-<div id="div-deployment-matcher" ng-if="!showTodoList() && clouds.length > 0"  style="padding-top:10px;">
+<div id="div-deployment-matcher" ng-if="!showTodoList() && selectedCloud"  style="padding-top:10px;">
 <div class="row">
   <div class="col-md-12">
     <legend class="text-center title-border">
@@ -371,7 +371,7 @@
       </table>
     </div>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
     <div class="table-responsive large-data-container">
       <table class="table table-hover">
         <thead>
