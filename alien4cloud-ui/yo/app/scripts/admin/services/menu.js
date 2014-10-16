@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('alienUiApp').factory('adminMenu', ['$resource', function($resource) {
+angular.module('alienUiApp').factory('adminMenu', function() {
   return [
     {
       id: 'am.admin.users',
@@ -45,4 +45,4 @@ angular.module('alienUiApp').factory('adminMenu', ['$resource', function($resour
       show: true
     }
   ];
-}]);
+});

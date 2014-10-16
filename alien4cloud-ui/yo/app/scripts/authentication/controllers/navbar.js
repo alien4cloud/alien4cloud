@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', function(
-  $rootScope, $scope, alienAuthService, alienNavBarService, $translate) {
+angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', 'hopscotchService', function(
+  $rootScope, $scope, alienAuthService, alienNavBarService, $translate, hopscotchService) {
   $scope.signIn = function() {
     var data = 'username='+$scope.login.username+'&password='+$scope.login.password+'&submit=Login';
     alienAuthService.logIn(data, $scope);
@@ -20,9 +20,13 @@ angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope
   alienAuthService.getStatus();
 
   /* i18n */
-  $scope.changeLanguage = function (langKey) {
+  $scope.changeLanguage = function(langKey) {
     $translate.uses(langKey);
   };
 
   $scope.status = alienAuthService;
+
+  $scope.startTour = function() {
+    hopscotchService.startTour();
+  };
 }]);

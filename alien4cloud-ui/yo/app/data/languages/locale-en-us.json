@@ -365,6 +365,18 @@
       "IPAASPROVIDER": "Provider PaaS"
     }
   },
+  "CLOUD_IMAGES": {
+    "NEW": "New Image",
+    "NAME": "Name",
+    "OS_DISTRIBUTION": "Distribution",
+    "OS_TYPE": "Type",
+    "OS_VERSION": "Version",
+    "OS_ARCH": "Architecture",
+    "ICON_UPLOAD": "Drop icon here",
+    "NUM_CPUS": "Required CPU cores",
+    "DISK_SIZE": "Required disk size",
+    "MEM_SIZE": "Required memory size"
+  },
   "CLOUDS": {
     "CLOUDS": "Clouds",
     "NEW": "New cloud",

@@ -21,6 +21,7 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "plans";
 @import "vertical-menu";
 @import "flip-card";
+@import "hopscotch";
 
 /* change the layout*/
 $screen-sm-min: 768px;
@@ -172,7 +173,6 @@ a.accordion-toggle[ng-click] {
 
 fieldset legend {
   border-bottom: 1px solid #428bca;
-
 }
 
 .detail-bloc > div {
