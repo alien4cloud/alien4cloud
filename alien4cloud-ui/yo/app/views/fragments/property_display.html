@@ -1,9 +1,9 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl" id="meta_properties">
   <!-- Property Name -->
 
-  <span id="p_name_{{definition.name}}" class="col-md-5 property-display-label-ellipsed" ng-class="{'property-required': definition.required }" tooltip="{{definition.name}}" tooltip-append-to-body="true">
+  <label id="p_name_{{definition.name}}" class="col-md-5 property-display-label-ellipsed" ng-class="{'property-required': definition.required }" tooltip="{{definition.name}}" tooltip-append-to-body="true">
     {{definition.name}}
-  </span>
+  </label>
 
   <div class="col-md-6" ng-class="{'form-editable': !condensed}">
 
@@ -60,6 +60,6 @@
 
   </div>
 
-  <span ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</span>
+  <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
 
 </div>
