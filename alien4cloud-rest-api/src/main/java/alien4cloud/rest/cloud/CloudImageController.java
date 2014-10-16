@@ -61,10 +61,12 @@ public class CloudImageController {
         cloudImage.setOsDistribution(request.getOsDistribution());
         cloudImage.setOsType(request.getOsType());
         cloudImage.setOsVersion(request.getOsVersion());
-        cloudImage.setRequirement(new CloudImageRequirement());
-        cloudImage.getRequirement().setDiskSize(request.getDiskSize());
-        cloudImage.getRequirement().setMemSize(request.getMemSize());
-        cloudImage.getRequirement().setNumCPUs(request.getNumCPUs());
+        if (request.getDiskSize() != null || request.getMemSize() != null || request.getNumCPUs() != null) {
+            cloudImage.setRequirement(new CloudImageRequirement());
+            cloudImage.getRequirement().setDiskSize(request.getDiskSize());
+            cloudImage.getRequirement().setMemSize(request.getMemSize());
+            cloudImage.getRequirement().setNumCPUs(request.getNumCPUs());
+        }
         cloudImageService.ensureCloudImageUniqueness(cloudImage);
         cloudImageService.saveCloudImage(cloudImage);
         return RestResponseBuilder.<String> builder().data(cloudImage.getId()).build();
@@ -120,7 +122,7 @@ public class CloudImageController {
      * Search for clouds.
      *
      * @param searchRequest Query to find the cloud images.
-     * @return A {@link RestResponse} that contains a {@link calm.dao.model.GetMultipleDataResult} that contains the clouds.
+     * @return A {@link RestResponse} that contains a {@link alien4cloud.dao.model.GetMultipleDataResult} that contains the clouds.
      */
     @ApiOperation(value = "Search for cloud images.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/search", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -53,14 +53,7 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.goToCloudDetail('testcloud');
     expect(cloudsCommon.countImageCloud()).toBe(0);
     cloudImageCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
-    cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.goToCloudDetailImage();
-    browser.element(by.id('clouds-image-add-button')).click();
-    var imageLi =  element.all(by.repeater('cloudImage in data.data')).first();
-    var imageDiv = imageLi.element(by.css('div[ng-click^="selectImage"]'));
-    browser.actions().click(imageDiv).perform();
-    browser.element(by.id('clouds-new-image-add-button')).click();
-    browser.waitForAngular();
+    cloudsCommon.selectFirstImageOfCloud('testcloud');
     expect(cloudsCommon.countImageCloud()).toBe(1);
   });
 

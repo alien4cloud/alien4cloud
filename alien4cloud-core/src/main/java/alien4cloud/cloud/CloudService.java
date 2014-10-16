@@ -466,7 +466,7 @@ public class CloudService {
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             if (isFlavorMatchImageRequirement(cloudImage, flavor)) {
-                computes.add(new ComputeTemplate(cloudImageId, flavor.getId(), true));
+                computes.add(new ComputeTemplate(cloudImageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);
@@ -489,7 +489,7 @@ public class CloudService {
         Set<ComputeTemplate> computes = cloud.getComputeTemplates();
         for (String imageId : cloud.getImages()) {
             if (isFlavorMatchImageRequirement(images.get(imageId), flavor)) {
-                computes.add(new ComputeTemplate(imageId, flavor.getId(), true));
+                computes.add(new ComputeTemplate(imageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);

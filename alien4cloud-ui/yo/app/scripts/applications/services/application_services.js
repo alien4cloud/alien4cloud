@@ -55,6 +55,7 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
     /*application runtime*/
     // Service that gives access to application deployment service
     var applicationRuntimeDAO = $resource('rest/applications/:applicationId/deployment/informations', {}, {});
+    var cloudResourcesDAO = $resource('rest/applications/:applicationId/cloud-resources', {}, {});
     var ApplicationScalingDAO = $resource('rest/applications/:applicationId/scale/:nodeTemplateId', {}, {
       'scale': {
         method: 'POST'
@@ -151,6 +152,7 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
       'groupRoles': manageAppGroupRoles,
       'applicationStatus': applicationStatus,
       'checkProperty': deploymentProperty.checkDeploymentProperty,
+      'matchResources': cloudResourcesDAO.get
     };
   }
 ]);
