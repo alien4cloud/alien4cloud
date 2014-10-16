@@ -445,7 +445,6 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
               // 'test/e2e/scenarios/application_topology_editor_input_output.js',
               // 'test/e2e/scenarios/application_topology_runtime.js',
-              'test/e2e/scenarios/application_deployment.js',
               // 'test/e2e/scenarios/application_security.js',
 
               // 'test/e2e/scenarios/deployment.js',
