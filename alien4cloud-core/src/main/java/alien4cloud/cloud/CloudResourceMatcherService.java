@@ -1,5 +1,8 @@
 package alien4cloud.cloud;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +23,7 @@ import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -33,12 +37,44 @@ public class CloudResourceMatcherService {
     public static final String COMPUTE_TYPE = "tosca.nodes.Compute";
 
     /**
+     * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
+     * 
+     * @param topology the topology to check
+     * @param cloud the cloud
+     * @return match result which contains the images that can be used, the flavors that can be used and their possible association
+     */
+    public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud) {
+        Map<String, NodeTemplate> matchableNodes = getMatchableTemplates(topology);
+        Map<String, List<ComputeTemplate>> matchResult = Maps.newHashMap();
+        Set<String> imageIds = Sets.newHashSet();
+        Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
+        for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
+            List<ComputeTemplate> computeTemplates = Lists.newArrayList();
+            List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
+            for (CloudImage image : images) {
+                List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
+                if (!flavors.isEmpty()) {
+                    imageIds.add(image.getId());
+                }
+                for (CloudImageFlavor flavor : flavors) {
+                    ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
+                    computeTemplates.add(template);
+                    flavorMap.put(flavor.getId(), flavor);
+                }
+            }
+            matchResult.put(templateEntry.getKey(), computeTemplates);
+        }
+        Map<String, CloudImage> imageMap = cloudImageService.getMultiple(imageIds);
+        return new CloudResourceTopologyMatchResult(imageMap, flavorMap, matchResult);
+    }
+
+    /**
      * This method browse topology's node templates and return those that need to be matched to cloud's resources
      * 
      * @param topology the topology to check
      * @return all node template that must be matched
      */
-    public Map<String, NodeTemplate> getMatchableTemplates(Topology topology) {
+    private Map<String, NodeTemplate> getMatchableTemplates(Topology topology) {
         Map<String, NodeTemplate> allNodeTemplates = topology.getNodeTemplates();
         Map<String, NodeTemplate> matchableNodeTemplates = Maps.newHashMap();
         if (allNodeTemplates == null) {
@@ -57,14 +93,14 @@ public class CloudResourceMatcherService {
      * Get all available image for a compute by filtering with its properties on OS information
      * 
      * @param cloud the cloud
-     * @param computeTemplate the compute to search for images
+     * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
      */
-    public Set<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate computeTemplate) {
-        if (!COMPUTE_TYPE.equals(computeTemplate.getType())) {
-            throw new InvalidArgumentException("Node is not a compute but of type [" + computeTemplate.getType() + "]");
+    private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate) {
+        if (!COMPUTE_TYPE.equals(nodeTemplate.getType())) {
+            throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
-        Map<String, String> computeTemplateProperties = computeTemplate.getProperties();
+        Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
         // Only get active templates
         Set<ComputeTemplate> templates = cloud.getComputeTemplates();
         Set<String> availableImageIds = Sets.newHashSet();
@@ -74,7 +110,7 @@ public class CloudResourceMatcherService {
             }
         }
         Map<String, CloudImage> availableImages = cloudImageService.getMultiple(availableImageIds);
-        Set<CloudImage> matchedImages = Sets.newHashSet();
+        List<CloudImage> matchedImages = Lists.newArrayList();
         for (CloudImage cloudImage : availableImages.values()) {
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_ARCH, cloudImage.getOsArch(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
@@ -94,6 +130,14 @@ public class CloudResourceMatcherService {
             }
             matchedImages.add(cloudImage);
         }
+
+        Collections.sort(matchedImages, new Comparator<CloudImage>() {
+            @Override
+            public int compare(CloudImage left, CloudImage right) {
+                return VersionUtil.compare(left.getOsVersion(), right.getOsVersion());
+            }
+        });
+
         return matchedImages;
     }
 
@@ -101,13 +145,13 @@ public class CloudResourceMatcherService {
      * Get all available flavors for the given compute and the given image on the given cloud
      * 
      * @param cloud the cloud
-     * @param computeTemplate the compute to search for flavors
+     * @param nodeTemplate the compute to search for flavors
      * @param cloudImage the image
      * @return the available flavors for the compute and the image on the given cloud
      */
-    public Set<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate computeTemplate, CloudImage cloudImage) {
-        if (!COMPUTE_TYPE.equals(computeTemplate.getType())) {
-            throw new InvalidArgumentException("Node is not a compute but of type [" + computeTemplate.getType() + "]");
+    private List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {
+        if (!COMPUTE_TYPE.equals(nodeTemplate.getType())) {
+            throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
         Map<String, CloudImageFlavor> allFlavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
@@ -121,8 +165,8 @@ public class CloudResourceMatcherService {
                 availableFlavors.add(allFlavors.get(template.getCloudImageFlavorId()));
             }
         }
-        Set<CloudImageFlavor> matchedFlavors = Sets.newHashSet();
-        Map<String, String> computeTemplateProperties = computeTemplate.getProperties();
+        List<CloudImageFlavor> matchedFlavors = Lists.newArrayList();
+        Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
         for (CloudImageFlavor flavor : availableFlavors) {
             if (!match(computeTemplateProperties, NormativeComputeConstants.NUM_CPUS, flavor.getNumCPUs(), new IntegerValueParser(),
                     new GreaterOrEqualValueMatcher<Integer>())) {
@@ -138,6 +182,7 @@ public class CloudResourceMatcherService {
             }
             matchedFlavors.add(flavor);
         }
+        Collections.sort(matchedFlavors);
         return matchedFlavors;
     }
 

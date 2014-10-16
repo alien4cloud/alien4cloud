@@ -20,6 +20,16 @@ function goToApplicationListPage() {
 }
 module.exports.goToApplicationListPage = goToApplicationListPage;
 
+function goToApplicationDeploymentPage() {
+  navigation.go('applications', 'deployment');
+}
+module.exports.goToApplicationDeploymentPage = goToApplicationDeploymentPage;
+
+function goToApplicationTopologyPage() {
+  navigation.go('applications', 'topology');
+}
+module.exports.goToApplicationTopologyPage = goToApplicationTopologyPage;
+
 function goToApplicationDetailPage(applicationName, goOnTopology) {
   navigation.go('main', 'applications');
   // From the application search page select a particular line
