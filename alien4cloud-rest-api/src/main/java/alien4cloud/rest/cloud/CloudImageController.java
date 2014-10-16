@@ -61,10 +61,12 @@ public class CloudImageController {
         cloudImage.setOsDistribution(request.getOsDistribution());
         cloudImage.setOsType(request.getOsType());
         cloudImage.setOsVersion(request.getOsVersion());
-        cloudImage.setRequirement(new CloudImageRequirement());
-        cloudImage.getRequirement().setDiskSize(request.getDiskSize());
-        cloudImage.getRequirement().setMemSize(request.getMemSize());
-        cloudImage.getRequirement().setNumCPUs(request.getNumCPUs());
+        if (request.getDiskSize() != null || request.getMemSize() != null || request.getNumCPUs() != null) {
+            cloudImage.setRequirement(new CloudImageRequirement());
+            cloudImage.getRequirement().setDiskSize(request.getDiskSize());
+            cloudImage.getRequirement().setMemSize(request.getMemSize());
+            cloudImage.getRequirement().setNumCPUs(request.getNumCPUs());
+        }
         cloudImageService.ensureCloudImageUniqueness(cloudImage);
         cloudImageService.saveCloudImage(cloudImage);
         return RestResponseBuilder.<String> builder().data(cloudImage.getId()).build();

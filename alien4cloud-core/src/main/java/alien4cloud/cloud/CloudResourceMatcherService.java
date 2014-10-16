@@ -52,12 +52,14 @@ public class CloudResourceMatcherService {
             List<ComputeTemplate> computeTemplates = Lists.newArrayList();
             List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
             for (CloudImage image : images) {
-                imageIds.add(image.getId());
                 List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
+                if (!flavors.isEmpty()) {
+                    imageIds.add(image.getId());
+                }
                 for (CloudImageFlavor flavor : flavors) {
-                    flavorMap.put(flavor.getId(), flavor);
                     ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
                     computeTemplates.add(template);
+                    flavorMap.put(flavor.getId(), flavor);
                 }
             }
             matchResult.put(templateEntry.getKey(), computeTemplates);

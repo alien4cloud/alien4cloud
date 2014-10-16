@@ -5,12 +5,14 @@ import javax.validation.constraints.Min;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import org.hibernate.validator.constraints.NotBlank;
 
 @Getter
 @Setter
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode
+@ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class CloudImageFlavor implements Comparable<CloudImageFlavor> {
 

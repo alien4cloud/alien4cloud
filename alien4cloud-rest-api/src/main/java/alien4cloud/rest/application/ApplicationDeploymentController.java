@@ -286,6 +286,9 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
         Topology topology = topologyService.getMandatoryTopology(version.getTopologyId());
+        if (environment.getCloudId() == null) {
+            throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
+        }
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         return RestResponseBuilder.<CloudResourceTopologyMatchResult> builder().data(cloudResourceMatcherService.matchTopology(topology, cloud)).build();
     }
