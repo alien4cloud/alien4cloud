@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import alien4cloud.model.cloud.CloudImage;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
@@ -58,6 +59,7 @@ public class CommonStepDefinitions {
         IndiceClassesToClean.add(Deployment.class);
         IndiceClassesToClean.add(Group.class);
         IndiceClassesToClean.add(User.class);
+        IndiceClassesToClean.add(CloudImage.class);
     }
 
     @Before

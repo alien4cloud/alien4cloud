@@ -85,8 +85,3 @@ Feature: Create cloud compute templates
       | Windows 7 with less requirement | small_less_cpu         | enabled |
       | Windows 7 with less requirement | small_less_disk_size   | enabled |
       | Windows 7 with less requirement | small_less_memory_size | enabled |
-
-
-
-
-
