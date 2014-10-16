@@ -1,7 +1,9 @@
 package alien4cloud.model.cloud;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
@@ -12,6 +14,8 @@ import org.elasticsearch.mapping.IndexType;
 @Getter
 @Setter
 @ESObject
+@EqualsAndHashCode
+@ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class CloudImage {
 

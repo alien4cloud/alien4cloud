@@ -14,6 +14,60 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.outputAttributesValue = {};
     $scope.outputPropertiesValue = {};
+    $scope.validTopologyDTO = false;
+
+    $scope.selectedComputeTemplates = {};
+
+    applicationServices.matchResources({
+      applicationId: $scope.application.id
+    },undefined,function(response) {
+      $scope.matchedCloudResources = response.data.matchResult;
+      $scope.images = response.data.images;
+      $scope.flavors = response.data.flavors;
+      for(var key in $scope.matchedCloudResources) {
+        if($scope.matchedCloudResources.hasOwnProperty(key)) {
+          var templates = $scope.matchedCloudResources[key];
+          if(!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+            $scope.selectedComputeTemplates[key] = templates[0];
+          }
+        }
+      }
+    });
+
+    $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
+      $scope.displayMatcherPannel = true;
+      $scope.currentNodeTemplateId = name;
+      $scope.currentMatchedComputeTemplates = currentMatchedComputeTemplates;
+    };
+
+    $scope.changeSelectedImage = function(template) {
+      // TODO: send new value to server
+      $scope.selectedComputeTemplates[$scope.currentNodeTemplateId] = template;
+    };
+
+    $scope.showProperty = function() {
+      return !$scope.showTodoList() && $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
+    };
+
+    $scope.showTodoList = function() {
+      return !$scope.validTopologyDTO.valid && $scope.isManager;
+    };
+
+    $scope.isSelected = function(template) {
+      return template === $scope.selectedComputeTemplates[$scope.currentNodeTemplateId];
+    };
+
+    $scope.isSelectedTemplate = function(key) {
+      return key === $scope.currentNodeTemplateId;
+    };
+
+    $scope.showProperty = function() {
+      return $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
+    };
+
+    $scope.showTodoList = function() {
+      return !$scope.validTopologyDTO.valid && $scope.isManager;
+    };
 
     $scope.isAllowedModify = function() {
       return UTILS.isDefinedAndNotNull($scope.topologyId) && ($scope.isManager || $scope.isDevops);
@@ -33,6 +87,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         topologyId: $scope.topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
+        $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;

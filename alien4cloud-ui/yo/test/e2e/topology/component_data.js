@@ -93,6 +93,12 @@ module.exports.simpleTopology = {
   }
 };
 
+module.exports.verySimpleTopology = {
+  nodes: {
+    compute: toscaBaseTypes.compute()
+  }
+};
+
 module.exports.simpleAbstractTopology = {
   nodes: {
     compute: toscaBaseTypes.compute(),
