@@ -25,7 +25,9 @@
 		alien4cloud.rest.suggestion,
 		org.elasticsearch.mapping,
 		alien4cloud.paas,
-		alien4cloud.paas.plan" />
+		alien4cloud.paas.plan">
+    <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap" />
+  </context:component-scan>
 
   <bean id="alienconfig" class="alien4cloud.spring.config.YamlPropertiesFactoryBean">
     <property name="resources" value="classpath:alien4cloud-config.yaml" />
