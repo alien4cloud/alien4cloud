@@ -15,7 +15,8 @@ describe('Quick search', function() {
   });
 
   var checkQuickSearchForm = function(recommended) {
-    expect(element(by.model('itemSelected')).isDisplayed()).toBe(recommended);
+    browser.sleep(1000);
+    expect(element(by.model('itemSelected')).isPresent()).toBe(recommended);
   };
 
   var uploadData = function() {
