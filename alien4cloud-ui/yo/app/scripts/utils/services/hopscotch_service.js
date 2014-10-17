@@ -51,8 +51,7 @@ angular.module('alienUiApp').factory('hopscotchService', ['$http', '$translate',
 
           })
           .error(function(data, status, headers, config) {
-            // TODO : translate
-            toaster.pop('info', 'Tour missing', 'No tour for the current page', 4000, 'trustedHtml', null);
+            toaster.pop('info', $translate('HOPSCOTCH_MISSING.TITLE'), $translate('HOPSCOTCH_MISSING.CONTENT'), 2000, 'trustedHtml', null);
           });
       },
       resumeTour: function(tourName, step) {

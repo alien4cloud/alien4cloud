@@ -12,7 +12,8 @@
     "target": "menu.admin",
     "placement": "bottom",
     "multipage": true,
-    "nextOnTargetClick": true
+    "nextOnTargetClick": true,
+    "showNextButton": false
   }, {
     "title": "Configurer les utilisateurs",
     "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
