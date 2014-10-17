@@ -1,0 +1,59 @@
+@import "bootstrap_variables";
+
+.application-thumbnail {
+  width: 266px;
+  height: 306px;
+  margin: 10px;
+  background-color: white;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-block;
+}
+
+.application-icon {
+  width: 256px;
+  height: 256px;
+}
+
+.application-name {
+  border-top: 1px solid #dddddd;
+  padding-top: 4px;
+}
+
+.application-back {
+  width: 256px;
+  height: 296px;
+}
+
+.nav-tabs li.active a {
+  background-color: white;
+}
+
+.tab-pane {
+  background-color: white;
+  padding: 10px;
+  border: 1px solid #dddddd;
+  border-top-color: transparent;
+}
+
+.resource-user-roles .thumbnail  h5 {
+  text-align: center;
+  color:white;
+  background-color: #3276b1;
+  padding: 5px;
+  font-weight: bold;
+}
+
+.resource-user-roles .thumbnail {
+  max-height: 500px;
+  min-height: 200px;
+  overflow: auto;
+}
+
+.task-list-box {
+  padding-left: 5px;
+  border-left-style: solid;
+  border-left-width: 3px;
+  border-left-color: $state-danger-text;
+}

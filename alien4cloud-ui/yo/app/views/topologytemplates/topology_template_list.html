@@ -1,0 +1,74 @@
+<div>
+  <div class="row">
+    <div class="col-md-12" ng-if="isArchitect">
+      <button class="btn btn-success" ng-click="openNewTopologyTemplate()" id="btn-add-template">
+        <i class="fa fa fa-plus-circle"></i> {{ 'TEMPLATE.NEW' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-2 well">
+      <form role="search" ng-submit="search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default"
+              data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-10">
+      <ul class="list-group">
+        <li class="list-group-item clickable-media overflowmedia" style="padding:6px;" ng-repeat="topologyTemplate in searchResult.data.data" ng-click="openTopologyTemplate(topologyTemplate.id)"
+          id="template_{{topologyTemplate.name}}" >
+          <div class="media">
+            <i class="pull-left media-object fa fa-clipboard fa-4x"></i>
+            <div class="media-body">
+
+                <div class="pull-right">
+                  <delete-confirm id="delete-template_{{topologyTemplate.name}}" func="deleteTopologyTemplate(topologyTemplate.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  </delete-confirm>
+                </div>
+
+                <h4 class="media-heading">
+                  <span>{{topologyTemplate.name}}</span>
+                  <p class="small">{{topologyTemplate.description}}</p>
+                </h4>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="text/ng-template" id="newTopologyTemplate.html">
+    <form name="newTopologyTemplate" class="form-horizontal" role="form" ng-submit="create(newTopologyTemplate.$valid)" novalidate>
+      <div class="modal-header">
+        <h3>{{'TEMPLATE.NEW' | translate}}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" ng-class="{'has-error': newTopologyTemplate.name.$invalid}">
+          <label for="nameid" class="col-lg-2 control-label">{{'TEMPLATE.NAME' | translate}}</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="nameid" ng-model="topologytemplate.name" name="name" required="" placeholder="{{'TEMPLATE.NAME' | translate}}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="descid" class="col-lg-2 control-label">{{'TEMPLATE.DESCRIPTION' | translate}}</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" id="descid" rows="3" ng-model="topologytemplate.description" placeholder="{{'TEMPLATE.DESCRIPTION' | translate}}"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button ng-disabled="newTopologyTemplate.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+      </div>
+    </form>
+  </script>
+
+</div>

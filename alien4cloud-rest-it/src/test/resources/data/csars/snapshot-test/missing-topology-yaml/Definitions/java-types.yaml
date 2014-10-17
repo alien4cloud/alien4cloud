@@ -1,0 +1,109 @@
+
+name: alien-java-types
+namespace: alien4cloud
+description: Define types for java.
+
+node_types:
+  fastconnect.nodes.War:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      A web application which is packaged as a war.
+    properties:
+      version:
+        type: version
+    artifacts:
+      war:
+        artifact_type: tosca.artifacts.WarFile
+
+  fastconnect.nodes.Java:
+    abstract: true
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      A Java Virtual Machine Software Component.
+    tags:
+      icon: /images/java.png
+      marurity: very bad
+    properties:
+      version:
+        type: version
+        default: "1.6"
+        constraints:
+          - greater_or_equal: "1.5"
+      vendor:
+        type: string
+      os_name:
+        type: string
+      os_arch:
+        type: string
+    capabilities:
+      java:
+        type: tosca.capabilities.Java
+        upper_bound: unbounded
+
+  fastconnect.nodes.JavaRPM:
+    derived_from: fastconnect.nodes.Java
+    description: >
+      Installation of Oracle JVM thanks to a RPM command.
+    interfaces:
+      lifecycle:
+        operations:
+          create: /scripts/install.sh
+          delete: /scripts/uninstall.sh
+
+  fastconnect.nodes.JavaChef:
+    derived_from: fastconnect.nodes.Java
+    description: >
+      Installation of Oracle JVM thanks to a Chef recipe. A Chef server is required.
+    interfaces:
+      lifecycle:
+        operations:
+          create: /scripts/install.sh
+          delete: /scripts/uninstall.sh
+
+  fastconnect.nodes.JavaPuppet:
+    derived_from: fastconnect.nodes.Java
+    description: >
+      Installation of Oracle JVM thanks to a Puppet recipe. A Puppet server is required.
+    interfaces:
+      lifecycle:
+        operations:
+          create: /scripts/install.sh
+          delete: /scripts/uninstall.sh
+
+  fastconnect.nodes.Tomcat:
+    abstract: true
+    description: >
+      A Tomcat application server.
+    tags:
+      icon: /images/tomcat.png
+    derived_from: tosca.nodes.ApplicationServer
+
+  fastconnect.nodes.TomcatRPM:
+    description: >
+      A Tomcat application server implemented thanks to a RPM install.
+    derived_from: fastconnect.nodes.Tomcat
+
+  fastconnect.nodes.TomcatChef:
+    description: >
+      A Tomcat application server implemented thanks to a Chef install.
+    derived_from: fastconnect.nodes.Tomcat
+
+  fastconnect.nodes.TomcatPuppet:
+    abstract: false
+    description: >
+      A Tomcat application server implemented thanks to a Puppet install.
+    derived_from: fastconnect.nodes.Tomcat
+
+capability_types:
+  tosca.capabilities.Java:
+    properties:
+      version:
+        type: string
+      update:
+        type: string
+      vendor:
+        type: string
+      os_name:
+        type: string
+      os_arch:
+        type: string

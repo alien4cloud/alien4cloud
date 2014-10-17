@@ -1,0 +1,61 @@
+<div ng-if="!tagCreationFormOpened" class="row">
+  <div class="col-md-12">
+    <button type="button" class="btn btn-success" ng-click="openTagCreationForm()"><i class="fa fa fa-plus-circle"></i> {{'TAG_CONFIG.CREATE' | translate}}
+    </button>
+  </div>
+</div>
+
+<div id="createTagConfigurationForm" ng-if="tagCreationFormOpened" class="row" style="margin-top: 10px;">
+  <div class="col-md-12">
+    <generic-form ng-if="objectDefinition"
+                  root-object="rootObject"
+                  form-title="{{formTitle}}"
+                  type="objectDefinition"
+                  form-style="window"
+                  is-removable="false"
+                  is-cancelable="true"
+                  show-path="true"
+                  automatic-save="false"
+                  suggest="suggest(searchConfiguration, text)"
+                  save="saveTagConfiguration(object)"
+                  cancel="cancelTagConfigurationCreation(object)">
+    </generic-form>
+  </div>
+</div>
+
+<div ng-if="!tagCreationFormOpened" class="row" style="margin-top: 10px;">
+  <div class="col-md-12">
+    <div class="table-responsive large-data-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{ 'TAG_CONFIG.NAME' | translate}}</th>
+            <th>{{ 'TAG_CONFIG.DESCRIPTION' | translate}}</th>
+            <th>{{ 'TAG_CONFIG.TARGET' | translate}}</th>
+            <th>{{ 'TAG_CONFIG.DEFAULT' | translate}}</th>
+            <th>{{ 'TAG_CONFIG.TYPE' | translate}}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tagConfigurationsTable">
+          <tr class="clickable-media" ng-repeat="config in data.data" ng-click="goToTagConfiguration(config.id)" id='config_{{config.id}}'>
+            <td>{{config.name}}</td>
+            <td>{{config.description}}</td>
+            <td>{{config.target}}</td>
+            <td>{{config.default}}</td>
+            <td>{{config.type}}</td>
+            <td>
+              <div class="pull-right">
+                <delete-confirm func="removeTagConfiguration(config.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- pagination bar -->
+      <pagination-directive pagination-info="searchService.pagination" />
+    </div>
+  </div>
+</div>

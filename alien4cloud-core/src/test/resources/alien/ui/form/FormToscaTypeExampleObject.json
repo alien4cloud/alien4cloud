@@ -1,0 +1,80 @@
+{
+  "_type" : "complex",
+  "_order" : [ "allConstraintsField", "intField", "stringField", "versionField" ],
+  "_propertyType" : {
+    "intField" : {
+      "_type" : "tosca",
+      "_definition" : {
+        "type" : "integer",
+        "description" : "Integer of the component",
+        "constraints" : [ {
+          "validValues" : [ "1", "2", "3", "4" ]
+        } ],
+        "default" : "",
+        "password" : false,
+        "required" : false
+      }
+    },
+    "versionField" : {
+      "_type" : "tosca",
+      "_definition" : {
+        "type" : "version",
+        "description" : "Version of the component",
+        "constraints" : [ {
+          "greaterThan" : "1.6"
+        } ],
+        "default" : "",
+        "password" : false,
+        "required" : false
+      }
+    },
+    "stringField" : {
+      "_type" : "tosca",
+      "_definition" : {
+        "type" : "string",
+        "description" : "String of the component",
+        "constraints" : [ {
+          "pattern" : "\\d+"
+        } ],
+        "default" : "",
+        "password" : false,
+        "required" : false
+      }
+    },
+    "allConstraintsField" : {
+      "_type" : "tosca",
+      "_definition" : {
+        "type" : "float",
+        "description" : "All constraint of the component",
+        "constraints" : [ {
+          "equal" : "5"
+        }, {
+          "greaterOrEqual" : "6"
+        }, {
+          "greaterThan" : "7"
+        }, {
+          "inRange" : [ "23", "25" ],
+          "rangeMinValue" : "23",
+          "rangeMaxValue" : "25"
+        }, {
+          "length" : 7
+        }, {
+          "lessOrEqual" : "7"
+        }, {
+          "lessThan" : "3"
+        }, {
+          "maxLength" : 9
+        }, {
+          "minLength" : 4
+        }, {
+          "pattern" : "\\d+"
+        }, {
+          "validValues" : [ "4", "5", "6", "7" ]
+        } ],
+        "default" : "",
+        "password" : false,
+        "required" : false
+      }
+    }
+  }
+}

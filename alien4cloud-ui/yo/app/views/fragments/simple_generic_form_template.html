@@ -1,0 +1,33 @@
+<div class="form-horizontal">
+    <div class="row" ng-show="configuration.validationErrors && configuration.showErrorsAlert">
+        <div class="col-md-12">
+            <div class="alert alert-danger alert-dismissible">
+                <button id="genericFormErrorDismiss" type="button" class="close" aria-hidden="true"
+                        ng-click="closeErrors()">&times;</button>
+                <div><strong>{{'GENERIC_FORM.FORM_INVALID_MESSAGE' | translate}}</strong></div>
+                <ul>
+                    <li ng-repeat="(error, paths) in configuration.validationErrors">{{error |
+                        translate}} : <span ng-repeat="path in paths"><span ng-if="$index > 0">, </span><span
+                                ng-repeat="label in path"><span
+                                ng-if="path.length > 1">/</span>{{label | translate}}</span></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <complex-type-property-form ng-repeat="name in type._order"
+                                        property-name="name"
+                                        property-type="type._propertyType[name]"
+                                        path="path"
+                                        label-path="labelPath"
+                                        root-object="rootObject"
+                                        suggest="suggest(searchConfiguration, text)"
+                                        automatic-save="automaticSave"
+                                        save-action="saveAction(object)"
+                                        configuration="configuration">
+            </complex-type-property-form>
+        </div>
+    </div>
+</div>

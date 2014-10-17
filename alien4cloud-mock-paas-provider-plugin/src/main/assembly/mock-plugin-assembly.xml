@@ -1,0 +1,34 @@
+<assembly>
+	<id>assemble-plugin</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<fileSets>
+		<fileSet>
+			<directory>target/classes</directory>
+			<lineEnding>keep</lineEnding>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>**/**</include>
+			</includes>
+			<excludes>
+				<exclude>META-INF/**</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+	<files>
+		<file>
+			<source>${basedir}/src/main/resources/META-INF/plugin-valid-1.0.yml</source>
+			<destName>plugin.yml</destName>
+			<outputDirectory>META-INF</outputDirectory>
+		</file>
+	</files>
+	<dependencySets>
+		<dependencySet>
+			<useProjectArtifact>false</useProjectArtifact>
+			<useTransitiveDependencies>true</useTransitiveDependencies>
+			<outputDirectory>lib</outputDirectory>
+		</dependencySet>
+	</dependencySets>
+</assembly>

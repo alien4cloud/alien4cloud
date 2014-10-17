@@ -1,0 +1,9 @@
+name: myJavaProgram
+version: 1.0
+license: Apache
+created_by: mkv
+dependencies:
+  - name: java
+    version: 1.0
+definitions:
+  - /Definitions/myJavaProgram.yaml

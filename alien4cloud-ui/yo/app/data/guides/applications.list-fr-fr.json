@@ -1,0 +1,53 @@
+{
+  "id": "applications.list-hopscotch",
+  "i18n": {
+    "nextBtn": "Suivant",
+    "prevBtn": "Retour",
+    "doneBtn": "Terminer",
+    "closeTooltip": "Arrêter le tour."
+  },
+  "steps": [{
+    "title": "Liste d'applications",
+    "content": "<p>Les applications auquelles vous avez accès sont affichées ici.</p><p>Note: si aucune application n'apparait il est possible que vous n'ayez les droits sur aucune application actuellement.</p>",
+    "target": "apps-container",
+    "placement": "left"
+  }, {
+    "title": "Recherche d'applications",
+    "content": "Si vous avez plusieurs applications et que vous en cherchez une en particulier il est possible d'utiliser la zone de recherche suivante pour limiter les résultats.",
+    "target": "app-search",
+    "placement": "right"
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "Vous pouvez créer une nouvelle application en cliquant ici.",
+    "target": "app-new-btn",
+    "placement": "right",
+    "multipage": true,
+    "nextOnTargetClick": true
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "<p>Entrez ici le nom de votre nouvelle application.</p><p>Note: Le nom doit-être unique dans Alien 4 Cloud.</p>",
+    "target": "nameid",
+    "placement": "right"
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "<p>Entrez ici la description de l'application.</p>",
+    "target": "descid",
+    "placement": "right"
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "<p>Si vous le souhaitez vous pouvez choisir un template de topologie créé au préalable par un utilisateur possédant le droit 'Architect'.</p><p>Le template sera utilisé pour fournir une topologie initiale pour votre application. Celle-ci pourra ensuite être modifiée à votre convenance.</p>",
+    "target": "templateid",
+    "placement": "right"
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "<p>Lorsque vous aurez renseigné l'ensemble des informations vous pourrez créer l'application en cliquant ici.</p>",
+    "target": "btn-create",
+    "placement": "right"
+  }, {
+    "title": "Création de nouvelle application",
+    "content": "<p>Ou annuler la création en cliquant ici.</p>",
+    "target": "btn-cancel",
+    "placement": "right",
+    "nextOnTargetClick": true
+  }]
+}

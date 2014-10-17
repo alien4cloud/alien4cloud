@@ -1,0 +1,27 @@
+<div>
+
+  <div class="row" style="margin-top: 10px;">
+    <ol class="breadcrumb">
+      <li><a href="#/csars/list">{{ 'CSAR.BC_CSAR' | translate }}</a></li>
+      <li><a href="#/csar/{{csarId}}">{{csarId}}</a></li>
+      <li><a href="#/csar/{{csarId}}/node/{{nodeType.id}}">{{nodeType.id}}</a></li>
+    </ol>
+  </div>
+
+  <div class="row" ng-if="objectDefinition && nodeType">
+    <generic-form
+        root-object="nodeType"
+        form-title="{{nodeType.id}}"
+        type="objectDefinition"
+        is-removable="true"
+        automatic-save="false"
+        show-tree="true"
+        show-path="true"
+        suggest="suggest(searchConfiguration, text)"
+        save="saveNodeType(object)"
+        cancel="cancelNodeTypeUpdate(object)"
+        remove="deleteNodeType()">
+    </generic-form>
+  </div>
+
+</div>

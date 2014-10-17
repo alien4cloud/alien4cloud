@@ -1,0 +1,267 @@
+<div>
+  <div class="row">
+    <div class="col-md-7 col-lg-8">
+      <div class="well topology">
+        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" />
+      </div>
+    </div>
+    <div class="col-md-5 col-lg-4">
+      <tabset>
+        <!-- events -->
+        <tab>
+          <tab-heading id="events-tab">
+            <i class="fa fa-tasks"></i> {{'APPLICATIONS.RUNTIME.EVENTS_TAB' | translate}}
+          </tab-heading>
+          <div>
+            <div class="row form-horizontal">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label class="col-md-2 control-label">{{'APPLICATIONS.RUNTIME.EVENTS.TYPE' | translate}}</label>
+
+                  <div class="col-md-10">
+                    <div class="btn-group">
+                      <button id="eventTypeSelection" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        {{eventTypeLabels[selectedEventTypeFilter.value] | translate}}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a id="{{eventTypeFilter.value + 'Select'}}" ng-repeat="eventTypeFilter in eventTypeFilters | filter: {value: '!' + selectedEventTypeFilter.value} " ng-click="filterEvents(eventTypeFilter)">{{eventTypeLabels[eventTypeFilter.value]
+                          | translate}}</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div style="overflow: auto; height: {{eventsDivHeight}}px">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.DATE' | translate}}</th>
+                        <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.TYPE' | translate}}</th>
+                        <th>{{ 'APPLICATIONS.RUNTIME.EVENTS.MESSAGE' | translate}}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="event in events.data | orderBy:'date':true" ng-if="selectedEventTypeFilter.value === 'ALL' || eventTypeLabels[selectedEventTypeFilter.value] === event.type">
+                        <td><span class="badge badge-default">{{event.date | date:'d/M/yy H:mm'}}</span>
+                        </td>
+                        <td>{{event.type | translate }}</td>
+                        <td>{{event.message.template | translate:event.message.data }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </tab>
+        <!-- details -->
+        <tab ng-if="selectedNodeTemplate">
+          <tab-heading id="details-tab">
+            <i class="fa fa-list"></i> {{'DETAILS' | translate}}
+          </tab-heading>
+          <div ng-show="!selectedInstance">
+            <div class="row">
+              <div class="col-md-5">
+                <h4 class="text-primary">{{selectedNodeTemplate.name | split:39}}</h4>
+              </div>
+              <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && topology.topology.nodeTemplates[selectedNodeTemplate.name].type == 'tosca.nodes.Compute' && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
+                <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="no" blur="submit" onbeforesave="scale($data)" e-required>
+                  <h4>
+                    {{selectedNodeTemplate.newInstancesCount
+                    || selectedNodeTemplate.instancesCount}}
+                    <button id="scaleEditableButton" class="btn btn-primary btn-xs"
+                            tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
+                      <i class="fa fa-signal"></i>
+                    </button>
+                  </h4>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
+                      <th>{{ 'APPLICATIONS.RUNTIME.STATE' | translate }}</th>
+                      <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]" class="clickable-media" ng-click="selectInstance(id)">
+                      <td class="col-md-2">{{id}}</td>
+                      <td class="col-md-8">{{'STATES.'+info.state | translate}}</td>
+                      <td class="col-md-2">
+                        <div ng-switch="info.instanceStatus">
+                          <i class="fa fa-check text-success" ng-switch-when="SUCCESS"></i>
+                          <i class="fa fa-spinner fa-spin" ng-switch-when="PROCESSING"></i>
+                          <i class="fa fa-times text-danger" ng-switch-when="FAILURE"></i>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div ng-show="selectedInstance">
+            <div class="row">
+              <div class="col-md-10">
+                <h4>
+                  <a ng-click="clearInstanceSelection()">{{selectedNodeTemplate.name}}</a><span
+                    class="text-primary"> / {{selectedInstance.id}}</span>
+                </h4>
+              </div>
+              <div class="col-md-2">
+                <button id="backToInstanceListButton" type="button" class="btn btn-default" ng-click="clearInstanceSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+                      <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(propKey, propVal) in selectedInstance.properties">
+                      <td>{{propKey}}</td>
+                      <td>{{propVal}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+                      <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(propKey, propVal) in selectedInstance.attributes">
+                      <td>{{propKey}}</td>
+                      <td>{{propVal}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'APPLICATIONS.RUNTIME.KEY' | translate }}</th>
+                      <th>{{ 'APPLICATIONS.RUNTIME.VALUE' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(propKey, propVal) in selectedInstance.runtimeProperties">
+                      <td>{{propKey}}</td>
+                      <td>{{propVal}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+        <!-- operations -->
+        <tab ng-if="selectedNodeTemplate && selectedNodeCustomInterface">
+          <tab-heading id="operations-tab">
+            <i class="fa fa-bolt"></i> {{'operations' | translate}}
+          </tab-heading>
+          <div>
+            <div class="row" ng-if="selectedInstance">
+              <div class="col-md-10">
+                <h4>
+                  <a ng-click="clearInstanceSelection()">{{selectedNodeTemplate.name}}</a><span
+                    class="text-primary"> / {{selectedInstance.id}}</span>
+                </h4>
+              </div>
+              <div class="col-md-2">
+                <button id="backToInstanceListButton" type="button" class="btn btn-default" ng-click="clearInstanceSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
+                <span editable-text="user.name" buttons="no" blur="submit" onbeforesave="checkProperty($data)">
+                    {{user.name}} <i class="fa fa-pencil-square-o"></i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Operations list -->
+            <div ng-if="isMapNotNullOrEmpty(selectedNodeCustomInterface.operations)" ng-init="isOpCollapsed={}" id="operation_{{operationName}}" ng-repeat="(operationName, operation) in selectedNodeCustomInterface.operations">
+
+              <!-- Operation div with "execute" button -->
+              <div class="topology-node-expand clickable" ng-if="isMapNotNullOrEmpty(operation.inputParameters)" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+                <span>{{operationName}}</span>
+                <i class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
+                <span class="pull-right">
+                  <!-- *** {{formOperationParams[operationName]}} / operation.inputParameters*** -->
+                            <button tooltip="{{'EXECUTE' | translate}}"
+                                    ng-click="executeOperation(operationName, operation.inputParameters)"
+                                    ng-if="!operationLoading[selectedNodeTemplate.name][operationName]"
+                                    tooltip-append-to-body="false" class="btn btn-success btn-xs"
+                                    ng-click="$event.stopPropagation();"
+                                    id="btn-submit-operation-{{operationName}}">
+                              <i class="fa fa-play-circle"></i>
+                            </button>
+                            <i class="fa fa-lg fa-spin fa-spinner" ng-if="operationLoading[selectedNodeTemplate.name][operationName]"></i>
+                          </span>
+              </div>
+              <div class="topology-node-expand" ng-if="!isMapNotNullOrEmpty(operation.inputParameters)">
+                <span>{{operationName}}</span>
+                <span class="pull-right">
+                  <!-- operation.inputParameters[inputParameterName].definition -->
+                            <button tooltip="{{'EXECUTE' | translate}}"
+                                    ng-click="executeOperation(operationName, operation.inputParameters)"
+                                    ng-if="!operationLoading[selectedNodeTemplate.name][operationName]"
+                                    tooltip-append-to-body="false" class="btn btn-success btn-xs"
+                                    ng-click="$event.stopPropagation();"  
+                                    id="btn-submit-operation-{{operationName}}">
+                              <i class="fa fa-play-circle"></i>
+                            </button>
+                            <i class="fa fa-lg fa-spin fa-spinner" ng-if="operationLoading[selectedNodeTemplate.name][operationName]"></i>
+                          </span>
+              </div>
+
+              <!-- Operation inputs in collapsed div (if exists) -->
+              <div collapse="isOpCollapsed[operationName]" ng-if="isMapNotNullOrEmpty(operation.inputParameters)">
+
+                <table class="table table-condensed" id="op_{{operationName}}_inputParams">
+
+                  <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
+
+                    <td class="col-md-12" id="op_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : operation.inputParameters[inputParameterName].required}">
+                      <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
+                      <property-display ng-init="condensed = true" definition="operation.inputParameters[inputParameterName].definition" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, operationName)" editable="true" condensed="condensed">
+                      </property-display>
+                    </td>
+
+                  </tr>
+                </table>
+
+              </div>
+
+            </div>
+            <!--  End : Operations list -->
+
+          </div>
+        </tab>
+      </tabset>
+    </div>
+  </div>
+</div>

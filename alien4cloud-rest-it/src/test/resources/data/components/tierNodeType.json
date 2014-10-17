@@ -1,0 +1,66 @@
+{
+    "id" : "tosca.nodes.Tier",
+    "description" : "This is the default (root) TOSCA Node Type that all other TOSCA nodes should extends. This allows all TOSCA nodes to have a consistent set of features for modeling and management (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).\n",
+    "tags" : {
+      "icon" : "/images/root.png"
+    },
+    "derivedFrom" : null,
+    "properties" : null,
+    "requirements" : {
+      "dependency" : {
+        "id" : "dependency",
+        "type" : "tosca.capabilities.Feature",
+        "lowerBound" : 0,
+        "upperBound" : "unbounded"
+      }
+    },
+    "capabilities" : {
+      "feature" : {
+        "id" : "feature",
+        "type" : "tosca.capabilities.Feature",
+        "lowerBound" : 0,
+        "upperBound" : "unbounded"
+      }
+    },
+    "instanceStates" : null,
+    "interfaces" : {
+      "lifecycle" : {
+        "implementationArtifact" : null,
+        "description" : "Default lifecycle for nodes in TOSCA.",
+        "operations" : {
+          "create" : {
+            "implementationArtifact" : null,
+            "description" : "Basic lifecycle create operation.",
+            "inputParameters" : null,
+            "outputParameters" : null
+          },
+          "configure" : {
+            "implementationArtifact" : null,
+            "description" : "Basic lifecycle configure operation.",
+            "inputParameters" : null,
+            "outputParameters" : null
+          },
+          "start" : {
+            "implementationArtifact" : null,
+            "description" : "Basic lifecycle start operation.",
+            "inputParameters" : null,
+            "outputParameters" : null
+          },
+          "stop" : {
+            "implementationArtifact" : null,
+            "description" : "Basic lifecycle stop operation.",
+            "inputParameters" : null,
+            "outputParameters" : null
+          },
+          "delete" : {
+            "implementationArtifact" : null,
+            "description" : "Basic lifecycle delete operation.",
+            "inputParameters" : null,
+            "outputParameters" : null
+          }
+        }
+      }
+    },
+    "abstract" : false,
+    "final" : false
+  }

@@ -1,0 +1,117 @@
+{
+  "_type": "complex",
+  "_order": [ "arrayOfPrimitive", "booleanField", "booleanWrappedField", "dateField", "doubleField", "doubleWrappedField", "floatField", "floatWrappedField", "intField", "intWrappedField", "listOfComplex", "listOfPrimitive", "longField", "longWrappedField", "mapOfComplex", "mapOfPrimitive", "nestedObject", "setOfComplex", "setOfPrimitive", "shortField", "shortWrappedField", "textField" ],
+  "_propertyType": {
+    "booleanField": {
+      "_type": "boolean"
+    },
+    "booleanWrappedField": {
+      "_type": "boolean"
+    },
+    "mapOfComplex": {
+      "_type": "map",
+      "_contentType": {
+        "_type": "complex",
+        "_order": [ "nestedObjectField" ],
+        "_propertyType": {
+          "nestedObjectField": {
+            "_type": "string"
+          }
+        }
+      }
+    },
+    "listOfPrimitive": {
+      "_type": "array",
+      "_contentType": {
+        "_type": "string"
+      }
+    },
+    "floatField": {
+      "_type": "number"
+    },
+    "arrayOfPrimitive": {
+      "_type": "array",
+      "_contentType": {
+        "_type": "string"
+      }
+    },
+    "doubleWrappedField": {
+      "_type": "number"
+    },
+    "intField": {
+      "_type": "number"
+    },
+    "setOfComplex": {
+      "_type": "array",
+      "_contentType": {
+        "_type": "complex",
+        "_order": [ "nestedObjectField" ],
+        "_propertyType": {
+          "nestedObjectField": {
+            "_type": "string"
+          }
+        }
+      }
+    },
+    "nestedObject": {
+      "_type": "complex",
+      "_order": [ "nestedObjectField" ],
+      "_propertyType": {
+        "nestedObjectField": {
+          "_type": "string"
+        }
+      }
+    },
+    "textField": {
+      "_type": "string"
+    },
+    "shortField": {
+      "_type": "number"
+    },
+    "listOfComplex": {
+      "_type": "array",
+      "_contentType": {
+        "_type": "complex",
+        "_order": [ "nestedObjectField" ],
+        "_propertyType": {
+          "nestedObjectField": {
+            "_type": "string"
+          }
+        }
+      }
+    },
+    "longField": {
+      "_type": "number"
+    },
+    "setOfPrimitive": {
+      "_type": "array",
+      "_contentType": {
+        "_type": "string"
+      }
+    },
+    "longWrappedField": {
+      "_type": "number"
+    },
+    "shortWrappedField": {
+      "_type": "number"
+    },
+    "dateField": {
+      "_type": "date"
+    },
+    "mapOfPrimitive": {
+      "_type": "map",
+      "_contentType": {
+        "_type": "string"
+      }
+    },
+    "doubleField": {
+      "_type": "number"
+    },
+    "floatWrappedField": {
+      "_type": "number"
+    },
+    "intWrappedField": {
+      "_type": "number"
+    }
+  }
+}

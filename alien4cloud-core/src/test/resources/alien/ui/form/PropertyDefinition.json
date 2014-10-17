@@ -1,0 +1,21 @@
+{
+  "_type" : "complex",
+  "_order" : [ "type", "required", "default", "description" ],
+  "_propertyType" : {
+    "default" : {
+      "_type" : "string"
+    },
+    "description" : {
+      "_type" : "string"
+    },
+    "type" : {
+      "_type" : "string",
+      "_notNull" : true,
+      "_validValues" : [ "boolean", "string", "float", "integer", "version" ]
+    },
+    "required" : {
+      "_type" : "boolean",
+      "_notNull" : true
+    }
+  }
+}

@@ -1,0 +1,48 @@
+
+name: postgresql
+namespace: fastconnect
+description: PostgreSQL recipe.
+
+node_types:
+  fastconnect.nodes.Postgresql:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      Installation of PostgreSQL using Cloudify scripts
+    tags:
+      icon: /images/postgres.gif
+    capabilities:
+      jdbc:
+        type: alien4cloud.capabilities.JdbcEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/postgresql_stop.groovy"
+          start:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/postgresql_start.groovy"
+          stop:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/postgresql_stop.groovy"
+      fastconnect.cloudify.extensions:
+        operations:
+          start_detection:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: scripts/postgresql_startDetection.groovy
+      custom:
+        operations:
+          addUser:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/postgresql_addUser.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: "scripts"

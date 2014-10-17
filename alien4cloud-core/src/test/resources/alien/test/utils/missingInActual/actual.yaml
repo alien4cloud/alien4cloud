@@ -1,0 +1,25 @@
+persons:
+  - tom_cruise:
+      sex: "male"
+      age: 50
+      profession: "actor"
+      address: "Holywood"
+      children:
+        - toto:
+            sex: "female"
+            age: 5
+        - tata:
+            sex: "male"
+            age: 21
+            profession: "gangster"
+  - brad_pitt:
+      sex: "male"
+      age: 60
+      profession: "actor"
+      address: "Paris"
+      children:
+        - titi:
+            sex: "male"
+            age: 4
+          foo:
+            age: 5

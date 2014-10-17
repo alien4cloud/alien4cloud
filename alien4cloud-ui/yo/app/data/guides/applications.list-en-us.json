@@ -1,0 +1,53 @@
+{
+  "id": "applications.list-hopscotch",
+  "i18n": {
+    "nextBtn": "Next",
+    "prevBtn": "Back",
+    "doneBtn": "Terminate",
+    "closeTooltip": "Stop the tour."
+  },
+  "steps": [{
+    "title": "Applications list",
+    "content": "<p>Applications you are authorized to access are displayed here.</p><p>Note: if no applications are displayed you probably have currently no rights on any authorizations.</p>",
+    "target": "apps-container",
+    "placement": "left"
+  }, {
+    "title": "Application search",
+    "content": "If you have multiple applications and search a specific one, you can use the search-box in order to limit displayed results.",
+    "target": "app-search",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "To create a new application click here.",
+    "target": "app-new-btn",
+    "placement": "right",
+    "multipage": true,
+    "nextOnTargetClick": true
+  }, {
+    "title": "Create new application",
+    "content": "<p>Enter here the name of your new application.</p><p>Note: Name must be unique in Alien 4 Cloud.</p>",
+    "target": "nameid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>Enter here the description of the application (you can also change it later on).</p>",
+    "target": "descid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>You can use the selector to choose a topology template in order to bootstrap your application with an initial topology that you will be able to update later.</p><p>Topology templates are created globally by users having the 'Architect' role.</p>",
+    "target": "templateid",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>In order to finally create the new application click here.</p>",
+    "target": "btn-create",
+    "placement": "right"
+  }, {
+    "title": "Create new application",
+    "content": "<p>Or cancel creation process by clicking here.</p>",
+    "target": "btn-cancel",
+    "placement": "right",
+    "nextOnTargetClick": true
+  }]
+}

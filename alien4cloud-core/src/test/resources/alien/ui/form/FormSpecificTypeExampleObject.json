@@ -1,0 +1,18 @@
+{
+  "_type" : "complex",
+  "_order" : [ "specificTypeField", "normalDateField", "normalTextField", "normalIntField" ],
+  "_propertyType" : {
+    "specificTypeField" : {
+      "_type" : "specialOne"
+    },
+    "normalDateField" : {
+      "_type" : "date"
+    },
+    "normalIntField" : {
+      "_type" : "number"
+    },
+    "normalTextField" : {
+      "_type" : "string"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+name: my_java_application
+namespace: myNameSpace
+description: A Basic Java Program To test
+
+node_types:
+  test.java.app:
+    properties:::::::::::
+        thread_pool_size:
+        type: int
+        constraints:
+          - greater_than: 0
+      jmx_port:
+        type: int
+        constraints:
+          - greater_or_equal: 8000
+          - less_or_equal: 9000 
+    requirements:
+      java:
+        type: tosca.requirements.Java

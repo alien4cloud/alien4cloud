@@ -1,0 +1,9 @@
+# Define the current archive id and version.
+name: "tosca-base-types"
+version: "1.0"
+license: "Apache v2.0"
+created_by: "FastConnect"
+
+# List of definitions file in the archive.
+definitions:
+    - /Definitions/tosca-base-types.yaml

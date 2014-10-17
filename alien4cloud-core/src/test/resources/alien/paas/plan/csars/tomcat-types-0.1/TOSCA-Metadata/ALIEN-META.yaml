@@ -1,0 +1,10 @@
+name: "tomcat-types"
+version: "0.1"
+created_by: "FastConnect"
+
+dependencies:
+  - name: tosca-base-types
+    version: 1.0
+
+definitions:
+  - Definitions/tomcat-types.yaml

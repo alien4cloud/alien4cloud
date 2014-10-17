@@ -1,0 +1,6 @@
+id: id
+value: value
+inner_yaml:
+  id: id
+  toto: toto
+  invalid_field: value

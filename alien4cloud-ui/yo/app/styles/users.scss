@@ -1,0 +1,29 @@
+#users-table .table, #groups-table .table{
+  margin-bottom: 0px;
+}
+
+#users-table td, #users-table th{
+  vertical-align: middle;
+}
+
+.td_list{
+  padding-left: 10px;
+/* list-style-type: none; */
+}
+
+.dropdown-menu[data-placement="left"] {
+    left: -80px;
+    right: auto;
+}
+
+.checked_role i[class~="fa"]{
+  color: green;
+}
+
+.liste-no-style li{
+  list-style-type:none;
+}
+
+.liste-no-style a {
+  text-decoration: none;
+}

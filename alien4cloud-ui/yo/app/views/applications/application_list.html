@@ -1,0 +1,107 @@
+<div>
+  <div class="row">
+    <div class="col-md-12" ng-if="isManager">
+      <button class="btn btn-success" id="app-new-btn" ng-click="openNewApp()">
+        <i class="fa fa fa-plus-circle"></i> {{'APPLICATIONS.NEW' | translate}}
+      </button>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-2 well" id="app-search">
+      <form role="search" ng-submit="search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-10" id="apps-container">
+      <div class="application-thumbnail" ng-repeat="application in searchResult.data.data" ng-click="openApplication(application.id)" id="app_{{application.name}}">
+        <div class="flip-container" ontouchstart="this.classList.toggle('hover');">
+        	<div class="flipper">
+        		<div class="front">
+        			<div class="application-icon">
+                <i class="fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
+                <img class="application-icon" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId):null}}" ng-file-drop="onImageSelected($files)" />
+              </div>
+              <div class="application-name">
+                <i class="pull-left fa fa-2x vertical-center" ng-class="{
+                    'fa-circle text-success' : application.status == 'DEPLOYED',
+                    'fa-circle text-muted' : application.status == 'UNDEPLOYED',
+                    'fa-warning text-warning' : application.status == 'WARNING',
+                    'fa-circle text-danger' : application.status == 'FAILURE',
+                    'fa-question-circle text-muted' : application.status == 'UNKNOWN',
+                    'fa-spinner fa-spin' : application.status == 'DEPLOYMENT_IN_PROGRESS' || application.status == 'UNDEPLOYMENT_IN_PROGRESS'
+                    }"></i>
+                <span class="h4">{{application.name}}</span>
+              </div>
+        		</div>
+
+        		<div class="back application-back">
+              <div class="application-icon">
+                <div class="application-icon-small">
+                  <i class="pull-left media-object fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
+                  <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+                  <span class="h4">{{application.name}}</span>
+                </div>
+                <div class="small">
+                  {{application.description}}
+                </div>
+              </div>
+              <div class="application-name">
+                <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + application.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                    'fa-circle text-success' : application.status == 'DEPLOYED',
+                    'fa-circle text-muted' : application.status == 'UNDEPLOYED',
+                    'fa-warning text-warning' : application.status == 'WARNING',
+                    'fa-circle text-danger' : application.status == 'FAILURE',
+                    'fa-question-circle text-muted' : application.status == 'UNKNOWN',
+                    'fa-spinner fa-spin' : application.status == 'DEPLOYMENT_IN_PROGRESS' || application.status == 'UNDEPLOYMENT_IN_PROGRESS'
+                    }"></i>
+                <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </div>
+        		</div>
+        	</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/ng-template" id="newApplication.html">
+    <form name="newApplication" class="form-horizontal" role="form" ng-submit="create(newApplication.$valid,selectedTopologyTemplate.topologyId)" novalidate>
+      <div class="modal-header">
+        <h3>{{'APPLICATIONS.NEW' | translate}}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" ng-class="{'has-error': newApplication.name.$invalid}">
+          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.NAME' | translate}}</label>
+          <div class="col-lg-9">
+            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
+          <div class="col-lg-9">
+            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'APPLICATIONS.DESC' | translate}}"></textarea>
+          </div>
+        </div>
+        <div class="form-group" ng-show="templates">
+          <label for="templateid" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+          <div class="col-lg-9">
+            <select class="form-control" id="templateid" ng-model="selectedTopologyTemplate" ng-options="t.name for t in templates" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+              <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-create" ng-disabled="newApplication.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+      </div>
+    </form>
+  </script>
+</div>

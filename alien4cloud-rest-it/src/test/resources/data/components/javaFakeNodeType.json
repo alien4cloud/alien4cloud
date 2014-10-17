@@ -1,0 +1,66 @@
+{
+    "id" : "fastconnect.nodes.JavaFake",
+    "description" : "A Java Virtual Machine Software Component.\n",
+    "tags" : {
+      "icon" : "/images/java.png",
+      "marurity" : "very bad"
+    },
+    "derivedFrom" : null,
+    "properties" : {
+      "version" : {
+        "type" : "version",
+        "required": false,
+        "description" : null,
+        "constraints" : [ {
+          "greaterOrEqual" : "1.5"
+        } ],
+        "default" : "1.6"
+      },
+      "vendor" : {
+        "type" : "string",
+        "required" : false,
+        "description" : null,
+        "constraints" : null,
+        "default" : null
+      },
+      "os_name" : {
+        "type" : "string",
+        "required" : true,
+        "description" : null,
+        "constraints" : null,
+        "default" : null
+      }
+    },
+    "attributes" : {
+      "os_arch" : {
+        "type" : "string",
+        "description" : null
+      }
+    },
+    "requirements" : {
+      "container" : {
+        "id" : "container",
+        "type" : "tosca.capabilities.Container",
+        "lowerBound" : 0,
+        "upperBound" : 1
+      }
+    },
+    "capabilities" : {
+      "feature" : {
+        "id" : "feature",
+        "type" : "tosca.capabilities.Feature",
+        "lowerBound" : 1,
+        "upperBound" : 1
+      },
+      "runner" : {
+        "id" : "runner",
+        "type" : "fastconnect.capabilities.Runner",
+        "lowerBound" : 1,
+        "upperBound" : "unbounded"
+      }
+    },
+    "instanceStates" : null,
+    "interfaces" : null,
+    "abstract" : false,
+    "final" : false
+  }

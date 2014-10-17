@@ -1,0 +1,5 @@
+id: id
+value: value
+inner_yaml:
+  id: id
+  toto: toto

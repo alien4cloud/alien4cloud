@@ -1,0 +1,69 @@
+name: my_web_app
+namespace: myNameSpace
+description: A Basic Web App To test
+
+node_types:
+
+  tosca.nodes.Tomcat:
+    derived_from: tosca.nodes.Middleware
+    properties:
+      version:
+        type: string
+      http_port:
+        type: integer
+      https_port:
+        type: integer
+    capabilities:
+      servlet_container:
+        type: tosca.capabilities.ServletContainer
+        upper_bound: unbounded
+    requirements:
+      java:
+        type: tosca.requirements.Java
+    interfaces:
+      lifecycle:
+        operations:
+          create: /scripts/install.sh
+          delete: /scripts/uninstall.sh
+          start: /bin/start.sh
+          stop: /bin/stop.sh
+
+  tosca.nodes.War:
+    derived_from: tosca.nodes.Software
+    properties:
+      context_path:
+        type: string
+    requirements:
+      servlet_container:
+        type: tosca.capabilities.ServletContainer
+    interfaces:
+      deployment:
+        operations:
+          deploy:
+            description: Deploy the war
+            implementation_artifact:
+              interface_name: deployment
+              operation_name: deploy
+              artifact_type: tosca.artifacts.ShellScript
+              artifact_ref: /scripts/deploy.sh
+            input_parameters:
+              user:
+                type: string
+              password:
+                type: string
+              tomcat_manager_url:
+                type: string
+          undeploy:
+            description: Undeploy the war
+            implementation_artifact:
+              interface_name: deployment
+              operation_name: undeploy
+              artifact_type: tosca.artifacts.ShellScript
+              artifact_ref: /scripts/undeploy.sh
+            input_parameters:
+              user:
+                type: string
+              password:
+                type: string
+              tomcat_manager_url:
+                type: string

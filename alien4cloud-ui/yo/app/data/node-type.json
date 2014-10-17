@@ -1,0 +1,532 @@
+{
+     "type" : "fr.alien4cloud.nodetype",
+     "data": {
+          "from": 1,
+          "to": 20,
+          "queryDuration": 24,
+          "totalResults": 20,
+          "objectsTypes": [
+               "COMPUTE",
+               "VIRTUALMACHINE"
+          ],
+          "objectsJSon": [
+               {
+                    "id": "id-cvksm",
+                    "archiveName": "Archive-0",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-0",
+                    "capabilities": [
+                         "jar",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         ".net",
+                         "nodejs",
+                         "linux"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeOpenstack",
+                         "NodeNetwork",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "jar",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-d9cp5",
+                    "archiveName": "Archive-1",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-1",
+                    "capabilities": [
+                         "jndi",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         "linux",
+                         ".net"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeApplication"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-18khpy",
+                    "archiveName": "Archive-2",
+                    "archiveVersion": "1.1",
+                    "nodeName": "NodeName-2",
+                    "capabilities": [
+                         "ear",
+                         "jar",
+                         "war",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "linux",
+                         "nodejs",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeWebContainer",
+                         "NodeNetwork",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "ear",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-ywmf0",
+                    "archiveName": "Archive-3",
+                    "archiveVersion": "1.0",
+                    "nodeName": "NodeName-3",
+                    "capabilities": [
+                         "ear",
+                         "jndi"
+                    ],
+                    "requirements": [
+                         "linux",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeWebContainer",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-1bvw7l",
+                    "archiveName": "Archive-4",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-4",
+                    "capabilities": [
+                         "jndi",
+                         "war"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-3inkj",
+                    "archiveName": "Archive-5",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-5",
+                    "capabilities": [
+                         "jndi",
+                         "war",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java",
+                         "linux"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeWebContainer",
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-c9syq",
+                    "archiveName": "Archive-6",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-6",
+                    "capabilities": [
+                         "ear",
+                         "jar",
+                         "jndi",
+                         "war",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeOpenstack",
+                         "NodeWebContainer",
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "war",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-zel4n",
+                    "archiveName": "Archive-7",
+                    "archiveVersion": "1.0",
+                    "nodeName": "NodeName-7",
+                    "capabilities": [
+                         "ear",
+                         "jar",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java",
+                         ".net",
+                         "nodejs"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeApplication",
+                         "NodeNetwork",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "ear",
+                         "jar"
+                    ]
+               },
+               {
+                    "id": "id-1459fq",
+                    "archiveName": "Archive-8",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-8",
+                    "capabilities": [
+                         "ear",
+                         "jar",
+                         "jndi",
+                         "war",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "nodejs",
+                         "linux",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeOpenstack",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "ear",
+                         "war"
+                    ]
+               },
+               {
+                    "id": "id-bhgte",
+                    "archiveName": "Archive-9",
+                    "archiveVersion": "1.0",
+                    "nodeName": "NodeName-9",
+                    "capabilities": [
+                         "war"
+                    ],
+                    "requirements": [
+                         ".net"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication"
+                    ],
+                    "defaultCapabilities": [
+                         "war"
+                    ]
+               },
+               {
+                    "id": "id-18yc18",
+                    "archiveName": "Archive-10",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-10",
+                    "capabilities": [
+                         "jndi"
+                    ],
+                    "requirements": [
+                         ".net",
+                         "nodejs"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-175wgl",
+                    "archiveName": "Archive-11",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-11",
+                    "capabilities": [
+                         "jar",
+                         "war"
+                    ],
+                    "requirements": [
+                         "linux",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "jar",
+                         "war"
+                    ]
+               },
+               {
+                    "id": "id-og63p",
+                    "archiveName": "Archive-12",
+                    "archiveVersion": "1.1",
+                    "nodeName": "NodeName-12",
+                    "capabilities": [
+                         "ear",
+                         "jndi"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeApplication",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "ear",
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-xn7zd",
+                    "archiveName": "Archive-13",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-13",
+                    "capabilities": [
+                         "jar",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "nodejs",
+                         "linux"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeWebContainer",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "jar",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-1hwaxe",
+                    "archiveName": "Archive-14",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-14",
+                    "capabilities": [
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java"
+                    ],
+                    "derivedFrom": [
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-sbsz1",
+                    "archiveName": "Archive-15",
+                    "archiveVersion": "3.2",
+                    "nodeName": "NodeName-15",
+                    "capabilities": [
+                         "jar",
+                         "jndi",
+                         "war"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         "linux",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeWebContainer",
+                         "NodeNetwork",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "war"
+                    ]
+               },
+               {
+                    "id": "id-6kncn",
+                    "archiveName": "Archive-16",
+                    "archiveVersion": "2.0",
+                    "nodeName": "NodeName-16",
+                    "capabilities": [
+                         "ear",
+                         "jndi",
+                         "war",
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "java",
+                         "nodejs",
+                         ".net",
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack",
+                         "NodeWebContainer",
+                         "NodeNodejs"
+                    ],
+                    "defaultCapabilities": [
+                         "war",
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-iir7y",
+                    "archiveName": "Archive-17",
+                    "archiveVersion": "3.2",
+                    "nodeName": "NodeName-17",
+                    "capabilities": [
+                         "websocket"
+                    ],
+                    "requirements": [
+                         "nodejs"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack"
+                    ],
+                    "defaultCapabilities": [
+                         "websocket"
+                    ]
+               },
+               {
+                    "id": "id-mk55i",
+                    "archiveName": "Archive-18",
+                    "archiveVersion": "1.1",
+                    "nodeName": "NodeName-18",
+                    "capabilities": [
+                         "jndi"
+                    ],
+                    "requirements": [
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeOpenstack"
+                    ],
+                    "defaultCapabilities": [
+                         "jndi"
+                    ]
+               },
+               {
+                    "id": "id-6hanr",
+                    "archiveName": "Archive-19",
+                    "archiveVersion": "3.0",
+                    "nodeName": "NodeName-19",
+                    "capabilities": [
+                         "jar"
+                    ],
+                    "requirements": [
+                         "network"
+                    ],
+                    "derivedFrom": [
+                         "NodeNetwork"
+                    ],
+                    "defaultCapabilities": [
+                         "jar"
+                    ]
+               }
+          ],
+          "facets": {
+               "my_facet_name": [
+                    {
+                         "facetValue": "war",
+                         "count": 158
+                    },
+                    {
+                         "facetValue": "ear",
+                         "count": 245
+                    },
+                    {
+                         "facetValue": "jar",
+                         "count": 3
+                    },
+                    {
+                         "facetValue": "jndi",
+                         "count": 131
+                    },
+                    {
+                         "facetValue": "websocket",
+                         "count": 111
+                    },
+                    {
+                         "facetValue": "java",
+                         "count": 162
+                    },
+                    {
+                         "facetValue": "linux",
+                         "count": 225
+                    },
+                    {
+                         "facetValue": ".net",
+                         "count": 111
+                    },
+                    {
+                         "facetValue": "nodejs",
+                         "count": 272
+                    },
+                    {
+                         "facetValue": "network",
+                         "count": 186
+                    },
+                    {
+                         "facetValue": "NodeApplication",
+                         "count": 85
+                    },
+                    {
+                         "facetValue": "NodeWebContainer",
+                         "count": 278
+                    },
+                    {
+                         "facetValue": "NodeNodejs",
+                         "count": 262
+                    },
+                    {
+                         "facetValue": "NodeOpenstack",
+                         "count": 207
+                    },
+                    {
+                         "facetValue": "NodeNetwork",
+                         "count": 107
+                    }
+               ]
+          }
+     },
+     "error": null
+}

@@ -1,0 +1,147 @@
+# tosca_definitions_version: tosca_simple_yaml_1_0
+
+name: tosca-base-types
+namespace: alien
+description: Contains the normative types definition.
+
+node_types:
+  tosca.nodes.Root:
+    abstract: true
+    description: >
+      This is the default (root) TOSCA Node Type that all other TOSCA nodes should extends.
+      This allows all TOSCA nodes to have a consistent set of features for modeling and management
+      (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).
+    requirements:
+      dependency:
+        type: tosca.requirements.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      feature:
+        type: tosca.capabilities.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+    interfaces:
+      lifecycle:
+        description: Default lifecycle for nodes in TOSCA.
+        operations:
+          create:
+            description: Basic lifecycle create operation.
+          configure:
+            description: Basic lifecycle configure operation.
+          start:
+            description: Basic lifecycle start operation.
+          stop:
+            description: Basic lifecycle stop operation.
+          delete:
+            description: Basic lifecycle delete operation.
+    tags:
+      icon: ./work.jpg
+
+  # Grouping node
+  tosca.nodes.Tier:
+    description: A logical node that allows to group several nodes together.
+    properties:
+      name:
+        type: string
+    tags:
+      icon: /images/test.jpg
+
+
+  # Infrastructure components
+  tosca.nodes.Compute:
+    derived_from: tosca.nodes.Root
+    description: Represents a compute instance in the IaaS layer.
+    properties:
+      disk_size:
+        type: long
+        constraints:
+          - greater_than: 0
+      num_cpus:
+        type: int
+        constraints:
+          -  greater_than: 0
+      mem_size:
+        type: long
+        constraints:
+          - greater_than: 0
+      os_arch:
+        type: string
+      os_name:
+        type: string
+      os_distribution:
+        type: string
+      os_version:
+        type: string
+    tags:
+      icon: /images/test.jpg
+
+  tosca.nodes.Volume:
+    derived_from: tosca.nodes.Root
+    description: A storage volume in the IaaS layer.
+
+  tosca.nodes.ObjectStore:
+    abstract: true
+    derived_from: tosca.nodes.Root
+    description: An object store provided by the IaaS layer.
+
+  tosca.nodes.Network:
+    derived_from: tosca.nodes.Root
+    description: TODO
+
+  tosca.nodes.Router:
+    derived_from: tosca.nodes.Root
+
+  tosca.nodes.LoadBalancer:
+    derived_from: tosca.nodes.Root
+
+  tosca.nodes.VirtualIp:
+    derived_from: tosca.nodes.Root
+
+  # Software components or middleware ?
+  tosca.nodes.SoftwareComponent:
+    derived_from: tosca.nodes.Root
+    description: Root type for every node that is a software component.
+
+  tosca.nodes.Middleware:
+    derived_from: tosca.nodes.Root
+
+  tosca.nodes.DbServer:
+    derived_from: tosca.nodes.Middleware
+
+  tosca.nodes.WebServer:
+    derived_from: tosca.nodes.Middleware
+
+  tosca.nodes.AppServer:
+    derived_from: tosca.nodes.Middleware
+
+  tosca.nodes.MessageBus:
+    derived_from: tosca.nodes.Middleware
+
+  tosca.nodes.EnterpriseServiceBus:
+    derived_from: tosca.nodes.Middleware
+
+capability_types:
+  tosca.capabilities.Feature:
+  tosca.capabilities.Container:
+    derived_from: tosca.capabilities.Feature
+  tosca.capabilities.Endpoint:
+    derived_from: tosca.capabilities.Feature
+  tosca.capabilities.Compute:
+    derived_from: tosca.capabilities.Feature
+
+relationship_types:
+  tosca.relations.DependsOn:
+    valid_targets: [tosca.nodes.Root]
+  tosca.relations.HostedOn:
+    derived_from: tosca.relations.DependsOn
+  tosca.relations.ConnectedTo:
+    derived_from: tosca.relations.DependsOn
+
+artifact_types:
+  tosca.artifacts.ShellScript:
+    description: A shell script (.sh file)
+  tosca.artifacts.TarGzFile:
+    description: A tar gz distribution
+  tosca.artifacts.WarFile:
+    description: A war file

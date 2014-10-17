@@ -1,0 +1,56 @@
+<form name="newGroup" class="form-horizontal" role="form" ng-submit="create(newGroup.$valid)" novalidate>
+  <div class="modal-header">
+    <h3>{{'GROUPS.NEW' | translate}}</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-group" ng-class="{'has-error': newGroup.name.$invalid}">
+      <label for="name_id" class="col-lg-3 control-label">
+        {{'GROUPS.NAME' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="text" class="form-control" id="name_id" ng-model="group.name" name="name" required="" placeholder="{{'GROUPS.NAME' | translate}}">
+      </div>
+    </div>
+    <div class="form-group" ng-class="{'has-error': newGroup.email.$invalid}">
+      <label for="email_id" class="col-lg-3 control-label">
+        {{'GROUPS.EMAIL' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <input type="email" class="form-control" id="email_id" ng-model="group.email" name="email" placeholder="{{'GROUPS.EMAIL' | translate}}">
+        <span ng-if="newGroup.email.$error.email" class="text-danger">{{'GROUPS.EMAIL_INVALID' | translate }}</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="desc_id" class="col-lg-3 control-label">{{'GROUPS.DESC' | translate}}</label>
+      <div class="col-lg-9">
+        <textarea class="form-control" id="desc_id" rows="3" ng-model="group.description" placeholder="{{'GROUPS.DESC' | translate}}"></textarea>
+      </div>
+    </div>
+    <div class="form-group" >
+      <label for="roles_id" class="col-lg-3 control-label">
+        {{'GROUPS.ROLES' | translate}}
+      </label>
+      <div class="col-lg-9">
+        <ul class="liste-no-style" id="roles_id" role="menu" ng-click="preventClose($event)">
+            <li  ng-repeat="role in alienRoles.data | orderBy:'toString()' ">
+              <a id="newrole__{{role}}"
+                 ng-class="{'checked_role':( roleChecked = group.roles.indexOf(role) > -1)}"
+                 ng-click="handleGroupRoleSelection(group, role)">
+                <i class="fa fa-fw"
+                   ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i>
+                {{role}}
+             </a>
+           </li>
+         </ul>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button ng-disabled="newGroup.$invalid" class="btn btn-primary">
+      {{'CREATE' | translate}}
+    </button>
+    <a class="btn btn-default" ng-click="cancel()">
+      {{'CANCEL' | translate}}
+    </a>
+  </div>
+</form>
