@@ -8,17 +8,17 @@
   },
   "steps": [{
     "title": "Start application's topology creation",
-    "content": "Depuis cet onglet vous allez pouvoir rechercher et filtrer les composants qui votn servir à la composition de votre application.",
+    "content": "From this tab you will be ablme to search and filter components you want to build your application's topology.",
     "target": "components-search",
     "placement": "left"
   }, {
     "title": "Choose application's components",
-    "content": "Ici vous avez la liste des composants disponibles dans votre outil A4C. Pour choisir un composant vous devez faire un glisser/déposer depuis ce composant vers la zone centrale et il apparaîtra dans cette zone. Avant de glisser votre composant vous pouvez éventuellement sélectionner une version.",
+    "content": "Here you can see listed all available components in Alien 4 Cloud. To pick a component, first select a version and then just drag and drop it into the main central view and the topology graph will appear.",
     "target": "comp-search-result-panel",
     "placement": "left"
   }, {
     "title": "Properties and component's details",
-    "content": "En sélectionnant un des composants du graphique représant votre architecture d'application, l'onglet <b>Propriétés</b> s'activera automatiquement affichant les informations du composant.",
+    "content": "Selecting a component in this topology graph the tab <b>Properties</b> will be actived displaying component's informations.",
     "target": "nodetemplate-details",
     "placement": "left"
   }]
