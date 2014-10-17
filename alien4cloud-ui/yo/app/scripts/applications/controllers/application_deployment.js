@@ -70,7 +70,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         topologyId: $scope.topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
-        $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+        if (angular.isDefined($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'])) {
+          $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+        }
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
