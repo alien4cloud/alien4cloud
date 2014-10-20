@@ -39,6 +39,7 @@ import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
 
 import com.google.common.collect.Maps;
@@ -62,6 +63,8 @@ public class ApplicationDeploymentController {
     private DeploymentSetupService deploymentSetupService;
     @Resource
     private TopologyService topologyService;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
     @Resource
     private CloudService cloudService;
     @Resource
@@ -105,7 +108,7 @@ public class ApplicationDeploymentController {
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
-        Topology topology = topologyService.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }

@@ -32,6 +32,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.topology.task.PropertiesTask;
+import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.topology.task.RequirementsTask;
 import alien4cloud.rest.topology.task.SuggestionsTask;
 import alien4cloud.rest.topology.task.TaskCode;
@@ -40,6 +41,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.model.template.Capability;
@@ -71,6 +73,9 @@ public class TopologyService {
 
     @Resource
     private ApplicationService appService;
+
+    @Resource
+    private TopologyServiceCore topoService;
 
     @Resource
     private CsarService csarService;
@@ -683,50 +688,6 @@ public class TopologyService {
             }
         }
         return count;
-    }
-
-    /**
-     * Retrieve a topology given its Id
-     *
-     * @param topologyId
-     * @return
-     */
-    public Topology getMandatoryTopology(String topologyId) {
-        Topology topology = this.alienDAO.findById(Topology.class, topologyId);
-        if (topology == null) {
-            throw new NotFoundException("Topology [" + topologyId + "] cannot be found");
-        }
-        return topology;
-    }
-
-    /**
-     * Get the Map of {@link NodeTemplate} from a topology
-     *
-     * @param topology
-     * @return
-     */
-    public Map<String, NodeTemplate> getNodeTemplates(Topology topology) {
-        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        if (nodeTemplates == null) {
-            throw new NotFoundException("Topology [" + topology.getId() + "] do not have any node template");
-        }
-        return nodeTemplates;
-    }
-
-    /**
-     * Get a {@link NodeTemplate} given its name from a map
-     *
-     * @param topologyId
-     * @param nodeTemplateName
-     * @param nodeTemplates
-     * @return
-     */
-    public NodeTemplate getNodeTemplate(String topologyId, String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
-        NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
-        if (nodeTemplate == null) {
-            throw new NotFoundException("Topology [" + topologyId + "] do not have node template with name [" + nodeTemplateName + "]");
-        }
-        return nodeTemplate;
     }
 
     /**

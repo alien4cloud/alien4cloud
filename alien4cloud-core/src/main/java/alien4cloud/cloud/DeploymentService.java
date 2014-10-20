@@ -293,6 +293,16 @@ public class DeploymentService {
     }
 
     /**
+     * Get a deployment given its id
+     *
+     * @param id
+     * @return
+     */
+    public Deployment getDeployment(String id) {
+        return alienDao.findById(Deployment.class, id);
+    }
+
+    /**
      * Get the filters to perform a search query on {@link Deployment} based on the cloudId and sourceId.
      *
      * @param cloudId Id of the cloud on which the application is deployed.

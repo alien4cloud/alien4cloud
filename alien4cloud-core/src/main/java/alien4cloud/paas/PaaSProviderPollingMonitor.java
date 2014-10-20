@@ -23,6 +23,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private final IGenericSearchDAO dao;
     private final IPaaSProvider paaSProvider;
     private Date lastPollingDate;
+    @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners;
 
     /**
@@ -30,6 +31,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
      *
      * @param paaSProvider The paas provider to monitor.
      */
+    @SuppressWarnings("rawtypes")
     public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners) {
         this.dao = dao;
         this.paaSProvider = paaSProvider;
@@ -58,6 +60,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void run() {
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
         if (auditEvents != null && auditEvents.length > 0) {

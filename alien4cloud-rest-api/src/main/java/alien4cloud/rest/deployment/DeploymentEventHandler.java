@@ -8,12 +8,14 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -21,11 +23,17 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
+import alien4cloud.tosca.container.model.topology.NodeTemplate;
+import alien4cloud.tosca.container.model.topology.Topology;
 
 @Slf4j
 @Component
@@ -40,6 +48,14 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    @Resource
+    private TopologyServiceCore topoServiceCore;
+    @Resource
+    private TopologyService topoServiceRest;
+
+    @Resource
+    private DeploymentService deploymentService;
 
     @Resource
     private SimpMessagingTemplate template;
@@ -86,8 +102,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
                     throw new NotFoundException("Application with id [" + deployment.getSourceId() + "] do not exist any more for deployment ["
                             + deployment.getId() + "]");
                 }
-                AuthorizationUtil.checkAuthorization(a4cUser, application, ApplicationRole.APPLICATION_MANAGER,
-                        ApplicationRole.values());
+                AuthorizationUtil.checkAuthorization(a4cUser, application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.values());
                 break;
             case CSAR:
                 AuthorizationUtil.checkHasOneRoleIn(authentication, Role.COMPONENTS_MANAGER);
@@ -99,9 +114,33 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
 
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
+        checkAndProcessBlockStorageEvent(event);
         send(event);
         if (log.isDebugEnabled()) {
             log.debug("Pushed event {} for deployment {}", event, event.getDeploymentId());
+        }
+    }
+
+    private void checkAndProcessBlockStorageEvent(AbstractMonitorEvent event) {
+        if (event instanceof PaaSInstanceStorageMonitorEvent) {
+            PaaSInstanceStorageMonitorEvent storageEvent = (PaaSInstanceStorageMonitorEvent) event;
+            Deployment depoyment = deploymentService.getDeployment(storageEvent.getDeploymentId());
+            Topology topology = topoServiceCore.getMandatoryTopology(depoyment.getTopologyId());
+            NodeTemplate nodeTemplate;
+            try {
+                nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
+            } catch (NotFoundException e) {
+                log.warn(e.getMessage());
+                return;
+            }
+            String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
+            if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
+                String separator = ",";
+                volumeIds = StringUtils.isBlank(volumeIds) ? storageEvent.getVolumeId() : volumeIds.concat(separator).concat(storageEvent.getVolumeId());
+            }
+            nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
+            log.info("Updated topology <{}> to add VolumeId <{}> in . New value is <{}>", topology.getId(), storageEvent.getVolumeId(), volumeIds);
+            alienDAO.save(topology);
         }
     }
 
