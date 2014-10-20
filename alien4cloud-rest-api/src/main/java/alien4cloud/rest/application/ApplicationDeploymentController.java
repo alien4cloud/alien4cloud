@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.cloud.CloudResourceMatcherService;
+import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -60,8 +61,6 @@ public class ApplicationDeploymentController {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
-    private DeploymentSetupService deploymentSetupService;
-    @Resource
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
@@ -69,6 +68,8 @@ public class ApplicationDeploymentController {
     private CloudService cloudService;
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private CloudResourceMatcherService cloudResourceMatcherService;
 
     @ApiOperation(value = "Set the cloud to use by default in order to deploy the application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationId:.+}/cloud", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -274,5 +275,24 @@ public class ApplicationDeploymentController {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology")
+    @RequestMapping(value = "/{applicationId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+
+        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
+        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
+        // get the topology from the version and the cloud from the environment.
+        ApplicationVersion version = versions[0];
+        ApplicationEnvironment environment = environments[0];
+        Topology topology = topologyService.getMandatoryTopology(version.getTopologyId());
+        if (environment.getCloudId() == null) {
+            throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
+        }
+        Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
+        return RestResponseBuilder.<CloudResourceTopologyMatchResult> builder().data(cloudResourceMatcherService.matchTopology(topology, cloud)).build();
     }
 }

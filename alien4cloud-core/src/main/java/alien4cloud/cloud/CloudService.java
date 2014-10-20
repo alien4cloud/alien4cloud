@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,6 @@ public class CloudService {
     @Resource
     private CloudImageService cloudImageService;
 
-    @PostConstruct
     public void initialize() {
         int from = 0;
         long totalResult = 0;
@@ -88,7 +86,7 @@ public class CloudService {
 
     /**
      * Create a new cloud instance.
-     *
+     * 
      * @param cloud The cloud to create.
      */
     public synchronized String create(Cloud cloud) {
@@ -124,7 +122,7 @@ public class CloudService {
 
     /**
      * Update an exising cloud.
-     *
+     * 
      * @param updated The cloud to update.
      */
     public synchronized void update(Cloud updated) {
@@ -156,7 +154,7 @@ public class CloudService {
 
     /**
      * Delete an existing cloud. Note: the cloud must be unused in order to be deleted.
-     *
+     * 
      * @param id The cloud to delete.
      * @return true if the plugin has been successfully deleted, false if deletion could not be done because plugin wasn't disabled.
      */
@@ -172,7 +170,7 @@ public class CloudService {
 
     /**
      * Get a specific cloud based on it's id.
-     *
+     * 
      * @param id The id of the cloud to get.
      * @return The actual cloud object.
      */
@@ -182,7 +180,7 @@ public class CloudService {
 
     /**
      * Get a specific cloud based on it's name.
-     *
+     * 
      * @param name The name of the cloud to get.
      * @return The actual cloud object.
      */
@@ -192,7 +190,7 @@ public class CloudService {
 
     /**
      * Get multiple clouds.
-     *
+     * 
      * @param query The query to apply to filter clouds.
      * @param from The start index of the query.
      * @param size The maximum number of elements to return.
@@ -209,7 +207,7 @@ public class CloudService {
 
     /**
      * Get the map of deployment property definitions for the given cloud.
-     *
+     * 
      * @param id Id of the cloud for which to get deployment property definitions.
      * @return The map of property definitions for the given cloud.
      */
@@ -227,7 +225,7 @@ public class CloudService {
 
     /**
      * Get deployment properties for a cloud.
-     *
+     * 
      * @param id Id of the cloud for which to get properties.
      */
     public Map<String, PropertyValue> getDeploymentProps(String id) {
@@ -236,7 +234,7 @@ public class CloudService {
 
     /**
      * Get the current configuration for a given cloud.
-     *
+     * 
      * @param id Id of the cloud for which to get the configuration.
      * @return The current configuration object for the given cloud.
      */
@@ -250,7 +248,7 @@ public class CloudService {
 
     /**
      * Get the type of the configuration object for a given cloud.
-     *
+     * 
      * @param id Id of the cloud for which to get the configuration object's type.
      * @return The type (class) of the configuration object for the given cloud or null if the cloud doesn't have configuration.
      */
@@ -276,7 +274,7 @@ public class CloudService {
 
     /**
      * Update the configuration for the given cloud.
-     *
+     * 
      * @param id Id of the cloud for which to update the configuration.
      * @param newConfiguration The new configuration.
      */
@@ -291,7 +289,7 @@ public class CloudService {
 
     /**
      * Enable a cloud, this will configure an instance of a {@link IPaaSProvider} and register it to the PaaSProviderService that manages monitoring.
-     *
+     * 
      * @param id Id of the cloud to enable.
      * @throws PluginConfigurationException In case the configuration is not valid for the plugin.
      */
@@ -338,7 +336,7 @@ public class CloudService {
 
     /**
      * Convert a configuration object as a Map of key/values into a valid object that has the type expected by the Cloud PaaSProvider.
-     *
+     * 
      * @param id The id of the cloud.
      * @param configuration The configuration as a Map of key/values.
      * @return An instance of the configuration object matching the PaaSProvider requested type.
@@ -364,7 +362,7 @@ public class CloudService {
 
     /**
      * Disable an existing cloud. Note that this can be done only when no more deployments are using the cloud to disable.
-     *
+     * 
      * @param id Id of the cloud to disable.
      * @return true if the cloud has been disabled, false if not (some deployments are using the cloud).
      */
@@ -396,7 +394,7 @@ public class CloudService {
 
     /**
      * Get a {@link IPaaSProvider} for a given cloud.
-     *
+     * 
      * @param cloudId Id of the cloud for which to get the {@link IPaaSProvider}.
      * @return The {@link IPaaSProvider} associated to the enabled cloud.
      * @throws CloudDisabledException In case the cloud is not enabled.
@@ -416,7 +414,7 @@ public class CloudService {
 
     /**
      * Get a cloud, fail if not exist
-     *
+     * 
      * @param id id of the cloud
      * @return the cloud with given id
      * @throws alien4cloud.exception.NotFoundException if the cloud does not exist
@@ -431,7 +429,7 @@ public class CloudService {
 
     /**
      * Check if a flavor matches image's requirement
-     *
+     * 
      * @param image the image to verify compatibility
      * @param flavor the flavor to verify compatibility
      * @return true if flavor matches image's requirement, false otherwise
@@ -453,7 +451,7 @@ public class CloudService {
 
     /**
      * Add an image to the cloud consists of adding new available compute template and push update to our persistence layer
-     *
+     * 
      * @param cloud the cloud to update
      * @param cloudImageId the image to add
      */
@@ -468,7 +466,7 @@ public class CloudService {
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             if (isFlavorMatchImageRequirement(cloudImage, flavor)) {
-                computes.add(new ComputeTemplate(cloudImageId, flavor.getId(), true));
+                computes.add(new ComputeTemplate(cloudImageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);
@@ -476,7 +474,7 @@ public class CloudService {
 
     /**
      * Add a flavor to the cloud consists of adding new available compute template and push update to our persistence layer
-     *
+     * 
      * @param cloud the cloud to update
      * @param flavor the flavor to add
      */
@@ -491,7 +489,7 @@ public class CloudService {
         Set<ComputeTemplate> computes = cloud.getComputeTemplates();
         for (String imageId : cloud.getImages()) {
             if (isFlavorMatchImageRequirement(images.get(imageId), flavor)) {
-                computes.add(new ComputeTemplate(imageId, flavor.getId(), true));
+                computes.add(new ComputeTemplate(imageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);
@@ -499,7 +497,7 @@ public class CloudService {
 
     /**
      * Remove an image from the cloud consists of removing available compute template and push update to our persistence layer
-     *
+     * 
      * @param cloud the cloud to update
      * @param cloudImageId the image to remove
      */
@@ -517,7 +515,7 @@ public class CloudService {
 
     /**
      * Remove a flavor from the cloud consists of removing available compute template and push update to our persistence layer
-     *
+     * 
      * @param cloud the cloud to update
      * @param flavorId the flavor to remove
      */
@@ -541,7 +539,7 @@ public class CloudService {
 
     /**
      * Set the template status (enable / disable)
-     *
+     * 
      * @param cloud the cloud to update
      * @param cloudImageId the image id
      * @param flavorId the flavor id

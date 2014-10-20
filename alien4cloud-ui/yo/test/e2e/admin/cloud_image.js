@@ -23,6 +23,6 @@ var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion,
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
   element(by.binding('GENERIC_FORM.SAVE')).click();
-  common.dismissAlert();
+  common.dismissAlertIfPresent();
 };
 module.exports.addNewCloudImage = addNewCloudImage;

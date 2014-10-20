@@ -11,10 +11,10 @@
             'fa-question-circle text-muted' : deploymentStatus == 'UNKNOWN',
             'fa-spinner fa-spin' : deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' || deploymentStatus == 'UNDEPLOYMENT_IN_PROGRESS'
             }">
-        </i>
+        </i> <h3 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + deploymentStatus | translate}}</h3>
       </div>
     </div>
-    <!--             deployment -->
+    <!-- Deployment -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
       <div class="col-md-8">
         <!-- Cloud selection -->
@@ -28,24 +28,6 @@
         </div>
         <!-- END : DEPLOYMENT_MANAGER specific -->
 
-        <!-- Plugin deployment properties -->
-        <div ng-if="deploymentPropertyDefinitions != null && deploymentPropertyDefinitions != {}" ng-init="isPropertiesCollapsed = false">
-          <div class="topology-node-expand clickable" ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
-            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
-            <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</span>
-          </div>
-          <div collapse="isPropertiesCollapsed">
-            <table class="table table-condensed" id="nodeTemplateProperties">
-              <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
-                <td id="p_{{propertyKey}}">
-                  <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
-                  </property-display>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-        <!-- END : Plugin deployment properties -->
       </div>
 
       <div class="col-md-4">
@@ -65,21 +47,22 @@
   </div>
   <div class="col-md-6">
     <!-- todo list -->
-    <div class="row" style="margin-top: 20px;" ng-if="!validTopologyDTO.valid && isManager">
+    <div class="row" ng-if="showTodoList()">
       <div class="col-md-12">
-        <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> <strong>{{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</strong></span>
+        <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i>
+          {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
         <div class="task-list-box">
-<!--                   case the topology is not created -->
+          <!-- case the topology is not created -->
           <span ng-if="!topologyId">
             {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
           </span>
 
-<!--                   case the topology is empty -->
+          <!-- case the topology is empty -->
           <span ng-if="!validTopologyDTO.taskList && topologyId">
             {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
           </span>
 
-          <!--                     Replacement tasks  -->
+          <!--  Replacement tasks  -->
           <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
 
             <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
@@ -114,7 +97,7 @@
             </div>
           </div>
 
-          <!--                     Implementation tasks  -->
+          <!--  Implementation tasks  -->
           <div ng-if="(toImplementNodeTasks = (validTopologyDTO.taskList | filter:{code:'IMPLEMENT'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
@@ -135,7 +118,7 @@
             </div>
           </div>
 
-          <!--                     LowerBound not satisfied tasks  -->
+          <!--  LowerBound not satisfied tasks  -->
           <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
@@ -171,7 +154,7 @@
             </div>
           </div>
 
-          <!--                     required properties tasks  -->
+          <!--  Required properties tasks  -->
           <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTY_REQUIRED'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
@@ -206,6 +189,24 @@
         </div>
       </div>
     </div>
+
+    <!-- Plugin deployment properties -->
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-if="showProperty()" ng-init="isPropertiesCollapsed = false">
+            <h3><i class="fa fa-cog">   </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
+            <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
+              <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
+                <td id="p_{{propertyKey}}">
+                  <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
+                  </property-display>
+                </td>
+              </tr>
+            </table>
+        </div>
+      </div>
+    </div>
+    <!-- END : Plugin deployment properties -->
 
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
@@ -332,4 +333,75 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Matcher -->
+<div id="div-deployment-matcher" ng-if="!showTodoList() && selectedCloud"  style="padding-top:10px;">
+<div class="row">
+  <div class="col-md-12">
+    <legend class="text-center title-border">
+      <h3><i class="fa fa-random"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
+    </legend>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4">
+    <div class="table-responsive large-data-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_NODE_ICON' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPOSANT' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="(key, templates) in matchedCloudResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
+            class="clickable-media" ng-class="{'info': isSelectedTemplate(key)}">
+            <td>
+              <i ng-if="!nodeTypeImage" class="fa fa-image fa-3x"></i>
+              <img ng-if="nodeTypeImage" ng-src="{{nodeTypeImage?('img?id=' + nodeTypeImage + '&quality=QUALITY_64'):null}}" />
+            </td>
+            <td>{{key}}</td>
+            <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
+            <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
+    <div class="table-responsive large-data-container">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE_ICON' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
+            <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
+              ng-class="{'info' : isSelected(template)}" ng-click="changeSelectedImage(template)">
+            <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
+              <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
+              <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
+            </td>
+            <td>{{images[template.cloudImageId].osType}}</td>
+            <td>{{images[template.cloudImageId].osVersion}}</td>
+            <td>{{images[template.cloudImageId].osArch}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
+            <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 </div>

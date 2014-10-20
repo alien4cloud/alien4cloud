@@ -1,0 +1,40 @@
+{
+  "id": "applications.detail.info-hopscotch",
+  "i18n": {
+    "nextBtn": "Next",
+    "prevBtn": "Back",
+    "doneBtn": "Terminate",
+    "closeTooltip": "Stop the tour."
+  },
+  "steps": [{
+    "title": "Application's details",
+    "content": "On this page you will see application's details and you will be able to modify some basic informations about it.",
+    "target": "am.applications.info",
+    "placement": "right"
+  }, {
+    "title": "Create and update an application's topology",
+    "content": "Here you can see and edit your application's topology by adding, removing and linking components (nodes).",
+    "target": "am.applications.detail.topology",
+    "placement": "right"
+  }, {
+    "title": "Visualize the application's lifecycle workflow",
+    "content": "Here you can visualize the global deployment workflow of your topology and see details about your components.",
+    "target": "am.applications.detail.plans",
+    "placement": "right"
+  }, {
+    "title": "Configure and deploy your topology",
+    "content": "Here you will be able to configure and associate your application's components to real cloud resources. You will then be able to deploy your application.",
+    "target": "am.applications.detail.deployment",
+    "placement": "right"
+  }, {
+    "title": "Visualize the deployment's status",
+    "content": "After deployment, this view synthesizes the topology view and add informations on the deployment on the cloud. An event list will deplay details in real time about your services.",
+    "target": "am.applications.detail.runtime",
+    "placement": "right"
+  }, {
+    "title": "Manage application's rights",
+    "content": "You will manage permissions for users and groups on your application.",
+    "target": "am.applications.detail.users",
+    "placement": "right"
+  }]
+}

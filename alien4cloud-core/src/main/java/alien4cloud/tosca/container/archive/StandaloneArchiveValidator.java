@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedModelUtils;
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.csar.model.Csar;
 import alien4cloud.tosca.container.model.CloudServiceArchive;
@@ -128,7 +129,8 @@ public class StandaloneArchiveValidator implements IArchiveValidator {
                 if (nodeType.getRequirements() != null) {
                     for (RequirementDefinition definition : nodeType.getRequirements().values()) {
                         String requirementType = definition.getType();
-                        if (!isElementExist(IndexedCapabilityType.class, requirementType, cloudServiceArchive)) {
+                        if (!(isElementExist(IndexedCapabilityType.class, requirementType, cloudServiceArchive) || isElementExist(IndexedNodeType.class,
+                                requirementType, cloudServiceArchive))) {
                             CSARError error = CSARErrorFactory.createTypeNotFoundError(CSARErrorCode.TYPE_NOT_FOUND, nodeType.getId(), requirementType);
                             addErrorToMap(allViolations, error, cloudServiceArchive, element);
                         }

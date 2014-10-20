@@ -5,44 +5,51 @@
 .property-required {
   font-weight: bold;
   font-style: italic;
-}
 
+}
 .property-required .editable-empty i {
   color: $state-danger-text;
-}
 
-.editable-click, a.editable-click {
+}
+.editable-click,
+a.editable-click {
   color: $text-color;
   text-decoration: none;
-  border: solid 1px #ffffff;
   border: solid 1px rgba(255,255,255,0);
-}
 
-.editable-click:hover, a.editable-click:hover {
+}
+.editable-click:hover,
+a.editable-click:hover {
   color: $text-color;
   text-decoration: none;
-  border: solid 1px #cccccc;
+  border: solid 1px #ccc;
   cursor: pointer;
-}
 
-.editable-empty i{
+}
+.editable-empty i {
   color: #428bca;
-}
 
+}
 .editable-discreet.editable-click {
   background-color: transparent;
   cursor: pointer;
   border: 0;
-}
 
+}
 .editable-wrap {
   width: 100%;
-}
 
+}
 .editable-controls {
   width: 100%;
-}
 
+}
 .editable-small .editable-wrap {
   width: 60%;
+
+}
+.property-display-label-ellipsed {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

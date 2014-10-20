@@ -414,8 +414,8 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            baseUrl: 'http://localhost:9999',
-            // baseUrl: 'http://localhost:8088',
+            //baseUrl: 'http://localhost:9999',
+            baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
               // 'test/e2e/scenarios/homepage.js',
@@ -448,12 +448,13 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/application_security.js',
 
               // 'test/e2e/scenarios/deployment.js',
+              'test/e2e/scenarios/deployment_matcher.js',
 
               // 'test/e2e/scenarios/quick_search.js',
 
               // 'test/e2e/scenarios/security_users.js',
               // 'test/e2e/scenarios/security_groups.js',
-              'test/e2e/scenarios/security_cloud.js',
+              //'test/e2e/scenarios/security_cloud.js',
               // 'test/e2e/scenarios/*'
 
             ]

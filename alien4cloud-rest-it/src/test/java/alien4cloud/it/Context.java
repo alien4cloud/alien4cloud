@@ -121,6 +121,8 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> groupIdToGroupNameMapping;
 
+    private ThreadLocal<Map<String, String>> cloudImageNameToCloudImageIdMapping;
+
     private Context() {
 
         restResponseLocal = new ThreadLocal<String>();
@@ -137,7 +139,8 @@ public class Context {
         topologyDeploymentId = new ThreadLocal<String>();
         groupIdToGroupNameMapping = new ThreadLocal<Map<String, String>>();
         groupIdToGroupNameMapping.set(new HashMap<String, String>());
-
+        cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
+        cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -195,6 +198,14 @@ public class Context {
 
     public String getGroupId(String groupName) {
         return groupIdToGroupNameMapping.get().get(groupName);
+    }
+
+    public void registerCloudImageId(String cloudImageName, String cloudImageId) {
+        cloudImageNameToCloudImageIdMapping.get().put(cloudImageName, cloudImageId);
+    }
+
+    public String getCloudImageId(String cloudImageName) {
+        return cloudImageNameToCloudImageIdMapping.get().get(cloudImageName);
     }
 
     public void registerRestResponse(String restResponse) {
