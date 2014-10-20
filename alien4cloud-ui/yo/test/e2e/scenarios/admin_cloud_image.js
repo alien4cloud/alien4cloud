@@ -15,7 +15,6 @@ describe('List and creation of cloud image', function() {
       reset = false;
       common.before();
       authentication.login('admin');
-      cloudImagesCommon.goToCloudImageList();
     }
   });
 
@@ -29,25 +28,25 @@ describe('List and creation of cloud image', function() {
 
   it('should be able to create a cloud image.', function() {
     console.log('################# should be able to create a cloud image.');
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(0);
+    expect(cloudImagesCommon.countCloudImages()).toBe(0);
     cloudImagesCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
     cloudImagesCommon.goToCloudImageList();
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
   });
 
   it('should be able to delete a cloud image.', function() {
     console.log('################# should be able to delete a cloud image.');
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
     cloudImagesCommon.addNewCloudImage('test-delete', 'windows', 'x86_32', 'Seven', '7.1', '4', '', '1024');
     cloudImagesCommon.goToCloudImageList();
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(2);
+    expect(cloudImagesCommon.countCloudImages()).toBe(2);
     common.deleteWithConfirm('btn-delete-cloud-imagetest-delete', true);
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
   });
 
   it('should be able to rename a cloud image.', function() {
     console.log('################# should be able to rename a cloud image.');
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
     element.all(by.repeater('cloudImage in data.data')).first().click();
     common.sendValueToXEditable('template_test-add_name', 'test-rename', false);
     cloudImagesCommon.goToCloudImageList();
@@ -57,9 +56,9 @@ describe('List and creation of cloud image', function() {
   it('should reject a new image if an image with the same name already exist.', function() {
     after = true;
     console.log('################# should reject a new image if an image with the same name already exist.');
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
     cloudImagesCommon.addNewCloudImage('test-rename', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
     genericForm.cancelForm();
-    expect(element.all(by.repeater('cloudImage in data.data')).count()).toBe(1);
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
   });
 });
