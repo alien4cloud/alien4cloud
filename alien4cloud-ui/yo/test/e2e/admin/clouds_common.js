@@ -192,8 +192,9 @@ var selectFirstImageOfCloud = function(nameCloud) {
   goToCloudDetail(nameCloud);
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
-  var imageLi =  element.all(by.repeater('cloudImage in data.data')).first();
-  var imageDiv = imageLi.element(by.css('div[ng-click^="selectImage"]'));
+  browser.waitForAngular();
+  imageLi =  element.all(by.repeater('cloudImage in data.data')).first();
+  imageDiv = imageLi.element(by.css('div[ng-click^="selectImage"]'));
   browser.actions().click(imageDiv).perform();
   browser.element(by.id('clouds-new-image-add-button')).click();
   browser.waitForAngular();
