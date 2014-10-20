@@ -4,7 +4,7 @@ var FORMS = {};
 
 FORMS.debugEnabled = false;
 
-angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', function($filter, toaster) {
+angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$compile', function($filter, toaster, $compile) {
   return {
     restrict: 'E',
     scope: {
@@ -29,7 +29,7 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', fun
       remove: '&'
     },
     templateUrl: 'views/fragments/generic_form_template.html',
-    link: function(scope) {
+    link: function(scope, element) {
       FORMS.initGenericForm(scope, toaster, $filter);
 
       scope.cancelForm = function() {
@@ -63,11 +63,13 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', fun
           scope.configuration.activeLabelPath.splice(index + 1, numberToRemove);
         }
       };
+      scope.propertyType = scope.type;
+      FORMS.initComplexProperties(scope, $('#genericformpropertiescontainer'), $compile);
     }
   };
 }]);
 
-angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster', function($filter, toaster) {
+angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster', '$compile', function($filter, toaster, $compile) {
   return {
     restrict: 'E',
     scope: {
@@ -77,11 +79,13 @@ angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster
       save: '&'
     },
     templateUrl: 'views/fragments/simple_generic_form_template.html',
-    link: function(scope) {
+    link: function(scope, element) {
       scope.formStyle = 'tree';
       scope.automaticSave = true;
       scope.partialUpdate = true;
       FORMS.initGenericForm(scope, toaster, $filter);
+      scope.propertyType = scope.type;
+      FORMS.initComplexProperties(scope, $('#genericformpropertiescontainer'), $compile);
     }
   };
 }]);
@@ -101,6 +105,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter) {
   scope.configuration.partialUpdate = scope.partialUpdate;
   scope.configuration.showErrors = false;
   scope.configuration.showErrorsAlert = false;
+  scope.configuration.labelSize = scope.labelSize || 20;
   if (UTILS.isDefinedAndNotNull(scope.useXeditable)) {
     scope.configuration.useXeditable = scope.useXeditable;
   } else {
@@ -215,7 +220,7 @@ angular.module('alienUiApp').directive('leafForm', function() {
   };
 });
 
-angular.module('alienUiApp').directive('complexTypeForm', function() {
+angular.module('alienUiApp').directive('complexTypeForm', ['$compile', '$interval', function($compile, $interval) {
   return {
     restrict: 'E',
     scope: FORMS.directiveParameters,
@@ -224,35 +229,39 @@ angular.module('alienUiApp').directive('complexTypeForm', function() {
       FORMS.initFormScope('complexTypeForm', scope, element);
       FORMS.initComplexFormScope(scope);
       FORMS.initFormSuggest(scope, scope.suggest);
-    }
-  };
-});
-
-angular.module('alienUiApp').directive('complexTypePropertyForm', ['$compile', function($compile) {
-  return {
-    restrict: 'E',
-    scope: FORMS.directiveParameters,
-    template: '',
-    link: function(scope, element) {
-      FORMS.initNonDisplayedFormScope('complexTypePropertyForm', scope, element);
-      FORMS.initComplexFormScope(scope);
-      scope.childPaths = [FORMS.addKeyToPath(scope.path, scope.propertyName)];
-      scope.childLabelPaths = [FORMS.addKeyToPath(scope.labelPath, scope.labelName)];
-      // Create new elements that will be appended to the form
-      var newElements = FORMS.elementsFactory(scope.propertyType._type, false, scope.configuration.formStyle);
-      scope.childrenElements = newElements;
-      // Build the new scope
-      var newScope = scope.$new();
-      newScope.path = scope.childPaths[0];
-      newScope.labelPath = scope.childLabelPaths[0];
-      newScope.propertyName = scope.propertyName;
-      newScope.propertyType = scope.propertyType;
-      FORMS.initFormSuggest(newScope, scope.suggest);
-      // Compile and add the newly created elements to their parents
-      FORMS.compileAndAppendToParent(scope, newScope, $compile, newElements, element);
+      $interval(function() {
+        FORMS.initComplexProperties(scope, element.children(), $compile);
+      }, 0, 1);
     }
   };
 }]);
+
+FORMS.initComplexProperties = function(scope, element, $compile) {
+  scope.childPaths = [];
+  scope.childLabelPaths = [];
+  scope.childrenElements = [];
+  for (var i = 0; i < scope.propertyType._order.length; i++) {
+    var childPropertyName = scope.propertyType._order[i];
+    var childPropertyType = scope.propertyType._propertyType[childPropertyName];
+    var childLabelName = childPropertyType._label || childPropertyName.toString();
+    var childPath = FORMS.addKeyToPath(scope.path, childPropertyName);
+    var childLabelPath = FORMS.addKeyToPath(scope.labelPath, childLabelName);
+    var newElements = FORMS.elementsFactory(childPropertyType._type, false, scope.configuration.formStyle);
+    // Build the new scope
+    var newScope = scope.$new();
+    newScope.path = childPath;
+    newScope.labelPath = childLabelPath;
+    newScope.propertyName = childPropertyName;
+    newScope.propertyType = childPropertyType;
+    FORMS.initFormSuggest(newScope, scope.suggest);
+    // Compile and add the newly created elements to their parents
+    FORMS.compileAndAppendToParent(scope, newScope, $compile, newElements, element);
+    // Add children data to parent
+    scope.childrenElements.push.apply(scope.childrenElements, newElements);
+    scope.childPaths.push(childPath);
+    scope.childLabelPaths.push(childLabelPath);
+  }
+};
 
 angular.module('alienUiApp').directive('toscaTypeForm', function() {
   return {

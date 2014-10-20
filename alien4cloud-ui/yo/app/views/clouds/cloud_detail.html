@@ -382,6 +382,7 @@
   <div class="row">
     <div class=col-md-12>
       <generic-form
+          ng-if="cloudConfig && cloudConfigDefinition"
           root-object="cloudConfig"
           form-title="{{cloud.name}}"
           type="cloudConfigDefinition"

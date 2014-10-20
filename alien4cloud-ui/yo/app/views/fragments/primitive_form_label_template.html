@@ -22,8 +22,8 @@
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="string">
     <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
-           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 30]}}">
-      {{labelName | translate | truncate:30}} </label>
+           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+      {{labelName | translate | truncate:configuration.labelSize}} </label>
 
     <div id="{{idPrefix + 'input'}}" class="form-editable"
          ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
@@ -61,8 +61,8 @@
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="boolean">
     <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
-           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 30]}}">
-      {{labelName | translate | truncate:30}} </label>
+           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+      {{labelName | translate | truncate:configuration.labelSize}} </label>
 
     <div ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
       <div class="btn-group" id="{{idPrefix + 'input'}}">
@@ -89,8 +89,8 @@
   </div>
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}" ng-switch-default>
     <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
-           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 30]}}">
-      {{labelName | translate | truncate:30}} <span
+           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+      {{labelName | translate | truncate:configuration.labelSize}} <span
         ng-if="propertyType._unit">({{propertyType._unit}})</span></label>
 
     <div id="{{idPrefix + 'input'}}" class="form-editable" ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
@@ -129,8 +129,8 @@
 <div ng-if="validValues && !propertyType._isTitle" class="form-group"
      ng-class="{'has-error': !isInputValid && configuration.showErrors}">
   <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
-         tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 30]}}"> {{labelName
-    | translate | truncate:30}} </label>
+         tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}"> {{labelName
+    | translate | truncate:configuration.labelSize}} </label>
 
   <div ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
     <select class="form-control" ng-model="input.value" ng-change="inputChanged()" id="{{idPrefix + 'input'}}">

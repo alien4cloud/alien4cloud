@@ -1,14 +1,6 @@
 <!-- Will generate all form field -->
-<div ng-class="{'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window', 'row form-container-with-tree': configuration.formStyle === 'tree'}"
-     ng-show="isActivePath">
-  <complex-type-property-form
-      ng-repeat="name in propertyType._order"
-      property-name="name"
-      property-type="propertyType._propertyType[name]"
-      path="path"
-      label-path="labelPath"
-      root-object="rootObject"
-      suggest="suggest(searchConfiguration, text)"
-      save-action="saveAction(object)"
-      configuration="configuration"></complex-type-property-form>
+<div
+    ng-class="{'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window', 'row form-container-with-tree': configuration.formStyle === 'tree'}"
+    ng-show="isActivePath">
+  <div></div>
 </div>
