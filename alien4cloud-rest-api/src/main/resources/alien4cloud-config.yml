@@ -25,7 +25,7 @@ paas_monitor:
 
 # Initial default components upload : from folder /alien4cloud-core/src/main/default-types-archives
 archive:
-  upload_all: false
+  upload_all: true
 
 # configure the boost factors for tosca elements in the search, elements with the highest boost factor appears first in search results
 # the total boost factor for a component is the sum of the following boost factors.
