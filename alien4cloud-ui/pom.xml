@@ -85,10 +85,10 @@
               <filtering>true</filtering>
             </resource>
             <!-- Add default types archives folder to the war file -->
-            <resource>
-              <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-types-archives</directory>
+            <!-- <resource>
+              <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
               <targetPath>WEB-INF/archives</targetPath>
-            </resource>
+            </resource> -->
           </webResources>
         </configuration>
       </plugin>
