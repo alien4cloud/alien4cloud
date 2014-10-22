@@ -44,14 +44,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       return key === $scope.currentNodeTemplateId;
     };
 
-    $scope.showProperty = function() {
-      return $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
-    };
-
-    $scope.showTodoList = function() {
-      return !$scope.validTopologyDTO.valid && $scope.isManager;
-    };
-
     $scope.isAllowedModify = function() {
       return UTILS.isDefinedAndNotNull($scope.topologyId) && ($scope.isManager || $scope.isDevops);
     };

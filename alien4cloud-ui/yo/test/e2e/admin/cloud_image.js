@@ -26,3 +26,10 @@ var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion,
   common.dismissAlertIfPresent();
 };
 module.exports.addNewCloudImage = addNewCloudImage;
+
+var countCloudImages = function() {
+  goToCloudImageList();
+  browser.waitForAngular();
+  return element.all(by.repeater('cloudImage in data.data')).count();
+};
+module.exports.countCloudImages = countCloudImages;

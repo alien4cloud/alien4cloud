@@ -22,6 +22,16 @@ describe('Application Deployment :', function() {
       authentication.login('admin');
       cloudsCommon.goToCloudList();
       cloudsCommon.createNewCloud('testcloud');
+      applications.createApplication('Alien', 'Great Application');
+      cloudsCommon.goToCloudList();
+      cloudImagesCommon.addNewCloudImage('Compute-dev', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
+      cloudsCommon.selectFirstImageOfCloud('testcloud');
+      cloudsCommon.goToCloudDetailFlavor();
+      cloudsCommon.addNewFlavor("large", "8", "320", "4096");
+      cloudsCommon.goToCloudDetailFlavor();
+      cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
+      cloudsCommon.goToCloudDetail('testcloud');
+      cloudsCommon.enableCloud();
     }
   });
 
@@ -35,17 +45,6 @@ describe('Application Deployment :', function() {
 
   it('should disable the matcher when the todo-list is not empty.', function() {
     console.log('################# should disable the matcher when the todo-list is not empty.');
-    applications.createApplication('Alien', 'Great Application');
-    cloudsCommon.goToCloudList();
-    cloudImagesCommon.addNewCloudImage('Compute-dev', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
-    cloudsCommon.selectFirstImageOfCloud('testcloud');
-    cloudsCommon.goToCloudDetailFlavor();
-    cloudsCommon.addNewFlavor("large", "8", "320", "4096");
-    cloudsCommon.goToCloudDetailFlavor();
-    cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
-    cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.enableCloud();
-
     applications.goToApplicationDetailPage('Alien', true);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.verySimpleTopology.nodes);
     applications.goToApplicationDeploymentPage();

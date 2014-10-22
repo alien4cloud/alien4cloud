@@ -187,14 +187,12 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
 };
 module.exports.addNewFlavor = addNewFlavor;
 
-
 var selectFirstImageOfCloud = function(nameCloud) {
   goToCloudDetail(nameCloud);
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
-  var imageLi =  element.all(by.repeater('cloudImage in data.data')).first();
-  var imageDiv = imageLi.element(by.css('div[ng-click^="selectImage"]'));
-  browser.actions().click(imageDiv).perform();
+  browser.waitForAngular();
+  browser.actions().click(element.all(by.repeater('cloudImage in data.data')).first().element(by.css('div[ng-click^="selectImage"]'))).perform();
   browser.element(by.id('clouds-new-image-add-button')).click();
   browser.waitForAngular();
 }
