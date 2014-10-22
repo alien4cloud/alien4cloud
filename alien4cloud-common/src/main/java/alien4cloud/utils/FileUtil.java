@@ -17,10 +17,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
+@Slf4j
 public final class FileUtil {
     /** Utility class should have private constructor. */
     private FileUtil() {
@@ -194,4 +197,20 @@ public final class FileUtil {
     public static String readTextFile(Path path) throws IOException {
         return readTextFile(path, Charsets.UTF_8);
     }
+
+    /**
+     * Create a directory from path if it does not exist
+     * 
+     * @param directoryPath
+     * @throws IOException
+     */
+    public static Path createDirectoryIfNotExists(String directoryPath) throws IOException {
+        Path tempPath = Paths.get(directoryPath);
+        if (!Files.exists(tempPath)) {
+            log.info("Temp directory for uploaded file do not exist, trying to create [" + directoryPath + "]");
+            Files.createDirectories(tempPath);
+        }
+        return tempPath;
+    }
+
 }

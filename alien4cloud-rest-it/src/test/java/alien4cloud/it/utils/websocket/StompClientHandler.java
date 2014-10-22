@@ -1,12 +1,5 @@
 package alien4cloud.it.utils.websocket;
 
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import alien4cloud.rest.utils.JsonUtil;
-import lombok.extern.slf4j.Slf4j;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +8,14 @@ import io.netty.handler.codec.stomp.DefaultStompFrame;
 import io.netty.handler.codec.stomp.StompCommand;
 import io.netty.handler.codec.stomp.StompFrame;
 import io.netty.handler.codec.stomp.StompHeaders;
+
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.rest.utils.JsonUtil;
 
 /**
  * @author Minh Khang VU
@@ -65,10 +66,10 @@ public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
                 log.debug("Received frame {} from topic {}", toString(frame), this.topic);
             }
             if (String.class == this.dataType) {
-                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION), (T) frame.content().toString(Charset.forName("UTF-8")));
+                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(), (T) frame.content().toString(Charset.forName("UTF-8")));
             } else {
-                this.callback
-                        .onData(frame.headers().get(StompHeaders.DESTINATION), JsonUtil.readObject(new ByteBufInputStream(frame.content()), this.dataType));
+                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(),
+                        JsonUtil.readObject(new ByteBufInputStream(frame.content()), this.dataType));
             }
             break;
         case ERROR:
@@ -90,9 +91,9 @@ public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
         buffer.append("COMMAND :").append(frame.command()).append("\n");
         buffer.append("------------------------------------------------\n");
         buffer.append("HEADERS :\n");
-        Iterator<Map.Entry<String, String>> headerIterator = frame.headers().iterator();
+        Iterator<Entry<CharSequence, CharSequence>> headerIterator = frame.headers().iterator();
         while (headerIterator.hasNext()) {
-            Map.Entry<String, String> header = headerIterator.next();
+            Entry<CharSequence, CharSequence> header = headerIterator.next();
             buffer.append(header.getKey()).append(" : ").append(header.getValue()).append("\n");
         }
         buffer.append("------------------------------------------------\n");
