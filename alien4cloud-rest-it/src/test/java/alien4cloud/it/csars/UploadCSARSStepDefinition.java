@@ -54,11 +54,9 @@ public class UploadCSARSStepDefinition {
         conditionToPath.put("invalid (icon not found)", "src/test/resources/data/csars/icon/missing");
         conditionToPath.put("invalid (icon invalid)", "src/test/resources/data/csars/icon/erroneous");
         conditionToPath.put("invalid (dependency in definition do not exist)", "../alien4cloud-core/src/main/resources/java-types/1.0");
-        conditionToPath.put("containing default java types", "../alien4cloud-core/src/main/default-types-archives/java-types-1.0.zip");
-        conditionToPath.put("containing default apacheLB types", "../alien4cloud-core/src/main/default-types-archives/apacheLB-types-0.1.zip");
-        conditionToPath.put("containing default tosca base types", "../alien4cloud-core/src/main/default-types-archives/tosca-base-types-1.0.zip");
-        conditionToPath.put("containing default tomcat types", "../alien4cloud-core/src/main/default-types-archives/tomcat-types-0.1.zip");
-        conditionToPath.put("containing default tomcat-groovy types", "../alien4cloud-core/src/main/default-types-archives/tomcat-groovy-types-0.1.zip");
+        conditionToPath.put("containing default java types", "../alien4cloud-core/src/main/default-normative-types/java-types-1.0.zip");
+        conditionToPath.put("containing default apacheLB types", "../alien4cloud-core/src/main/default-normative-types/apacheLB-types-0.1.zip");
+        conditionToPath.put("containing default tosca base types", "../alien4cloud-core/src/main/default-normative-types/tosca-base-types-1.0.zip");
         conditionToPath.put("a test archive for valid source/target", "src/test/resources/data/csars/archive-for-test.zip");
         conditionToPath.put("valid-csar-with-test", "src/test/resources/data/csars/snapshot-test/valid");
         conditionToPath.put("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
