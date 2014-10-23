@@ -63,10 +63,9 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
           scope.configuration.activeLabelPath.splice(index + 1, numberToRemove);
         }
       };
-      scope.propertyType = scope.type;
       FORMS.initComplexFormScope(scope);
       $interval(function() {
-        FORMS.initComplexProperties(scope, element.find('.genericformpropertiescontainer'), $compile);
+        FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
       }, 0, 1);
     }
   };
@@ -87,9 +86,8 @@ angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster
       scope.automaticSave = true;
       scope.partialUpdate = true;
       FORMS.initGenericForm(scope, toaster, $filter, element);
-      scope.propertyType = scope.type;
       $interval(function() {
-        FORMS.initComplexProperties(scope, element.find('.genericformpropertiescontainer'), $compile);
+        FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
       }, 0, 1);
     }
   };
@@ -226,7 +224,7 @@ angular.module('alienUiApp').directive('leafForm', function() {
   };
 });
 
-angular.module('alienUiApp').directive('complexTypeForm', ['$compile', '$interval', function($compile, $interval) {
+angular.module('alienUiApp').directive('complexTypeForm', ['$compile', function($compile) {
   return {
     restrict: 'E',
     scope: FORMS.directiveParameters,
@@ -235,20 +233,18 @@ angular.module('alienUiApp').directive('complexTypeForm', ['$compile', '$interva
       FORMS.initFormScope('complexTypeForm', scope, element);
       FORMS.initComplexFormScope(scope);
       FORMS.initFormSuggest(scope, scope.suggest);
-      $interval(function() {
-        FORMS.initComplexProperties(scope, element.children(), $compile);
-      }, 0, 1);
+      FORMS.initComplexProperties(scope, scope.propertyType, element.children(), $compile);
     }
   };
 }]);
 
-FORMS.initComplexProperties = function(scope, element, $compile) {
+FORMS.initComplexProperties = function(scope, type, element, $compile) {
   scope.childPaths = [];
   scope.childLabelPaths = [];
   scope.childrenElements = [];
-  for (var i = 0; i < scope.propertyType._order.length; i++) {
-    var childPropertyName = scope.propertyType._order[i];
-    var childPropertyType = scope.propertyType._propertyType[childPropertyName];
+  for (var i = 0; i < type._order.length; i++) {
+    var childPropertyName = type._order[i];
+    var childPropertyType = type._propertyType[childPropertyName];
     var childLabelName = childPropertyType._label || childPropertyName.toString();
     var childPath = FORMS.addKeyToPath(scope.path, childPropertyName);
     var childLabelPath = FORMS.addKeyToPath(scope.labelPath, childLabelName);
@@ -615,7 +611,7 @@ FORMS.savePrimitive = function(scope) {
   FORMS.automaticSave(scope);
 };
 
-angular.module('alienUiApp').directive('abstractTypeForm', function() {
+angular.module('alienUiApp').directive('abstractTypeForm', ['$compile', function($compile) {
   return {
     restrict: 'E',
     scope: FORMS.directiveParameters,
@@ -630,6 +626,8 @@ angular.module('alienUiApp').directive('abstractTypeForm', function() {
               FORMS.deleteValueForPath(scope.rootObject, scope.path);
             }
             scope.implementationType = scope.propertyType._implementationTypes[newValue];
+            element.children().children().remove();
+            FORMS.initComplexProperties(scope, scope.implementationType, element.children(), $compile);
           }
         });
       };
@@ -649,7 +647,7 @@ angular.module('alienUiApp').directive('abstractTypeForm', function() {
       FORMS.initFormSuggest(scope, scope.suggest);
     }
   };
-});
+}]);
 
 angular.module('alienUiApp').directive('abstractTypeFormLabel', function() {
   return {
