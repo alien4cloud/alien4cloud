@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
@@ -45,11 +45,11 @@ public class CloudResourceMatcherService {
      */
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud) {
         Map<String, NodeTemplate> matchableNodes = getMatchableTemplates(topology);
-        Map<String, List<ComputeTemplate>> matchResult = Maps.newHashMap();
+        Map<String, List<ActivableComputeTemplate>> matchResult = Maps.newHashMap();
         Set<String> imageIds = Sets.newHashSet();
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
-            List<ComputeTemplate> computeTemplates = Lists.newArrayList();
+            List<ActivableComputeTemplate> computeTemplates = Lists.newArrayList();
             List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
             for (CloudImage image : images) {
                 List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
@@ -57,7 +57,7 @@ public class CloudResourceMatcherService {
                     imageIds.add(image.getId());
                 }
                 for (CloudImageFlavor flavor : flavors) {
-                    ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
+                    ActivableComputeTemplate template = new ActivableComputeTemplate(image.getId(), flavor.getId());
                     computeTemplates.add(template);
                     flavorMap.put(flavor.getId(), flavor);
                 }
@@ -102,9 +102,9 @@ public class CloudResourceMatcherService {
         }
         Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
         // Only get active templates
-        Set<ComputeTemplate> templates = cloud.getComputeTemplates();
+        Set<ActivableComputeTemplate> templates = cloud.getComputeTemplates();
         Set<String> availableImageIds = Sets.newHashSet();
-        for (ComputeTemplate template : templates) {
+        for (ActivableComputeTemplate template : templates) {
             if (template.isEnabled()) {
                 availableImageIds.add(template.getCloudImageId());
             }
@@ -158,8 +158,8 @@ public class CloudResourceMatcherService {
             allFlavors.put(flavor.getId(), flavor);
         }
         Set<CloudImageFlavor> availableFlavors = Sets.newHashSet();
-        Set<ComputeTemplate> allTemplates = cloud.getComputeTemplates();
-        for (ComputeTemplate template : allTemplates) {
+        Set<ActivableComputeTemplate> allTemplates = cloud.getComputeTemplates();
+        for (ActivableComputeTemplate template : allTemplates) {
             if (template.isEnabled() && template.getCloudImageId().equals(cloudImage.getId())) {
                 // get flavors that correspond to the given cloud image from all active compute template
                 availableFlavors.add(allFlavors.get(template.getCloudImageFlavorId()));

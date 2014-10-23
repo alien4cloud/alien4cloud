@@ -50,13 +50,13 @@
               </div>
             </div>
             <div collapse="isCollapsed">
-              <div class="form-tree-level" id="treecontainer"></div>
+              <div class="form-tree-level treecontainer"></div>
             </div>
           </div>
         </div>
         <div
             ng-class="{'col-md-12' : configuration.formStyle === 'window' || (configuration.formStyle === 'tree' && !showTree), 'col-md-8' : (configuration.formStyle === 'tree' && showTree)}">
-          <div id="genericformtypescontainer"
+          <div class="genericformtypescontainer"
                ng-class="{
                'form-container-no-tree form-container-horizontal-scroll': configuration.formStyle === 'window',
                'well form-container-with-tree form-container-scroll': configuration.formStyle === 'tree',
@@ -64,7 +64,7 @@
                'well': configuration.formStyle === 'tree' && showTree
                }">
             <!-- The root form -->
-            <div id="genericformpropertiescontainer"
+            <div class="genericformpropertiescontainer"
                 ng-class="{
                                 'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
                                 '{{formClass}}': configuration.formStyle === 'window' && formClass,

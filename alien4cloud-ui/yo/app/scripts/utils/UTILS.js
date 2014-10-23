@@ -186,3 +186,21 @@ UTILS.findByFieldValue = function(array, fieldName, fieldValue) {
   }
   return -1;
 };
+
+UTILS.findByFieldValues = function(array, nameValueEntries) {
+  for (var i = 0; i < array.length; i++) {
+    var found;
+    for (var fieldName in nameValueEntries) {
+      if (nameValueEntries.hasOwnProperty(fieldName)) {
+        found = array[i].hasOwnProperty(fieldName) && array[i][fieldName] === nameValueEntries[fieldName];
+        if (!found) {
+          break;
+        }
+      }
+    }
+    if (found) {
+      return i;
+    }
+  }
+  return -1;
+};

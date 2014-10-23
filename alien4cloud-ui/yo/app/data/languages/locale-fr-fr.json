@@ -423,7 +423,9 @@
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit"
+      "FLAVOR_NAME": "Gabarit",
+      "RESOURCE_ID": "PaaS Resource Id",
+      "NOT_CONFIGURED": "Non Configuré(s)"
     },
     "FLAVORS": {
       "ID": "Nom",

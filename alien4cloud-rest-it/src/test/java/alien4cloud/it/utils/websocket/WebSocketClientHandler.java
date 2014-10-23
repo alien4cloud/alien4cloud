@@ -116,9 +116,9 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
         // The first message must be authentication response
         if (this.authenticationUrl != null && (this.cookies == null || this.cookies.isEmpty())) {
             HttpResponse response = (HttpResponse) msg;
-            String cookieData = response.headers().get(HttpHeaders.Names.SET_COOKIE);
+            CharSequence cookieData = response.headers().get(HttpHeaders.Names.SET_COOKIE);
             if (cookieData != null) {
-                this.cookies = CookieDecoder.decode(cookieData);
+                this.cookies = CookieDecoder.decode(cookieData.toString());
                 if (this.cookies == null || this.cookies.isEmpty()) {
                     throw new WebSocketAuthenticationFailureException("Could not authenticate");
                 }

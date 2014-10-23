@@ -4,7 +4,7 @@ var FORMS = {};
 
 FORMS.debugEnabled = false;
 
-angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$compile', function($filter, toaster, $compile) {
+angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
   return {
     restrict: 'E',
     scope: {
@@ -30,7 +30,7 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
     },
     templateUrl: 'views/fragments/generic_form_template.html',
     link: function(scope, element) {
-      FORMS.initGenericForm(scope, toaster, $filter);
+      FORMS.initGenericForm(scope, toaster, $filter, element);
 
       scope.cancelForm = function() {
         scope.cancel({
@@ -64,12 +64,15 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
         }
       };
       scope.propertyType = scope.type;
-      FORMS.initComplexProperties(scope, $('#genericformpropertiescontainer'), $compile);
+      FORMS.initComplexFormScope(scope);
+      $interval(function() {
+        FORMS.initComplexProperties(scope, element.find('.genericformpropertiescontainer'), $compile);
+      }, 0, 1);
     }
   };
 }]);
 
-angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster', '$compile', function($filter, toaster, $compile) {
+angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
   return {
     restrict: 'E',
     scope: {
@@ -83,14 +86,16 @@ angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster
       scope.formStyle = 'tree';
       scope.automaticSave = true;
       scope.partialUpdate = true;
-      FORMS.initGenericForm(scope, toaster, $filter);
+      FORMS.initGenericForm(scope, toaster, $filter, element);
       scope.propertyType = scope.type;
-      FORMS.initComplexProperties(scope, $('#genericformpropertiescontainer'), $compile);
+      $interval(function() {
+        FORMS.initComplexProperties(scope, element.find('.genericformpropertiescontainer'), $compile);
+      }, 0, 1);
     }
   };
 }]);
 
-FORMS.initGenericForm = function(scope, toaster, $filter) {
+FORMS.initGenericForm = function(scope, toaster, $filter, element) {
   if (UTILS.isUndefinedOrNull(scope.rootObject)) {
     scope.rootObject = {};
   }
@@ -106,6 +111,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter) {
   scope.configuration.showErrors = false;
   scope.configuration.showErrorsAlert = false;
   scope.configuration.labelSize = scope.labelSize || 20;
+  scope.configuration.rootElement = element;
   if (UTILS.isDefinedAndNotNull(scope.useXeditable)) {
     scope.configuration.useXeditable = scope.useXeditable;
   } else {
@@ -729,10 +735,10 @@ FORMS.compileAndAppendToParent = function(scope, newScope, $compile, newElements
   // Containers for our newly created directive element
   var mainParentElement = FORMS.getMainContainerElement(scope);
   if (UTILS.isUndefinedOrNull(directiveElement)) {
-    directiveElement = $('#' + scope.complexContainerElementId);
+    directiveElement = scope.configuration.rootElement.find('.' + scope.complexContainerElementId);
   }
   if (scope.configuration.formStyle === 'tree') {
-    var treeParentElement = $('#' + scope.treeContainerElementId);
+    var treeParentElement = scope.configuration.rootElement.find('.' + scope.treeContainerElementId);
     // Append newly created directive elements to its respective parent
     treeParentElement.append($compile(newElements[2])(newScope));
   }
@@ -767,8 +773,8 @@ FORMS.getComplexTypeContainerElementId = function(scope) {
   return 'complextype' + scope.path.join('') + 'container';
 };
 
-FORMS.getMainContainerElement = function() {
-  return $('#genericformtypescontainer');
+FORMS.getMainContainerElement = function(scope) {
+  return scope.configuration.rootElement.find('.genericformtypescontainer');
 };
 
 FORMS.initOnDestroy = function(scope, element) {

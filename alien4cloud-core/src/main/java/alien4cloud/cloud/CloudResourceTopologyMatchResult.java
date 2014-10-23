@@ -3,13 +3,13 @@ package alien4cloud.cloud;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.ComputeTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -25,5 +25,5 @@ public class CloudResourceTopologyMatchResult {
 
     private Map<String, CloudImageFlavor> flavors;
 
-    private Map<String, List<ComputeTemplate>> matchResult;
+    private Map<String, List<ActivableComputeTemplate>> matchResult;
 }

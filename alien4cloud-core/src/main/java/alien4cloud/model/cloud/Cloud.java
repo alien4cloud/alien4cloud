@@ -85,5 +85,5 @@ public class Cloud implements ISecuredResource {
 
     private Set<CloudImageFlavor> flavors = Sets.newLinkedHashSet();
 
-    private Set<ComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
+    private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
 }
