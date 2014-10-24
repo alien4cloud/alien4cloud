@@ -81,6 +81,8 @@ public class Cloud implements ISecuredResource {
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private Set<String> images = Sets.newLinkedHashSet();
 
     private Set<CloudImageFlavor> flavors = Sets.newLinkedHashSet();

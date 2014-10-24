@@ -9,15 +9,15 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
-import alien4cloud.it.Context;
-import alien4cloud.model.cloud.ActivableComputeTemplate;
-import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.rest.cloud.CloudDTO;
-import alien4cloud.rest.utils.JsonUtil;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import alien4cloud.it.Context;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.rest.cloud.CloudDTO;
+import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -30,7 +30,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[]{cloudImageId})));
     }
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
@@ -57,15 +57,19 @@ public class CloudComputeTemplateStepDefinitions {
         The_cloud_with_name_should_have_compute_templates_as_resources(cloudName, 0, null);
     }
 
-    public static void assertComputeTemplates(int numberOfTemplate, Set<ActivableComputeTemplate> templates, DataTable expectedTemplatesTable) {
+    public static void assertComputeTemplates(int numberOfTemplate, Set<? extends ComputeTemplate> templates, DataTable expectedTemplatesTable) {
         Assert.assertEquals(numberOfTemplate, templates.size());
-        Set<ActivableComputeTemplate> expectedTemplates = Sets.newHashSet();
+        Set<ComputeTemplate> expectedTemplates = Sets.newHashSet();
         if (expectedTemplatesTable != null) {
             for (List<String> rows : expectedTemplatesTable.raw()) {
                 String imageName = rows.get(0);
                 String flavorName = rows.get(1);
-                boolean enabled = "enabled".equals(rows.get(2));
-                expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                if (rows.size() == 3) {
+                    boolean enabled = "enabled".equals(rows.get(2));
+                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                } else {
+                    expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName));
+                }
             }
         }
         Assert.assertEquals(expectedTemplates, templates);
@@ -73,7 +77,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
-            String cloudName) throws Throwable {
+                                                                                                 String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
         cloudImageFlavor.setId(flavorId);
@@ -121,7 +125,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
-                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
+                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 
     @When("^I remove the cloud image \"([^\"]*)\" from the cloud \"([^\"]*)\"$")

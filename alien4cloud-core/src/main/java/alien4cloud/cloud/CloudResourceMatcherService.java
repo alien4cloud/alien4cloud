@@ -8,24 +8,24 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.cloud.ActivableComputeTemplate;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -38,18 +38,18 @@ public class CloudResourceMatcherService {
 
     /**
      * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
-     * 
+     *
      * @param topology the topology to check
-     * @param cloud the cloud
+     * @param cloud    the cloud
      * @return match result which contains the images that can be used, the flavors that can be used and their possible association
      */
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud) {
         Map<String, NodeTemplate> matchableNodes = getMatchableTemplates(topology);
-        Map<String, List<ActivableComputeTemplate>> matchResult = Maps.newHashMap();
+        Map<String, List<ComputeTemplate>> matchResult = Maps.newHashMap();
         Set<String> imageIds = Sets.newHashSet();
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
-            List<ActivableComputeTemplate> computeTemplates = Lists.newArrayList();
+            List<ComputeTemplate> computeTemplates = Lists.newArrayList();
             List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
             for (CloudImage image : images) {
                 List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
@@ -57,7 +57,7 @@ public class CloudResourceMatcherService {
                     imageIds.add(image.getId());
                 }
                 for (CloudImageFlavor flavor : flavors) {
-                    ActivableComputeTemplate template = new ActivableComputeTemplate(image.getId(), flavor.getId());
+                    ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
                     computeTemplates.add(template);
                     flavorMap.put(flavor.getId(), flavor);
                 }
@@ -70,7 +70,7 @@ public class CloudResourceMatcherService {
 
     /**
      * This method browse topology's node templates and return those that need to be matched to cloud's resources
-     * 
+     *
      * @param topology the topology to check
      * @return all node template that must be matched
      */
@@ -91,8 +91,8 @@ public class CloudResourceMatcherService {
 
     /**
      * Get all available image for a compute by filtering with its properties on OS information
-     * 
-     * @param cloud the cloud
+     *
+     * @param cloud        the cloud
      * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
      */
@@ -143,10 +143,10 @@ public class CloudResourceMatcherService {
 
     /**
      * Get all available flavors for the given compute and the given image on the given cloud
-     * 
-     * @param cloud the cloud
+     *
+     * @param cloud        the cloud
      * @param nodeTemplate the compute to search for flavors
-     * @param cloudImage the image
+     * @param cloudImage   the image
      * @return the available flavors for the compute and the image on the given cloud
      */
     private List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {

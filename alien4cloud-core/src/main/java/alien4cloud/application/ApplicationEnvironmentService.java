@@ -27,20 +27,20 @@ public class ApplicationEnvironmentService {
      * @param applicationId The id of the application for which to create the environment.
      * @return The id of the newly created environment.
      */
-    public String createApplicationEnvironment(String applicationId) {
+    public ApplicationEnvironment createApplicationEnvironment(String applicationId) {
         return createApplicationEnvironment(applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER);
     }
 
     /**
      * Create a new environment for a given application.
      *
-     * @param applicationId The id of the application.
-     * @param name The environment name.
-     * @param description The environment description.
+     * @param applicationId   The id of the application.
+     * @param name            The environment name.
+     * @param description     The environment description.
      * @param environmentType The type of environment.
-     * @return The id of the newly created environment.
+     * @return The newly created environment.
      */
-    public String createApplicationEnvironment(String applicationId, String name, String description, EnvironmentType environmentType) {
+    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String name, String description, EnvironmentType environmentType) {
         ApplicationEnvironment applicationEnvironment = new ApplicationEnvironment();
         applicationEnvironment.setId(UUID.randomUUID().toString());
         applicationEnvironment.setName(name);
@@ -48,7 +48,7 @@ public class ApplicationEnvironmentService {
         applicationEnvironment.setEnvironmentType(environmentType);
         applicationEnvironment.setApplicationId(applicationId);
         alienDAO.save(applicationEnvironment);
-        return applicationEnvironment.getId();
+        return applicationEnvironment;
     }
 
     /**
@@ -59,7 +59,7 @@ public class ApplicationEnvironmentService {
      */
     public ApplicationEnvironment[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
-                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[]{"applicationId"}, new String[][]{new String[]{applicationId}}), Integer.MAX_VALUE);
         return result.getData();
     }
 
@@ -87,7 +87,6 @@ public class ApplicationEnvironmentService {
     }
 
     /**
-     *
      * @return true if the environment is currently deployed.
      */
     public boolean isDeployed() {

@@ -5,8 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,9 +13,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.Maps;
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
@@ -27,7 +30,9 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -40,11 +45,11 @@ import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
+import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
-
-import com.google.common.collect.Maps;
-import com.wordnik.swagger.annotations.Api;
-import com.wordnik.swagger.annotations.ApiOperation;
+import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.utils.ReflectionUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -67,6 +72,8 @@ public class ApplicationDeploymentController {
     private DeploymentService deploymentService;
     @Resource
     private CloudResourceMatcherService cloudResourceMatcherService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     @ApiOperation(value = "Set the cloud to use by default in order to deploy the application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationId:.+}/cloud", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,7 +84,27 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
         environments[0].setCloudId(cloudId);
         alienDAO.save(environments[0]);
-        return RestResponseBuilder.<Void> builder().build();
+        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
+        ApplicationVersion version = versions[0];
+        DeploymentSetup deploymentSetup = getDeploymentSetup(application);
+        // Generate default matching for deployment setup
+        Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(topologyService.getMandatoryTopology(version.getTopologyId()), cloudService.get(cloudId)).getMatchResult();
+        Map<String, ComputeTemplate> cloudResourcesMapping = Maps.newHashMap();
+        for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
+            if (!entry.getValue().isEmpty()) {
+                cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+            }
+        }
+        deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
+        // Reset deployment properties as it might have changed between cloud
+        Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloudId);
+        Map<String, PropertyValue> propertyValueMap = Maps.newHashMap();
+        for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : propertyDefinitionMap.entrySet()) {
+            propertyValueMap.put(propertyDefinitionEntry.getKey(), new PropertyValue(propertyDefinitionEntry.getValue().getDefault()));
+        }
+        deploymentSetup.setProviderDeploymentProperties(propertyValueMap);
+        alienDAO.save(deploymentSetup);
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
@@ -110,12 +137,13 @@ public class ApplicationDeploymentController {
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
+        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version.getId(), environment.getId());
         try {
-            deploymentService.deployTopology(topology, environment.getCloudId(), application, deployApplicationRequest.getDeploymentProperties());
+            deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
@@ -139,9 +167,9 @@ public class ApplicationDeploymentController {
         try {
             deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
@@ -163,7 +191,7 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = environments[0];
 
         Deployment deployment = deploymentService.getActiveDeployment(version.getTopologyId(), environment.getCloudId());
-        return RestResponseBuilder.<Deployment> builder().data(deployment).build();
+        return RestResponseBuilder.<Deployment>builder().data(deployment).build();
     }
 
     /**
@@ -178,7 +206,7 @@ public class ApplicationDeploymentController {
     public RestResponse<DeploymentStatus> getDeploymentStatus(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        return RestResponseBuilder.<DeploymentStatus> builder().data(getApplicationDeploymentStatus(application)).build();
+        return RestResponseBuilder.<DeploymentStatus>builder().data(getApplicationDeploymentStatus(application)).build();
     }
 
     @ApiOperation(value = "Get the current statuses of an application list on the PaaS.", notes = "Returns the current status of an application list from the PaaS it is deployed on."
@@ -191,7 +219,7 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
             statuses.put(applicationId, getApplicationDeploymentStatus(application));
         }
-        return RestResponseBuilder.<Map<String, DeploymentStatus>> builder().data(statuses).build();
+        return RestResponseBuilder.<Map<String, DeploymentStatus>>builder().data(statuses).build();
     }
 
     private DeploymentStatus getApplicationDeploymentStatus(Application application) {
@@ -236,21 +264,21 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = environments[0];
 
         try {
-            return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder()
+            return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>>builder()
                     .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId())).build();
         } catch (CloudDisabledException e) {
             log.error("Cannot get instance informations as topology plugin cannot be found.", e);
         }
 
-        return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder().build();
+        return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>>builder().build();
     }
 
     /**
      * Scale an application on a particular node.
      *
-     * @param applicationId The id of the application to be scaled.
+     * @param applicationId  The id of the application to be scaled.
      * @param nodeTemplateId The id of the node template to be scaled.
-     * @param instances The instances number to be scaled up (if > 0)/ down (if < 0)
+     * @param instances      The instances number to be scaled up (if > 0)/ down (if < 0)
      * @return A {@link RestResponse} that contains the application's current {@link DeploymentStatus}.
      */
     @ApiOperation(value = "Scale the application on a particular node.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
@@ -269,9 +297,9 @@ public class ApplicationDeploymentController {
         try {
             deploymentService.scale(version.getTopologyId(), environment.getCloudId(), nodeTemplateId, instances);
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder.<Void>builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology")
@@ -290,6 +318,40 @@ public class ApplicationDeploymentController {
             throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
         }
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        return RestResponseBuilder.<CloudResourceTopologyMatchResult> builder().data(cloudResourceMatcherService.matchTopology(topology, cloud)).build();
+        return RestResponseBuilder.<CloudResourceTopologyMatchResult>builder().data(cloudResourceMatcherService.matchTopology(topology, cloud)).build();
+    }
+
+    @ApiOperation(value = "Get the deployment setup for an application")
+    @RequestMapping(value = "/{applicationId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<DeploymentSetup> getDeploymentSetup(@PathVariable String applicationId) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+        return RestResponseBuilder.<DeploymentSetup>builder().data(getDeploymentSetup(application)).build();
+    }
+
+    private DeploymentSetup getDeploymentSetup(Application application) {
+        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
+        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
+        // get the topology from the version and the cloud from the environment.
+        ApplicationVersion version = versions[0];
+        ApplicationEnvironment environment = environments[0];
+        return deploymentSetupService.getOrFail(version.getId(), environment.getId());
+    }
+
+    /**
+     * Update application's deployment setup
+     *
+     * @param applicationId The application id.
+     * @return nothing if success, error will be handled in global exception strategy
+     */
+    @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.")
+    @RequestMapping(value = "/{applicationId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> updateDeploymentSetup(@PathVariable String applicationId, @RequestBody UpdateDeploymentSetupRequest updateRequest) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        DeploymentSetup setup = getDeploymentSetup(application);
+        ReflectionUtil.mergeObject(updateRequest, setup);
+        alienDAO.save(setup);
+        return RestResponseBuilder.<Void>builder().build();
     }
 }

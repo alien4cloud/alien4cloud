@@ -242,7 +242,13 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             return cloudImageServices.get({
               id: $stateParams.id
             }).$promise.then(function(success) {
-                return success.data;
+                var cloudImage = success.data;
+                if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
+                  cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                  cloudImage.diskSize = cloudImage.requirement.diskSize;
+                  cloudImage.memSize = cloudImage.requirement.memSize;
+                }
+                return cloudImage;
               });
           }
         ]

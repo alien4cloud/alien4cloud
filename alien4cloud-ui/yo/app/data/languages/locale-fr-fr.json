@@ -148,6 +148,7 @@
     "ROOT": "Racine",
     "MAP_KEY_PLACEHOLDER": "Saisir une nouvelle clé",
     "UNDEFINED": "Cliquer pour éditer",
+    "UNDEFINED_READ_ONLY": "Non défini",
     "TRUE": "Vrai",
     "FALSE": "Faux",
     "REQUIRED": "Obligatoire",

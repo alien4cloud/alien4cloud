@@ -3,10 +3,14 @@ package alien4cloud.rest.application;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.DeploymentSetup;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -71,8 +75,6 @@ public class ApplicationController {
     @Resource
     private CloudService cloudService;
     @Resource
-    private DeploymentService deploymentService;
-    @Resource
     private ConstraintPropertyService constraintPropertyService;
     @Resource
     private IImageDAO imageDAO;
@@ -80,8 +82,6 @@ public class ApplicationController {
     private IGenericSearchDAO alienDAO;
     @Resource
     private ResourceRoleService resourceRoleService;
-    @Resource
-    private TopologyService topologyService;
 
     @Resource
     private ApplicationService applicationService;
@@ -89,6 +89,8 @@ public class ApplicationController {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Create a new application in the system.
@@ -106,10 +108,10 @@ public class ApplicationController {
 
         String workspaceId = null;
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), workspaceId);
-        applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
-        applicationEnvironmentService.createApplicationEnvironment(applicationId);
-
-        return RestResponseBuilder.<String> builder().data(applicationId).build();
+        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
+        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(applicationId);
+        deploymentSetupService.create(version, environment);
+        return RestResponseBuilder.<String>builder().data(applicationId).build();
     }
 
     /**
@@ -122,7 +124,7 @@ public class ApplicationController {
     public RestResponse<Application> get(@PathVariable String applicationId) {
         Application data = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(data, ApplicationRole.values());
-        return RestResponseBuilder.<Application> builder().data(data).build();
+        return RestResponseBuilder.<Application>builder().data(data).build();
     }
 
     /**
@@ -137,7 +139,7 @@ public class ApplicationController {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
         FacetedSearchResult searchResult = alienDAO.facetedSearch(Application.class, searchRequest.getQuery(), searchRequest.getFilters(), authorizationFilter,
                 null, searchRequest.getFrom(), searchRequest.getSize());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
+        return RestResponseBuilder.<FacetedSearchResult>builder().data(searchResult).build();
     }
 
     /**
@@ -152,14 +154,14 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         boolean deleted = applicationService.delete(applicationId);
-        return RestResponseBuilder.<Boolean> builder().data(deleted).build();
+        return RestResponseBuilder.<Boolean>builder().data(deleted).build();
     }
 
     /**
      * Update application's image.
      *
      * @param applicationId The application id.
-     * @param image new image of the application
+     * @param image         new image of the application
      * @return nothing if success, error will be handled in global exception strategy
      */
     @ApiOperation(value = "Updates the image for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
@@ -177,15 +179,15 @@ public class ApplicationController {
         data.setImageId(imageId);
         data.setLastUpdateDate(new Date());
         alienDAO.save(data);
-        return RestResponseBuilder.<String> builder().data(imageId).build();
+        return RestResponseBuilder.<String>builder().data(imageId).build();
     }
 
     /**
      * Add a role to a user on a specific application
      *
      * @param applicationId The id of the application.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the application.
+     * @param username      The username of the user to update roles.
+     * @param role          The role to add to the user on the application.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Add a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to another user. Application role required [ APPLICATION_MANAGER ]")
@@ -194,15 +196,15 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addUserRole(application, username, role);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
      * Add a role to a group on a specific application
      *
      * @param applicationId The id of the application.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the group on the application.
+     * @param groupId       The id of the group to update roles.
+     * @param role          The role to add to the group on the application.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Add a role to a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to a group of users. Application role required [ APPLICATION_MANAGER ]")
@@ -211,15 +213,15 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addGroupRole(application, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
      * Remove a role from a user on a specific application
      *
      * @param applicationId The id of the application.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the application.
+     * @param username      The username of the user to update roles.
+     * @param role          The role to add to the user on the application.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Remove a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can unassign any role to another user. Application role required [ APPLICATION_MANAGER ]")
@@ -228,15 +230,15 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeUserRole(application, username, role);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
      * Remove a role from a user on a specific application
      *
      * @param applicationId The id of the application.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the user on the application.
+     * @param groupId       The id of the group to update roles.
+     * @param role          The role to add to the user on the application.
      * @return A {@link Void} {@link RestResponse}.
      */
     @ApiOperation(value = "Remove a role of a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can un-assign any role to a group. Application role required [ APPLICATION_MANAGER ]")
@@ -245,10 +247,10 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeGroupRole(application, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
-    @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })
+    @ApiOperation(value = "Validate deployment property constraint.", authorizations = {@Authorization("APPLICATION_MANAGER")})
     @RequestMapping(value = "/checkDeploymentProperty", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> checkPluginDeploymentProperties(
             @RequestBody CloudDeploymentPropertyValidationRequest deploymentPropertyValidationRequest) {
@@ -264,17 +266,17 @@ public class ApplicationController {
                 } catch (ConstraintViolationException e) {
                     log.error("Constraint violation error for property <" + deploymentPropertyValidationRequest.getDeploymentPropertyName() + "> with value <"
                             + deploymentPropertyValidationRequest.getDeploymentPropertyValue() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    return RestResponseBuilder.<ConstraintInformation>builder().data(e.getConstraintInformation())
                             .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
                 } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
                     log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
                             + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    return RestResponseBuilder.<ConstraintInformation>builder().data(e.getConstraintInformation())
                             .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
                 }
             }
         }
-        return RestResponseBuilder.<ConstraintInformation> builder().build();
+        return RestResponseBuilder.<ConstraintInformation>builder().build();
     }
 
     /**
@@ -297,7 +299,7 @@ public class ApplicationController {
             applicationService.ensureNameUnicity(application.getName());
         }
         alienDAO.save(application);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void>builder().build();
     }
 
     /**
@@ -316,7 +318,7 @@ public class ApplicationController {
         if (application != null) {
             // Put the updated tag (will override the old tag or add it to the tag map)
             if (application.getMetaProperties() == null) {
-                application.setMetaProperties(Maps.<String, String> newHashMap());
+                application.setMetaProperties(Maps.<String, String>newHashMap());
             }
             if (propertyRequest.getPropertyDefinition() != null && propertyRequest.getPropertyDefinition().getConstraints() != null) {
                 try {
@@ -326,12 +328,12 @@ public class ApplicationController {
                     log.error(
                             "Constraint violation error for property <" + propertyRequest.getPropertyId() + "> with value <"
                                     + propertyRequest.getPropertyValue() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    return RestResponseBuilder.<ConstraintInformation>builder().data(e.getConstraintInformation())
                             .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
                 } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
                     log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
                             + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    return RestResponseBuilder.<ConstraintInformation>builder().data(e.getConstraintInformation())
                             .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
                 }
             }
@@ -341,7 +343,7 @@ public class ApplicationController {
             updateApplicationPropertyError = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR)
                     .message("Property update operation failed. Could not find application with id <" + applicationId + ">.").build();
         }
-        return RestResponseBuilder.<ConstraintInformation> builder().error(updateApplicationPropertyError).build();
+        return RestResponseBuilder.<ConstraintInformation>builder().error(updateApplicationPropertyError).build();
     }
 
     @ApiOperation(value = "Get the id of the topology associated with this application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -352,6 +354,6 @@ public class ApplicationController {
 
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
 
-        return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
+        return RestResponseBuilder.<String>builder().data(versions[0].getTopologyId()).build();
     }
 }

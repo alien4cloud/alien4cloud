@@ -14,6 +14,7 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
       /* Form styling options */
       formStyle: '@',
       formClass: '@',
+      labelSize: '=',
       /* Flags which modify form behavior */
       isRemovable: '=',
       isCancelable: '=',
@@ -31,12 +32,6 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
     templateUrl: 'views/fragments/generic_form_template.html',
     link: function(scope, element) {
       FORMS.initGenericForm(scope, toaster, $filter, element);
-
-      scope.cancelForm = function() {
-        scope.cancel({
-          object: scope.rootObject
-        });
-      };
 
       scope.deleteData = function() {
         scope.remove();
@@ -71,20 +66,45 @@ angular.module('alienUiApp').directive('genericForm', ['$filter', 'toaster', '$c
   };
 }]);
 
-angular.module('alienUiApp').directive('simpleGenericForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
+angular.module('alienUiApp').directive('updateForm', ['$filter', 'toaster', '$compile', '$interval', function($filter, toaster, $compile, $interval) {
   return {
     restrict: 'E',
     scope: {
       rootObject: '=',
       type: '=',
+      labelSize: '=',
       suggest: '&',
       save: '&'
     },
     templateUrl: 'views/fragments/simple_generic_form_template.html',
     link: function(scope, element) {
-      scope.formStyle = 'tree';
       scope.automaticSave = true;
       scope.partialUpdate = true;
+      FORMS.initGenericForm(scope, toaster, $filter, element);
+      $interval(function() {
+        FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
+      }, 0, 1);
+    }
+  };
+}]);
+
+angular.module('alienUiApp').directive('createFormModal', ['$filter', 'toaster', '$interval', '$compile', function($filter, toaster, $interval, $compile) {
+  return {
+    restrict: 'E',
+    scope: {
+      rootObject: '=',
+      formTitle: '@',
+      type: '=',
+      labelSize: '=',
+      suggest: '&',
+      save: '&',
+      cancel: '&'
+    },
+    templateUrl: 'views/fragments/create_form_modal_template.html',
+    link: function(scope, element) {
+      scope.automaticSave = false;
+      scope.partialUpdate = false;
+      scope.useXeditable = false;
       FORMS.initGenericForm(scope, toaster, $filter, element);
       $interval(function() {
         FORMS.initComplexProperties(scope, scope.type, element.find('.genericformpropertiescontainer'), $compile);
@@ -103,7 +123,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
   scope.configuration.activePath = [];
   scope.configuration.activeLabelPath = [];
   scope.configuration.validationStatuses = {};
-  scope.configuration.formStyle = scope.formStyle || "tree";
+  scope.configuration.formStyle = scope.formStyle || 'tree';
   scope.configuration.automaticSave = scope.automaticSave;
   scope.configuration.partialUpdate = scope.partialUpdate;
   scope.configuration.showErrors = false;
@@ -161,6 +181,11 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
     scope.configuration.showErrorsAlert = false;
   };
   FORMS.initFormSuggest(scope, scope.suggest);
+  scope.cancelForm = function() {
+    scope.cancel({
+      object: scope.rootObject
+    });
+  };
 };
 
 angular.module('alienUiApp').directive('complexTypeFormLabel', function() {
@@ -224,7 +249,7 @@ angular.module('alienUiApp').directive('leafForm', function() {
   };
 });
 
-angular.module('alienUiApp').directive('complexTypeForm', ['$compile', function($compile) {
+angular.module('alienUiApp').directive('complexTypeForm', ['$compile', '$interval', function($compile, $interval) {
   return {
     restrict: 'E',
     scope: FORMS.directiveParameters,
@@ -233,7 +258,9 @@ angular.module('alienUiApp').directive('complexTypeForm', ['$compile', function(
       FORMS.initFormScope('complexTypeForm', scope, element);
       FORMS.initComplexFormScope(scope);
       FORMS.initFormSuggest(scope, scope.suggest);
-      FORMS.initComplexProperties(scope, scope.propertyType, element.children(), $compile);
+      $interval(function() {
+        FORMS.initComplexProperties(scope, scope.propertyType, element.children(), $compile);
+      }, 0, 1);
     }
   };
 }]);
@@ -336,9 +363,7 @@ angular.module('alienUiApp').directive('primitiveTypeFormLabel', ['$filter', fun
     link: function(scope, element) {
       var i;
       FORMS.initFormScope('primitiveTypeFormLabel', scope, element, true);
-      if (scope.configuration.useXeditable) {
-        scope.input.newValue = scope.input.value;
-      }
+      scope.input.newValue = scope.input.value;
       if (scope.propertyType._type === 'number') {
         if (UTILS.isUndefinedOrNull(scope.propertyType._step)) {
           scope.propertyType._step = 1;
@@ -611,7 +636,7 @@ FORMS.savePrimitive = function(scope) {
   FORMS.automaticSave(scope);
 };
 
-angular.module('alienUiApp').directive('abstractTypeForm', ['$compile', function($compile) {
+angular.module('alienUiApp').directive('abstractTypeForm', ['$compile', '$interval', function($compile, $interval) {
   return {
     restrict: 'E',
     scope: FORMS.directiveParameters,
@@ -627,7 +652,9 @@ angular.module('alienUiApp').directive('abstractTypeForm', ['$compile', function
             }
             scope.implementationType = scope.propertyType._implementationTypes[newValue];
             element.children().children().remove();
-            FORMS.initComplexProperties(scope, scope.implementationType, element.children(), $compile);
+            $interval(function() {
+              FORMS.initComplexProperties(scope, scope.implementationType, element.children(), $compile);
+            });
           }
         });
       };
@@ -705,23 +732,26 @@ FORMS.elementsFactory = function(type, canDelete, formStyle) {
     case 'boolean' :
       newElements.push(FORMS.directiveFactory('primitive-type-form', canDelete));
       newElements.push(FORMS.directiveFactory('primitive-type-form-label', canDelete));
-      if (formStyle === 'tree') {
-        newElements.push(FORMS.directiveFactory('leaf-form', canDelete));
-      }
       break;
     case 'tosca' :
       newElements.push(FORMS.directiveFactory('tosca-type-form', canDelete));
       newElements.push(FORMS.directiveFactory('tosca-type-form-label', canDelete));
-      if (formStyle === 'tree') {
-        newElements.push(FORMS.directiveFactory('leaf-form', canDelete));
-      }
       break;
     default :
       newElements.push(FORMS.directiveFactory(type + '-type-form', canDelete));
       newElements.push(FORMS.directiveFactory(type + '-type-form-label', canDelete));
-      if (formStyle === 'tree') {
+  }
+  if (formStyle === 'tree') {
+    switch (type) {
+      case 'array' :
+      case 'map' :
+      case 'abstract' :
+      case 'complex':
         newElements.push(FORMS.directiveFactory('tree-form', canDelete));
-      }
+        break;
+      default :
+        newElements.push(FORMS.directiveFactory('leaf-form', canDelete));
+    }
   }
   return newElements;
 };

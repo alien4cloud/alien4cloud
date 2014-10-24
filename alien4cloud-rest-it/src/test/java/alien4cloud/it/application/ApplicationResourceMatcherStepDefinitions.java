@@ -5,18 +5,17 @@ import java.util.Set;
 
 import org.junit.Assert;
 
+import com.google.common.collect.Sets;
+
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
-import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.google.common.collect.Sets;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -61,7 +60,7 @@ public class ApplicationResourceMatcherStepDefinitions {
                 CloudResourceTopologyMatchResult.class);
         Assert.assertTrue(matchResultResponse.getData().getImages().isEmpty());
         Assert.assertTrue(matchResultResponse.getData().getFlavors().isEmpty());
-        for (List<ActivableComputeTemplate> templates : matchResultResponse.getData().getMatchResult().values()) {
+        for (List<ComputeTemplate> templates : matchResultResponse.getData().getMatchResult().values()) {
             Assert.assertTrue(templates.isEmpty());
         }
     }

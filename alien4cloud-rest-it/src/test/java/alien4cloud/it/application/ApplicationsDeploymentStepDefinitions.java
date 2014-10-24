@@ -71,10 +71,11 @@ public class ApplicationsDeploymentStepDefinitions {
 
         DeployApplicationRequest appDeploymentInfo = Context.getInstance().getDeployApplicationInfo();
         Map<String, PropertyValue> properties = Maps.newHashMap();
-        if (appDeploymentInfo != null && appDeploymentInfo.getDeploymentProperties() != null) {
-            properties = appDeploymentInfo.getDeploymentProperties();
-        }
-        deployApplicationRequest.setDeploymentProperties(properties);
+        // TODO Test deployment properties
+//        if (appDeploymentInfo != null && appDeploymentInfo.getDeploymentProperties() != null) {
+//            properties = appDeploymentInfo.getDeploymentProperties();
+//        }
+//        deployApplicationRequest.setDeploymentProperties(properties);
         return deployApplicationRequest;
     }
 
@@ -238,7 +239,8 @@ public class ApplicationsDeploymentStepDefinitions {
 
         // register deployment application properties to use it
         DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
-        deployApplicationRequest.setDeploymentProperties(finalDeploymentProperties);
+        // TODO Test deployment properties
+//        deployApplicationRequest.setDeploymentProperties(finalDeploymentProperties);
         Context.getInstance().registerDeployApplicationInfo(deployApplicationRequest);
     }
 
