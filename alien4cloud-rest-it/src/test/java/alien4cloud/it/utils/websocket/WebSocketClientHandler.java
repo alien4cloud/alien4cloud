@@ -1,10 +1,5 @@
 package alien4cloud.it.utils.websocket;
 
-import java.nio.charset.Charset;
-import java.util.Set;
-
-import alien4cloud.it.exception.ITException;
-import lombok.extern.slf4j.Slf4j;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,6 +20,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+
+import java.nio.charset.Charset;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 
 @Slf4j
 public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Object> {
@@ -116,9 +117,9 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
         // The first message must be authentication response
         if (this.authenticationUrl != null && (this.cookies == null || this.cookies.isEmpty())) {
             HttpResponse response = (HttpResponse) msg;
-            String cookieData = response.headers().get(HttpHeaders.Names.SET_COOKIE);
+            CharSequence cookieData = response.headers().get(HttpHeaders.Names.SET_COOKIE);
             if (cookieData != null) {
-                this.cookies = CookieDecoder.decode(cookieData);
+                this.cookies = CookieDecoder.decode(cookieData.toString());
                 if (this.cookies == null || this.cookies.isEmpty()) {
                     throw new WebSocketAuthenticationFailureException("Could not authenticate");
                 }
