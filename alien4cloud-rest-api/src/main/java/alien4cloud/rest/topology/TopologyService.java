@@ -75,9 +75,6 @@ public class TopologyService {
     private ApplicationService appService;
 
     @Resource
-    private TopologyServiceCore topoService;
-
-    @Resource
     private CsarService csarService;
 
     private void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {

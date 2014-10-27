@@ -68,6 +68,8 @@ public class ApplicationDeploymentController {
     @Resource
     private TopologyService topologyService;
     @Resource
+    private TopologyServiceCore topologyCoreService;
+    @Resource
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private CloudService cloudService;
@@ -91,7 +93,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = versions[0];
         DeploymentSetup deploymentSetup = getDeploymentSetup(application);
         Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(
-                topologyService.getMandatoryTopology(version.getTopologyId()), cloudService.get(cloudId)).getMatchResult();
+                topologyCoreService.getMandatoryTopology(version.getTopologyId()), cloudService.get(cloudId)).getMatchResult();
         Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloudId);
         deploymentSetupService.fillWithDefaultValues(deploymentSetup, matchResult, propertyDefinitionMap);
         alienDAO.save(deploymentSetup);
