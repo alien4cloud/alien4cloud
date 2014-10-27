@@ -26,7 +26,7 @@ public class ApplicationVersionService {
      * Create a new version for an application based on an existing topology.
      *
      * @param applicationId The id of the application for which to create the version.
-     * @param topologyId    The id of the topology to clone for the version's topology.
+     * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
         ApplicationVersion version = new ApplicationVersion();
@@ -35,7 +35,7 @@ public class ApplicationVersionService {
         version.setVersion(DEFAULT_VERSION_NAME);
         version.setReleased(false);
         version.setLatest(true);
-        version.setProperties(Maps.<String, String>newHashMap());
+        version.setProperties(Maps.<String, String> newHashMap());
 
         Topology topology;
         if (topologyId != null) { // "cloning" the topology
@@ -61,7 +61,7 @@ public class ApplicationVersionService {
      */
     public ApplicationVersion[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationVersion> result = alienDAO.find(ApplicationVersion.class,
-                MapUtil.newHashMap(new String[]{"applicationId"}, new String[][]{new String[]{applicationId}}), Integer.MAX_VALUE);
+                MapUtil.newHashMap(new String[] { "applicationId" }, new String[][] { new String[] { applicationId } }), Integer.MAX_VALUE);
         return result.getData();
     }
 

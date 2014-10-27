@@ -282,7 +282,6 @@ FORMS.initComplexProperties = function(scope, type, element, $compile) {
     newScope.labelPath = childLabelPath;
     newScope.propertyName = childPropertyName;
     newScope.propertyType = childPropertyType;
-    FORMS.initFormSuggest(newScope, scope.suggest);
     // Compile and add the newly created elements to their parents
     FORMS.compileAndAppendToParent(scope, newScope, $compile, newElements, element);
     // Add children data to parent
@@ -987,6 +986,7 @@ FORMS.initComplexFormScope = function(scope) {
 
 FORMS.initFormSuggest = function(scope, suggest) {
   scope.suggest = function(searchConfiguration, text) {
+    console.log("Scope ", scope);
     return suggest({
       searchConfiguration: searchConfiguration,
       text: text

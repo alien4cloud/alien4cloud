@@ -2,16 +2,16 @@ package alien4cloud.rest.cloud;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudImage;
-import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Getter
 @Setter

@@ -72,10 +72,10 @@ public class ApplicationsDeploymentStepDefinitions {
         DeployApplicationRequest appDeploymentInfo = Context.getInstance().getDeployApplicationInfo();
         Map<String, PropertyValue> properties = Maps.newHashMap();
         // TODO Test deployment properties
-//        if (appDeploymentInfo != null && appDeploymentInfo.getDeploymentProperties() != null) {
-//            properties = appDeploymentInfo.getDeploymentProperties();
-//        }
-//        deployApplicationRequest.setDeploymentProperties(properties);
+        // if (appDeploymentInfo != null && appDeploymentInfo.getDeploymentProperties() != null) {
+        // properties = appDeploymentInfo.getDeploymentProperties();
+        // }
+        // deployApplicationRequest.setDeploymentProperties(properties);
         return deployApplicationRequest;
     }
 
@@ -119,8 +119,7 @@ public class ApplicationsDeploymentStepDefinitions {
                 Thread.sleep(1000L);
             } else {
                 if (applicationId != null) {
-                    throw new ITException("Expected deployment of [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus
-                            + "]");
+                    throw new ITException("Expected deployment of [" + applicationId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
                 } else {
                     throw new ITException("Expected deployment of [" + deploymentId + "] to be [" + expectedStatus + "] but was [" + deploymentStatus + "]");
                 }
@@ -240,7 +239,7 @@ public class ApplicationsDeploymentStepDefinitions {
         // register deployment application properties to use it
         DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
         // TODO Test deployment properties
-//        deployApplicationRequest.setDeploymentProperties(finalDeploymentProperties);
+        // deployApplicationRequest.setDeploymentProperties(finalDeploymentProperties);
         Context.getInstance().registerDeployApplicationInfo(deployApplicationRequest);
     }
 

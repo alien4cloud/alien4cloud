@@ -10,14 +10,14 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
+
+import com.google.common.collect.Maps;
 
 @Service
 public class CloudImageService {
@@ -47,7 +47,7 @@ public class CloudImageService {
 
     public boolean isCloudImageExist(CloudImage cloudImage) {
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("name", new String[]{cloudImage.getName()});
+        filters.put("name", new String[] { cloudImage.getName() });
         return alienDAO.count(CloudImage.class, null, filters) > 0;
     }
 
@@ -61,9 +61,9 @@ public class CloudImageService {
      * Get multiple cloud images.
      *
      * @param query The query to apply to filter cloud images.
-     * @param ids   to be excluded from the result
-     * @param from  The start index of the query.
-     * @param size  The maximum number of elements to return.
+     * @param ids to be excluded from the result
+     * @param from The start index of the query.
+     * @param size The maximum number of elements to return.
      * @return A {@link alien4cloud.dao.model.GetMultipleDataResult} that contains cloud image objects.
      */
     public GetMultipleDataResult<CloudImage> get(String query, Set<String> ids, int from, int size) {
@@ -90,6 +90,7 @@ public class CloudImageService {
      * @return the list of cloud ids using this image
      */
     public String[] getCloudsUsingImage(String id) {
-        return alienDAO.selectPath(Cloud.class.getSimpleName().toLowerCase(), new Class<?>[]{Cloud.class}, QueryBuilders.termQuery("images", id), null, "id", 0, Integer.MAX_VALUE);
+        return alienDAO.selectPath(Cloud.class.getSimpleName().toLowerCase(), new Class<?>[] { Cloud.class }, QueryBuilders.termQuery("images", id), null,
+                "id", 0, Integer.MAX_VALUE);
     }
 }

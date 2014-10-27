@@ -2,7 +2,6 @@ package alien4cloud.dao;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -292,6 +291,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
 
     /**
      * Select the list of value for the path
+     * 
      * @param index the index
      * @param types the types
      * @param queryBuilder the query to filter
@@ -305,6 +305,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
 
     /**
      * Select the list of value for the path
+     * 
      * @param index the index
      * @param types the types
      * @param queryBuilder the query to filter

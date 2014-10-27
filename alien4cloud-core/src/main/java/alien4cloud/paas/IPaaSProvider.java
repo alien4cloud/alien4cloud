@@ -20,8 +20,8 @@ public interface IPaaSProvider {
      * Deploy a topology.
      *
      * @param applicationName Name of the application that owns the topology.
-     * @param deploymentId    The unique id of the deployment.
-     * @param topology        The topology to deploy.
+     * @param deploymentId The unique id of the deployment.
+     * @param topology The topology to deploy.
      * @param deploymentSetup Deployment set up
      */
     void deploy(String applicationName, String deploymentId, Topology topology, DeploymentSetup deploymentSetup);
@@ -36,9 +36,9 @@ public interface IPaaSProvider {
     /**
      * Scale up/down a node
      *
-     * @param deploymentId   id of the deployment
+     * @param deploymentId id of the deployment
      * @param nodeTemplateId id of the compute node to scale up
-     * @param instances      the number of instances to be added (if positive) or removed (if negative)
+     * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
     void scale(String deploymentId, String nodeTemplateId, int instances);
 
@@ -62,7 +62,7 @@ public interface IPaaSProvider {
      * Get the detailed status for each instance of each node template.
      *
      * @param deploymentId id of the deployment
-     * @param topology     The topology for which to get instance information.
+     * @param topology The topology for which to get instance information.
      * @return (map : node template's id => (map : instance's id => instance status))
      */
     Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology);
@@ -71,7 +71,7 @@ public interface IPaaSProvider {
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case
      * of many events.
      *
-     * @param date      The start date since which we should retrieve events.
+     * @param date The start date since which we should retrieve events.
      * @param maxEvents The maximum number of events to return.
      * @return An array of time ordered audit events with a maximum size of maxEvents.
      */
@@ -81,7 +81,7 @@ public interface IPaaSProvider {
      * Trigger a custom command on a node
      *
      * @param deploymentId id of the deployment.
-     * @param request      An object of type {@link NodeOperationExecRequest} describing the operation's execution request
+     * @param request An object of type {@link NodeOperationExecRequest} describing the operation's execution request
      * @return (map : instance id => operation result on this instance)
      * @throws OperationExecutionException
      */

@@ -8,11 +8,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
@@ -25,7 +23,10 @@ import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Service
@@ -40,7 +41,7 @@ public class CloudResourceMatcherService {
      * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
      *
      * @param topology the topology to check
-     * @param cloud    the cloud
+     * @param cloud the cloud
      * @return match result which contains the images that can be used, the flavors that can be used and their possible association
      */
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud) {
@@ -92,7 +93,7 @@ public class CloudResourceMatcherService {
     /**
      * Get all available image for a compute by filtering with its properties on OS information
      *
-     * @param cloud        the cloud
+     * @param cloud the cloud
      * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
      */
@@ -119,13 +120,11 @@ public class CloudResourceMatcherService {
                     new EqualMatcher<String>())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(),
-                    new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_VERSION, VersionUtil.parseVersion(cloudImage.getOsVersion()),
-                    new VersionValueParser(),
-                    new GreaterOrEqualValueMatcher())) {
+                    new VersionValueParser(), new GreaterOrEqualValueMatcher())) {
                 continue;
             }
             matchedImages.add(cloudImage);
@@ -144,9 +143,9 @@ public class CloudResourceMatcherService {
     /**
      * Get all available flavors for the given compute and the given image on the given cloud
      *
-     * @param cloud        the cloud
+     * @param cloud the cloud
      * @param nodeTemplate the compute to search for flavors
-     * @param cloudImage   the image
+     * @param cloudImage the image
      * @return the available flavors for the compute and the image on the given cloud
      */
     private List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {

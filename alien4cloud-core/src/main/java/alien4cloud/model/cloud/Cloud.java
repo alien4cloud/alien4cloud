@@ -38,19 +38,25 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 @ESObject
 @ApiModel(value = "A cloud definition in ALIEN", description = "Defines a cloud in ALIEN.")
 public class Cloud implements ISecuredResource {
-    /** Name of the cloud. */
+    /**
+     * Name of the cloud.
+     */
     @Id
     private String id;
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String name;
-    /** Id of the plugin that contains the PaaSProvider that manages this cloud. */
+    /**
+     * Id of the plugin that contains the PaaSProvider that manages this cloud.
+     */
     @NotBlank
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String paasPluginId;
-    /** Name of the IPaaSProvider bean that manages the cloud. */
+    /**
+     * Name of the IPaaSProvider bean that manages the cloud.
+     */
     @NotBlank
     @StringField(indexType = IndexType.not_analyzed)
     private String paasPluginBean;
@@ -58,11 +64,17 @@ public class Cloud implements ISecuredResource {
     private String paasProviderName;
     @ApiModelProperty(hidden = true)
     private boolean isConfigurable;
-    /** Type of environment for the cloud. */
+    /**
+     * Type of environment for the cloud.
+     */
     private IaaSType iaaSType;
-    /** Type of environment for the cloud. */
+    /**
+     * Type of environment for the cloud.
+     */
     private EnvironmentType environmentType;
-    /** Flag to know if the cloud is currently enabled. */
+    /**
+     * Flag to know if the cloud is currently enabled.
+     */
     @TermFilter
     @ApiModelProperty(hidden = true)
     private boolean enabled;

@@ -15,15 +15,14 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
@@ -49,7 +48,9 @@ import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.model.type.ToscaType;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.PatternConstraint;
-import lombok.extern.slf4j.Slf4j;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Lists;
 
 @Slf4j
 @Component
@@ -192,14 +193,14 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                     return;
                 }
                 switch (application.getName()) {
-                    case BAD_APPLICATION_THAT_NEVER_WORKS:
-                        changeStatus(deploymentId, DeploymentStatus.FAILURE);
-                        break;
-                    case WARN_APPLICATION_THAT_NEVER_WORKS:
-                        changeStatus(deploymentId, DeploymentStatus.WARNING);
-                        break;
-                    default:
-                        changeStatus(deploymentId, DeploymentStatus.DEPLOYED);
+                case BAD_APPLICATION_THAT_NEVER_WORKS:
+                    changeStatus(deploymentId, DeploymentStatus.FAILURE);
+                    break;
+                case WARN_APPLICATION_THAT_NEVER_WORKS:
+                    changeStatus(deploymentId, DeploymentStatus.WARNING);
+                    break;
+                default:
+                    changeStatus(deploymentId, DeploymentStatus.DEPLOYED);
                 }
             }
 
@@ -260,7 +261,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     private void notifyInstanceStateChanged(final String deploymentId, final String nodeId, final Integer instanceId, final InstanceInformation information,
-                                            long delay) {
+            long delay) {
         final InstanceInformation cloned = new InstanceInformation();
         cloned.setAttributes(information.getAttributes());
         cloned.setInstanceStatus(information.getInstanceStatus());
@@ -333,7 +334,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     private void changeInstanceState(String id, String nodeId, Integer instanceId, InstanceInformation information,
-                                     Iterator<Entry<Integer, InstanceInformation>> iterator) {
+            Iterator<Entry<Integer, InstanceInformation>> iterator) {
         String currentState = information.getState();
         String nextState = getNextState(currentState);
         if (nextState != null) {
@@ -352,26 +353,26 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     private String getNextState(String currentState) {
         switch (currentState) {
-            case "init":
-                return "creating";
-            case "creating":
-                return "created";
-            case "created":
-                return "configuring";
-            case "configuring":
-                return "configured";
-            case "configured":
-                return "starting";
-            case "starting":
-                return "started";
-            case "stopping":
-                return "stopped";
-            case "stopped":
-                return "uninstalled";
-            case "uninstalled":
-                return "terminated";
-            default:
-                return null;
+        case "init":
+            return "creating";
+        case "creating":
+            return "created";
+        case "created":
+            return "configuring";
+        case "configuring":
+            return "configured";
+        case "configured":
+            return "starting";
+        case "starting":
+            return "started";
+        case "stopping":
+            return "stopped";
+        case "stopped":
+            return "uninstalled";
+        case "uninstalled":
+            return "terminated";
+        default:
+            return null;
         }
     }
 

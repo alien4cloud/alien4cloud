@@ -2,11 +2,11 @@ package alien4cloud.rest.application;
 
 import java.util.Map;
 
-import alien4cloud.model.cloud.ComputeTemplate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.model.cloud.ComputeTemplate;
 
 @Getter
 @Setter

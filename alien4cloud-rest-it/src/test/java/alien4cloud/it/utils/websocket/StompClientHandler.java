@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import alien4cloud.rest.utils.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.rest.utils.JsonUtil;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -67,8 +67,8 @@ public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
             if (String.class == this.dataType) {
                 this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(), (T) frame.content().toString(Charset.forName("UTF-8")));
             } else {
-                this.callback
-                        .onData(frame.headers().get(StompHeaders.DESTINATION).toString(), JsonUtil.readObject(new ByteBufInputStream(frame.content()), this.dataType));
+                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(),
+                        JsonUtil.readObject(new ByteBufInputStream(frame.content()), this.dataType));
             }
             break;
         case ERROR:

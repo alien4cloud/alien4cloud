@@ -7,11 +7,11 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -33,7 +33,8 @@ import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
-import lombok.extern.slf4j.Slf4j;
+
+import com.google.common.collect.Lists;
 
 /**
  * Manage deployment operations on a cloud.
@@ -53,10 +54,10 @@ public class DeploymentService {
     /**
      * Get deployments for a given cloud
      *
-     * @param cloudId  Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
+     * @param cloudId Id of the cloud for which to get deployments (can be null to get deployments for all clouds).
      * @param sourceId Id of the application for which to get deployments (can be null to get deployments for all applications).
-     * @param from     The start index of the query.
-     * @param size     The maximum number of elements to return.
+     * @param from The start index of the query.
+     * @param size The maximum number of elements to return.
      * @return A {@link GetMultipleDataResult} that contains deployments.
      */
     public GetMultipleDataResult getDeployments(String cloudId, String sourceId, int from, int size) {
@@ -67,8 +68,8 @@ public class DeploymentService {
      * Get events for a deployment of a given application.
      *
      * @param topologyId if of topology for which to get deployment events.
-     * @param from       The initial position of the events to get (based on time desc sorting)
-     * @param size       The number of events to get.
+     * @param from The initial position of the events to get (based on time desc sorting)
+     * @param size The number of events to get.
      * @return A result that contains all events.
      */
     public GetMultipleDataResult getDeploymentEvents(String topologyId, String cloudId, int from, int size) {
@@ -77,7 +78,7 @@ public class DeploymentService {
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
         SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class)
-                .filters(MapUtil.newHashMap(new String[]{"deploymentId"}, new String[][]{new String[]{deployment.getId()}}))
+                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
 
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
@@ -86,13 +87,14 @@ public class DeploymentService {
     /**
      * Deploy a topology and return the deployment ID
      *
-     * @param topology         The topology to be deployed.
+     * @param topology The topology to be deployed.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
-     * @param deploymentSetup  Deployment set up.
+     * @param deploymentSetup Deployment set up.
      * @return The id of the generated deployment.
      * @throws CloudDisabledException In case the cloud is actually disabled and no deployments can be performed on this cloud.
      */
-    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup) throws CloudDisabledException {
+    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup)
+            throws CloudDisabledException {
         log.info("Deploying topology [{}] on cloud [{}]", topology.getId(), cloudId);
         String topologyId = topology.getId();
 
@@ -171,9 +173,9 @@ public class DeploymentService {
     /**
      * Scale up/down a node in a topology.
      *
-     * @param topologyId     id of the topology
+     * @param topologyId id of the topology
      * @param nodeTemplateId id of the compute node to scale up
-     * @param instances      the number of instances to be added (if positive) or removed (if negative)
+     * @param instances the number of instances to be added (if positive) or removed (if negative)
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
     public void scale(String topologyId, String cloudId, String nodeTemplateId, int instances) throws CloudDisabledException {
@@ -235,7 +237,7 @@ public class DeploymentService {
      *
      * @param request the operation's execution description ( see {@link OperationExecRequest})
      * @return a map representing the operation execution response <instanceId,result>
-     * @throws CloudDisabledException      In case the cloud selected for the topology is disabled.
+     * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      * @throws OperationExecutionException runtime exception during an operation
      */
     public Map<String, String> triggerOperationExecution(OperationExecRequest request) throws CloudDisabledException, OperationExecutionException {
@@ -282,8 +284,8 @@ public class DeploymentService {
         GetMultipleDataResult dataResult = alienDao.search(
                 Deployment.class,
                 null,
-                MapUtil.newHashMap(new String[]{"cloudId", "topologyId", "endDate"}, new String[][]{new String[]{cloudId}, new String[]{topologyId},
-                        new String[]{null}}), 1);
+                MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { topologyId },
+                        new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             deployment = (Deployment) dataResult.getData()[0];
         }
@@ -293,8 +295,8 @@ public class DeploymentService {
     /**
      * Get the filters to perform a search query on {@link Deployment} based on the cloudId and sourceId.
      *
-     * @param cloudId    Id of the cloud on which the application is deployed.
-     * @param sourceId   Id of the application that is deployed.
+     * @param cloudId Id of the cloud on which the application is deployed.
+     * @param sourceId Id of the application that is deployed.
      * @param topologyId Id of the topology that is deployed.
      * @return The filters to get deployments.
      */
@@ -303,15 +305,15 @@ public class DeploymentService {
         List<String[]> filterValues = Lists.newArrayList();
         if (cloudId != null) {
             filterKeys.add("cloudId");
-            filterValues.add(new String[]{cloudId});
+            filterValues.add(new String[] { cloudId });
         }
         if (sourceId != null) {
             filterKeys.add("sourceId");
-            filterValues.add(new String[]{sourceId});
+            filterValues.add(new String[] { sourceId });
         }
         if (topologyId != null) {
             filterKeys.add("topologyId");
-            filterValues.add(new String[]{topologyId});
+            filterValues.add(new String[] { topologyId });
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
@@ -319,7 +321,7 @@ public class DeploymentService {
     /**
      * Check if resource has already been deployed
      *
-     * @param cloudId    id of the cloud on which to check
+     * @param cloudId id of the cloud on which to check
      * @param topologyId id of the topology
      * @throws alien4cloud.paas.exception.PaaSAlreadyDeployedException if the toplogy has already been deployed
      */
@@ -328,8 +330,8 @@ public class DeploymentService {
         long result = alienDao.count(
                 Deployment.class,
                 null,
-                MapUtil.newHashMap(new String[]{"cloudId", "topologyId", "endDate"}, new String[][]{new String[]{cloudId}, new String[]{topologyId},
-                        new String[]{null}}));
+                MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { topologyId },
+                        new String[] { null } }));
         if (result > 0) {
             throw new PaaSAlreadyDeployedException("Topology <" + topologyId + "> is already deployed on this cloud.");
         }

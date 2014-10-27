@@ -9,15 +9,16 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import alien4cloud.it.Context;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -30,12 +31,13 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[]{cloudImageId})));
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
     }
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
     public void I_should_receive_a_RestResponse_with_compute_templates(int numberOfTemplate, DataTable expectedTemplatesTable) throws Throwable {
-        Set<ActivableComputeTemplate> templates = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), ActivableComputeTemplate[].class).getData());
+        Set<ActivableComputeTemplate> templates = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), ActivableComputeTemplate[].class)
+                .getData());
         assertComputeTemplates(numberOfTemplate, templates, expectedTemplatesTable);
     }
 
@@ -77,7 +79,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
-                                                                                                 String cloudName) throws Throwable {
+            String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
         cloudImageFlavor.setId(flavorId);
@@ -125,7 +127,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 
     @When("^I remove the cloud image \"([^\"]*)\" from the cloud \"([^\"]*)\"$")

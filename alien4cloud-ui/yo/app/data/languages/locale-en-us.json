@@ -501,6 +501,7 @@
     "502": "Object already exists",
     "503": "The upload of image has encountered unexpected error",
     "504": "Object not found",
+    "507": "Cannot delete this object as it's still being used by other objects",
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
     "800": {

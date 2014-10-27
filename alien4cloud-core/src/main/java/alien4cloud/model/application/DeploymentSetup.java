@@ -2,19 +2,20 @@ package alien4cloud.model.application;
 
 import java.util.Map;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.tosca.container.model.template.PropertyValue;
-import lombok.Getter;
-import lombok.Setter;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @ESObject
 @Getter

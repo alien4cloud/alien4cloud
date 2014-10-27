@@ -3,8 +3,8 @@ package alien4cloud.it.utils.websocket;
 import java.nio.charset.Charset;
 import java.util.Set;
 
-import alien4cloud.it.exception.ITException;
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;

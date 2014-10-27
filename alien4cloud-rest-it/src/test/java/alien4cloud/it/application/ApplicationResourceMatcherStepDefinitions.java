@@ -5,8 +5,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 
-import com.google.common.collect.Sets;
-
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
@@ -16,6 +14,9 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.google.common.collect.Sets;
+
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
@@ -31,7 +32,7 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-                                                                                    DataTable expectedTemplatesTable) throws Throwable {
+            DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 CloudResourceTopologyMatchResult.class);
         Assert.assertNull(matchResultResponse.getError());
