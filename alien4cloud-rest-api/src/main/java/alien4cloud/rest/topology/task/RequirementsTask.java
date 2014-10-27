@@ -2,7 +2,6 @@ package alien4cloud.rest.topology.task;
 
 import java.util.List;
 
-import alien4cloud.rest.topology.RequirementToSatify;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

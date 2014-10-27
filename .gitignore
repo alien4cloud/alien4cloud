@@ -41,3 +41,4 @@ alien4cloud-mock-paas-provider-plugin/.gitignore
 /target/
 /.idea/
 *.iml
+alien4cloud-rest-api/data/

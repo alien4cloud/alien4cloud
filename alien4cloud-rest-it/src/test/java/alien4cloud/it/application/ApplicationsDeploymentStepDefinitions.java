@@ -34,6 +34,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.application.DeployApplicationRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
@@ -375,6 +376,12 @@ public class ApplicationsDeploymentStepDefinitions {
                             + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase());
             this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStateMonitorEvent.class));
             break;
+        case "storage":
+            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT,
+                    "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+                            + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase());
+            this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStorageMonitorEvent.class));
+            break;
         }
         this.stompConnections.put(eventTopic, connection);
     }
@@ -397,6 +404,13 @@ public class ApplicationsDeploymentStepDefinitions {
                 StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
                         TimeUnit.SECONDS);
                 for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
+                    actualEvents.add(data.getData().getInstanceState());
+                }
+                break;
+            case "storage":
+                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                        TimeUnit.SECONDS);
+                for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
                     actualEvents.add(data.getData().getInstanceState());
                 }
                 break;

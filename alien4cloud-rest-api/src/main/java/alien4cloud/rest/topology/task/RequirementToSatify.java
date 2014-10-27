@@ -1,4 +1,4 @@
-package alien4cloud.rest.topology;
+package alien4cloud.rest.topology.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

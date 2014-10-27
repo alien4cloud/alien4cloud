@@ -43,6 +43,7 @@ import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.utils.ReflectionUtil;
@@ -66,6 +67,8 @@ public class ApplicationDeploymentController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private TopologyService topologyService;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
     @Resource
     private CloudService cloudService;
     @Resource
@@ -121,7 +124,7 @@ public class ApplicationDeploymentController {
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
-        Topology topology = topologyService.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
@@ -301,7 +304,7 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
-        Topology topology = topologyService.getMandatoryTopology(version.getTopologyId());
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
         }

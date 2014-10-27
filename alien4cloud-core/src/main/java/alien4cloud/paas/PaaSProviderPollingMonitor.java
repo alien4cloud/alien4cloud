@@ -11,7 +11,6 @@ import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.utils.TypeScanner;
 
 /**
@@ -24,6 +23,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private final IGenericSearchDAO dao;
     private final IPaaSProvider paaSProvider;
     private Date lastPollingDate;
+    @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners;
 
     /**
@@ -31,6 +31,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
      *
      * @param paaSProvider The paas provider to monitor.
      */
+    @SuppressWarnings("rawtypes")
     public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners) {
         this.dao = dao;
         this.paaSProvider = paaSProvider;
@@ -59,23 +60,21 @@ public class PaaSProviderPollingMonitor implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void run() {
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
-        Date monitorEvent = null;
         if (auditEvents != null && auditEvents.length > 0) {
             dao.save(auditEvents);
+            Date eventDate = null;
             for (AbstractMonitorEvent event : auditEvents) {
-                if (event instanceof PaaSInstanceStateMonitorEvent) {
-                    PaaSInstanceStateMonitorEvent instanceStateMonitorEvent = (PaaSInstanceStateMonitorEvent) event;
-                    monitorEvent = new Date(instanceStateMonitorEvent.getDate());
-                    if (monitorEvent.after(lastPollingDate)) {
-                        lastPollingDate = monitorEvent;
-                    }
+                eventDate = new Date(event.getDate());
+                if (eventDate.after(lastPollingDate)) {
+                    lastPollingDate = eventDate;
                 }
             }
             for (IPaasEventListener listener : listeners) {
                 for (AbstractMonitorEvent event : auditEvents) {
-                    if (listener.getEventType().isAssignableFrom(event.getClass())) {
+                    if (listener.canHandle(event)) {
                         listener.eventHappened(event);
                     }
                 }

@@ -6,7 +6,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -279,11 +278,7 @@ public class CloudServiceArchiveController {
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")
     public void setTempDirPath(String tempDirPath) throws IOException {
-        this.tempDirPath = Paths.get(tempDirPath);
-        if (!Files.exists(this.tempDirPath)) {
-            log.info("Temp directory for uploaded file do not exist, trying to create [" + this.tempDirPath + "]");
-            Files.createDirectories(this.tempDirPath);
-        }
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
         log.info("Temporary folder for upload was set to [" + this.tempDirPath + "]");
     }
 

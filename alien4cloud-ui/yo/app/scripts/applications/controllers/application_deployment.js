@@ -4,7 +4,8 @@
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
   '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environment', 'applicationEventServices', '$state',
   function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environment, applicationEventServices, $state) {
-    $scope.application = applicationResult.data;
+  var pageStateId = $state.current.name;  
+  $scope.application = applicationResult.data;
     $scope.environment = environment;
     $scope.topologyId = topologyId;
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
@@ -130,7 +131,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var refreshOutputAttributes = function(appRuntimeInformation) {
       $scope.outputAttributesValue = {};
-      applicationEventServices.subscribeToInstanceStateChange($state.current.name, onInstanceStateChange);
+      applicationEventServices.subscribeToInstanceStateChange(pageStateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {
           if (appRuntimeInformation.hasOwnProperty(nodeId)) {
@@ -188,7 +189,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           applicationEventServices.restart();
         }
         $scope.deploymentStatus = newStatus;
-        applicationEventServices.subscribeToStatusChange('application.detail.deployment', onStatusChange);
+        applicationEventServices.subscribeToStatusChange(pageStateId, onStatusChange);
         refreshInstancesStatuses();
       });
     };
@@ -226,7 +227,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.$on('$destroy', function() {
-      applicationEventServices.unsubscribeToStatusChange($state.current.name);
+      applicationEventServices.unsubscribeToStatusChange(pageStateId);
     });
 
     // Deployment handler

@@ -4,6 +4,7 @@
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state',
   function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state) {
+   var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     var isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -25,7 +26,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     };
 
     applicationEventServices.refreshApplicationStatus(function(newStatus) {
-      applicationEventServices.subscribeToStatusChange($state.current.name, function(type, event) {
+      applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
         $scope.deploymentStatus = event.deploymentStatus;
         setRuntimeDisabled();
         $scope.$apply();

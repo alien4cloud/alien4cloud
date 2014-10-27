@@ -78,9 +78,9 @@
           <webResources>
             <!-- Add default types archives folder to the war file -->
             <resource>
-              <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-types-archives</directory>
+              <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
               <!-- override the destination directory for this resource -->
-              <targetPath>WEB-INF/archives</targetPath>
+              <targetPath>WEB-INF/classes/default-normative-types</targetPath>
             </resource>
           </webResources>
         </configuration>

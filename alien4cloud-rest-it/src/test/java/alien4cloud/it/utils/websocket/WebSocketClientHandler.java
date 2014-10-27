@@ -1,10 +1,5 @@
 package alien4cloud.it.utils.websocket;
 
-import java.nio.charset.Charset;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.it.exception.ITException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -25,6 +20,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+
+import java.nio.charset.Charset;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 
 @Slf4j
 public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Object> {

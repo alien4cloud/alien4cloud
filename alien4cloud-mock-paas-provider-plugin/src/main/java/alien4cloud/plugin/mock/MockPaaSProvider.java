@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +38,7 @@ import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
@@ -80,6 +82,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
     private static final String WARN_APPLICATION_THAT_NEVER_WORKS = "WARN-APPLICATION";
+
+    private static final String BLOCKSTORAGE_APPLICATION = "BLOCKSTORAGE-APPLICATION";
 
     public MockPaaSProvider() {
         deploymentProperties = Maps.newHashMap();
@@ -274,7 +278,14 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
             public void run() {
                 Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
                 String cloudId = deployment.getCloudId();
-                PaaSInstanceStateMonitorEvent event = new PaaSInstanceStateMonitorEvent();
+                PaaSInstanceStateMonitorEvent event;
+                if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
+                    PaaSInstanceStorageMonitorEvent bsEvent = new PaaSInstanceStorageMonitorEvent();
+                    bsEvent.setVolumeId(UUID.randomUUID().toString());
+                    event = bsEvent;
+                } else {
+                    event = new PaaSInstanceStateMonitorEvent();
+                }
                 event.setInstanceId(instanceId.toString());
                 event.setInstanceState(cloned.getState());
                 event.setInstanceStatus(cloned.getInstanceStatus());

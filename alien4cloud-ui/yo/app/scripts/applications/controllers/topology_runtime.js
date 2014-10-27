@@ -19,6 +19,8 @@ angular.module('alienUiApp').controller(
     'toaster',
     function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, applicationResult, environment, topologyId, $state, propertiesServices, toaster) {
 
+      var pageStateId = $state.current.name;  
+      
       $scope.application = applicationResult.data;
       $scope.topologyId = topologyId;
 
@@ -29,6 +31,7 @@ angular.module('alienUiApp').controller(
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
         'paasdeploymentstatusmonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STATUS',
         'paasinstancestatemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.INSTANCES',
+        'paasinstancestoragemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STORAGE',
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
@@ -38,6 +41,8 @@ angular.module('alienUiApp').controller(
         'value': 'paasdeploymentstatusmonitorevent'
       }, {
         'value': 'paasinstancestatemonitorevent'
+      }, {
+        'value': 'paasinstancestoragemonitorevent'
       }, {
         'value': 'paasmessagemonitorevent'
       }];
@@ -86,7 +91,7 @@ angular.module('alienUiApp').controller(
             }
             $scope.events = result.data;
           }
-          applicationEventServices.subscribe($state.current.name, onStatusChange);
+          applicationEventServices.subscribe(pageStateId, onStatusChange);
         });
       };
 
@@ -104,11 +109,32 @@ angular.module('alienUiApp').controller(
           case 'paasinstancestatemonitorevent':
             if (UTILS.isDefinedAndNotNull(event.instanceState)) {
               event.message = {
-                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
+                  template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
+                  data: {
+                    state: event.instanceState,
+                    nodeId: event.nodeTemplateId,
+                    instanceId: event.instanceId
+                  }
+              };
+            } else {
+              event.message = {
+                  template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_DELETED_MESSAGE',
+                  data: {
+                    nodeId: event.nodeTemplateId,
+                    instanceId: event.instanceId
+                  }
+              };
+            }
+            break;
+          case 'paasinstancestoragemonitorevent':
+            if (UTILS.isDefinedAndNotNull(event.instanceState)) {
+              event.message = {
+                template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
                 data: {
                   state: event.instanceState,
                   nodeId: event.nodeTemplateId,
-                  instanceId: event.instanceId
+                  instanceId: event.instanceId,
+                  volumeId: event.volumeId
                 }
               };
             } else {
@@ -198,7 +224,7 @@ angular.module('alienUiApp').controller(
 
       $scope.$on('$destroy', function() {
         // UnSubscribe
-        applicationEventServices.unsubscribe($state.current.name);
+        applicationEventServices.unsubscribe(pageStateId);
       });
 
 

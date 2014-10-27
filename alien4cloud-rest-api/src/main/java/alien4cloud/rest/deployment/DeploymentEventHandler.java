@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
@@ -21,11 +22,13 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
+import alien4cloud.topology.TopologyServiceCore;
 
 @Slf4j
 @Component
@@ -40,6 +43,14 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    @Resource
+    private TopologyServiceCore topoServiceCore;
+    @Resource
+    private TopologyService topoServiceRest;
+
+    @Resource
+    private DeploymentService deploymentService;
 
     @Resource
     private SimpMessagingTemplate template;
@@ -86,8 +97,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
                     throw new NotFoundException("Application with id [" + deployment.getSourceId() + "] do not exist any more for deployment ["
                             + deployment.getId() + "]");
                 }
-                AuthorizationUtil.checkAuthorization(a4cUser, application, ApplicationRole.APPLICATION_MANAGER,
-                        ApplicationRole.values());
+                AuthorizationUtil.checkAuthorization(a4cUser, application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.values());
                 break;
             case CSAR:
                 AuthorizationUtil.checkHasOneRoleIn(authentication, Role.COMPONENTS_MANAGER);
@@ -101,13 +111,13 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     public void eventHappened(AbstractMonitorEvent event) {
         send(event);
         if (log.isDebugEnabled()) {
-            log.debug("Pushed event {} for deployment {}", event);
+            log.debug("Pushed event {} for deployment {}", event, event.getDeploymentId());
         }
     }
 
     @Override
-    public Class<AbstractMonitorEvent> getEventType() {
-        return AbstractMonitorEvent.class;
+    public boolean canHandle(AbstractMonitorEvent event) {
+        return AbstractMonitorEvent.class.isAssignableFrom(event.getClass());
     }
 
     @Override
