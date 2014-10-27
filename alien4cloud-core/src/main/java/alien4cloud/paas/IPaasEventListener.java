@@ -12,10 +12,10 @@ public interface IPaasEventListener<T extends AbstractMonitorEvent> {
     void eventHappened(T event);
 
     /**
-     * The event's type that this listener is waiting for
+     * Whether can handle or not the happened
      *
-     * @return the type of the awaited events
+     * @return the true id this listener can handle this event, false if not
      */
-    Class<T> getEventType();
+    boolean canHandle(T event);
 
 }

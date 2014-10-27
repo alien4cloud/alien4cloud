@@ -74,7 +74,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
             }
             for (IPaasEventListener listener : listeners) {
                 for (AbstractMonitorEvent event : auditEvents) {
-                    if (listener.getEventType().isAssignableFrom(event.getClass())) {
+                    if (listener.canHandle(event)) {
                         listener.eventHappened(event);
                     }
                 }

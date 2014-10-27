@@ -29,6 +29,7 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
@@ -76,8 +77,10 @@ public class DeploymentService {
         Deployment deployment = getActiveDeploymentFailIfNotExists(topologyId, cloudId);
 
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index)
-                .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class)
+        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
+                .buildSearchQuery(index)
+                .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
+                        PaaSInstanceStorageMonitorEvent.class)
                 .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
 

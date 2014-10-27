@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,7 +22,6 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.ApplicationRole;
@@ -31,9 +29,6 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
 
 @Slf4j
 @Component
@@ -114,39 +109,15 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
 
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
-        checkAndProcessBlockStorageEvent(event);
         send(event);
         if (log.isDebugEnabled()) {
             log.debug("Pushed event {} for deployment {}", event, event.getDeploymentId());
         }
     }
 
-    private void checkAndProcessBlockStorageEvent(AbstractMonitorEvent event) {
-        if (event instanceof PaaSInstanceStorageMonitorEvent) {
-            PaaSInstanceStorageMonitorEvent storageEvent = (PaaSInstanceStorageMonitorEvent) event;
-            Deployment depoyment = deploymentService.getDeployment(storageEvent.getDeploymentId());
-            Topology topology = topoServiceCore.getMandatoryTopology(depoyment.getTopologyId());
-            NodeTemplate nodeTemplate;
-            try {
-                nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
-            } catch (NotFoundException e) {
-                log.warn(e.getMessage());
-                return;
-            }
-            String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
-            if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
-                String separator = ",";
-                volumeIds = StringUtils.isBlank(volumeIds) ? storageEvent.getVolumeId() : volumeIds.concat(separator).concat(storageEvent.getVolumeId());
-            }
-            nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
-            log.info("Updated topology <{}> to add VolumeId <{}> in . New value is <{}>", topology.getId(), storageEvent.getVolumeId(), volumeIds);
-            alienDAO.save(topology);
-        }
-    }
-
     @Override
-    public Class<AbstractMonitorEvent> getEventType() {
-        return AbstractMonitorEvent.class;
+    public boolean canHandle(AbstractMonitorEvent event) {
+        return AbstractMonitorEvent.class.isAssignableFrom(event.getClass());
     }
 
     @Override

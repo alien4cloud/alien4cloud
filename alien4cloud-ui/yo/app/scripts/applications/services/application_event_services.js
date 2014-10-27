@@ -57,6 +57,7 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       applicationEventServices.subscribe = function(listenerId, callback) {
         applicationEventServices.subscribeToStatusChange(listenerId, callback);
         applicationEventServices.subscribeToInstanceStateChange(listenerId, callback);
+        applicationEventServices.subscribeToStorageInstanceStateChange(listenerId, callback);
         applicationEventServices.subscribeToPaasMessage(listenerId, callback);
       };
 
@@ -79,6 +80,9 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       applicationEventServices.subscribeToInstanceStateChange = function(listenerId, callback) {
         doSubscribe(listenerId, 'paasinstancestatemonitorevent', callback);
       };
+      applicationEventServices.subscribeToStorageInstanceStateChange = function(listenerId, callback) {
+        doSubscribe(listenerId, 'paasinstancestoragemonitorevent', callback);
+      };
 
       applicationEventServices.subscribeToPaasMessage = function(listenerId, callback) {
         doSubscribe(listenerId, 'paasmessagemonitorevent', callback);
@@ -87,6 +91,7 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       applicationEventServices.unsubscribe = function(listenerId) {
         applicationEventServices.unsubscribeToStatusChange(listenerId);
         applicationEventServices.unsubscribeToInstanceStateChange(listenerId);
+        applicationEventServices.unsubscribeToStorageInstanceStateChange(listenerId);
         applicationEventServices.unsubscribeToPaasMessage(listenerId);
       };
 
@@ -96,6 +101,12 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
         }
       };
 
+      applicationEventServices.unsubscribeToStorageInstanceStateChange = function(listenerId) {
+        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
+          deploymentEventServices.unsubscribe(listenerId, 'paasinstancestoragemonitorevent');
+        }
+      };
+      
       applicationEventServices.unsubscribeToInstanceStateChange = function(listenerId) {
         if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
           deploymentEventServices.unsubscribe(listenerId, 'paasinstancestatemonitorevent');

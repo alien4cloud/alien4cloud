@@ -28,3 +28,19 @@ Feature: Listen to events of an deployed application.
       | configured  |
       | starting    |
       | started     |
+      
+   Scenario: Deploy an application with blockstorage and listen to events
+#   	Given I have an application with name "BLOCKSTORAGE-APPLICATION" 
+	Given I have an application "BLOCKSTORAGE-APPLICATION" with a topology containing a nodeTemplate "compute" related to "tosca.nodes.Compute:1.0"
+    Given I deploy the application "BLOCKSTORAGE-APPLICATION" with cloud "Mount doom cloud" for the topology without waiting for the end of deployment
+    When I start listening to "instance-state" event
+    And I start listening to "storage" event
+    Then I should receive "instance-state" events that containing
+      | init        |
+      | creating    |
+      | configuring |
+      | configured  |
+      | starting    |
+      | started     |
+    And I should receive "storage" events that containing
+      | created |
