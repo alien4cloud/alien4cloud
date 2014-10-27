@@ -19,6 +19,8 @@ angular.module('alienUiApp').controller(
     'toaster',
     function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, applicationResult, environment, topologyId, $state, propertiesServices, toaster) {
 
+      var pageStateId = $state.current.name;  
+      
       $scope.application = applicationResult.data;
       $scope.topologyId = topologyId;
 
@@ -89,7 +91,7 @@ angular.module('alienUiApp').controller(
             }
             $scope.events = result.data;
           }
-          applicationEventServices.subscribe($state.current.name, onStatusChange);
+          applicationEventServices.subscribe(pageStateId, onStatusChange);
         });
       };
 
@@ -222,7 +224,7 @@ angular.module('alienUiApp').controller(
 
       $scope.$on('$destroy', function() {
         // UnSubscribe
-        applicationEventServices.unsubscribe($state.current.name);
+        applicationEventServices.unsubscribe(pageStateId);
       });
 
 
