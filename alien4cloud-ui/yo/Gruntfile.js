@@ -424,9 +424,9 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/admin_users_management.js',
               // 'test/e2e/scenarios/admin_groups_management.js',
               // 'test/e2e/scenarios/plugins.js',
-              'test/e2e/scenarios/admin_metaprops_configuration.js',
-              // 'test/e2e/scenarios/admin_cloud_image.js',
-              'test/e2e/scenarios/admin_cloud.js'
+//              'test/e2e/scenarios/admin_metaprops_configuration.js',
+//              'test/e2e/scenarios/admin_cloud.js',
+              'test/e2e/scenarios/admin_cloud_image.js'
 
               // 'test/e2e/scenarios/csar_upload.js',
               // 'test/e2e/scenarios/component_details.js',
