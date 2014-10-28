@@ -195,5 +195,5 @@ var selectFirstImageOfCloud = function(nameCloud) {
   browser.actions().click(element.all(by.repeater('cloudImage in data.data')).first().element(by.css('div[ng-click^="selectImage"]'))).perform();
   browser.element(by.id('clouds-new-image-add-button')).click();
   browser.waitForAngular();
-}
+};
 module.exports.selectFirstImageOfCloud = selectFirstImageOfCloud;

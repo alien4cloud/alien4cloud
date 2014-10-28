@@ -37,6 +37,7 @@ public enum RestErrorCode {
     NOT_FOUND_ERROR(504),
     ILLEGAL_STATE_OPERATION(505),
     INTERNAL_OBJECT_ERROR(506),
+    DELETE_REFERENCED_OBJECT_ERROR(507),
 
     // Application handling errors : code 600+
     APPLICATION_UNDEPLOYMENT_ERROR(602),

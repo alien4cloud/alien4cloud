@@ -7,8 +7,8 @@
             ng-class="{'form-tree-label-active': isActivePath}"
             ng-click="goTo()"
             tooltip="{{labelName}}"
-            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 20]}}">
-        {{labelName | translate | truncate:20}}
+            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+        {{labelName | translate | truncate:configuration.labelSize}}
       </span>
       <i class="fa fa-check text-success" ng-if="input.value != null"></i>
     </div>

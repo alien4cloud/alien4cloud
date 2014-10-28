@@ -38,6 +38,19 @@ angular.module('alienUiApp').controller(
         $scope.images = response.data.images;
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;
+        if (response.data.matcherConfig) {
+          $scope.manualMatchResource = true;
+          var templateLength = response.data.matcherConfig.matchedComputeTemplates.length;
+          for (var i = 0; i < templateLength; i++) {
+            var matched = response.data.matcherConfig.matchedComputeTemplates[i].computeTemplate;
+            var originalIndex = UTILS.findByFieldValues($scope.cloud.computeTemplates, {
+              cloudImageId: matched.cloudImageId,
+              cloudImageFlavorId: matched.cloudImageFlavorId
+            });
+            var original = $scope.cloud.computeTemplates[originalIndex];
+            original.paaSResourceId = response.data.matcherConfig.matchedComputeTemplates[i].paaSResourceId;
+          }
+        }
         updateTemplateStatistic();
 
         $scope.relatedUsers = {};
@@ -255,9 +268,13 @@ angular.module('alienUiApp').controller(
 
       var updateTemplateStatistic = function() {
         $scope.templateActiveCount = 0;
+        $scope.templateNotConfiguredCount = 0;
         for (var i = 0; i < $scope.cloud.computeTemplates.length; i++) {
           if ($scope.cloud.computeTemplates[i].enabled === true) {
             $scope.templateActiveCount++;
+          }
+          if (UTILS.isUndefinedOrNull($scope.cloud.computeTemplates[i].paaSResourceId)) {
+            $scope.templateNotConfiguredCount++;
           }
         }
         $scope.templateFilteredCount = $scope.cloud.images.length * $scope.cloud.flavors.length - $scope.cloud.computeTemplates.length;
@@ -366,6 +383,24 @@ angular.module('alienUiApp').controller(
 
       $scope.deleteTemplateSelection = function() {
         delete $scope.selectedTemplate;
+      };
+
+      $scope.saveComputeTemplateResource = function(template) {
+        if (template.paaSResourceId === null || template.paaSResourceId === '') {
+          delete template.paaSResourceId;
+        }
+        cloudServices.setCloudTemplateResource({
+          id: $scope.cloud.id,
+          imageId: template.cloudImageId,
+          flavorId: template.cloudImageFlavorId,
+          resourceId: template.paaSResourceId
+        }, undefined, function() {
+          if (template.paaSResourceId) {
+            $scope.templateNotConfiguredCount--;
+          } else {
+            $scope.templateNotConfiguredCount++;
+          }
+        });
       };
     }
   ]);

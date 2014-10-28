@@ -46,6 +46,7 @@ describe('Test the cloud management: ', function() {
     expect(cloudsCommon.countCloud()).toBe(1);
     cloudsCommon.createNewCloud('testcloud');
     expect(cloudsCommon.countCloud()).toBe(1);
+    common.dismissAlert();
   });
 
   it('should be select an image for a cloud.', function() {

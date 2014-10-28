@@ -21,13 +21,17 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.MatchedComputeTemplate;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
 import alien4cloud.paas.PaaSProviderFactoriesService;
@@ -86,7 +90,7 @@ public class CloudService {
 
     /**
      * Create a new cloud instance.
-     * 
+     *
      * @param cloud The cloud to create.
      */
     public synchronized String create(Cloud cloud) {
@@ -122,7 +126,7 @@ public class CloudService {
 
     /**
      * Update an exising cloud.
-     * 
+     *
      * @param updated The cloud to update.
      */
     public synchronized void update(Cloud updated) {
@@ -154,7 +158,7 @@ public class CloudService {
 
     /**
      * Delete an existing cloud. Note: the cloud must be unused in order to be deleted.
-     * 
+     *
      * @param id The cloud to delete.
      * @return true if the plugin has been successfully deleted, false if deletion could not be done because plugin wasn't disabled.
      */
@@ -170,7 +174,7 @@ public class CloudService {
 
     /**
      * Get a specific cloud based on it's id.
-     * 
+     *
      * @param id The id of the cloud to get.
      * @return The actual cloud object.
      */
@@ -180,7 +184,7 @@ public class CloudService {
 
     /**
      * Get a specific cloud based on it's name.
-     * 
+     *
      * @param name The name of the cloud to get.
      * @return The actual cloud object.
      */
@@ -190,7 +194,7 @@ public class CloudService {
 
     /**
      * Get multiple clouds.
-     * 
+     *
      * @param query The query to apply to filter clouds.
      * @param from The start index of the query.
      * @param size The maximum number of elements to return.
@@ -207,7 +211,7 @@ public class CloudService {
 
     /**
      * Get the map of deployment property definitions for the given cloud.
-     * 
+     *
      * @param id Id of the cloud for which to get deployment property definitions.
      * @return The map of property definitions for the given cloud.
      */
@@ -225,7 +229,7 @@ public class CloudService {
 
     /**
      * Get deployment properties for a cloud.
-     * 
+     *
      * @param id Id of the cloud for which to get properties.
      */
     public Map<String, PropertyValue> getDeploymentProps(String id) {
@@ -234,7 +238,7 @@ public class CloudService {
 
     /**
      * Get the current configuration for a given cloud.
-     * 
+     *
      * @param id Id of the cloud for which to get the configuration.
      * @return The current configuration object for the given cloud.
      */
@@ -248,7 +252,7 @@ public class CloudService {
 
     /**
      * Get the type of the configuration object for a given cloud.
-     * 
+     *
      * @param id Id of the cloud for which to get the configuration object's type.
      * @return The type (class) of the configuration object for the given cloud or null if the cloud doesn't have configuration.
      */
@@ -274,7 +278,7 @@ public class CloudService {
 
     /**
      * Update the configuration for the given cloud.
-     * 
+     *
      * @param id Id of the cloud for which to update the configuration.
      * @param newConfiguration The new configuration.
      */
@@ -289,7 +293,7 @@ public class CloudService {
 
     /**
      * Enable a cloud, this will configure an instance of a {@link IPaaSProvider} and register it to the PaaSProviderService that manages monitoring.
-     * 
+     *
      * @param id Id of the cloud to enable.
      * @throws PluginConfigurationException In case the configuration is not valid for the plugin.
      */
@@ -329,14 +333,25 @@ public class CloudService {
                 ((IConfigurablePaaSProvider) provider).setConfiguration(validConfiguration);
             }
         }
-
+        // If the provider manually match resources, then we should update it with saved configuration from Alien
+        if (provider instanceof IManualResourceMatcherPaaSProvider) {
+            log.info("Cloud <{}> needs manual resource matcher configuration", cloud.getName());
+            CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
+            if (config == null) {
+                log.info("Publish new manual resource matcher configuration for cloud <{}>", cloud.getName());
+                config = new CloudResourceMatcherConfig();
+                config.setId(cloud.getId());
+                alienDAO.save(config);
+            }
+            ((IManualResourceMatcherPaaSProvider) provider).updateMatcherConfig(config);
+        }
         // register the IPaaSProvider for the cloud.
         paaSProviderService.register(cloud.getId(), provider);
     }
 
     /**
      * Convert a configuration object as a Map of key/values into a valid object that has the type expected by the Cloud PaaSProvider.
-     * 
+     *
      * @param id The id of the cloud.
      * @param configuration The configuration as a Map of key/values.
      * @return An instance of the configuration object matching the PaaSProvider requested type.
@@ -362,7 +377,7 @@ public class CloudService {
 
     /**
      * Disable an existing cloud. Note that this can be done only when no more deployments are using the cloud to disable.
-     * 
+     *
      * @param id Id of the cloud to disable.
      * @return true if the cloud has been disabled, false if not (some deployments are using the cloud).
      */
@@ -394,7 +409,7 @@ public class CloudService {
 
     /**
      * Get a {@link IPaaSProvider} for a given cloud.
-     * 
+     *
      * @param cloudId Id of the cloud for which to get the {@link IPaaSProvider}.
      * @return The {@link IPaaSProvider} associated to the enabled cloud.
      * @throws CloudDisabledException In case the cloud is not enabled.
@@ -414,7 +429,7 @@ public class CloudService {
 
     /**
      * Get a cloud, fail if not exist
-     * 
+     *
      * @param id id of the cloud
      * @return the cloud with given id
      * @throws alien4cloud.exception.NotFoundException if the cloud does not exist
@@ -429,7 +444,7 @@ public class CloudService {
 
     /**
      * Check if a flavor matches image's requirement
-     * 
+     *
      * @param image the image to verify compatibility
      * @param flavor the flavor to verify compatibility
      * @return true if flavor matches image's requirement, false otherwise
@@ -451,7 +466,7 @@ public class CloudService {
 
     /**
      * Add an image to the cloud consists of adding new available compute template and push update to our persistence layer
-     * 
+     *
      * @param cloud the cloud to update
      * @param cloudImageId the image to add
      */
@@ -462,11 +477,11 @@ public class CloudService {
         }
         cloud.getImages().add(cloudImageId);
         // The field computes cannot be null
-        Set<ComputeTemplate> computes = cloud.getComputeTemplates();
+        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             if (isFlavorMatchImageRequirement(cloudImage, flavor)) {
-                computes.add(new ComputeTemplate(cloudImageId, flavor.getId()));
+                computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);
@@ -474,7 +489,7 @@ public class CloudService {
 
     /**
      * Add a flavor to the cloud consists of adding new available compute template and push update to our persistence layer
-     * 
+     *
      * @param cloud the cloud to update
      * @param flavor the flavor to add
      */
@@ -486,10 +501,10 @@ public class CloudService {
         }
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         // The field computes cannot be null
-        Set<ComputeTemplate> computes = cloud.getComputeTemplates();
+        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         for (String imageId : cloud.getImages()) {
             if (isFlavorMatchImageRequirement(images.get(imageId), flavor)) {
-                computes.add(new ComputeTemplate(imageId, flavor.getId()));
+                computes.add(new ActivableComputeTemplate(imageId, flavor.getId()));
             }
         }
         alienDAO.save(cloud);
@@ -497,15 +512,15 @@ public class CloudService {
 
     /**
      * Remove an image from the cloud consists of removing available compute template and push update to our persistence layer
-     * 
+     *
      * @param cloud the cloud to update
      * @param cloudImageId the image to remove
      */
     public void removeCloudImage(Cloud cloud, String cloudImageId) {
         cloud.getImages().remove(cloudImageId);
-        Iterator<ComputeTemplate> iterator = cloud.getComputeTemplates().iterator();
+        Iterator<ActivableComputeTemplate> iterator = cloud.getComputeTemplates().iterator();
         while (iterator.hasNext()) {
-            ComputeTemplate computeTemplate = iterator.next();
+            ActivableComputeTemplate computeTemplate = iterator.next();
             if (computeTemplate.getCloudImageId().equals(cloudImageId)) {
                 iterator.remove();
             }
@@ -515,7 +530,7 @@ public class CloudService {
 
     /**
      * Remove a flavor from the cloud consists of removing available compute template and push update to our persistence layer
-     * 
+     *
      * @param cloud the cloud to update
      * @param flavorId the flavor to remove
      */
@@ -527,9 +542,9 @@ public class CloudService {
                 flavorIterator.remove();
             }
         }
-        Iterator<ComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
+        Iterator<ActivableComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
         while (templateIterator.hasNext()) {
-            ComputeTemplate computeTemplate = templateIterator.next();
+            ActivableComputeTemplate computeTemplate = templateIterator.next();
             if (computeTemplate.getCloudImageFlavorId().equals(flavorId)) {
                 templateIterator.remove();
             }
@@ -539,22 +554,81 @@ public class CloudService {
 
     /**
      * Set the template status (enable / disable)
-     * 
+     *
      * @param cloud the cloud to update
      * @param cloudImageId the image id
      * @param flavorId the flavor id
      * @param enabled enable or disable
      */
     public void setCloudTemplateStatus(Cloud cloud, String cloudImageId, String flavorId, boolean enabled) {
-        Iterator<ComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
-        while (templateIterator.hasNext()) {
-            ComputeTemplate computeTemplate = templateIterator.next();
-            if (computeTemplate.getCloudImageId().equals(cloudImageId) && computeTemplate.getCloudImageFlavorId().equals(flavorId)) {
-                computeTemplate.setEnabled(enabled);
-                alienDAO.save(cloud);
-                return;
+        ActivableComputeTemplate computeTemplate = findComputeTemplate(cloud, cloudImageId, flavorId);
+        computeTemplate.setEnabled(enabled);
+        alienDAO.save(cloud);
+    }
+
+    public CloudResourceMatcherConfig findCloudResourceMatcherConfig(Cloud cloud) {
+        // A little bit tricky here, the resource matcher has the same id as the cloud
+        return alienDAO.findById(CloudResourceMatcherConfig.class, cloud.getId());
+    }
+
+    public CloudResourceMatcherConfig getMandatoryCloudResourceMatcherConfig(Cloud cloud) {
+        CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
+        if (config == null) {
+            throw new NotFoundException("Could not find resource matcher config for cloud " + cloud.getName() + ", perhaps it's not a manual matcher PaaS");
+        }
+        return config;
+    }
+
+    /**
+     * Set the template resource id
+     *
+     * @param cloud the cloud to update
+     * @param cloudImageId the image id
+     * @param flavorId the flavor id
+     * @param paaSResourceId paaS resource id
+     */
+    public void setCloudTemplateResourceId(Cloud cloud, String cloudImageId, String flavorId, String paaSResourceId) {
+        ActivableComputeTemplate computeTemplate = findComputeTemplate(cloud, cloudImageId, flavorId);
+        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+        if (paaSResourceId == null) {
+            getMatchedComputeTemplate(matcherConfig, cloudImageId, flavorId, true);
+        } else {
+            MatchedComputeTemplate existing = getMatchedComputeTemplate(matcherConfig, cloudImageId, flavorId, false);
+            if (existing != null) {
+                existing.setPaaSResourceId(paaSResourceId);
+            } else {
+                matcherConfig.getMatchedComputeTemplates().add(
+                        new MatchedComputeTemplate(new ComputeTemplate(computeTemplate.getCloudImageId(), computeTemplate.getCloudImageFlavorId()),
+                                paaSResourceId));
             }
         }
-        throw new NotFoundException("Could not find template [" + cloudImageId + "," + flavorId + "] to change status");
+        ((IManualResourceMatcherPaaSProvider) paaSProviderService.getPaaSProvider(cloud.getId())).updateMatcherConfig(matcherConfig);
+        alienDAO.save(matcherConfig);
+    }
+
+    private ActivableComputeTemplate findComputeTemplate(Cloud cloud, String cloudImageId, String flavorId) {
+        Iterator<ActivableComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
+        while (templateIterator.hasNext()) {
+            ActivableComputeTemplate computeTemplate = templateIterator.next();
+            if (computeTemplate.getCloudImageId().equals(cloudImageId) && computeTemplate.getCloudImageFlavorId().equals(flavorId)) {
+                return computeTemplate;
+            }
+        }
+        throw new NotFoundException("Could not find template [" + cloudImageId + "," + flavorId + "]");
+    }
+
+    private MatchedComputeTemplate getMatchedComputeTemplate(CloudResourceMatcherConfig config, String cloudImageId, String flavorId, boolean take) {
+        Iterator<MatchedComputeTemplate> templateIterator = config.getMatchedComputeTemplates().iterator();
+        while (templateIterator.hasNext()) {
+            MatchedComputeTemplate matchedTemplate = templateIterator.next();
+            if (matchedTemplate.getComputeTemplate().getCloudImageId().equals(cloudImageId)
+                    && matchedTemplate.getComputeTemplate().getCloudImageFlavorId().equals(flavorId)) {
+                if (take) {
+                    templateIterator.remove();
+                }
+                return matchedTemplate;
+            }
+        }
+        return null;
     }
 }

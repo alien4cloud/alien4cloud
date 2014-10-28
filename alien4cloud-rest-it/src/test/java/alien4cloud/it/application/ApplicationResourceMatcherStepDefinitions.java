@@ -32,7 +32,7 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-                                                                                    DataTable expectedTemplatesTable) throws Throwable {
+            DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 CloudResourceTopologyMatchResult.class);
         Assert.assertNull(matchResultResponse.getError());

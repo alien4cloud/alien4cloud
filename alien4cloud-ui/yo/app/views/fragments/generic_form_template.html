@@ -50,13 +50,13 @@
               </div>
             </div>
             <div collapse="isCollapsed">
-              <div class="form-tree-level" id="treecontainer"></div>
+              <div class="form-tree-level treecontainer"></div>
             </div>
           </div>
         </div>
         <div
             ng-class="{'col-md-12' : configuration.formStyle === 'window' || (configuration.formStyle === 'tree' && !showTree), 'col-md-8' : (configuration.formStyle === 'tree' && showTree)}">
-          <div id="genericformtypescontainer"
+          <div class="genericformtypescontainer"
                ng-class="{
                'form-container-no-tree form-container-horizontal-scroll': configuration.formStyle === 'window',
                'well form-container-with-tree form-container-scroll': configuration.formStyle === 'tree',
@@ -64,24 +64,13 @@
                'well': configuration.formStyle === 'tree' && showTree
                }">
             <!-- The root form -->
-            <div
+            <div class="genericformpropertiescontainer"
                 ng-class="{
                                 'form-container-no-tree-window form-container-vertical-scroll': configuration.formStyle === 'window',
                                 '{{formClass}}': configuration.formStyle === 'window' && formClass,
                                 'row': configuration.formStyle === 'tree'
                                 }"
                 ng-show="isActivePath">
-              <complex-type-property-form ng-repeat="name in type._order"
-                                          property-name="name"
-                                          property-type="type._propertyType[name]"
-                                          path="path"
-                                          label-path="labelPath"
-                                          root-object="rootObject"
-                                          suggest="suggest(searchConfiguration, text)"
-                                          automatic-save="automaticSave"
-                                          save-action="saveAction(object)"
-                                          configuration="configuration">
-              </complex-type-property-form>
             </div>
             <!-- Other nested complex object will be added dynamically after the root form -->
           </div>

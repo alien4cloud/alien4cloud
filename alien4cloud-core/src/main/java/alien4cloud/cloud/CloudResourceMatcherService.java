@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -38,7 +39,7 @@ public class CloudResourceMatcherService {
 
     /**
      * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
-     * 
+     *
      * @param topology the topology to check
      * @param cloud the cloud
      * @return match result which contains the images that can be used, the flavors that can be used and their possible association
@@ -70,7 +71,7 @@ public class CloudResourceMatcherService {
 
     /**
      * This method browse topology's node templates and return those that need to be matched to cloud's resources
-     * 
+     *
      * @param topology the topology to check
      * @return all node template that must be matched
      */
@@ -91,7 +92,7 @@ public class CloudResourceMatcherService {
 
     /**
      * Get all available image for a compute by filtering with its properties on OS information
-     * 
+     *
      * @param cloud the cloud
      * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
@@ -102,9 +103,9 @@ public class CloudResourceMatcherService {
         }
         Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
         // Only get active templates
-        Set<ComputeTemplate> templates = cloud.getComputeTemplates();
+        Set<ActivableComputeTemplate> templates = cloud.getComputeTemplates();
         Set<String> availableImageIds = Sets.newHashSet();
-        for (ComputeTemplate template : templates) {
+        for (ActivableComputeTemplate template : templates) {
             if (template.isEnabled()) {
                 availableImageIds.add(template.getCloudImageId());
             }
@@ -119,13 +120,11 @@ public class CloudResourceMatcherService {
                     new EqualMatcher<String>())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(),
-                    new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_VERSION, VersionUtil.parseVersion(cloudImage.getOsVersion()),
-                    new VersionValueParser(),
-                    new GreaterOrEqualValueMatcher())) {
+                    new VersionValueParser(), new GreaterOrEqualValueMatcher())) {
                 continue;
             }
             matchedImages.add(cloudImage);
@@ -143,7 +142,7 @@ public class CloudResourceMatcherService {
 
     /**
      * Get all available flavors for the given compute and the given image on the given cloud
-     * 
+     *
      * @param cloud the cloud
      * @param nodeTemplate the compute to search for flavors
      * @param cloudImage the image
@@ -158,8 +157,8 @@ public class CloudResourceMatcherService {
             allFlavors.put(flavor.getId(), flavor);
         }
         Set<CloudImageFlavor> availableFlavors = Sets.newHashSet();
-        Set<ComputeTemplate> allTemplates = cloud.getComputeTemplates();
-        for (ComputeTemplate template : allTemplates) {
+        Set<ActivableComputeTemplate> allTemplates = cloud.getComputeTemplates();
+        for (ActivableComputeTemplate template : allTemplates) {
             if (template.isEnabled() && template.getCloudImageId().equals(cloudImage.getId())) {
                 // get flavors that correspond to the given cloud image from all active compute template
                 availableFlavors.add(allFlavors.get(template.getCloudImageFlavorId()));

@@ -148,6 +148,7 @@
     "ROOT": "Racine",
     "MAP_KEY_PLACEHOLDER": "Saisir une nouvelle clé",
     "UNDEFINED": "Cliquer pour éditer",
+    "UNDEFINED_READ_ONLY": "Non défini",
     "TRUE": "Vrai",
     "FALSE": "Faux",
     "REQUIRED": "Obligatoire",
@@ -425,7 +426,9 @@
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit"
+      "FLAVOR_NAME": "Gabarit",
+      "RESOURCE_ID": "PaaS Resource Id",
+      "NOT_CONFIGURED": "Non Configuré(s)"
     },
     "FLAVORS": {
       "ID": "Nom",
@@ -529,6 +532,7 @@
     "502": "Cet objet existe déjà sur le serveur",
     "503": "L'upload de l'image a rencontré une erreur inattendue",
     "504": "Cet objet n'existe pas sur le serveur",
+    "507": "La suppression de cet objet n'est pas autorisée parce qu'il est encore utilisé par d'autres objets",
     "601": "Le déploiement de l'application a échoué",
     "602": "L'Arrêt de l'application a échoué",
     "800": {

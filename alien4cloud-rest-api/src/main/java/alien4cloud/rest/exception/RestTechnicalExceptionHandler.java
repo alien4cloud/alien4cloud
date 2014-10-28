@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -37,7 +38,7 @@ import com.google.common.collect.Lists;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
- * 
+ *
  * @author mkv
  */
 @Slf4j
@@ -53,6 +54,16 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> processAlreadyExist(AlreadyExistException e) {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).message("The posted object already exist.").build()).build();
+    }
+
+    @ExceptionHandler(DeleteReferencedObjectException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
+        log.error("Object is still referenced and cannot be deleted", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message("The deleted object is still referenced.").build())
+                .build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)

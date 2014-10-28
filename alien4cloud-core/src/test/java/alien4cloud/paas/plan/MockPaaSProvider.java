@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.application.DeploymentSetup;
 import lombok.Getter;
 
 import org.springframework.stereotype.Component;
@@ -55,7 +56,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     protected void doDeploy(String deploymentName, String deploymentId, Topology topology, List<PaaSNodeTemplate> roots,
-            Map<String, PaaSNodeTemplate> nodeTemplates) {
+            Map<String, PaaSNodeTemplate> nodeTemplates, DeploymentSetup deploymentSetup) {
         this.roots = roots;
     }
 

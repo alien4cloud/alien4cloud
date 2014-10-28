@@ -10,6 +10,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.rest.cloud.CloudDTO;
@@ -35,7 +36,8 @@ public class CloudComputeTemplateStepDefinitions {
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
     public void I_should_receive_a_RestResponse_with_compute_templates(int numberOfTemplate, DataTable expectedTemplatesTable) throws Throwable {
-        Set<ComputeTemplate> templates = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), ComputeTemplate[].class).getData());
+        Set<ActivableComputeTemplate> templates = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), ActivableComputeTemplate[].class)
+                .getData());
         assertComputeTemplates(numberOfTemplate, templates, expectedTemplatesTable);
     }
 
@@ -57,15 +59,19 @@ public class CloudComputeTemplateStepDefinitions {
         The_cloud_with_name_should_have_compute_templates_as_resources(cloudName, 0, null);
     }
 
-    public static void assertComputeTemplates(int numberOfTemplate, Set<ComputeTemplate> templates, DataTable expectedTemplatesTable) {
+    public static void assertComputeTemplates(int numberOfTemplate, Set<? extends ComputeTemplate> templates, DataTable expectedTemplatesTable) {
         Assert.assertEquals(numberOfTemplate, templates.size());
         Set<ComputeTemplate> expectedTemplates = Sets.newHashSet();
         if (expectedTemplatesTable != null) {
             for (List<String> rows : expectedTemplatesTable.raw()) {
                 String imageName = rows.get(0);
                 String flavorName = rows.get(1);
-                boolean enabled = "enabled".equals(rows.get(2));
-                expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                if (rows.size() == 3) {
+                    boolean enabled = "enabled".equals(rows.get(2));
+                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                } else {
+                    expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName));
+                }
             }
         }
         Assert.assertEquals(expectedTemplates, templates);
