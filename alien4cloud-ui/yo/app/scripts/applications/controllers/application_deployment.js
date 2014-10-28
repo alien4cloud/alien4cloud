@@ -393,11 +393,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     /** change the cloud for the topology */
     $scope.changeCloud = function(selectedCloud) {
       $scope.selectedComputeTemplates = {};
-      if (!selectedCloud) {
-        // reset deployment property bloc
-        $scope.deploymentPropertyDefinitions = null;
-        return;
-      }
       topologyServices.cloud.set({
         applicationId: $scope.application.id
       }, selectedCloud.id, function(result) {

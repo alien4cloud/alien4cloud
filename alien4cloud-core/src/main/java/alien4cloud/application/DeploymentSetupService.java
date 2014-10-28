@@ -53,19 +53,23 @@ public class DeploymentSetupService {
     public void fillWithDefaultValues(DeploymentSetup deploymentSetup, Map<String, List<ComputeTemplate>> matchResult,
             Map<String, PropertyDefinition> propertyDefinitionMap) {
         // Generate default matching for deployment setup
-        Map<String, ComputeTemplate> cloudResourcesMapping = Maps.newHashMap();
-        for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
-            if (!entry.getValue().isEmpty()) {
-                cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+        if (matchResult != null) {
+            Map<String, ComputeTemplate> cloudResourcesMapping = Maps.newHashMap();
+            for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
+                if (!entry.getValue().isEmpty()) {
+                    cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+                }
             }
+            deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
         }
-        deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
-        // Reset deployment properties as it might have changed between cloud
-        Map<String, PropertyValue> propertyValueMap = Maps.newHashMap();
-        for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : propertyDefinitionMap.entrySet()) {
-            propertyValueMap.put(propertyDefinitionEntry.getKey(), new PropertyValue(propertyDefinitionEntry.getValue().getDefault()));
+        if (propertyDefinitionMap != null) {
+            // Reset deployment properties as it might have changed between cloud
+            Map<String, PropertyValue> propertyValueMap = Maps.newHashMap();
+            for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : propertyDefinitionMap.entrySet()) {
+                propertyValueMap.put(propertyDefinitionEntry.getKey(), new PropertyValue(propertyDefinitionEntry.getValue().getDefault()));
+            }
+            deploymentSetup.setProviderDeploymentProperties(propertyValueMap);
         }
-        deploymentSetup.setProviderDeploymentProperties(propertyValueMap);
     }
 
     public String generateId(String versionId, String environmentId) {
