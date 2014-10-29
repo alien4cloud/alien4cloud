@@ -50,9 +50,9 @@ import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.AttributeDefinition;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.VersionUtil;
@@ -103,7 +103,7 @@ public class TopologyService {
         }
     }
 
-    private void fillCapabilitiesMap(Map<String, Capability> map, Set<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
+    private void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Capability> mapToMerge) {
         if (elements == null) {
             return;
@@ -122,7 +122,7 @@ public class TopologyService {
         }
     }
 
-    private void fillRequirementsMap(Map<String, Requirement> map, Set<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
+    private void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Requirement> mapToMerge) {
         for (RequirementDefinition requirement : elements) {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());

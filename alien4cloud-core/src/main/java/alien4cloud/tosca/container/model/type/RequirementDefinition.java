@@ -1,5 +1,7 @@
 package alien4cloud.tosca.container.model.type;
 
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,8 +18,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Specifies the requirements that the Node Type exposes.
- * 
- * @author luc boutier
  */
 @Getter
 @Setter
@@ -39,9 +39,9 @@ public class RequirementDefinition {
      */
     @FormSuggestion(fromClass = IndexedCapabilityType.class, path = "elementId")
     private String type;
-    /**
-     * Specifies the default relationship type to be used for the relationship. This can be overriden by user but should be used as default.
-     */
+    /** Constraints to specify on the target node's properties. */
+    private Map<String, PropertyConstraint> constraints;
+    /** Specifies the default relationship type to be used for the relationship. This can be overriden by user but should be used as default. */
     private String relationshipType;
     /**
      * Specifies the lower boundary by which a requirement MUST be matched for Node Templates according to the current Node Type, or for instances created for

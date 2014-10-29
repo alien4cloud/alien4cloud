@@ -42,8 +42,8 @@ import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.PropertyConstraint;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.PatternConstraint;
 

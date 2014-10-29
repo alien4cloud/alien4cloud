@@ -37,7 +37,7 @@ import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.container.model.template.PropertyValue;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;

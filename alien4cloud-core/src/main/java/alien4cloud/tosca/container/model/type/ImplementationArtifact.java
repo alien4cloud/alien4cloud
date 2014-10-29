@@ -16,29 +16,6 @@ import lombok.Setter;
 public class ImplementationArtifact {
     /**
      * <p>
-     * This OPTIONAL attribute specifies the name of the interface that is implemented by the actual implementation artifact.
-     * </p>
-     * <p>
-     * If not specified, the implementation artifact is assumed to provide the implementation for all interfaces defined by the {@link NodeType node type} or
-     * {@link RelationshipType relationship type} referred to by the relationshipType attribute of the containing node type impl.
-     * {@link RelationshipTypeImplementation relationship type implementation}.
-     * </p>
-     */
-    private String interfaceName;
-
-    /**
-     * <p>
-     * This OPTIONAL attribute specifies the name of the operation that is implemented by the actual implementation artifact.
-     * </p>
-     * <p>
-     * If specified, the interfaceName MUST be specified and the specified operationName MUST refer to an operation of the specified interface. If not
-     * specified, the implementation artifact is assumed to provide the implementation for all operations defined within the specified interface.
-     * </p>
-     */
-    private String operationName;
-
-    /**
-     * <p>
      * Specifies the type of this artifact.
      * </p>
      */

@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.tosca.container.deserializer.CSARErrorDeserializer;
+import alien4cloud.tosca.model.Csar;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

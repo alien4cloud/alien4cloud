@@ -3,7 +3,7 @@ package alien4cloud.utils;
 import java.util.Map;
 
 import alien4cloud.tosca.container.model.template.PropertyValue;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 import com.google.common.collect.Maps;
 

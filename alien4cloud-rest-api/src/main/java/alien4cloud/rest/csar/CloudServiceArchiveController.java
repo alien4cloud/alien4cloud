@@ -40,7 +40,6 @@ import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -68,6 +67,7 @@ import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.container.validation.CSARError;
 import alien4cloud.tosca.container.validation.CSARValidationResult;
+import alien4cloud.tosca.model.Csar;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.YamlParserUtil;
@@ -190,12 +190,14 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes != null) {
-            for (NodeType nodeType : nodeTypes.values()) {
-                indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-            }
-        }
+        // TODO remove all node types
+
+        // Map<String, NodeType> nodeTypes = csar.getNodeTypes();
+        // if (nodeTypes != null) {
+        // for (NodeType nodeType : nodeTypes.values()) {
+        // indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
+        // }
+        // }
         // check rights to delete ?
         csarDAO.delete(Csar.class, csarId);
         return RestResponseBuilder.<Void> builder().build();
@@ -221,50 +223,50 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 
-    @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
-    @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody NodeType nodeType) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes == null) {
-            nodeTypes = Maps.newHashMap();
-            csar.setNodeTypes(nodeTypes);
-        }
-        nodeTypes.put(nodeType.getId(), nodeType);
-        indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), nodeType);
-        csarDAO.save(csar);
-        return RestResponseBuilder.<Void> builder().build();
-    }
+//    @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
+//    @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody NodeType nodeType) {
+//        Csar csar = csarService.getMandatoryCsar(csarId);
+//        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
+//        if (nodeTypes == null) {
+//            nodeTypes = Maps.newHashMap();
+//            csar.setNodeTypes(nodeTypes);
+//        }
+//        nodeTypes.put(nodeType.getId(), nodeType);
+//        indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), nodeType);
+//        csarDAO.save(csar);
+//        return RestResponseBuilder.<Void> builder().build();
+//    }
 
-    @ApiOperation(value = "Get a node type defined in a cloud service archive.")
-    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
-    }
+//    @ApiOperation(value = "Get a node type defined in a cloud service archive.")
+//    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
+//        Csar csar = csarService.getMandatoryCsar(csarId);
+//        return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
+//    }
 
-    @ApiOperation(value = "Removes a node type from a cloud service archive.")
-    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        if (csar.getNodeTypes() != null) {
-            NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
-            if (nodeType != null) {
-                indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-                csarDAO.save(csar);
-            }
-        }
-        return RestResponseBuilder.<Void> builder().build();
-    }
+//    @ApiOperation(value = "Removes a node type from a cloud service archive.")
+//    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
+//        Csar csar = csarService.getMandatoryCsar(csarId);
+//        if (csar.getNodeTypes() != null) {
+//            NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
+//            if (nodeType != null) {
+//                indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
+//                csarDAO.save(csar);
+//            }
+//        }
+//        return RestResponseBuilder.<Void> builder().build();
+//    }
 
-    private NodeType getNodeType(Csar csar, String nodeTypeId) {
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
-            throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
-        } else {
-            return nodeTypes.get(nodeTypeId);
-        }
-    }
+//    private NodeType getNodeType(Csar csar, String nodeTypeId) {
+//        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
+//        if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
+//            throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
+//        } else {
+//            return nodeTypes.get(nodeTypeId);
+//        }
+//    }
 
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")

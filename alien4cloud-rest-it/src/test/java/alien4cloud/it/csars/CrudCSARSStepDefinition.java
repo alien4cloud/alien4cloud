@@ -4,13 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 
-import alien4cloud.csar.model.Csar;
 import alien4cloud.it.Context;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.tosca.model.Csar;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;

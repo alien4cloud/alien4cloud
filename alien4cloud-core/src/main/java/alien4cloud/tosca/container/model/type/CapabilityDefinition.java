@@ -1,5 +1,6 @@
 package alien4cloud.tosca.container.model.type;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -18,8 +19,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Specifies the capabilities that the Node Type exposes.
- * 
- * @author luc boutier
  */
 @Getter
 @Setter
@@ -43,11 +42,6 @@ public class CapabilityDefinition {
     private String type;
 
     /**
-     * Specifies the lower boundary of requiring nodes that the defined capability can serve. The default value for this attribute is one. A value of zero is
-     * invalid, since this would mean that the capability cannot actually satisfy any requiring nodes.
-     */
-    private int lowerBound = 0;
-    /**
      * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is one. A value of
      * 'unbounded' indicates that there is no upper boundary.
      */
@@ -56,12 +50,11 @@ public class CapabilityDefinition {
     private int upperBound = Integer.MAX_VALUE;
 
     /** Map of properties value(s) to define the capability. */
-    private Map<String, String[]> properties;
+    private Map<String, List<String>> properties;
 
-    public CapabilityDefinition(String id, String type, int lowerBound, int upperBound) {
+    public CapabilityDefinition(String id, String type, int upperBound) {
         this.id = id;
         this.type = type;
-        this.lowerBound = lowerBound;
         this.upperBound = upperBound;
     }
 

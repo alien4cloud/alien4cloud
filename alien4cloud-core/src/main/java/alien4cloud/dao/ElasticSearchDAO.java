@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.csar.model.Csar;
-import alien4cloud.dao.ESGenericSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -27,6 +25,7 @@ import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
 import alien4cloud.tosca.container.serializer.BoundSerializer;
+import alien4cloud.tosca.model.Csar;
 import alien4cloud.utils.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

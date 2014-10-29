@@ -29,13 +29,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public abstract class IndexedToscaElement {
-
-    @BooleanField
-    @TermFilter
-    private boolean isHighestVersion;
-
-    private Set<String> olderVersions;
-
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.analyzed)
     @TermFilter
@@ -50,10 +43,11 @@ public abstract class IndexedToscaElement {
     @StringField(indexType = IndexType.not_analyzed)
     private String archiveVersion;
 
-    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
-    private String description;
+    @BooleanField
+    @TermFilter
+    private boolean isHighestVersion;
 
-    private List<Tag> tags;
+    private Set<String> olderVersions;
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @DateField(includeInAll = false, index = IndexType.no)
@@ -62,6 +56,13 @@ public abstract class IndexedToscaElement {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @DateField(includeInAll = false, index = IndexType.no)
     private Date lastUpdateDate;
+
+    /* Normative element */
+    @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
+    private String description;
+
+    /* DSL extension */
+    private List<Tag> tags;
 
     @Id
     public String getId() {

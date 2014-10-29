@@ -1,6 +1,8 @@
 package alien4cloud.component.model;
 
-import static alien4cloud.dao.model.FetchContext.*;
+import static alien4cloud.dao.model.FetchContext.COMPONENT_SUMMARY;
+import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
+import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +15,7 @@ import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 @Getter
 @Setter
@@ -31,7 +32,4 @@ public class IndexedInheritableToscaElement extends IndexedToscaElement {
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, PropertyDefinition> properties;
-
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    private Map<String, AttributeDefinition> attributes;
 }

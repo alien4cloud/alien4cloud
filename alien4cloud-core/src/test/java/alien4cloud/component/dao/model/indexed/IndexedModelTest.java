@@ -1,6 +1,9 @@
 package alien4cloud.component.dao.model.indexed;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,7 +18,7 @@ import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.Tag;
 import alien4cloud.tosca.container.model.ToscaInheritableElement;
 import alien4cloud.tosca.container.model.type.AttributeDefinition;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

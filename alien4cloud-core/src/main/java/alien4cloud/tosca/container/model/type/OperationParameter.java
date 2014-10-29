@@ -14,13 +14,9 @@ import lombok.Setter;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "type", "required" })
 public class OperationParameter {
-    /**
-     * This attribute specifies the type of the parameter.
-     */
+    /** Value or value expression from tosca. */
+    private String value;
+
     private String type;
-    /**
-     * This OPTIONAL attribute specifies whether or not the input parameter is REQUIRED (required attribute with a value of “true�? – default) or OPTIONAL
-     * (required attribute with a value of “false�?).
-     */
-    private boolean required = true;
+    private boolean required;
 }

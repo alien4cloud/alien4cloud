@@ -1,8 +1,7 @@
-package alien4cloud.csar.model;
+package alien4cloud.tosca.model;
 
 import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 
-import java.util.Map;
 import java.util.Set;
 
 import lombok.EqualsAndHashCode;
@@ -19,7 +18,6 @@ import org.elasticsearch.mapping.IndexType;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.type.NodeType;
 
 @Getter
 @Setter
@@ -33,18 +31,28 @@ public class Csar implements IDeploymentSource {
     @TermFilter
     private String version;
 
-    @TermFilter
-    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String topologyId;
-    @TermFilter
-    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String cloudId;
+    private String toscaDefinitionsVersion;
+
+    private String toscaDefaultNamespace;
+
+    private String templateAuthor;
 
     private String description;
 
     private Set<CSARDependency> dependencies;
 
-    private Map<String, NodeType> nodeTypes;
+    private String topologyId;
+    private String cloudId;
+
+    /** Default constructor */
+    public Csar() {
+    }
+
+    /** Argument constructor */
+    public Csar(String name, String version) {
+        this.name = name;
+        this.version = version;
+    }
 
     @Id
     @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
@@ -60,7 +68,10 @@ public class Csar implements IDeploymentSource {
     }
 
     public void setId(String id) {
-        // Not authorized to set id as it's auto-generated
+        // Not authorized to set id as it's auto-generated from name and version
     }
 
+    public void setDependencies(Set<CSARDependency> dependencies) {
+        this.dependencies = dependencies;
+    }
 }

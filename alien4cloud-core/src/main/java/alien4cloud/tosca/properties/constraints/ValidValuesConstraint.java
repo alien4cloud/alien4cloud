@@ -5,28 +5,23 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.TextDeserializer;
 import alien4cloud.tosca.container.model.type.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Sets;
 
+@Getter
+@Setter
 @FormProperties("validValues")
+@EqualsAndHashCode(callSuper = false, of = { "validValues" })
 public class ValidValuesConstraint extends AbstractPropertyConstraint {
-
-    @JsonDeserialize(contentUsing = TextDeserializer.class)
     @NotNull
-    @Getter
-    @Setter
     private List<String> validValues;
-
-    @JsonIgnore
     private Set<Object> validValuesTyped;
 
     @Override

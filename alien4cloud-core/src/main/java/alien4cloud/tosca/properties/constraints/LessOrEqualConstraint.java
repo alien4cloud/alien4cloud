@@ -2,6 +2,7 @@ package alien4cloud.tosca.properties.constraints;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.tosca.container.deserializer.TextDeserializer;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false, of = { "lessOrEqual" })
 @SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked" })
 public class LessOrEqualConstraint extends AbstractComparablePropertyConstraint {
 

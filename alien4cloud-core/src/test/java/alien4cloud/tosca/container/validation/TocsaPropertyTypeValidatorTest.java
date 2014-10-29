@@ -12,8 +12,8 @@ import org.junit.Test;
 
 import alien4cloud.tosca.container.model.Definitions;
 import alien4cloud.tosca.container.model.type.NodeType;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 public class TocsaPropertyTypeValidatorTest {
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;

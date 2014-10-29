@@ -1,5 +1,7 @@
 package alien4cloud.component.model;
 
+import java.util.List;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,5 +12,6 @@ import org.elasticsearch.annotation.ESObject;
 @ESObject
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedArtifactType extends IndexedInheritableToscaElement {
-    // Index only the id of a artifact type
+    private String mimeType;
+    private List<String> fileExt;
 }

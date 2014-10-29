@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.tosca.container.exception.CSARParsingException;
 import alien4cloud.tosca.container.exception.CSARValidationException;
 import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.container.validation.CSARValidationResult;
+import alien4cloud.tosca.model.Csar;
 
 @Component
 public class CsarUploadService {

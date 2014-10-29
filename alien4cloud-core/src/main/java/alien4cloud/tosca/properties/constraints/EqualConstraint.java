@@ -2,20 +2,18 @@ package alien4cloud.tosca.properties.constraints;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.TextDeserializer;
 import alien4cloud.tosca.container.model.type.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
+@Getter
+@Setter
 @SuppressWarnings({ "PMD.UnusedPrivateField" })
+@EqualsAndHashCode(callSuper = false, of = { "equal" })
 public class EqualConstraint extends AbstractPropertyConstraint {
-    @Getter
-    @Setter
-    @JsonDeserialize(using = TextDeserializer.class)
     @NotNull
     private String equal;
 

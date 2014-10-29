@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
+import lombok.SneakyThrows;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.paas.model.PaaSNodeTemplate;
@@ -15,8 +17,6 @@ import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
-import lombok.Getter;
-import lombok.SneakyThrows;
 
 @Getter
 public abstract class AbstractPaaSProvider implements IPaaSProvider {

@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormContentTypes;
 import alien4cloud.ui.form.annotation.FormCustomType;
 import alien4cloud.ui.form.annotation.FormLabel;

@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * Utility class to validate constraints types.
- * 
- * @author luc boutier
  */
 public final class ConstraintUtil {
 

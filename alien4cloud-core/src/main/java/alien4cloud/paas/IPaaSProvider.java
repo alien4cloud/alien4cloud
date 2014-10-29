@@ -10,7 +10,7 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 /**
  * Interface of a Platform as a Service provider.

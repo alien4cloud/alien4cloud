@@ -13,7 +13,6 @@ import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.container.model.Definitions;
 import alien4cloud.tosca.container.model.ToscaElement;
@@ -25,6 +24,7 @@ import alien4cloud.tosca.container.validation.CSARError;
 import alien4cloud.tosca.container.validation.CSARErrorCode;
 import alien4cloud.tosca.container.validation.CSARErrorFactory;
 import alien4cloud.tosca.container.validation.CSARValidationResult;
+import alien4cloud.tosca.model.Csar;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

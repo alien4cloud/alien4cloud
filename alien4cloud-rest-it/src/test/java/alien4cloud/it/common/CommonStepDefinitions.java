@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import alien4cloud.model.cloud.CloudImage;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
@@ -13,7 +12,6 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 
-import alien4cloud.csar.model.Csar;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -21,6 +19,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
+import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
@@ -32,6 +31,7 @@ import alien4cloud.security.groups.Group;
 import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
+import alien4cloud.tosca.model.Csar;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;

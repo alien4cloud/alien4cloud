@@ -1,4 +1,4 @@
-package alien4cloud.tosca.container.model.type;
+package alien4cloud.tosca.model;
 
 import java.util.List;
 
@@ -6,10 +6,11 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.PropertyConstraintDeserializer;
+import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
@@ -32,43 +33,31 @@ import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-/**
- * 
- * @author luc boutier
- */
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode(of = { "type", "required", "description", "defaultValue", "constraints" })
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
-@JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
 public class PropertyDefinition {
-
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull
     private String type;
 
     @NotNull
-    private boolean isRequired = false;
+    private boolean required = false;
 
-    @JsonProperty("default")
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private String defaultValue;
 
     private String description;
-    private boolean isPassword;
 
     @Valid
-    @JsonDeserialize(contentUsing = PropertyConstraintDeserializer.class)
     @ToscaPropertyConstraintDuplicate
     @FormContentTypes({ @FormType(discriminantProperty = "equal", label = "CONSTRAINT.EQUAL", implementation = EqualConstraint.class),
             @FormType(discriminantProperty = "greaterThan", label = "CONSTRAINT.GREATER_THAN", implementation = GreaterThanConstraint.class),
@@ -83,16 +72,9 @@ public class PropertyDefinition {
             @FormType(discriminantProperty = "validValues", label = "CONSTRAINT.VALID_VALUES", implementation = ValidValuesConstraint.class) })
     private List<PropertyConstraint> constraints;
 
-    /**
-     * <p>
-     * Jackson DeSerialization workaround constructor to create an operation with no arguments.
-     * </p>
-     * 
-     * @param emptyString The empty string provided by jackson.
-     */
-    @SuppressWarnings("PMD.UnusedFormalParameterRule")
-    public PropertyDefinition(String emptyString) {
-    }
+    private Schema entrySchema;
+
+    private boolean isPassword;
 
     public String getDefault() {
         return this.defaultValue;

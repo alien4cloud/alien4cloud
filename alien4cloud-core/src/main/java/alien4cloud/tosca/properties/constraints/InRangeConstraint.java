@@ -4,32 +4,27 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.TextDeserializer;
 import alien4cloud.tosca.container.model.type.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Lists;
 
 @SuppressWarnings({ "PMD.UnusedPrivateField", "unchecked", "rawtypes" })
+@EqualsAndHashCode(callSuper = false, of = { "inRange" })
 @FormProperties({ "rangeMinValue", "rangeMaxValue" })
 public class InRangeConstraint extends AbstractPropertyConstraint {
 
     @Getter
     @Setter
-    @JsonDeserialize(contentUsing = TextDeserializer.class)
     private List<String> inRange;
 
-    @JsonIgnore
     private Comparable min;
-
-    @JsonIgnore
     private Comparable max;
 
     @Override

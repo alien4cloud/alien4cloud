@@ -4,12 +4,12 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
-import alien4cloud.ui.form.annotation.FormSuggestion;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.tosca.container.model.type.AttributeDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.ui.form.annotation.FormSuggestion;
 
 /**
  * A tosca element that supports inheritance.
