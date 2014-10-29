@@ -56,29 +56,42 @@ public class PaaSProviderPollingMonitor implements Runnable {
             this.lastPollingDate = lastEventDate;
         } else {
             this.lastPollingDate = new Date();
+            log.debug("No monitor events found, the last polling date will be current date {}", this.lastPollingDate);
         }
     }
 
     @Override
     @SuppressWarnings("rawtypes")
     public void run() {
+        Date latestDate = new Date();
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
         if (auditEvents != null && auditEvents.length > 0) {
             dao.save(auditEvents);
-            Date eventDate = null;
-            for (AbstractMonitorEvent event : auditEvents) {
-                eventDate = new Date(event.getDate());
-                if (eventDate.after(lastPollingDate)) {
-                    lastPollingDate = eventDate;
-                }
-            }
+            // for (AbstractMonitorEvent event : auditEvents) {
+            // latestDate = new Date(event.getDate());
+            // if (latestDate.after(lastPollingDate)) {
+            // lastPollingDate = latestDate;
+            // log.debug("Event more recent found, the last polling date will be {}", this.lastPollingDate);
+            // }
+            // }
             for (IPaasEventListener listener : listeners) {
                 for (AbstractMonitorEvent event : auditEvents) {
                     if (listener.canHandle(event)) {
                         listener.eventHappened(event);
                     }
+                    Date eventDate = new Date(event.getDate());
+                    latestDate = eventDate.after(latestDate) ? eventDate : latestDate;
                 }
             }
+        }
+        updateLastPollingDate(latestDate);
+    }
+
+    private void updateLastPollingDate(Date latestDate) {
+        if (latestDate.after(lastPollingDate)) {
+            lastPollingDate = latestDate;
+        } else {
+            log.warn("There may be time shift between the server producing events and the alien server");
         }
     }
 }
