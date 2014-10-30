@@ -412,7 +412,7 @@ module.exports = function(grunt) {
         options: {
           args: {
             capabilities: {
-              'browserName': 'chrome'
+              'browserName': 'firefox'
             },
             //baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
@@ -424,9 +424,9 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/admin_users_management.js',
               // 'test/e2e/scenarios/admin_groups_management.js',
               // 'test/e2e/scenarios/plugins.js',
-              // 'test/e2e/scenarios/admin_metaprops_configuration.js',
-              // 'test/e2e/scenarios/admin_cloud_image.js',
-              // 'test/e2e/scenarios/admin_cloud.js',
+//              'test/e2e/scenarios/admin_metaprops_configuration.js',
+//              'test/e2e/scenarios/admin_cloud.js',
+              'test/e2e/scenarios/admin_cloud_image.js'
 
               // 'test/e2e/scenarios/csar_upload.js',
               // 'test/e2e/scenarios/component_details.js',
@@ -448,7 +448,7 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/application_security.js',
 
               // 'test/e2e/scenarios/deployment.js',
-              'test/e2e/scenarios/deployment_matcher.js',
+//              'test/e2e/scenarios/deployment_matcher.js',
 
               // 'test/e2e/scenarios/quick_search.js',
 

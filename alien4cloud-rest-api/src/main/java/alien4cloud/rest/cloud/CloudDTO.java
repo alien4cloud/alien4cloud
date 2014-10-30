@@ -2,13 +2,14 @@ package alien4cloud.rest.cloud;
 
 import java.util.Map;
 
-import alien4cloud.model.cloud.CloudImageFlavor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,6 +22,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class CloudDTO {
 
     private Cloud cloud;
+
+    private CloudResourceMatcherConfig matcherConfig;
 
     private Map<String, CloudImage> images;
 

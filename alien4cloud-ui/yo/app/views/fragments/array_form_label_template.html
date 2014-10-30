@@ -1,8 +1,8 @@
 <div class="form-group" ng-class="{'form-item-selected': configuration.formStyle === 'window' && isActivePath}">
   <label class="col-md-4 control-label"
          tooltip="{{labelName | translate}}"
-         tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > 20]}}">
-    {{labelName | translate | truncate:20}}
+         tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+    {{labelName | translate | truncate:configuration.labelSize}}
   </label>
 
   <div class="col-md-8">

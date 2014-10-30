@@ -16,7 +16,7 @@ curl -X POST "http://localhost:9200/toscaelement/indexedrelationshiptype/_search
 }
 '
 
-curl -X DELETE "http://localhost:9200/toscaelement/_query?pretty=true" -d '
+curl -X DELETE "http://localhost:9200/cloud/_query?pretty=true" -d '
 {
     "query" : {
         "match_all" : {}

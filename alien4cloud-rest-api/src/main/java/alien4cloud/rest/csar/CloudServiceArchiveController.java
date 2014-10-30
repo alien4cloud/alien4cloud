@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.repository.CsarFileRepository;
@@ -45,6 +47,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
@@ -96,6 +99,10 @@ public class CloudServiceArchiveController {
     private TopologyService topologyService;
     @Resource
     private CloudService cloudService;
+    @Resource
+    private CloudResourceMatcherService cloudResourceMatcherService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -351,7 +358,10 @@ public class CloudServiceArchiveController {
                 topology.setId(topologyId);
                 csarDAO.save(topology);
                 // deploy this topology
-                deploymentId = deploymentService.deployTopology(topology, cloudId, csar, null);
+                DeploymentSetup deploymentSetup = new DeploymentSetup();
+                deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud);
+                deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
+                deploymentId = deploymentService.deployTopology(topology, cloudId, csar, deploymentSetup);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

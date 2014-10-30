@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -11,7 +12,6 @@ import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
 import alien4cloud.paas.exception.PaaSNotYetDeployedException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
@@ -20,19 +20,19 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     @Override
-    public void deploy(String applicationName, String deploymentId, Topology topology, Map<String, PropertyValue> deploymentProperties) {
+    public void deploy(String applicationName, String deploymentId, Topology topology, DeploymentSetup deploymentSetup) {
         try {
             providerLock.writeLock().lock();
 
-            if (deploymentProperties != null) {
+            if (deploymentSetup.getProviderDeploymentProperties() != null) {
                 // i.e : use / handle plugin deployment properties
-                log.info("Topology deployment [" + topology.getId() + "] for application [" + applicationName + "]" + " and [" + deploymentProperties.size()
-                        + "] deployment properties");
-                log.info(deploymentProperties.keySet().toString());
-                for (String property : deploymentProperties.keySet()) {
+                log.info("Topology deployment [" + topology.getId() + "] for application [" + applicationName + "]" + " and ["
+                        + deploymentSetup.getProviderDeploymentProperties().size() + "] deployment properties");
+                log.info(deploymentSetup.getProviderDeploymentProperties().keySet().toString());
+                for (String property : deploymentSetup.getProviderDeploymentProperties().keySet()) {
                     log.info(property);
-                    if (deploymentProperties.get(property) != null) {
-                        log.info("[ " + property + " : " + deploymentProperties.get(property).getValue() + "]");
+                    if (deploymentSetup.getProviderDeploymentProperties().get(property) != null) {
+                        log.info("[ " + property + " : " + deploymentSetup.getProviderDeploymentProperties().get(property).getValue() + "]");
                     }
                 }
             }

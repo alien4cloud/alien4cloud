@@ -27,8 +27,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -55,7 +57,7 @@ import com.google.common.collect.Lists;
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
+public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig>, IManualResourceMatcherPaaSProvider {
 
     public static final String PRIVATE_IP = "private_ip_address";
     public static final String PUBLIC_IP = "public_ip_address";
@@ -96,6 +98,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
             }
         }, 1L, 1L, TimeUnit.SECONDS);
 
+    }
+
+    @Override
+    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
+        // Do nothing
     }
 
     @PreDestroy

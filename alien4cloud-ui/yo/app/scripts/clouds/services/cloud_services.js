@@ -58,6 +58,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
+    var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
+
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
         method: 'POST',
@@ -162,7 +164,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeFlavor': crudFlavor.remove,
       'addImage': crudImage.save,
       'removeImage': crudImage.remove,
-      'setCloudTemplateStatus': setCloudTemplateStatus.save
+      'setCloudTemplateStatus': setCloudTemplateStatus.save,
+      'setCloudTemplateResource': setCloudTemplateResource.save
     };
   }
 ]);

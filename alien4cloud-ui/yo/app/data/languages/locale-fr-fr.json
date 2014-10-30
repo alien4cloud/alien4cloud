@@ -148,6 +148,7 @@
     "ROOT": "Racine",
     "MAP_KEY_PLACEHOLDER": "Saisir une nouvelle clé",
     "UNDEFINED": "Cliquer pour éditer",
+    "UNDEFINED_READ_ONLY": "Non défini",
     "TRUE": "Vrai",
     "FALSE": "Faux",
     "REQUIRED": "Obligatoire",
@@ -271,7 +272,7 @@
     "DEPLOYMENT": {
       "NAME_MATCHER": "Association des ressources du cloud",
       "TITLE_NODE_ICON": "Icone du noeud",
-      "TITLE_COMPOSANT": "Nom du composant",
+      "TITLE_COMPONENT": "Nom du composant",
       "TITLE_IMAGE": "Nom de l'image",
       "TITLE_FLAVOR": "Nom du gabarit",
       "TITLE_IMAGE_ICON": "Icone de l'image",
@@ -281,7 +282,8 @@
       "TITLE_ARCH": "Architecture",
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disque",
-      "TITLE_RAM": "RAM"
+      "TITLE_RAM": "RAM",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud"
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -425,7 +427,9 @@
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit"
+      "FLAVOR_NAME": "Gabarit",
+      "RESOURCE_ID": "PaaS Resource Id",
+      "NOT_CONFIGURED": "Non Configuré(s)"
     },
     "FLAVORS": {
       "ID": "Nom",
@@ -529,6 +533,7 @@
     "502": "Cet objet existe déjà sur le serveur",
     "503": "L'upload de l'image a rencontré une erreur inattendue",
     "504": "Cet objet n'existe pas sur le serveur",
+    "507": "La suppression de cet objet n'est pas autorisée parce qu'il est encore utilisé par d'autres objets",
     "601": "Le déploiement de l'application a échoué",
     "602": "L'Arrêt de l'application a échoué",
     "800": {

@@ -48,7 +48,7 @@ describe('List and creation of cloud image', function() {
     console.log('################# should be able to rename a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(1);
     element.all(by.repeater('cloudImage in data.data')).first().click();
-    common.sendValueToXEditable('template_test-add_name', 'test-rename', false);
+    genericForm.sendValueToPrimitive('name', 'test-rename', false, 'xeditable');
     cloudImagesCommon.goToCloudImageList();
     expect(element(by.id('cloudImageName_test-rename')).getText()).toEqual('test-rename');
   });

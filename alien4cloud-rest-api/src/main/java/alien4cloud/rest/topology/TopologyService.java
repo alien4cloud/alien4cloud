@@ -75,10 +75,10 @@ public class TopologyService {
     private ApplicationService appService;
 
     @Resource
-    private TopologyServiceCore topoService;
+    private CsarService csarService;
 
     @Resource
-    private CsarService csarService;
+    private TopologyServiceCore topologyServiceCore;
 
     private void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
         if (attributes2 == null || attributes == null) {
@@ -146,8 +146,8 @@ public class TopologyService {
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
-        Map<String, IndexedNodeType> nodeTypes = getIndexedNodeTypesFromTopology(topology, false, false);
-        Map<String, IndexedRelationshipType> relationshipTypes = getIndexedRelationshipTypesFromTopology(topology);
+        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
+        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 IndexedNodeType nodeType = nodeTypes.get(nodeTemplate.getType());
@@ -257,33 +257,6 @@ public class TopologyService {
     }
 
     /**
-     * Get the indexed node types used in a topology.
-     *
-     * @param topology The topology for which to get indexed node types.
-     * @param abstractOnly If true, only abstract types will be retrieved.
-     * @param useTemplateNameAsKey If true the name of the node template will be used as key for the type in the returned map, if not the type will be used as
-     *            key.
-     * @return A map of indexed node types.
-     */
-    public Map<String, IndexedNodeType> getIndexedNodeTypesFromTopology(Topology topology, boolean abstractOnly, boolean useTemplateNameAsKey) {
-        Map<String, IndexedNodeType> nodeTypes = Maps.newHashMap();
-        if (topology.getNodeTemplates() == null) {
-            return nodeTypes;
-        }
-        for (Map.Entry<String, NodeTemplate> template : topology.getNodeTemplates().entrySet()) {
-            if (!nodeTypes.containsKey(template.getValue().getType())) {
-                IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, template.getValue().getType(),
-                        topology.getDependencies());
-                if (!abstractOnly || nodeType.isAbstract()) {
-                    String key = useTemplateNameAsKey ? template.getKey() : template.getValue().getType();
-                    nodeTypes.put(key, nodeType);
-                }
-            }
-        }
-        return nodeTypes;
-    }
-
-    /**
      * Get a map of all capability types defined in the given node types.
      *
      * @param nodeTypes The collection of node types for which to get capabilities.
@@ -305,33 +278,6 @@ public class TopologyService {
     }
 
     /**
-     * Get IndexedRelationshipType in a topology
-     *
-     * @param topology the topology to find all relationship types
-     * @return the map containing rel
-     */
-    public Map<String, IndexedRelationshipType> getIndexedRelationshipTypesFromTopology(Topology topology) {
-        Map<String, IndexedRelationshipType> relationshipTypes = Maps.newHashMap();
-        if (topology.getNodeTemplates() == null) {
-            return relationshipTypes;
-        }
-        for (Map.Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
-            NodeTemplate template = templateEntry.getValue();
-            if (template.getRelationships() != null) {
-                for (Map.Entry<String, RelationshipTemplate> relationshipEntry : template.getRelationships().entrySet()) {
-                    RelationshipTemplate relationship = relationshipEntry.getValue();
-                    if (!relationshipTypes.containsKey(relationship.getType())) {
-                        IndexedRelationshipType relationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
-                                relationship.getType(), topology.getDependencies());
-                        relationshipTypes.put(relationship.getType(), relationshipType);
-                    }
-                }
-            }
-        }
-        return relationshipTypes;
-    }
-
-    /**
      * Find replacements components for abstract nodes in a Topology
      *
      * @param topology
@@ -339,7 +285,7 @@ public class TopologyService {
      */
     @SneakyThrows({ IOException.class })
     private List<SuggestionsTask> findReplacementForAbstracts(Topology topology) {
-        Map<String, IndexedNodeType> nodeTempNameToAbstractIndexedNodeTypes = getIndexedNodeTypesFromTopology(topology, true, true);
+        Map<String, IndexedNodeType> nodeTempNameToAbstractIndexedNodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, true, true);
         Map<String, Map<String, Set<String>>> nodeTemplatesToFilters = Maps.newHashMap();
         for (Entry<String, IndexedNodeType> idntEntry : nodeTempNameToAbstractIndexedNodeTypes.entrySet()) {
             processNodeTemplate(topology, Maps.immutableEntry(idntEntry.getKey(), topology.getNodeTemplates().get(idntEntry.getKey())), nodeTemplatesToFilters);
@@ -693,7 +639,7 @@ public class TopologyService {
     /**
      * Check that the user has enough rights for a given topology.
      *
-     * @param topologyId The id of the topology for which to check roles.
+     * @param topology The topology for which to check roles.
      * @param applicationRoles The roles required to edit the topology for an application.
      */
     public void checkAuthorizations(Topology topology, ApplicationRole... applicationRoles) {
@@ -710,8 +656,7 @@ public class TopologyService {
     /**
      * Check that the current user can update the given topology.
      *
-     * @param topologyId
-     *            The id of the topology that is subject to being updated.
+     * @param topology The topology that is subject to being updated.
      */
     public void checkEditionAuthorizations(Topology topology) {
         checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
@@ -748,8 +693,8 @@ public class TopologyService {
      * @return The {@link TopologyDTO} that contains the given topology
      */
     public TopologyDTO buildTopologyDTO(Topology topology) {
-        Map<String, IndexedNodeType> nodeTypes = getIndexedNodeTypesFromTopology(topology, false, false);
-        Map<String, IndexedRelationshipType> relationshipTypes = getIndexedRelationshipTypesFromTopology(topology);
+        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
+        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
         return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes);
     }
@@ -834,8 +779,8 @@ public class TopologyService {
                 Map<String, IndexedNodeType> nodeTypes = null;
                 Map<String, IndexedRelationshipType> relationshipTypes = null;
                 try {
-                    nodeTypes = getIndexedNodeTypesFromTopology(topology, false, false);
-                    relationshipTypes = getIndexedRelationshipTypesFromTopology(topology);
+                    nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
+                    relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
                 } catch (NotFoundException e) {
                     throw new VersionConflictException("Version conflict, cannot add archive [" + archiveName + ":" + archiveVersion
                             + "], upgrade of the topology to this archive from version [" + topologyDependency.getVersion() + "] failed", e);

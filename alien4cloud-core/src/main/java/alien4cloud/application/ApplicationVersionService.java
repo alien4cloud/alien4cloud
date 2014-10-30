@@ -28,7 +28,7 @@ public class ApplicationVersionService {
      * @param applicationId The id of the application for which to create the version.
      * @param topologyId The id of the topology to clone for the version's topology.
      */
-    public void createApplicationVersion(String applicationId, String topologyId) {
+    public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
         ApplicationVersion version = new ApplicationVersion();
         version.setId(UUID.randomUUID().toString());
         version.setApplicationId(applicationId);
@@ -50,6 +50,7 @@ public class ApplicationVersionService {
 
         version.setTopologyId(topology.getId());
         alienDAO.save(version);
+        return version;
     }
 
     /**

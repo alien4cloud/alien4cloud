@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.cloud.CloudImage;
@@ -27,6 +28,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.utils.ReflectionUtil;
 
+import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import com.wordnik.swagger.annotations.Authorization;
@@ -74,7 +76,7 @@ public class CloudImageController {
 
     /**
      * Update an existing cloud image.
-     * 
+     *
      * @param id id of the cloud image
      * @param request the request which contains the cloud image details
      */
@@ -103,6 +105,11 @@ public class CloudImageController {
     @ApiOperation(value = "Delete an existing cloud image. The operation fails in case a cloud is still using the image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> delete(@ApiParam(value = "Id of the cloud image to delete.", required = true) @PathVariable String id) {
+        String[] cloudsUsingImage = cloudImageService.getCloudsUsingImage(id);
+        if (cloudsUsingImage.length > 0) {
+            throw new DeleteReferencedObjectException("Trying to delete a cloud image which is still used by following clouds "
+                    + Sets.newHashSet(cloudsUsingImage));
+        }
         cloudImageService.deleteCloudImage(id);
         return RestResponseBuilder.<Void> builder().build();
     }

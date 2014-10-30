@@ -17,7 +17,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.outputPropertiesValue = {};
     $scope.validTopologyDTO = false;
 
-    $scope.selectedComputeTemplates = {};
+    var refreshSetupData = function() {
+      $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
+      $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
+    };
 
     $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
       $scope.currentNodeTemplateId = name;
@@ -25,8 +28,13 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.changeSelectedImage = function(template) {
-      // TODO: send new value to server
       $scope.selectedComputeTemplates[$scope.currentNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id
+      }, angular.toJson({
+        cloudResourcesMapping: $scope.selectedComputeTemplates
+      }));
     };
 
     $scope.showProperty = function() {
@@ -38,7 +46,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isSelected = function(template) {
-      return template === $scope.selectedComputeTemplates[$scope.currentNodeTemplateId];
+      var selected = $scope.selectedComputeTemplates[$scope.currentNodeTemplateId];
+      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId;
     };
 
     $scope.isSelectedTemplate = function(key) {
@@ -63,7 +72,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         topologyId: $scope.topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
-        if (angular.isDefined($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'])) {
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
           $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
         }
         $scope.inputProperties = result.data.topology.inputProperties;
@@ -224,8 +234,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.deploy = function() {
       // Application details with deployment properties
       var deployApplicationRequest = {
-        applicationId: $scope.application.id,
-        deploymentProperties: $scope.deploymentProperties
+        applicationId: $scope.application.id
       };
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
@@ -312,18 +321,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var refreshDeploymentPropertyDefinitions = function() {
       if ($scope.selectedCloud) {
-        $scope.deploymentProperties = {};
         $http.get('rest/clouds/' + $scope.selectedCloud.id + '/deploymentpropertydefinitions').success(function(result) {
           if (result.data) {
             $scope.deploymentPropertyDefinitions = result.data;
             for (var propertyName in $scope.deploymentPropertyDefinitions) {
               if ($scope.deploymentPropertyDefinitions.hasOwnProperty(propertyName)) {
                 $scope.deploymentPropertyDefinitions[propertyName].name = propertyName;
-                if (UTILS.isDefinedAndNotNull($scope.deploymentPropertyDefinitions[propertyName].defaultValue)) {
-                  $scope.deploymentProperties[propertyName] = $scope.deploymentPropertyDefinitions[propertyName].defaultValue;
-                } else {
-                  $scope.deploymentProperties[propertyName] = null;
-                }
               }
             }
           }
@@ -344,12 +347,24 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             if ($scope.matchedCloudResources.hasOwnProperty(key)) {
               var templates = $scope.matchedCloudResources[key];
               if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-                $scope.selectedComputeTemplates[key] = templates[0];
+                $scope.hasUnmatchedResources = true;
+                break;
               }
             }
           }
         });
       }
+    };
+
+    var refreshDeploymentSetup = function() {
+      applicationServices.getDeploymentSetup({
+        applicationId: $scope.application.id
+      }, undefined, function(response) {
+        $scope.setup = response.data;
+        refreshSetupData();
+        refreshDeploymentPropertyDefinitions();
+        refreshCloudResources();
+      });
     };
 
     // search for clouds
@@ -367,8 +382,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           while (!found && i < clouds.length) {
             if (clouds[i].id === $scope.environment.cloudId) {
               $scope.selectedCloud = clouds[i];
-              refreshCloudResources();
-              refreshDeploymentPropertyDefinitions();
+              refreshDeploymentSetup();
               found = true;
             }
             i++;
@@ -380,11 +394,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     /** change the cloud for the topology */
     $scope.changeCloud = function(selectedCloud) {
       $scope.selectedComputeTemplates = {};
-      if (!selectedCloud) {
-        // reset deployment property bloc
-        $scope.deploymentPropertyDefinitions = null;
-        return;
-      }
       topologyServices.cloud.set({
         applicationId: $scope.application.id
       }, selectedCloud.id, function(result) {
@@ -392,8 +401,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.selectedCloud = selectedCloud;
           $scope.environment.cloudId = selectedCloud.id;
           refreshDeploymentStatus(true);
-          refreshCloudResources();
-          refreshDeploymentPropertyDefinitions();
+          refreshDeploymentSetup();
         }
       });
     };
@@ -413,6 +421,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       return applicationServices.checkProperty({}, angular.toJson(deploymentPropertyObject), function(data) {
         if (data.error === null) {
           $scope.deploymentProperties[propertyName] = propertyValue;
+          // Update deployment setup when properties change
+          applicationServices.updateDeploymentSetup({
+            applicationId: $scope.application.id
+          }, angular.toJson({
+            providerDeploymentProperties: $scope.deploymentProperties
+          }));
         }
       }).$promise;
     };

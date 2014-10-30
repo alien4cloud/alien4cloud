@@ -1,7 +1,7 @@
 <div class="row" style="margin-bottom: 20px">
   <div class="col-md-12">
     <div class="pull-right">
-      <delete-confirm style="position:absolute; top:50px; right:40px;" id="btn-delete-cloud-image" func="delete()"
+      <delete-confirm id="btn-delete-cloud-image" func="delete()"
                       position="left" bssize="btn-sm" fastyle="fa-trash-o">
       </delete-confirm>
     </div>
@@ -20,50 +20,12 @@
              ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_128'):null}}"
              ng-file-drop="onIconSelected($files)" />
       </div>
-      <div class="col-md-4 h1" id="template_{{cloudImage.name}}_name">
-        <span editable-text="cloudImage.name"
-              buttons="no"
-              e-required
-              e-class="input-lg"
-              onbeforesave="updateName($data)"
-              blur="submit">
-          {{cloudImage.name}} <i class="fa fa-edit"></i>
-        </span>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.OS_TYPE' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.osType}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.OS_ARCH' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.osArch}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.osDistribution}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.OS_VERSION' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.osVersion}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.NUM_CPUS' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.requirement.numCPUs}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.DISK_SIZE' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.requirement.diskSize | bytes}}</div>
-      </div>
-      <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-4"><label>{{'CLOUD_IMAGES.MEM_SIZE' | translate}}</label></div>
-        <div class="col-md-5">{{cloudImage.requirement.memSize | bytes}}</div>
+      <div class="col-md-9">
+        <update-form root-object="cloudImage"
+                     type="cloudImageFormDescriptor"
+                     label-size="30"
+                     save="save(object)">
+        </update-form>
       </div>
     </div>
   </div>
