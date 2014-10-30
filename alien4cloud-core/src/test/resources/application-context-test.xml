@@ -19,13 +19,14 @@
 		alien4cloud.tosca.*,
 		alien4cloud.images,
 		alien4cloud.application,
-		alien4cloud.quicksearch,
 		alien4cloud.csar.*,
-		alien4cloud.suggestion,
 		alien4cloud.rest.suggestion,
 		org.elasticsearch.mapping,
 		alien4cloud.paas,
-		alien4cloud.paas.plan">
+		alien4cloud.paas.plan,
+		alien4cloud.tosca,
+		alien4cloud.cloud,
+		alien4cloud.plugin">
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap" />
   </context:component-scan>
 
