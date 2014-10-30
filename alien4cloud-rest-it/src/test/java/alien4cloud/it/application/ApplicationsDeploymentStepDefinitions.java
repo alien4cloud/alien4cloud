@@ -189,12 +189,12 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I deploy all applications with cloud \"([^\"]*)\"$")
     public void I_deploy_all_applications_with_cloud(String cloudName) throws Throwable {
         assertNotNull(ApplicationStepDefinitions.CURRENT_APPLICATIONS);
-        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest("");
         for (String key : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
             Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(key);
 
             Context.getInstance().registerApplication(app);
             I_assign_the_cloud_with_name_for_the_application(cloudName);
+            DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
             deployApplicationRequest.setApplicationId(app.getId());
 
             Context.getInstance().registerRestResponse(
