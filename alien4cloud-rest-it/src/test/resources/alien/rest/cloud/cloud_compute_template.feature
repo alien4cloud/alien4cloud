@@ -85,3 +85,9 @@ Feature: Create cloud compute templates
       | Windows 7 with less requirement | small_less_cpu         | enabled |
       | Windows 7 with less requirement | small_less_disk_size   | enabled |
       | Windows 7 with less requirement | small_less_memory_size | enabled |
+
+  Scenario: Match resource for compute template
+    Given I add the cloud image "Windows 7" to the cloud "Mount doom cloud"
+    And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud"
+    When I match the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
+    Then I should receive a RestResponse with no error

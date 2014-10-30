@@ -4,8 +4,6 @@ Feature: CSAR snapshot tests
     Given I am authenticated with "COMPONENTS_MANAGER" role
     And I have a CSAR folder that is "containing base types"
     And I upload it
-    And I have a CSAR folder that is "containing java types"
-    And I upload it
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | sangoku |
