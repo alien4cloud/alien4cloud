@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environment', 'applicationEventServices', '$state',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environment, applicationEventServices, $state) {
+  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environment', 'applicationEventServices', '$state', '$rootScope',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environment, applicationEventServices, $state, $rootScope) {
   var pageStateId = $state.current.name;  
   $scope.application = applicationResult.data;
     $scope.environment = environment;
@@ -184,10 +184,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
      * Application status
      */
     var refreshDeploymentStatus = function(restart) {
+      if (restart) {
+        applicationEventServices.restart();
+      }
       applicationEventServices.refreshApplicationStatus(function(newStatus) {
-        if (restart) {
-          applicationEventServices.restart();
-        }
         $scope.deploymentStatus = newStatus;
         applicationEventServices.subscribeToStatusChange(pageStateId, onStatusChange);
         refreshInstancesStatuses();
@@ -239,6 +239,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
         $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
+        //workaround
+        //emit 'DEPLOYMENT_IN_PROGRESS' event, to change the runtime button status
+        $rootScope.$emit('DEPLOYMENT_IN_PROGRESS');
         $scope.isDeploying = false;
         refreshDeploymentStatus(true);
       });

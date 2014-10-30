@@ -45,9 +45,15 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $event.preventDefault();
         $event.stopPropagation();
       }
-    }
-    ;
+    };
 
+    //workaround
+    //listen to 'DEPLOYMENT_IN_PROGRESS' event, to change the runtime button status
+    $rootScope.$on('DEPLOYMENT_IN_PROGRESS', function() {
+      $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
+      setRuntimeDisabled();
+    });
+    
     $scope.menu = [
       {
         id: 'am.applications.info',
