@@ -1,6 +1,7 @@
 package alien4cloud.tosca.container.model.template;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @AllArgsConstructor
 @JsonDeserialize(using = PropertyValueDeserializer.class)
 @JsonSerialize(using = PropertyValueSerializer.class)
+@EqualsAndHashCode
 public class PropertyValue {
     private String value;
 }

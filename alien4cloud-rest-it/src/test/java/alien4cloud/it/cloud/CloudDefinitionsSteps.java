@@ -214,6 +214,11 @@ public class CloudDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp)));
     }
 
+    @When("^I get the cloud with id \"([^\"]*)\"$")
+    public void I_get_the_cloud_with_id(String id) throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + id));
+    }
+
     @Then("^I should receive a cloud with name \"([^\"]*)\"$")
     public void I_should_receive_a_cloud_with_name(String expectedName) throws Throwable {
         Cloud cloud = JsonUtil.read(Context.getInstance().getRestResponse(), Cloud.class).getData();
