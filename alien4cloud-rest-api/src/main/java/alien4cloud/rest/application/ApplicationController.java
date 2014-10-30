@@ -99,11 +99,8 @@ public class ApplicationController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@Valid @RequestBody CreateApplicationRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        String workspaceId = null;
-        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), workspaceId);
+        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
         ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(applicationId);
         deploymentSetupService.create(version, environment);
@@ -301,13 +298,12 @@ public class ApplicationController {
     /**
      * Update or create a property for an application
      *
-     * @param applicationId
-     * @param propertyRequest
-     * @return
+     * @param applicationId id of the application
+     * @param propertyRequest property request
+     * @return information on the constraint
      */
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
-
         RestError updateApplicationPropertyError = null;
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
@@ -347,9 +343,7 @@ public class ApplicationController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-
         return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
     }
 }

@@ -2,6 +2,7 @@ package alien4cloud.cloud;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -108,9 +109,25 @@ public class CloudService {
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         IPaaSProvider provider = passProviderFactory.newInstance();
         cloud.setConfigurable(saveDefaultConfiguration(cloud.getId(), provider));
+        initializeMatcherConfig(provider, cloud);
 
         alienDAO.save(cloud);
         return cloud.getId();
+    }
+
+    private void initializeMatcherConfig(IPaaSProvider provider, Cloud cloud) {
+        // If the provider manually match resources, then we should update it with saved configuration from Alien
+        if (provider instanceof IManualResourceMatcherPaaSProvider) {
+            log.info("Cloud <{}> needs manual resource matcher configuration", cloud.getName());
+            CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
+            if (config == null) {
+                log.info("Publish new manual resource matcher configuration for cloud <{}>", cloud.getName());
+                config = new CloudResourceMatcherConfig();
+                config.setId(cloud.getId());
+                alienDAO.save(config);
+            }
+            ((IManualResourceMatcherPaaSProvider) provider).updateMatcherConfig(config);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -333,18 +350,7 @@ public class CloudService {
                 ((IConfigurablePaaSProvider) provider).setConfiguration(validConfiguration);
             }
         }
-        // If the provider manually match resources, then we should update it with saved configuration from Alien
-        if (provider instanceof IManualResourceMatcherPaaSProvider) {
-            log.info("Cloud <{}> needs manual resource matcher configuration", cloud.getName());
-            CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
-            if (config == null) {
-                log.info("Publish new manual resource matcher configuration for cloud <{}>", cloud.getName());
-                config = new CloudResourceMatcherConfig();
-                config.setId(cloud.getId());
-                alienDAO.save(config);
-            }
-            ((IManualResourceMatcherPaaSProvider) provider).updateMatcherConfig(config);
-        }
+        initializeMatcherConfig(provider, cloud);
         // register the IPaaSProvider for the cloud.
         paaSProviderService.register(cloud.getId(), provider);
     }
@@ -516,7 +522,7 @@ public class CloudService {
      * @param cloud the cloud to update
      * @param cloudImageId the image to remove
      */
-    public void removeCloudImage(Cloud cloud, String cloudImageId) {
+    public void removeCloudImage(Cloud cloud, CloudResourceMatcherConfig config, String cloudImageId) {
         cloud.getImages().remove(cloudImageId);
         Iterator<ActivableComputeTemplate> iterator = cloud.getComputeTemplates().iterator();
         while (iterator.hasNext()) {
@@ -524,6 +530,17 @@ public class CloudService {
             if (computeTemplate.getCloudImageId().equals(cloudImageId)) {
                 iterator.remove();
             }
+        }
+        if (config != null) {
+            List<MatchedComputeTemplate> matchedTemplates = config.getMatchedComputeTemplates();
+            Iterator<MatchedComputeTemplate> matchedTemplateIterator = matchedTemplates.iterator();
+            while (matchedTemplateIterator.hasNext()) {
+                MatchedComputeTemplate matchedTemplate = matchedTemplateIterator.next();
+                if (matchedTemplate.getComputeTemplate().getCloudImageId().equals(cloudImageId)) {
+                    matchedTemplateIterator.remove();
+                }
+            }
+            alienDAO.save(config);
         }
         alienDAO.save(cloud);
     }
@@ -534,7 +551,7 @@ public class CloudService {
      * @param cloud the cloud to update
      * @param flavorId the flavor to remove
      */
-    public void removeCloudImageFlavor(Cloud cloud, String flavorId) {
+    public void removeCloudImageFlavor(Cloud cloud, CloudResourceMatcherConfig config, String flavorId) {
         Iterator<CloudImageFlavor> flavorIterator = cloud.getFlavors().iterator();
         while (flavorIterator.hasNext()) {
             CloudImageFlavor flavor = flavorIterator.next();
@@ -548,6 +565,17 @@ public class CloudService {
             if (computeTemplate.getCloudImageFlavorId().equals(flavorId)) {
                 templateIterator.remove();
             }
+        }
+        if (config != null) {
+            List<MatchedComputeTemplate> matchedTemplates = config.getMatchedComputeTemplates();
+            Iterator<MatchedComputeTemplate> matchedTemplateIterator = matchedTemplates.iterator();
+            while (matchedTemplateIterator.hasNext()) {
+                MatchedComputeTemplate matchedTemplate = matchedTemplateIterator.next();
+                if (matchedTemplate.getComputeTemplate().getCloudImageFlavorId().equals(flavorId)) {
+                    matchedTemplateIterator.remove();
+                }
+            }
+            alienDAO.save(config);
         }
         alienDAO.save(cloud);
     }
@@ -602,7 +630,11 @@ public class CloudService {
                                 paaSResourceId));
             }
         }
-        ((IManualResourceMatcherPaaSProvider) paaSProviderService.getPaaSProvider(cloud.getId())).updateMatcherConfig(matcherConfig);
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider != null) {
+            // Cloud may not be initialized yet
+            initializeMatcherConfig(paaSProvider, cloud);
+        }
         alienDAO.save(matcherConfig);
     }
 

@@ -347,7 +347,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             if ($scope.matchedCloudResources.hasOwnProperty(key)) {
               var templates = $scope.matchedCloudResources[key];
               if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-                $scope.selectedComputeTemplates[key] = templates[0];
+                $scope.hasUnmatchedResources = true;
+                break;
               }
             }
           }

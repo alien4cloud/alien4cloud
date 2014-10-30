@@ -271,7 +271,7 @@
     "DEPLOYMENT": {
       "NAME_MATCHER": "Association of cloud resources",
       "TITLE_NODE_ICON": "Icon of the node",
-      "TITLE_COMPOSANT": "Component name",
+      "TITLE_COMPONENT": "Component name",
       "TITLE_IMAGE": "Image name",
       "TITLE_FLAVOR": "Flavor name",
       "TITLE_IMAGE_ICON": "Icon of the image",
@@ -281,7 +281,8 @@
       "TITLE_ARCH": "Architecture",
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disk",
-      "TITLE_RAM": "RAM"
+      "TITLE_RAM": "RAM",
+      "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources"
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
@@ -415,6 +416,33 @@
     "MANAGE_ROLES": "Authorizations",
     "AUTHORIZED_GROUPS": "Authorized groups",
     "AUTHORIZED_USERS": "Authorized users",
+    "IMAGE": "Image",
+    "FLAVOR": "Flavor",
+    "TEMPLATE": "Template",
+    "TEMPLATE_DETAILS": "Details",
+    "IMAGES": {
+      "NEW": "Add image",
+      "NEW_MODAL_TITLE": "Add image",
+      "TO_BE_ADDED_TITLE": "Selected images",
+      "NO_SELECTED_IMAGES": "Click on an image to add"
+    },
+    "FLAVORS": {
+      "ID": "Name",
+      "NUM_CPUS": "Number of CPUs",
+      "DISK_SIZE": "Disk's size",
+      "MEM_SIZE": "Memory's size",
+      "NEW": "Add flavor",
+      "NEW_MODAL_TITLE": "Add new flavor"
+    },
+    "TEMPLATES": {
+      "ENABLED": "Enabled",
+      "NOT_CONFIGURED": "Not configured",
+      "FILTERED": "Filtered",
+      "ENABLE": "Enabled",
+      "IMAGE_NAME": "Image's name",
+      "FLAVOR_NAME": "Flavor's name",
+      "RESOURCE_ID": "PaaS resource's id"
+    },
     "IAAS": {
       "OTHER": "Other",
       "OPENSTACK": "OpenStack",

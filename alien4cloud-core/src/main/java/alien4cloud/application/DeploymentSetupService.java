@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -8,13 +9,20 @@ import javax.annotation.Resource;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
+import alien4cloud.cloud.CloudResourceMatcherService;
+import alien4cloud.cloud.CloudService;
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.template.PropertyValue;
+import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.PropertyDefinition;
 
 import com.google.common.collect.Maps;
@@ -28,14 +36,23 @@ public class DeploymentSetupService {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 
+    @Resource
+    private CloudResourceMatcherService cloudResourceMatcherService;
+
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
+
+    @Resource
+    private CloudService cloudService;
+
     private DeploymentSetup get(String versionId, String environmentId) {
         return alienDAO.findById(DeploymentSetup.class, generateId(versionId, environmentId));
     }
 
-    public DeploymentSetup getOrFail(String versionId, String environmentId) {
-        DeploymentSetup setup = get(versionId, environmentId);
+    public DeploymentSetup getOrFail(ApplicationVersion version, ApplicationEnvironment environment) {
+        DeploymentSetup setup = get(version.getId(), environment.getId());
         if (setup == null) {
-            throw new NotFoundException("No setup found for version [" + versionId + "] and environment [" + environmentId + "]");
+            throw new NotFoundException("No setup found for version [" + version.getId() + "] and environment [" + environment.getId() + "]");
         } else {
             return setup;
         }
@@ -50,18 +67,60 @@ public class DeploymentSetupService {
         return deploymentSetup;
     }
 
-    public void fillWithDefaultValues(DeploymentSetup deploymentSetup, Map<String, List<ComputeTemplate>> matchResult,
-            Map<String, PropertyDefinition> propertyDefinitionMap) {
+    /**
+     * Try to generate resources mapping for deployment setup from the topology and the cloud.
+     * If no value has been chosen this method will generate default value.
+     * If existing configuration is no longer valid for the topology and the cloud, this method will correct incompatibility
+     * 
+     * @param deploymentSetup the deployment setup to generate configuration for
+     * @param topology the topology
+     * @param cloud the cloud
+     * @return true if the deployment setup has been changed, false otherwise
+     */
+    public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud) {
+        boolean changed = false;
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
+        Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
+        Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig, types)
+                .getMatchResult();
         // Generate default matching for deployment setup
-        if (matchResult != null) {
-            Map<String, ComputeTemplate> cloudResourcesMapping = Maps.newHashMap();
-            for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
-                if (!entry.getValue().isEmpty()) {
-                    cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+        Map<String, ComputeTemplate> cloudResourcesMapping = deploymentSetup.getCloudResourcesMapping();
+        if (cloudResourcesMapping == null) {
+            changed = true;
+            cloudResourcesMapping = Maps.newHashMap();
+        } else {
+            // Try to remove unknown mapping from existing config
+            Iterator<Map.Entry<String, ComputeTemplate>> mappingEntryIterator = cloudResourcesMapping.entrySet().iterator();
+            while (mappingEntryIterator.hasNext()) {
+                Map.Entry<String, ComputeTemplate> entry = mappingEntryIterator.next();
+                if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(entry.getKey()) || !matchResult.containsKey(entry.getKey())
+                        || !matchResult.get(entry.getKey()).contains(entry.getValue())) {
+                    // Remove the mapping if topology do not contain the node with that name and of type compute
+                    // Or the mapping do not exist anymore in the match result
+                    changed = true;
+                    mappingEntryIterator.remove();
                 }
             }
-            deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
         }
+        for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
+            if (!entry.getValue().isEmpty() && !cloudResourcesMapping.containsKey(entry.getKey())) {
+                // Only take the first element as selected if no configuration has been set before
+                changed = true;
+                cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+            }
+        }
+        deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
+        return changed;
+    }
+
+    /**
+     * Try to generate a default deployment properties
+     * 
+     * @param deploymentSetup the deployment setup to generate configuration for
+     * @param cloud the cloud
+     */
+    public void generatePropertyDefinition(DeploymentSetup deploymentSetup, Cloud cloud) {
+        Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloud.getId());
         if (propertyDefinitionMap != null) {
             // Reset deployment properties as it might have changed between cloud
             Map<String, PropertyValue> propertyValueMap = Maps.newHashMap();

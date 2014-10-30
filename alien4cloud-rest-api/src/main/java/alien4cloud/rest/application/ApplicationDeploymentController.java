@@ -30,7 +30,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -44,7 +44,6 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -87,10 +86,9 @@ public class ApplicationDeploymentController {
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
         ApplicationVersion version = versions[0];
         DeploymentSetup deploymentSetup = getDeploymentSetup(application);
-        Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(
-                topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloudService.get(cloudId)).getMatchResult();
-        Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloudId);
-        deploymentSetupService.fillWithDefaultValues(deploymentSetup, matchResult, propertyDefinitionMap);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud);
+        deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
         alienDAO.save(deploymentSetup);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -125,7 +123,10 @@ public class ApplicationDeploymentController {
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version.getId(), environment.getId());
+        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        if (deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud)) {
+            alienDAO.save(deploymentSetup);
+        }
         try {
             deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
         } catch (CloudDisabledException e) {
@@ -306,7 +307,11 @@ public class ApplicationDeploymentController {
             throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
         }
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        return RestResponseBuilder.<CloudResourceTopologyMatchResult> builder().data(cloudResourceMatcherService.matchTopology(topology, cloud)).build();
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
+        return RestResponseBuilder
+                .<CloudResourceTopologyMatchResult> builder()
+                .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig,
+                        topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
     }
 
     @ApiOperation(value = "Get the deployment setup for an application")
@@ -323,7 +328,14 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
-        return deploymentSetupService.getOrFail(version.getId(), environment.getId());
+        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        if (environment.getCloudId() != null) {
+            Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
+            if (deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud)) {
+                alienDAO.save(deploymentSetup);
+            }
+        }
+        return deploymentSetup;
     }
 
     /**

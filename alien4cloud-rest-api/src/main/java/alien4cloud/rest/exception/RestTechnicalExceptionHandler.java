@@ -62,8 +62,7 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
         log.error("Object is still referenced and cannot be deleted", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message("The deleted object is still referenced.").build())
-                .build();
+                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)

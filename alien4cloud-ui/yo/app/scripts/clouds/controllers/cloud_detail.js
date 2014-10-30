@@ -32,6 +32,21 @@ angular.module('alienUiApp').controller(
         }
       };
 
+      var updatePaaSResourceId = function() {
+        if ($scope.manualMatchResource) {
+          var templateLength = $scope.matchedComputeTemplates.length;
+          for (var i = 0; i < templateLength; i++) {
+            var matched = $scope.matchedComputeTemplates[i].computeTemplate;
+            var originalIndex = UTILS.findByFieldValues($scope.cloud.computeTemplates, {
+              cloudImageId: matched.cloudImageId,
+              cloudImageFlavorId: matched.cloudImageFlavorId
+            });
+            var original = $scope.cloud.computeTemplates[originalIndex];
+            original.paaSResourceId = $scope.matchedComputeTemplates[i].paaSResourceId;
+          }
+        }
+      };
+
       cloudServices.get({
         id: cloudId
       }, function(response) {
@@ -40,19 +55,10 @@ angular.module('alienUiApp').controller(
         $scope.cloud = response.data.cloud;
         if (response.data.matcherConfig) {
           $scope.manualMatchResource = true;
-          var templateLength = response.data.matcherConfig.matchedComputeTemplates.length;
-          for (var i = 0; i < templateLength; i++) {
-            var matched = response.data.matcherConfig.matchedComputeTemplates[i].computeTemplate;
-            var originalIndex = UTILS.findByFieldValues($scope.cloud.computeTemplates, {
-              cloudImageId: matched.cloudImageId,
-              cloudImageFlavorId: matched.cloudImageFlavorId
-            });
-            var original = $scope.cloud.computeTemplates[originalIndex];
-            original.paaSResourceId = response.data.matcherConfig.matchedComputeTemplates[i].paaSResourceId;
-          }
+          $scope.matchedComputeTemplates = response.data.matcherConfig.matchedComputeTemplates;
+          updatePaaSResourceId();
         }
         updateTemplateStatistic();
-
         $scope.relatedUsers = {};
         if ($scope.cloud.userRoles) {
           var usernames = [];
@@ -272,17 +278,22 @@ angular.module('alienUiApp').controller(
         for (var i = 0; i < $scope.cloud.computeTemplates.length; i++) {
           if ($scope.cloud.computeTemplates[i].enabled === true) {
             $scope.templateActiveCount++;
-          }
-          if (UTILS.isUndefinedOrNull($scope.cloud.computeTemplates[i].paaSResourceId)) {
-            $scope.templateNotConfiguredCount++;
+            if (UTILS.isUndefinedOrNull($scope.cloud.computeTemplates[i].paaSResourceId)) {
+              $scope.templateNotConfiguredCount++;
+            }
           }
         }
         $scope.templateFilteredCount = $scope.cloud.images.length * $scope.cloud.flavors.length - $scope.cloud.computeTemplates.length;
       };
 
-      var updateTemplate = function(newComputeTemplates) {
+      var updateCloudResources = function(cloudResources) {
+        var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
         $scope.cloud.computeTemplates = newComputeTemplates;
+        if (UTILS.isDefinedAndNotNull(cloudResources.matchedComputeTemplates)) {
+          $scope.matchedComputeTemplates = cloudResources.matchedComputeTemplates;
+        }
+        updatePaaSResourceId();
         updateTemplateStatistic();
       };
 
@@ -299,7 +310,7 @@ angular.module('alienUiApp').controller(
           }, angular.toJson(flavor), function(success) {
             $scope.flavors[flavor.id] = flavor;
             $scope.cloud.flavors.push(flavor);
-            updateTemplate(success.data);
+            updateCloudResources(success.data);
           });
         });
       };
@@ -312,7 +323,7 @@ angular.module('alienUiApp').controller(
           var indexFlavor = UTILS.findByFieldValue($scope.cloud.flavors, 'id', flavorId);
           $scope.cloud.flavors.splice(indexFlavor, 1);
           delete $scope.flavors[flavorId];
-          updateTemplate(success.data);
+          updateCloudResources(success.data);
         });
       };
 
@@ -336,7 +347,7 @@ angular.module('alienUiApp').controller(
               $scope.images[images[i].id] = images[i];
             }
             $scope.cloud.images = UTILS.concat($scope.cloud.images, imageIds);
-            updateTemplate(success.data);
+            updateCloudResources(success.data);
           });
         });
       };
@@ -349,7 +360,7 @@ angular.module('alienUiApp').controller(
           delete $scope.images[imageId];
           var indexOfImage = $scope.cloud.images.indexOf(imageId);
           $scope.cloud.images.splice(indexOfImage, 1);
-          updateTemplate(success.data);
+          updateCloudResources(success.data);
         });
       };
 
@@ -365,11 +376,7 @@ angular.module('alienUiApp').controller(
           enabled: !template.enabled
         }, undefined, function() {
           template.enabled = !template.enabled;
-          if (template.enabled) {
-            $scope.templateActiveCount++;
-          } else {
-            $scope.templateActiveCount--;
-          }
+          updateTemplateStatistic();
         });
       };
 
@@ -395,11 +402,7 @@ angular.module('alienUiApp').controller(
           flavorId: template.cloudImageFlavorId,
           resourceId: template.paaSResourceId
         }, undefined, function() {
-          if (template.paaSResourceId) {
-            $scope.templateNotConfiguredCount--;
-          } else {
-            $scope.templateNotConfiguredCount++;
-          }
+          updateTemplateStatistic();
         });
       };
     }

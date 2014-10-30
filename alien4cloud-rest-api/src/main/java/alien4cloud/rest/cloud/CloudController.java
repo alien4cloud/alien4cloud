@@ -26,6 +26,7 @@ import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -276,41 +277,48 @@ public class CloudController {
 
     @ApiOperation(value = "Add a cloud image to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/images", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Set<ActivableComputeTemplate>> addCloudImage(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
+    public RestResponse<CloudResourcesDTO> addCloudImage(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         for (int i = 0; i < cloudImageIds.length; i++) {
             cloudImageService.getCloudImageFailIfNotExist(cloudImageIds[i]);
             cloudService.addCloudImage(cloud, cloudImageIds[i]);
         }
-        return RestResponseBuilder.<Set<ActivableComputeTemplate>> builder().data(cloud.getComputeTemplates()).build();
+        CloudResourcesDTO cloudResourcesDTO = new CloudResourcesDTO();
+        cloudResourcesDTO.setComputeTemplates(cloud.getComputeTemplates());
+        return RestResponseBuilder.<CloudResourcesDTO> builder().data(cloudResourcesDTO).build();
     }
 
     @ApiOperation(value = "Remove a cloud image from the given cloud", notes = "Only user with ADMIN role can remove a cloud image.")
     @RequestMapping(value = "/{cloudId}/images/{cloudImageId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Set<ActivableComputeTemplate>> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
+    public RestResponse<CloudResourcesDTO> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.removeCloudImage(cloud, cloudImageId);
-        return RestResponseBuilder.<Set<ActivableComputeTemplate>> builder().data(cloud.getComputeTemplates()).build();
+        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        cloudService.removeCloudImage(cloud, config, cloudImageId);
+        return RestResponseBuilder.<CloudResourcesDTO> builder().data(new CloudResourcesDTO(cloud.getComputeTemplates(), config.getMatchedComputeTemplates()))
+                .build();
     }
 
     @ApiOperation(value = "Add a flavor to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/flavors", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Set<ActivableComputeTemplate>> addCloudImageFlavor(@PathVariable String cloudId, @RequestBody CloudImageFlavor flavor) {
+    public RestResponse<CloudResourcesDTO> addCloudImageFlavor(@PathVariable String cloudId, @RequestBody CloudImageFlavor flavor) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.addCloudImageFlavor(cloud, flavor);
-        return RestResponseBuilder.<Set<ActivableComputeTemplate>> builder().data(cloud.getComputeTemplates()).build();
+        CloudResourcesDTO cloudResourcesDTO = new CloudResourcesDTO();
+        cloudResourcesDTO.setComputeTemplates(cloud.getComputeTemplates());
+        return RestResponseBuilder.<CloudResourcesDTO> builder().data(cloudResourcesDTO).build();
     }
 
     @ApiOperation(value = "Remove a flavor from the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/flavors/{flavorId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Set<ActivableComputeTemplate>> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
+    public RestResponse<CloudResourcesDTO> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.removeCloudImageFlavor(cloud, flavorId);
-        return RestResponseBuilder.<Set<ActivableComputeTemplate>> builder().data(cloud.getComputeTemplates()).build();
+        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        cloudService.removeCloudImageFlavor(cloud, config, flavorId);
+        return RestResponseBuilder.<CloudResourcesDTO> builder().data(new CloudResourcesDTO(cloud.getComputeTemplates(), config.getMatchedComputeTemplates())).build();
     }
 
     @ApiOperation(value = "Enable or disable a cloud template", notes = "Only user with ADMIN role can enable a cloud template.")

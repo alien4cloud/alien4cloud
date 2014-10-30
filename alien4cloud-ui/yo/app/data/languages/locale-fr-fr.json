@@ -272,7 +272,7 @@
     "DEPLOYMENT": {
       "NAME_MATCHER": "Association des ressources du cloud",
       "TITLE_NODE_ICON": "Icone du noeud",
-      "TITLE_COMPOSANT": "Nom du composant",
+      "TITLE_COMPONENT": "Nom du composant",
       "TITLE_IMAGE": "Nom de l'image",
       "TITLE_FLAVOR": "Nom du gabarit",
       "TITLE_IMAGE_ICON": "Icone de l'image",
@@ -282,7 +282,8 @@
       "TITLE_ARCH": "Architecture",
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disque",
-      "TITLE_RAM": "RAM"
+      "TITLE_RAM": "RAM",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud"
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",

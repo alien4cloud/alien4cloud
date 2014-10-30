@@ -8,7 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +49,6 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
@@ -69,7 +67,6 @@ import alien4cloud.tosca.container.exception.CSARValidationException;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.NodeType;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.container.validation.CSARError;
 import alien4cloud.tosca.container.validation.CSARValidationResult;
@@ -362,9 +359,8 @@ public class CloudServiceArchiveController {
                 csarDAO.save(topology);
                 // deploy this topology
                 DeploymentSetup deploymentSetup = new DeploymentSetup();
-                Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(topology, cloud).getMatchResult();
-                Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloudId);
-                deploymentSetupService.fillWithDefaultValues(deploymentSetup, matchResult, propertyDefinitionMap);
+                deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud);
+                deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
                 deploymentId = deploymentService.deployTopology(topology, cloudId, csar, deploymentSetup);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))

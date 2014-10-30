@@ -214,6 +214,9 @@
   <span ng-if="tabs.newTemplates != 0" class="badge">
     <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
   </span>
+  <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
+    <i class="fa fa-warning text-danger"></i>
+  </span>
   </tab-heading>
   <div class="row">
     <div class="col-md-6">
@@ -265,7 +268,7 @@
                     <td>{{cloudImage.name}}</td>
                     <td>{{flavor.id}}</td>
                     <td ng-if="manualMatchResource"
-                        ng-class="{'has-error': !template.paaSResourceId}">
+                        ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
                       <span editable-text="template.paaSResourceId"
                             buttons="no"
                             onaftersave="saveComputeTemplateResource(template)"
