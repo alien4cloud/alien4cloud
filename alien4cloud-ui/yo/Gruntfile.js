@@ -427,7 +427,7 @@ module.exports = function(grunt) {
         options: {
           args: {
             capabilities: {
-              'browserName': 'firefox'
+              'browserName': 'chrome'
             },
             //baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
@@ -436,12 +436,12 @@ module.exports = function(grunt) {
 //              'test/e2e/scenarios/admin_cloud.js',
 //              'test/e2e/scenarios/admin_cloud_image.js',
 //              'test/e2e/scenarios/admin_groups_management.js',
-              'test/e2e/scenarios/admin_metaprops_configuration.js',
-              'test/e2e/scenarios/admin_users_management.js',
-              'test/e2e/scenarios/application.js',
-              'test/e2e/scenarios/application_metaprops.js',
-              'test/e2e/scenarios/application_security.js',
-              'test/e2e/scenarios/application_tags.js',
+//              'test/e2e/scenarios/admin_metaprops_configuration.js',
+//              'test/e2e/scenarios/admin_users_management.js',
+//              'test/e2e/scenarios/application.js',
+//              'test/e2e/scenarios/application_metaprops.js',
+//              'test/e2e/scenarios/application_security.js',
+//              'test/e2e/scenarios/application_tags.js',
 //              'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
 //              'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
 //              'test/e2e/scenarios/application_topology_editor_input_output.js',
