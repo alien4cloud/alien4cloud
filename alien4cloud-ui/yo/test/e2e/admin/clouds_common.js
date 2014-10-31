@@ -183,7 +183,8 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
-  element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE')).click();
+  browser.actions().click(element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
 module.exports.addNewFlavor = addNewFlavor;

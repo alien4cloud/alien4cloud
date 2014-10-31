@@ -14,6 +14,7 @@ module.exports.goToCloudImageList = goToCloudImageList;
 var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize) {
   goToCloudImageList();
   element(by.id('new-cloud-image-button')).click();
+  browser.waitForAngular();
   genericForm.sendValueToPrimitive('name', name, false, 'input');
   genericForm.sendValueToPrimitive('osType', osType, false, 'select');
   genericForm.sendValueToPrimitive('osArch', osArch, false, 'select');
@@ -22,7 +23,8 @@ var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion,
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
-  element(by.binding('GENERIC_FORM.SAVE')).click();
+  browser.actions().click(element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
 module.exports.addNewCloudImage = addNewCloudImage;
