@@ -426,7 +426,7 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/plugins.js',
 //              'test/e2e/scenarios/admin_metaprops_configuration.js',
 //              'test/e2e/scenarios/admin_cloud.js',
-              'test/e2e/scenarios/admin_cloud_image.js'
+//              'test/e2e/scenarios/admin_cloud_image.js'
 
               // 'test/e2e/scenarios/csar_upload.js',
               // 'test/e2e/scenarios/component_details.js',
@@ -443,7 +443,7 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
               // 'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
               // 'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
-              // 'test/e2e/scenarios/application_topology_editor_input_output.js',
+//              'test/e2e/scenarios/application_topology_editor_input_output.js',
               // 'test/e2e/scenarios/application_topology_runtime.js',
               // 'test/e2e/scenarios/application_security.js',
 
@@ -455,7 +455,7 @@ module.exports = function(grunt) {
               // 'test/e2e/scenarios/security_users.js',
               // 'test/e2e/scenarios/security_groups.js',
               //'test/e2e/scenarios/security_cloud.js',
-              // 'test/e2e/scenarios/*'
+              'test/e2e/scenarios/*'
 
             ]
           }

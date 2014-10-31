@@ -177,6 +177,7 @@ var countTemplateCloud = function() {
 module.exports.countTemplateCloud = countTemplateCloud;
 
 var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
+  goToCloudDetailFlavor();
   browser.element(by.id('clouds-flavor-add-button')).click();
   genericForm.sendValueToPrimitive('id', name, false, 'input');
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
@@ -187,8 +188,7 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
 };
 module.exports.addNewFlavor = addNewFlavor;
 
-var selectFirstImageOfCloud = function(nameCloud) {
-  goToCloudDetail(nameCloud);
+var selectFirstImageOfCloud = function() {
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
   browser.waitForAngular();
@@ -197,3 +197,9 @@ var selectFirstImageOfCloud = function(nameCloud) {
   browser.waitForAngular();
 };
 module.exports.selectFirstImageOfCloud = selectFirstImageOfCloud;
+
+var assignPaaSResourceToTemplate = function(cloudImageName, flavorId, paaSResourceId) {
+  goToCloudDetailTemplate();
+  common.sendValueToXEditable('computeTemplate_' + cloudImageName + '_' + flavorId, paaSResourceId, false);
+};
+module.exports.assignPaaSResourceToTemplate = assignPaaSResourceToTemplate;

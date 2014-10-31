@@ -51,17 +51,16 @@ describe('Test the cloud management: ', function() {
 
   it('should be select an image for a cloud.', function() {
     console.log('################# should be select an image for a cloud.');
+    cloudImageCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
     cloudsCommon.goToCloudDetail('testcloud');
     expect(cloudsCommon.countImageCloud()).toBe(0);
-    cloudImageCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
-    cloudsCommon.selectFirstImageOfCloud('testcloud');
+    cloudsCommon.selectFirstImageOfCloud();
     expect(cloudsCommon.countImageCloud()).toBe(1);
   });
 
   it('should be create a flavor for a cloud.', function() {
     console.log('################# should be create a flavor for a cloud.')
     expect(cloudsCommon.countFlavorCloud()).toBe(0);
-    cloudsCommon.goToCloudDetailFlavor();
     cloudsCommon.addNewFlavor("small", "1", "10", "256");
     expect(cloudsCommon.countFlavorCloud()).toBe(1);
   });

@@ -20,17 +20,14 @@ describe('Application Deployment :', function() {
       reset = false;
       common.before();
       authentication.login('admin');
+      applications.createApplication('Alien', 'Great Application');
+      cloudImagesCommon.addNewCloudImage('Compute-dev', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
       cloudsCommon.goToCloudList();
       cloudsCommon.createNewCloud('testcloud');
-      applications.createApplication('Alien', 'Great Application');
-      cloudsCommon.goToCloudList();
-      cloudImagesCommon.addNewCloudImage('Compute-dev', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
-      cloudsCommon.selectFirstImageOfCloud('testcloud');
-      cloudsCommon.goToCloudDetailFlavor();
-      cloudsCommon.addNewFlavor("large", "8", "320", "4096");
-      cloudsCommon.goToCloudDetailFlavor();
-      cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
       cloudsCommon.goToCloudDetail('testcloud');
+      cloudsCommon.selectFirstImageOfCloud();
+      cloudsCommon.addNewFlavor("large", "8", "320", "4096");
+      cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
       cloudsCommon.enableCloud();
     }
   });

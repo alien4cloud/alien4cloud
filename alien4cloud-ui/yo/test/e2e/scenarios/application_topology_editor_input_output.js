@@ -37,7 +37,7 @@ describe('Topology input/output properties', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
       compute: componentData.toscaBaseTypes.compute()
     });
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
     topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
