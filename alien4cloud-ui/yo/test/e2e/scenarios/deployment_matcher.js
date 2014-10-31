@@ -28,6 +28,10 @@ describe('Application Deployment :', function() {
       cloudsCommon.selectFirstImageOfCloud();
       cloudsCommon.addNewFlavor("large", "8", "320", "4096");
       cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
+      cloudsCommon.goToCloudDetailTemplate();
+      cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'medium', 'MEDIUM_LINUX');
+      cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'large', 'LARGE_LINUX');
+      cloudsCommon.goToCloudDetailDetails();
       cloudsCommon.enableCloud();
     }
   });
