@@ -328,7 +328,10 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
+        if (deploymentSetup == null) {
+            deploymentSetup = deploymentSetupService.create(version, environment);
+        }
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
             if (deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud)) {

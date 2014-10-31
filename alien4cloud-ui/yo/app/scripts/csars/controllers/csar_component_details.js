@@ -55,7 +55,7 @@ angular.module('alienUiApp').controller(
                 $scope.refreshDetails();
               } else {
                 // Must delete the old one and change path to the new one
-                $scope.deleteNodeType('/csars/' + $scope.csarId + '/' + nodeType.id);
+                $scope.deleteNodeType(nodeType.id);
               }
             });
           };

@@ -1,3 +1,7 @@
+'use strict';
+
+var navigation = require('../common/navigation');
+
 var createCsar = function(csarName, csarVersion, description) {
   // Jump on csar list page
   goToCsarSearchPage();
@@ -12,17 +16,21 @@ var createCsar = function(csarName, csarVersion, description) {
   var btnCreate = browser.element(by.binding('CREATE'));
   browser.actions().click(btnCreate).perform();
   browser.waitForAngular();
-
 };
 module.exports.createCsar = createCsar;
 
 /* Jump to 'elementNumber' element in csar list */
-var gotoCsarDetails = function(elementNumber) {
-  browser.get(csarsSearchUrl);
+var goToCsarDetails = function(elementNumber) {
+  goToCsarSearchPage();
   var csars = element.all(by.repeater('csar in csarSearchResult.data.data'));
   expect(csars.count()).toBeGreaterThan(elementNumber);
   // Select the first line and click on details button
   var firstElement = csars.get(elementNumber);
   firstElement.click();
 };
-module.exports.gotoCsarDetails = gotoCsarDetails;
+module.exports.goToCsarDetails = goToCsarDetails;
+
+var goToCsarSearchPage = function() {
+  navigation.go('main', 'csars');
+};
+module.exports.goToCsarSearchPage = goToCsarSearchPage;

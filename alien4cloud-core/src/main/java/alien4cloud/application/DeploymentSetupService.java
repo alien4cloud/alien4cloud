@@ -45,12 +45,12 @@ public class DeploymentSetupService {
     @Resource
     private CloudService cloudService;
 
-    private DeploymentSetup get(String versionId, String environmentId) {
-        return alienDAO.findById(DeploymentSetup.class, generateId(versionId, environmentId));
+    public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
+        return alienDAO.findById(DeploymentSetup.class, generateId(version.getId(), environment.getId()));
     }
 
     public DeploymentSetup getOrFail(ApplicationVersion version, ApplicationEnvironment environment) {
-        DeploymentSetup setup = get(version.getId(), environment.getId());
+        DeploymentSetup setup = get(version, environment);
         if (setup == null) {
             throw new NotFoundException("No setup found for version [" + version.getId() + "] and environment [" + environment.getId() + "]");
         } else {
