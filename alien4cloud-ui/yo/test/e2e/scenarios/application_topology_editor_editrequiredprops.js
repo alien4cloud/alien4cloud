@@ -30,7 +30,7 @@ describe('Editing required properties and checking for topolgy validation', func
     expect(element(by.id('p_name_os_type')).getAttribute('class')).toContain('property-required');
 
     //edit the required properties and check again
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.checkTodoList(false);
   });
