@@ -4,7 +4,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.tosca.parser.IParser;
+import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.TypeNodeParser;
 import alien4cloud.tosca.parser.impl.ScalarParser;
@@ -69,7 +69,7 @@ public abstract class AbstractMapper<T> {
      * @param parser The parser to use to parse the field.
      * @param fieldName The name of the field to parse.
      */
-    public void quickMap(IParser parser, String fieldName) {
+    public void quickMap(INodeParser<?> parser, String fieldName) {
         int pathSeparatorLastIndex = fieldName.lastIndexOf(".");
         pathSeparatorLastIndex++;
         pathSeparatorLastIndex = pathSeparatorLastIndex > 0 ? pathSeparatorLastIndex : 0;

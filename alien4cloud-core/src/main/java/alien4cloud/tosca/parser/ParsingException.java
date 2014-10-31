@@ -8,17 +8,21 @@ import alien4cloud.exception.FunctionalException;
 import com.google.common.collect.Lists;
 
 @Getter
-public class ToscaParsingException extends FunctionalException {
+public class ParsingException extends FunctionalException {
     private static final long serialVersionUID = 1L;
 
-    private final List<ToscaParsingError> parsingErrors;
+    private final String fileName;
+    private final List<ParsingError> parsingErrors;
 
-    public ToscaParsingException(ToscaParsingError toscaParsingError) {
+    public ParsingException(String fileName, ParsingError toscaParsingError) {
         super(toscaParsingError.toString());
+        this.fileName = fileName;
         parsingErrors = Lists.newArrayList(toscaParsingError);
     }
-    ToscaParsingException(List<ToscaParsingError> toscaParsingErrors) {
+
+    ParsingException(String fileName, List<ParsingError> toscaParsingErrors) {
         super(toscaParsingErrors.toString());
+        this.fileName = fileName;
         parsingErrors = toscaParsingErrors;
     }
 }

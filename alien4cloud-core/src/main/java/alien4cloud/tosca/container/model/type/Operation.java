@@ -28,8 +28,6 @@ public class Operation {
     private String description;
     /** This OPTIONAL property contains a list of one or more input parameter definitions. */
     private Map<String, OperationParameter> inputParameters;
-    /** This OPTIONAL property contains a list of one or more output parameter definitions. */
-    private Map<String, OperationParameter> outputParameters;
 
     /**
      * <p>

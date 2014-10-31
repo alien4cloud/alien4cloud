@@ -1,10 +1,13 @@
-package alien4cloud.tosca.container.archive;
+package alien4cloud.tosca;
 
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Maps;
+
+import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.tosca.container.exception.CSARDuplicatedElementDeclarationException;
 import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.container.model.Definitions;
@@ -16,19 +19,21 @@ import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.container.model.type.Operation;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
 import alien4cloud.tosca.container.validation.CSARErrorCode;
+import alien4cloud.tosca.model.ArchiveRoot;
 
 @Component
 public class ArchivePostProcessor {
-
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the tosca elements from the key of the elements map.
      * 
      * @param archive The archive to post process
-     * @throws CSARDuplicatedElementDeclarationException
+     * @throws CSARDuplicatedElementDeclarationException in case an element is declared multiple times.
      */
-    public void postProcessArchive(CloudServiceArchive archive) throws CSARDuplicatedElementDeclarationException {
-        for (Map.Entry<String, Definitions> definitionsEntry : archive.getDefinitions().entrySet()) {
-            postProcessDefinitions(archive, definitionsEntry.getValue(), definitionsEntry.getKey());
+    public void postProcessArchive(ArchiveRoot archive) throws CSARDuplicatedElementDeclarationException {
+        Map<String, ? extends IndexedToscaElement> globalElementsMap = Maps.newHashMap();
+        postProcessElementMaps(globalElementsMap, archive.getNodeTypes(), archive);
+        for (ArchiveRoot root : archive.getLocalImports()) {
+            
         }
     }
 
@@ -44,19 +49,18 @@ public class ArchivePostProcessor {
 
     @SuppressWarnings("unchecked")
     @SafeVarargs
-    private final void postProcessElementMaps(Map<String, ? extends ToscaElement> globalElementsMap, Map<String, String> elementIdToDefinitionKeyMapping,
-            String definitionKey, Map<String, ? extends ToscaElement>... elementMaps) throws CSARDuplicatedElementDeclarationException {
-        for (Map<String, ? extends ToscaElement> elementMap : elementMaps) {
-            for (Entry<String, ? extends ToscaElement> elementEntry : elementMap.entrySet()) {
-                ToscaElement element = (ToscaElement) elementEntry.getValue();
+    private final void postProcessElementMaps(Map<String, ? extends IndexedToscaElement> globalElementsMap,
+            Map<String, ? extends IndexedToscaElement>... elementMaps, ArchiveRoot archive) throws CSARDuplicatedElementDeclarationException {
+        for (Map<String, ? extends IndexedToscaElement> elementMap : elementMaps) {
+            for (Entry<String, ? extends IndexedToscaElement> elementEntry : elementMap.entrySet()) {
+                IndexedToscaElement element = elementEntry.getValue();
                 // Fill id into each tosca element
                 element.setId(elementEntry.getKey());
                 // Obligation to cast because of java generic mechanism
-                if (((Map<String, ToscaElement>) globalElementsMap).put(elementEntry.getKey(), element) != null) {
-                    throw new CSARDuplicatedElementDeclarationException(definitionKey, CSARErrorCode.DUPLICATED_ELEMENT_DECLARATION, elementEntry.getKey(),
-                            "Element with key [" + elementEntry.getKey() + "] already existed in the archive definition");
+                if (((Map<String, IndexedToscaElement>) globalElementsMap).put(elementEntry.getKey(), element) != null) {
+                    throw new CSARDuplicatedElementDeclarationException(archive.getFileName(), CSARErrorCode.DUPLICATED_ELEMENT_DECLARATION,
+                            elementEntry.getKey(), "Element with key [" + elementEntry.getKey() + "] already existed in the archive definition");
                 }
-                elementIdToDefinitionKeyMapping.put(element.getId(), definitionKey);
             }
         }
     }

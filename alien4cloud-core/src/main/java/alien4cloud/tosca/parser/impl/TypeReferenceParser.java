@@ -1,7 +1,5 @@
 package alien4cloud.tosca.parser.impl;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -16,15 +14,13 @@ import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ToscaParsingError;
-
-import com.google.common.collect.Lists;
+import alien4cloud.tosca.parser.ParsingError;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the
  */
 @AllArgsConstructor
-public class TypeReferenceParser implements INodeParser<List<String>> {
+public class TypeReferenceParser implements INodeParser<String> {
     @SuppressWarnings("unchecked")
     private static final Class<? extends IndexedInheritableToscaElement>[] possibleTypes = new Class[] { IndexedNodeType.class, IndexedRelationshipType.class,
             IndexedCapabilityType.class, IndexedArtifactType.class };
@@ -39,39 +35,37 @@ public class TypeReferenceParser implements INodeParser<List<String>> {
     }
 
     @Override
-    public List<String> parse(Node node, ParsingContext context) {
+    public String parse(Node node, ParsingContext context) {
         String valueAsString = scalarParser.parse(node, context).trim();
         if (valueAsString == null || valueAsString.isEmpty()) {
             return null;
         }
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-        IndexedInheritableToscaElement parent = getFromArchive(archiveRoot, valueAsString);
-        if (parent == null) {
-            parent = getFromDependencies(archiveRoot, valueAsString);
+        IndexedInheritableToscaElement referencedElement = getFromArchive(archiveRoot, valueAsString);
+        if (referencedElement == null) {
+            referencedElement = getFromDependencies(archiveRoot, valueAsString);
         }
-        if (parent == null) {
+        if (referencedElement == null) {
             context.getParsingErrors().add(
-                    new ToscaParsingError(null, "Type not found", node.getStartMark(),
+                    new ParsingError(null, "Type not found", node.getStartMark(),
                             "The referenced type is not found neither in the archive or it's dependencies.", node.getEndMark(), valueAsString));
             return null;
         }
-        List<String> derivedFrom = Lists.newArrayList(parent.getDerivedFrom());
-        derivedFrom.add(0, valueAsString);
-        return derivedFrom;
+        return valueAsString;
     }
 
     private IndexedInheritableToscaElement getFromArchive(ArchiveRoot archiveRoot, String referencedType) {
         IndexedInheritableToscaElement referencedElement = null;
-        if (ArrayUtils.contains(validTypes, IndexedNodeType.class)) {
+        if (ArrayUtils.contains(validTypes, IndexedNodeType.class) && archiveRoot.getNodeTypes() != null) {
             referencedElement = archiveRoot.getNodeTypes().get(referencedType);
         }
-        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedRelationshipType.class)) {
+        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedRelationshipType.class) && archiveRoot.getRelationshipTypes() != null) {
             referencedElement = archiveRoot.getRelationshipTypes().get(referencedType);
         }
-        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedCapabilityType.class)) {
+        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedCapabilityType.class) && archiveRoot.getCapabilityTypes() != null) {
             referencedElement = archiveRoot.getCapabilityTypes().get(referencedType);
         }
-        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedArtifactType.class)) {
+        if (referencedElement == null && ArrayUtils.contains(validTypes, IndexedArtifactType.class) && archiveRoot.getArtifactTypes() != null) {
             referencedElement = archiveRoot.getArtifactTypes().get(referencedType);
         }
         return referencedElement;

@@ -7,15 +7,28 @@ import lombok.Setter;
 
 import org.springframework.beans.BeanWrapper;
 
+import com.google.common.collect.Lists;
+
 @Getter
 @Setter
 public class ParsingContext {
     private BeanWrapper root;
-    private final List<ToscaParsingError> parsingErrors;
-    private final List<Runnable> defferedParsers;
+    private final List<Runnable> defferedParsers = Lists.newArrayList();
+    private final ParsingContextResult parsingContextResult;
 
-    public ParsingContext(List<ToscaParsingError> parsingErrors, List<Runnable> defferedParsers) {
-        this.parsingErrors = parsingErrors;
-        this.defferedParsers = defferedParsers;
+    public ParsingContext(String fileName) {
+        parsingContextResult = new ParsingContextResult(fileName);
+    }
+
+    public String getFileName() {
+        return parsingContextResult.getFileName();
+    }
+
+    public List<ParsingError> getParsingErrors() {
+        return parsingContextResult.getParsingErrors();
+    }
+
+    public List<ParsingContextResult> getSubContexts() {
+        return parsingContextResult.getSubContexts();
     }
 }

@@ -17,7 +17,7 @@ public final class ParserUtils {
      * @param parsingErrors The parsing errors in which to add errors in case the node is not a scalar node.
      * @return The Scalar value or null if the node is not a scalar node.
      */
-    public static String getScalar(Node node, List<ToscaParsingError> parsingErrors) {
+    public static String getScalar(Node node, List<ParsingError> parsingErrors) {
         if (node instanceof ScalarNode) {
             return ((ScalarNode) node).getValue();
         }
@@ -26,14 +26,13 @@ public final class ParserUtils {
     }
 
     /**
-     * Add an invalid type {@link ToscaParsingError} to the given parsing errors list.
+     * Add an invalid type {@link ParsingError} to the given parsing errors list.
      * 
      * @param node The node that is causing the type error.
      * @param parsingErrors The parsing errors in which to add the error.
      * @param expectedType The type that was actually expected.
      */
-    public static void addTypeError(Node node, List<ToscaParsingError> parsingErrors, String expectedType) {
-        parsingErrors.add(new ToscaParsingError(false, null, "Invalid type", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(),
-                expectedType));
+    public static void addTypeError(Node node, List<ParsingError> parsingErrors, String expectedType) {
+        parsingErrors.add(new ParsingError("Invalid type", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(), expectedType));
     }
 }

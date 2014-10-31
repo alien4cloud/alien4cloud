@@ -7,7 +7,7 @@ import org.yaml.snakeyaml.nodes.Node;
  *
  * @param <T> The type of returned by the parser.
  */
-public interface INodeParser<T> extends IParser {
+public interface INodeParser<T> {
     /**
      * Parse a yaml node.
      * 
@@ -16,4 +16,11 @@ public interface INodeParser<T> extends IParser {
      * @return An instance of T based on the node parsing or null if the parsing failed.
      */
     T parse(Node node, ParsingContext context);
+
+    /**
+     * If true the parser will be executed after all other parsers have been completed.
+     * 
+     * @return True if deffered, false if not.
+     */
+    boolean isDeffered();
 }

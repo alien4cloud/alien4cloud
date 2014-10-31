@@ -41,8 +41,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
             }
         }
         context.getParsingErrors().add(
-                new ToscaParsingError(null, "Invalid Yaml node type.", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(),
-                        toscaType));
+                new ParsingError("Invalid Yaml node type.", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(), toscaType));
         return null;
     }
 
@@ -80,18 +79,18 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         if (target == null) {
             target = yamlToObjectMapping.get(key);
         }
+
         if (target == null) {
             context.getParsingErrors().add(
-                    new ToscaParsingError(false, null, "Ignored field during import", nodeTuple.getKeyNode().getStartMark(), "tosca key is not recognized",
-                            nodeTuple.getKeyNode().getEndMark(), key));
+                    new ParsingError(ParsingErrorLevel.WARNING, "Ignored field during import", nodeTuple.getKeyNode().getStartMark(),
+                            "tosca key is not recognized", nodeTuple.getKeyNode().getEndMark(), key));
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
             if (target.getParser().isDeffered()) {
-                context.getDefferedParsers().add(
-                        new DefferedParsingValueExecutor(targetBean, context, target.getPath(), target.getParser(), nodeTuple.getValueNode()));
+                context.getDefferedParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
             } else {
-                parseAndSetValue(targetBean, nodeTuple.getValueNode(), context, target.getPath(), target.getParser());
+                parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }
         }
     }

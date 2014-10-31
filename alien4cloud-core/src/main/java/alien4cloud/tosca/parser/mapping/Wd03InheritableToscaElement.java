@@ -1,16 +1,23 @@
 package alien4cloud.tosca.parser.mapping;
 
 import javax.annotation.Resource;
+import javax.validation.Validator;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.TypeNodeParser;
 import alien4cloud.tosca.parser.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.ValidatedNodeParser;
 
 public abstract class Wd03InheritableToscaElement<T extends IndexedInheritableToscaElement> extends Wd03ToscaElement<T> {
     @Resource
     private TypeReferenceParserFactory typeReferenceParserFactory;
     @Resource
     private Wd03PropertyDefinition propertyDefinition;
+    @Resource
+    private Validator validator;
+
     private Class<T> elementClass;
 
     public Wd03InheritableToscaElement(TypeNodeParser<T> instance, Class<T> elementClass) {
@@ -22,6 +29,7 @@ public abstract class Wd03InheritableToscaElement<T extends IndexedInheritableTo
     public void initMapping() {
         super.initMapping();
         quickMap(typeReferenceParserFactory.getDerivedFromParser(elementClass), "derivedFrom");
-        quickMap(propertyDefinition.getParser(), "properties");
+        quickMap(new MapParser<PropertyDefinition>(new ValidatedNodeParser<PropertyDefinition>(validator, propertyDefinition.getParser()), "Properties"),
+                "properties");
     }
 }

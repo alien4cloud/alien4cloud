@@ -39,10 +39,12 @@ public class RequirementDefinition {
      */
     @FormSuggestion(fromClass = IndexedCapabilityType.class, path = "elementId")
     private String type;
-    /** Constraints to specify on the target node's properties. */
-    private Map<String, PropertyConstraint> constraints;
     /** Specifies the default relationship type to be used for the relationship. This can be overriden by user but should be used as default. */
     private String relationshipType;
+    /** Can specify the optional target capability name on which to bind the relationship. */
+    private String capabilityName;
+    /** Constraints to specify on the target capability or node's properties. */
+    private Map<String, PropertyConstraint> constraints;
     /**
      * Specifies the lower boundary by which a requirement MUST be matched for Node Templates according to the current Node Type, or for instances created for
      * those Node Templates. The default value for this attribute is one. A value of zero would indicate that matching of the requirement is optional.

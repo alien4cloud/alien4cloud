@@ -7,14 +7,14 @@ import org.yaml.snakeyaml.nodes.Node;
 
 @AllArgsConstructor
 public class DefferedParsingValueExecutor extends AbstractTypeNodeParser implements Runnable {
+    private final String key;
     private final BeanWrapper target;
     private final ParsingContext context;
-    private final String path;
-    private final IParser parser;
+    private final MappingTarget mappingTarget;
     private final Node valueNode;
 
     @Override
     public void run() {
-        parseAndSetValue(target, valueNode, context, path, parser);
+        parseAndSetValue(target, key, valueNode, context, mappingTarget);
     }
 }

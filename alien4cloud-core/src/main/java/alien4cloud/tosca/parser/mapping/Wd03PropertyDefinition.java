@@ -4,7 +4,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.parser.ListParser;
 import alien4cloud.tosca.parser.TypeNodeParser;
 import alien4cloud.tosca.parser.impl.ConstraintParser;
 
@@ -25,7 +27,7 @@ public class Wd03PropertyDefinition extends AbstractMapper<PropertyDefinition> {
         quickMap("required");
         quickMap("description");
         quickMap("default");
-        quickMap(constraintParser, "constraints");
+        quickMap(new ListParser<PropertyConstraint>(constraintParser, "Constraints"), "constraints");
         quickMap(schema.getParser(), "entrySchema");
     }
 }

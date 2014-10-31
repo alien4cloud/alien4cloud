@@ -7,37 +7,34 @@ import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
 /**
- * Contains error informations relative to TOSCA parsing.
+ * Contains error informations relative to Yaml parsing.
  */
 @Getter
 @AllArgsConstructor
-public class ToscaParsingError {
-    private final boolean isBlocker;
-    private final String definitionFileName;
+public class ParsingError {
+    private final ParsingErrorLevel errorLevel;
     private final String context;
     private final Mark contextMark;
     private final String problem;
     private final Mark problemMark;
     private final String note;
 
-    public ToscaParsingError(String definitionFileName, String context, Mark contextMark, String problem, Mark problemMark, String note) {
-        this.definitionFileName = definitionFileName;
+    public ParsingError(String context, Mark contextMark, String problem, Mark problemMark, String note) {
         this.context = context;
         this.contextMark = contextMark;
         this.problem = problem;
         this.problemMark = problemMark;
         this.note = note;
-        this.isBlocker = true;
+        this.errorLevel = ParsingErrorLevel.ERROR;
     }
 
-    public ToscaParsingError(String definitionFileName, MarkedYAMLException cause) {
-        this.definitionFileName = definitionFileName;
+    public ParsingError(MarkedYAMLException cause) {
         this.context = cause.getContext();
         this.contextMark = cause.getContextMark();
         this.problem = cause.getProblem();
         this.problemMark = cause.getProblemMark();
         this.note = null;
-        this.isBlocker = true;
+        this.errorLevel = ParsingErrorLevel.ERROR;
     }
 
     @Override

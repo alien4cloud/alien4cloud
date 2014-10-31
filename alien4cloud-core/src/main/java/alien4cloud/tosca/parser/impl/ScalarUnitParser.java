@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ToscaParsingError;
+import alien4cloud.tosca.parser.ParsingError;
 
 /**
  * Parse a tosca Scalar unit field.
@@ -49,7 +49,7 @@ public class ScalarUnitParser extends ScalarParser {
             Double unitFactor = factorMap.get(unitValue);
             if (unitFactor == null) {
                 context.getParsingErrors().add(
-                        new ToscaParsingError(null, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
+                        new ParsingError(null, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
                                 "Unit is not a valid tosca unit, should be one of (B, kB, MB, GB, TB).", node.getEndMark(), scalarValue));
                 return null;
             }
@@ -57,7 +57,7 @@ public class ScalarUnitParser extends ScalarParser {
             return new Double(value.doubleValue() * unitFactor.doubleValue() / factor).toString();
         }
         context.getParsingErrors().add(
-                new ToscaParsingError(null, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
+                new ParsingError(null, "Unable to parse Tosca scalar-unit.", node.getStartMark(),
                         "Scalar unit should be formatted as a number followed with a unit.", node.getEndMark(), scalarValue));
         return null;
     }

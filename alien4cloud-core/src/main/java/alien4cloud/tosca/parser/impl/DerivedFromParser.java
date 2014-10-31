@@ -15,7 +15,7 @@ import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ToscaParsingError;
+import alien4cloud.tosca.parser.ParsingError;
 
 import com.google.common.collect.Lists;
 
@@ -46,7 +46,7 @@ public class DerivedFromParser implements INodeParser<List<String>> {
         }
         if (parent == null) {
             context.getParsingErrors().add(
-                    new ToscaParsingError(null, "Derived_from type not found", node.getStartMark(),
+                    new ParsingError(null, "Derived_from type not found", node.getStartMark(),
                             "The type specified as parent is not found neither in the archive or it's dependencies.", node.getEndMark(), valueAsString));
             return null;
         }

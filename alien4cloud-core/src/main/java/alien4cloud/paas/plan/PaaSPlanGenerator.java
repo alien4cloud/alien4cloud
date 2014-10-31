@@ -124,9 +124,6 @@ public final class PaaSPlanGenerator {
         Operation operation = interfaz.getOperations().get(operationName);
         if (operation != null && operation.getImplementationArtifact() != null) {
             activity.setImplementationArtifact(operation.getImplementationArtifact());
-        } else if (interfaz.getImplementationArtifact() != null) {
-            activity.setImplementationArtifact(interfaz.getImplementationArtifact());
-            activity.setOperationArtifact(false);
         }
         return activity;
     }

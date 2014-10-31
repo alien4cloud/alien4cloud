@@ -4,8 +4,15 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.model.IndexedArtifactType;
+import alien4cloud.component.model.IndexedCapabilityType;
+import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.SetParser;
 import alien4cloud.tosca.parser.TypeNodeParser;
 import alien4cloud.tosca.parser.impl.ImportParser;
 
@@ -17,6 +24,8 @@ public class Wd03ArchiveRoot extends AbstractMapper<ArchiveRoot> {
     private ImportParser importParser;
     @Resource
     private Wd03NodeType nodeType;
+    @Resource
+    private Wd03RelationshipType relationshipType;
     @Resource
     private Wd03CapabilityType capabilityType;
     @Resource
@@ -37,9 +46,11 @@ public class Wd03ArchiveRoot extends AbstractMapper<ArchiveRoot> {
         quickMap("archive.templateAuthor");
         quickMap("archive.description");
 
-        getParser().getYamlToObjectMapping().put("imports", new MappingTarget("archive.dependencies", importParser));
-        getParser().getYamlToObjectMapping().put("node_types", new MappingTarget("nodeTypes", nodeType.getParser()));
-        getParser().getYamlToObjectMapping().put("capability_types", new MappingTarget("capabilityTypes", capabilityType.getParser()));
-        getParser().getYamlToObjectMapping().put("artifact_types", new MappingTarget("artifactTypes", artifactType.getParser()));
+        getParser().getYamlToObjectMapping().put("imports", new MappingTarget("archive.dependencies", new SetParser<CSARDependency>(importParser, "import")));
+
+        quickMap(new MapParser<IndexedNodeType>(nodeType.getParser(), "Node types", "elementId"), "nodeTypes");
+        quickMap(new MapParser<IndexedRelationshipType>(relationshipType.getParser(), "Relationship types", "elementId"), "nodeTypes");
+        quickMap(new MapParser<IndexedCapabilityType>(capabilityType.getParser(), "Node types", "elementId"), "capabilityTypes");
+        quickMap(new MapParser<IndexedArtifactType>(artifactType.getParser(), "Node types", "elementId"), "artifactTypes");
     }
 }

@@ -37,8 +37,23 @@ node_types:
       my_app_port:
         type: integer
         description: application port number
+    capabilities:
+      some_capability: mytypes.mycapabilities.MyCapabilityTypeName
+      some_other_capability:
+        type: tosca.capabilities.Endpoint
+        description: this is a capability
+        properties:
+          port: 8080
+          range_sample: [8080, 9000]
     requirements:
-      host: tosca.nodes.Compute
+      - host: tosca.nodes.Compute
+        relationship_type: tosca.relationships.HostedOn
+        capability: host
+        lowerBound: 1
+        upperBound: 1
+      - other: tosca.capabilities.Endpoint
+        lowerBound: 0
+        upperBound: unbounded
     interfaces: [ Standard ]
 
 capability_types:

@@ -16,13 +16,8 @@ import com.google.common.collect.Maps;
 @Getter
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
-@FormProperties({ "description", "operations" })
+@FormProperties({ "operations" })
 public class Interface {
-    /** Implementation artifact for the interface. */
-    private ImplementationArtifact implementationArtifact;
-    private String description;
-    /**
-     * Defines an operation available to manage particular aspects of the Node Type.
-     */
+    /** Defines an operation available to manage particular aspects of the Node Type. */
     private Map<String, Operation> operations = Maps.newHashMap();
 }

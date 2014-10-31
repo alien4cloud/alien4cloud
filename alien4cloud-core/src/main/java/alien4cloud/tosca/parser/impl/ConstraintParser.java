@@ -16,10 +16,12 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.parser.AbstractTypeNodeParser;
 import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingTechnicalException;
-import alien4cloud.tosca.parser.ToscaParsingError;
+import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.properties.constraints.EqualConstraint;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.GreaterThanConstraint;
@@ -85,8 +87,8 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         ConstraintParsingInfo info = constraintBuildersMap.get(operator);
         if (info == null) {
             context.getParsingErrors().add(
-                    new ToscaParsingError(false, null, "Constraint parsing issue", keyNode.getStartMark(), "Unknown constraint operator ",
-                            keyNode.getEndMark(), operator));
+                    new ParsingError(ParsingErrorLevel.WARNING, "Constraint parsing issue", keyNode.getStartMark(),
+                            "Unknown constraint operator, will be ignored.", keyNode.getEndMark(), operator));
             return null;
         }
         PropertyConstraint constraint;
@@ -96,7 +98,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
             throw new ParsingTechnicalException("Unable to create constraint.", e);
         }
         BeanWrapper target = new BeanWrapperImpl(constraint);
-        parseAndSetValue(target, expressionNode, context, info.propertyName, scalarParser);
+        parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.propertyName, scalarParser));
         return constraint;
     }
 

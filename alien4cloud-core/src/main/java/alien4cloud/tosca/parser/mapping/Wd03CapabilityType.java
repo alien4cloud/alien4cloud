@@ -5,6 +5,8 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedCapabilityType;
+import alien4cloud.tosca.model.AttributeDefinition;
+import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.TypeNodeParser;
 
 @Component
@@ -19,7 +21,6 @@ public class Wd03CapabilityType extends Wd03InheritableToscaElement<IndexedCapab
     @Override
     public void initMapping() {
         super.initMapping();
-        quickMap(attributeDefinition.getParser(), "attributes");
-
+        quickMap(new MapParser<AttributeDefinition>(attributeDefinition.getParser(), "Attributes"), "attributes");
     }
 }
