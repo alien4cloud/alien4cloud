@@ -1,7 +1,7 @@
 <div class="row">
 <div class="col-md-12">
 <tabset>
-<tab heading="{{'CLOUDS.DETAILS' | translate}}">
+<tab heading="{{'CLOUDS.DETAILS' | translate}}" id="tab-clouds-details">
   <div class="row">
     <div class="col-md-2 center visible-md visible-lg" style="height: 127px;">
       <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" class="center" />
@@ -251,10 +251,10 @@
                   </tr>
                 </thead>
                 <tbody ng-mouseleave="deleteTemplateSelection()">
-                  <tr id='computeTemplate_{{template.cloudImageId + "_" + template.cloudImageFlavorId}}'
-                      ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'"
-                      ng-class="{'warning text-muted' : !template.enabled}"
+                  <tr ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'"
                       ng-init="cloudImage = images[template.cloudImageId]; flavor = flavors[template.cloudImageFlavorId]"
+                      id='computeTemplate_{{cloudImage.name + "_" + template.cloudImageFlavorId}}'
+                      ng-class="{'warning text-muted' : !template.enabled}"
                       ng-mouseover="selectTemplate(template)"
                       style="height: 81px;">
                     <td>

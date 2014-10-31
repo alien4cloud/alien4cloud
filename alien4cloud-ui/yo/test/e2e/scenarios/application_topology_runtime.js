@@ -37,7 +37,7 @@ var goToAlienAppAndSelectApachelbOperations = function() {
   applications.goToApplicationDetailPage('Alien');
   navigation.go('applications', 'topology');
   topologyEditorCommon.addNodeTemplatesCenterAndZoom(operationNodeTemplates);
-  topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+  topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
   topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
   topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
   common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
@@ -81,7 +81,7 @@ describe('Topology runtime view', function() {
   it('should be able to view topology runtime view', function() {
     console.log('################# should be able to view topology runtime view');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     common.ptor.executeScript('window.scrollTo(0,0);').then(function() {

@@ -37,7 +37,7 @@ describe('List and creation of cloud image', function() {
   it('should be able to delete a cloud image.', function() {
     console.log('################# should be able to delete a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(1);
-    cloudImagesCommon.addNewCloudImage('test-delete', 'windows', 'x86_32', 'Seven', '7.1', '4', '', '1024');
+    cloudImagesCommon.addNewCloudImage('test-delete', 'windows', 'x86_32', 'Seven', '7.1', '4', '345', '1024');
     cloudImagesCommon.goToCloudImageList();
     expect(cloudImagesCommon.countCloudImages()).toBe(2);
     common.deleteWithConfirm('btn-delete-cloud-imagetest-delete', true);

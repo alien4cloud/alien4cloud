@@ -141,6 +141,11 @@ var giveRightsOnCloudToGroup = function(cloudName, group, cloudRole) {
 };
 module.exports.giveRightsOnCloudToGroup = giveRightsOnCloudToGroup;
 
+var goToCloudDetailDetails = function() {
+  element(by.id('tab-clouds-details')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailDetails = goToCloudDetailDetails;
+
 var goToCloudDetailImage = function() {
   element(by.id('tab-clouds-image')).element(by.tagName('a')).click();
 };
@@ -177,18 +182,19 @@ var countTemplateCloud = function() {
 module.exports.countTemplateCloud = countTemplateCloud;
 
 var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
+  goToCloudDetailFlavor();
   browser.element(by.id('clouds-flavor-add-button')).click();
   genericForm.sendValueToPrimitive('id', name, false, 'input');
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
-  element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE')).click();
+  browser.actions().click(element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
 module.exports.addNewFlavor = addNewFlavor;
 
-var selectFirstImageOfCloud = function(nameCloud) {
-  goToCloudDetail(nameCloud);
+var selectFirstImageOfCloud = function() {
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
   browser.waitForAngular();
@@ -197,3 +203,9 @@ var selectFirstImageOfCloud = function(nameCloud) {
   browser.waitForAngular();
 };
 module.exports.selectFirstImageOfCloud = selectFirstImageOfCloud;
+
+var assignPaaSResourceToTemplate = function(cloudImageName, flavorId, paaSResourceId) {
+  goToCloudDetailTemplate();
+  common.sendValueToXEditable('computeTemplate_' + cloudImageName + '_' + flavorId, paaSResourceId, false);
+};
+module.exports.assignPaaSResourceToTemplate = assignPaaSResourceToTemplate;

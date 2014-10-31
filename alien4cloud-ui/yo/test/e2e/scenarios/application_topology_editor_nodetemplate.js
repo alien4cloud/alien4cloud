@@ -147,7 +147,7 @@ describe('Topology node template edition', function() {
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.checkTodoList(true);
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.checkTodoList(false);
   });

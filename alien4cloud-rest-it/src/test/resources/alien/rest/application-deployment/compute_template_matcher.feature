@@ -173,3 +173,9 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "mem_size" to "9999999999"
     And I match for resources for my application on the cloud
     Then I should receive an empty match result
+
+  Scenario: Select a compute template for a node
+    When I select the the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
+    Then I should receive a RestResponse with no error
+    And The deployment setup of the application should contain following resources mapping:
+      | Compute | Ubuntu Trusty | medium |

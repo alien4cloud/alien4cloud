@@ -26,7 +26,6 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.rest.application.DeployApplicationRequest;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.spring.config.YamlPropertiesFactoryBean;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
@@ -113,7 +112,7 @@ public class Context {
 
     private ThreadLocal<String> topologyCloudInfos;
 
-    private ThreadLocal<DeployApplicationRequest> deployApplicationInfo;
+    private ThreadLocal<Map<String, String>> deployApplicationProperties;
 
     private ThreadLocal<Map<String, MetaPropConfiguration>> configurationTags;
 
@@ -134,7 +133,7 @@ public class Context {
         topologyTemplate = new ThreadLocal<TopologyTemplate>();
         cloudInfos = new ThreadLocal<Map<String, String>>();
         topologyCloudInfos = new ThreadLocal<String>();
-        deployApplicationInfo = new ThreadLocal<DeployApplicationRequest>();
+        deployApplicationProperties = new ThreadLocal<Map<String, String>>();
         configurationTags = new ThreadLocal<Map<String, MetaPropConfiguration>>();
         topologyDeploymentId = new ThreadLocal<String>();
         groupIdToGroupNameMapping = new ThreadLocal<Map<String, String>>();
@@ -414,19 +413,12 @@ public class Context {
         return topologyCloudInfos.get();
     }
 
-    public void registerDeployApplicationInfo(DeployApplicationRequest deployApplicationRequest) {
-        log.debug("Registering Application deployment info for application [" + deployApplicationRequest.getApplicationId() + "] in the context");
-        deployApplicationInfo.set(deployApplicationRequest);
+    public void registerDeployApplicationProperties(Map<String, String> deployApplicationProperties) {
+        this.deployApplicationProperties.set(deployApplicationProperties);
     }
 
-    public DeployApplicationRequest getDeployApplicationInfo() {
-        return deployApplicationInfo.get();
-    }
-
-    public DeployApplicationRequest takeDeployApplicationInfo() {
-        DeployApplicationRequest deployApplicationRequest = deployApplicationInfo.get();
-        deployApplicationInfo.set(null);
-        return deployApplicationRequest;
+    public Map<String, String> getDeployApplicationProperties() {
+        return deployApplicationProperties.get();
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {

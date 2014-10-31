@@ -51,7 +51,6 @@ describe('Security management on applications', function() {
     authentication.login('admin');
     users.navigationUsers();
     users.createUser(authentication.users.sauron);
-    users.createUser(authentication.users.sauron);
 
     // create group
     users.navigationGroups();

@@ -653,7 +653,7 @@ angular.module('alienUiApp').directive('abstractTypeForm', ['$compile', '$interv
             element.children().children().remove();
             $interval(function() {
               FORMS.initComplexProperties(scope, scope.implementationType, element.children(), $compile);
-            });
+            }, 0, 1);
           }
         });
       };

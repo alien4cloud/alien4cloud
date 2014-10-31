@@ -7,6 +7,7 @@ var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var cloudsCommon = require('../admin/clouds_common');
 var navigation = require('../common/navigation');
+var cloudImageCommon = require('../admin/cloud_image');
 
 var relationshipTypesByIds = {
   'hostedOn10': 'tosca.relationships.HostedOn:1.0',
@@ -39,11 +40,14 @@ module.exports.topologyTemplates = topologyTemplates;
 var beforeTopologyTest = function() {
   common.before();
   authentication.login('admin');
-
+  cloudImageCommon.addNewCloudImage('Windows', 'windows', 'x86_64', 'Windows', '14.04', '1', '1', '1')
   cloudsCommon.goToCloudList();
   cloudsCommon.createNewCloud('testcloud');
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
+  cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
+  cloudsCommon.selectFirstImageOfCloud();
+  cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
   authentication.logout();
 
   authentication.login('applicationManager');
@@ -86,11 +90,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-      '\
+    '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -193,8 +197,8 @@ function addRelationshipSelectCapability(targetNumber, targetNodeTemplateName, t
     } else {
       //select the first capability
       var targetCapabilities = element(by.name(targetNodeTemplateName + '_capabilities'));
-      targetCapabilities.isPresent().then(function(present){
-        if(present) {
+      targetCapabilities.isPresent().then(function(present) {
+        if (present) {
           var capabilities = targetCapabilities.all(by.repeater('capability in  match.capabilities'));
           capabilities.first().click();
           addRelationshipSelectRelationship(relationshipTypeId, relationName, newVersion, newId);

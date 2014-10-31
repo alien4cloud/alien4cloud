@@ -89,5 +89,17 @@ Feature: Create cloud compute templates
   Scenario: Match resource for compute template
     Given I add the cloud image "Windows 7" to the cloud "Mount doom cloud"
     And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud"
-    When I match the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
+    When I match the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_WINDOWS"
     Then I should receive a RestResponse with no error
+    And The cloud "Mount doom cloud" should have resources mapping configuration as below:
+      | Windows 7 | small | SMALL_WINDOWS |
+    Given I add the flavor with name "medium", number of CPUs 4, disk size 64 and memory size 4096 to the cloud "Mount doom cloud"
+    When I match the template composed of image "Windows 7" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
+    Then I should receive a RestResponse with no error
+    And The cloud "Mount doom cloud" should have resources mapping configuration as below:
+      | Windows 7 | small  | SMALL_WINDOWS  |
+      | Windows 7 | medium | MEDIUM_WINDOWS |
+    When I delete the mapping for the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud"
+    Then I should receive a RestResponse with no error
+    And The cloud "Mount doom cloud" should have resources mapping configuration as below:
+      | Windows 7 | medium | MEDIUM_WINDOWS |

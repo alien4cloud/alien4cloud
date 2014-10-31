@@ -1,6 +1,7 @@
 package alien4cloud.model.cloud;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class MatchedComputeTemplate {
 
