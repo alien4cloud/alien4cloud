@@ -28,7 +28,7 @@ public class ParsingContext {
         return parsingContextResult.getParsingErrors();
     }
 
-    public List<ParsingContextResult> getSubContexts() {
-        return parsingContextResult.getSubContexts();
+    public List<ParsingResult<?>> getSubResults() {
+        return parsingContextResult.getSubResults();
     }
 }

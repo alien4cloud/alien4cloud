@@ -23,11 +23,12 @@ public class ArchiveUploadService {
      * 
      * @param path The archive path.
      * @return The Csar object from the parsing.
-     * @throws ParsingException 
+     * @throws ParsingException
      */
     public Csar upload(Path path) throws ParsingException {
         // parse the archive.
         ParsingResult<ArchiveRoot> archive = parser.parse(path);
+        
         postProcessor.postProcessArchive(archive);
         return null;
     }

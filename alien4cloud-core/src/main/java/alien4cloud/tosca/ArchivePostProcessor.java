@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
 
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.tosca.container.exception.CSARDuplicatedElementDeclarationException;
 import alien4cloud.tosca.container.model.CloudServiceArchive;
@@ -30,27 +31,22 @@ public class ArchivePostProcessor {
      * @throws CSARDuplicatedElementDeclarationException in case an element is declared multiple times.
      */
     public void postProcessArchive(ArchiveRoot archive) throws CSARDuplicatedElementDeclarationException {
+        doPostProcess(archive);
+    }
+
+    private void doPostProcess(ArchiveRoot archive) {
         Map<String, ? extends IndexedToscaElement> globalElementsMap = Maps.newHashMap();
         postProcessElementMaps(globalElementsMap, archive.getNodeTypes(), archive);
         for (ArchiveRoot root : archive.getLocalImports()) {
-            
+
         }
-    }
-
-    private void postProcessDefinitions(CloudServiceArchive archive, Definitions definitions, String definitionKey)
-            throws CSARDuplicatedElementDeclarationException {
-        // May we do thing by reflection to do not forget the day when the model change ??
-        // YAGNI ?
-        postProcessElementMaps(archive.getArchiveInheritableElements(), archive.getElementIdToDefinitionKeyMapping(), definitionKey,
-                definitions.getNodeTypes(), definitions.getRelationshipTypes(), definitions.getCapabilityTypes(), definitions.getArtifactTypes());
-        postProcessNodeTypes(archive, definitions.getNodeTypes());
-
+        postProcessNodeTypes(archive, archive.getNodeTypes());
     }
 
     @SuppressWarnings("unchecked")
-    @SafeVarargs
-    private final void postProcessElementMaps(Map<String, ? extends IndexedToscaElement> globalElementsMap,
-            Map<String, ? extends IndexedToscaElement>... elementMaps, ArchiveRoot archive) throws CSARDuplicatedElementDeclarationException {
+    // @SafeVarargs
+    private final void postProcessElementMaps(ArchiveRoot archive, Map<String, ? extends IndexedToscaElement> globalElementsMap,
+            Map<String, ? extends IndexedToscaElement>... elementMaps) throws CSARDuplicatedElementDeclarationException {
         for (Map<String, ? extends IndexedToscaElement> elementMap : elementMaps) {
             for (Entry<String, ? extends IndexedToscaElement> elementEntry : elementMap.entrySet()) {
                 IndexedToscaElement element = elementEntry.getValue();
@@ -65,16 +61,8 @@ public class ArchivePostProcessor {
         }
     }
 
-    private void postProcessNodeTypes(CloudServiceArchive archive, Map<String, NodeType> nodeTypes) {
-        for (NodeType nodeType : nodeTypes.values()) {
-            for (Entry<String, CapabilityDefinition> entry : nodeType.getCapabilities().entrySet()) {
-                entry.getValue().setId(entry.getKey());
-            }
-
-            for (Entry<String, RequirementDefinition> entry : nodeType.getRequirements().entrySet()) {
-                entry.getValue().setId(entry.getKey());
-            }
-
+    private void postProcessNodeTypes(ArchiveRoot archive, Map<String, IndexedNodeType> nodeTypes) {
+        for (IndexedNodeType nodeType : nodeTypes.values()) {
             for (Interface interfaz : nodeType.getInterfaces().values()) {
                 for (Operation operation : interfaz.getOperations().values()) {
                     postProcessImplementationArtifact(archive, operation.getImplementationArtifact());
@@ -83,10 +71,10 @@ public class ArchivePostProcessor {
         }
     }
 
-    private void postProcessImplementationArtifact(CloudServiceArchive archive, ImplementationArtifact artifact) {
+    private void postProcessImplementationArtifact(ArchiveRoot archive, ImplementationArtifact artifact) {
         if (artifact != null) {
-            artifact.setArchiveName(archive.getMeta().getName());
-            artifact.setArchiveVersion(archive.getMeta().getVersion());
+            artifact.setArchiveName(archive.getArchive().getName());
+            artifact.setArchiveVersion(archive.getArchive().getVersion());
         }
     }
 }

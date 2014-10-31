@@ -13,7 +13,7 @@ public class ParsingContextResult {
     private final String fileName;
     private final List<ParsingError> parsingErrors = Lists.newArrayList();
     /** If parsing triggers parsing of other related yaml files. */
-    private final List<ParsingContextResult> subContexts = Lists.newArrayList();
+    private final List<ParsingResult<?>> subResults = Lists.newArrayList();
 
     public ParsingContextResult(String fileName) {
         this.fileName = fileName;
