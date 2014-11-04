@@ -137,7 +137,6 @@ public class PluginDefinitionsSteps {
     @Then("^there should be a configuration object in the response$")
     public void there_should_be_a_configuration_object_in_the_response() throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().takeRestResponse());
-        log.info(JsonUtil.toString(response));
         Object pluginConfig = response.getData();
         assertNotNull(pluginConfig);
     }

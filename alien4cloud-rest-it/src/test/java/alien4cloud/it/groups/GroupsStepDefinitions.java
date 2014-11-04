@@ -213,7 +213,6 @@ public class GroupsStepDefinitions {
     @Then("^the user \"([^\"]*)\" should not have any group$")
     public void the_user_should_not_have_any_group(String username) throws Throwable {
         String response = Context.getRestClientInstance().get("/rest/users/" + username);
-        log.info(response);
         User user = JsonUtil.read(response, User.class).getData();
         assertNotNull(user);
         assertTrue(CollectionUtils.isEmpty(user.getGroups()));
