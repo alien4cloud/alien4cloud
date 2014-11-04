@@ -39,6 +39,6 @@ public class Wd03RequirementDefinition extends AbstractMapper<RequirementDefinit
         quickMap(boundParser, "upperBound");
         quickMap("relationshipType");
         instance.getYamlToObjectMapping().put("capability", new MappingTarget("capabilityName", getScalarParser()));
-        quickMap(new MapParser<PropertyConstraint>(constraintParser, "Constraints"), "relationshipType");
+        quickMap(new MapParser<PropertyConstraint>(constraintParser, "Constraints"), "constraints");
     }
 }

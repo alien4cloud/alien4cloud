@@ -1,26 +1,19 @@
 package alien4cloud.tosca;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Maps;
 
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.tosca.container.exception.CSARDuplicatedElementDeclarationException;
-import alien4cloud.tosca.container.model.CloudServiceArchive;
-import alien4cloud.tosca.container.model.Definitions;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
 import alien4cloud.tosca.container.model.type.ImplementationArtifact;
 import alien4cloud.tosca.container.model.type.Interface;
-import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.container.model.type.Operation;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
-import alien4cloud.tosca.container.validation.CSARErrorCode;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingResult;
+
+import com.google.common.collect.Maps;
 
 @Component
 public class ArchivePostProcessor {
@@ -30,35 +23,38 @@ public class ArchivePostProcessor {
      * @param archive The archive to post process
      * @throws CSARDuplicatedElementDeclarationException in case an element is declared multiple times.
      */
-    public void postProcessArchive(ArchiveRoot archive) throws CSARDuplicatedElementDeclarationException {
-        doPostProcess(archive);
+    public void postProcessArchive(ParsingResult<ArchiveRoot> parsedArchive) throws CSARDuplicatedElementDeclarationException {
+        doPostProcess(parsedArchive);
     }
 
-    private void doPostProcess(ArchiveRoot archive) {
+    private void doPostProcess(ParsingResult<ArchiveRoot> parsedArchive) {
         Map<String, ? extends IndexedToscaElement> globalElementsMap = Maps.newHashMap();
-        postProcessElementMaps(globalElementsMap, archive.getNodeTypes(), archive);
-        for (ArchiveRoot root : archive.getLocalImports()) {
+        // postProcessElementMaps(parsedArchive.getContext().getFileName(), globalElementsMap, archive.getNodeTypes(), archive);
+        for (ParsingResult<?> subParsingResult : parsedArchive.getContext().getSubResults()) {
 
         }
-        postProcessNodeTypes(archive, archive.getNodeTypes());
+        // postProcessNodeTypes(archive, archive.getNodeTypes());
     }
 
     @SuppressWarnings("unchecked")
     // @SafeVarargs
-    private final void postProcessElementMaps(ArchiveRoot archive, Map<String, ? extends IndexedToscaElement> globalElementsMap,
+    private final void postProcessElementMaps(ParsingResult<ArchiveRoot> parsedArchive, Map<String, ? extends IndexedToscaElement> globalElementsMap,
             Map<String, ? extends IndexedToscaElement>... elementMaps) throws CSARDuplicatedElementDeclarationException {
-        for (Map<String, ? extends IndexedToscaElement> elementMap : elementMaps) {
-            for (Entry<String, ? extends IndexedToscaElement> elementEntry : elementMap.entrySet()) {
-                IndexedToscaElement element = elementEntry.getValue();
-                // Fill id into each tosca element
-                element.setId(elementEntry.getKey());
-                // Obligation to cast because of java generic mechanism
-                if (((Map<String, IndexedToscaElement>) globalElementsMap).put(elementEntry.getKey(), element) != null) {
-                    throw new CSARDuplicatedElementDeclarationException(archive.getFileName(), CSARErrorCode.DUPLICATED_ELEMENT_DECLARATION,
-                            elementEntry.getKey(), "Element with key [" + elementEntry.getKey() + "] already existed in the archive definition");
-                }
-            }
-        }
+        // for (Map<String, ? extends IndexedToscaElement> elementMap : elementMaps) {
+        // for (Entry<String, ? extends IndexedToscaElement> elementEntry : elementMap.entrySet()) {
+        // IndexedToscaElement element = elementEntry.getValue();
+        // // Fill id into each tosca element
+        // element.setId(elementEntry.getKey());
+        // // Obligation to cast because of java generic mechanism
+        // if (((Map<String, IndexedToscaElement>) globalElementsMap).put(elementEntry.getKey(), element) != null) {
+        // parsedArchive.getContext().getParsingErrors().add(new Parsinge)
+        //
+        //
+        // throw new CSARDuplicatedElementDeclarationException(fileName, CSARErrorCode.DUPLICATED_ELEMENT_DECLARATION, elementEntry.getKey(),
+        // "Element with key [" + elementEntry.getKey() + "] already existed in the archive definition");
+        // }
+        // }
+        // }
     }
 
     private void postProcessNodeTypes(ArchiveRoot archive, Map<String, IndexedNodeType> nodeTypes) {

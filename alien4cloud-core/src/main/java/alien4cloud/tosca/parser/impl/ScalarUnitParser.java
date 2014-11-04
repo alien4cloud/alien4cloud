@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 
 /**
@@ -36,7 +36,7 @@ public class ScalarUnitParser extends ScalarParser {
     }
 
     @Override
-    public String parse(Node node, ParsingContext context) {
+    public String parse(Node node, ParsingContextExecution context) {
         String scalarValue = super.parse(node, context);
         // parse to get the number value and the unit value
 

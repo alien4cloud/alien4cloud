@@ -10,7 +10,7 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.model.Csar;
 import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 
@@ -27,7 +27,7 @@ public class ImportParser implements INodeParser<CSARDependency> {
     }
 
     @Override
-    public CSARDependency parse(Node node, ParsingContext context) {
+    public CSARDependency parse(Node node, ParsingContextExecution context) {
         String valueAsString = scalarParser.parse(node, context);
         if (valueAsString == null || valueAsString.trim().isEmpty()) {
             return null;

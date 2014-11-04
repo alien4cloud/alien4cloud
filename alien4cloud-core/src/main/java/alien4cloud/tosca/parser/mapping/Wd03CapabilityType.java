@@ -15,7 +15,7 @@ public class Wd03CapabilityType extends Wd03InheritableToscaElement<IndexedCapab
     private Wd03AttributeDefinition attributeDefinition;
 
     public Wd03CapabilityType() {
-        super(new TypeNodeParser<IndexedCapabilityType>(IndexedCapabilityType.class, "Relationship type"), IndexedCapabilityType.class);
+        super(new TypeNodeParser<IndexedCapabilityType>(IndexedCapabilityType.class, "Capability type"), IndexedCapabilityType.class);
     }
 
     @Override

@@ -26,10 +26,11 @@ import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.Csar;
 import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.ToscaParser;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
 import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
@@ -56,29 +57,28 @@ public class ToscaParserSimpleProfileWd03Test {
 
     @Test
     public void testDefinitionVersionValid() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser
-                .parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version.yml"), "tosca-definition-version");
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
     }
 
     @Test(expected = ParsingException.class)
     public void testDefinitionVersionInvalidYaml() throws FileNotFoundException, ParsingException {
-        parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version-invalid.yml"), "tosca-definition-version-invalid");
+        parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version-invalid.yml"));
     }
 
     @Test(expected = ParsingException.class)
     public void testDefinitionVersionUnknown() throws FileNotFoundException, ParsingException {
-        parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version-unknown.yml"), "tosca-definition-version-unknown");
+        parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-definition-version-unknown.yml"));
     }
 
     @Test
     public void testDescriptionSingleLine() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "description-single-line.yml"), "description-single-line");
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "description-single-line.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertNotNull(archiveRoot.getArchive().getDescription());
@@ -87,9 +87,9 @@ public class ToscaParserSimpleProfileWd03Test {
 
     @Test
     public void testDescriptionMultiLine() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "description-multi-line.yml"), "description-multi-line");
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "description-multi-line.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertNotNull(archiveRoot.getArchive().getDescription());
@@ -100,9 +100,9 @@ public class ToscaParserSimpleProfileWd03Test {
 
     @Test
     public void testRootCategories() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-root-categories.yml"));
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-root-categories.yml"));
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals("Tosca default namespace value", archiveRoot.getArchive().getToscaDefaultNamespace());
@@ -115,27 +115,27 @@ public class ToscaParserSimpleProfileWd03Test {
     @Ignore
     @Test
     public void testMissingNameFails() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-relative.yml"));
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        // ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, ""));
+        // Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        // ArchiveRoot archiveRoot = parsingResult.getResult();
+        // Assert.assertNotNull(archiveRoot.getArchive());
     }
 
     @Ignore
     @Test
     public void testImportRelative() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-relative.yml"));
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
-        Assert.assertNotNull(archiveRoot.getArchive());
+        // ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-relative.yml"));
+        // Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        // ArchiveRoot archiveRoot = parsingResult.getResult();
+        // Assert.assertNotNull(archiveRoot.getArchive());
     }
 
     @Ignore
     @Test
     public void testImportRelativeMissing() throws FileNotFoundException, ParsingException {
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-relative-missing.yml"));
-        Assert.assertEquals(0, parsingResult.getParsingErrors().size());
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-relative-missing.yml"));
+        Assert.assertEquals(0, parsingResult.getContext().getParsingErrors().size());
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
     }
 
@@ -146,12 +146,12 @@ public class ToscaParserSimpleProfileWd03Test {
         Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
         Mockito.when(csarService.getIfExists(csar.getName(), csar.getVersion())).thenReturn(csar);
 
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-dependency.yml"));
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-dependency.yml"));
 
         Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
         Assert.assertEquals(1, archiveRoot.getArchive().getDependencies().size());
@@ -164,12 +164,12 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.reset(csarService);
         Mockito.when(csarService.getIfExists(csar.getName(), csar.getVersion())).thenReturn(null);
 
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-dependency.yml"));
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-import-dependency.yml"));
 
         Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
 
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertNotNull(archiveRoot.getArchive().getDependencies());
         Assert.assertEquals(0, archiveRoot.getArchive().getDependencies().size());
@@ -186,10 +186,10 @@ public class ToscaParserSimpleProfileWd03Test {
         Set<String> derivedFromSet = Sets.newHashSet();
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(derivedFromSet);
 
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-artifact-type.yml"), "tosca-artifact-type");
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-artifact-type.yml"));
 
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getArtifactTypes().size());
@@ -212,9 +212,9 @@ public class ToscaParserSimpleProfileWd03Test {
                         Mockito.any(List.class))).thenReturn(mockedResult);
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Sets.newHashSet("tosca.capabilities.Root"));
 
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-capability-type.yml"), "tosca-capability-type");
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-capability-type.yml"));
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getCapabilityTypes().size());
@@ -250,10 +250,10 @@ public class ToscaParserSimpleProfileWd03Test {
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
 
-        ParsingResult parsingResult = parser.parseDefinition(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type.yml"), "tosca-node-type");
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type.yml"));
 
         assertNoBlocker(parsingResult);
-        ArchiveRoot archiveRoot = parsingResult.getArchiveRoot();
+        ArchiveRoot archiveRoot = parsingResult.getResult();
         Assert.assertNotNull(archiveRoot.getArchive());
         Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
         Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
@@ -290,13 +290,13 @@ public class ToscaParserSimpleProfileWd03Test {
         // nodeType.get
     }
 
-    private void assertNoBlocker(ParsingResult parsingResult) {
-        for (int i = 0; i < parsingResult.getParsingErrors().size(); i++) {
-            ParsingError error = parsingResult.getParsingErrors().get(i);
-            if (error.isBlocker()) {
+    private void assertNoBlocker(ParsingResult<ArchiveRoot> parsingResult) {
+        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
+            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
+            if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
                 System.out.println(error);
             }
-            Assert.assertFalse(error.isBlocker());
+            Assert.assertNotEquals(ParsingErrorLevel.ERROR, error.getErrorLevel());
         }
     }
 }

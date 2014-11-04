@@ -27,9 +27,8 @@ public class ArchiveUploadService {
      */
     public Csar upload(Path path) throws ParsingException {
         // parse the archive.
-        ParsingResult<ArchiveRoot> archive = parser.parse(path);
-        
-        postProcessor.postProcessArchive(archive);
+        ParsingResult<ArchiveRoot> archiveResult = parser.parse(path);
+        postProcessor.postProcessArchive(archiveResult);
         return null;
     }
 }

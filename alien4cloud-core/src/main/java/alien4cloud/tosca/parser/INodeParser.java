@@ -15,7 +15,7 @@ public interface INodeParser<T> {
      * @param context The parsing context that contains the root object as well as errors and deffered parsers to be executed after the primary parsing is done.
      * @return An instance of T based on the node parsing or null if the parsing failed.
      */
-    T parse(Node node, ParsingContext context);
+    T parse(Node node, ParsingContextExecution context);
 
     /**
      * If true the parser will be executed after all other parsers have been completed.

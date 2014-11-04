@@ -9,7 +9,7 @@ import org.yaml.snakeyaml.nodes.Node;
  */
 public abstract class AbstractTypeNodeParser {
 
-    protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContext context, MappingTarget mappingTarget) {
+    protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContextExecution context, MappingTarget mappingTarget) {
         Object value = ((INodeParser<?>) mappingTarget.getParser()).parse(valueNode, context);
         target.setPropertyValue(mappingTarget.getPath(), value);
 

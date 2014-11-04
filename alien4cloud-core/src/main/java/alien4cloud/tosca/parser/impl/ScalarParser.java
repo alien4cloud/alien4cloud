@@ -5,7 +5,7 @@ import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 
 /**
  * Very simple scalar parser that just returns the value as string.
@@ -18,7 +18,7 @@ public class ScalarParser implements INodeParser<String> {
     }
 
     @Override
-    public String parse(Node node, ParsingContext context) {
+    public String parse(Node node, ParsingContextExecution context) {
         return ParserUtils.getScalar(node, context.getParsingErrors());
     }
 }

@@ -93,7 +93,7 @@ public class ArchiveParser {
     }
 
     private ParsingResult<ArchiveRoot> mergeWithToscaMeta(ParsingResult<ArchiveRoot> archiveResult, ParsingResult<ToscaMeta> toscaResult) {
-        archiveResult.getContext().getSubContexts().add(0, toscaResult.getContext());
+        archiveResult.getContext().getSubResults().add(0, toscaResult);
         archiveResult.getResult().getArchive().setName(toscaResult.getResult().getName());
         archiveResult.getResult().getArchive().setVersion(toscaResult.getResult().getVersion());
         if (toscaResult.getResult().getCreatedBy() != null) {

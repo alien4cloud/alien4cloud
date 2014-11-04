@@ -30,7 +30,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         return false;
     }
 
-    public T parse(Node node, ParsingContext context) {
+    public T parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
             return doParse((MappingNode) node, context);
         } else if (node instanceof ScalarNode) {
@@ -40,12 +40,11 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
                 return null;
             }
         }
-        context.getParsingErrors().add(
-                new ParsingError("Invalid Yaml node type.", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(), toscaType));
+        ParserUtils.addTypeError(node, context.getParsingErrors(), toscaType);
         return null;
     }
 
-    private T doParse(MappingNode node, ParsingContext context) {
+    private T doParse(MappingNode node, ParsingContextExecution context) {
         T instance;
         try {
             instance = type.newInstance();
@@ -67,7 +66,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         }
     }
 
-    private void mapTuple(BeanWrapper instance, NodeTuple nodeTuple, int nodeTupleIndex, ParsingContext context) {
+    private void mapTuple(BeanWrapper instance, NodeTuple nodeTuple, int nodeTupleIndex, ParsingContextExecution context) {
         String key = ParserUtils.getScalar(nodeTuple.getKeyNode(), context.getParsingErrors());
         if (key == null) {
             return;

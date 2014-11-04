@@ -18,7 +18,7 @@ import alien4cloud.tosca.parser.AbstractTypeNodeParser;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.ParsingError;
@@ -66,7 +66,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     @Override
-    public PropertyConstraint parse(Node node, ParsingContext context) {
+    public PropertyConstraint parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
             MappingNode mappingNode = (MappingNode) node;
             if (mappingNode.getValue().size() == 1) {
@@ -83,7 +83,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         return null;
     }
 
-    private PropertyConstraint parseConstraint(String operator, Node keyNode, Node expressionNode, ParsingContext context) {
+    private PropertyConstraint parseConstraint(String operator, Node keyNode, Node expressionNode, ParsingContextExecution context) {
         ConstraintParsingInfo info = constraintBuildersMap.get(operator);
         if (info == null) {
             context.getParsingErrors().add(

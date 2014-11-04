@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import alien4cloud.component.model.Tag;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 
 import com.google.common.collect.Lists;
 
@@ -23,7 +23,7 @@ public class TagParser implements INodeParser<List<Tag>> {
     }
 
     @Override
-    public List<Tag> parse(Node node, ParsingContext context) {
+    public List<Tag> parse(Node node, ParsingContextExecution context) {
         List<Tag> tagList = Lists.newArrayList();
         if (node instanceof MappingNode) {
             MappingNode mapNode = (MappingNode) node;

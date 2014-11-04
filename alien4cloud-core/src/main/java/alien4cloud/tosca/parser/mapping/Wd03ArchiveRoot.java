@@ -49,7 +49,7 @@ public class Wd03ArchiveRoot extends AbstractMapper<ArchiveRoot> {
         getParser().getYamlToObjectMapping().put("imports", new MappingTarget("archive.dependencies", new SetParser<CSARDependency>(importParser, "import")));
 
         quickMap(new MapParser<IndexedNodeType>(nodeType.getParser(), "Node types", "elementId"), "nodeTypes");
-        quickMap(new MapParser<IndexedRelationshipType>(relationshipType.getParser(), "Relationship types", "elementId"), "nodeTypes");
+        quickMap(new MapParser<IndexedRelationshipType>(relationshipType.getParser(), "Relationship types", "elementId"), "relationshipTypes");
         quickMap(new MapParser<IndexedCapabilityType>(capabilityType.getParser(), "Node types", "elementId"), "capabilityTypes");
         quickMap(new MapParser<IndexedArtifactType>(artifactType.getParser(), "Node types", "elementId"), "artifactTypes");
     }

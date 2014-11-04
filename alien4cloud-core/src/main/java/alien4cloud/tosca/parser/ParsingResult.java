@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ParsingResult<T> {
     private T result;
-    private ParsingContextResult context;
+    private ParsingContext context;
 
 }

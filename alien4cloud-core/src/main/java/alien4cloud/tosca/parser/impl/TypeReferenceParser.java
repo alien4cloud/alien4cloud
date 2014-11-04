@@ -13,7 +13,7 @@ import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 
 /**
@@ -35,7 +35,7 @@ public class TypeReferenceParser implements INodeParser<String> {
     }
 
     @Override
-    public String parse(Node node, ParsingContext context) {
+    public String parse(Node node, ParsingContextExecution context) {
         String valueAsString = scalarParser.parse(node, context).trim();
         if (valueAsString == null || valueAsString.isEmpty()) {
             return null;

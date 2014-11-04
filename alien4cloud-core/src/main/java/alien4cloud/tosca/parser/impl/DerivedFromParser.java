@@ -14,7 +14,7 @@ import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 
 import com.google.common.collect.Lists;
@@ -34,7 +34,7 @@ public class DerivedFromParser implements INodeParser<List<String>> {
     }
 
     @Override
-    public List<String> parse(Node node, ParsingContext context) {
+    public List<String> parse(Node node, ParsingContextExecution context) {
         String valueAsString = scalarParser.parse(node, context).trim();
         if (valueAsString == null || valueAsString.isEmpty()) {
             return null;

@@ -34,7 +34,7 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     }
 
     @Override
-    protected INodeParser<ArchiveRoot> getParser(MappingNode rootNode, ParsingContext context) throws ParsingException {
+    protected INodeParser<ArchiveRoot> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException {
         // try to find the tosca version
         DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(rootNode.getValue(), context.getParsingErrors());
         // call the parser for the given tosca version

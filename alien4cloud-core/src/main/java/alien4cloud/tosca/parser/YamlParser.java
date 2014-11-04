@@ -62,7 +62,7 @@ public abstract class YamlParser<T> {
     }
 
     private ParsingResult<T> doParsing(String fileName, MappingNode rootNode) throws ParsingException {
-        ParsingContext context = new ParsingContext(fileName);
+        ParsingContextExecution context = new ParsingContextExecution(fileName);
 
         INodeParser<T> nodeParser = getParser(rootNode, context);
 
@@ -74,7 +74,7 @@ public abstract class YamlParser<T> {
             defferedParser.run();
         }
 
-        return new ParsingResult<T>(archiveRoot, context.getParsingContextResult());
+        return new ParsingResult<T>(archiveRoot, context.getParsingContext());
     }
 
     /**
@@ -84,5 +84,5 @@ public abstract class YamlParser<T> {
      * @param context The parsing context.
      * @return The parser to use.
      */
-    protected abstract INodeParser<T> getParser(MappingNode rootNode, ParsingContext context) throws ParsingException;
+    protected abstract INodeParser<T> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException;
 }

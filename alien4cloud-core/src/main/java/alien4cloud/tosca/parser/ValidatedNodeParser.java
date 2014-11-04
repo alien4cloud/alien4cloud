@@ -22,7 +22,7 @@ public class ValidatedNodeParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public T parse(Node node, ParsingContext context) {
+    public T parse(Node node, ParsingContextExecution context) {
         T parsed = delegate.parse(node, context);
         // perform validation of the parsed node
         Set<ConstraintViolation<T>> violations = validator.validate(parsed);

@@ -13,7 +13,7 @@ import com.google.common.io.Files;
 import alien4cloud.tosca.container.model.type.ImplementationArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.utils.MapUtil;
 
 @Component
@@ -23,7 +23,7 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
             "tosca.artifacts.ShellScript", "tosca.artifacts.WarFile", "tosca.artifacts.ZipFile" });
 
     @Override
-    public ImplementationArtifact parse(Node node, ParsingContext context) {
+    public ImplementationArtifact parse(Node node, ParsingContextExecution context) {
         if (node instanceof ScalarNode) {
             String artifactReference = ((ScalarNode) node).getValue();
 
