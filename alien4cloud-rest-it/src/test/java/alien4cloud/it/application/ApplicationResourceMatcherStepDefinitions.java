@@ -22,6 +22,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -94,5 +95,13 @@ public class ApplicationResourceMatcherStepDefinitions {
                 DeploymentSetup.class).getData();
         Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
         Assert.assertEquals(expectedCloudResourcesMatching, deploymentSetup.getCloudResourcesMapping());
+    }
+
+    @Then("^The deployment setup of the application should contain no resources mapping$")
+    public void The_deployment_setup_of_the_application_should_contain_no_resources_mapping() throws Throwable {
+        DeploymentSetup deploymentSetup = JsonUtil.read(
+                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
+                DeploymentSetup.class).getData();
+        Assert.assertTrue(deploymentSetup.getCloudResourcesMapping() == null || deploymentSetup.getCloudResourcesMapping().isEmpty());
     }
 }

@@ -75,9 +75,10 @@ public class DeploymentSetupService {
      * @param deploymentSetup the deployment setup to generate configuration for
      * @param topology the topology
      * @param cloud the cloud
-     * @return true if the deployment setup has been changed, false otherwise
+     * @param automaticSave automatically save the deployment setup if it has been changed
+     * @return true if the topology's deployment setup is valid (all resources are matchable), false otherwise
      */
-    public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud) {
+    public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave) {
         boolean changed = false;
         CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
@@ -85,6 +86,10 @@ public class DeploymentSetupService {
                 .getMatchResult();
         // Generate default matching for deployment setup
         Map<String, ComputeTemplate> cloudResourcesMapping = deploymentSetup.getCloudResourcesMapping();
+        boolean valid = true;
+        for (Map.Entry<String, List<ComputeTemplate>> matchResultEntry : matchResult.entrySet()) {
+            valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
+        }
         if (cloudResourcesMapping == null) {
             changed = true;
             cloudResourcesMapping = Maps.newHashMap();
@@ -110,7 +115,10 @@ public class DeploymentSetupService {
             }
         }
         deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
-        return changed;
+        if (changed && automaticSave) {
+            alienDAO.save(deploymentSetup);
+        }
+        return valid;
     }
 
     /**

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
@@ -359,7 +360,10 @@ public class CloudServiceArchiveController {
                 csarDAO.save(topology);
                 // deploy this topology
                 DeploymentSetup deploymentSetup = new DeploymentSetup();
-                deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud);
+                if (!deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, false)) {
+                    throw new InvalidDeploymentSetupException("Test topology for CSAR [" + csar.getId() + "] is not deployable on the cloud [" + cloud.getId()
+                            + "] because it contains unmatchable resources");
+                }
                 deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
                 deploymentId = deploymentService.deployTopology(topology, cloudId, csar, deploymentSetup);
             } catch (CloudDisabledException e) {
