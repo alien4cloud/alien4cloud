@@ -103,20 +103,20 @@
                      </a>
                    </li>
                 </ul>
-
-                <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
-                  tooltip-append-to-body="true" class="btn btn-success btn-sm"
-                  ng-click="addScalingPolicy(selectedNodeTemplate.name)"
-                  ng-if="selectedNodeTemplate.type == 'tosca.nodes.Compute' && !topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                  <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
-                </a>
-
-                <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
-                  tooltip-append-to-body="true" class="btn btn-primary btn-sm"
-                  ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
-                  ng-if="selectedNodeTemplate.type == 'tosca.nodes.Compute' && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                  <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
-                </a>
+				<span ng-if="isComputeType(selectedNodeTemplate)">
+	                <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
+	                  tooltip-append-to-body="true" class="btn btn-success btn-sm"
+	                  ng-click="addScalingPolicy(selectedNodeTemplate.name)"
+	                  ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+	                  <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
+	                </a>
+	                <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
+	                  tooltip-append-to-body="true" class="btn btn-primary btn-sm"
+	                  ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
+	                  ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+	                  <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
+	                </a>
+				</span>
 
                 <!-- Delete selected nodetemplate with confirm -->
                 <delete-confirm id="btn-delete-node" func="deleteNodeTemplate(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
@@ -454,7 +454,7 @@
             </div>
           </div>
 
-          <div ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.type == 'tosca.nodes.Compute'">
+          <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
             <div class="topology-node-expand clickable"
               ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
               <i class="pull-left fa"
