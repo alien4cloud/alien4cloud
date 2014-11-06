@@ -145,6 +145,12 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
             allRoles = userRoles;
           }
           var groups = userStatus.groups;
+          if (UTILS.isUndefinedOrNull(groups)) {
+            groups = [];
+          }
+          if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data)) {
+            groups.push(defaultAllUsersGroup.data.id);
+          }
           var groupRolesMap = resource.groupRoles;
           if (UTILS.isArrayDefinedAndNotEmpty(groups) && UTILS.isDefinedAndNotNull(groupRolesMap) && !UTILS.isObjectEmpty(groupRolesMap)) {
             for (var i = 0; i < groups.length; i++) {
@@ -163,10 +169,6 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
             function(userStatus) {
               // check all accessible roles first
               if (userStatus.roles.indexOf(allAccessAdminRole) > -1) {
-                return true;
-              }
-              // check if the resource has ALL_USERS group rights
-              if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data) && resource.groupRoles.hasOwnProperty(defaultAllUsersGroup.data.id)) {
                 return true;
               }
               // check if the user has the role.
