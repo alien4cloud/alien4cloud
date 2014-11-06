@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.Interface;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
 import alien4cloud.tosca.model.AttributeDefinition;
 import alien4cloud.tosca.parser.ListParser;
 import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.TypeNodeParser;
 import alien4cloud.tosca.parser.impl.InterfaceParser;
+import alien4cloud.tosca.parser.impl.InterfacesParser;
 
 @Component
 public class Wd03NodeType extends Wd03InheritableToscaElement<IndexedNodeType> {
@@ -39,6 +39,6 @@ public class Wd03NodeType extends Wd03InheritableToscaElement<IndexedNodeType> {
         quickMap(new ListParser<RequirementDefinition>(requirementDefinition.getParser(), "Requirements", "id"), "requirements");
         quickMap(new ListParser<CapabilityDefinition>(capabilityParser, "Capabilities", "id"), "capabilities");
         quickMap(new MapParser<DeploymentArtifact>(artifactDefinition.getParser(), "Artifacts"), "artifacts");
-        quickMap(new MapParser<Interface>(interfaceParser, "interfaces"), "interfaces");
+        quickMap(new InterfacesParser(interfaceParser, "interfaces"), "interfaces");
     }
 }

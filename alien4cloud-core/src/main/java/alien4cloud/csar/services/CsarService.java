@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.model.Csar;
 
 import com.google.common.collect.Maps;
@@ -52,19 +51,13 @@ public class CsarService implements ICsarDependencyLoader {
         return Sets.newHashSet(csar.getDependencies());
     }
 
-    public Csar saveUploadedCsar(CloudServiceArchive archive) {
-        Csar csar = new Csar();
-        csar.setName(archive.getMeta().getName());
-        csar.setVersion(archive.getMeta().getVersion());
-        Set<CSARDependency> dependencies = archive.getMeta().getDependencies();
-        if (dependencies != null && !dependencies.isEmpty()) {
-            for (CSARDependency dependency : dependencies) {
-                dependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
-            }
-        }
-        csar.setDependencies(dependencies);
-        csarDAO.save(csar);
-        return csar;
+    /**
+     * Save a Cloud Service Archive in ElasticSearch.
+     * 
+     * @param csar The csar to save.
+     */
+    public void save(Csar csar) {
+        this.csarDAO.save(csar);
     }
 
     public Map<String, Csar> findByIds(String fetchContext, String... ids) {

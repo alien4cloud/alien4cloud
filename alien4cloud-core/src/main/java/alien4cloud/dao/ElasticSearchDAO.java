@@ -21,7 +21,6 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
 import alien4cloud.tosca.container.serializer.BoundSerializer;
@@ -37,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Component("alien-es-dao")
 public class ElasticSearchDAO extends ESGenericSearchDAO {
+    public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
 
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
@@ -52,8 +52,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
 
-        initIndices(ToscaElement.class.getSimpleName().toLowerCase(), false, IndexedModelUtils.getAllIndexClasses());
-        initIndices(ToscaElement.class.getSimpleName().toLowerCase(), false, IndexedToscaElement.class);
+        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedModelUtils.getAllIndexClasses());
+        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedToscaElement.class);
 
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);

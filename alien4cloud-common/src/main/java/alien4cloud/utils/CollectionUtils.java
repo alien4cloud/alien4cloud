@@ -1,5 +1,7 @@
 package alien4cloud.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -58,5 +60,24 @@ public final class CollectionUtils {
             }
         }
         return target.isEmpty() ? null : target;
+    }
+
+    /**
+     * Merge two lists, the merge is performed based on the contains method so elements presents both in source and target are not added twice to the list.
+     * 
+     * @param source The source list.
+     * @param target The target list.
+     * @return A list that represents the merged collections.
+     */
+    public static <T> List<T> merge(List<T> source, List<T> target) {
+        List<T> merged = source == null ? new ArrayList<T>() : source;
+
+        for (T t : target) {
+            if (!merged.contains(t)) {
+                merged.add(t);
+            }
+        }
+
+        return merged;
     }
 }

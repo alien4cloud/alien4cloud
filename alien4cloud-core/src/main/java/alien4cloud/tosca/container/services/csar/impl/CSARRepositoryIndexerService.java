@@ -17,11 +17,10 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.ToscaInheritableElement;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.utils.VersionUtil;
 
@@ -29,38 +28,36 @@ import com.google.common.collect.Sets;
 
 @Component
 public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerService {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
     @Resource
     private ElasticSearchClient elasticSearchClient;
 
     private void refreshIndexForSearching() {
-        elasticSearchClient.getClient().admin().indices().prepareRefresh(ToscaElement.class.getSimpleName().toLowerCase()).execute().actionGet();
+        elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
     }
 
     @Override
-    public void indexElements(String archiveName, String archiveVersion, Map<String, ToscaElement> archiveElements) {
-        for (ToscaElement element : archiveElements.values()) {
-            IndexedToscaElement indexedElement = IndexedModelUtils.getNonInheritableIndexedModel(element, archiveName, archiveVersion);
-            saveAndUpdateHighestVersion(indexedElement);
+    public void indexElements(String archiveName, String archiveVersion, Map<String, IndexedToscaElement> archiveElements) {
+        for (IndexedToscaElement element : archiveElements.values()) {
+            saveAndUpdateHighestVersion(element);
         }
     }
 
     @Override
-    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ToscaInheritableElement> archiveElements,
+    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies) {
-        List<ToscaInheritableElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
-        for (ToscaInheritableElement element : orderedElements) {
+        List<IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
+        for (IndexedInheritableToscaElement element : orderedElements) {
             indexInheritableElement(archiveName, archiveVersion, element, dependencies);
         }
     }
 
-    public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element, Collection<CSARDependency> dependencies) {
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion);
+    @Override
+    public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
+            Collection<CSARDependency> dependencies) {
         if (element.getDerivedFrom() != null) {
-            Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
+            Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             // Check dependencies
             for (CSARDependency dependency : dependencies) {
@@ -73,9 +70,9 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
                 throw new IndexingServiceException("Indexing service is in an inconsistent state, the super element [" + element.getDerivedFrom()
                         + "] is not found for element [" + element.getId() + "]");
             }
-            IndexedModelUtils.mergeInheritableIndex(superElement, indexedElement);
+            IndexedModelUtils.mergeInheritableIndex(superElement, element);
         }
-        saveAndUpdateHighestVersion(indexedElement);
+        saveAndUpdateHighestVersion(element);
     }
 
     private void saveAndUpdateHighestVersion(IndexedToscaElement element) {
@@ -120,26 +117,6 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             alienDAO.save(element);
         }
         refreshIndexForSearching();
-    }
-
-    // TODO : This method should be removed once we manage correctly csar dependencies (for snapshot CSAR edited in ALIEN).
-    @Override
-    public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element) {
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion);
-        if (element.getDerivedFrom() != null) {
-            Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
-            QueryBuilder matchElementIdQueryBuilder = QueryBuilders.matchQuery("elementId", element.getDerivedFrom().toLowerCase());
-            IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, matchElementIdQueryBuilder);
-            if (superElement == null) {
-                throw new IndexingServiceException("Super element not found [" + element.getDerivedFrom() + "]");
-            }
-            IndexedModelUtils.mergeInheritableIndex(superElement, indexedElement);
-        }
-        saveAndUpdateHighestVersion(indexedElement);
-    }
-
-    public void deleteElement(String archiveName, String archiveVersion, ToscaElement element) {
-        alienDAO.delete(IndexedModelUtils.getIndexClass(element.getClass()), element.getId() + ":" + archiveVersion);
     }
 
     private static void addArchiveToQuery(BoolQueryBuilder boolQueryBuilder, String elementId, String archiveName, String archiveVersion) {
