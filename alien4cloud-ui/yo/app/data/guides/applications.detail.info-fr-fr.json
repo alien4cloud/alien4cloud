@@ -33,8 +33,33 @@
     "placement": "right"
   }, {
     "title": "Gestion des droits sur l'application",
-    "content": "Cette pate permet de gérer les différents droits que peuvent avoir un untilisateur ou un groupe sur l'application.",
+    "content": "Cette patie permet de gérer les différents droits que peuvent avoir un untilisateur ou un groupe sur l'application.",
     "target": "am.applications.detail.users",
     "placement": "right"
+  }, {
+    "title": "Attribuer une image",
+    "content": "Pour mettre une image à votre application, faite simplement un glisser-déposer de votre image dans la zone délimité par les pointillés.",
+    "target": "am.applications.detail.drag-and-drop",
+    "placement": "right"
+  }, {
+    "title": "Changer le titre de l'application",
+    "content": "Vous pouvez changer le titre de l'application. Le nouveau nom ne doit pas être déjà utilisé par une autre application.",
+    "target": "app-name",
+    "placement": "right"
+  }, {
+    "title": "Décrire l'application",
+    "content": "Vous pouvez ici décrire votre application. La description sera visible depuis la liste des applications.",
+    "target": "app-desc",
+    "placement": "left"
+  }, {
+    "title": "Ajout de tags",
+    "content": "Vous pouvez ici ajouter plusieurs tags à votre application.",
+    "target": "btn-add-tag",
+    "placement": "right"
+  }, {
+    "title": "Suppresion de l'application",
+    "content": "Enfin, il est possible de supprimer votre application. Seule une application non déployée peut être supprimée.",
+    "target": "btn-delete-app",
+    "placement": "left"
   }]
 }
