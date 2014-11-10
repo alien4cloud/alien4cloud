@@ -4,7 +4,7 @@
   </div>
   <div class="modal-body">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-6" id="imagesAdded">
         <div class="panel panel-primary">
           <div class="panel-heading">
             {{'CLOUDS.IMAGES.TO_BE_ADDED_TITLE' | translate}}
@@ -13,7 +13,7 @@
             <div class="new-images-selected-modal">
               <ul ng-if="images.length > 0" class="list-group">
                 <li class="list-group-item clickable-media" ng-repeat="cloudImage in images">
-                  <div class="media" id="li_{{cloudImage.id}}" ng-click="unSelectImage(cloudImage)">
+                  <div class="media" id="li_{{cloudImage.name}}" ng-click="unSelectImage(cloudImage)">
                     <div class="media-body">
                       <h4 class="media-heading">
                         <div class="row">
@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6" id="imagesToAdd">
         <div class="well">
           <div class="row" style="margin-bottom: 10px;">
             <div class="col-md-12">
@@ -58,7 +58,7 @@
             <div class="col-md-12">
               <ul class="list-group">
                 <li class="list-group-item clickable-media" ng-repeat="cloudImage in data.data">
-                  <div class="media" id="li_{{cloudImage.id}}" ng-click="selectImage(cloudImage)">
+                  <div class="media" id="li_{{cloudImage.name}}" ng-click="selectImage(cloudImage)">
                     <div class="media-body">
                       <h4 class="media-heading">
                         <div class="row">

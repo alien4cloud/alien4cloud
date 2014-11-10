@@ -178,7 +178,7 @@ Scenario: Find a mathing resource for a type derived from Compute
 	Given I am authenticated with "ADMIN" role 
 	And I upload the archive file that is "csar file containing ubuntu types V0.1" 
 	And I am authenticated with user named "sangoku" 
-	And I have an application "ALIEN_2" with a topology containing a nodeTemplate "Ubuntu" related to "alien.nodes.Ubuntu:0.1-SNAPSHOT" 
+	And I have an application "ALIEN_2" with a topology containing a nodeTemplate "Ubuntu" related to "alien.nodes.Ubuntu:0.1" 
 	And I assign the cloud with name "Mount doom cloud" for the application 
 	When I match for resources for my application on the cloud 
 	Then I should receive a match result with 2 compute templates for the node "Ubuntu": 

@@ -819,7 +819,6 @@ angular.module('alienUiApp').controller(
       
       // check if compute type
       $scope.isComputeType =  function(nodeTemplate){
-        console.log($scope.topology)
         if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
           return false;
         }

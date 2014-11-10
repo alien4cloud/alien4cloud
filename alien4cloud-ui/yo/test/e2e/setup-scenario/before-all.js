@@ -15,6 +15,7 @@ var pathToJavaTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/s
 var pathToBaseTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/tosca-base-types-2.0.csar');
 var pathToJavaTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar');
 var pathToApacheLbTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/apacheLB-types-0.2.csar');
+var pathToUbuntuType = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar');
 
 
 describe('Initialize test environment', function() {
@@ -54,6 +55,7 @@ describe('Initialize test environment', function() {
     common.uploadFile(pathToBaseTypesV2);
     common.uploadFile(pathToJavaTypesV2);
     common.uploadFile(pathToApacheLbTypes);
+    common.uploadFile(pathToUbuntuType);
   });
 
   it('Admin should be able to upload plugin', function() {

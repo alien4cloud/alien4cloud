@@ -43,7 +43,7 @@ public class UploadCSARSStepDefinition {
         conditionToPath.put("csar file containing java types", "../alien4cloud-core/src/test/resources/examples/java-types-1.0.csar");
         conditionToPath.put("csar file containing java types V2", "../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar");
         conditionToPath.put("csar file containing java types V3", "../alien4cloud-core/src/test/resources/examples/java-types-3.0.csar");
-        conditionToPath.put("csar file containing ubuntu types V0.1", "../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1-snapshot.csar");
+        conditionToPath.put("csar file containing ubuntu types V0.1", "../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar");
 
         conditionToPath.put("containing base types constraints", "src/test/resources/data/csars/definition/constraints");
         conditionToPath.put("valid", "../alien4cloud-core/src/main/resources/tosca-base-types/1.0");
