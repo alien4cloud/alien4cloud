@@ -27,12 +27,23 @@ var navigationIds = {
   }
 };
 
-module.exports.home =  function() {
+module.exports.home = function() {
   browser.get('#/');
   browser.waitForAngular();
 };
 
-module.exports.go =  function(menu, menuItem) {
+module.exports.go = function(menu, menuItem) {
   browser.element(by.id(navigationIds[menu][menuItem])).click();
   browser.waitForAngular();
+};
+
+module.exports.isNavigable = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  return expect(menuItem.isDisplayed()).toBe(true) &&
+    menuItem.getAttribute('class').not.toContain('disabled');
+};
+
+module.exports.isNotNavigable = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  return expect(menuItem.isPresent()).toBe(false);
 };

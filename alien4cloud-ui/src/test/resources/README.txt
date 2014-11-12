@@ -1,9 +1,13 @@
 
 - Query by using curl on elastic search:
-curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/group/_search?pretty=true" -d '
 {
     "query" : {
-        "match_all" : {}
+        "bool": {
+            "must_not" : {
+                "term" : { "name" : "ALL_USERS"}
+            }
+        }
     }
 }
 '

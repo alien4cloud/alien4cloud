@@ -55,7 +55,6 @@ describe('Security management on applications', function() {
     // create group
     users.navigationGroups();
     users.createGroup(users.groups.mordor);
-    users.createGroup(users.groups.allusers); // this group is created at alien bootstrap
   });
 
   afterEach(function() {
