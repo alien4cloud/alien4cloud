@@ -19,7 +19,7 @@ var pathToApacheLbTypes = path.resolve(__dirname, '../../../../../alien4cloud-co
 
 describe('Initialize test environment', function() {
   beforeEach(function() {
-    browser.driver.manage().window().maximize();
+    browser.driver.manage().window().setSize(1920, 1080);
     navigation.home();
   });
 
@@ -28,6 +28,9 @@ describe('Initialize test environment', function() {
   });
 
   it('Setups test environment to be fully cleaned up', function() {
+    browser.driver.manage().window().getSize().then(function(size) {
+      console.log('################# Window\'s size  [' + size.width + ', ' + size.height + ']');
+    });
     console.log('################# Setups test environment to be fully cleaned up');
     cleanup.fullCleanup();
     navigation.home();
