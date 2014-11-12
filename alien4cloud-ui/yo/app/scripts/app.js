@@ -77,7 +77,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           }
         ]
       },
-      templateUrl: 'views/common/vertical_menu_layout.html',
+      templateUrl: 'views/applications/vertical_menu_layout.html',
       controller: 'ApplicationCtrl'
     }).state('applications.detail.info', {
       url: '/infos',

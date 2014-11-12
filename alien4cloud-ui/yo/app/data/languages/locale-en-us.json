@@ -245,6 +245,13 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
+      "INFORMATIONS_TAB": "Informations",
+      "INFORMATIONS": {
+        "APP_NAME": "Application name",
+        "DEPLOYMENT_ID": "Deployment ID",
+        "CLOUD_NAME": "Cloud name",
+        "CLOUD_ID": "Cloud ID"
+      },
       "EVENTS_TAB": "Events",
       "EVENTS": {
         "ALL": "All events",

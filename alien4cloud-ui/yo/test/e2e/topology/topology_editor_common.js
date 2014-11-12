@@ -40,14 +40,18 @@ module.exports.topologyTemplates = topologyTemplates;
 var beforeTopologyTest = function() {
   common.before();
   authentication.login('admin');
-  cloudImageCommon.addNewCloudImage('Windows', 'windows', 'x86_64', 'Windows', '14.04', '1', '1', '1')
+  cloudImageCommon.addNewCloudImage('Windows', 'windows', 'x86_64', 'Windows', '14.04', '1', '1', '1');
+  cloudImageCommon.addNewCloudImage('Ubuntu', 'linux', 'x86_64', 'Ubuntu', '14.04', '1', '1', '1');
   cloudsCommon.goToCloudList();
   cloudsCommon.createNewCloud('testcloud');
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
   cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
-  cloudsCommon.selectFirstImageOfCloud();
+//  cloudsCommon.selectFirstImageOfCloud();
+//  cloudsCommon.selectFirstImageOfCloud();
+  cloudsCommon.selectAllImageOfCloud();
   cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
+  cloudsCommon.assignPaaSResourceToTemplate('Ubuntu', 'medium', 'MEDIUM_UBUNTU');
   authentication.logout();
 
   authentication.login('applicationManager');

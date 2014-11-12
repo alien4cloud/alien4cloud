@@ -59,6 +59,43 @@
             </div>
           </div>
         </tab>
+        <tab>
+          <tab-heading id="informations-tab">
+            <i class="fa fa-info"></i>  {{'APPLICATIONS.RUNTIME.INFORMATIONS_TAB' | translate}}
+          </tab-heading>
+          <div>
+            <div class="row form-horizontal">
+              <div class="col-md-12">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
+                      <td class="col-md-8">{{application.name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
+                      <td class="col-md-8">{{topology.topology.id}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_NAME' | translate}}</strong></td>
+                      <td class="col-md-8">{{cloud.name}}</td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_ID' | translate}}</strong></td>
+                      <td class="col-md-8">{{cloudId}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
         <!-- details -->
         <tab ng-if="selectedNodeTemplate">
           <tab-heading id="details-tab">
@@ -69,7 +106,7 @@
               <div class="col-md-5">
                 <h4 class="text-primary">{{selectedNodeTemplate.name | split:39}}</h4>
               </div>
-              <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && topology.topology.nodeTemplates[selectedNodeTemplate.name].type == 'tosca.nodes.Compute' && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
+                <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
                 <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="no" blur="submit" onbeforesave="scale($data)" e-required>
                   <h4>
                     {{selectedNodeTemplate.newInstancesCount
@@ -230,7 +267,7 @@
                                     ng-click="executeOperation(operationName, operation.inputParameters)"
                                     ng-if="!operationLoading[selectedNodeTemplate.name][operationName]"
                                     tooltip-append-to-body="false" class="btn btn-success btn-xs"
-                                    ng-click="$event.stopPropagation();"  
+                                    ng-click="$event.stopPropagation();"
                                     id="btn-submit-operation-{{operationName}}">
                               <i class="fa fa-play-circle"></i>
                             </button>

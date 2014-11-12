@@ -55,19 +55,34 @@ var fcTypes = {
 module.exports.fcTypes = fcTypes;
 
 var apacheTypes = {
-  get: function(node, selectedVersion) {
-    node.archiveVersion = '0.2';
-    node.selectedVersion = selectedVersion;
-    return node;
-  },
-  apacheLBGroovy: function(requestedVersion) {
-    return this.get({
+    get: function(node, selectedVersion) {
+      node.archiveVersion = '0.2';
+      node.selectedVersion = selectedVersion;
+      return node;
+    },
+    apacheLBGroovy: function(requestedVersion) {
+      return this.get({
         type: 'fastconnect.nodes.apacheLBGroovy',
         id: 'rect_apacheLBGroovy',
       }, requestedVersion);
-  }
+    }
 };
 module.exports.apacheTypes = apacheTypes;
+
+var ubuntuTypes = {
+  get: function(node, selectedVersion) {
+    node.archiveVersion = '0.1';
+    node.selectedVersion = selectedVersion;
+    return node;
+  },
+  ubuntu: function(requestedVersion) {
+    return this.get({
+        type: 'alien.nodes.Ubuntu',
+        id: 'rect_Ubuntu',
+      }, requestedVersion);
+  }
+};
+module.exports.ubuntuTypes = ubuntuTypes;
 
 module.exports.simpleTopology = {
   nodes: {

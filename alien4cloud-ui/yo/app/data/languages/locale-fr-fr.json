@@ -246,6 +246,13 @@
       "VALUE": "Valeur",
       "BACK": "Retour",
       "SCALE_BUTTON": "Scale le noeud",
+      "INFORMATIONS_TAB": "Informations",
+      "INFORMATIONS": {
+        "APP_NAME": "Nom de l'application",
+        "DEPLOYMENT_ID": "ID du déploiement",
+        "CLOUD_NAME": "Nom du cloud",
+        "CLOUD_ID": "ID du cloud"
+      },
       "EVENTS_TAB": "Evénèments",
       "EVENTS": {
         "ALL": "Tout type d'événèments",

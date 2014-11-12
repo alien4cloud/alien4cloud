@@ -38,13 +38,17 @@ describe('Security management on applications for application manager', function
     common.expectNoErrors();
   };
 
+  var checkDisplayedButDisabled = function(menu) {
+    navigation.isPresentButDisabled('applications', menu);
+  };
+
   var checkApplicationManagerAccess = function() {
     authentication.reLogin(authentication.users.sauron.username);
     applications.goToApplicationDetailPage(applicationName);
     checkAccess('topology');
     checkAccess('plan');
     checkAccess('deployment');
-    checkAccess('runtime');
+    checkDisplayedButDisabled('runtime');
     checkAccess('users');
     checkAccess('info');
   };
@@ -56,7 +60,7 @@ describe('Security management on applications for application manager', function
     navigation.isNotNavigable('applications', 'topology');
     navigation.isNotNavigable('applications', 'plan');
     checkAccess('deployment');
-    checkAccess('runtime');
+    checkDisplayedButDisabled('runtime');
     navigation.isNotNavigable('applications', 'users');
     checkAccess('info');
   };

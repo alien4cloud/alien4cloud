@@ -37,13 +37,19 @@ module.exports.go = function(menu, menuItem) {
   browser.waitForAngular();
 };
 
+module.exports.isPresentButDisabled = function(menu, menuItem) {
+  var menuItem = element(by.id(navigationIds[menu][menuItem]));
+  expect(menuItem.isDisplayed()).toBe(true);
+  expect(menuItem.getAttribute('class')).toContain('disabled');
+};
+
 module.exports.isNavigable = function(menu, menuItem) {
   var menuItem = element(by.id(navigationIds[menu][menuItem]));
-  return expect(menuItem.isDisplayed()).toBe(true) &&
-    menuItem.getAttribute('class').not.toContain('disabled');
+  expect(menuItem.isDisplayed()).toBe(true);
+  expect(menuItem.getAttribute('class')).not.toContain('disabled');
 };
 
 module.exports.isNotNavigable = function(menu, menuItem) {
   var menuItem = element(by.id(navigationIds[menu][menuItem]));
-  return expect(menuItem.isPresent()).toBe(false);
+  expect(menuItem.isPresent()).toBe(false);
 };
