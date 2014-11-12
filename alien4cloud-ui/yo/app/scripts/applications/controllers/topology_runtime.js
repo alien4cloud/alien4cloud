@@ -1,5 +1,6 @@
 /** TODO Update Topology runtime to make it independant from the application. */
 /* global UTILS */
+/* global CONSTANTS */
 
 'use strict';
 
@@ -445,6 +446,15 @@ angular.module('alienUiApp').controller(
         // reset parameter inputs ?
         injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterface);
       };
-
+      
+      // check if compute type
+      $scope.isComputeType =  function (nodeTemplate){
+        if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
+          return false;
+        }
+        var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+        return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
+      };
+      
     }
   ]);
