@@ -21,6 +21,7 @@ var pathToUbuntuType = path.resolve(__dirname, '../../../../../alien4cloud-core/
 describe('Initialize test environment', function() {
   beforeEach(function() {
     browser.driver.manage().window().setSize(1920, 1080);
+    browser.driver.manage().window().maximize();
     navigation.home();
   });
 
