@@ -7,7 +7,7 @@ module.exports.checkComponentManager = function(isManager) {
   var message = isManager ? 'A user that is component manager or admin should have access to the drop zone on the components list page.': 'A user that is not application manager or admin should not have access to the drop zone on the components list page.';
 
   browser.element(by.id('menu.components')).isPresent().then(function(present) {
-    expect(present).toBe(isManager, message);
+    expect(present).toBe(true, message);
     if(present) {
       navigation.go('main', 'components');
       expect(browser.element(by.id('fileUpload')).isPresent()).toBe(isManager, message);
