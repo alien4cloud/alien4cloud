@@ -149,6 +149,7 @@
     "ROOT": "Root",
     "MAP_KEY_PLACEHOLDER": "Enter a new key",
     "UNDEFINED": "Click to edit",
+    "UNDEFINED_READ_ONLY": "Undefined",
     "TRUE": "Yes",
     "FALSE": "No",
     "REQUIRED": "Mandatory fields",
