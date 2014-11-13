@@ -214,9 +214,6 @@ describe('Cloud security and deployment capability per user/group', function() {
     users.navigationUsers();
     users.createUser(authentication.users.sauron);
 
-    // create all users group (should be default, created by ALIEN)
-    users.createGroup(users.groups.allusers);
-
     // create an app Alien
     applications.createApplication('Alien', 'Great Application');
 

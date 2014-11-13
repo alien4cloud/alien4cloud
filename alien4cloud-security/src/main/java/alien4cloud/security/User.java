@@ -1,6 +1,5 @@
 package alien4cloud.security;
 
-import java.util.Collection;
 import java.util.Set;
 
 import lombok.Getter;
@@ -13,7 +12,6 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -58,7 +56,7 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Set<SimpleGrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = Sets.newHashSet();
         if (roles != null) {
             for (String role : roles) {

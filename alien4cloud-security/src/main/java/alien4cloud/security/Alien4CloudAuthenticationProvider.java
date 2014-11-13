@@ -63,7 +63,7 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
 
     private Authentication internalAuthentication(User user, String password) {
         if (BCrypt.checkpw(password, user.getPassword())) {
-            return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+            return AuthorizationUtil.createAuthenticationToken(user, password);
         } else {
             log.debug("Wrong password for user <" + user.getUsername() + ">");
             throw new BadCredentialsException("Incorrect password for user <" + user.getUsername() + ">");
@@ -73,7 +73,7 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
     private Authentication delegateAuthenticate(Authentication authentication, User user, String password) {
         Authentication auth = wrappedProvider.authenticate(authentication);
         if (auth.isAuthenticated()) {
-            return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+            return AuthorizationUtil.createAuthenticationToken(user, password);
         } else {
             return auth;
         }
@@ -93,7 +93,7 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
 
             alienUserDao.save(user);
 
-            return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+            return AuthorizationUtil.createAuthenticationToken(user, password);
         }
     }
 

@@ -21,7 +21,7 @@ describe('Applications management :', function() {
     common.after();
   });
 
-  xit('should be able to go to application search page at ' + common.appSearchUrl + ' and create new application', function() {
+  it('should be able to go to application search page at ' + common.appSearchUrl + ' and create new application', function() {
     console.log('################# should be able to go to application search page at ' + common.appSearchUrl + ' and create new application');
     applications.createApplication('Alien', 'Great Application');
     // Go to the app details page
@@ -29,7 +29,7 @@ describe('Applications management :', function() {
     expect(browser.element(by.binding('application.description')).getText()).toEqual('Great Application');
   });
 
-  xit('should create first a topology template with 3 node templates (COMPUTE, JAVA, TOMCATRPM) and an application based on this template', function() {
+  it('should create first a topology template with 3 node templates (COMPUTE, JAVA, TOMCATRPM) and an application based on this template', function() {
     console.log('################# should create first a topology template with 3 node templates (COMPUTE, JAVA, TOMCATRPM) and an application based on this template');
     // Login as architect to create a topology template
     authentication.reLogin('architect');
@@ -61,7 +61,7 @@ describe('Applications management :', function() {
     expect(relationships.count()).toBe(0);
   });
 
-  xit('should be able to delete an application from the search list and the application\'s detail page', function() {
+  it('should be able to delete an application from the search list and the application\'s detail page', function() {
     console.log('################# should be able to delete an application from the search list and the application\'s detail page');
     applications.createApplication('Alien_1', 'Great Application 1');
     applications.createApplication('Alien_2', 'Great Application 2');
