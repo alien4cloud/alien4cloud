@@ -160,15 +160,24 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
 
     if (UTILS.isDefinedAndNotNull(savePromise)) {
       savePromise.then(function(errors) {
-        if (UTILS.isDefinedAndNotNull(errors) && Object.keys(errors).length > 0) {
-          scope.configuration.validationErrors = errors;
-          scope.configuration.showErrorsAlert = true;
+        if (errors.hasOwnProperty('error') && UTILS.isDefinedAndNotNull(errors.error)) {
+          // There is a main error
+          var resultHtml = $filter('translate')('CLOUDS.ERRORS.' + errors.error.code);
+          toaster.pop('error', $filter('translate')('CLOUDS.ERRORS.' + errors.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
         } else {
-          if (!scope.automaticSave) {
-            toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
+          // There is no main errors, check VALIDATION errors
+          if (UTILS.isDefinedAndNotNull(errors) && Object.keys(errors).length > 0 && !errors.hasOwnProperty('error')) {
+            scope.configuration.validationErrors = errors;
+            scope.configuration.showErrorsAlert = true;
+          } else {
+            if (!scope.automaticSave) {
+              toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
+            }
+            cleanUpAfterSave();
           }
-          cleanUpAfterSave();
+
         }
+
       });
     } else {
       if (!scope.automaticSave) {
@@ -386,7 +395,7 @@ angular.module('alienUiApp').directive('primitiveTypeFormLabel', ['$filter', fun
         scope.constraintsValidators = [];
         for (i = 0; i < scope.propertyType._constraints.length; i++) {
           var constraint = scope.propertyType._constraints[i];
-          var constraintName = Object.keys(constraint) [0];
+          var constraintName = Object.keys(constraint)[0];
           var constraintReference = constraint[constraintName];
           scope.constraintsValidators.push({
             reference: constraintReference,
@@ -725,30 +734,30 @@ angular.module('alienUiApp').directive('abstractTypeFormLabel', function() {
 FORMS.elementsFactory = function(type, canDelete, formStyle) {
   var newElements = [];
   switch (type) {
-    case 'string' :
-    case 'number' :
-    case 'date' :
-    case 'boolean' :
+    case 'string':
+    case 'number':
+    case 'date':
+    case 'boolean':
       newElements.push(FORMS.directiveFactory('primitive-type-form', canDelete));
       newElements.push(FORMS.directiveFactory('primitive-type-form-label', canDelete));
       break;
-    case 'tosca' :
+    case 'tosca':
       newElements.push(FORMS.directiveFactory('tosca-type-form', canDelete));
       newElements.push(FORMS.directiveFactory('tosca-type-form-label', canDelete));
       break;
-    default :
+    default:
       newElements.push(FORMS.directiveFactory(type + '-type-form', canDelete));
       newElements.push(FORMS.directiveFactory(type + '-type-form-label', canDelete));
   }
   if (formStyle === 'tree') {
     switch (type) {
-      case 'array' :
-      case 'map' :
-      case 'abstract' :
+      case 'array':
+      case 'map':
+      case 'abstract':
       case 'complex':
         newElements.push(FORMS.directiveFactory('tree-form', canDelete));
         break;
-      default :
+      default:
         newElements.push(FORMS.directiveFactory('leaf-form', canDelete));
     }
   }
@@ -1119,7 +1128,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'greaterThan':
       return function(value, reference) {
         if (value <= reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.greaterThan', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.greaterThan', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1127,7 +1138,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'lessThan':
       return function(value, reference) {
         if (value >= reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.lessThan', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.lessThan', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1135,7 +1148,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'greaterOrEqual':
       return function(value, reference) {
         if (value < reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.greaterOrEqual', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.greaterOrEqual', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1143,7 +1158,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'lessOrEqual':
       return function(value, reference) {
         if (value > reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.lessOrEqual', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.lessOrEqual', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1152,7 +1169,9 @@ FORMS.constraintFactory = function(name, $filter) {
       return function(value, reference) {
         var ref = '[ ' + reference.min + ' , ' + reference.max + ' ]';
         if (value < reference.min || value > reference.max) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.inRange', {reference: ref});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.inRange', {
+            reference: ref
+          });
         } else {
           return true;
         }
@@ -1160,7 +1179,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'length':
       return function(value, reference) {
         if (value.toString().length !== reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.length', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.length', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1168,7 +1189,9 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'maxLength':
       return function(value, reference) {
         if (value.toString().length > reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.maxLength', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.maxLength', {
+            reference: reference
+          });
         } else {
           return true;
         }
@@ -1176,12 +1199,14 @@ FORMS.constraintFactory = function(name, $filter) {
     case 'minLength':
       return function(value, reference) {
         if (value.toString().length < reference) {
-          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.minLength', {reference: reference});
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.minLength', {
+            reference: reference
+          });
         } else {
           return true;
         }
       };
-    default :
+    default:
       return function() {
         return true;
       };

@@ -46,7 +46,7 @@
       "FILE_PATH": "Fichier",
       "SUPER_TYPE_NOT_FOUND": "Erreur pendant la compilation du type [ {{invalidElementName}} ] : Type parent non référencé [ {{notFoundType}} ]",
       "TYPE_NOT_FOUND": "Erreur pendant la compilation du type [ {{invalidElementName}} ] : Type non référencé [ {{notFoundType}} ]",
-      "401": " Une archive ayant ce nom et cette version existe déjà dans le dépot.",
+      "401": "Une archive ayant ce nom et cette version existe déjà dans le dépot.",
       "201": "L'archive contient un fichier YAML mal formé.",
       "ERRONEOUS_ARCHIVE_FILE": "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
       "DUPLICATED_DEFINITION_DECLARATION": "Cette définition est déclarée plusieurs fois dans le fichier meta-data de cet archive",
@@ -258,7 +258,7 @@
         "ALL": "Tout type d'événèments",
         "STATUS": "Statut de déploiement",
         "INSTANCES": "Statut d'instance",
-        "STORAGE":"Statut d'instance(BlockStorage)",
+        "STORAGE": "Statut d'instance(BlockStorage)",
         "MESSAGES": "Message",
         "DATE": "Date",
         "TYPE": "Type",
@@ -517,7 +517,11 @@
       "DELETING_FAILED_TITLE": "Supprimer un cloud",
       "DELETING_FAILED": "Impossible de supprimer le cloud. Il est utilisé par des ressources.",
       "DISABLING_FAILED_TITLE": "Désactiver un cloud",
-      "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources."
+      "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources.",
+      "ENABLING_FAILED_TITLE": "Activer un cloud",
+      "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
+      "352_TITLE": "Sauver la configuration du cloud",
+      "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
     "ENABLED_true": "Activé",
     "ENABLED_false": "Désactivé"
