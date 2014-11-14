@@ -6,6 +6,7 @@ var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var genericForm = require('../generic_form/generic_form');
 var pluginsCommon = require('../admin/plugins_common');
+var cloudsCommon = require('../admin/clouds_common');
 
 var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
 var pluginName = 'alien4cloud-mock-paas-provider';
@@ -28,7 +29,7 @@ describe('Upload and handle paas plugins', function() {
     pluginsCommon.goToPluginsPage();
   });
 
-  xit('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
+  it('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
 
     // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
@@ -46,7 +47,7 @@ describe('Upload and handle paas plugins', function() {
     expect(alienMockPaasProviderPlugin.isPresent()).toBe(true);
   });
 
-  xit('should be able to configure uploaded plugin', function() {
+  it('should be able to configure uploaded plugin', function() {
 
     // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
@@ -110,7 +111,7 @@ describe('Upload and handle paas plugins', function() {
     browser.waitForAngular();
   });
 
-  xit('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
+  it('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
     console.log('################# shoud be able to drop a plugin when it\'s not used by a another resource');
     // go on plugin list page
     pluginsCommon.goToPluginsPage();
@@ -125,7 +126,7 @@ describe('Upload and handle paas plugins', function() {
 
   });
 
-  xit('should be able to cancel the plugin deletion', function() {
+  it('should be able to cancel the plugin deletion', function() {
     console.log('################# should be able to cancel the plugin deletion');
     // upload mock paas plugin
     pluginsCommon.goToPluginsPage();
@@ -137,20 +138,41 @@ describe('Upload and handle paas plugins', function() {
   });
 
 
-  it('should have an error when trying to activate a Cloud without a good configuration', function() {
+  it('should have an error when trying to activate a cloud without a good configuration', function() {
+    console.log('################# should have an error when trying to activate a cloud without a good configuration');
 
     // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
 
-    var configureButton = browser.element(by.id(pluginId + '_configure'));
-    browser.actions().click(configureButton).perform();
+    // goToCloudConfiguration
+    // go on cloud details to enable
+    cloudsCommon.goToCloudList();
+    cloudsCommon.createNewCloud('testcloud');
+    cloudsCommon.goToCloudDetail('testcloud');
 
-    genericForm.sendValueToPrimitive('firstArgument', 'myVeryFirstArgument', false, 'xeditable');
+    // select cloud configuration
+    cloudsCommon.goToCloudConfiguration();
+    // set bad config to true
+    var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratontrue'));
+    browser.actions().click(badConfigurationSwitch).perform();
+    genericForm.saveForm();
+    cloudsCommon.goToCloudDetailDetails();
 
-    genericForm.sendValueToPrimitive('secondArgument', 'mySecondArgument', false, 'xeditable');
+    // enabling cloud should fail
+    cloudsCommon.enableCloud();
+    common.expectErrors();
 
-    genericForm.sendValueToPrimitive('javaVersion', '1.7', false, 'tosca');
+    // set this configuration switch to false
+    cloudsCommon.goToCloudConfiguration();
+    // set bad config to false
+    badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratonfalse'));
+    browser.actions().click(badConfigurationSwitch).perform();
+    genericForm.saveForm();
+    cloudsCommon.goToCloudDetailDetails();
 
+    // enabling cloud should not fail
+    cloudsCommon.enableCloud();
+    common.expectNoErrors();
 
   });
 
