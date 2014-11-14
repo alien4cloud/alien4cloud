@@ -106,7 +106,7 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
           deploymentEventServices.unsubscribe(listenerId, 'paasinstancestoragemonitorevent');
         }
       };
-      
+
       applicationEventServices.unsubscribeToInstanceStateChange = function(listenerId) {
         if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
           deploymentEventServices.unsubscribe(listenerId, 'paasinstancestatemonitorevent');

@@ -3,8 +3,8 @@ node_templates:
     type: tosca.nodes.Compute
     properties:
       os_type: linux
-      os_distribution: centos
-      os_version: centos
+      os_distribution: Ubuntu
+      os_version: 14.0
 
 # scaling_policies:
 dependencies:

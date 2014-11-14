@@ -19,7 +19,7 @@ public enum RestErrorCode {
     // Plugin errors
     PLUGIN_USED_ERROR(350),
     MISSING_PLUGIN_ERROR(351),
-    INVALID_PLUGIN_CONFIGURATION(351),
+    INVALID_PLUGIN_CONFIGURATION(352),
 
     // Cloud errors
     CLOUD_DISABLED_ERROR(370),
@@ -42,6 +42,7 @@ public enum RestErrorCode {
     // Application handling errors : code 600+
     APPLICATION_UNDEPLOYMENT_ERROR(602),
     APPLICATION_DEPLOYMENT_ERROR(601),
+    INVALID_DEPLOYMENT_SETUP(603),
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),

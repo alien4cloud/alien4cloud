@@ -1,6 +1,7 @@
 package alien4cloud.tosca.container.services.csar.impl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
@@ -58,7 +60,11 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     }
 
     public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element, Collection<CSARDependency> dependencies) {
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion);
+
+        IndexedNodeType indexedNodeType = getExistingIndexedNodeType(archiveVersion, element);
+        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : null;
+
+        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion, creationDate);
         if (element.getDerivedFrom() != null) {
             Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -125,7 +131,11 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     // TODO : This method should be removed once we manage correctly csar dependencies (for snapshot CSAR edited in ALIEN).
     @Override
     public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element) {
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion);
+
+        IndexedNodeType indexedNodeType = getExistingIndexedNodeType(archiveVersion, element);
+        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : null;
+
+        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion, creationDate);
         if (element.getDerivedFrom() != null) {
             Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
             QueryBuilder matchElementIdQueryBuilder = QueryBuilders.matchQuery("elementId", element.getDerivedFrom().toLowerCase());
@@ -136,6 +146,19 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             IndexedModelUtils.mergeInheritableIndex(superElement, indexedElement);
         }
         saveAndUpdateHighestVersion(indexedElement);
+    }
+
+    /**
+     * Recover an existing indexedNodeType
+     * 
+     * @param archiveVersion
+     * @param element
+     * @return
+     */
+    private IndexedNodeType getExistingIndexedNodeType(String archiveVersion, ToscaInheritableElement element) {
+        String indexedNodeTypeId = element.getId() + ":" + archiveVersion;
+        IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, indexedNodeTypeId);
+        return indexedNodeType;
     }
 
     public void deleteElement(String archiveName, String archiveVersion, ToscaElement element) {

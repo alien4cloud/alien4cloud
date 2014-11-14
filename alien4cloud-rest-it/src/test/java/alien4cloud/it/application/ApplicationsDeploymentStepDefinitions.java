@@ -263,7 +263,6 @@ public class ApplicationsDeploymentStepDefinitions {
         NameValuePair nvp = new BasicNameValuePair("applicationId", app.getId());
         NameValuePair nvp1 = new BasicNameValuePair("cloudId", cloudId);
         String responseStr = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
-        log.info(responseStr);
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
         assertNull(response.getError());
         assertNull(response.getData());

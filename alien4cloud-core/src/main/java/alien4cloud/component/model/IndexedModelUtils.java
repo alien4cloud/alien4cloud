@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.elasticsearch.common.collect.Maps;
 
+import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.exception.IndexingNotSupportedException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.tosca.container.model.ToscaElement;
@@ -119,17 +120,18 @@ public final class IndexedModelUtils {
      * @param archiveVersion the version of the archive
      * @return the indexed instance filled up with tosca element informations
      */
-    public static IndexedInheritableToscaElement getInheritableIndexedModel(ToscaInheritableElement tobeIndexed, String archiveName, String archiveVersion) {
+    public static IndexedInheritableToscaElement getInheritableIndexedModel(ToscaInheritableElement tobeIndexed, String archiveName, String archiveVersion,
+            Date creationDate) {
         Class<? extends IndexedInheritableToscaElement> indexClass = getInheritableIndexClass(tobeIndexed.getClass());
         // NodeType
         if (IndexedNodeType.class.equals(indexClass)) {
-            return getIndexedNodeType((NodeType) tobeIndexed, archiveName, archiveVersion);
+            return getIndexedNodeType((NodeType) tobeIndexed, archiveName, archiveVersion, creationDate);
         } else if (IndexedRelationshipType.class.equals(indexClass)) {
             return getIndexedRelationshipType((RelationshipType) tobeIndexed, archiveName, archiveVersion);
         } else if (indexClass != null) {
             try {
                 IndexedInheritableToscaElement element = indexClass.newInstance();
-                fillIndexedInheritableToscaElementProperties(tobeIndexed, element, archiveName, archiveVersion);
+                fillIndexedInheritableToscaElementProperties(tobeIndexed, element, archiveName, archiveVersion, creationDate);
                 return element;
             } catch (IllegalAccessException | InstantiationException e) {
                 throw new IndexingNotSupportedException("Could not instantiate indexed class [" + indexClass.getName() + "]", e);
@@ -153,7 +155,7 @@ public final class IndexedModelUtils {
         if (indexClass != null) {
             try {
                 IndexedToscaElement element = indexClass.newInstance();
-                fillIndexedToscaElementProperties(tobeIndexed, element, archiveName, archiveVersion);
+                fillIndexedToscaElementProperties(tobeIndexed, element, archiveName, archiveVersion, null);
                 return element;
             } catch (IllegalAccessException | InstantiationException e) {
                 throw new IndexingNotSupportedException("Could not instantiate indexed class [" + indexClass.getName() + "]", e);
@@ -204,13 +206,21 @@ public final class IndexedModelUtils {
     }
 
     private static void fillIndexedToscaElementProperties(ToscaElement tobeIndexed, IndexedToscaElement indexedToscaElement, String archiveName,
-            String archiveVersion) {
+            String archiveVersion, Date creationDate) {
+
+        // override if the version contains the snapshot identifier key
+        boolean isSnapshot = archiveVersion.toUpperCase().contains(CsarFileRepository.SNAPSHOT_IDENTIFIER);
+
         indexedToscaElement.setElementId(tobeIndexed.getId());
         indexedToscaElement.setArchiveName(archiveName);
         indexedToscaElement.setArchiveVersion(archiveVersion);
         indexedToscaElement.setDescription(tobeIndexed.getDescription());
         final Date currentDate = new Date();
-        indexedToscaElement.setCreationDate(currentDate);
+        if (isSnapshot == true && creationDate != null) {
+            indexedToscaElement.setCreationDate(creationDate);
+        } else {
+            indexedToscaElement.setCreationDate(currentDate);
+        }
         indexedToscaElement.setLastUpdateDate(currentDate);
         if (tobeIndexed.getTags() != null && !tobeIndexed.getTags().isEmpty()) {
             indexedToscaElement.setTags(Lists.<Tag> newArrayList());
@@ -221,8 +231,8 @@ public final class IndexedModelUtils {
     }
 
     private static void fillIndexedInheritableToscaElementProperties(ToscaInheritableElement tobeIndexed,
-            IndexedInheritableToscaElement indexedInheritableToscaElement, String archiveName, String archiveVersion) {
-        fillIndexedToscaElementProperties(tobeIndexed, indexedInheritableToscaElement, archiveName, archiveVersion);
+            IndexedInheritableToscaElement indexedInheritableToscaElement, String archiveName, String archiveVersion, Date creationDate) {
+        fillIndexedToscaElementProperties(tobeIndexed, indexedInheritableToscaElement, archiveName, archiveVersion, creationDate);
         if (tobeIndexed.getDerivedFrom() != null) {
             indexedInheritableToscaElement.setDerivedFrom(new HashSet<String>());
             indexedInheritableToscaElement.getDerivedFrom().add(tobeIndexed.getDerivedFrom());
@@ -236,10 +246,10 @@ public final class IndexedModelUtils {
         indexedInheritableToscaElement.setAbstract(tobeIndexed.isAbstract());
     }
 
-    private static IndexedNodeType getIndexedNodeType(NodeType ofThis, String archiveName, String archiveVersion) {
+    private static IndexedNodeType getIndexedNodeType(NodeType ofThis, String archiveName, String archiveVersion, Date creationDate) {
         IndexedNodeType result = new IndexedNodeType();
         // Fill base properties
-        fillIndexedInheritableToscaElementProperties(ofThis, result, archiveName, archiveVersion);
+        fillIndexedInheritableToscaElementProperties(ofThis, result, archiveName, archiveVersion, creationDate);
         Set<CapabilityDefinition> capa = new HashSet<>();
         Set<RequirementDefinition> req = new HashSet<>();
         if (ofThis.getCapabilities() != null) {
@@ -266,7 +276,7 @@ public final class IndexedModelUtils {
     private static IndexedRelationshipType getIndexedRelationshipType(RelationshipType ofThis, String archiveName, String archiveVersion) {
         IndexedRelationshipType result = new IndexedRelationshipType();
         // Fill base properties
-        fillIndexedInheritableToscaElementProperties(ofThis, result, archiveName, archiveVersion);
+        fillIndexedInheritableToscaElementProperties(ofThis, result, archiveName, archiveVersion, null);
         result.setValidTargets(ofThis.getValidTargets());
         if (ofThis.getInterfaces() != null) {
             result.setInterfaces(new HashMap<>(ofThis.getInterfaces()));

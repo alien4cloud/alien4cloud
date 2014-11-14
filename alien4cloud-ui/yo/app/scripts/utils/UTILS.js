@@ -126,6 +126,11 @@ UTILS.isHostedOnRelationship = function(relationshipTypeName, relationshipTypes)
   return relationshipTypeName === hostedOnRelationshipName || (UTILS.isDefinedAndNotNull(superTypes) && superTypes.indexOf(hostedOnRelationshipName) >= 0);
 };
 
+UTILS.isFromNodeType = function(nodeType, type) {
+  var superTypes = nodeType.derivedFrom;
+  return nodeType.elementId === type || (UTILS.isDefinedAndNotNull(superTypes) && superTypes.indexOf(type) >= 0);
+};
+
 /* Split a string into chunks of the given size */
 UTILS.splitString = function(string, size) {
   var re = new RegExp('.{1,' + size + '}', 'g');

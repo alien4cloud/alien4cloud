@@ -15,10 +15,12 @@ var pathToJavaTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/s
 var pathToBaseTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/tosca-base-types-2.0.csar');
 var pathToJavaTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar');
 var pathToApacheLbTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/apacheLB-types-0.2.csar');
+var pathToUbuntuType = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar');
 
 
 describe('Initialize test environment', function() {
   beforeEach(function() {
+    browser.driver.manage().window().setSize(1920, 1080);
     browser.driver.manage().window().maximize();
     navigation.home();
   });
@@ -28,6 +30,9 @@ describe('Initialize test environment', function() {
   });
 
   it('Setups test environment to be fully cleaned up', function() {
+    browser.driver.manage().window().getSize().then(function(size) {
+      console.log('################# Window\'s size  [' + size.width + ', ' + size.height + ']');
+    });
     console.log('################# Setups test environment to be fully cleaned up');
     cleanup.fullCleanup();
     navigation.home();
@@ -54,6 +59,7 @@ describe('Initialize test environment', function() {
     common.uploadFile(pathToBaseTypesV2);
     common.uploadFile(pathToJavaTypesV2);
     common.uploadFile(pathToApacheLbTypes);
+    common.uploadFile(pathToUbuntuType);
   });
 
   it('Admin should be able to upload plugin', function() {

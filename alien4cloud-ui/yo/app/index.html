@@ -4,196 +4,197 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js">
-<!--<![endif]-->
+  <!--<![endif]-->
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>ALIEN 4 Cloud</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>ALIEN 4 Cloud</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
 
-  <!-- build:css({.tmp,app}) styles/main.css -->
-  <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control.css"  type="text/css"/>
-  <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control-attribute.css"  type="text/css"/>
-  <link rel="stylesheet" href="bower_components/angularjs-toaster/toaster.css"  type="text/css"/>
-  <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css"  type="text/css"/>
-  <link rel="stylesheet" href="styles/main.css" type="text/css"/>
-  <!-- endbuild -->
-</head>
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control-attribute.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angularjs-toaster/toaster.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" type="text/css" />
+    <link rel="stylesheet" href="styles/main.css" type="text/css" />
+    <!-- endbuild -->
+  </head>
 
-<body ng-app="alienUiApp">
-  <!--[if lt IE 7]>
+  <body ng-app="alienUiApp">
+    <!--[if lt IE 7]>
       <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
     <![endif]-->
 
-  <!--[if lt IE 9]>
+    <!--[if lt IE 9]>
       <script src="bower_components/es5-shim/es5-shim.js"></script>
       <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
-  <alien-nav-bar></alien-nav-bar>
+    <alien-nav-bar></alien-nav-bar>
 
-  <!-- Display events (errors etc.) -->
-  <toaster-container toaster-options="{'position-class': 'toast-top-right', 'close-button':true}"></toaster-container>
+    <!-- Display events (errors etc.) -->
+    <toaster-container toaster-options="{'position-class': 'toast-top-right', 'close-button':true}"></toaster-container>
 
-  <div class="main-view" ui-view></div>
+    <div class="main-view" ui-view></div>
 
-  <!-- build:js scripts/plugins.js -->
-  <script src="bower_components/jquery/dist/jquery.js"></script>
-  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
-  <script src="bower_components/d3/d3.js"></script>
-  <script src="bower_components/d3-tip/index.js"></script>
-  <script src="bower_components/dagre-d3/js/dagre-d3.js"></script>
-  <script src="bower_components/hopscotch/dist/js/hopscotch.js"></script>
-  <!-- endbuild -->
+    <!-- build:js scripts/plugins.js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/d3-tip/index.js"></script>
+    <script src="scripts/lib/dagre-d3.js"></script>
+    <script src="bower_components/hopscotch/dist/js/hopscotch.js"></script>
+    <!-- endbuild -->
 
-  <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
-  <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
 
-  <!-- build:js({.tmp,app}) scripts/scripts.js -->
-  <script src="scripts/app.js"></script>
+    <!-- build:js({.tmp,app}) scripts/scripts.js -->
+    <script src="scripts/app.js"></script>
 
-  <script src="scripts/filters/truncate_long_text.js"></script>
-  <script src="scripts/filters/replace_string.js"></script>
-  <script src="scripts/filters/inputs.js"></script>
-  <script src="scripts/filters/bytes.js"></script>
+    <script src="scripts/filters/truncate_long_text.js"></script>
+    <script src="scripts/filters/replace_string.js"></script>
+    <script src="scripts/filters/inputs.js"></script>
+    <script src="scripts/filters/bytes.js"></script>
 
-  <script src="scripts/controllers/component_details.js"></script>
-  <script src="scripts/controllers/component_list.js"></script>
-  <script src="scripts/controllers/component_search.js"></script>
+    <script src="scripts/controllers/component_details.js"></script>
+    <script src="scripts/controllers/component_list.js"></script>
+    <script src="scripts/controllers/component_search.js"></script>
 
-  <script src="scripts/controllers/search_relationship.js"></script>
-  <script src="scripts/controllers/upload.js"></script>
-  <script src="scripts/controllers/plugin.js"></script>
+    <script src="scripts/controllers/search_relationship.js"></script>
+    <script src="scripts/controllers/upload.js"></script>
+    <script src="scripts/controllers/plugin.js"></script>
 
-  <script src="scripts/controllers/properties.js"></script>
+    <script src="scripts/controllers/properties.js"></script>
 
-  <script src="scripts/admin/controllers/home.js"></script>
-  <script src="scripts/admin/controllers/admin_layout.js"></script>
-  <script src="scripts/admin/controllers/admin_home_layout.js"></script>
-  <script src="scripts/admin/controllers/metrics.js"></script>
-  <script src="scripts/admin/services/metrics.js"></script>
-  <script src="scripts/admin/services/menu.js"></script>
+    <script src="scripts/admin/controllers/home.js"></script>
+    <script src="scripts/admin/controllers/admin_layout.js"></script>
+    <script src="scripts/admin/controllers/admin_home_layout.js"></script>
+    <script src="scripts/admin/controllers/metrics.js"></script>
+    <script src="scripts/admin/services/metrics.js"></script>
+    <script src="scripts/admin/services/menu.js"></script>
 
-  <script src="scripts/applications/controllers/application.js"></script>
-  <script src="scripts/applications/controllers/application_deployment.js"></script>
-  <script src="scripts/applications/controllers/application_info.js"></script>
-  <script src="scripts/applications/controllers/application_list.js"></script>
-  <script src="scripts/applications/controllers/application_users.js"></script>
-  <script src="scripts/applications/controllers/topology_runtime.js"></script>
-  <script src="scripts/applications/services/application_services.js"></script>
-  <script src="scripts/applications/services/application_event_services.js"></script>
+    <script src="scripts/applications/controllers/application.js"></script>
+    <script src="scripts/applications/controllers/application_deployment.js"></script>
+    <script src="scripts/applications/controllers/application_info.js"></script>
+    <script src="scripts/applications/controllers/application_list.js"></script>
+    <script src="scripts/applications/controllers/application_users.js"></script>
+    <script src="scripts/applications/controllers/topology_runtime.js"></script>
+    <script src="scripts/applications/services/application_services.js"></script>
+    <script src="scripts/applications/services/application_event_services.js"></script>
 
-  <script src="scripts/clouds/controllers/new_cloud.js"></script>
-  <script src="scripts/clouds/controllers/cloud_list.js"></script>
-  <script src="scripts/clouds/controllers/cloud_detail.js"></script>
-  <script src="scripts/clouds/controllers/new_flavor.js"></script>
-  <script src="scripts/clouds/controllers/new_image.js"></script>
-  <script src="scripts/clouds/services/cloud_services.js"></script>
+    <script src="scripts/clouds/controllers/new_cloud.js"></script>
+    <script src="scripts/clouds/controllers/cloud_list.js"></script>
+    <script src="scripts/clouds/controllers/cloud_detail.js"></script>
+    <script src="scripts/clouds/controllers/new_flavor.js"></script>
+    <script src="scripts/clouds/controllers/new_image.js"></script>
+    <script src="scripts/clouds/services/cloud_services.js"></script>
 
-  <script src="scripts/cloud-images/controllers/new_cloud_image.js"></script>
-  <script src="scripts/cloud-images/controllers/cloud_image_list.js"></script>
-  <script src="scripts/cloud-images/controllers/cloud_image_detail.js"></script>
-  <script src="scripts/cloud-images/services/cloud_image_services.js"></script>
+    <script src="scripts/cloud-images/controllers/new_cloud_image.js"></script>
+    <script src="scripts/cloud-images/controllers/cloud_image_list.js"></script>
+    <script src="scripts/cloud-images/controllers/cloud_image_detail.js"></script>
+    <script src="scripts/cloud-images/services/cloud_image_services.js"></script>
 
-  <script src="scripts/csars/controllers/csar_list.js"></script>
-  <script src="scripts/csars/controllers/csar_details.js"></script>
-  <script src="scripts/csars/controllers/csar_component_details.js"></script>
-  <script src="scripts/csars/controllers/csar_explorer.js"></script>
+    <script src="scripts/csars/controllers/csar_list.js"></script>
+    <script src="scripts/csars/controllers/csar_details.js"></script>
+    <script src="scripts/csars/controllers/csar_component_details.js"></script>
+    <script src="scripts/csars/controllers/csar_explorer.js"></script>
 
-  <script src="scripts/meta-props/controllers/tag_configuration_list.js"></script>
-  <script src="scripts/meta-props/controllers/tag_configuration.js"></script>
-  <script src="scripts/meta-props/services/tag_configuration_services.js"></script>
+    <script src="scripts/meta-props/controllers/tag_configuration_list.js"></script>
+    <script src="scripts/meta-props/controllers/tag_configuration.js"></script>
+    <script src="scripts/meta-props/services/tag_configuration_services.js"></script>
 
-  <script src="scripts/topology/controllers/topology.js"></script>
-  <script src="scripts/topology/controllers/topology_plan_graph_controller.js"></script>
-  <script src="scripts/topology/directives/topology_rendering.js"></script>
-  <script src="scripts/topology/services/tosca_service.js"></script>
-  <script src="scripts/topology/services/node_tempalte_service.js"></script>
-  <script src="scripts/topology/services/relationship_target_matcher_service.js"></script>
+    <script src="scripts/topology/controllers/topology.js"></script>
+    <script src="scripts/topology/controllers/topology_plan_graph_controller.js"></script>
+    <script src="scripts/topology/directives/topology_rendering.js"></script>
+    <script src="scripts/topology/services/tosca_service.js"></script>
+    <script src="scripts/topology/services/node_tempalte_service.js"></script>
+    <script src="scripts/topology/services/relationship_target_matcher_service.js"></script>
 
-  <script src="scripts/topology/services/default_node_renderer_service.js"></script>
-  <script src="scripts/topology/services/simple_node_renderer_service.js"></script>
-  <script src="scripts/topology/services/topology_svg_service.js"></script>
+    <script src="scripts/topology/services/default_node_renderer_service.js"></script>
+    <script src="scripts/topology/services/simple_node_renderer_service.js"></script>
+    <script src="scripts/topology/services/topology_svg_service.js"></script>
 
-  <script src="scripts/topologytemplates/controllers/topology_template_list.js"></script>
-  <script src="scripts/topologytemplates/controllers/topology_template.js"></script>
-  <script src="scripts/topologytemplates/services/topology_template_service.js"></script>
+    <script src="scripts/topologytemplates/controllers/topology_template_list.js"></script>
+    <script src="scripts/topologytemplates/controllers/topology_template.js"></script>
+    <script src="scripts/topologytemplates/services/topology_template_service.js"></script>
 
-  <script src="scripts/users/controllers/users.js"></script>
-  <script src="scripts/users/controllers/users_directive_ctrl.js"></script>
-  <script src="scripts/users/controllers/groups_directive_ctrl.js"></script>
+    <script src="scripts/users/controllers/users.js"></script>
+    <script src="scripts/users/controllers/users_directive_ctrl.js"></script>
+    <script src="scripts/users/controllers/groups_directive_ctrl.js"></script>
 
-  <script src="scripts/services/component_services.js"></script>
-  <script src="scripts/services/search_service_factory.js"></script>
-  <script src="scripts/services/search_services.js"></script>
-  <script src="scripts/services/rest_technical_error_interceptor.js"></script>
-  <script src="scripts/services/quick_search_service.js"></script>
-  <script src="scripts/services/topology_services.js"></script>
-  <script src="scripts/services/topology_layout_services.js"></script>
-  <script src="scripts/services/suggestion_services.js"></script>
-  <script src="scripts/services/user_service.js"></script>
-  <script src="scripts/services/group_services.js"></script>
-  <script src="scripts/services/formdescriptor_services.js"></script>
-  <script src="scripts/services/plugin_services.js"></script>
-  <script src="scripts/services/websocket_services.js"></script>
-  <script src="scripts/services/properties_services.js"></script>
-  <script src="scripts/services/deployment_services.js"></script>
-  <script src="scripts/services/deployment_event_services.js"></script>
+    <script src="scripts/services/component_services.js"></script>
+    <script src="scripts/services/search_service_factory.js"></script>
+    <script src="scripts/services/search_services.js"></script>
+    <script src="scripts/services/rest_technical_error_interceptor.js"></script>
+    <script src="scripts/services/quick_search_service.js"></script>
+    <script src="scripts/services/topology_services.js"></script>
+    <script src="scripts/services/topology_layout_services.js"></script>
+    <script src="scripts/services/suggestion_services.js"></script>
+    <script src="scripts/services/user_service.js"></script>
+    <script src="scripts/services/group_services.js"></script>
+    <script src="scripts/services/formdescriptor_services.js"></script>
+    <script src="scripts/services/plugin_services.js"></script>
+    <script src="scripts/services/websocket_services.js"></script>
+    <script src="scripts/services/properties_services.js"></script>
+    <script src="scripts/services/deployment_services.js"></script>
+    <script src="scripts/services/deployment_event_services.js"></script>
 
-  <script src="scripts/graph_utils/services/coordinates_util_service.js"></script>
-  <script src="scripts/graph_utils/services/svg_controls_service.js"></script>
-  <script src="scripts/graph_utils/services/svg_service.js"></script>
+    <script src="scripts/graph_utils/services/coordinates_util_service.js"></script>
+    <script src="scripts/graph_utils/services/svg_controls_service.js"></script>
+    <script src="scripts/graph_utils/services/svg_service.js"></script>
 
-  <script src="scripts/utils/services/browser_service.js"></script>
-  <script src="scripts/utils/services/resize_services.js"></script>
-  <script src="scripts/utils/services/runtime_colors_service.js"></script>
-  <script src="scripts/utils/services/hopscotch_service.js"></script>
+    <script src="scripts/utils/services/browser_service.js"></script>
+    <script src="scripts/utils/services/resize_services.js"></script>
+    <script src="scripts/utils/services/runtime_colors_service.js"></script>
+    <script src="scripts/utils/services/hopscotch_service.js"></script>
 
-  <script src="scripts/directives/drag_drop.js"></script>
-  <script src="scripts/directives/search.js"></script>
-  <script src="scripts/directives/generic_form.js"></script>
-  <script src="scripts/directives/upload.js"></script>
-  <script src="scripts/directives/pagination.js"></script>
-  <script src="scripts/directives/property_display.js"></script>
-  <script src="scripts/directives/delete_confirm.js"></script>
+    <script src="scripts/directives/drag_drop.js"></script>
+    <script src="scripts/directives/search.js"></script>
+    <script src="scripts/directives/generic_form.js"></script>
+    <script src="scripts/directives/upload.js"></script>
+    <script src="scripts/directives/pagination.js"></script>
+    <script src="scripts/directives/property_display.js"></script>
+    <script src="scripts/directives/delete_confirm.js"></script>
 
-  <script src="scripts/utils/UTILS.js"></script>
-  <script src="scripts/utils/BoundingBox.js"></script>
-  <script src="scripts/utils/CONNECTORS.Grid.js"></script>
-  <script src="scripts/utils/CONNECTORS.Point.js"></script>
-  <script src="scripts/utils/D3JS_UTILS.js"></script>
+    <script src="scripts/utils/UTILS.js"></script>
+    <script src="scripts/utils/BoundingBox.js"></script>
+    <script src="scripts/utils/CONNECTORS.Grid.js"></script>
+    <script src="scripts/utils/CONNECTORS.Point.js"></script>
+    <script src="scripts/utils/D3JS_UTILS.js"></script>
+    <script src="scripts/utils/CONSTANTS.js"></script>
 
-  <script src="scripts/authentication/services/authservices.js"></script>
-  <script src="scripts/authentication/controllers/navbar.js"></script>
-  <script src="scripts/authentication/directives/navbar.js"></script>
-  <script src="scripts/authentication/services/navbar.js"></script>
-  <script src="scripts/authentication/services/userServices.js"></script>
-  <!-- endbuild -->
+    <script src="scripts/authentication/services/authservices.js"></script>
+    <script src="scripts/authentication/controllers/navbar.js"></script>
+    <script src="scripts/authentication/directives/navbar.js"></script>
+    <script src="scripts/authentication/services/navbar.js"></script>
+    <script src="scripts/authentication/services/userServices.js"></script>
+    <!-- endbuild -->
 
-  <!-- build:js scripts/modules.js -->
-  <script src="bower_components/angular-resource/angular-resource.js"></script>
-  <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-  <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-  <script src="bower_components/angular-route/angular-route.js"></script>
-  <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-  <script src="bower_components/angular-translate/angular-translate.js"></script>
-  <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
-  <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-  <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
-  <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
-  <script src="bower_components/ace-builds/src-min-noconflict/ace.js"></script>
-  <script src="bower_components/angular-ui-ace/ui-ace.js"></script>
-  <script src="bower_components/js-yaml/js-yaml.js"></script>
-  <script src="bower_components/angular-animate/angular-animate.min.js"></script>
-  <script src="bower_components/angularjs-toaster/toaster.js"></script>
-  <script src="bower_components/fc-angular-utils/button-confirm/button-confirm.js"></script>
-  <script src="bower_components/angular-tree-control/angular-tree-control.js"></script>
-  <script src="bower_components/sockjs/sockjs.js"></script>
-  <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
-  <!-- endbuild -->
+    <!-- build:js scripts/modules.js -->
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-translate/angular-translate.js"></script>
+    <script src="bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/ng-file-upload/angular-file-upload.js"></script>
+    <script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
+    <script src="bower_components/ace-builds/src-min-noconflict/ace.js" charset="utf-8"></script>
+    <script src="bower_components/angular-ui-ace/ui-ace.js" charset="utf-8"></script>
+    <script src="bower_components/js-yaml/js-yaml.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="bower_components/angularjs-toaster/toaster.js"></script>
+    <script src="bower_components/fc-angular-utils/button-confirm/button-confirm.js"></script>
+    <script src="bower_components/angular-tree-control/angular-tree-control.js"></script>
+    <script src="bower_components/sockjs/sockjs.js"></script>
+    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
+    <!-- endbuild -->
 
-</body>
+  </body>
 
 </html>

@@ -171,19 +171,7 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        if (!isInternalAllUserGroup(groupId)) {
-            groupService.addRoleToGroup(groupId, role);
-        } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Constants.GROUP_NAME_ALL_USERS);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .data(null)
-                    .error(RestErrorBuilder
-                            .builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message(
-                                    "You can not update the group with id <" + groupId + "> corresponding to an internal group <"
-                                            + Constants.GROUP_NAME_ALL_USERS + ">").build()).build();
-        }
+        groupService.addRoleToGroup(groupId, role);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -202,20 +190,8 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        if (!isInternalAllUserGroup(groupId)) {
-            groupService.removeRoleFromGroup(groupId, role);
-        } else {
-            log.info("You can not update the group with id <{}> corresponding to an internal group <{}>", groupId, Constants.GROUP_NAME_ALL_USERS);
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .data(null)
-                    .error(RestErrorBuilder
-                            .builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message(
-                                    "You can not update the group with id <" + groupId + "> corresponding to an internal group <"
-                                            + Constants.GROUP_NAME_ALL_USERS + ">").build()).build();
-        }
-        return RestResponseBuilder.<Void> builder().error(null).build();
+        groupService.removeRoleFromGroup(groupId, role);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -233,7 +209,7 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        User user = null;
+        User user;
         if (!isInternalAllUserGroup(groupId)) {
             user = groupService.addUserToGroup(username, groupId);
         } else {
@@ -257,7 +233,7 @@ public class GroupController {
      *            The group from which to remove the given user.
      * @param username
      *            The username of the user to remove from the group.
-     * @return
+     * @return response which contain the removed user
      */
     @ApiOperation(value = "Remove a user from a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -265,7 +241,7 @@ public class GroupController {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
         }
-        User user = null;
+        User user;
         if (!isInternalAllUserGroup(groupId)) {
             user = groupService.removeUserFromGroup(username, groupId);
         } else {
@@ -304,14 +280,11 @@ public class GroupController {
      * Determines if the requested group is the internal one corresponding to
      * "All users"
      *
-     * @param groupId
+     * @param groupId the group id to verify
      * @return boolean
      */
     private boolean isInternalAllUserGroup(String groupId) {
         Group group = alienGroupDao.find(groupId);
-        if (group != null && Constants.GROUP_NAME_ALL_USERS.equals(group.getName())) {
-            return true;
-        }
-        return false;
+        return group != null && Constants.GROUP_NAME_ALL_USERS.equals(group.getName());
     }
 }

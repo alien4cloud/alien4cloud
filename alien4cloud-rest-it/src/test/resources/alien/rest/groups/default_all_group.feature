@@ -22,12 +22,6 @@ Scenario: Getting ALL_USERS group from its name should succeed
 Scenario: Updating ALL_USERS group should fail
   When I update the "ALL_USERS" group's name to "NEW_GROUP" 
   Then I should receive a RestResponse with an error code 506
-  
-Scenario: Adding or Removing a role to ALL_USERS group should fail
-  When I add the role "COMPONENTS_BROWSER" to the group "ALL_USERS"
-  Then I should receive a RestResponse with an error code 506
-  When I remove the role "COMPONENTS_BROWSER" from the group "ALL_USERS"
-  Then I should receive a RestResponse with an error code 506
 
 Scenario: Adding or Removing a user to ALL_USERS group should fail
   When I add the user "sauron" to the group "ALL_USERS"

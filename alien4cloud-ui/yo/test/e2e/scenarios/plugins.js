@@ -28,7 +28,7 @@ describe('Upload and handle paas plugins', function() {
     pluginsCommon.goToPluginsPage();
   });
 
-  it('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
+  xit('should be able to upload plugins mock paas archive from fresh mock jar build', function() {
 
     // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
@@ -46,7 +46,7 @@ describe('Upload and handle paas plugins', function() {
     expect(alienMockPaasProviderPlugin.isPresent()).toBe(true);
   });
 
-  it('should be able to configure uploaded plugin', function() {
+  xit('should be able to configure uploaded plugin', function() {
 
     // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
@@ -110,7 +110,7 @@ describe('Upload and handle paas plugins', function() {
     browser.waitForAngular();
   });
 
-  it('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
+  xit('shoud be able to drop a plugin when it\'s not used by a another resource', function() {
     console.log('################# shoud be able to drop a plugin when it\'s not used by a another resource');
     // go on plugin list page
     pluginsCommon.goToPluginsPage();
@@ -125,7 +125,7 @@ describe('Upload and handle paas plugins', function() {
 
   });
 
-  it('should be able to cancel the plugin deletion', function() {
+  xit('should be able to cancel the plugin deletion', function() {
     console.log('################# should be able to cancel the plugin deletion');
     // upload mock paas plugin
     pluginsCommon.goToPluginsPage();
@@ -135,4 +135,23 @@ describe('Upload and handle paas plugins', function() {
     common.deleteWithConfirm('delete-' + mockPluginId, false);
     expect(mockPluginLine.isPresent()).toBe(true);
   });
+
+
+  it('should have an error when trying to activate a Cloud without a good configuration', function() {
+
+    // upload mock paas plugin
+    pluginsCommon.pluginsUploadInit();
+
+    var configureButton = browser.element(by.id(pluginId + '_configure'));
+    browser.actions().click(configureButton).perform();
+
+    genericForm.sendValueToPrimitive('firstArgument', 'myVeryFirstArgument', false, 'xeditable');
+
+    genericForm.sendValueToPrimitive('secondArgument', 'mySecondArgument', false, 'xeditable');
+
+    genericForm.sendValueToPrimitive('javaVersion', '1.7', false, 'tosca');
+
+
+  });
+
 });

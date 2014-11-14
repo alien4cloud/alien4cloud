@@ -19,7 +19,8 @@ angular.module('alienUiApp').controller(
       var border = 2;
       var detailDivWidth = 450;
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
-
+      var COMPUTE_TYPE = "tosca.nodes.Compute"; 
+      
       function onResize(width, height) {
         $scope.dimensions = {
           width: width,
@@ -814,6 +815,15 @@ angular.module('alienUiApp').controller(
             $scope.relNameObj[oldName] = oldName;
           });
         } // if end
+      };
+      
+      // check if compute type
+      $scope.isComputeType =  function(nodeTemplate){
+        if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
+          return false;
+        }
+        var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+        return UTILS.isFromNodeType(nodeType, COMPUTE_TYPE);
       };
     }
   ]);

@@ -62,12 +62,10 @@ public class CloudResourceMatcherService {
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
             List<ComputeTemplate> computeTemplates = Lists.newArrayList();
-            List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue());
+            List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue(), types.get(templateEntry.getKey()));
             for (CloudImage image : images) {
                 List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
-                if (!flavors.isEmpty()) {
-                    imageIds.add(image.getId());
-                }
+                boolean templateAdded = false;
                 for (CloudImageFlavor flavor : flavors) {
                     ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
                     if (computeTemplateMapping != null && (!computeTemplateMapping.containsKey(template) || computeTemplateMapping.get(template) == null)) {
@@ -75,7 +73,11 @@ public class CloudResourceMatcherService {
                         continue;
                     }
                     computeTemplates.add(template);
+                    templateAdded = true;
                     flavorMap.put(flavor.getId(), flavor);
+                }
+                if (templateAdded) {
+                    imageIds.add(image.getId());
                 }
             }
             matchResult.put(templateEntry.getKey(), computeTemplates);
@@ -97,7 +99,7 @@ public class CloudResourceMatcherService {
             return matchableNodeTemplates;
         }
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : allNodeTemplates.entrySet()) {
-            if (toscaService.isCompute(nodeTemplateEntry.getValue().getType(), types.get(nodeTemplateEntry.getKey()))) {
+            if (toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
                 // TODO check also network and other cloud related resources ...
                 matchableNodeTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
@@ -112,8 +114,8 @@ public class CloudResourceMatcherService {
      * @param nodeTemplate the compute to search for images
      * @return the available images on the cloud
      */
-    private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate) {
-        if (!NormativeComputeConstants.COMPUTE_TYPE.equals(nodeTemplate.getType())) {
+    private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate, IndexedNodeType nodeType) {
+        if (!toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
             throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
         Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
@@ -164,9 +166,6 @@ public class CloudResourceMatcherService {
      * @return the available flavors for the compute and the image on the given cloud
      */
     private List<CloudImageFlavor> getAvailableFlavorForCompute(Cloud cloud, NodeTemplate nodeTemplate, CloudImage cloudImage) {
-        if (!NormativeComputeConstants.COMPUTE_TYPE.equals(nodeTemplate.getType())) {
-            throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
-        }
         Map<String, CloudImageFlavor> allFlavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             allFlavors.put(flavor.getId(), flavor);

@@ -290,7 +290,6 @@ public class TopologyStepDefinitions {
 
         // I should have a relationship with type
         String topologyJson = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
-        log.info(topologyJson);
         RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class);
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(source);
         relName = relName == null || relName.isEmpty() ? getRelationShipName(relType, target) : relName;

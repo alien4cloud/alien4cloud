@@ -69,3 +69,13 @@ Scenario: Upload Snapshot version CSAR that already exist in the repository
   And The CSAR is already uploaded in the system
   When I upload it
   Then I should receive a RestResponse with no error
+  
+Scenario: Upload Snapshot version CSAR that already exist in the repository and check creation / lastUpdate dates
+  Given I have a CSAR folder that is "snapshot"
+  And The CSAR is already uploaded in the system
+  When I try to get a component with id "test.java.app:1.0-SNAPSHOT"
+  Then I should have last update date equals to creation date
+  When I upload it
+  Then I should receive a RestResponse with no error
+  When I try to get a component with id "test.java.app:1.0-SNAPSHOT" 
+  Then I should have last update date greater than creation date

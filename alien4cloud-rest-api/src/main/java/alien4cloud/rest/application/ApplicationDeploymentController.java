@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.application.InvalidDeploymentSetupException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -87,7 +88,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = versions[0];
         DeploymentSetup deploymentSetup = getDeploymentSetup(application);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud);
+        deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
         deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
         alienDAO.save(deploymentSetup);
         return RestResponseBuilder.<Void> builder().build();
@@ -124,8 +125,9 @@ public class ApplicationDeploymentController {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
         DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        if (deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud)) {
-            alienDAO.save(deploymentSetup);
+        if (!deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true)) {
+            throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
+                    + "] because it contains unmatchable resources");
         }
         try {
             deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
@@ -334,9 +336,8 @@ public class ApplicationDeploymentController {
         }
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-            if (deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud)) {
-                alienDAO.save(deploymentSetup);
-            }
+            deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud,
+                    true);
         }
         return deploymentSetup;
     }

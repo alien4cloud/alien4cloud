@@ -9,7 +9,9 @@ import java.util.Set;
 import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.container.validation.CSARError;
@@ -30,6 +32,8 @@ public class UploadCSARSStepDefinition {
 
     private static final Map<String, String> conditionToPath = Maps.newHashMap();
 
+    private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
+
     static {
         conditionToPath.put("containing base types", "../alien4cloud-core/src/main/resources/tosca-base-types/1.0");
         conditionToPath.put("containing java types", "../alien4cloud-core/src/main/resources/java-types/1.0");
@@ -40,6 +44,7 @@ public class UploadCSARSStepDefinition {
         conditionToPath.put("csar file containing java types", "../alien4cloud-core/src/test/resources/examples/java-types-1.0.csar");
         conditionToPath.put("csar file containing java types V2", "../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar");
         conditionToPath.put("csar file containing java types V3", "../alien4cloud-core/src/test/resources/examples/java-types-3.0.csar");
+        conditionToPath.put("csar file containing ubuntu types V0.1", "../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar");
 
         conditionToPath.put("containing base types constraints", "src/test/resources/data/csars/definition/constraints");
         conditionToPath.put("valid", "../alien4cloud-core/src/main/resources/tosca-base-types/1.0");
@@ -81,6 +86,7 @@ public class UploadCSARSStepDefinition {
         }
         Files.copy(Paths.get(csarFile), csarPath);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(csarPath)));
+        commonSteps.I_should_receive_a_RestResponse_with_no_error();
         FileUtil.delete(csarPath);
     }
 
@@ -115,4 +121,17 @@ public class UploadCSARSStepDefinition {
         }
         Assert.assertEquals(compilationErrors, allErrors.size());
     }
+
+    @Then("^I should have last update date greater than creation date$")
+    public void I_should_have_last_update_date_greater_than_creation_date() throws Throwable {
+        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        Assert.assertTrue(idnt.getLastUpdateDate().after(idnt.getCreationDate()));
+    }
+
+    @Then("^I should have last update date equals to creation date$")
+    public void I_should_have_last_update_date_equals_to_creation_date() throws Throwable {
+        IndexedNodeType idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), IndexedNodeType.class).getData();
+        Assert.assertTrue(idnt.getLastUpdateDate().equals(idnt.getCreationDate()));
+    }
+
 }

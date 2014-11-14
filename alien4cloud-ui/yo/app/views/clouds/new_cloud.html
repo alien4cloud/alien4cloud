@@ -19,7 +19,7 @@
         {{'CLOUDS.PAAS_PROVIDER' | translate}}
       </label>
       <div class="col-lg-9">
-        <select class="form-control" name="provider" required ng-model="newCloud.paaSProvider" ng-options="p.componentDescriptor.name for p in paasProviders" ng-change="selectPaaSProvider(selectedPaaSProvider)">
+        <select class="form-control" name="provider" required ng-model="newCloud.paaSProvider" ng-options="p.nameAndId for p in paasProviders" ng-change="selectPaaSProvider(selectedPaaSProvider)">
         </select>
       </div>
     </div>
