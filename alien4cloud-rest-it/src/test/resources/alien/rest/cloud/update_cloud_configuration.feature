@@ -14,7 +14,7 @@ Scenario: Update cloud configuration
 
 Scenario: Update cloud configuration using invalid json configuration should fail
   When I update configuration for cloud "Mount doom cloud" with wrong configuration
-  Then I should receive a RestResponse with an error code 351
+  Then I should receive a RestResponse with an error code 352
   When I get configuration for cloud "Mount doom cloud"
   Then I should receive a RestResponse with no error
     And The cloud configuration should be null
