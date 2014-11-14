@@ -11,7 +11,7 @@ public interface ICSARRepositoryIndexerService {
 
     void indexElements(String archiveName, String archiveVersion, Map<String, IndexedToscaElement> archiveElements);
 
-    void indexInheritableElements(String archiveName, String archiveVersion, Map<String, IndexedInheritableToscaElement> archiveElements,
+    void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies);
 
     void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element, Collection<CSARDependency> dependencies);

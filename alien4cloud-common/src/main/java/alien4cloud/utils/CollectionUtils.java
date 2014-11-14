@@ -70,9 +70,13 @@ public final class CollectionUtils {
      * @return A list that represents the merged collections.
      */
     public static <T> List<T> merge(List<T> source, List<T> target) {
-        List<T> merged = source == null ? new ArrayList<T>() : source;
+        List<T> merged = target == null ? new ArrayList<T>() : target;
 
-        for (T t : target) {
+        if (source == null) {
+            return merged;
+        }
+
+        for (T t : source) {
             if (!merged.contains(t)) {
                 merged.add(t);
             }

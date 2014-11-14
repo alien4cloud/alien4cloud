@@ -10,9 +10,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.MatchedComputeTemplate;
 import alien4cloud.rest.cloud.CloudDTO;
+import alien4cloud.rest.cloud.CloudResourcesDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.google.common.collect.Lists;
@@ -30,13 +33,18 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[]{cloudImageId})));
     }
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
     public void I_should_receive_a_RestResponse_with_compute_templates(int numberOfTemplate, DataTable expectedTemplatesTable) throws Throwable {
-        Set<ComputeTemplate> templates = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), ComputeTemplate[].class).getData());
-        assertComputeTemplates(numberOfTemplate, templates, expectedTemplatesTable);
+        CloudResourcesDTO resources = JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourcesDTO.class).getData();
+        if (numberOfTemplate == 0) {
+            Assert.assertTrue(resources.getComputeTemplates() == null || resources.getComputeTemplates().isEmpty());
+        } else {
+            Set<ActivableComputeTemplate> templates = Sets.newHashSet(resources.getComputeTemplates());
+            assertComputeTemplates(numberOfTemplate, templates, expectedTemplatesTable);
+        }
     }
 
     @Then("^I should receive a RestResponse with no compute templates$")
@@ -57,15 +65,19 @@ public class CloudComputeTemplateStepDefinitions {
         The_cloud_with_name_should_have_compute_templates_as_resources(cloudName, 0, null);
     }
 
-    public static void assertComputeTemplates(int numberOfTemplate, Set<ComputeTemplate> templates, DataTable expectedTemplatesTable) {
+    public static void assertComputeTemplates(int numberOfTemplate, Set<? extends ComputeTemplate> templates, DataTable expectedTemplatesTable) {
         Assert.assertEquals(numberOfTemplate, templates.size());
         Set<ComputeTemplate> expectedTemplates = Sets.newHashSet();
         if (expectedTemplatesTable != null) {
             for (List<String> rows : expectedTemplatesTable.raw()) {
                 String imageName = rows.get(0);
                 String flavorName = rows.get(1);
-                boolean enabled = "enabled".equals(rows.get(2));
-                expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                if (rows.size() == 3) {
+                    boolean enabled = "enabled".equals(rows.get(2));
+                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                } else {
+                    expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName));
+                }
             }
         }
         Assert.assertEquals(expectedTemplates, templates);
@@ -73,7 +85,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
-            String cloudName) throws Throwable {
+                                                                                                 String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
         cloudImageFlavor.setId(flavorId);
@@ -121,7 +133,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
-                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
+                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 
     @When("^I remove the cloud image \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
@@ -135,5 +147,36 @@ public class CloudComputeTemplateStepDefinitions {
     public void I_remove_the_flavor_from_the_cloud(String flavorId, String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/clouds/" + cloudId + "/flavors/" + flavorId));
+    }
+
+    @When("^I match the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
+    public void I_match_the_template_composed_of_image_and_flavor_of_the_cloud_to_the_PaaS_resource(String cloudImageName, String flavorId, String cloudName, String paaSResourceId) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource", Lists.<NameValuePair>newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
+    }
+
+    @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
+    public void The_cloud_should_have_resources_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
+        new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
+        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
+        Assert.assertNotNull(cloudDTO.getMatcherConfig());
+        Assert.assertNotNull(cloudDTO.getMatcherConfig().getMatchedComputeTemplates());
+        Set<MatchedComputeTemplate> actualMatchedComputeTemplates = Sets.newHashSet(cloudDTO.getMatcherConfig().getMatchedComputeTemplates());
+        Set<MatchedComputeTemplate> expectedMatchedComputeTemplates = Sets.newHashSet();
+        for (List<String> rows : expectedMappings.raw()) {
+            String cloudImageId = Context.getInstance().getCloudImageId(rows.get(0));
+            String cloudImageFlavorId = rows.get(1);
+            String pasSResourceId = rows.get(2);
+            expectedMatchedComputeTemplates.add(new MatchedComputeTemplate(new ComputeTemplate(cloudImageId, cloudImageFlavorId), pasSResourceId));
+        }
+        Assert.assertEquals(expectedMatchedComputeTemplates, actualMatchedComputeTemplates);
+    }
+
+    @When("^I delete the mapping for the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
+    public void I_delete_the_mapping_for_the_template_composed_of_image_and_flavor_of_the_cloud(String cloudImageName, String flavorId, String cloudName) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource", Lists.<NameValuePair>newArrayList()));
     }
 }

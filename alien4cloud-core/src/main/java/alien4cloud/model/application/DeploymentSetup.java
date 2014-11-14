@@ -11,6 +11,9 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.tosca.container.model.template.PropertyValue;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -28,8 +31,11 @@ public class DeploymentSetup {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String environmentId;
-    private Map<String, String> providerDeploymentProperties;
+
+    private Map<String, PropertyValue> providerDeploymentProperties;
 
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;
+
+    private Map<String, ComputeTemplate> cloudResourcesMapping;
 }

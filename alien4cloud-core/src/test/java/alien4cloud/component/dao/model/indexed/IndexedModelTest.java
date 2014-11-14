@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +14,8 @@ import org.junit.Test;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.container.model.ToscaInheritableElement;
 import alien4cloud.tosca.container.model.type.AttributeDefinition;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
@@ -32,12 +31,12 @@ public class IndexedModelTest {
     // |
     // orphan
     // The sort should give me [root,orphan],[child1,child2],[grandChild1,grandChild2]
-    static Map<String, ToscaInheritableElement> elementsByIdMap = Maps.newHashMap();
+    static Map<String, IndexedInheritableToscaElement> elementsByIdMap = Maps.newHashMap();
 
-    static ToscaInheritableElement root, child1, child2, grandChild1, grandChild2;
+    static IndexedInheritableToscaElement root, child1, child2, grandChild1, grandChild2;
     static List<Tag> rootTags, childTags;
 
-    static IndexedInheritableToscaElement parent, sonWith3Tags, sonWithoutTags;
+    static IndexedNodeType parent, sonWith3Tags, sonWithoutTags;
 
     static {
 
@@ -51,7 +50,7 @@ public class IndexedModelTest {
         childTags.add(new Tag("prodChild", "Bad deployment"));
         childTags.add(new Tag("another-tag", "<pathed the 22th...>"));
 
-        parent = new IndexedInheritableToscaElement();
+        parent = new IndexedNodeType();
         parent.setElementId("1");
         parent.setArchiveName("tosca.nodes.Root");
         parent.setArchiveVersion("1.0");
@@ -59,19 +58,19 @@ public class IndexedModelTest {
         parent.setDescription("Root description...");
         parent.setTags(rootTags);
 
-        sonWith3Tags = new IndexedInheritableToscaElement();
+        sonWith3Tags = new IndexedNodeType();
         sonWith3Tags.setElementId("2");
         sonWith3Tags.setArchiveName("tosca.nodes.Compute");
         sonWith3Tags.setArchiveVersion("1.0");
-        sonWith3Tags.setDerivedFrom(new HashSet<>(Arrays.asList("tosca.nodes.Root")));
+        sonWith3Tags.setDerivedFrom(Arrays.asList("tosca.nodes.Root"));
         sonWith3Tags.setDescription("Child description...");
         sonWith3Tags.setTags(childTags);
 
-        sonWithoutTags = new IndexedInheritableToscaElement();
+        sonWithoutTags = new IndexedNodeType();
         sonWithoutTags.setElementId("3");
         sonWithoutTags.setArchiveName("tosca.nodes.Network");
         sonWithoutTags.setArchiveVersion("1.2");
-        sonWithoutTags.setDerivedFrom(new HashSet<>(Arrays.asList("tosca.nodes.Root")));
+        sonWithoutTags.setDerivedFrom(Arrays.asList("tosca.nodes.Root"));
         sonWithoutTags.setDescription("Child 2 description...");
         sonWithoutTags.setTags(null);
 
@@ -90,8 +89,12 @@ public class IndexedModelTest {
 
     @Test
     public void testOrderInheritableElements() {
+        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderForIndex(elementsByIdMap);
 
-        List<ToscaInheritableElement> sorted = IndexedModelUtils.orderForIndex(elementsByIdMap);
+        for (IndexedInheritableToscaElement el : sorted) {
+            System.out.println(el.getElementId() + " " + el.getDerivedFrom());
+        }
+
         assertTrue(sorted.indexOf(root) < sorted.indexOf(child1));
         assertTrue(sorted.indexOf(root) < sorted.indexOf(child2));
         assertTrue(sorted.indexOf(child1) < sorted.indexOf(grandChild1));
@@ -100,7 +103,6 @@ public class IndexedModelTest {
 
     @Test
     public void mergeInheritableIndexWithTags() {
-
         IndexedModelUtils.mergeInheritableIndex(parent, sonWith3Tags);
 
         // son should have 5 tags : 3 from himself 2 from his parent
@@ -123,12 +125,11 @@ public class IndexedModelTest {
 
         assertEquals(sonWithoutTags.getTags().size(), parent.getTags().size());
         assertEquals(sonWithoutTags.getTags(), parent.getTags());
-
     }
 
     @Test
     public void mergeInheritableIndexMaps() {
-        IndexedInheritableToscaElement son = new IndexedInheritableToscaElement();
+        IndexedNodeType son = new IndexedNodeType();
         son.setElementId("son");
         son.setArchiveVersion("1");
 
@@ -188,12 +189,13 @@ public class IndexedModelTest {
 
     }
 
-    private static ToscaInheritableElement fabricElement(Map<String, ToscaInheritableElement> map, String id, String derivedFrom, List<Tag> tags) {
-        ToscaInheritableElement element = new ToscaInheritableElement();
-        element.setId(id);
-        element.setDerivedFrom(derivedFrom);
-        map.put(element.getId(), element);
+    private static IndexedInheritableToscaElement fabricElement(Map<String, IndexedInheritableToscaElement> map, String elementId, String derivedFrom,
+            List<Tag> tags) {
+        IndexedInheritableToscaElement element = new IndexedInheritableToscaElement();
+        element.setElementId(elementId);
+        element.setArchiveVersion("1.0");
+        element.setDerivedFrom(Arrays.asList(derivedFrom));
+        map.put(element.getElementId(), element);
         return element;
     }
-
 }

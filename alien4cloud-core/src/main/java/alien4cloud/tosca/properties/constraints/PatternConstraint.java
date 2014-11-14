@@ -8,12 +8,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Getter
 @EqualsAndHashCode(callSuper = false, of = { "pattern" })
 @SuppressWarnings({ "PMD.UnusedPrivateField" })
 public class PatternConstraint extends AbstractStringPropertyConstraint {
     @NotNull
     private String pattern;
+    @JsonIgnore
     private Pattern compiledPattern;
 
     public void setPattern(String pattern) {

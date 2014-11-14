@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.parser.ListParser;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.impl.ConstraintParser;
+import alien4cloud.tosca.parser.impl.advanced.ConstraintParser;
+import alien4cloud.tosca.parser.impl.base.ListParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03PropertyDefinition extends AbstractMapper<PropertyDefinition> {

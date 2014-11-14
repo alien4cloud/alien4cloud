@@ -35,11 +35,6 @@ public class ProviderConfig {
 
     private Map<String, PropertyDefinition> properties;
 
-    @FormPropertyDefinition(
-            type = ToscaType.VERSION,
-            defaultValue = "1.6",
-            constraints = @FormPropertyConstraint(
-                    greaterOrEqual = "1.6"
-            ))
+    @FormPropertyDefinition(type = ToscaType.VERSION, defaultValue = "1.6", constraints = @FormPropertyConstraint(greaterOrEqual = "1.6"))
     private String javaVersion;
 }

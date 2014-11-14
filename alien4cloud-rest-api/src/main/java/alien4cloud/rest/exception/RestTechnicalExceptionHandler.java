@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -31,13 +33,12 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
-import alien4cloud.tosca.container.exception.CSARTechnicalException;
 
 import com.google.common.collect.Lists;
 
 /**
  * All technical (runtime) exception handler goes here. It's unexpected exception and is in general back-end exception or bug in our code
- * 
+ *
  * @author mkv
  */
 @Slf4j
@@ -47,12 +48,29 @@ public class RestTechnicalExceptionHandler {
     @Resource
     private Alien4CloudAccessDeniedHandler accessDeniedHandler;
 
+    @ExceptionHandler(InvalidDeploymentSetupException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> processInvalidDeploymentSetup(InvalidDeploymentSetupException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.INVALID_DEPLOYMENT_SETUP).message("The deployment setup is invalid.").build()).build();
+    }
+
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> processAlreadyExist(AlreadyExistException e) {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).message("The posted object already exist.").build()).build();
+    }
+
+    @ExceptionHandler(DeleteReferencedObjectException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
+        log.error("Object is still referenced and cannot be deleted", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)
@@ -108,17 +126,6 @@ public class RestTechnicalExceptionHandler {
                 .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.REPOSITORY_SERVICE_ERROR)
                         .message("Repository service has encoutered unexpected error " + e.getMessage()).build()).build();
-    }
-
-    @ExceptionHandler(value = CSARTechnicalException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public RestResponse<Void> csarErrorHandler(CSARTechnicalException e) {
-        log.error("CSAR processing has encoutered unexpected error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message("CSAR processing has encoutered unexpected error " + e.getMessage())
-                        .build()).build();
     }
 
     @ExceptionHandler(value = ImageUploadException.class)

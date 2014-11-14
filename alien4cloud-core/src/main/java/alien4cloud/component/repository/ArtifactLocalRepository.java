@@ -58,4 +58,9 @@ public class ArtifactLocalRepository extends AbstractLocalRepository {
             }
         }
     }
+
+    @Override
+    public void checkRepository() throws IOException {
+        setRepositoryPath(repositoryPath.toString());
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -23,7 +24,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.tosca.container.model.ToscaElement;
 
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -48,7 +48,7 @@ public class QuickSearchController {
 
         // First phase : COMPONENTS search, needed role Role.COMPONENTS_BROWSER or Role.ADMIN
         if (AuthorizationUtil.hasOneRoleIn(Role.COMPONENTS_BROWSER)) {
-            authoIndexes.add(ToscaElement.class.getSimpleName().toLowerCase());
+            authoIndexes.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
             classes.add(IndexedNodeType.class);
         }
 

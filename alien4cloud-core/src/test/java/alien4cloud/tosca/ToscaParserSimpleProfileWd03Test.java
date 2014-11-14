@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -36,7 +35,6 @@ import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Test tosca parsing for Tosca Simple profile in YAML wd03
@@ -183,7 +181,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedArtifactType.class), Mockito.eq("tosca.artifact.Root"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
-        Set<String> derivedFromSet = Sets.newHashSet();
+        List<String> derivedFromSet = Lists.newArrayList();
         Mockito.when(mockedResult.getDerivedFrom()).thenReturn(derivedFromSet);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-artifact-type.yml"));
@@ -196,7 +194,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Entry<String, IndexedArtifactType> entry = archiveRoot.getArtifactTypes().entrySet().iterator().next();
         Assert.assertEquals("my_artifact_type", entry.getKey());
         IndexedArtifactType artifact = entry.getValue();
-        Assert.assertEquals(Sets.newHashSet("tosca.artifact.Root"), artifact.getDerivedFrom());
+        Assert.assertEquals(Lists.newArrayList("tosca.artifact.Root"), artifact.getDerivedFrom());
         Assert.assertEquals("Java Archive artifact type", artifact.getDescription());
         Assert.assertEquals("application/java-archive", artifact.getMimeType());
         Assert.assertEquals(Lists.newArrayList("jar"), artifact.getFileExt());
@@ -210,7 +208,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Feature"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
-        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Sets.newHashSet("tosca.capabilities.Root"));
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.capabilities.Root"));
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-capability-type.yml"));
         assertNoBlocker(parsingResult);
@@ -221,7 +219,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Entry<String, IndexedCapabilityType> entry = archiveRoot.getCapabilityTypes().entrySet().iterator().next();
         Assert.assertEquals("mycompany.mytypes.myapplication.MyFeature", entry.getKey());
         IndexedCapabilityType capability = entry.getValue();
-        Assert.assertEquals(Sets.newHashSet("tosca.capabilities.Feature", "tosca.capabilities.Root"), capability.getDerivedFrom());
+        Assert.assertEquals(Lists.newArrayList("tosca.capabilities.Feature", "tosca.capabilities.Root"), capability.getDerivedFrom());
         Assert.assertEquals("a custom feature of my company’s application", capability.getDescription());
     }
 
@@ -233,7 +231,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
                         Mockito.any(List.class))).thenReturn(mockedResult);
-        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Sets.newHashSet("tosca.nodes.Root"));
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
 
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
@@ -263,7 +261,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals("my_company.my_types.MyAppNodeType", entry.getKey());
         IndexedNodeType nodeType = entry.getValue();
 
-        Assert.assertEquals(Sets.newHashSet("tosca.nodes.SoftwareComponent", "tosca.nodes.Root"), nodeType.getDerivedFrom());
+        Assert.assertEquals(Lists.newArrayList("tosca.nodes.SoftwareComponent", "tosca.nodes.Root"), nodeType.getDerivedFrom());
         Assert.assertEquals("My company’s custom applicaton", nodeType.getDescription());
 
         // validate properties parsing
@@ -290,11 +288,11 @@ public class ToscaParserSimpleProfileWd03Test {
         // nodeType.get
     }
 
-    private void assertNoBlocker(ParsingResult<ArchiveRoot> parsingResult) {
+    public static void assertNoBlocker(ParsingResult<ArchiveRoot> parsingResult) {
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
             if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
-                System.out.println(error);
+                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
             }
             Assert.assertNotEquals(ParsingErrorLevel.ERROR, error.getErrorLevel());
         }

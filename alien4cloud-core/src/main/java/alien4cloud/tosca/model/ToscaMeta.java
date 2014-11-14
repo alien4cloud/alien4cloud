@@ -1,18 +1,16 @@
 package alien4cloud.tosca.model;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import com.google.common.collect.Lists;
+import alien4cloud.tosca.container.model.CSARDependency;
 
 /**
  * Contains meta-data on the archive.
- * 
- * @author luc boutier
  */
 @Getter
 @Setter
@@ -25,5 +23,6 @@ public class ToscaMeta {
     private String license;
     private String createdBy;
     private String entryDefinitions;
-    private List<String> definitions = Lists.newArrayList();
+    private List<String> definitions;
+    private Set<CSARDependency> dependencies;
 }

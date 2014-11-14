@@ -2,12 +2,8 @@ package alien4cloud.tosca.container.model.template;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.DeploymentArtifactDeserializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Setter
-@JsonDeserialize(using = DeploymentArtifactDeserializer.class)
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class DeploymentArtifact {
     /** This attribute specifies the type of this artifact. */

@@ -2,6 +2,8 @@ package alien4cloud.tosca.properties.constraints;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,12 +19,13 @@ public class EqualConstraint extends AbstractPropertyConstraint {
     @NotNull
     private String equal;
 
-    private Object asTyped;
+    @JsonIgnore
+    private Object typed;
 
     @Override
     public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         if (propertyType.isValidValue(equal)) {
-            asTyped = propertyType.convert(equal);
+            typed = propertyType.convert(equal);
         } else {
             throw new ConstraintValueDoNotMatchPropertyTypeException("equal constraint has invalid value <" + equal + "> property type is <"
                     + propertyType.toString() + ">");
@@ -32,12 +35,12 @@ public class EqualConstraint extends AbstractPropertyConstraint {
     @Override
     public void validate(Object propertyValue) throws ConstraintViolationException {
         if (propertyValue == null) {
-            if (asTyped != null) {
+            if (typed != null) {
                 fail(propertyValue);
             }
-        } else if (asTyped == null) {
+        } else if (typed == null) {
             fail(propertyValue);
-        } else if (!asTyped.equals(propertyValue)) {
+        } else if (!typed.equals(propertyValue)) {
             fail(propertyValue);
         }
     }

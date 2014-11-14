@@ -16,6 +16,10 @@ Feature: Match topology's node to cloud resources.
     And I add the cloud image "Ubuntu Trusty" to the cloud "Mount doom cloud"
     And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud"
     And I add the flavor with name "medium", number of CPUs 4, disk size 64 and memory size 4096 to the cloud "Mount doom cloud"
+    And I match the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_WINDOWS"
+    And I match the template composed of image "Windows 7" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
+    And I match the template composed of image "Ubuntu Trusty" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_LINUX"
+    And I match the template composed of image "Ubuntu Trusty" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_LINUX"
     And I am authenticated with user named "sangoku"
     And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0"
     And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
@@ -24,10 +28,10 @@ Feature: Match topology's node to cloud resources.
   Scenario: Match a topology for resources, compute properties empty
     When I match for resources for my application on the cloud
     Then I should receive a match result with 4 compute templates for the node "Compute":
-      | Windows 7     | small  | enabled |
-      | Windows 7     | medium | enabled |
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Windows 7     | small  |
+      | Windows 7     | medium |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 2 cloud images:
       | Windows 7     | x86_64 | windows | Windows | 7.0     |
       | Ubuntu Trusty | x86_64 | linux   | Ubuntu  | 14.04.1 |
@@ -40,8 +44,8 @@ Feature: Match topology's node to cloud resources.
     Given I update the node template "Compute"'s property "os_type" to "linux"
     When I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -57,8 +61,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "os_arch" to "x86_64"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -74,8 +78,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "os_distribution" to "Ubuntu"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -91,8 +95,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "os_version" to "13.0"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -103,7 +107,7 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "disk_size" to "33"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 1 compute templates for the node "Compute":
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 1 flavors:
@@ -113,8 +117,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "disk_size" to "32"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -125,7 +129,7 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "num_cpus" to "3"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 1 compute templates for the node "Compute":
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 1 flavors:
@@ -135,8 +139,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "num_cpus" to "2"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:
@@ -147,7 +151,7 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "mem_size" to "3000"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 1 compute templates for the node "Compute":
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 1 flavors:
@@ -157,8 +161,8 @@ Feature: Match topology's node to cloud resources.
     When I update the node template "Compute"'s property "mem_size" to "2000"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 2 compute templates for the node "Compute":
-      | Ubuntu Trusty | small  | enabled |
-      | Ubuntu Trusty | medium | enabled |
+      | Ubuntu Trusty | small  |
+      | Ubuntu Trusty | medium |
     And The match result should contain 1 cloud images:
       | Ubuntu Trusty | x86_64 | linux | Ubuntu | 14.04.1 |
     And The match result should contain 2 flavors:

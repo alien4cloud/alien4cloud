@@ -6,8 +6,8 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.impl.ScalarParser;
+import alien4cloud.tosca.parser.impl.advanced.ScalarParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy.PropertyNamingStrategyBase;

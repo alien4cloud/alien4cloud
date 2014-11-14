@@ -12,8 +12,8 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.TypeReferenceParserFactory;
-import alien4cloud.tosca.parser.impl.TypeReferenceParser;
+import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParser;
+import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
 
 @Component
 public class CapabilityParser implements INodeParser<CapabilityDefinition> {

@@ -4,8 +4,8 @@ import static alien4cloud.dao.model.FetchContext.COMPONENT_SUMMARY;
 import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
 import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,7 +28,7 @@ public class IndexedInheritableToscaElement extends IndexedToscaElement {
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet
-    private Set<String> derivedFrom;
+    private List<String> derivedFrom;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, PropertyDefinition> properties;

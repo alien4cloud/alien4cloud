@@ -7,11 +7,11 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.dao.ESGenericSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.serializer.BoundSerializer;
@@ -41,7 +41,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
-                PaaSMessageMonitorEvent.class };
+                PaaSMessageMonitorEvent.class, PaaSInstanceStorageMonitorEvent.class };
         initIndices("deployedtopologies", false, Topology.class);
         initIndices("deploymentmonitorevents", true, classes);
         initCompleted();

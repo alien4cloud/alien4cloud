@@ -75,7 +75,7 @@ module.exports.deploy = function(applicationName, nodeTemplates) {
   goToApplicationDetailPage(applicationName, true);
   topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
   if (nodeTemplates.compute) {
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
   }
   goToApplicationDetailPage(applicationName, false);

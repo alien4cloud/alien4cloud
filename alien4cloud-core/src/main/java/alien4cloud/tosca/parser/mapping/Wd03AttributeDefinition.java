@@ -3,7 +3,7 @@ package alien4cloud.tosca.parser.mapping;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.model.AttributeDefinition;
-import alien4cloud.tosca.parser.TypeNodeParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03AttributeDefinition extends AbstractMapper<AttributeDefinition> {

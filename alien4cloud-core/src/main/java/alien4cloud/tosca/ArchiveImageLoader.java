@@ -22,7 +22,9 @@ import alien4cloud.images.ImageData;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 /**
  * Import images from CloudServiceArchive to ElasticSearch
@@ -40,11 +42,18 @@ public class ArchiveImageLoader {
      * @param archiveFile The path to the archive root.
      * @param archiveRoot The archive root object.
      */
+    @SuppressWarnings("unchecked")
     public void importImages(Path archiveFile, ParsingResult<ArchiveRoot> parsingResult) {
         importImages(archiveFile, parsingResult, parsingResult.getResult().getNodeTypes());
         importImages(archiveFile, parsingResult, parsingResult.getResult().getRelationshipTypes());
         importImages(archiveFile, parsingResult, parsingResult.getResult().getCapabilityTypes());
         importImages(archiveFile, parsingResult, parsingResult.getResult().getArtifactTypes());
+
+        for (ParsingResult<?> subResult : parsingResult.getContext().getSubResults()) {
+            if (subResult.getResult() instanceof ArchiveRoot) {
+                importImages(archiveFile, (ParsingResult<ArchiveRoot>) subResult);
+            }
+        }
     }
 
     private void importImages(Path archiveFile, ParsingResult<ArchiveRoot> parsingResult,
@@ -73,29 +82,27 @@ public class ArchiveImageLoader {
                             parsingResult
                                     .getContext()
                                     .getParsingErrors()
-                                    .add(new ParsingError("Icons loading", null, "Icon not found in tag <" + ALIEN_ICON_TAG + "> at path <" + iconPath + ">",
-                                            null, parsingResult.getContext().getFileName()));
+                                    .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
+                                            "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
                         }
                     } catch (NoSuchFileException | InvalidPathException e) {
                         parsingResult
                                 .getContext()
                                 .getParsingErrors()
-                                .add(new ParsingError("Icons loading", null, "Icon not found in tag <" + ALIEN_ICON_TAG + "> at path <" + iconPath + ">", null,
-                                        parsingResult.getContext().getFileName()));
+                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.MISSING_FILE, "Icon loading", null, "No icon file found at path <"
+                                        + iconPath + ">", null, iconPath.toString()));
                     } catch (ImageUploadException e) {
                         parsingResult
                                 .getContext()
                                 .getParsingErrors()
-                                .add(new ParsingError("Icons loading", null, "Icon not found in tag <" + ALIEN_ICON_TAG + "> at path <" + iconPath + ">", null,
-                                        parsingResult.getContext().getFileName()));
-                        // CSARErrorCode.ERRONEOUS_ICON_FILE
+                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.INVALID_ICON_FORMAT, "Icon loading", null,
+                                        "Invalid icon format at path <" + iconPath + ">", null, iconPath.toString()));
                     } catch (IOException e) {
                         parsingResult
                                 .getContext()
                                 .getParsingErrors()
-                                .add(new ParsingError("Icons loading", null, "Icon not found in tag <" + ALIEN_ICON_TAG + "> at path <" + iconPath + ">", null,
-                                        parsingResult.getContext().getFileName()));
-                        // throw new CSARIOException("Invalid archiveFile or icon path");
+                                .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.FAILED_TO_READ_FILE, "Icon loading", null,
+                                        "IO error while loading icon at path <" + iconPath + ">", null, iconPath.toString()));
                     }
                 }
             }

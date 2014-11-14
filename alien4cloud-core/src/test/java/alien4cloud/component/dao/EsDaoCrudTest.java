@@ -1,15 +1,20 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.*;
-import static org.springframework.util.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.isTrue;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Resource;
@@ -36,15 +41,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -56,7 +61,6 @@ import com.google.common.collect.Lists;
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EsDaoCrudTest {
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
 
     private final ObjectMapper jsonMapper = new ObjectMapper();
@@ -81,19 +85,19 @@ public class EsDaoCrudTest {
     @Test
     public void testInitIndexes() throws InterruptedException, ExecutionException, JsonGenerationException, JsonMappingException, IntrospectionException,
             IOException {
-        assertIndexExists(COMPONENT_INDEX, true);
+        assertIndexExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, true);
         assertIndexExists("toto", false);
-        assertTypeExists(COMPONENT_INDEX, IndexedNodeType.class, true);
-        assertTypeExists(COMPONENT_INDEX, "tata", false);
+        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class, true);
+        assertTypeExists(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, "tata", false);
     }
 
     @Test
     public void saveToscaComponentTest() throws IndexingServiceException, IOException {
         dao.save(indexedNodeTypeTest);
         String typeName1 = indexedNodeTypeTest.getClass().getSimpleName().toLowerCase();
-        assertDocumentExisit(COMPONENT_INDEX, typeName1, indexedNodeTypeTest.getId(), true);
+        assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId(), true);
 
-        GetResponse resp = getDocument(COMPONENT_INDEX, typeName1, indexedNodeTypeTest.getId());
+        GetResponse resp = getDocument(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId());
         log.info(resp.getSourceAsString());
         IndexedNodeType nt = jsonMapper.readValue(resp.getSourceAsString(), IndexedNodeType.class);
 
@@ -182,21 +186,21 @@ public class EsDaoCrudTest {
 
         saveDataToES(indexedNodeTypeTest);
         dao.delete(IndexedNodeType.class, indexedNodeTypeTest.getId());
-        assertDocumentExisit(COMPONENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
+        assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
 
         saveDataToES(indexedNodeTypeTest);
         dao.delete(IndexedNodeType.class, indexedNodeTypeTest.getId());
-        assertDocumentExisit(COMPONENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
+        assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
 
         saveDataToES(indexedNodeTypeTest);
         dao.delete(indexedNodeTypeTest.getClass(), indexedNodeTypeTest.getId());
-        assertDocumentExisit(COMPONENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
+        assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName1, indexedNodeTypeTest.getId(), false);
     }
 
     @Test(expected = IndexingServiceException.class)
     public void unsupportedIndexedDeletionTest() throws JsonProcessingException, IndexingServiceException {
         saveDataToES(indexedNodeTypeTest);
-        dao.delete(NodeType.class, "");
+        dao.delete(PropertyDefinition.class, "");
     }
 
     @Test
@@ -257,21 +261,21 @@ public class EsDaoCrudTest {
     }
 
     private void prepareToscaElement() {
-        Set<CapabilityDefinition> capa = new HashSet<>(Arrays.asList(new CapabilityDefinition("container", "container", 1, 1), new CapabilityDefinition(
-                "container1", "container1", 1, 1), new CapabilityDefinition("container2", "container2", 1, 1), new CapabilityDefinition("container3",
-                "container3", 1, 1)));
-        Set<RequirementDefinition> req = new HashSet<>(Arrays.asList(new RequirementDefinition("Runtime", "Runtime", null, 1, 1), new RequirementDefinition(
-                "server", "server", null, 1, 1), new RequirementDefinition("blob", "blob", null, 1, 1)));
-        Set<String> der = new HashSet<>(Arrays.asList("Parent1", "Parent2"));
-        indexedNodeTypeTest = createIndexedNodeType("1", "positive", "1.0", "", capa, req, der, new HashSet<String>(), threeTags, new Date(), new Date());
+        List<CapabilityDefinition> capa = Arrays.asList(new CapabilityDefinition("container", "container", 1), new CapabilityDefinition("container1",
+                "container1", 1), new CapabilityDefinition("container2", "container2", 1), new CapabilityDefinition("container3", "container3", 1));
+        List<RequirementDefinition> req = Arrays.asList(new RequirementDefinition("Runtime", "Runtime"), new RequirementDefinition("server", "server"),
+                new RequirementDefinition("blob", "blob"));
+        List<String> der = Arrays.asList("Parent1", "Parent2");
+        indexedNodeTypeTest = TestModelUtil.createIndexedNodeType("1", "positive", "1.0", "", capa, req, der, new ArrayList<String>(0), threeTags, new Date(),
+                new Date());
     }
 
     private void saveDataToES(IndexedToscaElement element) throws JsonProcessingException {
         String json = jsonMapper.writeValueAsString(element);
         String typeName = IndexedNodeType.class.getSimpleName().toLowerCase();
-        nodeClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(json).setRefresh(true).execute().actionGet();
+        nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(true).execute().actionGet();
 
-        assertDocumentExisit(COMPONENT_INDEX, typeName, element.getId(), true);
+        assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);
     }
 
     private <T> void assertBeanEqualsToOriginal(T bean) {
@@ -288,31 +292,13 @@ public class EsDaoCrudTest {
 
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = clazz.getSimpleName().toLowerCase();
-        log.info("Cleaning ES Index " + COMPONENT_INDEX + " and type " + typeName);
+        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
-    }
-
-    private static IndexedNodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
-            Set<CapabilityDefinition> capabilities, Set<RequirementDefinition> requirements, Set<String> derivedFroms, Set<String> defaultCapabilities,
-            List<Tag> tags, Date creationDate, Date lastUpdateDate) {
-        IndexedNodeType nodeType = new IndexedNodeType();
-        nodeType.setElementId(id);
-        nodeType.setArchiveName(archiveName);
-        nodeType.setArchiveVersion(archiveVersion);
-        nodeType.setCapabilities(capabilities);
-        nodeType.setDescription(description);
-        nodeType.setDefaultCapabilities(defaultCapabilities);
-        nodeType.setRequirements(requirements);
-        nodeType.setDerivedFrom(derivedFroms);
-        nodeType.setTags(tags);
-        nodeType.setCreationDate(creationDate);
-        nodeType.setLastUpdateDate(lastUpdateDate);
-        return nodeType;
     }
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(COMPONENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
         clearIndex(APPLICATION_INDEX, Application.class);
     }
 }

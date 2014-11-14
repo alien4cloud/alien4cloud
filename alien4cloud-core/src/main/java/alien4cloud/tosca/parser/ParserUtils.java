@@ -5,6 +5,8 @@ import java.util.List;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.tosca.parser.impl.ErrorCode;
+
 /**
  * Utility class to help with parsing.
  */
@@ -33,6 +35,7 @@ public final class ParserUtils {
      * @param expectedType The type that was actually expected.
      */
     public static void addTypeError(Node node, List<ParsingError> parsingErrors, String expectedType) {
-        parsingErrors.add(new ParsingError("Invalid type", node.getStartMark(), "Expected the type to match tosca type", node.getEndMark(), expectedType));
+        parsingErrors.add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Invalid type syntax", node.getStartMark(), "Expected the type to match tosca type", node
+                .getEndMark(), expectedType));
     }
 }

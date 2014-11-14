@@ -5,6 +5,8 @@ import java.util.List;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.tosca.parser.impl.ErrorCode;
+
 public final class ToscaParsingUtil {
     private ToscaParsingUtil() {
     }
@@ -23,8 +25,8 @@ public final class ToscaParsingUtil {
             ScalarNode scalarNode = (ScalarNode) valueNode;
             return scalarNode.getValue();
         }
-        parsingErrors.add(new ParsingError(null, "Error while parsing field " + keyNode.getValue(), keyNode.getStartMark(), "Expected a string.",
-                valueNode.getStartMark(), null));
+        parsingErrors.add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Error while parsing field " + keyNode.getValue(), keyNode.getStartMark(),
+                "Expected a scalar type.", valueNode.getStartMark(), null));
         return null;
     }
 }

@@ -3,6 +3,15 @@
 angular.module('alienUiApp').factory('applicationServices', ['$resource',
   function($resource) {
 
+    var applicationDeploymentSetupDAO = $resource('rest/applications/:applicationId/deployment-setup', {}, {
+      'get': {
+        method: 'GET'
+      },
+      'update': {
+        method: 'PUT'
+      }
+    });
+
     /* application details */
     var applicationDAO = $resource('rest/applications/:applicationId', {}, {
       'get': {
@@ -152,7 +161,9 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
       'groupRoles': manageAppGroupRoles,
       'applicationStatus': applicationStatus,
       'checkProperty': deploymentProperty.checkDeploymentProperty,
-      'matchResources': cloudResourcesDAO.get
+      'matchResources': cloudResourcesDAO.get,
+      'getDeploymentSetup': applicationDeploymentSetupDAO.get,
+      'updateDeploymentSetup': applicationDeploymentSetupDAO.update
     };
   }
 ]);

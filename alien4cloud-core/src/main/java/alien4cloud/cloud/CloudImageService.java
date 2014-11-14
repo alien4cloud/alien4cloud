@@ -7,12 +7,14 @@ import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 
 import com.google.common.collect.Maps;
@@ -79,5 +81,16 @@ public class CloudImageService {
             images.put(imageId, getCloudImageFailIfNotExist(imageId));
         }
         return images;
+    }
+
+    /**
+     * Get all cloud ids which use the image
+     *
+     * @param id id of the cloud image
+     * @return the list of cloud ids using this image
+     */
+    public String[] getCloudsUsingImage(String id) {
+        return alienDAO.selectPath(Cloud.class.getSimpleName().toLowerCase(), new Class<?>[] { Cloud.class }, QueryBuilders.termQuery("images", id), null,
+                "id", 0, Integer.MAX_VALUE);
     }
 }

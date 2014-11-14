@@ -14,9 +14,11 @@ import lombok.SneakyThrows;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.mapping.QueryHelper;
@@ -25,10 +27,15 @@ import org.elasticsearch.mapping.SourceFetchContext;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 
 import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.utils.ElasticSearchUtil;
+import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
 
@@ -39,7 +46,8 @@ import com.google.common.collect.Lists;
  */
 public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearchDAO {
     private static final String SCORE_SCRIPT = "_score * ((doc.containsKey('alienScore') && !doc['alienScore'].empty) ? doc['alienScore'].value : 1)";
-
+    @Resource
+    private ElasticSearchClient esClient;
     @Resource
     private QueryHelper queryHelper;
 
@@ -160,6 +168,7 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         return facetedSearch(clazz, searchText, filters, null, fetchContext, from, maxElements);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
@@ -169,7 +178,8 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         // check something found
         // return an empty object if nothing found
         if (!somethingFound(searchResponse)) {
-            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], new String[0], new HashMap<String, FacetedSearchFacet[]>());
+            T[] resultData = (T[]) Array.newInstance(clazz, 0);
+            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
             if (searchResponse != null) {
                 toReturn.setQueryDuration(searchResponse.getTookInMillis());
             }
@@ -338,6 +348,42 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
 
         SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
         return toGetListOfData(searchResponse, clazz);
+    }
+
+    @Override
+    public String[] selectPath(String index, Class<?>[] types, QueryBuilder queryBuilder, SortOrder sortOrder, String path, int from, int size) {
+        String[] esTypes = new String[types.length];
+        for (int i = 0; i < types.length; i++) {
+            esTypes[i] = MappingBuilder.indexTypeFromClass(types[i]);
+        }
+        return doSelectPath(index, esTypes, queryBuilder, sortOrder, path, from, size);
+    }
+
+    @Override
+    public String[] selectPath(String index, String[] types, QueryBuilder queryBuilder, SortOrder sortOrder, String path, int from, int size) {
+        return doSelectPath(index, types, queryBuilder, sortOrder, path, from, size);
+    }
+
+    @SneakyThrows({ IOException.class })
+    private String[] doSelectPath(String index, String[] types, QueryBuilder queryBuilder, SortOrder sortOrder, String path, int from, int size) {
+        SearchRequestBuilder searchRequestBuilder = esClient.getClient().prepareSearch(index);
+        searchRequestBuilder.setSearchType(SearchType.QUERY_THEN_FETCH).setQuery(queryBuilder).setSize(size).setFrom(from);
+        searchRequestBuilder.setFetchSource(path, null);
+        searchRequestBuilder.setTypes(types);
+        if (sortOrder != null) {
+            searchRequestBuilder.addSort(SortBuilders.fieldSort(path).order(sortOrder));
+        }
+        SearchResponse searchResponse = searchRequestBuilder.execute().actionGet();
+        if (ElasticSearchUtil.isResponseEmpty(searchResponse)) {
+            return new String[0];
+        } else {
+            String[] results = new String[searchResponse.getHits().getHits().length];
+            for (int i = 0; i < results.length; i++) {
+                Map<String, Object> result = JsonUtil.toMap(searchResponse.getHits().getAt(i).getSourceAsString());
+                results[i] = String.valueOf(MapUtil.get(result, path));
+            }
+            return results;
+        }
     }
 
     @Override

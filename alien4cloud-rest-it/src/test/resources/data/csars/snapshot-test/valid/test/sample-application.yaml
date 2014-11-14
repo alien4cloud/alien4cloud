@@ -3,74 +3,13 @@ node_templates:
     type: tosca.nodes.Compute
     properties:
       os_type: linux
-      os_distribution: centos
-      os_version: centos
-  compute_postgre:
-    type: tosca.nodes.Compute
-    properties:
-      os_type: linux
-      os_distribution: centos
-      os_version: postgre
-  compute_apache_lb:
-    type: tosca.nodes.Compute
-    properties:
-      os_type: linux
-      os_distribution: centos
-      os_version: centos
-  tomcat:
-    type: fastconnect.nodes.Tomcat
-    relationships:
-      hostedOnComputeTomcat:
-        target: compute_tomcat
-        type: tosca.relationships.HostedOn
-        requirement_name: host
-        requirement_type: tosca.capabilities.Container
-      connectToPostgre:
-        target: postgre
-        type: fastconnect.relationships.cloudify.ConnectsTomcatToPostgre
-        requirement_name: jdbc_resource
-        requirement_type: alien4cloud.capabilities.JdbcEndpoint
-      connectToApacheLB:
-        target: apache_lb
-        type: fastconnect.relationships.cloudify.ConnectsToApacheLB
-        requirement_name: httpEndpoint
-        requirement_type: alien4cloud.capabilities.HttpEndpoint
-  postgre:
-    type: fastconnect.nodes.Postgresql
-    relationships:
-      hostedOnComputeTomcat:
-        target: compute_postgre
-        type: tosca.relationships.HostedOn
-        requirement_name: host
-        requirement_type: tosca.capabilities.Container
-  apache_lb:
-    type: fastconnect.nodes.apacheLB
-    relationships:
-      hostedOnComputeTomcat:
-        target: compute_apache_lb
-        type: tosca.relationships.HostedOn
-        requirement_name: host
-        requirement_type: tosca.capabilities.Container
-  war_file:
-    type: fastconnect.nodes.War
-    relationships:
-      hostedOnTomcat:
-        target: tomcat
-        type: fastconnect.relationships.cloudify.WarHostedOnTomcat
-        requirement_name: host
-        requirement_type: alien4cloud.capabilities.WarHosting
+      os_distribution: Ubuntu
+      os_version: 14.0
 
 # scaling_policies:
-
 dependencies:
   - name: tosca-base-types
     version: 1.0
-  - name: tomcat-types
-    version: 0.1
-  - name: apache-lb-types
-    version: 0.1
-  - name: postgresql-types
-    version: 0.1
 
 # input_properties:
 

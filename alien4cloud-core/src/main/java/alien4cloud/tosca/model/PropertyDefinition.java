@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.container.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
@@ -33,6 +34,10 @@ import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormType;
 import alien4cloud.ui.form.annotation.FormValidValues;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,6 +46,7 @@ import alien4cloud.ui.form.annotation.FormValidValues;
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
+@JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
 public class PropertyDefinition {
     @ToscaPropertyType
@@ -51,6 +57,7 @@ public class PropertyDefinition {
     @NotNull
     private boolean required = false;
 
+    @JsonProperty("default")
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private String defaultValue;
@@ -59,6 +66,7 @@ public class PropertyDefinition {
 
     @Valid
     @ToscaPropertyConstraintDuplicate
+    @JsonDeserialize(contentUsing = PropertyConstraintDeserializer.class)
     @FormContentTypes({ @FormType(discriminantProperty = "equal", label = "CONSTRAINT.EQUAL", implementation = EqualConstraint.class),
             @FormType(discriminantProperty = "greaterThan", label = "CONSTRAINT.GREATER_THAN", implementation = GreaterThanConstraint.class),
             @FormType(discriminantProperty = "greaterOrEqual", label = "CONSTRAINT.GREATER_OR_EQUAL", implementation = GreaterOrEqualConstraint.class),

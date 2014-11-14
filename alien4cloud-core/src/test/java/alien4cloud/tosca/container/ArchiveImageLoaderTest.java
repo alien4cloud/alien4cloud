@@ -9,22 +9,26 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.component.model.Tag;
 import alien4cloud.dao.IGenericIdDAO;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;
-import alien4cloud.tosca.container.archive.ArchiveImageLoader;
-import alien4cloud.tosca.container.archive.ArchiveParser;
-import alien4cloud.tosca.container.archive.ArchivePostProcessor;
-import alien4cloud.tosca.container.exception.CSARImportImageException;
-import alien4cloud.tosca.container.exception.CSARParsingException;
-import alien4cloud.tosca.container.model.CloudServiceArchive;
-import alien4cloud.tosca.container.model.ToscaInheritableElement;
+import alien4cloud.tosca.ArchiveImageLoader;
+import alien4cloud.tosca.ArchiveParser;
+import alien4cloud.tosca.ArchivePostProcessor;
+import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -58,49 +62,52 @@ public class ArchiveImageLoaderTest {
     }
 
     @Test
-    public void importToscaElementImages() throws IOException, CSARParsingException {
-
+    public void importToscaElementImages() throws IOException, ParsingException {
         Path csarFileForTesting = Paths.get(CSAR_OUTPUT_FOLDER.toString(), tmpArchiveName);
 
         // Zip the csarSourceFolder and write it to csarFileForTesting
         FileUtil.zip(PATH_TOSCA_BASE_TYPES, csarFileForTesting);
 
         // Parse the archive for definitions
-        CloudServiceArchive csa = parser.parseArchive(csarFileForTesting);
-        processor.postProcessArchive(csa);
+        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
+        processor.postProcess(result);
+        imageLoader.importImages(csarFileForTesting, result);
 
-        imageLoader.importImages(csarFileForTesting, csa);
+        checkImages(result.getResult().getNodeTypes());
+    }
 
+    private void checkImages(Map<String, ? extends IndexedInheritableToscaElement> elements) {
         boolean elementHasTags = false;
         String currentUUID = null;
         ImageData image = null;
-        for (Map.Entry<String, ToscaInheritableElement> toscaInheritableElement : csa.getArchiveInheritableElements().entrySet()) {
+        Tag iconTag = new Tag("icon", "");
 
+        for (Map.Entry<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement : elements.entrySet()) {
             elementHasTags = toscaInheritableElement.getValue().getTags() != null;
-
-            if (elementHasTags && toscaInheritableElement.getValue().getTags().containsKey("icon")) {
-                currentUUID = toscaInheritableElement.getValue().getTags().get("icon");
-                image = imageGenericIdDAO.findById(ImageData.class, currentUUID);
-                // get registered images in ES by the UUID
-                assertEquals(currentUUID, image.getId());
+            if (elementHasTags) {
+                int indexOfIcon = toscaInheritableElement.getValue().getTags().indexOf(iconTag);
+                if (indexOfIcon >= 0) {
+                    currentUUID = toscaInheritableElement.getValue().getTags().get(indexOfIcon).getValue();
+                    image = imageGenericIdDAO.findById(ImageData.class, currentUUID);
+                    // get registered images in ES by the UUID
+                    assertEquals(currentUUID, image.getId());
+                }
             }
         }
     }
 
-    @Test(expected = CSARImportImageException.class)
-    public void importToscaElementWithBadImageUri() throws IOException, CSARParsingException {
-
+    public void importToscaElementWithBadImageUri() throws IOException, ParsingException {
         Path csarFileForTesting = Paths.get(CSAR_OUTPUT_FOLDER.toString(), tmpArchiveNameWithError);
 
         // Zip the csarSourceFolder and write it to csarFileForTesting
         FileUtil.zip(PATH_TOSCA_BASE_TYPES_ERROR, csarFileForTesting);
-
         // Parse the archive for definitions
-        CloudServiceArchive csa = parser.parseArchive(csarFileForTesting);
-        processor.postProcessArchive(csa);
+        ParsingResult<ArchiveRoot> result = parser.parse(csarFileForTesting);
+        processor.postProcess(result);
+        imageLoader.importImages(csarFileForTesting, result);
 
-        imageLoader.importImages(csarFileForTesting, csa);
-
+        // we expect to have warning issues due to missing files or invalid formats.
+        Assert.assertFalse(ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR));
+        Assert.assertTrue(ArchiveUploadService.hasError(result, ParsingErrorLevel.WARNING));
     }
-
 }

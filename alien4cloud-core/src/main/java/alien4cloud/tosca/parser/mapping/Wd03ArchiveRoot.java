@@ -10,11 +10,11 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.SetParser;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.impl.ImportParser;
+import alien4cloud.tosca.parser.impl.advanced.ImportParser;
+import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.SetParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03ArchiveRoot extends AbstractMapper<ArchiveRoot> {

@@ -57,4 +57,15 @@ public class RequirementDefinition {
     @JsonDeserialize(using = BoundDeserializer.class)
     @JsonSerialize(using = BoundSerializer.class)
     private int upperBound = 1;
+
+    /**
+     * Quick constructor to create a requirement definition from id and type.
+     * 
+     * @param id The requirement id.
+     * @param type The requirement type.
+     */
+    public RequirementDefinition(String id, String type) {
+        this.id = id;
+        this.type = type;
+    }
 }

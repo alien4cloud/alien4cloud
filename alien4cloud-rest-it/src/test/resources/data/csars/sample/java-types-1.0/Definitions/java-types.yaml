@@ -1,0 +1,19 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: Define types for java.
+
+node_types:
+  fastconnect.nodes.War:
+    derived_from: tosca.nodes.SoftwareComponent
+    description: >
+      A web application which is packaged as a war.
+    properties:
+      version:
+        type: version
+    artifacts:
+      war:
+        artifact_type: tosca.artifacts.WarFile
+
+artifact_types:
+  tosca.artifacts.WarFile:
+    description: A war file

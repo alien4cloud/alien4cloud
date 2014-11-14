@@ -7,12 +7,12 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.container.model.type.Operation;
-import alien4cloud.tosca.parser.ListParser;
-import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.impl.BoundParser;
-import alien4cloud.tosca.parser.impl.ImplementationArtifactParser;
+import alien4cloud.tosca.parser.impl.advanced.BoundParser;
+import alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser;
+import alien4cloud.tosca.parser.impl.base.ListParser;
+import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03OperationDefinition extends AbstractMapper<Operation> {

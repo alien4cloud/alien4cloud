@@ -1,17 +1,37 @@
 package alien4cloud.tosca.parser;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.NotWritablePropertyException;
 import org.yaml.snakeyaml.nodes.Node;
+
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 /**
  * Abstract class to work with Type Node Parsing.
  */
+@Slf4j
+@Getter
 public abstract class AbstractTypeNodeParser {
+    private final String toscaType;
+
+    public AbstractTypeNodeParser(String toscaType) {
+        this.toscaType = toscaType;
+    }
 
     protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContextExecution context, MappingTarget mappingTarget) {
         Object value = ((INodeParser<?>) mappingTarget.getParser()).parse(valueNode, context);
-        target.setPropertyValue(mappingTarget.getPath(), value);
+        try {
+            target.setPropertyValue(mappingTarget.getPath(), value);
+        } catch (NotWritablePropertyException e) {
+            log.debug("Error while setting property for yaml parsing.", e);
+            context.getParsingErrors().add(
+                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
+                            valueNode.getEndMark(), toscaType));
+        }
 
         if (mappingTarget instanceof KeyValueMappingTarget) {
             KeyValueMappingTarget kvmt = (KeyValueMappingTarget) mappingTarget;
@@ -19,7 +39,14 @@ public abstract class AbstractTypeNodeParser {
             if (kvmt.isKeyPathRelativeToValue()) {
                 keyBeanWrapper = new BeanWrapperImpl(value);
             }
-            keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
+            try {
+                keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
+            } catch (NotWritablePropertyException e) {
+                log.debug("Error while setting key to property for yaml parsing.", e);
+                context.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
+                                valueNode.getEndMark(), toscaType));
+            }
         }
     }
 }

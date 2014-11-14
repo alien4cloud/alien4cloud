@@ -37,6 +37,7 @@ import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.type.Interface;
@@ -78,6 +79,9 @@ public class RuntimeController {
     @Resource
     private TopologyService topologyService;
 
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
+
     @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -117,7 +121,7 @@ public class RuntimeController {
 
     /**
      * Get runtime (deployed) topology of an application on a specific cloud.
-     * 
+     *
      * @param applicationId Id of the application for which to get deployed topology.
      * @param cloudId of the cloud on which the runtime topology is deployed.
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
@@ -148,8 +152,8 @@ public class RuntimeController {
         // get if exisits the runtime version of the topology
         Topology topology = deploymentService.getRuntimeTopology(operationRequest.getTopologyId(), operationRequest.getCloudId());
 
-        NodeTemplate nodeTemplate = topologyService.getNodeTemplate(operationRequest.getTopologyId(), operationRequest.getNodeTemplateName(),
-                topologyService.getNodeTemplates(topology));
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(operationRequest.getTopologyId(), operationRequest.getNodeTemplateName(),
+                topologyServiceCore.getNodeTemplates(topology));
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
         Map<String, Interface> interfaces = indexedNodeType.getInterfaces();

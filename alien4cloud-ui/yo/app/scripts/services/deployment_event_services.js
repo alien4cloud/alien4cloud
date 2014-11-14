@@ -35,7 +35,8 @@ angular.module('alienUiApp').factory('deploymentEventServicesFactory', ['webSock
         allListeners = {
           paasdeploymentstatusmonitorevent: {},
           paasinstancestatemonitorevent: {},
-          paasmessagemonitorevent: {}
+          paasmessagemonitorevent: {},
+          paasinstancestoragemonitorevent: {}
         };
       }
 

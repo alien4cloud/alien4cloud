@@ -45,7 +45,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     }
 
     @Override
-    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, IndexedInheritableToscaElement> archiveElements,
+    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies) {
         List<IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
         for (IndexedInheritableToscaElement element : orderedElements) {
@@ -60,11 +60,13 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             // Check dependencies
-            for (CSARDependency dependency : dependencies) {
-                addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom(), dependency.getName(), dependency.getVersion());
+            if (dependencies != null) {
+                for (CSARDependency dependency : dependencies) {
+                    addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), dependency.getName(), dependency.getVersion());
+                }
             }
             // Check in the archive it-self
-            addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom(), archiveName, archiveVersion);
+            addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), archiveName, archiveVersion);
             IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, boolQueryBuilder);
             if (superElement == null) {
                 throw new IndexingServiceException("Indexing service is in an inconsistent state, the super element [" + element.getDerivedFrom()

@@ -21,18 +21,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.plan.OperationCallActivity;
-import alien4cloud.paas.plan.PaaSPlanGenerator;
-import alien4cloud.paas.plan.ParallelGateway;
-import alien4cloud.paas.plan.ParallelJoinStateGateway;
-import alien4cloud.paas.plan.StartEvent;
-import alien4cloud.paas.plan.StateUpdateEvent;
-import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.paas.plan.WorkflowStep;
-import alien4cloud.tosca.container.archive.CsarUploadService;
-import alien4cloud.tosca.container.exception.CSARParsingException;
-import alien4cloud.tosca.container.exception.CSARValidationException;
+import alien4cloud.tosca.ArchiveUploadService;
+import alien4cloud.tosca.ToscaParserSimpleProfileWd03Test;
 import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.YamlParserUtil;
 
@@ -44,7 +38,7 @@ import alien4cloud.utils.YamlParserUtil;
 @Slf4j
 public class PaaSPlanGeneratorTest {
     @Resource
-    private CsarUploadService csarUploadService;
+    private ArchiveUploadService csarUploadService;
     @Resource
     private TopologyTreeBuilderService topologyTreeBuilderService;
 
@@ -57,29 +51,32 @@ public class PaaSPlanGeneratorTest {
         FileUtil.delete(Paths.get("target/alien"));
     }
 
-    private void initialize() throws CSARParsingException, CSARVersionAlreadyExistsException, CSARValidationException, IOException {
+    private void initialize() throws ParsingException, CSARVersionAlreadyExistsException, IOException {
         log.info("Initializing ALIEN repository.");
 
         Path inputPath = Paths.get(CSAR_SOURCE_PATH + "tosca-base-types-1.0");
-        System.out.println(inputPath.toAbsolutePath());
         Path zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
-        csarUploadService.uploadCsar(zipPath);
+        ParsingResult<ArchiveRoot> result = csarUploadService.upload(zipPath);
+        ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
         inputPath = Paths.get(CSAR_SOURCE_PATH + "tomcat-types-0.1");
         zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
-        csarUploadService.uploadCsar(zipPath);
+        result = csarUploadService.upload(zipPath);
+        ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
         inputPath = Paths.get(CSAR_SOURCE_PATH + "postgresql-types-0.1");
         zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
-        csarUploadService.uploadCsar(zipPath);
+        result = csarUploadService.upload(zipPath);
+        ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
         inputPath = Paths.get(CSAR_SOURCE_PATH + "apache-lb-types-0.1");
         zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
-        csarUploadService.uploadCsar(zipPath);
+        result = csarUploadService.upload(zipPath);
+        ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
         log.info("Types have been added to the repository.");
     }
@@ -98,7 +95,7 @@ public class PaaSPlanGeneratorTest {
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.getHostedOnTree(nodeTemplates);
 
         // now build the plans and check results
-        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots, true);
+        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots);
         printPlan(startEvent);
 
         // TODO validation of the plan...

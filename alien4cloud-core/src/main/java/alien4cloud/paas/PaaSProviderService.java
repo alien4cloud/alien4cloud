@@ -42,6 +42,7 @@ public class PaaSProviderService implements IPaasEventService {
     @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners = Collections.synchronizedList(new ArrayList<IPaasEventListener>());
 
+    @Override
     public void addListener(IPaasEventListener<?> listener) {
         listeners.add(listener);
     }

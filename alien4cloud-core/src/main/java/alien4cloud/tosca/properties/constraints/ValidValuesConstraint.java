@@ -13,6 +13,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
 
 @Getter
@@ -22,6 +23,7 @@ import com.google.common.collect.Sets;
 public class ValidValuesConstraint extends AbstractPropertyConstraint {
     @NotNull
     private List<String> validValues;
+    @JsonIgnore
     private Set<Object> validValuesTyped;
 
     @Override

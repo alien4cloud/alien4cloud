@@ -11,7 +11,6 @@ import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.utils.TypeScanner;
 
 /**
@@ -24,6 +23,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private final IGenericSearchDAO dao;
     private final IPaaSProvider paaSProvider;
     private Date lastPollingDate;
+    @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners;
 
     /**
@@ -31,6 +31,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
      *
      * @param paaSProvider The paas provider to monitor.
      */
+    @SuppressWarnings("rawtypes")
     public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners) {
         this.dao = dao;
         this.paaSProvider = paaSProvider;
@@ -55,31 +56,42 @@ public class PaaSProviderPollingMonitor implements Runnable {
             this.lastPollingDate = lastEventDate;
         } else {
             this.lastPollingDate = new Date();
+            log.debug("No monitor events found, the last polling date will be current date {}", this.lastPollingDate);
         }
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void run() {
+        Date latestDate = new Date();
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
-        Date monitorEvent = null;
         if (auditEvents != null && auditEvents.length > 0) {
             dao.save(auditEvents);
-            for (AbstractMonitorEvent event : auditEvents) {
-                if (event instanceof PaaSInstanceStateMonitorEvent) {
-                    PaaSInstanceStateMonitorEvent instanceStateMonitorEvent = (PaaSInstanceStateMonitorEvent) event;
-                    monitorEvent = new Date(instanceStateMonitorEvent.getDate());
-                    if (monitorEvent.after(lastPollingDate)) {
-                        lastPollingDate = monitorEvent;
-                    }
-                }
-            }
+            // for (AbstractMonitorEvent event : auditEvents) {
+            // latestDate = new Date(event.getDate());
+            // if (latestDate.after(lastPollingDate)) {
+            // lastPollingDate = latestDate;
+            // log.debug("Event more recent found, the last polling date will be {}", this.lastPollingDate);
+            // }
+            // }
             for (IPaasEventListener listener : listeners) {
                 for (AbstractMonitorEvent event : auditEvents) {
-                    if (listener.getEventType().isAssignableFrom(event.getClass())) {
+                    if (listener.canHandle(event)) {
                         listener.eventHappened(event);
                     }
+                    Date eventDate = new Date(event.getDate());
+                    latestDate = eventDate.after(latestDate) ? eventDate : latestDate;
                 }
             }
+        }
+        updateLastPollingDate(latestDate);
+    }
+
+    private void updateLastPollingDate(Date latestDate) {
+        if (latestDate.after(lastPollingDate)) {
+            lastPollingDate = latestDate;
+        } else {
+            log.warn("There may be time shift between the server producing events and the alien server");
         }
     }
 }

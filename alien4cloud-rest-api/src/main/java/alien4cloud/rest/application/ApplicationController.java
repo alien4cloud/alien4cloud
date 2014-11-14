@@ -26,14 +26,15 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
@@ -43,7 +44,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
-import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
@@ -71,8 +71,6 @@ public class ApplicationController {
     @Resource
     private CloudService cloudService;
     @Resource
-    private DeploymentService deploymentService;
-    @Resource
     private ConstraintPropertyService constraintPropertyService;
     @Resource
     private IImageDAO imageDAO;
@@ -80,8 +78,6 @@ public class ApplicationController {
     private IGenericSearchDAO alienDAO;
     @Resource
     private ResourceRoleService resourceRoleService;
-    @Resource
-    private TopologyService topologyService;
 
     @Resource
     private ApplicationService applicationService;
@@ -89,6 +85,8 @@ public class ApplicationController {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Create a new application in the system.
@@ -101,14 +99,11 @@ public class ApplicationController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@Valid @RequestBody CreateApplicationRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        String workspaceId = null;
-        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), workspaceId);
-        applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
-        applicationEnvironmentService.createApplicationEnvironment(applicationId);
-
+        String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
+        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
+        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(applicationId);
+        deploymentSetupService.create(version, environment);
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }
 
@@ -303,13 +298,12 @@ public class ApplicationController {
     /**
      * Update or create a property for an application
      *
-     * @param applicationId
-     * @param propertyRequest
-     * @return
+     * @param applicationId id of the application
+     * @param propertyRequest property request
+     * @return information on the constraint
      */
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
-
         RestError updateApplicationPropertyError = null;
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
@@ -349,9 +343,7 @@ public class ApplicationController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-
         return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
     }
 }

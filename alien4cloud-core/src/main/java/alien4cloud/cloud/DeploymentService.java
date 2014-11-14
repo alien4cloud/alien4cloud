@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -29,8 +30,8 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.tosca.container.model.template.PropertyValue;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
@@ -76,8 +77,10 @@ public class DeploymentService {
         Deployment deployment = getActiveDeploymentFailIfNotExists(topologyId, cloudId);
 
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index)
-                .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class)
+        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
+                .buildSearchQuery(index)
+                .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
+                        PaaSInstanceStorageMonitorEvent.class)
                 .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
 
@@ -89,12 +92,12 @@ public class DeploymentService {
      *
      * @param topology The topology to be deployed.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
-     * @param driverDeploymentProperties Driver properties for deployment.
+     * @param deploymentSetup Deployment set up.
      * @return The id of the generated deployment.
      * @throws CloudDisabledException In case the cloud is actually disabled and no deployments can be performed on this cloud.
      */
-    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource,
-            Map<String, PropertyValue> driverDeploymentProperties) throws CloudDisabledException {
+    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup)
+            throws CloudDisabledException {
         log.info("Deploying topology [{}] on cloud [{}]", topology.getId(), cloudId);
         String topologyId = topology.getId();
 
@@ -127,7 +130,7 @@ public class DeploymentService {
         } else {
             sourceName = deploymentSource.getName();
         }
-        paaSProvider.deploy(sourceName, deployment.getId(), topology, driverDeploymentProperties);
+        paaSProvider.deploy(sourceName, deployment.getId(), topology, deploymentSetup);
         log.info("Deployed topology [{}] on cloud [{}], generated deployment with id [{}]", topology.getId(), cloudId, deployment.getId());
         return deployment.getId();
     }
@@ -261,8 +264,8 @@ public class DeploymentService {
      * Get an active Deployment if not exists throw exception
      *
      * @param topologyId id of the topology that has been deployed
-     * @throws alien4cloud.exception.NotFoundException if not any deployment exists
      * @return active deployment
+     * @throws alien4cloud.exception.NotFoundException if not any deployment exists
      */
     public Deployment getActiveDeploymentFailIfNotExists(String topologyId, String cloudId) {
         Deployment deployment = getActiveDeployment(topologyId, cloudId);
@@ -290,6 +293,16 @@ public class DeploymentService {
             deployment = (Deployment) dataResult.getData()[0];
         }
         return deployment;
+    }
+
+    /**
+     * Get a deployment given its id
+     *
+     * @param id
+     * @return
+     */
+    public Deployment getDeployment(String id) {
+        return alienDao.findById(Deployment.class, id);
     }
 
     /**

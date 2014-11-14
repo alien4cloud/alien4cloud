@@ -14,6 +14,7 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.mapping.Wd03ArchiveRoot;
 
 import com.google.common.collect.Maps;
@@ -39,10 +40,12 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
         DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(rootNode.getValue(), context.getParsingErrors());
         // call the parser for the given tosca version
         INodeParser<ArchiveRoot> nodeParser = nodeParserRegistry.get(definitionVersionInfo.definitionVersion);
+
         if (nodeParser == null) {
-            throw new ParsingException(null, new ParsingError(ParsingErrorLevel.ERROR, "Definition version is not supported",
-                    definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(), "Version is not supported by Alien4Cloud",
-                    definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(), definitionVersionInfo.definitionVersion));
+            throw new ParsingException(context.getFileName(), new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION,
+                    "Definition version is not supported", definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(),
+                    "Version is not supported by Alien4Cloud", definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(),
+                    definitionVersionInfo.definitionVersion));
         }
         return nodeParser;
     }

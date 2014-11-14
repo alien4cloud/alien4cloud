@@ -5,10 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.OperationDeserializer;
 import alien4cloud.ui.form.annotation.FormProperties;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Defines an operation available to manage particular aspects of the Node Type.
@@ -19,7 +16,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @NoArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-@JsonDeserialize(using = OperationDeserializer.class)
 @FormProperties({ "description" })
 public class Operation {
     /** Implementation artifact for the interface. */

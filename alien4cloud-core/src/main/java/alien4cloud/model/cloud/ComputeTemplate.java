@@ -13,17 +13,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@SuppressWarnings("PMD.UnusedPrivateField")
 public class ComputeTemplate {
 
     private String cloudImageId;
 
     private String cloudImageFlavorId;
-
-    private boolean enabled = true;
-
-    public ComputeTemplate(String cloudImageId, String cloudImageFlavorId) {
-        this.cloudImageId = cloudImageId;
-        this.cloudImageFlavorId = cloudImageFlavorId;
-    }
 }

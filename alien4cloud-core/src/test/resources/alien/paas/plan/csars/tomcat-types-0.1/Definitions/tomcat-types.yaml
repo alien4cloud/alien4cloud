@@ -1,6 +1,6 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
 name: tomcat
-namespace: fastconnect
 description: Tomcat recipe.
 
 node_types:
@@ -14,9 +14,8 @@ node_types:
         lower_bound: 1
         upper_bound: 1
     artifacts:
-      war_file:
-        artifact_type: fastconnect.artifacts.WarFile
-        artifact_ref: "content/webarchive.war"
+      - war_file: "content/webarchive.war"
+        type: fastconnect.artifacts.WarFile
 
   fastconnect.nodes.Tomcat:
     derived_from: tosca.nodes.ApplicationServer
@@ -49,7 +48,7 @@ node_types:
         lower_bound: 0
         upper_bound: 1
     interfaces:
-      lifecycle:
+      Standard:
         operations:
           create:
             implementation_artifact:
@@ -80,9 +79,8 @@ node_types:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "scripts/updateWarFile.groovy"
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: "scripts"
+        type: fastconnect.artifacts.ResourceDirectory
 
 relationship_types:
   fastconnect.relationships.cloudify.ConnectsTomcatToPostgre:
@@ -103,9 +101,8 @@ relationship_types:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "relationshipScripts/tomcat_postgreAddUser.groovy"
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: relationshipScripts
+      - scripts: relationshipScripts
+        type: fastconnect.artifacts.ResourceDirectory
 
   fastconnect.relationships.cloudify.ConnectsToApacheLB:
     derived_from: tosca.relationships.ConnectsTo
@@ -125,9 +122,8 @@ relationship_types:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "relationshipScripts/tomcat_connectto_apache_removetarget.groovy"
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: relationshipScripts
+      - scripts: relationshipScripts
+        type: fastconnect.artifacts.ResourceDirectory
 
   fastconnect.relationships.cloudify.WarHostedOnTomcat:
     derived_from: tosca.relationships.HostedOn
@@ -142,9 +138,8 @@ relationship_types:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "relationshipScripts/war_hostedon_tomcat_postsource.groovy"
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: relationshipScripts
+      - scripts: relationshipScripts
+        type: fastconnect.artifacts.ResourceDirectory
 
 artifact_types:
   tosca.artifacts.GroovyScript:

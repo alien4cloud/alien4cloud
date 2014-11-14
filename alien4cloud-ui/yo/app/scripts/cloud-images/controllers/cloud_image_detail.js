@@ -4,15 +4,16 @@ angular.module('alienUiApp').controller(
   'CloudImageDetailController', ['$scope', '$state', 'cloudImageServices', 'cloudImage', '$upload',
     function($scope, $state, cloudImageServices, cloudImage, $upload) {
       $scope.cloudImage = cloudImage;
+
       $scope.cloudImageFormDescriptor = cloudImageServices.getFormDescriptor();
       $scope.cloudImageFormDescriptor._propertyType.name._isTitle = true;
-      if (UTILS.isUndefinedOrNull($scope.cloudImage.requirement)) {
-        $scope.requirement = {};
-      } else {
-        $scope.requirement = $scope.cloudImage.requirement;
-      }
-
-      $scope.requirementDescriptor = cloudImageServices.requirementDescriptor;
+      $scope.cloudImageFormDescriptor._propertyType.osType._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.osDistribution._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.osVersion._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.osArch._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.numCPUs._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.diskSize._isReadOnly = true;
+      $scope.cloudImageFormDescriptor._propertyType.memSize._isReadOnly = true;
 
       // Upload handler
       $scope.doUpload = function(file) {
@@ -41,14 +42,6 @@ angular.module('alienUiApp').controller(
         cloudImageServices.update({
           id: $scope.cloudImage.id
         }, angular.toJson(object));
-      };
-
-      $scope.updateName = function(name) {
-        cloudImageServices.update({
-          id: $scope.cloudImage.id
-        }, angular.toJson({
-          'name': name
-        }), null);
       };
     }
   ]);

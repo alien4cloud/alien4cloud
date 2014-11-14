@@ -1,7 +1,7 @@
 <div class="row">
 <div class="col-md-12">
 <tabset>
-<tab heading="{{'CLOUDS.DETAILS' | translate}}">
+<tab heading="{{'CLOUDS.DETAILS' | translate}}" id="tab-clouds-details">
   <div class="row">
     <div class="col-md-2 center visible-md visible-lg" style="height: 127px;">
       <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" class="center" />
@@ -214,6 +214,9 @@
   <span ng-if="tabs.newTemplates != 0" class="badge">
     <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
   </span>
+  <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
+    <i class="fa fa-warning text-danger"></i>
+  </span>
   </tab-heading>
   <div class="row">
     <div class="col-md-6">
@@ -221,8 +224,17 @@
         <legend class="text-center">
           <h4>
             <i class="fa fa-desktop"></i> {{'CLOUDS.TEMPLATE' | translate }}
-            <span style="font-size: 14px">({{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}<span
-                ng-if="templateFilteredCount > 0">, {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}</span>)</span>
+            <span style="font-size: 14px">
+              (
+                {{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}
+              <span ng-if="templateFilteredCount > 0">
+                , {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}
+              </span>
+              <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
+                , <i class="fa fa-warning text-danger"></i> {{templateNotConfiguredCount}} {{ 'CLOUDS.TEMPLATES.NOT_CONFIGURED' | translate }}
+              </span>
+              )
+            </span>
           </h4>
         </legend>
         <div class="row" style="margin-top: 10px;">
@@ -232,16 +244,17 @@
                 <thead>
                   <tr>
                     <th class="col-md-1">{{ 'CLOUDS.TEMPLATES.ENABLE' | translate}}</th>
-                    <th class="col-md-3"></th>
-                    <th class="col-md-4">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
-                    <th class="col-md-4">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                    <th class="col-md-2"></th>
+                    <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
+                    <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                    <th class="col-md-3" ng-if="manualMatchResource">{{ 'CLOUDS.TEMPLATES.RESOURCE_ID' | translate}}</th>
                   </tr>
                 </thead>
                 <tbody ng-mouseleave="deleteTemplateSelection()">
-                  <tr id='computeTemplate_{{template.cloudImageId + "_" + template.cloudImageFlavorId}}'
-                      ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'"
-                      ng-class="{'warning text-muted' : !template.enabled}"
+                  <tr ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'"
                       ng-init="cloudImage = images[template.cloudImageId]; flavor = flavors[template.cloudImageFlavorId]"
+                      id='computeTemplate_{{cloudImage.name + "_" + template.cloudImageFlavorId}}'
+                      ng-class="{'warning text-muted' : !template.enabled}"
                       ng-mouseover="selectTemplate(template)"
                       style="height: 81px;">
                     <td>
@@ -254,6 +267,19 @@
                     </td>
                     <td>{{cloudImage.name}}</td>
                     <td>{{flavor.id}}</td>
+                    <td ng-if="manualMatchResource"
+                        ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
+                      <span editable-text="template.paaSResourceId"
+                            buttons="no"
+                            onaftersave="saveComputeTemplateResource(template)"
+                            blur="submit">
+                          {{template.paaSResourceId}}
+                          <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
+                            {{'GENERIC_FORM.UNDEFINED' | translate}}
+                          </em>
+                          <i class="fa fa-pencil-square-o"></i>
+                      </span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -382,6 +408,7 @@
   <div class="row">
     <div class=col-md-12>
       <generic-form
+          ng-if="cloudConfig && cloudConfigDefinition"
           root-object="cloudConfig"
           form-title="{{cloud.name}}"
           type="cloudConfigDefinition"
@@ -426,13 +453,13 @@
       <tabset>
         <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
           <alien-search-user crud-support="false" managed-role-list="cloudRoles" check-role-selected-callback="checkCloudRoleSelectedForUser(user, role)"
-                            on-select-role-callback="handleRoleSelectionForUser(user, role)">
+                             on-select-role-callback="handleRoleSelectionForUser(user, role)">
           </alien-search-user>
         </tab>
         <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
           <alien-search-group crud-support="false" managed-role-list="cloudRoles"
-                             check-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)"
-                             on-select-role-callback="handleRoleSelectionForGroup(group, role)">
+                              check-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)"
+                              on-select-role-callback="handleRoleSelectionForGroup(group, role)">
           </alien-search-group>
         </tab>
       </tabset>

@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -30,14 +30,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.Constants;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.rest.component.ComponentController;
-import alien4cloud.rest.component.RecommendationRequest;
-import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
 
 import com.google.common.collect.Lists;
@@ -55,9 +52,7 @@ public class ComponentTest {
     @Resource
     ComponentController componentController;
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final List<Tag> rootTags;
-    // private static final Tag tagToUpdate1, tagToUpdate2;
     private static final Map<String, CapabilityDefinition> capabilities;
     private static final Tag TAG_1, TAG_2, INTERNAL_TAG;
     private IndexedNodeType indexedNodeType, tmpIndexedNodeType, indexedNodeType2, indexedNodeType3;
@@ -68,20 +63,15 @@ public class ComponentTest {
         rootTags.add(new Tag("tag1", "Root tag1 value..."));
         rootTags.add(new Tag("tag2", "Root tag2 value..."));
 
-        // tagToUpdate1 = new Tag("icon", "/usr/child-icon.png");
-
-        // tagToUpdate2 = Lists.newArrayList();
-        // tagToUpdate2.add(new Tag("tag2", "UPDATED - Root tag2 value..."));
-
         TAG_1 = new Tag("tag1", "/usr/child-icon.png");
         TAG_2 = new Tag("tag2", "UPDATED - Root tag2 value...");
         INTERNAL_TAG = new Tag("icon", "/usr/child-icon.png");
 
         capabilities = new HashMap<String, CapabilityDefinition>();
-        capabilities.put("wor", new CapabilityDefinition("wor", "wor", 1, 1));
-        capabilities.put("jdni", new CapabilityDefinition("jdni", "jdni", 1, 1));
-        capabilities.put("container", new CapabilityDefinition("container", "container", 1, 1));
-        capabilities.put("feature", new CapabilityDefinition("feature", "feature", 1, 1));
+        capabilities.put("wor", new CapabilityDefinition("wor", "wor", 1));
+        capabilities.put("jdni", new CapabilityDefinition("jdni", "jdni", 1));
+        capabilities.put("container", new CapabilityDefinition("container", "container", 1));
+        capabilities.put("feature", new CapabilityDefinition("feature", "feature", 1));
     }
 
     @Before
@@ -217,8 +207,8 @@ public class ComponentTest {
         indexedNodeType2.setDerivedFrom(null);
         indexedNodeType2.setDescription("Root description...");
         indexedNodeType2.setTags(rootTags);
-        indexedNodeType2.setCapabilities(new HashSet<>(capabilities.values()));
-        indexedNodeType2.setDefaultCapabilities(new HashSet<String>());
+        indexedNodeType2.setCapabilities(new ArrayList<>(capabilities.values()));
+        indexedNodeType2.setDefaultCapabilities(new ArrayList<String>());
         indexedNodeType2.getDefaultCapabilities().add("jdni");
         dao.save(indexedNodeType2);
 
@@ -229,21 +219,20 @@ public class ComponentTest {
         indexedNodeType3.setDerivedFrom(null);
         indexedNodeType3.setDescription("Root description...");
         indexedNodeType3.setTags(rootTags);
-        indexedNodeType3.setCapabilities(new HashSet<>(capabilities.values()));
-        indexedNodeType3.setDefaultCapabilities(new HashSet<String>());
+        indexedNodeType3.setCapabilities(new ArrayList<>(capabilities.values()));
+        indexedNodeType3.setDefaultCapabilities(new ArrayList<String>());
         indexedNodeType3.getDefaultCapabilities().add("container");
         dao.save(indexedNodeType3);
     }
 
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Cleaning ES Index " + COMPONENT_INDEX + " and type " + typeName);
+        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
     }
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(COMPONENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
-
 }

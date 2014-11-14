@@ -43,6 +43,8 @@ public class Csar implements IDeploymentSource {
 
     private String topologyId;
     private String cloudId;
+    
+    private String license;
 
     /** Default constructor */
     public Csar() {

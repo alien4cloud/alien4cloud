@@ -5,10 +5,10 @@ import javax.validation.Validator;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.parser.MapParser;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.TypeReferenceParserFactory;
-import alien4cloud.tosca.parser.ValidatedNodeParser;
+import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
+import alien4cloud.tosca.parser.impl.base.ValidatedNodeParser;
 
 public abstract class Wd03InheritableToscaElement<T extends IndexedInheritableToscaElement> extends Wd03ToscaElement<T> {
     @Resource

@@ -3,9 +3,9 @@ package alien4cloud.tosca.parser.mapping;
 import javax.annotation.Resource;
 
 import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.tosca.parser.KeyValueMappingTarget;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 public abstract class Wd03AbstractArtifactDefinition<T> extends AbstractMapper<T> {
     @Resource
@@ -17,8 +17,9 @@ public abstract class Wd03AbstractArtifactDefinition<T> extends AbstractMapper<T
 
     @Override
     public void initMapping() {
-        instance.getYamlOrderedToObjectMapping().put(0, new KeyValueMappingTarget("id", true, "artifactRef", getScalarParser()));
-        quickMap(typeReferenceParserFactory.getTypeReferenceParser(IndexedArtifactType.class), "type");
+        instance.getYamlOrderedToObjectMapping().put(0, new MappingTarget("artifactRef", getScalarParser()));
+        instance.getYamlToObjectMapping().put("type",
+                new MappingTarget("artifactType", typeReferenceParserFactory.getTypeReferenceParser(IndexedArtifactType.class)));
         quickMap("description");
         quickMap("mimeType");
     }

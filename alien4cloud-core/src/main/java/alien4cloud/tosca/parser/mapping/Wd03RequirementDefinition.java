@@ -9,12 +9,12 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
 import alien4cloud.tosca.parser.KeyValueMappingTarget;
-import alien4cloud.tosca.parser.MapParser;
 import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.TypeNodeParser;
-import alien4cloud.tosca.parser.TypeReferenceParserFactory;
-import alien4cloud.tosca.parser.impl.BoundParser;
-import alien4cloud.tosca.parser.impl.ConstraintParser;
+import alien4cloud.tosca.parser.impl.advanced.BoundParser;
+import alien4cloud.tosca.parser.impl.advanced.ConstraintParser;
+import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03RequirementDefinition extends AbstractMapper<RequirementDefinition> {

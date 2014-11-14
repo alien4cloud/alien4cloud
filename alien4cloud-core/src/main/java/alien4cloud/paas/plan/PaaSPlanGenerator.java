@@ -9,20 +9,18 @@ import static alien4cloud.paas.plan.PlanGeneratorConstants.POST_CONFIGURE_TARGET
 import static alien4cloud.paas.plan.PlanGeneratorConstants.PRE_CONFIGURE_SOURCE;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.PRE_CONFIGURE_TARGET;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME;
+import static alien4cloud.paas.plan.PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.REMOVE_TARGET;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.START_OPERATION_NAME;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CONFIGURED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CONFIGURING;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CREATED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CREATING;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STARTED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STARTING;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STOPPED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STOPPING;
 import static alien4cloud.paas.plan.PlanGeneratorConstants.STOP_OPERATION_NAME;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import alien4cloud.paas.AbstractPaaSProvider;
@@ -49,14 +47,14 @@ public final class PaaSPlanGenerator {
      * @param roots The roots of the {@link PaaSNodeTemplate} hierarchy.
      * @return The start event for the flow.
      */
-    public static StartEvent buildPlan(List<PaaSNodeTemplate> roots, boolean includePreStates) {
+    public static StartEvent buildPlan(List<PaaSNodeTemplate> roots) {
         StartEvent startEvent = new StartEvent();
         ParallelGateway parallelGateway = new ParallelGateway();
         parallelGateway.setNextStep(new StopEvent());
         parallelGateway.setPreviousStep(startEvent);
         for (PaaSNodeTemplate nodeTemplate : roots) {
-            WorkflowStep nodeLastStep = buildNodeCreationPlan(parallelGateway, nodeTemplate, includePreStates);
-            buildNodeStartPlan(nodeLastStep, nodeTemplate, includePreStates);
+            WorkflowStep nodeLastStep = buildNodeCreationPlan(parallelGateway, nodeTemplate);
+            buildNodeStartPlan(nodeLastStep, nodeTemplate);
         }
         startEvent.setNextStep(parallelGateway);
         return startEvent;
@@ -84,29 +82,19 @@ public final class PaaSPlanGenerator {
      * @return The last step of the node creation plan. This allows to add some other steps (like the start plan).
      */
     private static WorkflowStep buildNodeCreationPlan(WorkflowStep previousStep, PaaSNodeTemplate nodeTemplate) {
-        return buildNodeCreationPlan(previousStep, nodeTemplate, true);
-    }
-
-    private static WorkflowStep buildNodeCreationPlan(WorkflowStep previousStep, PaaSNodeTemplate nodeTemplate, boolean includePreStates) {
         Interface lifecycle = getLifecycleInterface(nodeTemplate);
         WorkflowStep lastStep = previousStep;
-        if (includePreStates) {
-            lastStep = addToPreviousStep(lastStep, new StateUpdateEvent(nodeTemplate.getId(), STATE_CREATING));
-        }
         lastStep = addToPreviousStep(
                 lastStep,
                 createOperationActivity(nodeTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), null, NODE_LIFECYCLE_INTERFACE_NAME, CREATE_OPERATION_NAME));
         lastStep = addToPreviousStep(lastStep, new StateUpdateEvent(nodeTemplate.getId(), STATE_CREATED));
-        if (includePreStates) {
-            lastStep = addToPreviousStep(lastStep, new StateUpdateEvent(nodeTemplate.getId(), STATE_CONFIGURING));
-        }
         lastStep = addToPreviousStep(
                 lastStep,
                 createOperationActivity(nodeTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), null, NODE_LIFECYCLE_INTERFACE_NAME,
                         CONFIGURE_OPERATION_NAME)).setNextStep(new StateUpdateEvent(nodeTemplate.getId(), STATE_CONFIGURED));
 
         for (PaaSNodeTemplate child : nodeTemplate.getChildren()) {
-            lastStep = buildNodeCreationPlan(lastStep, child, includePreStates);
+            lastStep = buildNodeCreationPlan(lastStep, child);
         }
 
         return lastStep;
@@ -151,16 +139,9 @@ public final class PaaSPlanGenerator {
     }
 
     private static WorkflowStep buildNodeStartPlan(WorkflowStep previousStep, PaaSNodeTemplate nodeTemplate) {
-        return buildNodeStartPlan(previousStep, nodeTemplate, true);
-    }
-
-    private static WorkflowStep buildNodeStartPlan(WorkflowStep previousStep, PaaSNodeTemplate nodeTemplate, boolean includePreStates) {
         // check the dependencies in order to manage startup of components in the correct order.
         Interface lifecycle = getLifecycleInterface(nodeTemplate);
         WorkflowStep lastStep = previousStep;
-        if (includePreStates) {
-            lastStep = addToPreviousStep(previousStep, new StateUpdateEvent(nodeTemplate.getId(), STATE_STARTING));
-        }
 
         lastStep = buildDependencyWait(nodeTemplate, lastStep);
         // set that contains ids of the nodes that are connected to the current node. Required to wait for all nodes to be started before executing post
@@ -253,11 +234,7 @@ public final class PaaSPlanGenerator {
         WorkflowStep lastStep = previousStep;
 
         if (relationshipTemplate.instanceOf(AbstractPaaSProvider.CONNECTS_TO) || relationshipTemplate.instanceOf(AbstractPaaSProvider.HOSTED_ON)) {
-            Interface configure = relationshipTemplate.getIndexedRelationshipType().getInterfaces().get(RELATIONSHIP_LIFECYCLE_INTERFACE_NAME);
-            if (configure == null) {
-                throw new IllegalArgumentException(
-                        "Plan cannot be generated for topologies that contains relationship that doesn't inherit from tosca.relationships.Root.");
-            }
+            Interface configure = getLifecycleInterface(relationshipTemplate);
 
             // get the interface for the relationship
             if (relationshipTemplate.getSource().equals(currentNode.getId())) {
@@ -291,7 +268,7 @@ public final class PaaSPlanGenerator {
         WorkflowStep lastStep = previousStep;
 
         if (relationshipTemplate.instanceOf(AbstractPaaSProvider.CONNECTS_TO) || relationshipTemplate.instanceOf(AbstractPaaSProvider.HOSTED_ON)) {
-            Interface configure = relationshipTemplate.getIndexedRelationshipType().getInterfaces().get(RELATIONSHIP_LIFECYCLE_INTERFACE_NAME);
+            Interface configure = getLifecycleInterface(relationshipTemplate);
             // get the interface for the relationship
             if (relationshipTemplate.getSource().equals(currentNode.getId())) {
                 // Source of the relationship so lets execute source
@@ -324,7 +301,7 @@ public final class PaaSPlanGenerator {
         // check the dependencies in order to manage startup of components in the correct order.
         Interface lifecycle = getLifecycleInterface(nodeTemplate);
 
-        WorkflowStep lastStep = addToPreviousStep(previousStep, new StateUpdateEvent(nodeTemplate.getId(), STATE_STOPPING));
+        WorkflowStep lastStep = previousStep;
 
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
             lastStep = buildRelationshipStopPlan(nodeTemplate, relationshipTemplate, lastStep);
@@ -369,7 +346,7 @@ public final class PaaSPlanGenerator {
             if (relationshipTemplate.getSource().equals(currentNode.getId())) {
                 // Source of the relationship so lets execute remove target
                 lastStep = lastStep.setNextStep(createOperationActivity(relationshipTemplate.getCsarPath(), configure, relationshipTemplate.getSource(),
-                        relationshipTemplate.getId(), RELATIONSHIP_LIFECYCLE_INTERFACE_NAME, REMOVE_TARGET));
+                        relationshipTemplate.getId(), PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES.get(1), REMOVE_TARGET));
             }
         }
         return lastStep;
@@ -405,7 +382,7 @@ public final class PaaSPlanGenerator {
      * @return The lifecycle interface as defined on the node.
      */
     private static Interface getLifecycleInterface(PaaSNodeTemplate nodeTemplate) {
-        Interface lifecycle = nodeTemplate.getIndexedNodeType().getInterfaces().get(NODE_LIFECYCLE_INTERFACE_NAME);
+        Interface lifecycle = getInterface(PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAMES, nodeTemplate.getIndexedNodeType().getInterfaces());
         if (lifecycle == null) {
             throw new IllegalArgumentException("Plan cannot be generated for topologies that contains nodes that doesn't inherit from tosca.nodes.Root.");
         }
@@ -425,11 +402,24 @@ public final class PaaSPlanGenerator {
      * @return The lifecycle interface as defined on the relationship.
      */
     private static Interface getLifecycleInterface(PaaSRelationshipTemplate relationshipTemplate) {
-        Interface configure = relationshipTemplate.getIndexedRelationshipType().getInterfaces().get(RELATIONSHIP_LIFECYCLE_INTERFACE_NAME);
+        Interface configure = getInterface(RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
         if (configure == null) {
             throw new IllegalArgumentException(
                     "Plan cannot be generated for topologies that contains relationship that doesn't inherit from tosca.relationships.Root.");
         }
         return configure;
+    }
+
+    private static Interface getInterface(List<String> targetNames, Map<String, Interface> interfaces) {
+        if (interfaces == null) {
+            return null;
+        }
+        for (String targetName : targetNames) {
+            Interface interfaz = interfaces.get(targetName);
+            if (interfaz != null) {
+                return interfaz;
+            }
+        }
+        return null;
     }
 }

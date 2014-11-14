@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
-import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
@@ -29,7 +28,7 @@ public class ArchiveUploadService {
     @Resource
     private CsarService csarService;
     @Resource
-    private ICSARRepositoryIndexerService indexerService;
+    private ArchiveIndexer archiveIndexer;
 
     /**
      * Upload a TOSCA archive and index it's components.
@@ -48,28 +47,31 @@ public class ArchiveUploadService {
         // TODO check if there is any specific validation to be done on a bean as CSAR ?
 
         // check if any blocker error has been found during parsing process.
-        if (hasBlockerError(parsingResult)) {
-            // save the archive in the repository
-            archiveRepositry.storeCSAR(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion(), path);
-            // manage images before archive storage in the repository
-            imageLoader.importImages(path, parsingResult);
-            // index the archive content in elastic-search
-
-            csarService.save(parsingResult.getResult().getArchive());
+        if (ArchiveUploadService.hasError(parsingResult, ParsingErrorLevel.ERROR)) {
+            // do not save anything if any blocker error has been found during import.
+            return parsingResult;
         }
-        return null;
+
+        // save the archive in the repository
+        archiveRepositry.storeCSAR(parsingResult.getResult().getArchive().getName(), parsingResult.getResult().getArchive().getVersion(), path);
+        // manage images before archive storage in the repository
+        imageLoader.importImages(path, parsingResult);
+        // index the archive content in elastic-search
+        archiveIndexer.indexArchive(parsingResult.getResult());
+        csarService.save(parsingResult.getResult().getArchive());
+        return parsingResult;
     }
 
     @SuppressWarnings("unchecked")
-    public boolean hasBlockerError(ParsingResult<ArchiveRoot> parsingResult) {
+    public static boolean hasError(ParsingResult<ArchiveRoot> parsingResult, ParsingErrorLevel level) {
         for (ParsingError error : parsingResult.getContext().getParsingErrors()) {
-            if (ParsingErrorLevel.ERROR.equals(error.getErrorLevel())) {
+            if (level == null || level.equals(error.getErrorLevel())) {
                 return true;
             }
         }
 
         for (ParsingResult<?> childResult : parsingResult.getContext().getSubResults()) {
-            if (hasBlockerError((ParsingResult<ArchiveRoot>) childResult)) {
+            if (hasError((ParsingResult<ArchiveRoot>) childResult, level)) {
                 return true;
             }
         }

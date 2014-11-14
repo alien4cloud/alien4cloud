@@ -24,7 +24,6 @@ import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.ToscaElement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -40,7 +39,6 @@ public class QuickSearchDefinitionsSteps {
 
     private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final String DEFAULT_ARCHIVE_VERSION = "1.0";
     private static Map<String, String> indexedTypes = Maps.newHashMap();
     List<IndexedNodeType> testDataList = new ArrayList<>();
@@ -159,13 +157,12 @@ public class QuickSearchDefinitionsSteps {
 
             String serializeDatum = jsonMapper.writeValueAsString(componentTemplate);
             log.debug("Saving in ES: " + serializeDatum);
-            esClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
+            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
 
             if (componentTemplate instanceof IndexedNodeType) {
                 testDataList.add((IndexedNodeType) (componentTemplate));
             }
         }
-
         indexedTypes.put(type, typeName);
     }
 }

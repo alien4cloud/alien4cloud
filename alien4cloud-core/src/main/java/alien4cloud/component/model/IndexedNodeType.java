@@ -1,11 +1,9 @@
 package alien4cloud.component.model;
 
-import static alien4cloud.dao.model.FetchContext.COMPONENT_SUMMARY;
 import static alien4cloud.dao.model.FetchContext.QUICK_SEARCH;
 import static alien4cloud.dao.model.FetchContext.TAG_SUGGESTION;
 
 import java.util.List;
-import java.util.Map;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,9 +15,7 @@ import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
 import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.Interface;
 import alien4cloud.tosca.container.model.type.RequirementDefinition;
 
 @Getter
@@ -28,9 +24,6 @@ import alien4cloud.tosca.container.model.type.RequirementDefinition;
 @ESObject
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedNodeType extends IndexedArtifactToscaElement {
-
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    private Map<String, AttributeDefinition> attributes;
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })
     @TermsFacet(paths = "type")
@@ -44,10 +37,6 @@ public class IndexedNodeType extends IndexedArtifactToscaElement {
     @TermsFacet
     private List<String> defaultCapabilities;
 
-    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    private Map<String, Interface> interfaces;
-
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)
     private long alienScore;
-
 }

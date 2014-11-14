@@ -5,8 +5,8 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.tosca.parser.ListParser;
-import alien4cloud.tosca.parser.TypeNodeParser;
+import alien4cloud.tosca.parser.impl.base.ListParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class Wd03ArtifactType extends Wd03InheritableToscaElement<IndexedArtifactType> {

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.model.ToscaMeta;
 import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.TypeNodeParser;
+import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component
 public class ToscaMetaMapping extends AbstractMapper<ToscaMeta> {

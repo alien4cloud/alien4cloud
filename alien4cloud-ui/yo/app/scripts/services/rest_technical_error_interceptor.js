@@ -37,7 +37,7 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
         var error = extractErrorMessage(rejection);
         // Display the toaster message on top with 4000 ms display timeout
         // Don't shot toaster for "tour" guides
-        if (error.data.indexOf('/data/guides') < 0) {
+        if (rejection.config.url.indexOf('data/guides') < 0) {
           toaster.pop('error', $translate('ERRORS.INTERNAL') + ' - ' + error.status, $translate(error.data), 4000, 'trustedHtml', null);
         }
         return $q.reject(rejection);
