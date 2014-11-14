@@ -429,11 +429,11 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            baseUrl: 'http://localhost:9999',
-//            baseUrl: 'http://localhost:8088',
+//            baseUrl: 'http://localhost:9999',
+            baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
-//              'test/e2e/scenarios/admin_cloud.js',
+              'test/e2e/scenarios/admin_cloud.js',
 //              'test/e2e/scenarios/admin_cloud_image.js',
 //              'test/e2e/scenarios/admin_groups_management.js',
 //              'test/e2e/scenarios/admin_metaprops_configuration.js',
@@ -441,7 +441,7 @@ module.exports = function(grunt) {
 //              'test/e2e/scenarios/application.js',
 //              'test/e2e/scenarios/application_metaprops.js',
 //              'test/e2e/scenarios/application_security.js',
-              'test/e2e/scenarios/application_security_role_check.js',
+//              'test/e2e/scenarios/application_security_role_check.js',
 //              'test/e2e/scenarios/application_tags.js',
 //              'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
 //              'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
@@ -463,8 +463,8 @@ module.exports = function(grunt) {
 //              'test/e2e/scenarios/plugins.js',
 //              'test/e2e/scenarios/quick_search.js',
 //              'test/e2e/scenarios/security_cloud.js',
-//              'test/e2e/scenarios/security_groups.js',
-//              'test/e2e/scenarios/security_users.js',
+              'test/e2e/scenarios/security_groups.js',
+              'test/e2e/scenarios/security_users.js',
 //              'test/e2e/scenarios/topology_template.js',
 //              'test/e2e/scenarios/*'
             ]

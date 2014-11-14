@@ -34,7 +34,6 @@ module.exports.before = function() {
   // cleanup ElasticSearch and alien folders.
   cleanup.cleanup();
   navigation.home();
-  browser.driver.manage().window().maximize();
 };
 
 module.exports.after = function() {
