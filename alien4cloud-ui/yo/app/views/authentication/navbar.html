@@ -42,7 +42,7 @@
             <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
               <i class="fa fa-codepen"></i> <strong>{{version.tag}}</strong>
             </a>
-            <a href="#" ng-if="version.isSnapshot">
+            <a ng-if="version.isSnapshot">
               <i class="fa fa-codepen"></i> <i>{{version.tag}}</i>
             </a>
           </li>
