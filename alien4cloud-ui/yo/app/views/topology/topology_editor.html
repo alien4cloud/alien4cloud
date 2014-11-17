@@ -129,13 +129,16 @@
             </div>
         </div>
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-10">
             <div class="input-group">
               <span class="input-group-addon">
                 <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
               </span>
               <span class="form-control"> {{selectedNodeTemplate.type}} </span>
             </div>
+          </div>
+          <div class="col-md-2">
+            <a class=" btn btn-default" href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </div>
         </div>
         <div class="row" style="margin-top: 5px;">

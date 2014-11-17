@@ -4,7 +4,7 @@
     <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}"
          alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component"
          ng-click="handleItemSelection(component)">
-      <a class="pull-left" href="#">
+      <a class="pull-left" href="/#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank">
         <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64"/>
       </a>
       <div class="media-body">
@@ -16,6 +16,9 @@
                tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
                tooltip-placement="top"
                src="images/abstract_ico.png"/>
+          <small ng-if="!globalContext">
+           <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" href="/#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
+          </small>
           <div class="pull-right center">
             <div>
               <div class="btn-group-vertical btn-group-xs">
