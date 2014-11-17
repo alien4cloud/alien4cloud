@@ -6,7 +6,7 @@ angular.module('alienUiApp').controller(
     function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q) {
       var cloudId = $stateParams.id;
 
-      $scope.iaasTypes = ['OTHER', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
+      $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
       $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
       $scope.tabs = {
         newTemplates: 0
@@ -50,6 +50,7 @@ angular.module('alienUiApp').controller(
       cloudServices.get({
         id: cloudId
       }, function(response) {
+        console.log("GET CLOUDS");
         $scope.images = response.data.images;
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;

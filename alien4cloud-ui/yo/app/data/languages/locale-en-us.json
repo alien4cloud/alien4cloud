@@ -456,7 +456,8 @@
       "OPENSTACK": "OpenStack",
       "VMWARE": "VMware",
       "AMAZON": "Amazon",
-      "VIRTUALBOX": "Virtual box"
+      "VIRTUALBOX": "Virtual box",
+      "AZURE": "Microsoft Azure"
     },
     "ENVIRONMENT": {
       "OTHER": "Other",
