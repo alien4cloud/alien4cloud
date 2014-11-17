@@ -1,13 +1,14 @@
 <nav ng-controller="alienNavBarCtrl" class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#alien-navbar-collapse">
-      <span class="sr-only">Toggle navigation</span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>  <span class="icon-bar"></span>
+      <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
     </button>
     <a class="navbar-brand" href="#">
       <img ng-src="{{menu.navbrandimg}}" style="height:50px;" class="pull-left">
     </a>
   </div>
   <div class="collapse navbar-collapse" id="alien-navbar-collapse">
+
     <div ng-if="status.currentStatus.data.isLogged">
       <ul class="nav navbar-nav">
         <li ng-repeat="menuItem in menu.left" ng-if="menuItem.hasRole" ui-sref-active="active"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> {{menuItem.key | translate}}</a>
@@ -34,6 +35,15 @@
           <li>
             <a ng-click="changeLanguage('en-us')" name="link-language-us">
               <img alt="" src="images/flags/flags_iso/24/en-us.png" /> English
+            </a>
+          </li>
+          <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
+          <li>
+            <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
+              <i class="fa fa-codepen"></i> <strong>{{version.tag}}</strong>
+            </a>
+            <a href="#" ng-if="version.isSnapshot">
+              <i class="fa fa-codepen"></i> <i>{{version.tag}}</i>
             </a>
           </li>
           <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
