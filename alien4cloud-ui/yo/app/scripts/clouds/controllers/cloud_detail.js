@@ -50,7 +50,6 @@ angular.module('alienUiApp').controller(
       cloudServices.get({
         id: cloudId
       }, function(response) {
-        console.log("GET CLOUDS");
         $scope.images = response.data.images;
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;
