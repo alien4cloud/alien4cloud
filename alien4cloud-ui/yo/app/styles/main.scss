@@ -38,6 +38,31 @@ $screen-md-min: 1015px;
 
 }
 
+
+@media all and (min-width: 768px) and (max-width: 1000px) {
+  #alien-navbar-collapse i + span {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-bottom: -3px;
+    width: 39px;
+    height: 18px;
+    text-overflow: ellipsis;
+  }
+
+}
+
+@media all and (min-width: 768px) and (max-width: 1120px) {
+  #alien-navbar-collapse input {
+    width: 124px;
+  }
+
+  #alien-navbar-collapse input[placeholder] {
+    text-overflow: ellipsis;
+  }
+
+}
+
 .main-view {
   margin-top: 64px;
 
@@ -47,7 +72,6 @@ $screen-md-min: 1015px;
   .main-view {
     margin-left: 20px;
     margin-right: 20px;
-    margin-top: 114px;
   }
 
 }
