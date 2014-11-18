@@ -40,11 +40,8 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     navigation.go('main', 'applications');
 
     //delete from app list
-    var appElement = element(by.id('app_Alien'));
-    common.ptor.actions().mouseMove(appElement).perform();
-    browser.sleep(1000); // one second so the turn annimation ends.
     common.deleteWithConfirm('delete-app_Alien', true);
-    expect(appElement.isPresent()).toBe(true);
+    expect(element(by.id('app_Alien')).isPresent()).toBe(true);
     // remove the toaster
     common.dismissAlert();
 

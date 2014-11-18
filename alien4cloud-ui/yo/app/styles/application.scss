@@ -4,6 +4,7 @@
   width: 266px;
   height: 306px;
   margin: 10px;
+  padding: 10px;
   background-color: white;
   border: 1px solid #dddddd;
   border-radius: 8px;
@@ -18,12 +19,7 @@
 
 .application-name {
   border-top: 1px solid #dddddd;
-  padding-top: 4px;
-}
-
-.application-back {
-  width: 256px;
-  height: 296px;
+  padding: 4px;
 }
 
 .nav-tabs li.active a {

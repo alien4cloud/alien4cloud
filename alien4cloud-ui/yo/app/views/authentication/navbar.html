@@ -11,7 +11,7 @@
 
     <div ng-if="status.currentStatus.data.isLogged">
       <ul class="nav navbar-nav">
-        <li ng-repeat="menuItem in menu.left" ng-if="menuItem.hasRole" ui-sref-active="active"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> {{menuItem.key | translate}}</a>
+        <li ng-repeat="menuItem in menu.left" ng-if="menuItem.hasRole" ui-sref-active="active"  data-toggle="tooltip" data-placement="bottom" title="{{menuItem.key | translate}}"><a ui-sref="{{menuItem.state}}" id="{{menuItem.id}}"><i class="{{menuItem.icon}}" ng-show="menuItem.icon"></i> <span>{{menuItem.key | translate}}</span></a>
         </li>
       </ul>
     </div>

@@ -44,6 +44,10 @@ describe('Topology node template edition', function() {
 
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({ war: componentData.fcTypes.war() });
+
+    // should be display the link to the node detail
+    expect(element(by.id('btn-tosca.nodes.Compute')).isPresent()).toBe(true);
+
     // test details visualisation
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();

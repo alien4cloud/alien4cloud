@@ -1,9 +1,11 @@
 <!--   search results -->
 <ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
-  <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data.data">
-    <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}" alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component" ng-click="handleItemSelection(component)">
-      <a class="pull-left" href="#">
-        <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
+  <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data.data" >
+    <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}"
+         alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component"
+         ng-click="handleItemSelection(component)">
+      <a class="pull-left" href="/#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank">
+        <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64"/>
       </a>
       <div class="media-body">
         <h4 class="media-heading">
@@ -14,6 +16,9 @@
                tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
                tooltip-placement="top"
                src="images/abstract_ico.png"/>
+          <small ng-if="!globalContext">
+           <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" href="/#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
+          </small>
           <div class="pull-right center">
             <div>
               <div class="btn-group-vertical btn-group-xs">
@@ -42,6 +47,12 @@
 
 <!-- pagination bar -->
 <div id="pagination-div" class="pagination-div">
-  <pagination class="pagination-sm" total-items="pagination.totalItems" page="currentPage" max-size="pagination.maxSize" items-per-page="pagination.maxItemsPerPage" boundary-links="true" rotate="false" num-pages="numPages" on-select-page="pagination.onSelectPage(page)">
+  <pagination
+      class="pagination-sm"
+      total-items="pagination.totalItems"
+      page="currentPage" max-size="pagination.maxSize"
+      items-per-page="pagination.maxItemsPerPage"
+      boundary-links="true" rotate="false" num-pages="numPages"
+      on-select-page="pagination.onSelectPage(page)">
   </pagination>
 </div>
