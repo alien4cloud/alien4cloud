@@ -68,16 +68,10 @@ describe('Applications management :', function() {
     applications.createApplication('Alien_3', 'Great Application 3');
     applications.goToApplicationListPage('main', 'applications');
     // delete application from the search list
-    var appElement = element(by.id('app_Alien_1'));
-    common.ptor.actions().mouseMove(appElement).perform();
-    browser.sleep(1000); // one second so the turn annimation ends.
     common.deleteWithConfirm('delete-app_Alien_1', true);
     expect(appElement.isPresent()).toBe(false);
 
     // cancel a delete action
-    appElement = element(by.id('app_Alien_3'));
-    common.ptor.actions().mouseMove(appElement).perform();
-    browser.sleep(1000); // one second so the turn annimation ends.
     common.deleteWithConfirm('delete-app_Alien_3', false);
     expect(appElement.isPresent()).toBe(true);
 
