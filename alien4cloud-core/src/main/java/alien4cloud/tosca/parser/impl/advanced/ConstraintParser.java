@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.properties.constraints.EqualConstraint;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.GreaterThanConstraint;
@@ -47,19 +49,25 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     private Map<String, ConstraintParsingInfo> constraintBuildersMap;
 
     public ConstraintParser() {
-        super("");
+        super("Constraints");
+    }
+
+    @PostConstruct
+    public void init() {
         constraintBuildersMap = Maps.newHashMap();
-        constraintBuildersMap.put("equal", new ConstraintParsingInfo(EqualConstraint.class, "equal"));
-        constraintBuildersMap.put("greater_than", new ConstraintParsingInfo(GreaterThanConstraint.class, "greaterThan"));
-        constraintBuildersMap.put("greater_or_equal", new ConstraintParsingInfo(GreaterOrEqualConstraint.class, "greaterOrEqual"));
-        constraintBuildersMap.put("less_than", new ConstraintParsingInfo(LessThanConstraint.class, "lessThan"));
-        constraintBuildersMap.put("less_or_equal", new ConstraintParsingInfo(LessOrEqualConstraint.class, "lessOrEqual"));
-        constraintBuildersMap.put("in_range", new ConstraintParsingInfo(InRangeConstraint.class, "inRange"));
-        constraintBuildersMap.put("valid_values", new ConstraintParsingInfo(ValidValuesConstraint.class, "validValues"));
-        constraintBuildersMap.put("length", new ConstraintParsingInfo(LengthConstraint.class, "length"));
-        constraintBuildersMap.put("min_length", new ConstraintParsingInfo(MinLengthConstraint.class, "minLength"));
-        constraintBuildersMap.put("max_length", new ConstraintParsingInfo(MaxLengthConstraint.class, "maxLength"));
-        constraintBuildersMap.put("pattern", new ConstraintParsingInfo(PatternConstraint.class, "pattern"));
+        constraintBuildersMap.put("equal", new ConstraintParsingInfo(EqualConstraint.class, "equal", scalarParser));
+        constraintBuildersMap.put("greater_than", new ConstraintParsingInfo(GreaterThanConstraint.class, "greaterThan", scalarParser));
+        constraintBuildersMap.put("greater_or_equal", new ConstraintParsingInfo(GreaterOrEqualConstraint.class, "greaterOrEqual", scalarParser));
+        constraintBuildersMap.put("less_than", new ConstraintParsingInfo(LessThanConstraint.class, "lessThan", scalarParser));
+        constraintBuildersMap.put("less_or_equal", new ConstraintParsingInfo(LessOrEqualConstraint.class, "lessOrEqual", scalarParser));
+        constraintBuildersMap.put("in_range", new ConstraintParsingInfo(InRangeConstraint.class, "inRange", new ListParser<String>(scalarParser,
+                "in range constraint expression")));
+        constraintBuildersMap.put("valid_values", new ConstraintParsingInfo(ValidValuesConstraint.class, "validValues", new ListParser<String>(scalarParser,
+                "valid values constraint expression")));
+        constraintBuildersMap.put("length", new ConstraintParsingInfo(LengthConstraint.class, "length", scalarParser));
+        constraintBuildersMap.put("min_length", new ConstraintParsingInfo(MinLengthConstraint.class, "minLength", scalarParser));
+        constraintBuildersMap.put("max_length", new ConstraintParsingInfo(MaxLengthConstraint.class, "maxLength", scalarParser));
+        constraintBuildersMap.put("pattern", new ConstraintParsingInfo(PatternConstraint.class, "pattern", scalarParser));
     }
 
     @Override
@@ -100,13 +108,14 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
             throw new ParsingTechnicalException("Unable to create constraint.", e);
         }
         BeanWrapper target = new BeanWrapperImpl(constraint);
-        parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.propertyName, scalarParser));
+        parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.expressionPropertyName, info.expressionParser));
         return constraint;
     }
 
     @AllArgsConstructor
     private class ConstraintParsingInfo {
         private Class<? extends PropertyConstraint> constraintClass;
-        private String propertyName;
+        private String expressionPropertyName;
+        private INodeParser<?> expressionParser;
     }
 }

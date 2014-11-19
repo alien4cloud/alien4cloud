@@ -16,7 +16,7 @@ import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
+import alien4cloud.tosca.model.AttributeDefinition;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 

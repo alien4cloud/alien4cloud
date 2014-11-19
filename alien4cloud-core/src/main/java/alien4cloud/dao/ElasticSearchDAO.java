@@ -58,7 +58,6 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
 
         initIndices(TOSCA_ELEMENT_INDEX, false, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
         initIndices(TOSCA_ELEMENT_INDEX, false, IndexedToscaElement.class);
-
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);

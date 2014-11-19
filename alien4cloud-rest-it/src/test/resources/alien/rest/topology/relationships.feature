@@ -4,8 +4,10 @@ Background:
   Given I am authenticated with "ADMIN" role
   And I have a CSAR folder that is "containing base types"
   And I upload it
+  And I should receive a RestResponse with no error
   And I have a CSAR folder that is "containing java types"
   And I upload it
+  And I should receive a RestResponse with no error
   And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
   And There is a "node type" with element name "fastconnect.nodes.Java" and archive version "1.0"
   And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."

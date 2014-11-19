@@ -4,6 +4,7 @@ Feature: CSAR snapshot tests
     Given I am authenticated with "COMPONENTS_MANAGER" role
     And I have a CSAR folder that is "containing base types"
     And I upload it
+    And I should receive a RestResponse with no error
     Given I am authenticated with "ADMIN" role
     And There are these users in the system
       | sangoku |
@@ -19,8 +20,9 @@ Feature: CSAR snapshot tests
 
   Scenario: Run test on a valid snapshot CSAR
     Given I have a CSAR folder that is "valid-csar-with-test"
-    And I have CSAR name "topology-test" and version "2.0-SNAPSHOT"
     When I upload it
+    Then I should receive a RestResponse with no error
+    And I have CSAR name "topology-test" and version "2.0-SNAPSHOT"
     And I run the test for this snapshot CSAR on cloud "Mount doom cloud"
     Then I should receive a RestResponse with an error code 370
     And I should not have active deployment for this CSAR
@@ -40,6 +42,7 @@ Feature: CSAR snapshot tests
     And I have a CSAR folder that is "valid-csar-with-test"
     And I have CSAR name "topology-test" and version "2.0-SNAPSHOT"
     When I upload it
+    And I should receive a RestResponse with no error
     And I run the test for this snapshot CSAR on cloud "Mount doom cloud"
     Then I should receive a RestResponse with an error code 102
 
@@ -47,6 +50,7 @@ Feature: CSAR snapshot tests
     Given I have a CSAR folder that is "csar-test-no-topology"
     And I have CSAR name "csar-test-no-topology" and version "1.0-SNAPSHOT"
     When I upload it
+    And I should receive a RestResponse with no error
     And I enable the cloud "Mount doom cloud"
     And I run the test for this snapshot CSAR on cloud "Mount doom cloud"
     Then I should receive a RestResponse with an error code 504
@@ -56,6 +60,7 @@ Feature: CSAR snapshot tests
     Given I have a CSAR folder that is "valid-csar-with-test"
     And I have CSAR name "topology-test" and version "2.0-SNAPSHOT"
     When I upload it
+    And I should receive a RestResponse with no error
     And I am authenticated with "ADMIN" role
     And I enable the cloud "Mount doom cloud"
     And I am authenticated with user named "sangoku"

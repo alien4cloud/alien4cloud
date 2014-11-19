@@ -4,11 +4,13 @@ Background:
   Given I am authenticated with "ADMIN" role
   And I have a CSAR folder that is "containing base types constraints"
   And I upload it
+  And I should receive a RestResponse with no error
   And I have a CSAR folder that is "containing java types"
   And I upload it
+  And I should receive a RestResponse with no error
   And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
   And There is a "node type" with element name "fastconnect.nodes.Java" and archive version "1.0"
-  
+
 Scenario: Create a topology template with JAVA and COMPUTE node template
   Given I am authenticated with "ARCHITECT" role
     And I create a new topology template with name "topology_template_java" and description "My topology template description1" and node templates

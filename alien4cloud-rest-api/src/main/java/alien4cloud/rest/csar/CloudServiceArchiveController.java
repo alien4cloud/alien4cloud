@@ -53,6 +53,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -67,6 +68,7 @@ import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.Csar;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -115,13 +117,18 @@ public class CloudServiceArchiveController {
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
             ParsingResult<ArchiveRoot> result = csarUploadService.upload(csarPath);
+            RestError error = null;
             ParsingResult<Csar> csarResult = new ParsingResult<Csar>(result.getResult().getArchive(), result.getContext());
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().data(csarResult).build();
+            if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+                error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
+            }
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(error).data(csarResult).build();
         } catch (ParsingException e) {
             log.error("Error happened while parsing csar file", e);
             ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(csar.getOriginalFilename()));
             result.getContext().getParsingErrors().addAll(e.getParsingErrors());
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().data(result).build();
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).data(result)
+                    .build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
             ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(csar.getOriginalFilename()));
@@ -129,7 +136,8 @@ public class CloudServiceArchiveController {
                     .getParsingErrors()
                     .add(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
                             "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null));
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().data(result).build();
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build()).data(result)
+                    .build();
         } finally {
             if (csarPath != null) {
                 // Clean up
@@ -188,23 +196,16 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<Boolean> builder().data(couldBeSaved).build();
     }
 
-    // TODO remove CSAR to be added again but correctly.
-    // @ApiOperation(value = "Delete a CSAR given its id.")
-    // @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<Void> delete(@PathVariable String csarId) {
-    // Csar csar = csarService.getMandatoryCsar(csarId);
-    // TODO remove all node types
+    @ApiOperation(value = "Delete a CSAR given its id.")
+    @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> delete(@PathVariable String csarId) {
+        Csar csar = csarService.getMandatoryCsar(csarId);
 
-    // Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-    // if (nodeTypes != null) {
-    // for (NodeType nodeType : nodeTypes.values()) {
-    // indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-    // }
-    // }
-    // check rights to delete ?
-    // csarDAO.delete(Csar.class, csarId);
-    // return RestResponseBuilder.<Void> builder().build();
-    // }
+        // TODO cleanup node types, relationship types etc.
+
+        csarDAO.delete(Csar.class, csarId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -5,8 +5,10 @@ Background:
     And I create a new application with name "scaled" and description "Pump it up." without errors
     And I have a CSAR folder that is "containing base types"
     And I upload it
+    And I should receive a RestResponse with no error
     And I have a CSAR folder that is "containing java types"
     And I upload it
+    And I should receive a RestResponse with no error
     And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I have added a node template "Java" related to the "fastconnect.nodes.Java:1.0" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"

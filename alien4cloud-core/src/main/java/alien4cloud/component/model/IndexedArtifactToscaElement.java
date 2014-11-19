@@ -12,8 +12,8 @@ import lombok.Setter;
 import org.elasticsearch.annotation.query.FetchContext;
 
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
 import alien4cloud.tosca.container.model.type.Interface;
+import alien4cloud.tosca.model.AttributeDefinition;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

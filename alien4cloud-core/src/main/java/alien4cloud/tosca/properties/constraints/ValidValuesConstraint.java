@@ -29,6 +29,10 @@ public class ValidValuesConstraint extends AbstractPropertyConstraint {
     @Override
     public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         validValuesTyped = Sets.newHashSet();
+        if (validValues == null) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("validValues constraint has invalid value <> property type is <" + propertyType.toString()
+                    + ">");
+        }
         for (String value : validValues) {
             if (!propertyType.isValidValue(value)) {
                 throw new ConstraintValueDoNotMatchPropertyTypeException("validValues constraint has invalid value <" + value + "> property type is <"

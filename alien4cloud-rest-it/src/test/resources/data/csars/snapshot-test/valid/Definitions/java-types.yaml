@@ -1,7 +1,4 @@
 
-name: alien-java-types
-namespace: alien4cloud
-description: Define types for java.
 
 node_types:
   fastconnect.nodes.War:

@@ -58,7 +58,7 @@ public abstract class AbstractMapper<T> {
         pathSeparatorLastIndex = pathSeparatorLastIndex > 0 ? pathSeparatorLastIndex : 0;
         String yamlFieldCamelCase = fieldName.substring(pathSeparatorLastIndex);
         String yamlField = ((PropertyNamingStrategyBase) PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES).translate(yamlFieldCamelCase);
-        log.info("Mapping yaml field {} to {} using basic ScalarParser", yamlField, fieldName);
+        log.trace("Mapping yaml field {} to {} using basic ScalarParser", yamlField, fieldName);
         instance.getYamlToObjectMapping().put(yamlField, new MappingTarget(fieldName, scalarParser));
     }
 

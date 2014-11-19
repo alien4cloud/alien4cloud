@@ -112,7 +112,7 @@ public class CommonStepDefinitions {
     public void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         if (restResponse.getError() != null) {
-            log.debug("Rest response was <" + Context.getInstance().getRestResponse() + ">");
+            log.error("Rest response was <" + Context.getInstance().getRestResponse() + ">");
         }
         Assert.assertNull(restResponse.getError());
     }

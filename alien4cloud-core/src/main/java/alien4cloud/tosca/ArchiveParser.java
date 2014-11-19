@@ -3,14 +3,11 @@ package alien4cloud.tosca;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.ProviderNotFoundException;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
+import java.util.EnumSet;
 
 import javax.annotation.Resource;
 import javax.validation.Validator;
@@ -122,33 +119,14 @@ public class ArchiveParser {
         // load definitions from the archive root
         try {
             DefinitionVisitor visitor = new DefinitionVisitor(csarFS);
-            Files.walkFileTree(csarFS.getPath(csarFS.getSeparator()), null, 0, visitor);
-            if (visitor.definitionFiles.size() == 1) {
-                return toscaParser.parseFile(visitor.definitionFiles.get(0));
+            Files.walkFileTree(csarFS.getPath(csarFS.getSeparator()), EnumSet.noneOf(FileVisitOption.class), 1, visitor);
+            if (visitor.getDefinitionFiles().size() == 1) {
+                return toscaParser.parseFile(visitor.getDefinitionFiles().get(0));
             }
             throw new ParsingException("Archive", new ParsingError(ErrorCode.SINGLE_DEFINITION_SUPPORTED,
-                    "Alien only supports archives with a single root definition.", null, null, null, String.valueOf(visitor.definitionFiles.size())));
+                    "Alien only supports archives with a single root definition.", null, null, null, String.valueOf(visitor.getDefinitionFiles().size())));
         } catch (IOException e) {
             throw new ParsingException("Archive", new ParsingError(ErrorCode.FAILED_TO_READ_FILE, "Failed to list root definitions", null, null, null, null));
-        }
-    }
-
-    private class DefinitionVisitor extends SimpleFileVisitor<Path> {
-        private PathMatcher yamlPathMatcher;
-        private PathMatcher ymlPathMatcher;
-        private List<Path> definitionFiles;
-
-        public DefinitionVisitor(FileSystem csarFS) {
-            this.yamlPathMatcher = csarFS.getPathMatcher("*.yaml");
-            this.ymlPathMatcher = csarFS.getPathMatcher("*.yml");
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (yamlPathMatcher.matches(file) || ymlPathMatcher.matches(file)) {
-                definitionFiles.add(file);
-            }
-            return super.visitFile(file, attrs);
         }
     }
 }

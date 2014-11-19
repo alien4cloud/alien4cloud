@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import lombok.extern.slf4j.Slf4j;
-
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import alien4cloud.git.RepositoryManager;
 
 /**
  * IT Csar retriever is responsible for getting the CSAR artifacts that are required for automated IT tests.
@@ -20,6 +18,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  */
 @Slf4j
 public class ITCsarRetriever {
+    private RepositoryManager repositoryManager = new RepositoryManager();
     private Map<String[], String> remoteGitArtifacts = new HashMap<String[], String>();
     private Path artifactsDirectory = Paths.get("../target/it-artifacts");
     private boolean done;
@@ -37,36 +36,12 @@ public class ITCsarRetriever {
             Files.createDirectories(artifactsDirectory);
 
             for (Entry<String[], String> remoteGitArtifact : remoteGitArtifacts.entrySet()) {
-                Path targetPath = artifactsDirectory.resolve(remoteGitArtifact.getValue());
-
-                if (Files.exists(targetPath)) {
-                    Git.open(targetPath.toFile()).checkout();
-                } else {
-                    Files.createDirectories(targetPath);
-                    cloneRepository(remoteGitArtifact.getKey()[0], remoteGitArtifact.getKey()[1], targetPath);
-                }
-
+                repositoryManager.cloneOrCheckout(artifactsDirectory, remoteGitArtifact.getKey()[0], remoteGitArtifact.getKey()[1],
+                        remoteGitArtifact.getValue());
             }
         } catch (IOException e) {
             log.error("Error while creating artifacts directory ", e);
         }
         done = true;
-    }
-
-    private void cloneRepository(String url, String branch, Path targetPath) {
-        // then clone
-        log.info("Cloning from [" + url + "] branch [" + branch + "] to [" + targetPath.toString() + "]");
-        Git result;
-        try {
-            result = Git.cloneRepository().setURI(url).setBranch(branch).setDirectory(targetPath.toFile()).call();
-            try {
-                // Note: the call() returns an opened repository already which needs to be closed to avoid file handle leaks!
-                log.info("Cloned: " + result.getRepository().getDirectory());
-            } finally {
-                result.close();
-            }
-        } catch (GitAPIException e) {
-            log.error("Failed to clone git repository.", e);
-        }
     }
 }

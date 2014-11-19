@@ -22,14 +22,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Test;
-
-import alien4cloud.spring.config.YamlPropertiesFactoryBean;
-import alien4cloud.spring.config.YamlProcessor.ResolutionMethod;
-
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.yaml.snakeyaml.Yaml;
+
+import alien4cloud.spring.config.YamlProcessor.ResolutionMethod;
 
 /**
  * @author Dave Syer
