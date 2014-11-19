@@ -1,5 +1,6 @@
 /** TODO Update Topology runtime to make it independant from the application. */
 /* global UTILS */
+/* global CONSTANTS */
 
 'use strict';
 
@@ -17,14 +18,22 @@ angular.module('alienUiApp').controller(
     '$state',
     'propertiesServices',
     'toaster',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, applicationResult, environment, topologyId, $state, propertiesServices, toaster) {
+    'cloudServices',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, applicationResult, environment, topologyId, $state, propertiesServices, toaster, cloudServices) {
 
-      var pageStateId = $state.current.name;  
-      
+      var pageStateId = $state.current.name;
+
       $scope.application = applicationResult.data;
       $scope.topologyId = topologyId;
 
       var cloudId = environment.cloudId;
+      $scope.cloudId = cloudId;
+
+      cloudServices.get({
+        id: cloudId
+      }, function(response) {
+        $scope.cloud = response.data.cloud;
+      });
 
       var CUSTOM_INTERFACE_NAME = 'custom';
       $scope.eventTypeLabels = {
@@ -437,6 +446,15 @@ angular.module('alienUiApp').controller(
         // reset parameter inputs ?
         injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterface);
       };
-
+      
+      // check if compute type
+      $scope.isComputeType =  function (nodeTemplate){
+        if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
+          return false;
+        }
+        var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+        return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
+      };
+      
     }
   ]);

@@ -161,6 +161,11 @@ var goToCloudDetailTemplate = function() {
 };
 module.exports.goToCloudDetailTemplate = goToCloudDetailTemplate;
 
+var goToCloudConfiguration = function() {
+  element(by.id('tab-clouds-configuration')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudConfiguration = goToCloudConfiguration;
+
 var countCloud = function() {
   return element.all(by.repeater('cloud in data.data')).count();
 };
@@ -203,6 +208,32 @@ var selectFirstImageOfCloud = function() {
   browser.waitForAngular();
 };
 module.exports.selectFirstImageOfCloud = selectFirstImageOfCloud;
+
+var selectAllImageOfCloud = function() {
+  goToCloudDetailImage();
+  browser.element(by.id('clouds-image-add-button')).click();
+  browser.waitForAngular();
+  element.all(by.repeater('cloudImage in data.data')).then(function(images) {
+    var nb = images.length;
+    for (var int = 0; int < nb; int++) {
+      browser.actions().click(images[0].element(by.css('div[ng-click^="selectImage"]'))).perform();
+    }
+  });
+  browser.element(by.id('clouds-new-image-add-button')).click();
+  browser.waitForAngular();
+};
+module.exports.selectAllImageOfCloud = selectAllImageOfCloud;
+
+var selectImageOfCloud = function(imageName) {
+  goToCloudDetailImage();
+  browser.element(by.id('clouds-image-add-button')).click();
+  browser.waitForAngular();
+  //  browser.actions().click(element.all(by.repeater('cloudImage in data.data')).first().element(by.css('div[ng-click^="selectImage"]'))).perform();
+  browser.actions().click(element(by.id('imagesToAdd')).element(by.id('li_' + imageName))).perform();
+  browser.element(by.id('clouds-new-image-add-button')).click();
+  browser.waitForAngular();
+};
+module.exports.selectImageOfCloud = selectImageOfCloud;
 
 var assignPaaSResourceToTemplate = function(cloudImageName, flavorId, paaSResourceId) {
   goToCloudDetailTemplate();

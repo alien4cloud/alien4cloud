@@ -1,5 +1,5 @@
 name: myJavaProgram
-version: 1.0.snapshot
+version: 1.0-SNAPSHOT
 license: Apache
 created_by: mkv
 definitions:

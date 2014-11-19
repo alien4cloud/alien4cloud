@@ -80,7 +80,7 @@ describe('Component Details :', function() {
     // go to the second page and check
     pagination.get(3).element(by.tagName('a')).click();
     results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(6);
+    expect(results.count()).toEqual(7);
   });
 
   it('should be able to have components grouped by version when there are multiple versions of the same component', function() {
@@ -95,7 +95,7 @@ describe('Component Details :', function() {
     // go to the second page and check
     pagination.get(3).element(by.tagName('a')).click();
     results = element.all(by.repeater('component in searchResult.data.data'));
-    expect(results.count()).toEqual(6);
+    expect(results.count()).toEqual(7);
     pagination.get(0).element(by.tagName('a')).click();
     browser.waitForAngular();
     components.goToComponentDetailPage(computeComponentV2.id);

@@ -1,6 +1,7 @@
 package alien4cloud.tosca.container.services.csar.impl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,10 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     @Override
     public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
             Collection<CSARDependency> dependencies) {
+        IndexedToscaElement indexedNodeType = alienDAO.findById(IndexedToscaElement.class, element.getId());
+        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : new Date();
+
+        element.setCreationDate(creationDate);
         if (element.getDerivedFrom() != null) {
             Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();

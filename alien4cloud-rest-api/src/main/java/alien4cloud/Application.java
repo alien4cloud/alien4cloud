@@ -13,20 +13,17 @@ import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import alien4cloud.servlet.ImageServlet;
+import alien4cloud.utils.AlienYamlPropertiesFactoryBeanFactory;
 
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackages = { "alien4cloud", "org.elasticsearch.mapping" })
 public class Application {
-    private static final String ALIEN_CONFIGURATION = "alien4cloud-config";
-    private static final String ALIEN_CONFIGURATION_YAML = ALIEN_CONFIGURATION + ".yml";
-
     /**
      * Alien 4 cloud standalone entry point.
      *
@@ -40,14 +37,12 @@ public class Application {
     public static void configure() {
         System.setProperty("security.basic.enabled", "false");
         System.setProperty("management.contextPath", "/rest/admin");
-        System.setProperty("spring.config.name", ALIEN_CONFIGURATION);
+        System.setProperty("spring.config.name", AlienYamlPropertiesFactoryBeanFactory.ALIEN_CONFIGURATION);
     }
 
     @Bean(name = { "alienconfig", "elasticsearchConfig" })
-    public static YamlPropertiesFactoryBean alienConfig() throws IOException {
-        YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
-        yamlPropertiesFactoryBean.setResources(new Resource[] { new ClassPathResource(ALIEN_CONFIGURATION_YAML) });
-        return yamlPropertiesFactoryBean;
+    public static YamlPropertiesFactoryBean alienConfig(ResourceLoader resourceLoader) throws IOException {
+        return AlienYamlPropertiesFactoryBeanFactory.get(resourceLoader);
     }
 
     @Bean

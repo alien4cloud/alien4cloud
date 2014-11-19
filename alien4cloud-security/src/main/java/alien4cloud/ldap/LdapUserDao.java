@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
@@ -23,7 +24,8 @@ import alien4cloud.security.User;
 @Getter
 @Setter
 @Component
-@Profile("security-ldap")
+//@Profile("security-ldap")
+@Conditional(LdapCondition.class)
 public class LdapUserDao {
 
     @Resource

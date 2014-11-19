@@ -6,6 +6,7 @@ var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var genericForm = require('../generic_form/generic_form');
 var pluginsCommon = require('../admin/plugins_common');
+var cloudsCommon = require('../admin/clouds_common');
 
 var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
 var pluginName = 'alien4cloud-mock-paas-provider';
@@ -135,4 +136,44 @@ describe('Upload and handle paas plugins', function() {
     common.deleteWithConfirm('delete-' + mockPluginId, false);
     expect(mockPluginLine.isPresent()).toBe(true);
   });
+
+
+  it('should have an error when trying to activate a cloud without a good configuration', function() {
+    console.log('################# should have an error when trying to activate a cloud without a good configuration');
+
+    // upload mock paas plugin
+    pluginsCommon.pluginsUploadInit();
+
+    // goToCloudConfiguration
+    // go on cloud details to enable
+    cloudsCommon.goToCloudList();
+    cloudsCommon.createNewCloud('testcloud');
+    cloudsCommon.goToCloudDetail('testcloud');
+
+    // select cloud configuration
+    cloudsCommon.goToCloudConfiguration();
+    // set bad config to true
+    var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratontrue'));
+    browser.actions().click(badConfigurationSwitch).perform();
+    genericForm.saveForm();
+    cloudsCommon.goToCloudDetailDetails();
+
+    // enabling cloud should fail
+    cloudsCommon.enableCloud();
+    common.expectErrors();
+
+    // set this configuration switch to false
+    cloudsCommon.goToCloudConfiguration();
+    // set bad config to false
+    badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratonfalse'));
+    browser.actions().click(badConfigurationSwitch).perform();
+    genericForm.saveForm();
+    cloudsCommon.goToCloudDetailDetails();
+
+    // enabling cloud should not fail
+    cloudsCommon.enableCloud();
+    common.expectNoErrors();
+
+  });
+
 });

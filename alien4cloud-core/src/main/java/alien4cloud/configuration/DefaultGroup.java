@@ -9,7 +9,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.security.Role;
 import alien4cloud.security.groups.GroupService;
+
+import com.google.common.collect.Sets;
 
 /**
  * Default internal settings about security (groups/users)
@@ -26,7 +29,8 @@ public class DefaultGroup {
     @PostConstruct
     public void createDefaultAllGroup() {
         try {
-            String createdGroupId = groupService.createGroup(Constants.GROUP_NAME_ALL_USERS, null, DESCRIPTION, null, null);
+            String createdGroupId = groupService.createGroup(Constants.GROUP_NAME_ALL_USERS, null, DESCRIPTION,
+                    Sets.newHashSet(Role.COMPONENTS_BROWSER.toString()), null);
             if (createdGroupId != null) {
                 log.info("Default group <{}> created in your system with id <{}>", Constants.GROUP_NAME_ALL_USERS, createdGroupId);
             }

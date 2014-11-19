@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Getter
 @Setter
 @NoArgsConstructor
-@FormProperties({ "firstArgument", "secondArgument", "thirdArgument", "tags", "properties", "javaVersion" })
+@FormProperties({ "firstArgument", "secondArgument", "thirdArgument", "withBadConfiguraton", "tags", "properties", "javaVersion" })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.UnusedPrivateField")
@@ -30,6 +30,8 @@ public class ProviderConfig {
     private String secondArgument;
 
     private String thirdArgument;
+
+    private boolean withBadConfiguraton;
 
     private List<Tag> tags;
 

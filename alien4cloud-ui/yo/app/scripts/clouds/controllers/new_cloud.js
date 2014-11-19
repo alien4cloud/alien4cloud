@@ -6,6 +6,9 @@ angular.module('alienUiApp').controller(
 
   $http.get('rest/passprovider').success(function(response) {
     $scope.paasProviders = response.data;
+    for (var i=0; i<$scope.paasProviders.length; i++) {
+      $scope.paasProviders[i].nameAndId = $scope.paasProviders[i].componentDescriptor.name + " : " + $scope.paasProviders[i].version;
+    }
   });
 
   $scope.save = function(valid) {

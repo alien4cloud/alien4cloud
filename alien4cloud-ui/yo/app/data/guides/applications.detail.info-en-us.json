@@ -36,5 +36,30 @@
     "content": "You will manage permissions for users and groups on your application.",
     "target": "am.applications.detail.users",
     "placement": "right"
+  }, {
+    "title": "Add an image",
+    "content": "To add an image in your application, drag and drop your image in the area bounded by the dotted lines.",
+    "target": "am.applications.detail.drag-and-drop",
+    "placement": "right"
+  }, {
+    "title": "Change the application title",
+    "content": "You can change the application title. The new name must not already be in use by another application.",
+    "target": "app-name",
+    "placement": "right"
+  }, {
+    "title": "Describe the application",
+    "content": "Here you can describe your application. The description will be visible from the applications list.",
+    "target": "app-desc",
+    "placement": "left"
+  }, {
+    "title": "Add tags",
+    "content": "Here you can add multiple tags to your application.",
+    "target": "btn-add-tag",
+    "placement": "right"
+  }, {
+    "title": "Remove the application",
+    "content": "Finally, it is possible to delete your application. Only a non-deployed application may be deleted.",
+    "target": "btn-delete-app",
+    "placement": "left"
   }]
 }

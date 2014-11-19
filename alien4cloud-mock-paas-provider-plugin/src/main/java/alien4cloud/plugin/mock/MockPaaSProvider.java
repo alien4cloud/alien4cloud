@@ -31,6 +31,7 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
+import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -507,10 +508,15 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public void setConfiguration(ProviderConfig configuration) {
+    public void setConfiguration(ProviderConfig configuration) throws PluginConfigurationException {
         log.info("In the plugin configurator <" + this.getClass().getName() + ">");
         try {
-            log.info("The config object Tags is: " + JsonUtil.toString(configuration.getTags()));
+            log.info("The config object Tags is : {}", JsonUtil.toString(configuration.getTags()));
+            log.info("The config object with error : {}", configuration.isWithBadConfiguraton());
+            if (configuration.isWithBadConfiguraton()) {
+                log.info("Throwing error for bad configuration");
+                throw new PluginConfigurationException("Failed to configure Mock PaaS Provider Plugin error.");
+            }
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }

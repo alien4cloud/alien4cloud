@@ -2,12 +2,14 @@ package alien4cloud.ldap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
-@Profile("security-ldap")
+//@Profile("security-ldap")
+@Conditional(LdapCondition.class)
 @Configuration
 public class LdapConfiguration {
     @Value("${ldap.anonymousReadOnly}")

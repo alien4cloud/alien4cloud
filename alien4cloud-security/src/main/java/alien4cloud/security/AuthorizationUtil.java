@@ -9,6 +9,7 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -138,7 +139,6 @@ public final class AuthorizationUtil {
             return filterBuilder;
         } else {
             User user = (User) auth.getPrincipal();
-            String groupId = getAllUsersGroupId();
             if (user.getGroups() != null && !user.getGroups().isEmpty()) {
                 filterBuilder = FilterBuilders.boolFilter()
                         .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
@@ -146,9 +146,13 @@ public final class AuthorizationUtil {
             } else {
                 filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
             }
-            // add ALL_USERS group as OR filter
-            filterBuilder = FilterBuilders.orFilter(filterBuilder,
-                    FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
+            Group group = getAllUsersGroup();
+            if (group != null) {
+                String groupId = group.getId();
+                // add ALL_USERS group as OR filter
+                filterBuilder = FilterBuilders.orFilter(filterBuilder,
+                        FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
+            }
         }
         return filterBuilder;
     }
@@ -180,8 +184,15 @@ public final class AuthorizationUtil {
             }
         }
         Set<String> groups = user.getGroups();
+        if (groups == null) {
+            groups = Sets.newHashSet();
+        }
+        Group allUserGroup = getAllUsersGroup();
+        if (allUserGroup != null) {
+            groups.add(allUserGroup.getId());
+        }
         Map<String, Set<String>> groupRolesMap = resource.getGroupRoles();
-        if (groups != null && !groups.isEmpty() && groupRolesMap != null && !groupRolesMap.isEmpty()) {
+        if (groupRolesMap != null && !groupRolesMap.isEmpty()) {
             for (String group : groups) {
                 Set<String> groupRoles = groupRolesMap.get(group);
                 if (groupRoles == null || groupRoles.isEmpty()) {
@@ -258,9 +269,6 @@ public final class AuthorizationUtil {
             // Trick for topology's template
             return true;
         }
-        if (hasAllUsersDefaultGroup(resource)) {
-            return true;
-        }
         Set<String> alienRoles = getRoles(user);
         // With ADMIN role, all rights
         if (alienRoles.contains(Role.ADMIN.toString())) {
@@ -271,36 +279,44 @@ public final class AuthorizationUtil {
     }
 
     /**
-     * True when the defaultGroupName is present on the given resource
-     * 
-     * @param resource
-     * @return boolean
-     */
-    public static boolean hasAllUsersDefaultGroup(ISecuredResource resource) {
-        Map<String, Set<String>> groupRoles = resource.getGroupRoles();
-        if (groupRoles != null) {
-            String groupName = null;
-            for (String groupId : groupRoles.keySet()) {
-                groupName = alienGroupDao.find(groupId).getName();
-                if (groupName.equals(Constants.GROUP_NAME_ALL_USERS)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Recover the group id for the default ALL_USER group
+     * Recover the alien's default all user group
      * 
      * @return
      */
-    private static String getAllUsersGroupId() {
+    private static Group getAllUsersGroup() {
         Group group = alienGroupDao.findByName(Constants.GROUP_NAME_ALL_USERS);
         if (group == null) {
-            log.info("Default all users group <{}> not found", Constants.GROUP_NAME_ALL_USERS);
-            return "";
+            log.warn("Default all users group <{}> not found", Constants.GROUP_NAME_ALL_USERS);
+            return null;
         }
-        return group.getId();
+        return group;
+    }
+
+    /**
+     * Create an authentication token from an Alien user
+     * 
+     * @param user the alien user
+     * @param password the password
+     * @return the authentication token
+     */
+    public static UsernamePasswordAuthenticationToken createAuthenticationToken(User user, String password) {
+        Set<SimpleGrantedAuthority> authorities = user.getAuthorities();
+        Group allUserGroup = getAllUsersGroup();
+        if (allUserGroup != null) {
+            Set<String> allUserGroupRoles = allUserGroup.getRoles();
+            if (allUserGroupRoles != null) {
+                Set<SimpleGrantedAuthority> mergedAuthorities;
+                if (authorities != null) {
+                    mergedAuthorities = Sets.newHashSet(authorities);
+                } else {
+                    mergedAuthorities = Sets.newHashSet();
+                }
+                for (String allUserGroupRole : allUserGroupRoles) {
+                    mergedAuthorities.add(new SimpleGrantedAuthority(allUserGroupRole));
+                }
+                return new UsernamePasswordAuthenticationToken(user, password, mergedAuthorities);
+            }
+        }
+        return new UsernamePasswordAuthenticationToken(user, password, authorities);
     }
 }

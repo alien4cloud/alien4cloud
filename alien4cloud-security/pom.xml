@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>0.0.16-SNAPSHOT</version>
+    <version>0.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-security</artifactId>
   <name>Alien 4 Cloud Security</name>
@@ -67,10 +67,6 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-actuator</artifactId>
     </dependency>
 
     <dependency>

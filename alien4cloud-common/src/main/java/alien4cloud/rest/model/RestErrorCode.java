@@ -19,7 +19,7 @@ public enum RestErrorCode {
     // Plugin errors
     PLUGIN_USED_ERROR(350),
     MISSING_PLUGIN_ERROR(351),
-    INVALID_PLUGIN_CONFIGURATION(351),
+    INVALID_PLUGIN_CONFIGURATION(352),
 
     // Cloud errors
     CLOUD_DISABLED_ERROR(370),

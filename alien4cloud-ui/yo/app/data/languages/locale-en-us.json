@@ -149,6 +149,7 @@
     "ROOT": "Root",
     "MAP_KEY_PLACEHOLDER": "Enter a new key",
     "UNDEFINED": "Click to edit",
+    "UNDEFINED_READ_ONLY": "Undefined",
     "TRUE": "Yes",
     "FALSE": "No",
     "REQUIRED": "Mandatory fields",
@@ -245,12 +246,19 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
+      "INFORMATIONS_TAB": "Informations",
+      "INFORMATIONS": {
+        "APP_NAME": "Application name",
+        "DEPLOYMENT_ID": "Deployment ID",
+        "CLOUD_NAME": "Cloud name",
+        "CLOUD_ID": "Cloud ID"
+      },
       "EVENTS_TAB": "Events",
       "EVENTS": {
         "ALL": "All events",
         "STATUS": "Deployment status",
         "INSTANCES": "Instance status",
-        "STORAGE":"Instance status(BlockStorage)",
+        "STORAGE": "Instance status(BlockStorage)",
         "MESSAGES": "Message",
         "DATE": "Date",
         "TYPE": "Type",
@@ -448,7 +456,8 @@
       "OPENSTACK": "OpenStack",
       "VMWARE": "VMware",
       "AMAZON": "Amazon",
-      "VIRTUALBOX": "Virtual box"
+      "VIRTUALBOX": "Virtual box",
+      "AZURE": "Microsoft Azure"
     },
     "ENVIRONMENT": {
       "OTHER": "Other",
@@ -508,7 +517,11 @@
       "DELETING_FAILED_TITLE": "Delete a cloud",
       "DELETING_FAILED": "Unable to delete the cloud. It is used by some resources.",
       "DISABLING_FAILED_TITLE": "Disable a cloud",
-      "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources."
+      "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources.",
+      "ENABLING_FAILED_TITLE": "Enable a cloud",
+      "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
+      "352_TITLE": "Save the cloud configuration",
+      "352": "Invalid cloud configuration. Please change it and retry."
     },
     "ENABLED_true": "Enabled",
     "ENABLED_false": "Disabled"

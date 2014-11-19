@@ -39,13 +39,15 @@ function cleanAlienRepository() {
   }
 }
 
-function cleanElasticSearch(indexName) {
+function cleanElasticSearch(indexName, query) {
   var defer = protractor.promise.defer();
-  var query = JSON.stringify({
-    query: {
-      match_all: {}
-    }
-  });
+  if (query === undefined) {
+    query = JSON.stringify({
+      query: {
+        match_all: {}
+      }
+    });
+  }
 
   // An object of options to indicate where to post to
   var deleteOptions = {
@@ -135,7 +137,16 @@ function cleanDeployments() {
 }
 
 function cleanGroups() {
-  return cleanElasticSearch('group');
+  // Do not clean all users group
+  return cleanElasticSearch('group', JSON.stringify({
+    "query": {
+      "bool": {
+        "must_not": {
+          "term": { "name": "ALL_USERS"}
+        }
+      }
+    }
+  }));
 }
 
 function cleanCloudImage() {

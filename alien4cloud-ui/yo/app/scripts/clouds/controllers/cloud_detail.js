@@ -2,11 +2,11 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q) {
       var cloudId = $stateParams.id;
 
-      $scope.iaasTypes = ['OTHER', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
+      $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
       $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
       $scope.tabs = {
         newTemplates: 0
@@ -102,10 +102,11 @@ angular.module('alienUiApp').controller(
       $resource('rest/auth/roles/cloud', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
-          $scope.cloudRoles = roleResult.data;
-        });
+        $scope.cloudRoles = roleResult.data;
+      });
 
       $scope.updateCloud = function(cloud) {
+
         cloud.id = $scope.cloud.id;
         $scope.cloudSaving = true;
 
@@ -127,27 +128,36 @@ angular.module('alienUiApp').controller(
 
       $scope.enableCloud = function() {
         $scope.enablePending = true;
-        $http.get('rest/clouds/' + cloudId + '/enable').success(function() {
-          $scope.cloud.enabled = true;
-          $scope.enablePending = false;
-        }).error(function() {
-          $scope.enablePending = false;
-        });
+        $http.get('rest/clouds/' + cloudId + '/enable')
+          .success(function(response) {
+            if (UTILS.isDefinedAndNotNull(response.error)) {
+              // toaster message
+              toaster.pop('error', $translate('CLOUDS.ERRORS.ENABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.ENABLING_FAILED'), 4000, 'trustedHtml', null);
+              $scope.cloud.enabled = false;
+            } else {
+              $scope.cloud.enabled = true;
+            }
+            $scope.enablePending = false;
+          })
+          .error(function() {
+            $scope.enablePending = false;
+          });
       };
 
       $scope.disableCloud = function() {
         $scope.enablePending = true;
-        $http.get('rest/clouds/' + cloudId + '/disable').success(function(response) {
-          if (response.data) {
-            $scope.cloud.enabled = false;
-          } else {
-            // toaster message
-            toaster.pop('error', $translate('CLOUDS.ERRORS.DISABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DISABLING_FAILED'), 4000, 'trustedHtml', null);
-          }
-          $scope.enablePending = false;
-        }).error(function() {
-          $scope.enablePending = false;
-        });
+        $http.get('rest/clouds/' + cloudId + '/disable')
+          .success(function(response) {
+            if (response.data) {
+              $scope.cloud.enabled = false;
+            } else {
+              // toaster message
+              toaster.pop('error', $translate('CLOUDS.ERRORS.DISABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DISABLING_FAILED'), 4000, 'trustedHtml', null);
+            }
+            $scope.enablePending = false;
+          }).error(function() {
+            $scope.enablePending = false;
+          });
       };
 
       $scope.cloudConfig = {};
@@ -166,11 +176,15 @@ angular.module('alienUiApp').controller(
       });
 
       $scope.saveConfiguration = function(newConfiguration) {
-        cloudServices.config.update({
+        return cloudServices.config.update({
           id: cloudId
-        }, angular.toJson(newConfiguration), function() {
+        }, angular.toJson(newConfiguration), function success(response) {
           $scope.cloudConfig = newConfiguration;
-        });
+          if (UTILS.isDefinedAndNotNull(response.error)) {
+            var errorsHandle = $q.defer();
+            return errorsHandle.resolve(response.error);
+          }
+        }).$promise;
       };
 
       //delete a cloud
@@ -381,12 +395,16 @@ angular.module('alienUiApp').controller(
       };
 
       function onResize(width, height) {
-        $scope.heightInfo = { height: height };
+        $scope.heightInfo = {
+          height: height
+        };
         $scope.$apply();
       }
 
       resizeServices.register(onResize, 0, 0);
-      $scope.heightInfo = { height: resizeServices.getHeight(0) };
+      $scope.heightInfo = {
+        height: resizeServices.getHeight(0)
+      };
 
       $scope.deleteTemplateSelection = function() {
         delete $scope.selectedTemplate;

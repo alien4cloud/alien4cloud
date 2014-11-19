@@ -5,6 +5,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,8 @@ import alien4cloud.security.User;
  * @author mourouvi
  */
 @Component
-@Profile("security-ldap")
+//@Profile("security-ldap")
+@Conditional(LdapCondition.class)
 public class UserLdapAttributeMapper implements AttributesMapper<User> {
 
     @Value("${ldap.userIdKey}")

@@ -76,7 +76,7 @@ module.exports = function(grunt) {
          * requests
          */
         {
-          context: ['/rest', '/api-docs', '/login', '/logout', '/img', '/csarrepository'],
+          context: ['/rest', '/api-docs', '/login', '/logout', '/img', '/csarrepository', '/version.json'],
           host: 'localhost',
           port: 8088
         }
@@ -138,12 +138,10 @@ module.exports = function(grunt) {
     // Empties folders to start fresh
     clean: {
       dist: {
-        files: [
-          {
-            dot: true,
-            src: ['.tmp', '<%= yeoman.dist %>/*', '!<%= yeoman.dist %>/.git*']
-          }
-        ]
+        files: [{
+          dot: true,
+          src: ['.tmp', '<%= yeoman.dist %>/*', '!<%= yeoman.dist %>/.git*']
+        }]
       },
       server: '.tmp'
     },
@@ -154,14 +152,12 @@ module.exports = function(grunt) {
         browsers: ['last 1 version']
       },
       dist: {
-        files: [
-          {
-            expand: true,
-            cwd: '.tmp/styles/',
-            src: '{,*/}*.css',
-            dest: '.tmp/styles/'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: '.tmp/styles/',
+          src: '{,*/}*.css',
+          dest: '.tmp/styles/'
+        }]
       }
     },
 
@@ -236,26 +232,22 @@ module.exports = function(grunt) {
     // The following *-min tasks produce minified files in the dist folder
     imagemin: {
       dist: {
-        files: [
-          {
-            expand: true,
-            cwd: '<%= yeoman.app %>/images',
-            src: '{,*/}*.{png,jpg,jpeg,gif}',
-            dest: '<%= yeoman.dist %>/images'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>/images',
+          src: '{,*/}*.{png,jpg,jpeg,gif}',
+          dest: '<%= yeoman.dist %>/images'
+        }]
       }
     },
     svgmin: {
       dist: {
-        files: [
-          {
-            expand: true,
-            cwd: '<%= yeoman.app %>/images',
-            src: '{,*/}*.svg',
-            dest: '<%= yeoman.dist %>/images'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.app %>/images',
+          src: '{,*/}*.svg',
+          dest: '<%= yeoman.dist %>/images'
+        }]
       }
     },
     htmlmin: {
@@ -266,15 +258,13 @@ module.exports = function(grunt) {
           removeCommentsFromCDATA: true,
           removeOptionalTags: true
         },
-        files: [
-          {
-            expand: true,
-            cwd: '<%= yeoman.dist %>',
-            // src: ['*.html', 'views/{,*/}*.html'],
-            src: ['*.html', 'views/**/*.html'],
-            dest: '<%= yeoman.dist %>'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: '<%= yeoman.dist %>',
+          // src: ['*.html', 'views/{,*/}*.html'],
+          src: ['*.html', 'views/**/*.html'],
+          dest: '<%= yeoman.dist %>'
+        }]
       }
     },
 
@@ -282,14 +272,12 @@ module.exports = function(grunt) {
     // minsafe compatible so Uglify does not destroy the ng references
     ngmin: {
       dist: {
-        files: [
-          {
-            expand: true,
-            cwd: '.tmp/concat/scripts',
-            src: '*.js',
-            dest: '.tmp/concat/scripts'
-          }
-        ]
+        files: [{
+          expand: true,
+          cwd: '.tmp/concat/scripts',
+          src: '*.js',
+          dest: '.tmp/concat/scripts'
+        }]
       }
     },
 
@@ -303,27 +291,24 @@ module.exports = function(grunt) {
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
-        files: [
-          {
-            expand: true,
-            dot: true,
-            cwd: '<%= yeoman.app %>',
-            dest: '<%= yeoman.dist %>',
-            src: ['*.{ico,png,txt}', '.htaccess', '*.html',
-              // 'views/{,*/}*.html',
-              'views/**/*.html', 'bower_components/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*',
-              // 'images/{,*/}*.{webp}',
-              // 'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-              'fonts/*'
-            ]
-          },
-          {
-            expand: true,
-            cwd: '.tmp/images',
-            dest: '<%= yeoman.dist %>/images',
-            src: ['generated/*']
-          }
-        ]
+        files: [{
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          src: ['*.{ico,png,txt}', '.htaccess', '*.html',
+            // 'views/{,*/}*.html',
+            'views/**/*.html', 'bower_components/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*',
+            // 'images/{,*/}*.{webp}',
+            // 'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
+            'fonts/*'
+          ]
+        }, {
+          expand: true,
+          cwd: '.tmp/images',
+          dest: '<%= yeoman.dist %>/images',
+          src: ['generated/*']
+        }]
       },
       styles: {
         expand: true,
@@ -429,43 +414,44 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            //baseUrl: 'http://localhost:9999',
+            //            baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
-//              'test/e2e/scenarios/admin_cloud.js',
-//              'test/e2e/scenarios/admin_cloud_image.js',
-//              'test/e2e/scenarios/admin_groups_management.js',
-//              'test/e2e/scenarios/admin_metaprops_configuration.js',
-//              'test/e2e/scenarios/admin_users_management.js',
-//              'test/e2e/scenarios/application.js',
-//              'test/e2e/scenarios/application_metaprops.js',
-//              'test/e2e/scenarios/application_security.js',
-//              'test/e2e/scenarios/application_tags.js',
-//              'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
-//              'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
-//              'test/e2e/scenarios/application_topology_editor_input_output.js',
-//              'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
-//              'test/e2e/scenarios/application_topology_editor_nodetemplate.js',
-//              'test/e2e/scenarios/application_topology_editor_plan.js',
-//              'test/e2e/scenarios/application_topology_editor_relationships.js',
-//              'test/e2e/scenarios/application_topology_editor_replacenode.js',
-//              'test/e2e/scenarios/application_topology_runtime.js',
-//              'test/e2e/scenarios/authentication.js',
-//              'test/e2e/scenarios/component_details.js',
-//              'test/e2e/scenarios/component_details_tags.js',
-//              'test/e2e/scenarios/csar.js',
-//              'test/e2e/scenarios/deployment.js',
-//              'test/e2e/scenarios/deployment_matcher.js',
-//              'test/e2e/scenarios/homepage.js',
-//              'test/e2e/scenarios/language_test.js',
-//              'test/e2e/scenarios/plugins.js',
-//              'test/e2e/scenarios/quick_search.js',
-//              'test/e2e/scenarios/security_cloud.js',
-//              'test/e2e/scenarios/security_groups.js',
-//              'test/e2e/scenarios/security_users.js',
-//              'test/e2e/scenarios/topology_template.js',
-//              'test/e2e/scenarios/*'
+              'test/e2e/scenarios/admin_cloud.js',
+              //              'test/e2e/scenarios/admin_cloud_image.js',
+              //              'test/e2e/scenarios/admin_groups_management.js',
+              //              'test/e2e/scenarios/admin_metaprops_configuration.js',
+              //              'test/e2e/scenarios/admin_users_management.js',
+              //              'test/e2e/scenarios/application.js',
+              //              'test/e2e/scenarios/application_metaprops.js',
+              //              'test/e2e/scenarios/application_security.js',
+              //              'test/e2e/scenarios/application_security_role_check.js',
+              //              'test/e2e/scenarios/application_tags.js',
+              //              'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
+              //              'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
+              //              'test/e2e/scenarios/application_topology_editor_input_output.js',
+              //              'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
+              //              'test/e2e/scenarios/application_topology_editor_nodetemplate.js',
+              //              'test/e2e/scenarios/application_topology_editor_plan.js',
+              //              'test/e2e/scenarios/application_topology_editor_relationships.js',
+              //              'test/e2e/scenarios/application_topology_editor_replacenode.js',
+              //              'test/e2e/scenarios/application_topology_runtime.js',
+              //              'test/e2e/scenarios/authentication.js',
+              //              'test/e2e/scenarios/component_details.js',
+              //              'test/e2e/scenarios/component_details_tags.js',
+              //              'test/e2e/scenarios/csar.js',
+              //              'test/e2e/scenarios/deployment.js',
+              //              'test/e2e/scenarios/deployment_matcher.js',
+              //              'test/e2e/scenarios/homepage.js',
+              //              'test/e2e/scenarios/language_test.js',
+              //              'test/e2e/scenarios/plugins.js',
+              //              'test/e2e/scenarios/quick_search.js',
+              //              'test/e2e/scenarios/security_cloud.js',
+              'test/e2e/scenarios/security_groups.js',
+              'test/e2e/scenarios/security_users.js',
+              //              'test/e2e/scenarios/topology_template.js',
+              //              'test/e2e/scenarios/*'
             ]
           }
         }

@@ -13,13 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.security.IAlienUserDao;
-import alien4cloud.security.User;
-import alien4cloud.security.UserService;
-import alien4cloud.utils.Alien4CloudApplicationContextInitializer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:ldap-authentication-provider-security-test.xml", initializers = Alien4CloudApplicationContextInitializer.class)
+@ContextConfiguration(locations = "classpath:ldap-authentication-provider-security-test.xml")
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServiceTest {
     @Resource

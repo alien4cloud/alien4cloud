@@ -19,7 +19,7 @@ alien_security:
 
 ### Ldap Configuration
 ldap:
-  enabled: false
+  enabled: true
   anonymousReadOnly: true
   url: ldap://ldap.fastconnect.fr:389
   userDn: uid=admin,ou=system
