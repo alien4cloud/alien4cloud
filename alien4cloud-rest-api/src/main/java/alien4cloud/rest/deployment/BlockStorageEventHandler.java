@@ -17,7 +17,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.utils.CommonUtils;
+import alien4cloud.utils.AlienUtils;
 
 @Slf4j
 @Component
@@ -49,7 +49,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         }
         String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
         if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
-            volumeIds = CommonUtils.putValueCommaSeparatedInPosition(volumeIds, storageEvent.getVolumeId(), Integer.parseInt(storageEvent.getInstanceId()));
+            volumeIds = AlienUtils.putValueCommaSeparatedInPosition(volumeIds, storageEvent.getVolumeId(), Integer.parseInt(storageEvent.getInstanceId()));
         }
         nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
         log.info("Updated topology <{}> to add VolumeId <{}> in position <{}> . New value is <{}>", topology.getId(), storageEvent.getVolumeId(),

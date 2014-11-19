@@ -21,6 +21,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
 import alien4cloud.tosca.container.model.NormativeRelationshipConstants;
 import alien4cloud.tosca.container.model.topology.AbstractTemplate;
@@ -44,7 +45,7 @@ public class TopologyTreeBuilderService {
 
     /**
      * Fetch informations from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
-     * 
+     *
      * @param topology The topology for which to build PaaSNodeTemplate map.
      * @return A map of PaaSNodeTemplate that match the one of the NodeTempaltes in the given topology (and filled with artifact paths etc.).
      */
@@ -85,7 +86,7 @@ public class TopologyTreeBuilderService {
 
     /**
      * Build a tree of the topology nodes based on hosted on relationships.
-     * 
+     *
      * @param nodeTemplates The node templates that are part of the topology.
      * @return A list of root nodes on the topology hosted on tree.
      */
@@ -96,7 +97,7 @@ public class TopologyTreeBuilderService {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
 
             // manage blockstorages
-            if (paaSNodeTemplate.getIndexedNodeType().getElementId().equals(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE)) {
+            if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
                 manageBlockStorage(paaSNodeTemplate, nodeTemplates);
                 continue;
             }

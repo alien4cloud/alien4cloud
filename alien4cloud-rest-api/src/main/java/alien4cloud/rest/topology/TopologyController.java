@@ -39,7 +39,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.ToscaService;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
@@ -84,9 +83,6 @@ public class TopologyController {
 
     @Resource
     private IFileRepository artifactRepository;
-
-    @Resource
-    private ToscaService toscaService;
 
     /**
      * Retrieve an existing {@link Topology}
