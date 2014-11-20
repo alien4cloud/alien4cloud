@@ -47,7 +47,7 @@ describe('Initialize test environment', function() {
     common.uploadFile(pathToBaseTypes);
     common.uploadFile(pathToJavaTypes);
     SCREENSHOT.takeScreenShot('upload-components');
-
+    common.removeAllFacetFilters();
     expect(element.all(by.repeater('component in searchResult.data.data')).count()).toEqual(20);
   });
 
