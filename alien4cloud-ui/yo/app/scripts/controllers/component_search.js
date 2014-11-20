@@ -252,6 +252,8 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
     }
   };
 
-  // Init : by default, don't display abastract components
-  $scope.addFilter("abstract", "F");
+  // Init : by default, don't display abastract components on topology view
+  if (!$scope.globalContext) {
+    $scope.addFilter("abstract", "F");
+  }
 }]);

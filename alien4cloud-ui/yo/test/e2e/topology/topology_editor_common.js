@@ -83,6 +83,8 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   searchImput.sendKeys(ntype); // e.g. tosca.nodes.Network
   var btnSearch = element(by.id('btn-search-component'));
   btnSearch.click();
+  common.removeAllFacetFilters();
+
   // select and dnd the element
   var version = archiveVersion ? archiveVersion : '1.0';
   var nodeTypeElement = element(by.id('li_' + ntype + ':' + version));
