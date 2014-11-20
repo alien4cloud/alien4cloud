@@ -18,6 +18,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -27,7 +28,6 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.rest.utils.RestClient;
-import alien4cloud.spring.config.YamlPropertiesFactoryBean;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
 import alien4cloud.utils.MapUtil;
 

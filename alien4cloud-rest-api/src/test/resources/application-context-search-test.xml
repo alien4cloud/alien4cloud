@@ -15,9 +15,8 @@
     <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration" />
   </context:component-scan>
 
-  <bean id="alienconfig" class="alien4cloud.spring.config.YamlPropertiesFactoryBean">
-    <property name="resources" value="classpath:alien4cloud-config.yaml" />
-  </bean>
+  <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory" />
+  <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get" />
   <alias name="alienconfig" alias="elasticsearchConfig" />
   <context:property-placeholder properties-ref="alienconfig" />
 

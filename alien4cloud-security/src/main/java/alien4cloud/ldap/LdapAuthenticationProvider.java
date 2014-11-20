@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,7 +29,8 @@ import alien4cloud.security.User;
  * @author mourouvi
  */
 @Slf4j
-@Profile("security-ldap")
+//@Profile("security-ldap")
+@Conditional(LdapCondition.class)
 @Component("ldap-provider")
 public class LdapAuthenticationProvider implements AuthenticationProvider {
 
