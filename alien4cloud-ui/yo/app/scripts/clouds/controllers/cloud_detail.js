@@ -53,6 +53,7 @@ angular.module('alienUiApp').controller(
         $scope.images = response.data.images;
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;
+        $scope.networks = response.data.networks;
         if (response.data.matcherConfig) {
           $scope.manualMatchResource = true;
           $scope.matchedComputeTemplates = response.data.matcherConfig.matchedComputeTemplates;
@@ -375,6 +376,23 @@ angular.module('alienUiApp').controller(
           var indexOfImage = $scope.cloud.images.indexOf(imageId);
           $scope.cloud.images.splice(indexOfImage, 1);
           updateCloudResources(success.data);
+        });
+      };
+
+      /** handle Modal form for cloud image creation */
+      $scope.openNetworkCreationModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/clouds/new_network.html',
+          controller: 'NewNetworkController'
+        });
+
+        modalInstance.result.then(function(network) {
+          cloudServices.addNetwork({
+            id: $scope.cloud.id
+          }, angular.toJson(network), function() {
+            $scope.networks[network.id] = network;
+            $scope.cloud.networks.push(network);
+          });
         });
       };
 

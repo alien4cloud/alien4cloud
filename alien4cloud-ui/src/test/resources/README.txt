@@ -12,7 +12,7 @@ curl -X POST "http://localhost:9200/group/_search?pretty=true" -d '
 }
 '
 
-curl -X POST "http://localhost:9200/toscaelement/indexedrelationshiptype/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/deploymentmonitorevents/_search?pretty=true" -d '
 {
     "query" : {
         "match_all" : {}

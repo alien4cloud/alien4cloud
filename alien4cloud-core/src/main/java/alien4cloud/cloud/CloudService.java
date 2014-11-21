@@ -9,8 +9,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.cloud.MatchedNetwork;
 import lombok.extern.slf4j.Slf4j;
 
+import org.aspectj.weaver.ast.Not;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
@@ -30,6 +32,7 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.Network;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
@@ -46,6 +49,8 @@ import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
+
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Component
@@ -662,5 +667,65 @@ public class CloudService {
             }
         }
         return null;
+    }
+
+    public void addNetwork(Cloud cloud, Network network) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        if (existingNetworks == null) {
+            existingNetworks = Sets.newHashSet();
+            cloud.setNetworks(existingNetworks);
+        }
+        existingNetworks.add(network);
+        alienDAO.save(cloud);
+    }
+
+    private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
+        Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
+
+        for(MatchedNetwork network : networks) {
+            if(network.getNetwork().getNetworkName().equals(networkName)) {
+                return network;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set the network resource id
+     *
+     * @param cloud the cloud to update
+     * @param networkName the network's name
+     * @param paaSResourceId paaS resource id
+     */
+    public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) {
+        Set<Network> networks = cloud.getNetworks();
+        Network foundNetwork = null;
+        for (Network network : networks) {
+            if (network.getNetworkName().equals(networkName)) {
+                foundNetwork = network;
+            }
+        }
+        if (foundNetwork == null) {
+            throw new NotFoundException("Network [" + networkName + "] not found");
+        }
+        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+        if (paaSResourceId == null) {
+            getMatchedNetwork(matcherConfig, networkName, true);
+        } else {
+            MatchedComputeTemplate existing = getMatchedComputeTemplate(matcherConfig, cloudImageId, flavorId, false);
+            if (existing != null) {
+                existing.setPaaSResourceId(paaSResourceId);
+            } else {
+                matcherConfig.getMatchedComputeTemplates().add(
+                        new MatchedComputeTemplate(new ComputeTemplate(computeTemplate.getCloudImageId(), computeTemplate.getCloudImageFlavorId()),
+                                paaSResourceId));
+            }
+        }
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider != null) {
+            // Cloud may not be initialized yet
+            initializeMatcherConfig(paaSProvider, cloud);
+        }
+        alienDAO.save(matcherConfig);
     }
 }

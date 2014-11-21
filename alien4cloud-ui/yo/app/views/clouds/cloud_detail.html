@@ -207,11 +207,11 @@
         <tab-heading>
           {{'CLOUDS.TEMPLATE' | translate}}
           <span ng-if="tabs.newTemplates != 0" class="badge">
-    <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
+            <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
           </span>
           <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
-    <i class="fa fa-warning text-danger"></i>
-  </span>
+            <i class="fa fa-warning text-danger"></i>
+          </span>
         </tab-heading>
         <div class="row">
           <div class="col-md-6">
@@ -384,6 +384,53 @@
                 </div>
               </fieldset>
             </div>
+          </div>
+        </div>
+      </tab>
+      <tab heading="{{'CLOUDS.NETWORK' | translate}}" id="tab-clouds-network">
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-wifi"></i> {{'CLOUDS.NETWORK' | translate }}
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-network-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.GATE_WAY' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="network in cloud.networks" id='cloud_network_{{network.networkName}}'>
+                          <td>{{network.networkName}}</td>
+                          <td>{{network.cidr}}</td>
+                          <td>{{network.gatewayIp || '---'}}</td>
+                          <td>{{network.ipVersion}}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.networkName)"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-network-add-button" class="btn btn-success btn-sm pull-right" ng-click="openNetworkCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
           </div>
         </div>
       </tab>

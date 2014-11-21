@@ -2,8 +2,8 @@
 
 'use strict';
 
-angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService',
-  function(svgServiceFactory, topologyLayoutService) {
+angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'toscaService',
+  function(svgServiceFactory, topologyLayoutService, toscaService) {
 
     function TopologySvg (clickCallback, containerElement, isRuntime, nodeRenderer) {
       this.isGridDisplayed = false;
@@ -94,7 +94,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var connectorTargetShift = this.gridStep + 1;
         // compute the route path
         var route;
-        if (UTILS.isHostedOnRelationship(link.type, this.topology.relationshipTypes)) {
+        if (toscaService.isHostedOnType(link.type, this.topology.relationshipTypes) || toscaService.isNetworkType(link.type, this.topology.relationshipTypes)) {
           route = this.grid.route(link.source, link.target);
         } else {
           route = this.grid.route(new CONNECTORS.Point(link.source.x + connectorTargetShift, link.source.y), new CONNECTORS.Point(link.target.x - connectorTargetShift, link.target.y));
@@ -230,13 +230,13 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var newLinks = linkSelection.enter().append('path').attr('class', 'link');
         newLinks.each(function(link) {
           var linkPath = d3.select(this);
-          var isHostedOn = UTILS.isHostedOnRelationship(link.type, topology.relationshipTypes);
+          var isHostedOn = toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes);
           linkPath.classed('link-hosted-on', function() { return isHostedOn; })
             .classed('link-depends-on', function() { return !isHostedOn; })
             .attr('marker-start', function(link) {
-              return UTILS.isHostedOnRelationship(link.type, topology.relationshipTypes) ? 'url(#markerHosted)' : 'url(#markerDepends)';
+              return toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes) ? 'url(#markerHosted)' : 'url(#markerDepends)';
             }).attr('marker-end', function(link) {
-              return UTILS.isHostedOnRelationship(link.type, topology.relationshipTypes) ? 'url(#markerHostedTarget)' : 'url(#markerDependsEnd)';
+              return toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes) ? 'url(#markerHostedTarget)' : 'url(#markerDependsEnd)';
             });
           instance.drawLinkPath(linkPath);
         });

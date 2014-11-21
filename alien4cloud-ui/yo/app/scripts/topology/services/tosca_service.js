@@ -5,6 +5,7 @@ angular.module('alienUiApp').factory('toscaService',
   function() {
     var containerType = 'tosca.capabilities.Container';
     var hostedOnType = 'tosca.relationships.HostedOn';
+    var networkType = 'tosca.relations.Network';
 
     return {
       /**
@@ -26,6 +27,16 @@ angular.module('alienUiApp').factory('toscaService',
       */
       isHostedOnType: function(relationshipTypeName, relationshipTypes) {
         return this.isOneOfType([hostedOnType], relationshipTypeName, relationshipTypes);
+      },
+
+      /**
+       * Checks if a relationshipType is an instance of network.
+       *
+       * @param relationshipTypeName The name of the relationship type to check.
+       * @param relationshipTypes A map of available relationships types. It must contains the actual relationshipTypeName.
+       */
+      isNetworkType: function(relationshipTypeName, relationshipTypes) {
+        return this.isOneOfType([networkType], relationshipTypeName, relationshipTypes);
       },
 
       /**

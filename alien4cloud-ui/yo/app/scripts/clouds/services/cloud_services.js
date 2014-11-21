@@ -3,6 +3,34 @@
 angular.module('alienUiApp').factory('cloudServices', ['$resource',
   function($resource) {
 
+    var networkFormDescriptor = {
+      "_type": "complex",
+      "_order": [ "networkName", "ipVersion", "cidr", "gatewayIp"],
+      "_propertyType": {
+        "networkName": {
+          "_label": "CLOUDS.NETWORKS.NETWORK_NAME",
+          "_type": "string",
+          "_notNull": true
+        },
+        "ipVersion": {
+          "_label": "CLOUDS.NETWORKS.IP_VERSION",
+          "_type": "number",
+          "_notNull": true,
+          "_validValues": [4, 6]
+        },
+        "cidr": {
+          "_label": "CLOUDS.NETWORKS.CIDR",
+          "_type": "string",
+          "_notNull": true
+        },
+        "gatewayIp": {
+          "_label": "CLOUDS.NETWORKS.GATEWAY_IP",
+          "_type": "string",
+          "_notNull": false
+        }
+      }
+    };
+
     var flavorFormDescriptor = {
       "_type": "complex",
       "_order": [ "id", "numCPUs", "diskSize", "memSize"],
@@ -55,6 +83,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
+
+    var crudNetwork = $resource('rest/clouds/:id/networks/:networkId');
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
@@ -164,6 +194,9 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeFlavor': crudFlavor.remove,
       'addImage': crudImage.save,
       'removeImage': crudImage.remove,
+      'networkFormDescriptor': networkFormDescriptor,
+      'addNetwork': crudNetwork.save,
+      'removeNetwork': crudNetwork.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save
     };

@@ -25,6 +25,8 @@ public class CloudResourceMatcherConfig {
 
     private List<MatchedComputeTemplate> matchedComputeTemplates = Lists.newArrayList();
 
+    private List<MatchedNetwork> matchedNetworks = Lists.newArrayList();
+
     @JsonIgnore
     public Map<ComputeTemplate, String> getComputeTemplateMapping() {
         Map<ComputeTemplate, String> config = Maps.newHashMap();
