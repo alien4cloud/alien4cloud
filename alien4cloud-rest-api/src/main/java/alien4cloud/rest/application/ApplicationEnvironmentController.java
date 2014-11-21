@@ -141,7 +141,7 @@ public class ApplicationEnvironmentController {
                         .<Void> builder()
                         .data(null)
                         .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                                .message("Application with id <" + request.getApplicationId() + "> could not be found to update an environment").build())
+                        .message("Application with id <" + request.getApplicationId() + "> could not be found to update an environment").build())
                         .build();
             }
 
@@ -164,9 +164,9 @@ public class ApplicationEnvironmentController {
      */
     @ApiOperation(value = "Delete an application environment from its id", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Boolean> delete(@PathVariable String applicationEnvironmentId) {
+    public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
-        Application application = applicationService.getOrFail(applicationEnvironment.getApplicationId());
+        Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         applicationEnvironmentService.deleteByApplication(applicationEnvironment.getApplicationId());
         boolean deleted = applicationEnvironmentService.delete(applicationEnvironmentId);

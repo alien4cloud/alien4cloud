@@ -142,7 +142,7 @@ public class Context {
         groupIdToGroupNameMapping.set(new HashMap<String, String>());
         cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
-        applicationEnvironmentId = new ThreadLocal<>();
+        applicationEnvironmentId = new ThreadLocal<String>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();

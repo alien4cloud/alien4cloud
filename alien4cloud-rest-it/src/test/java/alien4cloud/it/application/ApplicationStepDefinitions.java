@@ -523,26 +523,47 @@ public class ApplicationStepDefinitions {
 
     @When("^I update the created application environment with values$")
     public void I_update_the_created_application_environment_with_values(DataTable appEnvAttributeValues) throws Throwable {
-
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        // appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
-        // appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
-        // appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
-        // appEnvRequest.setName(appEnvName);
-        // appEnvRequest.setDescription(appEnvDescription);
+        // applicationId required : by default keep the default applicationId unless it is defined
+        appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
+        String attribute = null, attributeValue = null;
         for (List<String> attributesToUpdate : appEnvAttributeValues.raw()) {
-            String attribute = attributesToUpdate.get(0);
-            switch (attribute) {
+            attribute = attributesToUpdate.get(0);
+            attributeValue = attributesToUpdate.get(1);
+            switch (attribute) {  
+            case "applicationId":
+            	appEnvRequest.setApplicationId(attributeValue);
+                break;
             case "name":
+                appEnvRequest.setName(attributeValue);
+                break;
+            case "cloudId":
+                appEnvRequest.setCloudId(attributeValue);
+                break;
+            case "description":
+                appEnvRequest.setDescription(attributeValue);
+                break;
+            case "environmentType":
+                appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(attributeValue));
                 break;
             default:
+            	log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object",attribute);
                 break;
             }
-            // String cloudImageFlavorId = resourceMatching.get(2);
-            // String nodeTemplate = resourceMatching.get(0);
-            // expectedCloudResourcesMatching.put(nodeTemplate, new ComputeTemplate(cloudImageId, cloudImageFlavorId));
         }
-
+        // send the update request
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon(
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId(),
+                        JsonUtil.toString(appEnvRequest)));
+    }
+    
+    @When("^I delete the registered application environment from its id$")
+    public void I_delete_the_registered_application_environment_from_its_id() throws Throwable {
+    	Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId()));
+        RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
+        Assert.assertNotNull(appEnvironment.getData());
     }
 
 }
