@@ -3,6 +3,9 @@ package alien4cloud.it.components;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.it.csars.CrudCSARSStepDefinition;
 import alien4cloud.rest.utils.JsonUtil;

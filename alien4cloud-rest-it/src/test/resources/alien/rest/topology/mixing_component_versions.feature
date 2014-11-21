@@ -2,12 +2,18 @@ Feature: Mixing multiple versions of components
 
   Background:
     Given I am authenticated with "COMPONENTS_MANAGER" role
-    And I upload the archive file that is "csar file containing base types"
-    And I upload the archive file that is "csar file containing java types"
-    And I upload the archive file that is "csar file containing base types V2"
-    And I upload the archive file that is "csar file containing java types V2"
-    And I upload the archive file that is "csar file containing base types V3"
-    And I upload the archive file that is "csar file containing java types V3"
+    And I upload the archive "normative types 1.0.0-wd03"
+    And I should receive a RestResponse with no error
+    And I upload the archive "normative types 1.0.1-wd03"
+    And I should receive a RestResponse with no error
+    And I upload the archive "normative types 1.0.2-wd03"
+    And I should receive a RestResponse with no error
+    And I upload the archive "sample java types 1.0"
+    And I should receive a RestResponse with no error
+    And I upload the archive "sample java types 2.0"
+    And I should receive a RestResponse with no error
+    And I upload the archive "sample java types 3.0"
+    And I should receive a RestResponse with no error
     And I am authenticated with "APPLICATIONS_MANAGER" role
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
 

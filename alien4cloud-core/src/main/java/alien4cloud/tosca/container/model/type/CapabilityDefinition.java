@@ -9,8 +9,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.component.model.IndexedCapabilityType;
+import alien4cloud.tosca.container.deserializer.BoundDeserializer;
+import alien4cloud.tosca.container.serializer.BoundSerializer;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormSuggestion;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Specifies the capabilities that the Node Type exposes.
@@ -33,6 +38,8 @@ public class CapabilityDefinition {
      * Specifies the upper boundary of client requirements the defined capability can serve. The default value for this attribute is one. A value of
      * 'unbounded' indicates that there is no upper boundary.
      */
+    @JsonDeserialize(using = BoundDeserializer.class)
+    @JsonSerialize(using = BoundSerializer.class)
     private int upperBound = Integer.MAX_VALUE;
 
     /** Map of properties value(s) to define the capability. */

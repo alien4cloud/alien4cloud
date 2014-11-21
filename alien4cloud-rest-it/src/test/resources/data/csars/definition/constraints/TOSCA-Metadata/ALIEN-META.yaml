@@ -1,9 +1,9 @@
 # Define the current archive id and version.
-name: "tosca-base-types"
+name: "constraint-sample"
 version: "1.0"
 license: "Apache v2.0"
-created_by: "FastConnect"
+created_by: "Alien 4 Cloud"
 
 # List of definitions file in the archive.
 definitions:
-    - /Definitions/tosca-base-types.yaml
+    - /Definitions/constraint-sample.yml

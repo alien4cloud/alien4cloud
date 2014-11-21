@@ -36,7 +36,7 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
             artifact.setArtifactType(type);
             return artifact;
         } else {
-            ParserUtils.addTypeError(node, context.getParsingErrors(), "Artifact name");
+            ParserUtils.addTypeError(node, context.getParsingErrors(), "Artifact definition");
         }
         return null;
     }

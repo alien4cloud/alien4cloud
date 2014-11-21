@@ -12,6 +12,7 @@ public enum RestErrorCode {
     // CSAR processing errors
     CSAR_PARSING_ERROR(200),
     CSAR_INVALID_ERROR(201),
+    CSAR_RELEASE_IMMUTABLE(202),
 
     // Indexing global error.
     INDEXING_SERVICE_ERROR(300),

@@ -18,13 +18,19 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
 import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.component.model.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.images.IImageDAO;
+import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Component
@@ -33,16 +39,29 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     private IGenericSearchDAO alienDAO;
     @Resource
     private ElasticSearchClient elasticSearchClient;
+    @Resource
+    private IImageDAO imageDAO;
 
     private void refreshIndexForSearching() {
         elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
     }
 
     @Override
-    public void indexElements(String archiveName, String archiveVersion, Map<String, IndexedToscaElement> archiveElements) {
-        for (IndexedToscaElement element : archiveElements.values()) {
-            saveAndUpdateHighestVersion(element);
+    public Map<String, IndexedToscaElement> getArchiveElements(String archiveName, String archiveVersion) {
+        GetMultipleDataResult<IndexedToscaElement> elements = alienDAO.find(
+                IndexedToscaElement.class,
+                MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" }, new String[][] { new String[] { archiveName },
+                        new String[] { archiveVersion } }), Integer.MAX_VALUE);
+
+        Map<String, IndexedToscaElement> elementsByIds = Maps.newHashMap();
+        if (elements == null) {
+            return elementsByIds;
         }
+
+        for (IndexedToscaElement element : elements.getData()) {
+            elementsByIds.put(element.getId(), element);
+        }
+        return elementsByIds;
     }
 
     @Override
@@ -130,5 +149,16 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         QueryBuilder matchIdQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + archiveVersion);
         QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", archiveName);
         boolQueryBuilder.should(QueryBuilders.boolQuery().must(matchIdQueryBuilder).must(matchArchiveNameQueryBuilder));
+    }
+
+    @Override
+    public void deleteElements(Collection<IndexedToscaElement> elements) {
+        for (IndexedToscaElement element : elements) {
+            Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
+            if (iconTag != null) {
+                imageDAO.delete(iconTag.getValue());
+            }
+            alienDAO.delete(IndexedToscaElement.class, element.getId());
+        }
     }
 }

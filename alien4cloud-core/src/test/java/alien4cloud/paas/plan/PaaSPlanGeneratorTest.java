@@ -24,7 +24,6 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.ToscaParserSimpleProfileWd03Test;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
@@ -57,7 +56,7 @@ public class PaaSPlanGeneratorTest {
         Path inputPath = Paths.get(CSAR_SOURCE_PATH + "tosca-base-types-1.0");
         Path zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
-        ParsingResult<ArchiveRoot> result = csarUploadService.upload(zipPath);
+        ParsingResult<?> result = csarUploadService.upload(zipPath);
         ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
         inputPath = Paths.get(CSAR_SOURCE_PATH + "tomcat-types-0.1");

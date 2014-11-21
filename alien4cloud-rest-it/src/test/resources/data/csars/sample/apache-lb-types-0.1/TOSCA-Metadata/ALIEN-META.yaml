@@ -1,0 +1,11 @@
+name: "apacheLB"
+version: "0.1"
+license: "Apache 2.0"
+created_by: "FastConnect"
+
+dependencies:
+  - name: tosca-normative-types
+    version: 1.0
+
+definitions:
+  - Definitions/apache-lb-types.yaml

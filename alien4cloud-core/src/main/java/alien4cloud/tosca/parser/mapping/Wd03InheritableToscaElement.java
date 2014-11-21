@@ -28,6 +28,7 @@ public abstract class Wd03InheritableToscaElement<T extends IndexedInheritableTo
     @Override
     public void initMapping() {
         super.initMapping();
+        quickMap("abstract");
         quickMap(typeReferenceParserFactory.getDerivedFromParser(elementClass), "derivedFrom");
         quickMap(new MapParser<PropertyDefinition>(new ValidatedNodeParser<PropertyDefinition>(validator, propertyDefinition.getParser()), "Properties"),
                 "properties");

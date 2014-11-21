@@ -39,6 +39,7 @@ public class ArchiveParserTest {
         // Update zip
         FileUtil.zip(normativeTypesPath, normativeTypesZipPath);
 
+        // Path normativeTypesZipPath = Paths.get("../target/it-artifacts/zipped/apache-lb-types-0.1.csar");
         ParsingResult<ArchiveRoot> parsingResult = archiveParser.parse(normativeTypesZipPath);
 
         displayErrors(parsingResult);
@@ -47,9 +48,24 @@ public class ArchiveParserTest {
     }
 
     private void displayErrors(ParsingResult<?> parsingResult) {
+        System.out.println("\n\nERRORS: \n");
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
             if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
+                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
+            }
+        }
+        System.out.println("\n\nWARNING: \n");
+        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
+            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
+            if (error.getErrorLevel().equals(ParsingErrorLevel.WARNING)) {
+                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
+            }
+        }
+        System.out.println("\n\nINFO: \n");
+        for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
+            ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
+            if (error.getErrorLevel().equals(ParsingErrorLevel.INFO)) {
                 System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
             }
         }

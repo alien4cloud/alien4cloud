@@ -99,6 +99,11 @@ public class ImageDAO extends ESGenericIdDAO implements IImageDAO {
         return findById(ImageData.class, getImageId(imageQuality, id));
     }
 
+    @Override
+    public void delete(String id) {
+        delete(ImageData.class, id);
+    }
+
     private String getImageId(final ImageQuality imageQuality, final String id) {
         switch (imageQuality) {
         case QUALITY_16:

@@ -3,11 +3,9 @@ Feature: Add / Remove / Edit scaling policy
 Background:
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I create a new application with name "scaled" and description "Pump it up." without errors
-    And I have a CSAR folder that is "containing base types"
-    And I upload it
+    And I upload the archive "normative types 1.0.0-wd03"
     And I should receive a RestResponse with no error
-    And I have a CSAR folder that is "containing java types"
-    And I upload it
+    And I upload the archive "sample java types 1.0"
     And I should receive a RestResponse with no error
     And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I have added a node template "Java" related to the "fastconnect.nodes.Java:1.0" node type

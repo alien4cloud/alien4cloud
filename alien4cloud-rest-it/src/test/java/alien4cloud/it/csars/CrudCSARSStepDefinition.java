@@ -1,7 +1,5 @@
 package alien4cloud.it.csars;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -16,7 +14,6 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-@Slf4j
 public class CrudCSARSStepDefinition {
 
     private String CURRENT_CSAR_NAME;
@@ -95,15 +92,15 @@ public class CrudCSARSStepDefinition {
 
     @And("^I should not have active deployment for this CSAR$")
     public void I_should_not_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
+        RestResponse<Deployment> dep = JsonUtil.read(
+                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
         Assert.assertNull(dep.getData());
     }
 
     @And("^I should have active deployment for this CSAR$")
     public void I_should_have_active_deployment_for_this_CSAR() throws Throwable {
-        RestResponse<Deployment> dep = JsonUtil.read(Context.getRestClientInstance().get(
-                "/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
+        RestResponse<Deployment> dep = JsonUtil.read(
+                Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION + "/active-deployment"), Deployment.class);
         Assert.assertNotNull(dep.getData());
         Assert.assertNotNull(dep.getData().getId());
         Assert.assertNotNull(dep.getData().getCloudId());

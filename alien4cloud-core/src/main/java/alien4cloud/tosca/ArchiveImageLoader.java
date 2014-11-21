@@ -61,7 +61,7 @@ public class ArchiveImageLoader {
         for (Map.Entry<String, ? extends IndexedInheritableToscaElement> element : toscaInheritableElement.entrySet()) {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();
-                Tag iconTag = tags.get(tags.indexOf(new Tag(ALIEN_ICON_TAG, null)));
+                Tag iconTag = ArchiveImageLoader.getIconTag(tags);
                 if (iconTag != null) {
                     FileSystem csarFS = null;
                     Path iconPath = null;
@@ -107,5 +107,19 @@ public class ArchiveImageLoader {
                 }
             }
         }
+    }
+
+    /**
+     * Get the icon tag from a tag list.
+     * 
+     * @param tags The list of tags in which to search for the icon tag.
+     * @return The icon tag or null if the tag cannot be found.
+     */
+    public static Tag getIconTag(List<Tag> tags) {
+        int iconTagIndex = tags.indexOf(new Tag(ALIEN_ICON_TAG, null));
+        if (iconTagIndex < 0) {
+            return null;
+        }
+        return tags.get(iconTagIndex);
     }
 }

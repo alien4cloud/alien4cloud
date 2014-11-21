@@ -1,7 +1,4 @@
-
-name: alien-java-types
-namespace: alien4cloud
-description: Define types for java.
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
 node_types:
   fastconnect.nodes.War:
@@ -12,8 +9,8 @@ node_types:
       version:
         type: version
     artifacts:
-      war:
-        artifact_type: tosca.artifacts.WarFile
+      - war:
+        type: tosca.artifacts.File
 
   fastconnect.nodes.Java:
     abstract: true
@@ -46,9 +43,8 @@ node_types:
       Installation of Oracle JVM thanks to a RPM command.
     interfaces:
       lifecycle:
-        operations:
-          create: /scripts/install.sh
-          delete: /scripts/uninstall.sh
+        create: /scripts/install.sh
+        delete: /scripts/uninstall.sh
 
   fastconnect.nodes.JavaChef:
     derived_from: fastconnect.nodes.Java
@@ -56,9 +52,8 @@ node_types:
       Installation of Oracle JVM thanks to a Chef recipe. A Chef server is required.
     interfaces:
       lifecycle:
-        operations:
-          create: /scripts/install.sh
-          delete: /scripts/uninstall.sh
+        create: /scripts/install.sh
+        delete: /scripts/uninstall.sh
 
   fastconnect.nodes.JavaPuppet:
     derived_from: fastconnect.nodes.Java
@@ -66,33 +61,8 @@ node_types:
       Installation of Oracle JVM thanks to a Puppet recipe. A Puppet server is required.
     interfaces:
       lifecycle:
-        operations:
-          create: /scripts/install.sh
-          delete: /scripts/uninstall.sh
-
-  fastconnect.nodes.Tomcat:
-    abstract: true
-    description: >
-      A Tomcat application server.
-    tags:
-      icon: /images/tomcat.png
-    derived_from: tosca.nodes.ApplicationServer
-
-  fastconnect.nodes.TomcatRPM:
-    description: >
-      A Tomcat application server implemented thanks to a RPM install.
-    derived_from: fastconnect.nodes.Tomcat
-
-  fastconnect.nodes.TomcatChef:
-    description: >
-      A Tomcat application server implemented thanks to a Chef install.
-    derived_from: fastconnect.nodes.Tomcat
-
-  fastconnect.nodes.TomcatPuppet:
-    abstract: false
-    description: >
-      A Tomcat application server implemented thanks to a Puppet install.
-    derived_from: fastconnect.nodes.Tomcat
+        create: /scripts/install.sh
+        delete: /scripts/uninstall.sh
 
 capability_types:
   tosca.capabilities.Java:

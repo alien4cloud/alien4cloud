@@ -1,0 +1,11 @@
+node_templates:
+  compute_tomcat:
+    type: tosca.nodes.Compute
+    properties:
+      os_type: linux
+      os_distribution: Ubuntu
+      os_version: 14.0
+
+dependencies:
+  - name: tosca-normative-types
+    version: 1.0

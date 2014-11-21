@@ -15,9 +15,10 @@ Background:
   And I add a role "COMPONENTS_MANAGER" to user "sangoku"
   And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
   And I am authenticated with user named "sangoku"
-  And I upload the archive file that is "containing default tosca base types"
-  And I upload the archive file that is "containing default java types"
-  And I upload the archive file that is "containing default apacheLB types"
+  And I upload the archive "normative types 1.0.0-wd03"
+  And I should receive a RestResponse with no error
+  And I upload the archive "sample apache lb types 0.1"
+  And I should receive a RestResponse with no error
   Given I have an application "ALIEN" with a topology containing a nodeTemplate "apacheLBGroovy" related to "fastconnect.nodes.apacheLBGroovy:0.1"
   And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
   And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"

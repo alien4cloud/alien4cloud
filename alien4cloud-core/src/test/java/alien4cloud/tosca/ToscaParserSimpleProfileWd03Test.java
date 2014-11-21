@@ -288,7 +288,7 @@ public class ToscaParserSimpleProfileWd03Test {
         // nodeType.get
     }
 
-    public static void assertNoBlocker(ParsingResult<ArchiveRoot> parsingResult) {
+    public static void assertNoBlocker(ParsingResult<?> parsingResult) {
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
             if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {

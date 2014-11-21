@@ -1,0 +1,13 @@
+# This archive contains normative types.
+name: "ubuntu-types"
+version: "0.1"
+license: "Apache v2.0"
+created_by: "FastConnect"
+
+dependencies:
+  - name: tosca-normative-types
+    version: 1.0
+
+# List of definitions file in the archive.
+definitions:
+    - /ubuntu-types.yml

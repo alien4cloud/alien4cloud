@@ -1,0 +1,111 @@
+
+name: calm-apacheLB
+namespace: calm
+description: apacheLB recipe.
+
+node_types:
+  fastconnect.nodes.apacheLB:
+    abstract : true
+    derived_from: tosca.nodes.WebServer
+    description: >
+      This is the definition of the Apache LB Recipe.
+      This is based on Cloudify Apache LB groovy recipe.
+    tags:
+      calm_icon: /images/apache.png
+    properties:
+      version:
+        type: version
+        required: true
+    requirements:
+      host:
+        type: tosca.capabilities.Container
+
+  fastconnect.nodes.apacheLBGroovy:
+    derived_from: fastconnect.nodes.apacheLB
+    description: >
+      Installation of apacheLB using Cloudify scripts
+    properties:
+      version:
+        type: version
+        default: 2
+        constraints:
+          - equal: 2
+    interfaces:
+      lifecycle:
+        operations:
+          create:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_installCalm.groovy"
+          start:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_start.groovy"
+          stop:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_stop.groovy"
+          delete:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "scripts/apacheLB_uninstall.groovy"
+      monitor:
+        operations:
+          locator: "scripts/monitor/locator.groovy"
+          startDetection: "scripts/monitor/startDetection.groovy"
+      custom:
+        operations:
+          addNode:
+            implementation_artifact:
+              artifact_ref: "scripts/apacheLB_addNode.groovy"
+            input_parameters:
+              node:
+                type: string
+              instanceId:
+                type: integer
+          removeNode: "scripts/apacheLB_removeNode.groovy"
+    requirements:
+      httpEndpoint:
+        type: calm.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: scripts
+
+relationship_types:
+  fastconnect.relationships.cloudify.ConnectsToApacheLB:
+    derived_from: tosca.relationships.ConnectsTo
+    description: >
+      Connects a http endpoint to an ApacheLB
+    tags:
+      marurity: draft
+    valid_sources: [ calm.capabilities.HttpEndpoint ]
+    valid_targets: [ calm.capabilities.HttpEndpoint ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        operations:
+          post_configure_target:
+            implementation_artifact:
+              artifact_type: tosca.artifacts.GroovyScript
+              artifact_ref: "connecttoscript/invokeAddNode.groovy"
+    artifacts:
+      scripts:
+        artifact_type: fastconnect.artifacts.ResourceDirectory
+        artifact_ref: connecttoscript
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+  fastconnect.artifacts.ResourceDirectory:
+    description: A directory that contains resources files that are required for a node to be deployed.
+
+capability_types:
+  calm.capabilities.HttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint
+    properties:
+      port:
+        type: integer
+      secured_port:
+        type: integer
