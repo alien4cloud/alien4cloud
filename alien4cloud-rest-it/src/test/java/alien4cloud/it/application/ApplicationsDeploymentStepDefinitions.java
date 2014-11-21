@@ -346,7 +346,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/deployments/" + deploymentId + "/undeploy"));
     }
 
-    private Map<String, StompConnection> stompConnections = Maps.newHashMap();
+    private StompConnection stompConnection = null;
 
     private Map<String, IStompDataFuture> stompDataFutures = Maps.newHashMap();
 
@@ -361,33 +361,31 @@ public class ApplicationsDeploymentStepDefinitions {
         Map<String, String> headers = Maps.newHashMap();
         Header cookieHeader = Context.getRestClientInstance().getCookieHeader();
         headers.put(cookieHeader.getName(), cookieHeader.getValue());
-        StompConnection connection = null;
+        String topic = null;
         switch (eventTopic) {
         case "deployment-status":
-            String topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
                     + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT, topic);
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSDeploymentStatusMonitorEvent.class));
+            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
             break;
         case "instance-state":
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT,
-                    "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
-                            + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase());
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStateMonitorEvent.class));
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+                    + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
+            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
             break;
         case "storage":
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT,
-                    "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
-                            + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase());
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStorageMonitorEvent.class));
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+                    + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
+            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
             break;
         }
-        this.stompConnections.put(eventTopic, connection);
     }
 
     @And("^I should receive \"([^\"]*)\" events that containing$")
     public void I_should_receive_events_that_containing(String eventTopic, List<String> expectedEvents) throws Throwable {
-        Assert.assertTrue(this.stompConnections.containsKey(eventTopic));
         Assert.assertTrue(this.stompDataFutures.containsKey(eventTopic));
         List<String> actualEvents = Lists.newArrayList();
         try {
@@ -417,7 +415,7 @@ public class ApplicationsDeploymentStepDefinitions {
             Assert.assertEquals(expectedEvents.size(), actualEvents.size());
             Assert.assertArrayEquals(expectedEvents.toArray(), actualEvents.toArray());
         } finally {
-            this.stompConnections.remove(eventTopic).close();
+            this.stompConnection.close();
             this.stompDataFutures.remove(eventTopic);
         }
     }
