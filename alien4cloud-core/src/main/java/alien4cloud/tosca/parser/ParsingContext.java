@@ -10,10 +10,13 @@ import com.google.common.collect.Lists;
 @Getter
 @Setter
 public class ParsingContext {
-    private final String fileName;
-    private final List<ParsingError> parsingErrors = Lists.newArrayList();
+    private String fileName;
+    private List<ParsingError> parsingErrors = Lists.newArrayList();
     /** If parsing triggers parsing of other related yaml files. */
-    private final List<ParsingResult<?>> subResults = Lists.newArrayList();
+    private List<ParsingResult<?>> subResults = Lists.newArrayList();
+
+    public ParsingContext() {
+    }
 
     public ParsingContext(String fileName) {
         this.fileName = fileName;

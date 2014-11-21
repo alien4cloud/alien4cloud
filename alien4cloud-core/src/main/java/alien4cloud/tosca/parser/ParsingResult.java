@@ -10,4 +10,7 @@ import lombok.Setter;
 public class ParsingResult<T> {
     private T result;
     private ParsingContext context;
+
+    public ParsingResult() {
+    }
 }

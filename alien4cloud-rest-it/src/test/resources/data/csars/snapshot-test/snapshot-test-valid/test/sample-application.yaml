@@ -7,5 +7,5 @@ node_templates:
       os_version: 14.0
 
 dependencies:
-  - name: tosca-normative-types
+  - name: tosca-base-types
     version: 1.0

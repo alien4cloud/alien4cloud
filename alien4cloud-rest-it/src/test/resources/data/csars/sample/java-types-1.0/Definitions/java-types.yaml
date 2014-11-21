@@ -1,5 +1,9 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
+description: >
+  Alien 4 Cloud test types: Dummy definitions of java related types.
+  This is the description ?
+
 node_types:
   fastconnect.nodes.War:
     derived_from: tosca.nodes.SoftwareComponent
@@ -10,7 +14,7 @@ node_types:
         type: version
     artifacts:
       - war:
-        type: tosca.artifacts.File
+        type: tosca.artifacts.WarFile
 
   fastconnect.nodes.Java:
     abstract: true
@@ -63,6 +67,30 @@ node_types:
       lifecycle:
         create: /scripts/install.sh
         delete: /scripts/uninstall.sh
+
+  fastconnect.nodes.Tomcat:
+    abstract: true
+    description: >
+      A Tomcat application server.
+    tags:
+      icon: /images/tomcat.png
+    derived_from: tosca.nodes.ApplicationServer
+
+  fastconnect.nodes.TomcatRPM:
+    description: >
+      A Tomcat application server implemented thanks to a RPM install.
+    derived_from: fastconnect.nodes.Tomcat
+
+  fastconnect.nodes.TomcatChef:
+    description: >
+      A Tomcat application server implemented thanks to a Chef install.
+    derived_from: fastconnect.nodes.Tomcat
+
+  fastconnect.nodes.TomcatPuppet:
+    abstract: false
+    description: >
+      A Tomcat application server implemented thanks to a Puppet install.
+    derived_from: fastconnect.nodes.Tomcat
 
 capability_types:
   tosca.capabilities.Java:

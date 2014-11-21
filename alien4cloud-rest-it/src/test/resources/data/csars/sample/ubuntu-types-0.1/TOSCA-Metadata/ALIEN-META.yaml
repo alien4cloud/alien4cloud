@@ -5,7 +5,7 @@ license: "Apache v2.0"
 created_by: "FastConnect"
 
 dependencies:
-  - name: tosca-normative-types
+  - name: tosca-base-types
     version: 1.0
 
 # List of definitions file in the archive.

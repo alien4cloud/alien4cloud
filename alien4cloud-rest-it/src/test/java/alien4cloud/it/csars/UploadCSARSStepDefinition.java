@@ -31,14 +31,14 @@ public class UploadCSARSStepDefinition {
     private static final Map<String, Path> conditionToPath = Maps.newHashMap();
     static {
         try {
-            Files.deleteIfExists(ARCHIVES_TARGET_PATH);
+            FileUtil.delete(ARCHIVES_TARGET_PATH);
         } catch (IOException e) {
             log.error("Failed to delete zipped archives repository.", e);
         }
         // Zip all test archive folders so they are ready to be uploaded.
-        conditionToPath.put("normative types 1.0.0-wd03", Paths.get("src/test/resources/data/csars/tosca-normative-types-1.0.0.wd03"));
-        conditionToPath.put("normative types 1.0.1-wd03", Paths.get("src/test/resources/data/csars/tosca-normative-types-1.0.1.wd03"));
-        conditionToPath.put("normative types 1.0.2-wd03", Paths.get("src/test/resources/data/csars/tosca-normative-types-1.0.2.wd03"));
+        conditionToPath.put("tosca base types 1.0", Paths.get("src/test/resources/data/csars/tosca-base-types-1.0"));
+        conditionToPath.put("tosca base types 2.0", Paths.get("src/test/resources/data/csars/tosca-base-types-2.0"));
+        conditionToPath.put("tosca base types 3.0", Paths.get("src/test/resources/data/csars/tosca-base-types-3.0"));
         conditionToPath.put("sample java types 1.0", Paths.get("src/test/resources/data/csars/sample/java-types-1.0"));
         conditionToPath.put("sample java types 2.0", Paths.get("src/test/resources/data/csars/sample/java-types-2.0"));
         conditionToPath.put("sample java types 3.0", Paths.get("src/test/resources/data/csars/sample/java-types-3.0"));
@@ -53,6 +53,7 @@ public class UploadCSARSStepDefinition {
         conditionToPath.put("invalid (ALIEN-META.yaml fail validation)", Paths.get("src/test/resources/data/csars/metadata/validationFailure"));
         conditionToPath.put("invalid (icon not found)", Paths.get("src/test/resources/data/csars/icon/missing"));
         conditionToPath.put("invalid (icon invalid)", Paths.get("src/test/resources/data/csars/icon/erroneous"));
+        conditionToPath.put("snapshot", Paths.get("src/test/resources/data/csars/snapshot"));
         conditionToPath.put("relationship test types", Paths.get("src/test/resources/data/csars/relationship-test-types"));
         conditionToPath.put("valid-csar-with-test", Paths.get("src/test/resources/data/csars/snapshot-test/snapshot-test-valid"));
         conditionToPath.put("csar-test-no-topology", Paths.get("src/test/resources/data/csars/snapshot-test/missing-topology-yaml"));
@@ -85,17 +86,13 @@ public class UploadCSARSStepDefinition {
 
     }
 
-    public static void main(String[] args) {
-        System.out.println("yeah");
-    }
-
     private Path csarPath = Paths.get(Context.getInstance().getTmpDirectory().toString(), "csar.csar");
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
 
     @Given("^I upload the archive \"([^\"]*)\"$")
     public void uploadArchive(String key) throws Throwable {
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(conditionToPath.get(key))));
+        Path archive = conditionToPath.get(key);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/csars", "file", Files.newInputStream(archive)));
     }
 
     @Then("^I should receive a RestResponse with an error code (\\d+) and (\\d+) compilation errors in (\\d+) file\\(s\\)$")

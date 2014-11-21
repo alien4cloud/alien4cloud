@@ -28,7 +28,6 @@ public enum RestErrorCode {
 
     // Repository service error
     REPOSITORY_SERVICE_ERROR(400),
-    REPOSITORY_CSAR_ALREADY_EXISTED_ERROR(401),
 
     // Global errors
     UNCATEGORIZED_ERROR(500),

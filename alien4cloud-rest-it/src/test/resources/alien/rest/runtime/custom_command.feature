@@ -15,7 +15,7 @@ Background:
   And I add a role "COMPONENTS_MANAGER" to user "sangoku"
   And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
   And I am authenticated with user named "sangoku"
-  And I upload the archive "normative types 1.0.0-wd03"
+  And I upload the archive "tosca base types 1.0"
   And I should receive a RestResponse with no error
   And I upload the archive "sample apache lb types 0.1"
   And I should receive a RestResponse with no error

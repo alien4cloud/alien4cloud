@@ -2,7 +2,7 @@ Feature: Creating a new application based on a topology template
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I upload the archive "normative types 1.0.0-wd03"
+  And I upload the archive "tosca base types 1.0"
   And I should receive a RestResponse with no error
   And I upload the archive "sample java types 1.0"
   And I should receive a RestResponse with no error

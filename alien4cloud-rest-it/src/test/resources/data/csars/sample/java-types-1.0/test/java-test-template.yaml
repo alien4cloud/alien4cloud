@@ -1,6 +1,6 @@
 
-name: calm-java-types
-namespace: calm
+name: alien-java-types
+namespace: alien
 description: Define types for java.
 
 node_types:
@@ -31,21 +31,6 @@ node_types:
         operations:
           create: /scripts/install.sh
           delete: /scripts/uninstall.sh
-
-requirement_types:
-  tosca.requirements.Java:
-    required_capability_type: tosca.capabilities.Java
-    properties:
-      version:
-        type: string
-      update:
-        type: string
-      vendor:
-        type: string
-      os_name:
-        type: string
-      os_arch:
-        type: string
 
 capability_types:
   tosca.capabilities.Java:

@@ -4,7 +4,7 @@ Background:
   Given I am authenticated with "COMPONENTS_MANAGER" role
 
 Scenario: Upload valid CSAR
-  Given I upload the archive "valid"
+  Given I upload the archive "tosca base types 1.0"
   Then I should receive a RestResponse with no error
 
 Scenario: Upload invalid CSAR (uploaded file is not a zipped file)
@@ -44,14 +44,14 @@ Scenario: Upload invalid (icon invalid)
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
 Scenario: Upload CSAR that already exist in the repository
-  Given I upload the archive "valid"
+  Given I upload the archive "tosca base types 1.0"
   Then I should receive a RestResponse with no error
-  When I upload the archive "valid"
-  Then I should receive a RestResponse with an error code 401
+  When I upload the archive "tosca base types 1.0"
+  Then I should receive a RestResponse with an error code 502
 
 Scenario: Upload invalid CSAR (dependency in definition do not exist)
-  Given I upload the archive "invalid (dependency in definition do not exist)"
-  Then I should receive a RestResponse with an error code 201 and 3 compilation errors in 1 file(s)
+  Given I upload the archive "sample java types 1.0"
+  Then I should receive a RestResponse with an error code 200 and 3 compilation errors in 1 file(s)
 
 Scenario: Upload Snapshot version CSAR that already exist in the repository
   Given I upload the archive "snapshot"
@@ -61,9 +61,9 @@ Scenario: Upload Snapshot version CSAR that already exist in the repository
 
 Scenario: Upload Snapshot version CSAR that already exist in the repository and check creation / lastUpdate dates
   Given I upload the archive "snapshot"
-  When I try to get a component with id "test.java.app:1.0-SNAPSHOT"
+  When I try to get a component with id "tosca.nodes.Compute:1.0-SNAPSHOT"
   Then I should have last update date equals to creation date
   When I upload the archive "snapshot"
   Then I should receive a RestResponse with no error
-  When I try to get a component with id "test.java.app:1.0-SNAPSHOT"
+  When I try to get a component with id "tosca.nodes.Compute:1.0-SNAPSHOT"
   Then I should have last update date greater than creation date

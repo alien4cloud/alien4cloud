@@ -2,7 +2,7 @@ Feature: CSAR snapshot tests
 
   Background:
     Given I am authenticated with "COMPONENTS_MANAGER" role
-    And I upload the archive "normative types 1.0.0-wd03"
+    And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     Given I am authenticated with "ADMIN" role
     And There are these users in the system

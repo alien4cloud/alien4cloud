@@ -3,7 +3,7 @@ Feature: Add / Remove / Edit scaling policy
 Background:
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I create a new application with name "scaled" and description "Pump it up." without errors
-    And I upload the archive "normative types 1.0.0-wd03"
+    And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     And I upload the archive "sample java types 1.0"
     And I should receive a RestResponse with no error

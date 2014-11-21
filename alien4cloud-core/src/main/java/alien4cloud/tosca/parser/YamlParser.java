@@ -51,8 +51,8 @@ public abstract class YamlParser<T> {
         try {
             sreader = new StreamReader(new UnicodeReader(Files.newInputStream(yamlPath)));
         } catch (IOException e1) {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null,
-                    null, yamlPath.toString()));
+            throw new ParsingException(yamlPath.toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null,
+                    yamlPath.toString()));
         }
         Composer composer = new Composer(new ParserImpl(sreader), new Resolver());
         Node rootNode = null;

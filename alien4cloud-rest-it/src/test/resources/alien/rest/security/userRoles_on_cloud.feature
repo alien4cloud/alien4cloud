@@ -15,7 +15,7 @@ Feature: Deployment on cloud must be secured
     And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud"
     And I match the template composed of image "Ubuntu Trusty" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_LINUX"
     And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
-    And I upload the archive "normative types 1.0.0-wd03"
+    And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
 
   Scenario: Deploy on a cloud without given right must fail

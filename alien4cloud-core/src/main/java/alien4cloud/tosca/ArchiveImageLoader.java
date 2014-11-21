@@ -116,6 +116,9 @@ public class ArchiveImageLoader {
      * @return The icon tag or null if the tag cannot be found.
      */
     public static Tag getIconTag(List<Tag> tags) {
+        if (tags == null) {
+            return null;
+        }
         int iconTagIndex = tags.indexOf(new Tag(ALIEN_ICON_TAG, null));
         if (iconTagIndex < 0) {
             return null;

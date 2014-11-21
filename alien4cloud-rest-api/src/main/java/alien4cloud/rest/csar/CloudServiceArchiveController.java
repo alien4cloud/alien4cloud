@@ -125,10 +125,11 @@ public class CloudServiceArchiveController {
             }
             return RestResponseBuilder.<ParsingResult<Csar>> builder().error(error).data(result).build();
         } catch (ParsingException e) {
-            log.error("Error happened while parsing csar file", e);
-            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(csar.getOriginalFilename()));
+            log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
+            String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
+            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(fileName));
             result.getContext().getParsingErrors().addAll(e.getParsingErrors());
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build()).data(result)
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(result)
                     .build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
@@ -337,6 +338,9 @@ public class CloudServiceArchiveController {
                 Path myCsar = alienRepository.getCSAR(csarName, csarVersion);
                 FileSystem csarFS = FileSystems.newFileSystem(myCsar, null);
                 Path definitionsFolderPath = csarFS.getPath(DEFAULT_TEST_FOLDER);
+                if (!Files.exists(definitionsFolderPath)) {
+                    throw new NotFoundException("yaml template should exist in folder [" + DEFAULT_TEST_FOLDER + "]");
+                }
                 // read the first yaml file found (only one currently)
                 YamlTestFileVisitor testFileExtractor = new YamlTestFileVisitor();
                 Files.walkFileTree(definitionsFolderPath, testFileExtractor);

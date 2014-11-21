@@ -77,3 +77,7 @@ capability_types:
         type: string
       os_arch:
         type: string
+
+artifact_types:
+  tosca.artifacts.File:
+    description: A file.

@@ -5,7 +5,7 @@ Background:
 	And I upload a plugin
 	And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
 	And I enable the cloud "Mount doom cloud"
-	And I upload the archive "normative types 1.0.0-wd03"
+	And I upload the archive "tosca base types 1.0"
 	And I should receive a RestResponse with no error
 	And There are these users in the system
 		| sangoku |
