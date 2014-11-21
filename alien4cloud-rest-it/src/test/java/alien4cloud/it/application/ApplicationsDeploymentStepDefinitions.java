@@ -362,23 +362,23 @@ public class ApplicationsDeploymentStepDefinitions {
         Header cookieHeader = Context.getRestClientInstance().getCookieHeader();
         headers.put(cookieHeader.getName(), cookieHeader.getValue());
         String topic = null;
+        if (stompConnection == null) {
+            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
+        }
         switch (eventTopic) {
         case "deployment-status":
             topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
                     + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
-            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
             break;
         case "instance-state":
             topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
                     + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
-            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
             break;
         case "storage":
             topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
                     + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
-            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
             break;
         }
@@ -415,8 +415,11 @@ public class ApplicationsDeploymentStepDefinitions {
             Assert.assertEquals(expectedEvents.size(), actualEvents.size());
             Assert.assertArrayEquals(expectedEvents.toArray(), actualEvents.toArray());
         } finally {
-            this.stompConnection.close();
             this.stompDataFutures.remove(eventTopic);
+            if (this.stompDataFutures.isEmpty()) {
+                this.stompConnection.close();
+                this.stompConnection = null;
+            }
         }
     }
 
