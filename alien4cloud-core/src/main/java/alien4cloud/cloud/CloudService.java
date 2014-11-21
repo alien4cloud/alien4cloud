@@ -9,10 +9,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.cloud.MatchedNetwork;
 import lombok.extern.slf4j.Slf4j;
 
-import org.aspectj.weaver.ast.Not;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
@@ -32,6 +30,7 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.MatchedNetwork;
 import alien4cloud.model.cloud.Network;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
@@ -681,9 +680,12 @@ public class CloudService {
 
     private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
         Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
-
-        for(MatchedNetwork network : networks) {
-            if(network.getNetwork().getNetworkName().equals(networkName)) {
+        while (networkIterator.hasNext()) {
+            MatchedNetwork network = networkIterator.next();
+            if (network.getNetwork().getNetworkName().equals(networkName)) {
+                if (take) {
+                    networkIterator.remove();
+                }
                 return network;
             }
         }
@@ -712,13 +714,11 @@ public class CloudService {
         if (paaSResourceId == null) {
             getMatchedNetwork(matcherConfig, networkName, true);
         } else {
-            MatchedComputeTemplate existing = getMatchedComputeTemplate(matcherConfig, cloudImageId, flavorId, false);
+            MatchedNetwork existing = getMatchedNetwork(matcherConfig, networkName, false);
             if (existing != null) {
                 existing.setPaaSResourceId(paaSResourceId);
             } else {
-                matcherConfig.getMatchedComputeTemplates().add(
-                        new MatchedComputeTemplate(new ComputeTemplate(computeTemplate.getCloudImageId(), computeTemplate.getCloudImageFlavorId()),
-                                paaSResourceId));
+                matcherConfig.getMatchedNetworks().add(new MatchedNetwork(foundNetwork, paaSResourceId));
             }
         }
         IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());

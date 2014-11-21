@@ -13,15 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.Network;
 import alien4cloud.tosca.ToscaService;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
+import alien4cloud.tosca.container.model.NormativeNetworkConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.VersionUtil;
@@ -56,15 +57,15 @@ public class CloudResourceMatcherService {
         if (cloudResourceMatcherConfig != null) {
             computeTemplateMapping = cloudResourceMatcherConfig.getComputeTemplateMapping();
         }
-        Map<String, NodeTemplate> matchableNodes = getMatchableTemplates(topology, types);
+        MatchableTemplates matchableNodes = getMatchableTemplates(topology, types);
         Map<String, List<ComputeTemplate>> matchResult = Maps.newHashMap();
         Set<String> imageIds = Sets.newHashSet();
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
-        for (Map.Entry<String, NodeTemplate> templateEntry : matchableNodes.entrySet()) {
+        for (Map.Entry<String, NodeTemplate> computeTemplateEntry : matchableNodes.computeTemplates.entrySet()) {
             List<ComputeTemplate> computeTemplates = Lists.newArrayList();
-            List<CloudImage> images = getAvailableImagesForCompute(cloud, templateEntry.getValue(), types.get(templateEntry.getKey()));
+            List<CloudImage> images = getAvailableImagesForCompute(cloud, computeTemplateEntry.getValue(), types.get(computeTemplateEntry.getKey()));
             for (CloudImage image : images) {
-                List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, templateEntry.getValue(), image);
+                List<CloudImageFlavor> flavors = getAvailableFlavorForCompute(cloud, computeTemplateEntry.getValue(), image);
                 boolean templateAdded = false;
                 for (CloudImageFlavor flavor : flavors) {
                     ComputeTemplate template = new ComputeTemplate(image.getId(), flavor.getId());
@@ -80,10 +81,41 @@ public class CloudResourceMatcherService {
                     imageIds.add(image.getId());
                 }
             }
-            matchResult.put(templateEntry.getKey(), computeTemplates);
+            matchResult.put(computeTemplateEntry.getKey(), computeTemplates);
+        }
+        for (Map.Entry<String, NodeTemplate> networkEntry : matchableNodes.networkTemplates.entrySet()) {
+            networkEntry.getKey();
+            networkEntry.getValue();
         }
         Map<String, CloudImage> imageMap = cloudImageService.getMultiple(imageIds);
         return new CloudResourceTopologyMatchResult(imageMap, flavorMap, matchResult);
+    }
+
+    private Set<Network> getAvailableNetworks(Cloud cloud, NodeTemplate nodeTemplate) {
+        Map<String, String> networkProperties = nodeTemplate.getProperties();
+        Set<Network> existingNetworks = cloud.getNetworks();
+        Set<Network> eligibleNetworks = Sets.newHashSet();
+        for (Network network : existingNetworks) {
+            if (!match(networkProperties, NormativeNetworkConstants.CIDR, network.getCidr(), new TextValueParser(), new EqualMatcher<String>())) {
+                continue;
+            }
+            if (!match(networkProperties, NormativeNetworkConstants.IP_VERSION, network.getIpVersion(), new IntegerValueParser(), new EqualMatcher<Integer>())) {
+                continue;
+            }
+            if (!match(networkProperties, NormativeNetworkConstants.GATEWAY_IP, network.getGatewayIp(), new TextValueParser(), new EqualMatcher<String>())) {
+                continue;
+            }
+            if (!match(networkProperties, NormativeNetworkConstants.GATEWAY_IP, network.getGatewayIp(), new TextValueParser(), new EqualMatcher<String>())) {
+                continue;
+            }
+        }
+    }
+
+    private static class MatchableTemplates {
+
+        private Map<String, NodeTemplate> computeTemplates = Maps.newHashMap();
+
+        private Map<String, NodeTemplate> networkTemplates = Maps.newHashMap();
     }
 
     /**
@@ -92,16 +124,18 @@ public class CloudResourceMatcherService {
      * @param topology the topology to check
      * @return all node template that must be matched
      */
-    private Map<String, NodeTemplate> getMatchableTemplates(Topology topology, Map<String, IndexedNodeType> types) {
+    private MatchableTemplates getMatchableTemplates(Topology topology, Map<String, IndexedNodeType> types) {
         Map<String, NodeTemplate> allNodeTemplates = topology.getNodeTemplates();
-        Map<String, NodeTemplate> matchableNodeTemplates = Maps.newHashMap();
+        MatchableTemplates matchableNodeTemplates = new MatchableTemplates();
         if (allNodeTemplates == null) {
             return matchableNodeTemplates;
         }
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : allNodeTemplates.entrySet()) {
             if (toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
-                // TODO check also network and other cloud related resources ...
-                matchableNodeTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
+                matchableNodeTemplates.computeTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
+            }
+            if (toscaService.isOfType(NormativeNetworkConstants.NETWORK_TYPE, types.get(nodeTemplateEntry.getKey()))) {
+                matchableNodeTemplates.networkTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
         }
         return matchableNodeTemplates;
@@ -115,9 +149,6 @@ public class CloudResourceMatcherService {
      * @return the available images on the cloud
      */
     private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate, IndexedNodeType nodeType) {
-        if (!toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
-            throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
-        }
         Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
         // Only get active templates
         Set<ActivableComputeTemplate> templates = cloud.getComputeTemplates();
@@ -257,6 +288,9 @@ public class CloudResourceMatcherService {
 
     private <T> boolean match(Map<String, String> properties, String keyToCheck, T actualValue, ValueParser<T> valueParser, ValueMatcher<T> valueMatcher) {
         try {
+            if (properties == null) {
+                return true;
+            }
             String expectedValue = properties.get(keyToCheck);
             if (expectedValue == null || expectedValue.isEmpty()) {
                 return true;
