@@ -20,6 +20,7 @@
 
       <!-- Displaying active filters -->
       <a ng-show="!globalContext"
+        id="displayFacetManagement"
         class="advancedSearchLink"
         ng-init="collapseAdvancedSearch=true"
         ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
@@ -40,7 +41,7 @@
             <ul class="nav facet-choice">
               <li ng-repeat="filter in facetFilters">
                 <a href="" ng-click="removeFilter(filter)">{{'COMPONENTS.'+(filter.term | uppercase) | translate}}: <span class="label label-primary">
-                  {{ filter.facet }}</span><i class="fa fa-times"></i>
+                  {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
                 </a>
               </li>
             </ul>
@@ -57,7 +58,7 @@
             <ul class="nav facet-option">
               <li ng-repeat="facet in termFacets">
                 <a href="" ng-click="addFilter(term,facet.facetValue)">
-                  {{facet.facetValue}} <span class="badge">{{facet.count}}</span>
+                  {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
                 </a>
               </li>
             </ul>

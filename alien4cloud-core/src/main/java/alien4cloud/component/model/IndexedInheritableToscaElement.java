@@ -23,7 +23,7 @@ import alien4cloud.tosca.model.PropertyDefinition;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class IndexedInheritableToscaElement extends IndexedToscaElement {
 
-    @TermFilter
+    @TermsFacet
     private boolean isAbstract;
 
     @FetchContext(contexts = { QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false })

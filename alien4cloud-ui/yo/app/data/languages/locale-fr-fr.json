@@ -10,6 +10,8 @@
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
   "APPLICATION": "Application",
   "CSAR": "Csar",
+  "TRUE": "Vrai",
+  "FALSE": "Faux",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -101,6 +103,7 @@
     "CAPABILITIES": {
       "TYPE": "Capacités"
     },
+    "ABSTRACT": "Composant abstrait",
     "DEFAULTCAPABILITIES": "Capacités défaut",
     "DERIVEDFROM": "Héritage",
     "REQUIREMENTS": {
