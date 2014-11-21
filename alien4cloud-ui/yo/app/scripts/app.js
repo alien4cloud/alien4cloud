@@ -300,7 +300,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
       'roles': [],
       'id': 'menu.applications',
       'key': 'NAVBAR.MENU_APPS',
-      'state': 'applications',
+      'state': 'applications.list',
       'icon': 'fa fa-desktop'
     }, {
       'roles': ['ARCHITECT'],
