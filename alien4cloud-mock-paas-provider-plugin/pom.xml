@@ -8,6 +8,10 @@
   <artifactId>alien4cloud-mock-paas-provider-plugin</artifactId>
   <name>Alien 4 Cloud Mock PaaS provider</name>
 
+  <properties>
+    <src-test-directory>src/test/java</src-test-directory>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>alien4cloud</groupId>
@@ -17,7 +21,22 @@
     </dependency>
   </dependencies>
 
+  <profiles>
+    <profile>
+      <id>do-test</id>
+      <activation>
+        <property>
+          <name>doTest</name>
+        </property>
+      </activation>
+      <properties>
+        <src-test-directory>src/test/java-test</src-test-directory>
+      </properties>
+    </profile>
+  </profiles>
+
   <build>
+    <testSourceDirectory>${src-test-directory}</testSourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
