@@ -25,8 +25,8 @@ import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;

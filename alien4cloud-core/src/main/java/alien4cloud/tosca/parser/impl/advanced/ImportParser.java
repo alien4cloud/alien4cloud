@@ -23,7 +23,7 @@ public class ImportParser implements INodeParser<CSARDependency> {
     private ScalarParser scalarParser;
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 

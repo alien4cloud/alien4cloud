@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.tosca.container.deserializer.PropertyConstraintDeserializer;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
@@ -48,7 +47,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
-public class PropertyDefinition {
+public class PropertyDefinition implements IOperationParameter {
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull
@@ -90,5 +89,10 @@ public class PropertyDefinition {
 
     public void setDefault(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    @Override
+    public boolean isDefinition() {
+        return true;
     }
 }

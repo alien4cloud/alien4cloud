@@ -47,8 +47,8 @@ import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 import alien4cloud.tosca.model.PropertyDefinition;
 
 import com.fasterxml.jackson.core.JsonGenerationException;

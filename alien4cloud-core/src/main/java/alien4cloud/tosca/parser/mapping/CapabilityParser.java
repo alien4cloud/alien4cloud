@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
 import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
@@ -33,7 +33,7 @@ public class CapabilityParser implements INodeParser<CapabilityDefinition> {
     }
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 

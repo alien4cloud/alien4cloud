@@ -35,7 +35,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
 
 import com.google.common.collect.Lists;
 

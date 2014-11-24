@@ -26,8 +26,8 @@ import java.util.Set;
 import alien4cloud.paas.AbstractPaaSProvider;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.tosca.container.model.type.Interface;
-import alien4cloud.tosca.container.model.type.Operation;
+import alien4cloud.tosca.model.Interface;
+import alien4cloud.tosca.model.Operation;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Sets;

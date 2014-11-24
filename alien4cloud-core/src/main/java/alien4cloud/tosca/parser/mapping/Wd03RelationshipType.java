@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.container.model.type.Interface;
+import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.AttributeDefinition;
 import alien4cloud.tosca.parser.impl.advanced.InterfaceParser;
 import alien4cloud.tosca.parser.impl.base.ListParser;

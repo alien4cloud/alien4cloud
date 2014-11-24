@@ -4,8 +4,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
-import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.PropertyConstraint;
+import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 

@@ -1,4 +1,4 @@
-package alien4cloud.tosca.container.model.type;
+package alien4cloud.tosca.model;
 
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;

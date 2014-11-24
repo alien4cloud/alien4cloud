@@ -20,16 +20,9 @@ import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.model.Csar;
-import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.tosca.model.*;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
 import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
@@ -286,6 +279,59 @@ public class ToscaParserSimpleProfileWd03Test {
         // nodeType.getInterfaces()
         // nodeType.getCapabilities()
         // nodeType.get
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testNodeTypeWithCutomInterface() throws FileNotFoundException, ParsingException {
+        Mockito.reset(repositorySearchService);
+        IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                        Mockito.any(List.class))).thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
+        IndexedCapabilityType mockedCapabilityResult = Mockito.mock(IndexedCapabilityType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class),
+                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class),
+                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                        Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-interface-operations.yml"));
+
+        assertNoBlocker(parsingResult);
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        Assert.assertNotNull(archiveRoot.getArchive());
+        Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
+        Assert.assertEquals(1, archiveRoot.getNodeTypes().size());
+        // check node type.
+        Entry<String, IndexedNodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
+
+        Assert.assertEquals("my_company.my_types.MyAppNodeType", entry.getKey());
+        IndexedNodeType nodeType = entry.getValue();
+
+        Assert.assertNotNull(nodeType.getInterfaces());
+        Assert.assertEquals(2, nodeType.getInterfaces().size());
+        Assert.assertNotNull(nodeType.getInterfaces().get("standard"));
+        Interface customInterface = nodeType.getInterfaces().get("custom");
+        Assert.assertNotNull(customInterface);
+        Assert.assertEquals("this is a sample interface used to execute custom operations.", customInterface.getDescription());
+        Assert.assertEquals(1, customInterface.getOperations().size());
+        Operation operation = customInterface.getOperations().get("do_something");
+        Assert.assertNotNull(operation);
+        Assert.assertEquals(3, operation.getInputParameters().size());
+        Assert.assertEquals(ScalarPropertyValue.class, operation.getInputParameters().get("value_input").getClass());
+        Assert.assertEquals(PropertyDefinition.class, operation.getInputParameters().get("definition_input").getClass());
+        Assert.assertEquals(FunctionPropertyValue.class, operation.getInputParameters().get("function_input").getClass());
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {

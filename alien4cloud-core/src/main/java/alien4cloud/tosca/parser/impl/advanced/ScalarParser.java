@@ -13,7 +13,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 @Component
 public class ScalarParser implements INodeParser<String> {
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 

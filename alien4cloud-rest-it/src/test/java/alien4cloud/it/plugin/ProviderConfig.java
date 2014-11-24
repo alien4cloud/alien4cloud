@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormPropertyConstraint;

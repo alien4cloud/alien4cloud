@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.model.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.InRangeConstraint;
 import alien4cloud.tosca.properties.constraints.exception.InvalidPropertyConstraintImplementationException;
 import alien4cloud.utils.TypeScanner;

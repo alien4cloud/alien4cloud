@@ -10,8 +10,8 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.container.model.type.Interface;
-import alien4cloud.tosca.container.model.type.Operation;
+import alien4cloud.tosca.model.Interface;
+import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -68,7 +68,7 @@ public class InterfaceParser implements INodeParser<Interface> {
     }
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 }

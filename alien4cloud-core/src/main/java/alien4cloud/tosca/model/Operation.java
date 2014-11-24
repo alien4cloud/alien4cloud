@@ -1,11 +1,14 @@
-package alien4cloud.tosca.container.model.type;
+package alien4cloud.tosca.model;
 
 import java.util.Map;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.container.deserializer.OperationParameterDeserializer;
 import alien4cloud.ui.form.annotation.FormProperties;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Defines an operation available to manage particular aspects of the Node Type.
@@ -23,7 +26,8 @@ public class Operation {
     /** Description of the operation. */
     private String description;
     /** This OPTIONAL property contains a list of one or more input parameter definitions. */
-    private Map<String, OperationParameter> inputParameters;
+    @JsonDeserialize(contentUsing = OperationParameterDeserializer.class)
+    private Map<String, IOperationParameter> inputParameters;
 
     /**
      * <p>

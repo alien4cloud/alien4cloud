@@ -5,8 +5,8 @@ import java.util.List;
 
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 
 /**
  * Utility class to generate test data.

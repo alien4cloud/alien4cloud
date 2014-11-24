@@ -1,4 +1,4 @@
-package alien4cloud.tosca.container.model.type;
+package alien4cloud.tosca.model;
 
 import java.text.DateFormat;
 import java.text.ParseException;

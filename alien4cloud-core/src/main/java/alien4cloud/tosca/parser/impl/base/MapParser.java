@@ -62,7 +62,7 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
     }
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 }

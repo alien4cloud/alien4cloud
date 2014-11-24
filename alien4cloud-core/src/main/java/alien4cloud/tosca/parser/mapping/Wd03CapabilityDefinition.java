@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
 import alien4cloud.tosca.parser.impl.advanced.BoundParser;
 import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
 import alien4cloud.tosca.parser.impl.base.ListParser;

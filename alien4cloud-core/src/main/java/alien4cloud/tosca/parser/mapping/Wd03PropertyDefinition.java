@@ -4,7 +4,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.model.PropertyConstraint;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.parser.impl.advanced.ConstraintParser;
 import alien4cloud.tosca.parser.impl.base.ListParser;

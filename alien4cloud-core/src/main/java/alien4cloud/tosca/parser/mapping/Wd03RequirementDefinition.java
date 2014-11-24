@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.PropertyConstraint;
+import alien4cloud.tosca.model.RequirementDefinition;
 import alien4cloud.tosca.parser.KeyValueMappingTarget;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.impl.advanced.BoundParser;

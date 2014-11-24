@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.container.model.type.ImplementationArtifact;
+import alien4cloud.tosca.model.ImplementationArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -42,7 +42,7 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
     }
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return true;
     }
 }

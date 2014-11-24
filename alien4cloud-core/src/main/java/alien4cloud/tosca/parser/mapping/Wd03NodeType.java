@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 import alien4cloud.tosca.model.AttributeDefinition;
 import alien4cloud.tosca.parser.impl.advanced.InterfaceParser;
 import alien4cloud.tosca.parser.impl.advanced.InterfacesParser;

@@ -49,7 +49,7 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     }
 
     @Override
-    public boolean isDeffered() {
-        return valueParser.isDeffered();
+    public boolean isDeferred() {
+        return valueParser.isDeferred();
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedArtifactToscaElement;
 import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.tosca.container.model.type.ImplementationArtifact;
-import alien4cloud.tosca.container.model.type.Interface;
-import alien4cloud.tosca.container.model.type.Operation;
+import alien4cloud.tosca.model.ImplementationArtifact;
+import alien4cloud.tosca.model.Interface;
+import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;

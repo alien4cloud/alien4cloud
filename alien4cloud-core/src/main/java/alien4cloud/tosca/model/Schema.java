@@ -5,7 +5,6 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
 
 /**
  * Schema allows to create new types that can be used along TOSCA definitions.

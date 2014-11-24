@@ -7,7 +7,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.ToscaType;
 
 /**
  * This annotation is the mirror of PropertyDefinition.

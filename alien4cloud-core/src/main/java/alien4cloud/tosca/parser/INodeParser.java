@@ -12,7 +12,7 @@ public interface INodeParser<T> {
      * Parse a yaml node.
      * 
      * @param node The node to parse.
-     * @param context The parsing context that contains the root object as well as errors and deffered parsers to be executed after the primary parsing is done.
+     * @param context The parsing context that contains the root object as well as errors and deferred parsers to be executed after the primary parsing is done.
      * @return An instance of T based on the node parsing or null if the parsing failed.
      */
     T parse(Node node, ParsingContextExecution context);
@@ -20,7 +20,7 @@ public interface INodeParser<T> {
     /**
      * If true the parser will be executed after all other parsers have been completed.
      * 
-     * @return True if deffered, false if not.
+     * @return True if deferred, false if not.
      */
-    boolean isDeffered();
+    boolean isDeferred();
 }

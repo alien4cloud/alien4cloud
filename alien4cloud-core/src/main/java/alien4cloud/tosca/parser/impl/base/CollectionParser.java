@@ -78,7 +78,7 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
     protected abstract Collection<T> getCollectionInstance();
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 }

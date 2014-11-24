@@ -48,7 +48,7 @@ public class ValidatedNodeParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public boolean isDeffered() {
-        return delegate.isDeffered();
+    public boolean isDeferred() {
+        return delegate.isDeferred();
     }
 }

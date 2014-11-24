@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.model.PropertyConstraint;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.EqualConstraint;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;

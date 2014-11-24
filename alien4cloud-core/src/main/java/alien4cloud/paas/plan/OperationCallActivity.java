@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.model.type.ImplementationArtifact;
+import alien4cloud.tosca.model.ImplementationArtifact;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

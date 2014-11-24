@@ -30,7 +30,7 @@ public class DerivedFromParser implements INodeParser<List<String>> {
     private final Class<? extends IndexedInheritableToscaElement> validType;
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return true;
     }
 

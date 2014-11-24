@@ -1,4 +1,4 @@
-package alien4cloud.tosca.container.model.type;
+package alien4cloud.tosca.model;
 
 import alien4cloud.ui.form.annotation.FormProperties;
 import lombok.Getter;

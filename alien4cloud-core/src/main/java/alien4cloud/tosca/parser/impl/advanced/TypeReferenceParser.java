@@ -31,7 +31,7 @@ public class TypeReferenceParser implements INodeParser<String> {
     private final Class<? extends IndexedInheritableToscaElement>[] validTypes;
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return true;
     }
 

@@ -14,7 +14,7 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.RecommendationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;

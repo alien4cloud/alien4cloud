@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.model.PropertyConstraint;
 import alien4cloud.tosca.parser.AbstractTypeNodeParser;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
@@ -71,7 +71,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     @Override
-    public boolean isDeffered() {
+    public boolean isDeferred() {
         return false;
     }
 
