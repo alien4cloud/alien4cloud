@@ -36,6 +36,7 @@ import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
 import alien4cloud.rest.model.RestError;
@@ -146,7 +147,18 @@ public class ApplicationController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        boolean deleted = applicationService.delete(applicationId);
+        boolean deleted = false;
+        try {
+            deleted = applicationService.delete(applicationId);
+        } catch (CloudDisabledException e) {
+            log.error("Failed to delete the application due to Cloud error", e);
+            return RestResponseBuilder
+                    .<Boolean> builder()
+                    .data(false)
+                    .error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
+                            .message("Could not delete the application with id <" + applicationId + "> with error : " + e.getMessage()).build()).build();
+
+        }
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
 

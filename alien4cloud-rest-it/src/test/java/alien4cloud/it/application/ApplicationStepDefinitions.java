@@ -28,6 +28,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.rest.application.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.CreateApplicationRequest;
+import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -523,17 +524,12 @@ public class ApplicationStepDefinitions {
 
     @When("^I update the created application environment with values$")
     public void I_update_the_created_application_environment_with_values(DataTable appEnvAttributeValues) throws Throwable {
-        ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        // applicationId required : by default keep the default applicationId unless it is defined
-        appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
+        UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
         String attribute = null, attributeValue = null;
         for (List<String> attributesToUpdate : appEnvAttributeValues.raw()) {
             attribute = attributesToUpdate.get(0);
             attributeValue = attributesToUpdate.get(1);
-            switch (attribute) {  
-            case "applicationId":
-            	appEnvRequest.setApplicationId(attributeValue);
-                break;
+            switch (attribute) {
             case "name":
                 appEnvRequest.setName(attributeValue);
                 break;
@@ -547,7 +543,7 @@ public class ApplicationStepDefinitions {
                 appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(attributeValue));
                 break;
             default:
-            	log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object",attribute);
+                log.info("Attribute <{}> not found in ApplicationEnvironmentRequest object", attribute);
                 break;
             }
         }
@@ -557,11 +553,12 @@ public class ApplicationStepDefinitions {
                         "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId(),
                         JsonUtil.toString(appEnvRequest)));
     }
-    
+
     @When("^I delete the registered application environment from its id$")
     public void I_delete_the_registered_application_environment_from_its_id() throws Throwable {
-    	Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId()));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().delete(
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId()));
         RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
         Assert.assertNotNull(appEnvironment.getData());
     }

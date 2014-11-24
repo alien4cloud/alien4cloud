@@ -3,6 +3,8 @@ package alien4cloud.rest.application;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,7 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -35,6 +38,7 @@ import alien4cloud.utils.ReflectionUtil;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
+@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/environments")
 @Api(value = "", description = "Manages application's environments")
@@ -122,14 +126,15 @@ public class ApplicationEnvironmentController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application environment", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> update(@PathVariable String applicationEnvironmentId, @RequestBody ApplicationEnvironmentRequest request) {
-
+    public RestResponse<Void> update(@PathVariable String applicationEnvironmentId, @RequestBody UpdateApplicationEnvironmentRequest request) {
         // check application env id
         ApplicationEnvironment appEnvironment = alienDAO.findById(ApplicationEnvironment.class, applicationEnvironmentId);
         if (appEnvironment != null) {
             // check application
-            Application application = alienDAO.findById(Application.class, request.getApplicationId());
+            Application application = alienDAO.findById(Application.class, appEnvironment.getApplicationId());
             if (application != null) {
+                // check : unique app environment name for a given application
+                applicationEnvironmentService.ensureNameUnicity(application.getId(), request.getName());
                 ReflectionUtil.mergeObject(request, appEnvironment);
                 if (appEnvironment.getName() == null || appEnvironment.getName().isEmpty()) {
                     throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
@@ -141,10 +146,9 @@ public class ApplicationEnvironmentController {
                         .<Void> builder()
                         .data(null)
                         .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                        .message("Application with id <" + request.getApplicationId() + "> could not be found to update an environment").build())
+                                .message("Application with id <" + appEnvironment.getApplicationId() + "> could not be found to update an environment").build())
                         .build();
             }
-
         } else {
             // no application found to create an env
             return RestResponseBuilder
@@ -168,7 +172,18 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        applicationEnvironmentService.deleteByApplication(applicationEnvironment.getApplicationId());
+        try {
+            applicationEnvironmentService.deleteByApplication(applicationEnvironment.getApplicationId());
+        } catch (CloudDisabledException e) {
+            log.error("Failed to delete the application environment due to Cloud error", e);
+            return RestResponseBuilder
+                    .<Boolean> builder()
+                    .data(false)
+                    .error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
+                            .message("Could not delete the application environment with id <" + applicationEnvironmentId + "> with error : " + e.getMessage())
+                            .build()).build();
+        }
+
         boolean deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
