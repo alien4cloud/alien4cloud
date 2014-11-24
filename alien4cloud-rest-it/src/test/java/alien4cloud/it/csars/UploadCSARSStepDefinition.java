@@ -58,10 +58,6 @@ public class UploadCSARSStepDefinition {
         conditionToPath.put("valid-csar-with-test", Paths.get("src/test/resources/data/csars/snapshot-test/snapshot-test-valid"));
         conditionToPath.put("csar-test-no-topology", Paths.get("src/test/resources/data/csars/snapshot-test/missing-topology-yaml"));
 
-        // conditionToPath.put("invalid (dependency in definition do not exist)", Paths.get("../alien4cloud-core/src/main/resources/java-types/1.0"));
-        // conditionToPath.put("containing default java types", Paths.get("../alien4cloud-core/src/main/default-normative-types/java-types-1.0.zip"));
-        // conditionToPath.put("containing default apacheLB types", Paths.get("../alien4cloud-core/src/main/default-normative-types/apacheLB-types-0.1.zip"));
-
         for (Entry<String, Path> entry : conditionToPath.entrySet()) {
             try {
                 Path targetPath = ARCHIVES_TARGET_PATH.resolve(entry.getValue().getFileName() + ".csar");
@@ -72,18 +68,8 @@ public class UploadCSARSStepDefinition {
             }
         }
 
-        // REMOVE this
-        // conditionToPath.put("csar file containing base types", "../alien4cloud-core/src/test/resources/examples/tosca-base-types-1.0.csar");
-        // conditionToPath.put("csar file containing base types V2", "../alien4cloud-core/src/test/resources/examples/tosca-base-types-2.0.csar");
-        // conditionToPath.put("csar file containing base types V3", "../alien4cloud-core/src/test/resources/examples/tosca-base-types-3.0.csar");
-        // conditionToPath.put("csar file containing java types", "../alien4cloud-core/src/test/resources/examples/java-types-1.0.csar");
-        // conditionToPath.put("csar file containing java types V2", "../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar");
-        // conditionToPath.put("csar file containing java types V3", "../alien4cloud-core/src/test/resources/examples/java-types-3.0.csar");
-        // conditionToPath.put("csar file containing ubuntu types V0.1", "../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar");
-        //
-        // // test uploading an unzipped file (do not zip it)
-        // conditionToPath.put("unzipped", "src/test/resources/alien/rest/csars/upload.feature");
-
+        // test uploading an unzipped file (do not zip it)
+        conditionToPath.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));
     }
 
     private Path csarPath = Paths.get(Context.getInstance().getTmpDirectory().toString(), "csar.csar");

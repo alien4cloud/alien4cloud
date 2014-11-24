@@ -8,7 +8,7 @@ Scenario: Upload valid CSAR
   Then I should receive a RestResponse with no error
 
 Scenario: Upload invalid CSAR (uploaded file is not a zipped file)
-  Given I have a CSAR file that is "unzipped"
+  Given I upload the archive "unzipped"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
 Scenario: Upload invalid CSAR (invalid (definition file not found))

@@ -77,8 +77,8 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
             Collection<CSARDependency> dependencies) {
         IndexedToscaElement indexedNodeType = alienDAO.findById(IndexedToscaElement.class, element.getId());
-        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : new Date();
-
+        element.setLastUpdateDate(new Date());
+        Date creationDate = indexedNodeType == null ? element.getLastUpdateDate() : indexedNodeType.getCreationDate();
         element.setCreationDate(creationDate);
         if (element.getDerivedFrom() != null) {
             Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
