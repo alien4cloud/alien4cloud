@@ -678,6 +678,29 @@ public class CloudService {
         alienDAO.save(cloud);
     }
 
+    public void removeNetwork(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        Iterator<Network> networkIterator = existingNetworks.iterator();
+        while (networkIterator.hasNext()) {
+            Network network = networkIterator.next();
+            if (network.getNetworkName().equals(networkName)) {
+                networkIterator.remove();
+            }
+        }
+        if (config != null) {
+            List<MatchedNetwork> matchedNetworks = config.getMatchedNetworks();
+            Iterator<MatchedNetwork> matchedNetworkIterator = matchedNetworks.iterator();
+            while (matchedNetworkIterator.hasNext()) {
+                MatchedNetwork matchedNetwork = matchedNetworkIterator.next();
+                if (matchedNetwork.getNetwork().getNetworkName().equals(networkName)) {
+                    matchedNetworkIterator.remove();
+                }
+            }
+            alienDAO.save(config);
+        }
+        alienDAO.save(cloud);
+    }
+
     private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
         Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
         while (networkIterator.hasNext()) {

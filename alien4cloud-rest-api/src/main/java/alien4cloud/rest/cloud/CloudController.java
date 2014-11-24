@@ -168,7 +168,7 @@ public class CloudController {
     @RequestMapping(value = "/{id:.+}/configuration", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Object> getConfiguration(
             @ApiParam(value = "Id of the cloud for which to get the configuration.", required = true) @PathVariable String id) {
-        return RestResponseBuilder.<Object> builder().data(cloudService.getConfiguration(id)).build();
+        return RestResponseBuilder.builder().data(cloudService.getConfiguration(id)).build();
     }
 
     @ApiOperation(value = "Update the configuration for a cloud.", authorizations = { @Authorization("ADMIN") })
@@ -283,9 +283,9 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> addCloudImage(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        for (int i = 0; i < cloudImageIds.length; i++) {
-            cloudImageService.getCloudImageFailIfNotExist(cloudImageIds[i]);
-            cloudService.addCloudImage(cloud, cloudImageIds[i]);
+        for (String cloudImageId : cloudImageIds) {
+            cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
+            cloudService.addCloudImage(cloud, cloudImageId);
         }
         CloudComputeResourcesDTO cloudResourcesDTO = new CloudComputeResourcesDTO();
         cloudResourcesDTO.setComputeTemplates(cloud.getComputeTemplates());
@@ -335,7 +335,7 @@ public class CloudController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can enable a cloud template.")
+    @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/templates/{imageId}/{flavorId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setCloudComputeTemplateResourceId(@PathVariable String cloudId, @PathVariable String imageId, @PathVariable String flavorId,
             @RequestParam(required = false) String resourceId) {
@@ -351,6 +351,26 @@ public class CloudController {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.addNetwork(cloud, network);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Remove a network from the given cloud", notes = "Only user with ADMIN role can remove a network.")
+    @RequestMapping(value = "/{cloudId}/networks/{networkName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> removeNetwork(@PathVariable String cloudId, @PathVariable String networkName) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        cloudService.removeNetwork(cloud, config, networkName);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Set the corresponding paaS resource id for the network", notes = "Only user with ADMIN role can set the resource id for a network.")
+    @RequestMapping(value = "/{cloudId}/networks/{networkName}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> setNetworkResourceId(@PathVariable String cloudId, @PathVariable String networkName,
+            @RequestParam(required = false) String resourceId) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.setNetworkResourceId(cloud, networkName, resourceId);
         return RestResponseBuilder.<Void> builder().build();
     }
 }

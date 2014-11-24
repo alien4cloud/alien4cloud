@@ -367,8 +367,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="(key, templates) in matchedCloudResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
-            class="clickable-media" ng-class="{'info': isSelectedTemplate(key), 'danger': !selectedComputeTemplates[key]}">
+          <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
+            class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
             <td>
               <i ng-if="!nodeTypeImage" class="fa fa-image fa-3x"></i>
               <img ng-if="nodeTypeImage" ng-src="{{nodeTypeImage?('img?id=' + nodeTypeImage + '&quality=QUALITY_64'):null}}" />
@@ -397,7 +397,7 @@
         </thead>
         <tbody>
           <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
-              ng-class="{'info' : isSelected(template)}" ng-click="changeSelectedImage(template)">
+              ng-class="{'info' : isSelectedCompute(template)}" ng-click="changeSelectedImage(template)">
             <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
               <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
               <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />

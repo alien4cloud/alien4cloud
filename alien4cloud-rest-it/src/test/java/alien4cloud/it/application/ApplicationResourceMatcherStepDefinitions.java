@@ -37,13 +37,13 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-                                                                                    DataTable expectedTemplatesTable) throws Throwable {
+            DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 CloudResourceTopologyMatchResult.class);
         Assert.assertNull(matchResultResponse.getError());
         Assert.assertNotNull(matchResultResponse.getData());
         CloudComputeTemplateStepDefinitions.assertComputeTemplates(numberOfComputeTemplates,
-                Sets.newHashSet(matchResultResponse.getData().getMatchResult().get(nodeName)), expectedTemplatesTable);
+                Sets.newHashSet(matchResultResponse.getData().getComputeMatchResult().get(nodeName)), expectedTemplatesTable);
     }
 
     @And("^The match result should contain (\\d+) cloud images:$")
@@ -66,7 +66,7 @@ public class ApplicationResourceMatcherStepDefinitions {
                 CloudResourceTopologyMatchResult.class);
         Assert.assertTrue(matchResultResponse.getData().getImages().isEmpty());
         Assert.assertTrue(matchResultResponse.getData().getFlavors().isEmpty());
-        for (List<ComputeTemplate> templates : matchResultResponse.getData().getMatchResult().values()) {
+        for (List<ComputeTemplate> templates : matchResultResponse.getData().getComputeMatchResult().values()) {
             Assert.assertTrue(templates.isEmpty());
         }
     }
@@ -76,8 +76,8 @@ public class ApplicationResourceMatcherStepDefinitions {
         Map<String, ComputeTemplate> cloudResourcesMatching = Maps.newHashMap();
         cloudResourcesMatching.put(nodeName, new ComputeTemplate(Context.getInstance().getCloudImageId(cloudImageName), flavorId));
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching);
-        String response = Context.getRestClientInstance().putJSon(
-                "/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup", JsonUtil.toString(request));
+        String response = Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup",
+                JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
 
