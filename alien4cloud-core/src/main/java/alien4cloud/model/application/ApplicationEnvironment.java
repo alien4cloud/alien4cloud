@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class ApplicationEnvironment implements IManagedSecuredResource {
     @Id
     private String id;
+    @TermFilter
+    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String name;
     private String description;
     @TermFilter
