@@ -290,7 +290,10 @@
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disque",
       "TITLE_RAM": "RAM",
-      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud"
+      "TITLE_NETWORK": "Nom du réseau",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Réseau"
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",

@@ -19,6 +19,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var refreshSetupData = function() {
       $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
+      $scope.selectedNetworks = $scope.setup.networkMapping;
       $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
     };
 
@@ -30,6 +31,16 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.setCurrentMatchedNetworks = function(name, currentMatchedNetworks) {
       $scope.currentNetworkNodeTemplateId = name;
       $scope.currentMatchedNetworks = currentMatchedNetworks;
+    };
+
+    $scope.changeSelectedNetwork = function(template) {
+      $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id
+      }, angular.toJson({
+        networkMapping: $scope.selectedNetworks
+      }));
     };
 
     $scope.changeSelectedImage = function(template) {
@@ -60,11 +71,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isSelectedNetwork = function(template) {
-      var selected = $scope.selectedNetworkTemplates[$scope.currentNetworkNodeTemplateId];
+      var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
       return template.networkName === selected.networkName;
     };
 
-    $scope.isSelectedNetworkTemplate = function(key) {
+    $scope.isSelectedNetworkName = function(key) {
       return key === $scope.currentNetworkNodeTemplateId;
     };
 
@@ -88,7 +99,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.topologyDTO = result.data;
         if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
           UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-          $scope.nodeTypeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+          $scope.computeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+        }
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
+          $scope.networkImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags[0].value;
         }
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
@@ -364,15 +379,15 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           for (var key in $scope.matchedComputeResources) {
             if ($scope.matchedComputeResources.hasOwnProperty(key)) {
               if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-                $scope.hasUnmatchedResources = true;
+                $scope.hasUnmatchedCompute = true;
                 break;
               }
             }
           }
           for (var key in $scope.matchedNetworkResources) {
             if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
-              if (!$scope.selectedNetworkTemplates.hasOwnProperty(key)) {
-                $scope.hasUnmatchedResources = true;
+              if (!$scope.selectedNetworks.hasOwnProperty(key)) {
+                $scope.hasUnmatchedNetwork = true;
                 break;
               }
             }
@@ -419,7 +434,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     /** change the cloud for the topology */
     $scope.changeCloud = function(selectedCloud) {
       $scope.selectedComputeTemplates = {};
-      $scope.selectedNetworkTemplates = {};
+      $scope.selectedNetworks = {};
       topologyServices.cloud.set({
         applicationId: $scope.application.id
       }, selectedCloud.id, function(result) {

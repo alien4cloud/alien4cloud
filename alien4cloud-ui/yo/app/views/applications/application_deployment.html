@@ -36,7 +36,7 @@
     <div class="col-md-4">
       <!-- DEPLOY BUTTON -->
       <button type="button" class="btn btn-success application-deploy-button"
-              ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedResources" ng-click="deploy()"
+              ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()"
               ng-show="deploymentStatus == 'UNDEPLOYED'">
         <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
       </button>
@@ -359,74 +359,147 @@
   <div class="row">
     <div class="col-md-12">
       <legend class="text-center title-border">
-        <h3><i ng-class="{'fa fa-warning text-danger' : hasUnmatchedResources, 'fa fa-random': !hasUnmatchedResources}"></i>
+        <h3><i ng-class="{'fa fa-warning text-danger' : hasUnmatchedCompute || hasUnmatchedNetwork, 'fa fa-random': !hasUnmatchedCompute || hasUnmatchedNetwork}"></i>
           {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
       </legend>
     </div>
   </div>
-  <div class="row" ng-if="hasUnmatchedResources" style="margin-bottom: 10px;">
+  <div class="row" ng-if="hasUnmatchedCompute || hasUnmatchedNetwork" style="margin-bottom: 10px;">
     <div class="col-md-12">
       <span><i class="fa fa-warning text-danger"></i> {{'APPLICATIONS.DEPLOYMENT.RESOURCES_NOT_MATCHED' | translate}}</span>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-4">
-      <div class="table-responsive large-data-container">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)"
-                class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
-              <td>
-                <i ng-if="!nodeTypeImage" class="fa fa-image fa-3x"></i>
-                <img ng-if="nodeTypeImage" ng-src="{{nodeTypeImage?('img?id=' + nodeTypeImage + '&quality=QUALITY_64'):null}}" />
-              </td>
-              <td>{{key}}</td>
-              <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
-              <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
-      <div class="table-responsive large-data-container">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th></th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
-              <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
-                ng-class="{'info' : isSelectedCompute(template)}" ng-click="changeSelectedImage(template)">
-              <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
-                <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
-                <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
-              </td>
-              <td>{{images[template.cloudImageId].osType}}</td>
-              <td>{{images[template.cloudImageId].osVersion}}</td>
-              <td>{{images[template.cloudImageId].osArch}}</td>
-              <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
-              <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
-              <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="col-md-12">
+      <tabset>
+        <tab id="tab-compute-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.COMPUTE_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedCompute">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}"
+                        ng-click="setCurrentMatchedComputeTemplates(key, templates)"
+                        class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
+                      <td>
+                        <i ng-if="!computeImage" class="fa fa-image fa-3x"></i>
+                        <img ng-if="computeImage" ng-src="{{computeImage?('img?id=' + computeImage + '&quality=QUALITY_64'):null}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
+                      <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media"
+                        ng-class="{'info' : isSelectedCompute(template)}" ng-click="changeSelectedImage(template)">
+                      <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
+                        <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
+                        <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
+                      </td>
+                      <td>{{images[template.cloudImageId].osType}}</td>
+                      <td>{{images[template.cloudImageId].osVersion}}</td>
+                      <td>{{images[template.cloudImageId].osArch}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+        <tab id="tab-network-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.NETWORK_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedNetwork">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_NETWORK' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedNetworkResources" id="{{'tr-node-' + key}}"
+                        ng-click="setCurrentMatchedNetworks(key, templates)"
+                        class="clickable-media" ng-class="{'info': isSelectedNetworkName(key), 'danger': !selectedNetworks[key]}">
+                      <td>
+                        <i ng-if="!networkImage" class="fa fa-image fa-3x"></i>
+                        <img ng-if="networkImage" ng-src="{{networkImage?('img?id=' + networkImage + '&quality=QUALITY_64'):null}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{selectedNetworks[key].networkName}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedNetworks">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="network in currentMatchedNetworks" class="clickable-media"
+                        ng-class="{'info' : isSelectedNetwork(network)}" ng-click="changeSelectedNetwork(network)">
+                      <td>{{network.networkName}}</td>
+                      <td>{{network.cidr}}</td>
+                      <td>{{network.gatewayIp || '---'}}</td>
+                      <td>{{network.ipVersion}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+      </tabset>
     </div>
   </div>
 </div>
