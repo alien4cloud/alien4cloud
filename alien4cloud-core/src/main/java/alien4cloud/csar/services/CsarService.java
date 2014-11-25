@@ -50,12 +50,13 @@ public class CsarService implements ICsarDependencyLoader {
         csar.setName(archive.getMeta().getName());
         csar.setVersion(archive.getMeta().getVersion());
         Set<CSARDependency> dependencies = archive.getMeta().getDependencies();
+        Set<CSARDependency> mergedDependencies = Sets.newHashSet(dependencies);
         if (dependencies != null && !dependencies.isEmpty()) {
             for (CSARDependency dependency : dependencies) {
-                dependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
+            	mergedDependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
             }
         }
-        csar.setDependencies(dependencies);
+        csar.setDependencies(mergedDependencies);
         csarDAO.save(csar);
         return csar;
     }
