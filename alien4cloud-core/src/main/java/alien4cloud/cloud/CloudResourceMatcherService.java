@@ -20,7 +20,7 @@ import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.tosca.ToscaService;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
@@ -37,9 +37,6 @@ public class CloudResourceMatcherService {
 
     @Resource
     private CloudImageService cloudImageService;
-
-    @Resource
-    private ToscaService toscaService;
 
     /**
      * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
@@ -99,7 +96,7 @@ public class CloudResourceMatcherService {
             return matchableNodeTemplates;
         }
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : allNodeTemplates.entrySet()) {
-            if (toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
+            if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
                 // TODO check also network and other cloud related resources ...
                 matchableNodeTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
@@ -115,7 +112,7 @@ public class CloudResourceMatcherService {
      * @return the available images on the cloud
      */
     private List<CloudImage> getAvailableImagesForCompute(Cloud cloud, NodeTemplate nodeTemplate, IndexedNodeType nodeType) {
-        if (!toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
+        if (!ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
             throw new InvalidArgumentException("Node is not a compute but of type [" + nodeTemplate.getType() + "]");
         }
         Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();

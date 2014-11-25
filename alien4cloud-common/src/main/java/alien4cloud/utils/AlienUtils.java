@@ -2,9 +2,9 @@ package alien4cloud.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
-public final class CommonUtils {
+public final class AlienUtils {
 
-    private CommonUtils() {
+    private AlienUtils() {
 
     }
 

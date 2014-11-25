@@ -23,6 +23,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.MapUtil;
@@ -141,22 +142,19 @@ public class ApplicationService {
      *
      * @param applicationId The id of the application to remove.
      * @return True if the application has been removed, false if not.
+     * @throws CloudDisabledException
      */
-    public boolean delete(String applicationId) {
+    public boolean delete(String applicationId) throws CloudDisabledException {
         // ensure that there is no active deployment(s).
         String index = alienDAO.getIndexForType(Deployment.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
-                .buildSearchQuery(index)
-                .types(Deployment.class)
-                .filters(
-                        MapUtil.newHashMap(new String[] { "sourceId", "endDate" },
-                                new String[][] { new String[] { applicationId }, new String[] { null } })).fieldSort("_timestamp", true);
+        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index).types(Deployment.class)
+                .filters(MapUtil.newHashMap(new String[] { "sourceId", "endDate" }, new String[][] { new String[] { applicationId }, new String[] { null } }))
+                .fieldSort("_timestamp", true);
 
         GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
         if (result.getData().length > 0) {
             return false;
         }
-
         applicationVersionService.deleteByApplication(applicationId);
         applicationEnvironmentService.deleteByApplication(applicationId);
         // delete the application

@@ -24,8 +24,6 @@ public class CSARDependency {
     @NonNull
     private String version;
 
-    private List<CSARDependency> transitive;
-
     public CSARDependency(String name, String version) {
         this.name = name;
         this.version = version;

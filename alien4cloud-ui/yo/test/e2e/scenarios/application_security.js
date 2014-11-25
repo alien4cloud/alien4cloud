@@ -62,7 +62,7 @@ describe('Security management on applications', function() {
   });
 
   it('Authenticated users should only view applications they are authorized to (with specific rights given to user)', function() {
-    console.log('################# Authenticated users should only view applications they are authorized to');
+    console.log('################# Authenticated users should only view applications they are authorized to - user');
 
     authentication.reLogin('applicationManager');
     applications.createApplication('Alien', 'Great Application');
@@ -90,7 +90,7 @@ describe('Security management on applications', function() {
   });
 
   it('Authenticated users should only view applications they are authorized to (with specific rights given to group)', function() {
-    console.log('################# Authenticated users should only view applications they are authorized to');
+    console.log('################# Authenticated users should only view applications they are authorized to - group');
 
     authentication.reLogin('applicationManager');
     applications.createApplication('Alien', 'Great Application');
@@ -151,7 +151,7 @@ describe('Security management on applications', function() {
   });
 
   it('should be able to manage group authorizations on the application', function() {
-    console.log('################# should be able to manage users authorizations on the application');
+    console.log('################# should be able to manage group authorizations on the application');
 
     // create an application
     authentication.reLogin('applicationManager');
@@ -173,7 +173,7 @@ describe('Security management on applications', function() {
   });
 
   it('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
-    console.log('################# Authenticated users even withoput any roles should see applications with ALL_USERS group rights on it');
+    console.log('################# Authenticated users even without any roles should see applications with ALL_USERS group rights on it');
 
     // create 4 applications
     authentication.reLogin('applicationManager');

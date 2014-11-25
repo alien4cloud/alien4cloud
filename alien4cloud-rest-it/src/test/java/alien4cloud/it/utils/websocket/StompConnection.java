@@ -3,6 +3,7 @@ package alien4cloud.it.utils.websocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,10 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
+import io.netty.handler.codec.stomp.DefaultStompFrame;
+import io.netty.handler.codec.stomp.StompCommand;
+import io.netty.handler.codec.stomp.StompFrame;
+import io.netty.handler.codec.stomp.StompHeaders;
 import io.netty.handler.codec.stomp.StompSubframeAggregator;
 import io.netty.handler.codec.stomp.StompSubframeDecoder;
 import io.netty.handler.codec.stomp.StompSubframeEncoder;
@@ -33,6 +38,8 @@ import io.netty.handler.codec.stomp.StompSubframeEncoder;
  */
 @Slf4j
 public class StompConnection {
+
+    private static AtomicInteger COUNTER = new AtomicInteger(0);
 
     private String host;
 
@@ -48,11 +55,11 @@ public class StompConnection {
 
     private String loginPath;
 
-    private String topic;
-
     private Channel stompChannel;
 
     private EventLoopGroup eventLoopGroup;
+
+    private StompClientHandler stompClientHandler;
 
     /**
      * Create a stomp connection which perform login
@@ -63,16 +70,15 @@ public class StompConnection {
      * @param password
      * @param endPoint
      * @param loginPath
-     * @param topic
      */
-    public StompConnection(String host, int port, String user, String password, String loginPath, String endPoint, String topic) {
+    public StompConnection(String host, int port, String user, String password, String loginPath, String endPoint) {
         this.host = host;
         this.port = port;
         this.user = user;
         this.password = password;
         this.loginPath = loginPath;
         this.endPoint = endPoint;
-        this.topic = topic;
+        init();
     }
 
     /**
@@ -81,10 +87,9 @@ public class StompConnection {
      * @param host
      * @param port
      * @param endPoint
-     * @param topic
      */
-    public StompConnection(String host, int port, String endPoint, String topic) {
-        this(host, port, null, endPoint, topic);
+    public StompConnection(String host, int port, String endPoint) {
+        this(host, port, null, endPoint);
     }
 
     /**
@@ -94,26 +99,17 @@ public class StompConnection {
      * @param port
      * @param headers
      * @param endPoint
-     * @param topic
      */
-    public StompConnection(String host, int port, Map<String, String> headers, String endPoint, String topic) {
+    public StompConnection(String host, int port, Map<String, String> headers, String endPoint) {
         this.host = host;
         this.port = port;
         this.headers = headers;
         this.endPoint = endPoint;
-        this.topic = topic;
+        init();
     }
 
-    /**
-     * Start listening on web socket for specific data type. When data arrived the callback onData method will be called, when error happens the onError method
-     * will be notified
-     * 
-     * @param dataType type of the data
-     * @param callback the callback to notify data or error
-     * @param <T> type of the data
-     */
     @SneakyThrows({ InterruptedException.class, URISyntaxException.class })
-    public <T> void listen(Class<T> dataType, IStompCallback<T> callback) {
+    private void init() {
         if (this.stompChannel != null) {
             throw new IllegalStateException("The stomp connection has already been started");
         }
@@ -129,27 +125,15 @@ public class StompConnection {
             }
         }
         this.eventLoopGroup = new NioEventLoopGroup();
-        final StompClientHandler stompClientHandler = new StompClientHandler(topic, callback, dataType);
+        this.stompClientHandler = new StompClientHandler();
         DefaultHttpHeaders handshakeHeaders = new DefaultHttpHeaders();
         if (this.headers != null) {
             for (Map.Entry<String, String> header : this.headers.entrySet()) {
                 handshakeHeaders.add(header.getKey(), header.getValue());
             }
         }
-        final WebSocketClientHandler webSocketHandler = new WebSocketClientHandler(
-                WebSocketClientHandshakerFactory.newHandshaker(
-                        new URI(wsUrl),
-                        WebSocketVersion.V13,
-                        null,
-                        false,
-                        handshakeHeaders
-                        ),
-                host,
-                user,
-                password,
-                loginUrl,
-                callback
-                );
+        final WebSocketClientHandler webSocketHandler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(new URI(wsUrl),
+                WebSocketVersion.V13, null, false, handshakeHeaders), host, user, password, loginUrl);
         Bootstrap b = new Bootstrap();
         b.group(eventLoopGroup).channel(NioSocketChannel.class);
         b.handler(new ChannelInitializer<SocketChannel>() {
@@ -168,10 +152,32 @@ public class StompConnection {
             }
         });
         this.stompChannel = b.connect(host, port).sync().channel();
+        this.stompClientHandler.connectFuture(this.stompChannel.newPromise());
         webSocketHandler.handshakeFuture().addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(final ChannelFuture future) throws Exception {
                 stompClientHandler.beginStomp(stompChannel);
+            }
+        });
+    }
+
+    /**
+     * Start listening on web socket for specific data type. When data arrived the callback onData method will be called, when error happens the onError method
+     * will be notified
+     * 
+     * @param topic the topic to listen to
+     * @param callback the callback to notify data or error
+     * @param <T> type of the data
+     */
+    public <T> void listen(final String topic, IStompCallback<T> callback) {
+        this.stompClientHandler.listen(topic, callback);
+        this.stompClientHandler.connectFuture().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(final ChannelFuture future) throws Exception {
+                StompFrame subscribeFrame = new DefaultStompFrame(StompCommand.SUBSCRIBE);
+                subscribeFrame.headers().set(StompHeaders.DESTINATION, topic);
+                subscribeFrame.headers().set(StompHeaders.ID, String.valueOf(COUNTER.incrementAndGet()));
+                stompChannel.writeAndFlush(subscribeFrame);
             }
         });
     }
@@ -191,24 +197,26 @@ public class StompConnection {
      * Try to retrieve a given amount of the given type of data.
      * This method is asynchronous, it returns immediately
      *
+     * @param topic the topic to listen to
      * @return the future retrieved data
      */
-    public IStompDataFuture<String> getData() {
-        StompCallback<String> callback = new StompCallback<>();
-        listen(String.class, callback);
+    public IStompDataFuture<String> getData(String topic) {
+        StompCallback<String> callback = new StompCallback<>(String.class);
+        listen(topic, callback);
         return callback;
     }
 
     /**
      * Try to retrieve a given amount of the given type of data.
      * This method is asynchronous, it returns immediately
-     *
+     * 
+     * @param topic the topic to listen to
      * @param dataType type of data to retrieve
      * @return the future retrieved data
      */
-    public <T> IStompDataFuture<T> getData(Class<T> dataType) {
-        StompCallback<T> callback = new StompCallback<>();
-        listen(dataType, callback);
+    public <T> IStompDataFuture<T> getData(String topic, Class<T> dataType) {
+        StompCallback<T> callback = new StompCallback<>(dataType);
+        listen(topic, callback);
         return callback;
     }
 }
