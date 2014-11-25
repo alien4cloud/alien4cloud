@@ -40,7 +40,9 @@ public abstract class AbstractTypeNodeParser {
                 keyBeanWrapper = new BeanWrapperImpl(value);
             }
             try {
-                keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
+                if (!(keyBeanWrapper.getPropertyValue(kvmt.getKeyPath()) != null && mappingTarget.getPath().equals(key))) {
+                    keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
+                }
             } catch (NotWritablePropertyException e) {
                 log.debug("Error while setting key to property for yaml parsing.", e);
                 context.getParsingErrors().add(
