@@ -52,6 +52,20 @@ public class ApplicationEnvironmentController {
     private ApplicationService applicationService;
 
     /**
+     * Get all application environment for an application
+     *
+     * @param applicationId The application id.
+     */
+    @ApiOperation(value = "Get all application environments for an application", notes = "Return all application environments for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<ApplicationEnvironment> get(@PathVariable String applicationId) {
+        Application application = alienDAO.findById(Application.class, applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
+        return RestResponseBuilder.<ApplicationEnvironment> builder().data(environments[0]).build();
+    }
+
+    /**
      * Get application environment from it's id
      *
      * @param applicationId The application id
