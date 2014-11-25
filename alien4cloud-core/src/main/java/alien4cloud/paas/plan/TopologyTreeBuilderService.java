@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.container.model.NormativeNetworkConstants;
 import lombok.SneakyThrows;
 
 import org.springframework.stereotype.Component;
@@ -21,7 +22,9 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.tosca.ToscaService;
 import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
+import alien4cloud.tosca.container.model.NormativeComputeConstants;
 import alien4cloud.tosca.container.model.NormativeRelationshipConstants;
 import alien4cloud.tosca.container.model.topology.AbstractTemplate;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
@@ -41,6 +44,8 @@ public class TopologyTreeBuilderService {
     private CsarFileRepository repository;
     @Resource
     private CSARRepositorySearchService csarSearchService;
+    @Resource
+    private ToscaService toscaService;
 
     /**
      * Fetch informations from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
@@ -94,6 +99,8 @@ public class TopologyTreeBuilderService {
         List<PaaSNodeTemplate> roots = new ArrayList<PaaSNodeTemplate>();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
+            boolean isCompute = toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
+            boolean isNetwork = toscaService.isOfType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
 
             // manage blockstorages
             if (paaSNodeTemplate.getIndexedNodeType().getElementId().equals(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE)) {
@@ -101,9 +108,18 @@ public class TopologyTreeBuilderService {
                 continue;
             }
 
+            // manage network
+            if (isCompute) {
+                manageNetwork(paaSNodeTemplate, nodeTemplates);
+                continue;
+            }
+
             PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
+            // TODO recheck the condition to declare a node as root
             if (hostedOnRelationship == null) {
-                roots.add(paaSNodeTemplate);
+                if (!isNetwork) {
+                    roots.add(paaSNodeTemplate);
+                }
             } else {
                 String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
                 PaaSNodeTemplate parent = nodeTemplates.get(target);
@@ -123,13 +139,22 @@ public class TopologyTreeBuilderService {
         return roots;
     }
 
+    private void manageNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+        PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
+        if (networkRelationship != null) {
+            String target = networkRelationship.getRelationshipTemplate().getTarget();
+            PaaSNodeTemplate network = nodeTemplates.get(target);
+            paaSNodeTemplate.setNetworkNode(network);
+            network.setParent(paaSNodeTemplate);
+        }
+    }
+
     private void manageBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate attachTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ATTACH_TO);
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
             PaaSNodeTemplate parent = nodeTemplates.get(target);
             parent.setAttachedNode(paaSNodeTemplate);
-            // parent.getRelationshipTemplates().add(attachTo);
             paaSNodeTemplate.setParent(parent);
         }
     }

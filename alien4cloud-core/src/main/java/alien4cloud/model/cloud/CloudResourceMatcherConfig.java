@@ -37,4 +37,15 @@ public class CloudResourceMatcherConfig {
         }
         return config;
     }
+
+    @JsonIgnore
+    public Map<Network, String> getNetworkMapping() {
+        Map<Network, String> config = Maps.newHashMap();
+        if (matchedNetworks != null && !matchedNetworks.isEmpty()) {
+            for (MatchedNetwork network : matchedNetworks) {
+                config.put(network.getNetwork(), network.getPaaSResourceId());
+            }
+        }
+        return config;
+    }
 }

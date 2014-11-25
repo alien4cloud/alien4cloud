@@ -22,7 +22,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import cucumber.api.DataTable;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -75,7 +74,7 @@ public class ApplicationResourceMatcherStepDefinitions {
     public void I_select_the_the_template_composed_of_image_and_flavor_for_my_node(String cloudImageName, String flavorId, String nodeName) throws Throwable {
         Map<String, ComputeTemplate> cloudResourcesMatching = Maps.newHashMap();
         cloudResourcesMatching.put(nodeName, new ComputeTemplate(Context.getInstance().getCloudImageId(cloudImageName), flavorId));
-        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching);
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching, null);
         String response = Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup",
                 JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);

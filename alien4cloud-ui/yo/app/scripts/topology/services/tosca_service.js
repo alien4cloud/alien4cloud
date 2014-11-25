@@ -5,7 +5,7 @@ angular.module('alienUiApp').factory('toscaService',
   function() {
     var containerType = 'tosca.capabilities.Container';
     var hostedOnType = 'tosca.relationships.HostedOn';
-    var networkType = 'tosca.relations.Network';
+    var networkType = 'tosca.relationships.Network';
 
     return {
       /**

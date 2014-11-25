@@ -73,10 +73,8 @@ node_types:
           - greater_than: 0
       os_arch:
         type: string
-        required: true
       os_type:
         type: string
-        required: true
       os_distribution:
         type: string
       os_version:
@@ -288,7 +286,7 @@ relationship_types:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ tosca.capabilities.Endpoint ]
     valid_targets: [ tosca.capabilities.Endpoint ]
-  tosca.relations.Network:
+  tosca.relationships.Network:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ tosca.capabilities.Connectivity ]
     valid_targets: [ tosca.capabilities.Connectivity ]
