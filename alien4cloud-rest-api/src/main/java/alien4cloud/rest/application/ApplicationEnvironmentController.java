@@ -18,13 +18,11 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -52,20 +50,6 @@ public class ApplicationEnvironmentController {
     private CloudService cloudService;
     @Resource
     private ApplicationService applicationService;
-
-    /**
-     * Search for an application environment
-     *
-     * @param searchRequest The element that contains criterias for search operation.
-     * @return A rest response that contains a {@link FacetedSearchResult} containing applications environments
-     */
-    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains applications matching the request. A application is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
-        FacetedSearchResult searchResult = alienDAO.facetedSearch(ApplicationEnvironment.class, searchRequest.getQuery(), searchRequest.getFilters(), null,
-                null, searchRequest.getFrom(), searchRequest.getSize());
-        return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
-    }
 
     /**
      * Get application environment from it's id

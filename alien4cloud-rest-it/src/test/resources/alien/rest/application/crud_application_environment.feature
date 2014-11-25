@@ -20,6 +20,19 @@ Scenario: Create a new application environment for an application
   When I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock" and description "Mock App Env" for the newly created application
   Then I should receive a RestResponse with no error
 
+Scenario: Create a new application environment with a name already used must fail
+  Given I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
+  Then I should receive a RestResponse with no error
+  And The application should have a user "frodon" having "APPLICATION_MANAGER" role
+  And The RestResponse should contain an id string
+  And the application can be found in ALIEN
+  When I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock" and description "Mock App Env" for the newly created application
+  Then I should receive a RestResponse with no error
+  When I create an application environment of type "INTEGRATION_TESTS" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock" and description "Mock App Env, Existing application env name" for the newly created application
+  Then I should receive a RestResponse with an error code 502
+  When I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock-clone" and description "Mock App Env Clone" for the newly created application
+  Then I should receive a RestResponse with no error
+
 Scenario: Create a new application environment for an non existing/bad application must fail
   Given I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock-2" and description "Mock App Env" for the newly created application
   Then I should receive a RestResponse with an error code 604
