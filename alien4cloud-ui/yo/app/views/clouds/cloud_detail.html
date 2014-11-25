@@ -400,9 +400,9 @@
               <legend class="text-center">
                 <h4>
                   <i class="fa fa-wifi"></i> {{'CLOUDS.NETWORK' | translate }}
-                  <span style="font-size: 14px">
+                  <span ng-if="networkNotConfiguredCount > 0 && manualMatchResource" style="font-size: 14px">
                     (
-                    <span ng-if="networkNotConfiguredCount > 0 && manualMatchResource">
+                    <span>
                       <i class="fa fa-warning text-danger"></i> {{networkNotConfiguredCount}} {{ 'CLOUDS.NETWORKS.NOT_CONFIGURED' | translate }}
                     </span>
                     )
