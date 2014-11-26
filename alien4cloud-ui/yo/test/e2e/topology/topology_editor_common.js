@@ -235,7 +235,7 @@ module.exports.addRelationshipToNode = addRelationshipToNode;
 
 module.exports.addRelationship = function(relationshipDescription) {
   addRelationshipToNode(relationshipDescription.source, relationshipDescription.target, relationshipDescription.requirement,
-    relationshipDescription.type, relationshipDescription.name);
+    relationshipDescription.type, relationshipDescription.name, relationshipDescription.capability);
 };
 
 // check if a text is present in a repeater list
