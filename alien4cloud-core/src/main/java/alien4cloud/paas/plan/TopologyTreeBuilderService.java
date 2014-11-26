@@ -111,7 +111,6 @@ public class TopologyTreeBuilderService {
             // manage network
             if (isCompute) {
                 manageNetwork(paaSNodeTemplate, nodeTemplates);
-                continue;
             }
 
             PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
