@@ -16,12 +16,6 @@ public class TestDataRegistry {
     public static final Map<String, Path> CONDITION_TO_PATH = Maps.newHashMap();
 
     static {
-        try {
-            FileUtil.delete(Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH));
-        } catch (IOException e) {
-            log.error("Failed to delete zipped archives repository.", e);
-        }
-
         addConditionFolder("tosca base types 1.0", "src/test/resources/data/csars/tosca-base-types-1.0");
         addConditionFolder("tosca base types 2.0", "src/test/resources/data/csars/tosca-base-types-2.0");
         addConditionFolder("tosca base types 3.0", "src/test/resources/data/csars/tosca-base-types-3.0");

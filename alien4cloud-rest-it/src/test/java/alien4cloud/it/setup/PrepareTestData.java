@@ -20,6 +20,13 @@ public class PrepareTestData {
         String baseDir = args[0];
         ARCHIVES_TARGET_PATH = baseDir + "/" + ARCHIVES_TARGET_PATH;
         BASEDIR = baseDir + "/";
+
+        try {
+            FileUtil.delete(Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH));
+        } catch (IOException e) {
+            log.error("Failed to delete zipped archives repository.", e);
+        }
+
         for (Map.Entry<Path, Path> entry : TestDataRegistry.FOLDER_TO_ZIP.entrySet()) {
             try {
                 FileUtil.zip(entry.getKey(), entry.getValue());
