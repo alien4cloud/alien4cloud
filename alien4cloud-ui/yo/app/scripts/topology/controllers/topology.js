@@ -45,6 +45,7 @@ angular.module('alienUiApp').controller(
         $scope.topology = topologyDTO;
         fillBounds($scope.topology.topology);
         initInputsOutputs($scope.topology.topology);
+        console.log('topology is ', $scope.topology.topology);
         $scope.editorContent = jsyaml.safeDump($scope.topology.topology);
         if (UTILS.isDefinedAndNotNull(selectedNodeTemplate)) {
           fillNodeSelectionVars($scope.topology.topology.nodeTemplates[selectedNodeTemplate]);
@@ -685,7 +686,6 @@ angular.module('alienUiApp').controller(
         if (nodeType.capabilities) {
           nodeType.capabilities.forEach(function(capaDef) {
             nodeTemplate.capabilities[capaDef.id].upperBound = capaDef.upperBound;
-            nodeTemplate.capabilities[capaDef.id].lowerBound = capaDef.lowerBound;
             nodeTemplate.capabilities[capaDef.id].canAddRel = canAddRelationshipWithTarget(nodeTemplate, capaDef.id);
           });
         }

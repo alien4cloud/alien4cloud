@@ -21,7 +21,6 @@ public class TestDataRegistry {
         } catch (IOException e) {
             log.error("Failed to delete zipped archives repository.", e);
         }
-        System.out.println("static stuff...");
 
         addConditionFolder("tosca base types 1.0", "src/test/resources/data/csars/tosca-base-types-1.0");
         addConditionFolder("tosca base types 2.0", "src/test/resources/data/csars/tosca-base-types-2.0");
@@ -32,6 +31,7 @@ public class TestDataRegistry {
 
         addConditionFolder("ubuntu types 0.1", "src/test/resources/data/csars/sample/ubuntu-types-0.1");
         addConditionFolder("sample apache lb types 0.1", "src/test/resources/data/csars/sample/apache-lb-types-0.1");
+        addConditionFolder("sample apache lb types 0.2", "src/test/resources/data/csars/sample/apache-lb-types-0.2");
 
         addConditionFolder("constraints", "src/test/resources/data/csars/definition/constraints");
         addConditionFolder("invalid (definition file not found)", "src/test/resources/data/csars/definition/missing");

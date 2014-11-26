@@ -20,7 +20,6 @@ public class PrepareTestData {
         String baseDir = args[0];
         ARCHIVES_TARGET_PATH = baseDir + "/" + ARCHIVES_TARGET_PATH;
         BASEDIR = baseDir + "/";
-        System.out.println("main stuff");
         for (Map.Entry<Path, Path> entry : TestDataRegistry.FOLDER_TO_ZIP.entrySet()) {
             try {
                 FileUtil.zip(entry.getKey(), entry.getValue());
