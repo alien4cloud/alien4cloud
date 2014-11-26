@@ -130,6 +130,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         ]
       },
       controller: 'ApplicationUsersCtrl'
+    }).state('applications.detail.environments', {
+      url: '/environment',
+      templateUrl: 'views/applications/application_environments.html',
+      resolve: {
+        environment: ['$http', 'application',
+          function($http, application) {
+            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
+              return result.data.data;
+            });
+          }
+        ]
+      },
+      controller: 'ApplicationEnvironmentsCtrl'
     })
 
     // topology templates
@@ -242,14 +255,14 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             return cloudImageServices.get({
               id: $stateParams.id
             }).$promise.then(function(success) {
-                var cloudImage = success.data;
-                if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
-                  cloudImage.numCPUs = cloudImage.requirement.numCPUs;
-                  cloudImage.diskSize = cloudImage.requirement.diskSize;
-                  cloudImage.memSize = cloudImage.requirement.memSize;
-                }
-                return cloudImage;
-              });
+              var cloudImage = success.data;
+              if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
+                cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                cloudImage.diskSize = cloudImage.requirement.diskSize;
+                cloudImage.memSize = cloudImage.requirement.memSize;
+              }
+              return cloudImage;
+            });
           }
         ]
       },
@@ -282,7 +295,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     // check when the state is about to change
     $rootScope.$on('$stateChangeStart', function(event, toState) {
       alienAuthService.getStatus().$promise.then(function(result) {
-        if(toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
+        if (toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
           $state.go('user_home_admin');
         }
         // check all the menu array & permissions
