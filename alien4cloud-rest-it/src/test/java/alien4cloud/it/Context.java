@@ -44,7 +44,6 @@ import cucumber.runtime.io.ClasspathResourceLoader;
  */
 @Slf4j
 public class Context {
-
     public static final String HOST = "localhost";
 
     public static final int PORT = 8088;
@@ -125,7 +124,6 @@ public class Context {
     private ThreadLocal<String> applicationEnvironmentId;
 
     private Context() {
-
         restResponseLocal = new ThreadLocal<String>();
         csarLocal = new ThreadLocal<String>();
         componentsIdsLocal = new ThreadLocal<Set<String>>();

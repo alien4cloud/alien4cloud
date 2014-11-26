@@ -34,7 +34,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.utils.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;

@@ -50,6 +50,7 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class ApplicationStepDefinitions {
+    private static final String TEST_APPLICATION_IMAGE = "src/test/resources/data/test-image.png";
     public static Application CURRENT_APPLICATION;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     public static Map<String, Application> CURRENT_APPLICATIONS = Maps.newHashMap(); // | APP_NAME -> APP_OBJECT |
@@ -259,14 +260,12 @@ public class ApplicationStepDefinitions {
         }
     }
 
-    private String imagePath = "../alien4cloud-core/src/main/resources/tosca-base-types/1.0/images/compute.png";
-
     @When("^i update its image$")
     public void i_update_its_image() throws Throwable {
         String appId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         RestResponse<String> response = JsonUtil.read(
-                Context.getRestClientInstance().postMultipart("/rest/applications/" + appId + "/image", "file", Files.newInputStream(Paths.get(imagePath))),
-                String.class);
+                Context.getRestClientInstance().postMultipart("/rest/applications/" + appId + "/image", "file",
+                        Files.newInputStream(Paths.get(TEST_APPLICATION_IMAGE))), String.class);
         assertNull(response.getError());
     }
 

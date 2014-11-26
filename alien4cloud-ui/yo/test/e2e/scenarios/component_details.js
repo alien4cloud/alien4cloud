@@ -12,7 +12,7 @@ var blockStorageComponent = {
   archiveVersion: '2.0'
 };
 var computeComponent = {
-  id: 'tosca.nodes.Compute:1.0',
+  id: 'tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT',
   elementId: 'tosca.nodes.Compute',
   archiveVersion: '1.0'
 };

@@ -57,7 +57,7 @@ exports.config = {
   specs: [
     // No data in ALIEN at this point, only default admin user should exist.
     'test/e2e/setup-scenario/before-all.js',
-    'test/e2e/scenarios/**/*.js'
+    // 'test/e2e/scenarios/**/*.js'
 
     // 'test/e2e/scenarios/homepage.js',
     // 'test/e2e/scenarios/language_test.js',
@@ -81,7 +81,7 @@ exports.config = {
     // 'test/e2e/scenarios/application_tags.js'
 
     // 'test/e2e/scenarios/application_topology_editor_nodetemplate.js',
-    // 'test/e2e/scenarios/application_topology_editor_relationships.js',
+    'test/e2e/scenarios/application_topology_editor_relationships.js',
     // 'test/e2e/scenarios/application_topology_editor_replacenode.js',
     // 'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
     // 'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',

@@ -1,11 +1,11 @@
 {
-    "id" : "fastconnect.nodes.Compute",
+    "elementId" : "fastconnect.nodes.Compute",
     "description" : "A Java Virtual Machine Software Component.\n",
-    "tags" : {
-      "icon" : "/images/java.png",
-      "marurity" : "very bad"
-    },
-    "derivedFrom" : "tosca.nodes.Root",
+    "tags" : [
+      {"name": "icon", "value": "/images/java.png"},
+      {"name": "marurity", "value": "very bad"}
+    ],
+    "derivedFrom" : ["tosca.nodes.Root"],
     "properties" : {
       "version" : {
         "type" : "version",
@@ -38,24 +38,21 @@
         "default" : null
       }
     },
-    "requirements" : {
-      "feature" : {
+    "requirements" : [
+      {
         "id" : "feature",
         "type" : "tosca.capabilities.Feature",
         "lowerBound" : 0,
         "upperBound" : 1
       }
-    },
-    "capabilities" : {
-      "container" : {
+    ],
+    "capabilities" : [
+      {
         "id" : "container",
         "type" : "tosca.capabilities.Container",
-        "lowerBound" : 1,
         "upperBound" : "unbounded"
       }
-    },
-    "instanceStates" : null,
+    ],
     "interfaces" : null,
-    "abstract" : false,
-    "final" : false
+    "abstract" : false
   }

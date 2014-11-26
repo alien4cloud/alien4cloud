@@ -6,7 +6,6 @@ angular.module('alienUiApp').controller('SearchRelationshipCtrl', ['$scope', '$m
   $scope.step = 1;
 
   $scope.relationshipModalData = {};
-  $scope.eligibleCapabilities = {};
 
   relationshipTopologyService.getTargets(
     $scope.sourceElementName, $scope.requirement, $scope.requirementName, $scope.topology.topology.nodeTemplates, $scope.topology.nodeTypes, $scope.topology.relationshipTypes, $scope.topology.capabilityTypes, $scope.topology.topology.dependencies, $scope.targetNodeTemplateName).then(function(result) {

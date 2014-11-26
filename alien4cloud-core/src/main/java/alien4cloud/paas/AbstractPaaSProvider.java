@@ -1,20 +1,15 @@
 package alien4cloud.paas;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
-import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.tosca.container.archive.ArchiveParser;
-import alien4cloud.tosca.container.model.CloudServiceArchive;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
 
@@ -24,8 +19,8 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     public static final String DEPENDS_ON = "tosca.relationships.DependsOn";
     public static final String CONNECTS_TO = "tosca.relationships.ConnectsTo";
 
-    @Resource
-    private ArchiveParser archiveParser;
+    // @Resource
+    // private ArchiveParser archiveParser;
     @Resource
     private CSARRepositorySearchService csarRepoSearch;
     @Resource
@@ -54,9 +49,9 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     protected abstract void doDeploy(String deploymentName, String deploymentId, Topology topology, List<PaaSNodeTemplate> roots,
             Map<String, PaaSNodeTemplate> nodeTemplates, DeploymentSetup deploymentSetup);
 
-    @SneakyThrows
-    protected CloudServiceArchive getCloudServiceArchive(IndexedToscaElement indexedNodeType) {
-        Path csarPath = repository.getCSAR(indexedNodeType.getArchiveName(), indexedNodeType.getArchiveVersion());
-        return archiveParser.parseArchive(csarPath);
-    }
+    // @SneakyThrows
+    // protected CloudServiceArchive getCloudServiceArchive(IndexedToscaElement indexedNodeType) {
+    // Path csarPath = repository.getCSAR(indexedNodeType.getArchiveName(), indexedNodeType.getArchiveVersion());
+    // return archiveParser.parseArchive(csarPath);
+    // }
 }

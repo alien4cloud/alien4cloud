@@ -8,36 +8,43 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.csar.model.Csar;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.CloudServiceArchive;
+import alien4cloud.tosca.model.Csar;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+/**
+ * Manages cloud services archives and their dependencies.
+ */
 @Component
 public class CsarService implements ICsarDependencyLoader {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
 
     /**
-     * Retrieve direct dependencies for csar with given name and version
-     *
-     * @param csarName name of the csar
-     * @param csarVersion version the csar
-     * @return the list of dependencies
+     * Get a cloud service if exists in Dao.
+     * 
+     * @param name The name of the archive.
+     * @param version The version of the archive.
+     * @return The {@link Csar Cloud Service Archive} if found in the repository or null.
      */
-    @Override
-    public Set<CSARDependency> getDependencies(String csarName, String csarVersion) {
+    public Csar getIfExists(String name, String version) {
         Csar csar = new Csar();
-        csar.setName(csarName);
-        csar.setVersion(csarVersion);
+        csar.setName(name);
+        csar.setVersion(version);
         csar = csarDAO.findById(Csar.class, csar.getId());
+        return csar;
+    }
+
+    @Override
+    public Set<CSARDependency> getDependencies(String name, String version) {
+        Csar csar = getIfExists(name, version);
         if (csar == null) {
-            throw new NotFoundException("Csar with name [" + csarName + "] and version [" + csarVersion + "] cannot be found");
+            throw new NotFoundException("Csar with name [" + name + "] and version [" + version + "] cannot be found");
         }
         if (csar.getDependencies() == null || csar.getDependencies().isEmpty()) {
             return Sets.newHashSet();
@@ -45,20 +52,23 @@ public class CsarService implements ICsarDependencyLoader {
         return Sets.newHashSet(csar.getDependencies());
     }
 
-    public Csar saveUploadedCsar(CloudServiceArchive archive) {
-        Csar csar = new Csar();
-        csar.setName(archive.getMeta().getName());
-        csar.setVersion(archive.getMeta().getVersion());
-        Set<CSARDependency> dependencies = archive.getMeta().getDependencies();
-        Set<CSARDependency> mergedDependencies = Sets.newHashSet(dependencies);
-        if (dependencies != null && !dependencies.isEmpty()) {
-            for (CSARDependency dependency : dependencies) {
-            	mergedDependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
+    /**
+     * Save a Cloud Service Archive in ElasticSearch.
+     * 
+     * @param csar The csar to save.
+     */
+    public void save(Csar csar) {
+        // fill in transitive dependencies.
+        Set<CSARDependency> mergedDependencies = null;
+        if (csar.getDependencies() != null) {
+            mergedDependencies = Sets.newHashSet(csar.getDependencies());
+            for (CSARDependency dependency : csar.getDependencies()) {
+                mergedDependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
             }
         }
         csar.setDependencies(mergedDependencies);
-        csarDAO.save(csar);
-        return csar;
+
+        this.csarDAO.save(csar);
     }
 
     public Map<String, Csar> findByIds(String fetchContext, String... ids) {

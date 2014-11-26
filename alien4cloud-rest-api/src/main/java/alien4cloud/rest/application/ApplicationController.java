@@ -48,7 +48,7 @@ import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;

@@ -7,8 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -31,13 +31,11 @@ import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,7 +50,6 @@ import com.google.common.collect.Lists;
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EsDaoSuggestionTest {
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
     private static final String FETCH_CONTEXT = "tag_suggestion";
     private static final String TAG_NAME_PATH = "tags.name";
@@ -89,9 +86,9 @@ public class EsDaoSuggestionTest {
     @Test
     public void simpleSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         String searchText = "ver";
-        GetMultipleDataResult searchResp = dao.suggestSearch(new String[] { APPLICATION_INDEX, COMPONENT_INDEX }, new Class<?>[] { Application.class,
-                IndexedNodeType.class, IndexedArtifactType.class, IndexedCapabilityType.class, IndexedRelationshipType.class }, TAG_NAME_PATH, searchText,
-                FETCH_CONTEXT, 0, 10);
+        GetMultipleDataResult searchResp = dao.suggestSearch(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX }, new Class<?>[] {
+                Application.class, IndexedNodeType.class, IndexedArtifactType.class, IndexedCapabilityType.class, IndexedRelationshipType.class },
+                TAG_NAME_PATH, searchText, FETCH_CONTEXT, 0, 10);
         System.out.println(searchResp.getData().length);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
@@ -106,17 +103,16 @@ public class EsDaoSuggestionTest {
     }
 
     private void prepareToscaElement() {
-
-        indexedNodeTypeTest = createIndexedNodeType("1", "positive", "1.0", "", null, null, null, null, Tags1);
+        indexedNodeTypeTest = TestModelUtil.createIndexedNodeType("1", "positive", "1.0", "", null, null, null, null, Tags1, new Date(), new Date());
         dataTest.add(indexedNodeTypeTest);
 
-        indexedNodeTypeTest2 = createIndexedNodeType("2", "pokerFace", "1.0", "", null, null, null, null, Tags2);
+        indexedNodeTypeTest2 = TestModelUtil.createIndexedNodeType("2", "pokerFace", "1.0", "", null, null, null, null, Tags2, new Date(), new Date());
         dataTest.add(indexedNodeTypeTest2);
 
-        indexedNodeTypeTest3 = createIndexedNodeType("3", "positive5", "1.5", "", null, null, null, null, Tags3);
+        indexedNodeTypeTest3 = TestModelUtil.createIndexedNodeType("3", "positive5", "1.5", "", null, null, null, null, Tags3, new Date(), new Date());
         dataTest.add(indexedNodeTypeTest3);
 
-        indexedNodeTypeTest4 = createIndexedNodeType("4", "pakerFace", "2.0", "", null, null, null, null, null);
+        indexedNodeTypeTest4 = TestModelUtil.createIndexedNodeType("4", "pakerFace", "2.0", "", null, null, null, null, null, new Date(), new Date());
         dataTest.add(indexedNodeTypeTest4);
     }
 
@@ -124,9 +120,9 @@ public class EsDaoSuggestionTest {
         for (IndexedNodeType datum : dataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
-            nodeClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
 
-            assertDocumentExisit(COMPONENT_INDEX, typeName, datum.getId(), true);
+            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
         }
     }
 
@@ -142,28 +138,12 @@ public class EsDaoSuggestionTest {
 
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Cleaning ES Index " + COMPONENT_INDEX + " and type " + typeName);
+        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
     }
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(COMPONENT_INDEX, IndexedNodeType.class);
-    }
-
-    private static IndexedNodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
-            Set<CapabilityDefinition> capabilities, Set<RequirementDefinition> requirements, Set<String> derivedFroms, Set<String> defaultCapabilities,
-            List<Tag> tags) {
-        IndexedNodeType nodeType = new IndexedNodeType();
-        nodeType.setElementId(id);
-        nodeType.setArchiveName(archiveName);
-        nodeType.setArchiveVersion(archiveVersion);
-        nodeType.setCapabilities(capabilities);
-        nodeType.setDescription(description);
-        nodeType.setDefaultCapabilities(defaultCapabilities);
-        nodeType.setRequirements(requirements);
-        nodeType.setDerivedFrom(derivedFroms);
-        nodeType.setTags(tags);
-        return nodeType;
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
 }

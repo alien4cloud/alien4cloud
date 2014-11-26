@@ -12,6 +12,7 @@ public enum RestErrorCode {
     // CSAR processing errors
     CSAR_PARSING_ERROR(200),
     CSAR_INVALID_ERROR(201),
+    CSAR_RELEASE_IMMUTABLE(202),
 
     // Indexing global error.
     INDEXING_SERVICE_ERROR(300),
@@ -27,7 +28,6 @@ public enum RestErrorCode {
 
     // Repository service error
     REPOSITORY_SERVICE_ERROR(400),
-    REPOSITORY_CSAR_ALREADY_EXISTED_ERROR(401),
 
     // Global errors
     UNCATEGORIZED_ERROR(500),

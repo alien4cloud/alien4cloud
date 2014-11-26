@@ -1,0 +1,47 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+node_types:
+  test.nodes.Root:
+    abstract: false
+    requirements:
+      dependency:
+        type: test.requirements.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+    capabilities:
+      feature:
+        type: test.capabilities.Feature
+        lower_bound: 0
+        upper_bound: unbounded
+
+  test.nodes.Java:
+    derived_from: test.nodes.Root
+    abstract: false
+    requirements:
+      hosted:
+        type: test.requirements.hosting
+        lower_bound: 0
+        upper_bound: unbounded
+
+  test.nodes.Compute:
+    derived_from: test.nodes.Root
+    capabilities:
+      hosting:
+        type: test.capabilities.Container
+
+capability_types:
+  test.capabilities.Feature:
+  test.capabilities.Container:
+    properties:
+      containee_types:
+        type: string
+  test.requirements.Feature:
+  test.requirements.hosting:
+
+relationship_types:
+  test.relationships.DependsOn:
+    valid_sources: [ test.requirements.Feature ]
+    valid_targets: [ test.capabilities.Feature ]
+  test.relationships.HostedOn:
+    valid_sources: [ test.requirements.hosting ]
+    valid_targets: [ test.capabilities.Container ]

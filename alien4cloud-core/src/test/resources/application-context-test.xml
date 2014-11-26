@@ -28,6 +28,7 @@
 		alien4cloud.cloud,
 		alien4cloud.plugin">
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap" />
+    <context:exclude-filter type="regex" expression="alien4cloud.configuration.DefaultGroup" />
   </context:component-scan>
 
   <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory" />

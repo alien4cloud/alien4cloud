@@ -32,13 +32,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -50,7 +50,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
 public class EsDaoPaginatedSearchTest {
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public EsDaoPaginatedSearchTest() {
@@ -124,7 +123,7 @@ public class EsDaoPaginatedSearchTest {
         searchText = "pacpac";
         maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
-        GetMultipleDataResult searchResp = dao.search(IndexedNodeType.class, searchText, null, 0, size);
+        GetMultipleDataResult<IndexedNodeType> searchResp = dao.search(IndexedNodeType.class, searchText, null, 0, size);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -161,7 +160,7 @@ public class EsDaoPaginatedSearchTest {
         searchText = "pacpac";
         maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
         assertEquals(0, maxElement);
-        GetMultipleDataResult searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, null, null, 0, size);
+        GetMultipleDataResult<IndexedNodeType> searchResp = dao.facetedSearch(IndexedNodeType.class, searchText, null, null, 0, size);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getData());
         assertNotNull(searchResp.getTypes());
@@ -184,7 +183,7 @@ public class EsDaoPaginatedSearchTest {
     private void testSimpleSearchWellPaginated(int maxElement, int size, Map<String, String[]> filters) throws IOException {
         List<IndexedNodeType> expectedDataList = filters != null && filterContainsValue(filters, "jndi") ? new ArrayList<>(jndiTestDataList) : new ArrayList<>(
                 testDataList);
-        GetMultipleDataResult searchResp;
+        GetMultipleDataResult<IndexedNodeType> searchResp;
         int expectedSize;
         for (int from = 0; from < maxElement; from += size) {
             expectedSize = (maxElement - from) > size ? size : maxElement - from;
@@ -295,12 +294,11 @@ public class EsDaoPaginatedSearchTest {
     }
 
     private int getCount(QueryBuilder queryBuilder) {
-        return (int) nodeClient.prepareCount(COMPONENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(IndexedNodeType.class)).setQuery(queryBuilder)
-                .execute().actionGet().getCount();
+        return (int) nodeClient.prepareCount(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).setTypes(MappingBuilder.indexTypeFromClass(IndexedNodeType.class))
+                .setQuery(queryBuilder).execute().actionGet().getCount();
     }
 
     private void saveDataToES(boolean refresh) throws IOException, IndexingServiceException {
-
         testDataList.clear();
 
         Path path = Paths.get("src/test/resources/nodetypes-faceted-search-result.json");
@@ -309,10 +307,10 @@ public class EsDaoPaginatedSearchTest {
         for (int i = 0; i < data.length; i++) {
             String serializeDatum = jsonMapper.writeValueAsString(data[i]);
             String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
-            nodeClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
 
             IndexedNodeType nt = jsonMapper.readValue(serializeDatum, IndexedNodeType.class);
-            assertDocumentExisit(COMPONENT_INDEX, typeName, nt.getId(), true);
+            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, nt.getId(), true);
             testDataList.add(nt);
             for (CapabilityDefinition capaDef : nt.getCapabilities()) {
                 if (capaDef.getType().equals("jndi")) {
@@ -334,13 +332,12 @@ public class EsDaoPaginatedSearchTest {
 
     private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
         String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Cleaning ES Index " + COMPONENT_INDEX + " and type " + typeName);
+        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
         nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
     }
 
     @After
     public void cleanup() throws InterruptedException {
-        clearIndex(COMPONENT_INDEX, IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
-
 }

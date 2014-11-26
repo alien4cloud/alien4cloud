@@ -1,11 +1,7 @@
 package alien4cloud.cloud;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -22,27 +18,15 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.ActivableComputeTemplate;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.model.cloud.CloudImage;
-import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.*;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
-import alien4cloud.paas.IPaaSProvider;
-import alien4cloud.paas.IPaaSProviderFactory;
-import alien4cloud.paas.PaaSProviderFactoriesService;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.*;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.template.PropertyValue;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.model.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -249,8 +233,9 @@ public class CloudService {
      *
      * @param id Id of the cloud for which to get properties.
      */
-    public Map<String, PropertyValue> getDeploymentProps(String id) {
-        return PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(getDeploymentPropertyDefinitions(id));
+    public Map<String, ScalarPropertyValue> getDeploymentProps(String id) {
+        Map map = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(getDeploymentPropertyDefinitions(id));
+        return map;
     }
 
     /**
