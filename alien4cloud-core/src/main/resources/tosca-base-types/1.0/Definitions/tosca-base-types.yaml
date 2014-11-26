@@ -287,7 +287,7 @@ relationship_types:
     valid_sources: [ tosca.capabilities.Endpoint ]
     valid_targets: [ tosca.capabilities.Endpoint ]
   tosca.relationships.Network:
-    derived_from: tosca.relationships.DependsOn
+    derived_from: tosca.relationships.Root
     valid_sources: [ tosca.capabilities.Connectivity ]
     valid_targets: [ tosca.capabilities.Connectivity ]
 
