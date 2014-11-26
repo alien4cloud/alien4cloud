@@ -39,10 +39,10 @@ import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -61,20 +61,23 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
-import alien4cloud.tosca.container.archive.CsarUploadService;
-import alien4cloud.tosca.container.exception.CSARIOException;
-import alien4cloud.tosca.container.exception.CSARParsingException;
-import alien4cloud.tosca.container.exception.CSARValidationException;
+import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
-import alien4cloud.tosca.container.validation.CSARError;
-import alien4cloud.tosca.container.validation.CSARValidationResult;
+import alien4cloud.tosca.model.Csar;
+import alien4cloud.tosca.parser.ParsingContext;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingException;
+import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
+import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.YamlParserUtil;
 
+import com.mangofactory.swagger.annotations.ApiIgnore;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 @RestController
@@ -84,7 +87,7 @@ public class CloudServiceArchiveController {
     private static final String DEFAULT_TEST_FOLDER = "test";
 
     @Resource
-    private CsarUploadService csarUploadService;
+    private ArchiveUploadService csarUploadService;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
     @Resource
@@ -107,7 +110,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CSARValidationResult> uploadCSAR(@RequestParam("file") MultipartFile csar) {
+    public RestResponse<ParsingResult<Csar>> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
         try {
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
@@ -115,26 +118,28 @@ public class CloudServiceArchiveController {
             // save the archive in the temp directory
             FileUploadUtil.safeTransferTo(csarPath, csar);
             // load, parse the archive definitions and save on disk
-            Csar uploadedCsar = csarUploadService.uploadCsar(csarPath);
-            return RestResponseBuilder.<CSARValidationResult> builder().data(new CSARValidationResult(uploadedCsar, null)).build();
-        } catch (IOException e) {
-            throw new CSARIOException("Exception happened why trying to store uploaded file to temporary folder", e);
-        } catch (CSARValidationException e) {
-            return RestResponseBuilder.<CSARValidationResult> builder().data(e.getCsarValidationResult())
-                    .error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).build();
-        } catch (CSARParsingException e) {
-            log.error("Error happened while parsing csar file", e);
-            CSARError error = e.createCSARError();
-            Map<String, Set<CSARError>> errors = Maps.newHashMap();
-            errors.put(e.getFileName(), Sets.newHashSet(error));
-            return RestResponseBuilder.<CSARValidationResult> builder().data(new CSARValidationResult(errors))
-                    .error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).message(error.getMessage()).build()).build();
+            ParsingResult<Csar> result = csarUploadService.upload(csarPath);
+            RestError error = null;
+            if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
+                error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
+            }
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(error).data(result).build();
+        } catch (ParsingException e) {
+            log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
+            String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
+            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(fileName));
+            result.getContext().getParsingErrors().addAll(e.getParsingErrors());
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(result)
+                    .build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
-            return RestResponseBuilder
-                    .<CSARValidationResult> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.REPOSITORY_CSAR_ALREADY_EXISTED_ERROR)
-                            .message("A CSAR with the same name and the same version already existed in the repository : " + e.getMessage()).build()).build();
+            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(csar.getOriginalFilename()));
+            result.getContext()
+                    .getParsingErrors()
+                    .add(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
+                            "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null));
+            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build()).data(result)
+                    .build();
         } finally {
             if (csarPath != null) {
                 // Clean up
@@ -197,13 +202,9 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes != null) {
-            for (NodeType nodeType : nodeTypes.values()) {
-                indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-            }
-        }
-        // check rights to delete ?
+
+        // TODO cleanup node types, relationship types etc.
+
         csarDAO.delete(Csar.class, csarId);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -228,50 +229,50 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 
-    @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
+    @ApiIgnore
+    // @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
     @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody NodeType nodeType) {
+    public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
         Csar csar = csarService.getMandatoryCsar(csarId);
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes == null) {
-            nodeTypes = Maps.newHashMap();
-            csar.setNodeTypes(nodeTypes);
+        // check that the csar version is snapshot.
+        if (VersionUtil.isSnapshot(csar.getVersion())) {
+            nodeType.setArchiveName(csar.getName());
+            nodeType.setArchiveVersion(csar.getVersion());
+            indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), nodeType, csar.getDependencies());
+            return RestResponseBuilder.<Void> builder().build();
         }
-        nodeTypes.put(nodeType.getId(), nodeType);
-        indexerService.indexInheritableElement(csar.getName(), csar.getVersion(), nodeType);
-        csarDAO.save(csar);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_RELEASE_IMMUTABLE).build()).build();
     }
 
-    @ApiOperation(value = "Get a node type defined in a cloud service archive.")
-    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
-    }
+    // @ApiOperation(value = "Get a node type defined in a cloud service archive.")
+    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
+    // Csar csar = csarService.getMandatoryCsar(csarId);
+    // return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
+    // }
 
-    @ApiOperation(value = "Removes a node type from a cloud service archive.")
-    @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-        Csar csar = csarService.getMandatoryCsar(csarId);
-        if (csar.getNodeTypes() != null) {
-            NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
-            if (nodeType != null) {
-                indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-                csarDAO.save(csar);
-            }
-        }
-        return RestResponseBuilder.<Void> builder().build();
-    }
+    // @ApiOperation(value = "Removes a node type from a cloud service archive.")
+    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
+    // Csar csar = csarService.getMandatoryCsar(csarId);
+    // if (csar.getNodeTypes() != null) {
+    // NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
+    // if (nodeType != null) {
+    // indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
+    // csarDAO.save(csar);
+    // }
+    // }
+    // return RestResponseBuilder.<Void> builder().build();
+    // }
 
-    private NodeType getNodeType(Csar csar, String nodeTypeId) {
-        Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-        if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
-            throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
-        } else {
-            return nodeTypes.get(nodeTypeId);
-        }
-    }
+    // private NodeType getNodeType(Csar csar, String nodeTypeId) {
+    // Map<String, NodeType> nodeTypes = csar.getNodeTypes();
+    // if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
+    // throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
+    // } else {
+    // return nodeTypes.get(nodeTypeId);
+    // }
+    // }
 
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")
@@ -281,7 +282,6 @@ public class CloudServiceArchiveController {
     }
 
     private static class YamlTestFileVisitor extends SimpleFileVisitor<Path> {
-
         @Getter
         private Path yamlTestFile;
 
@@ -338,6 +338,9 @@ public class CloudServiceArchiveController {
                 Path myCsar = alienRepository.getCSAR(csarName, csarVersion);
                 FileSystem csarFS = FileSystems.newFileSystem(myCsar, null);
                 Path definitionsFolderPath = csarFS.getPath(DEFAULT_TEST_FOLDER);
+                if (!Files.exists(definitionsFolderPath)) {
+                    throw new NotFoundException("yaml template should exist in folder [" + DEFAULT_TEST_FOLDER + "]");
+                }
                 // read the first yaml file found (only one currently)
                 YamlTestFileVisitor testFileExtractor = new YamlTestFileVisitor();
                 Files.walkFileTree(definitionsFolderPath, testFileExtractor);

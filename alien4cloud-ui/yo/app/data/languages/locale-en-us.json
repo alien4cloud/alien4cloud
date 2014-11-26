@@ -10,6 +10,8 @@
   "DELETE_CONFIRM": "Do you really want to remove this element ?",
   "APPLICATION": "Application",
   "CSAR": "Csar",
+  "TRUE": "True",
+  "FALSE": "False",
   "NAVBAR": {
     "BUTTON_LOGIN": "Login",
     "BUTTON_LOGOUT": "Logout",
@@ -102,6 +104,7 @@
     "CAPABILITIES": {
       "TYPE": "Capabilities"
     },
+    "ABSTRACT": "Abstract component",
     "DEFAULTCAPABILITIES": "Default Capabilities",
     "DERIVEDFROM": "Derived from",
     "REQUIREMENTS": {

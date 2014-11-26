@@ -67,8 +67,7 @@ public class DeploymentController {
             @ApiParam(value = "include or not the applications summary in the results") @RequestParam(required = false, defaultValue = "false") boolean includeAppSummary,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
-        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(getDeploymentsAndSources(cloudId, sourceId, includeAppSummary, from, size))
-                .build();
+        return RestResponseBuilder.<List<DeploymentDTO>> builder().data(getDeploymentsAndSources(cloudId, sourceId, includeAppSummary, from, size)).build();
     }
 
     /**

@@ -198,7 +198,7 @@ public final class ReflectionUtil {
                     continue;
                 }
                 Object value = property.getReadMethod().invoke(from);
-                if(value != null) {
+                if (value != null) {
                     settablePropertiesMap.put(property.getName(), value);
                 }
             }
@@ -206,7 +206,7 @@ public final class ReflectionUtil {
                 // Set new values
                 String propertyName = settableProperty.getKey();
                 Object propertyValue = settableProperty.getValue();
-                setPropertyValue(to, propertyName,  propertyValue);
+                setPropertyValue(to, propertyName, propertyValue);
             }
         } catch (IllegalAccessException | InvocationTargetException | PropertyAccessException | BeansException e) {
             throw new InvalidArgumentException("Cannot merge object", e);
@@ -235,5 +235,16 @@ public final class ReflectionUtil {
     public static void setPropertyValue(Object object, String property, Object value) {
         BeanWrapper wrapper = new BeanWrapperImpl(object);
         wrapper.setPropertyValue(property, value);
+    }
+
+    /**
+     * Return true if the given class is a primitive type, a primitive wrapper or a String.
+     * 
+     * @param clazz The class to check.
+     * @return True if the class is String, a primitive type or a primitive Wrapper type.
+     */
+    public static boolean isPrimitiveOrWrapperOrString(Class<?> clazz) {
+        return clazz.isPrimitive() || clazz.equals(String.class) || clazz.equals(Boolean.class) || clazz.equals(Integer.TYPE) || clazz.equals(Long.TYPE)
+                || clazz.equals(Float.TYPE) || clazz.equals(Double.TYPE) || clazz.equals(Character.TYPE) || clazz.equals(Byte.TYPE) || clazz.equals(Short.TYPE);
     }
 }

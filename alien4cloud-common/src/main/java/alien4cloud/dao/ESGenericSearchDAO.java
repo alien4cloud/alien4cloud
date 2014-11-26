@@ -168,6 +168,7 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         return facetedSearch(clazz, searchText, filters, null, fetchContext, from, maxElements);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
@@ -177,7 +178,8 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         // check something found
         // return an empty object if nothing found
         if (!somethingFound(searchResponse)) {
-            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], new String[0], new HashMap<String, FacetedSearchFacet[]>());
+            T[] resultData = (T[]) Array.newInstance(clazz, 0);
+            FacetedSearchResult toReturn = new FacetedSearchResult(from, 0, 0, 0, new String[0], resultData, new HashMap<String, FacetedSearchFacet[]>());
             if (searchResponse != null) {
                 toReturn.setQueryDuration(searchResponse.getTookInMillis());
             }

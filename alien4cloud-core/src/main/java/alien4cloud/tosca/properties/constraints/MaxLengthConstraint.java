@@ -2,21 +2,24 @@ package alien4cloud.tosca.properties.constraints;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.NumberDeserializer;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false, of = { "maxLength" })
 @SuppressWarnings({ "PMD.UnusedPrivateField" })
 public class MaxLengthConstraint extends AbstractStringPropertyConstraint {
-
-    @JsonDeserialize(using = NumberDeserializer.class)
     @NotNull
     private Integer maxLength;
+
+    public MaxLengthConstraint(Integer maxLength) {
+        this.maxLength = maxLength;
+    }
 
     @Override
     protected void doValidate(String propertyValue) throws ConstraintViolationException {

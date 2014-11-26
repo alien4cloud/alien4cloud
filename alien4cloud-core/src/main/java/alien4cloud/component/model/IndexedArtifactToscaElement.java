@@ -12,6 +12,8 @@ import lombok.Setter;
 import org.elasticsearch.annotation.query.FetchContext;
 
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
+import alien4cloud.tosca.model.Interface;
+import alien4cloud.tosca.model.AttributeDefinition;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -23,4 +25,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement {
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, DeploymentArtifact> artifacts;
+
+    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    private Map<String, AttributeDefinition> attributes;
+
+    @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
+    private Map<String, Interface> interfaces;
 }

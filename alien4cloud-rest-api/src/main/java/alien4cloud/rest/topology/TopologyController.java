@@ -39,14 +39,13 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.ToscaService;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -84,9 +83,6 @@ public class TopologyController {
 
     @Resource
     private IFileRepository artifactRepository;
-
-    @Resource
-    private ToscaService toscaService;
 
     /**
      * Retrieve an existing {@link Topology}
@@ -887,7 +883,7 @@ public class TopologyController {
 
         Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.getHostedOnTree(nodeTemplates);
-        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots, false);
+        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots);
 
         return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
     }

@@ -10,13 +10,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -40,11 +34,11 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.Interface;
-import alien4cloud.tosca.container.model.type.Operation;
-import alien4cloud.tosca.container.model.type.OperationParameter;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.model.IOperationParameter;
+import alien4cloud.tosca.model.Interface;
+import alien4cloud.tosca.model.Operation;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -125,7 +119,7 @@ public class RuntimeController {
      * @param applicationId Id of the application for which to get deployed topology.
      * @param cloudId of the cloud on which the runtime topology is deployed.
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
-     *         {@link alien4cloud.tosca.container.model.type.NodeType} related to his {@link NodeTemplate}s
+     *         {@link alien4cloud.component.model.IndexedNodeType} related to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER"),
             @Authorization("DEPLOYMENT_MANAGER") })
@@ -166,43 +160,31 @@ public class RuntimeController {
         Interface interfass = interfaces.get(operationRequest.getInterfaceName());
         validateOperation(interfass, operationRequest);
 
-        // validate parameters (value/type and required value
-        PropertyDefinition operationParamPropertyDefinition = null;
-        Map<String, Operation> operations = interfass.getOperations();
-        OperationParameter currentOperationParameter = null;
+        // validate parameters (value/type and required value)
         ArrayList<String> missingParams = Lists.newArrayList();
 
-        if (operations.get(operationRequest.getOperationName()).getInputParameters() != null) {
+        Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
+        IOperationParameter currentOperationParameter = null;
 
-            for (Entry<String, OperationParameter> inputParameter : operations.get(operationRequest.getOperationName()).getInputParameters().entrySet()) {
-
+        if (operation.getInputParameters() != null) {
+            for (Entry<String, IOperationParameter> inputParameter : operation.getInputParameters().entrySet()) {
                 String inputParamKey = inputParameter.getKey();
-                if (operationRequest.getParameters() != null && operationRequest.getParameters().containsKey(inputParamKey)) {
-
-                    currentOperationParameter = operations.get(operationRequest.getOperationName()).getInputParameters().get(inputParamKey);
-
-                    // create propertyDefinition corresponding to this parammeter
-                    operationParamPropertyDefinition = new PropertyDefinition();
-                    operationParamPropertyDefinition.setType(currentOperationParameter.getType());
-                    operationParamPropertyDefinition.setConstraints(null);
-                    operationParamPropertyDefinition.setRequired(currentOperationParameter.isRequired());
-
-                    if (Boolean.TRUE.equals(currentOperationParameter.isRequired())
-                            && (operationRequest.getParameters().get(inputParamKey) == null || operationRequest.getParameters().get(inputParamKey).equals(""))) {
-                        missingParams.add(inputParamKey);
+                String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(inputParamKey);
+                if (requestInputParameter != null) {
+                    currentOperationParameter = inputParameter.getValue();
+                    if (currentOperationParameter instanceof PropertyDefinition) {
+                        PropertyDefinition operationParamPropertyDefinition = (PropertyDefinition) currentOperationParameter;
+                        if (operationParamPropertyDefinition.isRequired() && requestInputParameter.isEmpty()) {
+                            missingParams.add(inputParamKey);
+                        }
+                        // recover the good property definition for the current parameter
+                        constraintPropertyService.checkPropertyConstraint(inputParamKey, requestInputParameter, operationParamPropertyDefinition);
                     }
-
-                    // recover the good property definition for the current parameter
-                    constraintPropertyService.checkPropertyConstraint(inputParamKey, operationRequest.getParameters().get(inputParamKey),
-                            operationParamPropertyDefinition);
-
-                } else {// input param not in the request, check if it's required
-                    if (Boolean.TRUE.equals(inputParameter.getValue().isRequired())) {
-                        missingParams.add(inputParamKey);
-                    }
+                } else if (inputParameter.getValue() instanceof PropertyDefinition && ((PropertyDefinition) inputParameter.getValue()).isRequired()) {
+                    // input param not in the request, id required this is a missing parameter...
+                    missingParams.add(inputParamKey);
                 }
             }
-
         }
 
         // check required input issue

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,14 +29,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +55,6 @@ import com.google.common.collect.Sets;
 // @Ignore
 public class EsQuickSearchTest {
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
@@ -91,8 +89,8 @@ public class EsQuickSearchTest {
     @Test
     public void simpleQuickSearchTest() throws IndexingServiceException, InterruptedException, IOException {
         String searchText = "app";
-        GetMultipleDataResult searchResp = alienDAO.search(new String[] { APPLICATION_INDEX, COMPONENT_INDEX }, new Class<?>[] { IndexedNodeType.class,
-                Application.class }, searchText, null, null, 0, 10);
+        GetMultipleDataResult searchResp = alienDAO.search(new String[] { APPLICATION_INDEX, ElasticSearchDAO.TOSCA_ELEMENT_INDEX }, new Class<?>[] {
+                IndexedNodeType.class, Application.class }, searchText, null, null, 0, 10);
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
@@ -107,22 +105,21 @@ public class EsQuickSearchTest {
     }
 
     private void prepareToscaElement() {
-        Set<CapabilityDefinition> capa = new HashSet<>(Arrays.asList(new CapabilityDefinition("container", "container", 1, 1), new CapabilityDefinition(
-                "container1", "container1", 1, 1), new CapabilityDefinition("container2", "container2", 1, 1), new CapabilityDefinition("container3",
-                "container3", 1, 1)));
-        Set<RequirementDefinition> req = new HashSet<>(Arrays.asList(new RequirementDefinition("Runtime", "Runtime", null, 1, 1), new RequirementDefinition(
-                "server", "server", null, 1, 1), new RequirementDefinition("blob", "blob", null, 1, 1)));
-        Set<String> der = new HashSet<>(Arrays.asList("app", "Parent2"));
-        indexedNodeTypeTest = createIndexedNodeType("1", "app-1", "1.0", "", capa, req, der, new HashSet<String>(), null);
+        List<CapabilityDefinition> capa = Arrays.asList(new CapabilityDefinition("container", "container", 1), new CapabilityDefinition("container1",
+                "container1", 1), new CapabilityDefinition("container2", "container2", 1), new CapabilityDefinition("container3", "container3", 1));
+        List<RequirementDefinition> req = Arrays.asList(new RequirementDefinition("Runtime", "Runtime"), new RequirementDefinition("server", "server"),
+                new RequirementDefinition("blob", "blob"));
+        List<String> der = Arrays.asList("app", "Parent2");
+        indexedNodeTypeTest = TestModelUtil.createIndexedNodeType("1", "app-1", "1.0", "", capa, req, der, new ArrayList<String>(), null, new Date(),
+                new Date());
         componentDataTest.add(indexedNodeTypeTest);
 
-        capa = new HashSet<>(Arrays.asList(new CapabilityDefinition("banana", "banana", 1, 1), new CapabilityDefinition("banana1", "banana1", 1, 1),
-                new CapabilityDefinition("container", "container", 1, 1), new CapabilityDefinition("banana3", "banana3", 1, 1), new CapabilityDefinition("zar",
-                        "zar", 1, 1)));
-        req = new HashSet<>(Arrays.asList(new RequirementDefinition("Pant", "Pant", null, 1, 1), new RequirementDefinition("DBZ", "DBZ", null, 1, 1),
-                new RequirementDefinition("Animes", "Animes", null, 1, 1)));
-        der = new HashSet<>(Arrays.asList("Songoku", "Kami"));
-        indexedNodeTypeTest2 = createIndexedNodeType("2", "pokerFace", "1.0", "", capa, req, der, new HashSet<String>(), null);
+        capa = Arrays.asList(new CapabilityDefinition("banana", "banana", 1), new CapabilityDefinition("banana1", "banana1", 1), new CapabilityDefinition(
+                "container", "container", 1), new CapabilityDefinition("banana3", "banana3", 1), new CapabilityDefinition("zar", "zar", 1));
+        req = Arrays.asList(new RequirementDefinition("Pant", "Pant"), new RequirementDefinition("DBZ", "DBZ"), new RequirementDefinition("Animes", "Animes"));
+        der = Arrays.asList("Songoku", "Kami");
+        indexedNodeTypeTest2 = TestModelUtil.createIndexedNodeType("2", "pokerFace", "1.0", "", capa, req, der, new ArrayList<String>(), null, new Date(),
+                new Date());
         componentDataTest.add(indexedNodeTypeTest2);
     }
 
@@ -130,9 +127,9 @@ public class EsQuickSearchTest {
         for (IndexedNodeType datum : componentDataTest) {
             String json = jsonMapper.writeValueAsString(datum);
             String typeName = MappingBuilder.indexTypeFromClass(datum.getClass());
-            nodeClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
+            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(refresh).execute().actionGet();
 
-            assertDocumentExisit(COMPONENT_INDEX, typeName, datum.getId(), true);
+            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
         }
     }
 
@@ -155,22 +152,6 @@ public class EsQuickSearchTest {
     @After
     public void cleanup() throws InterruptedException {
         clearIndex(APPLICATION_INDEX, Application.class);
-        clearIndex(COMPONENT_INDEX, IndexedNodeType.class);
-    }
-
-    private static IndexedNodeType createIndexedNodeType(String id, String archiveName, String archiveVersion, String description,
-            Set<CapabilityDefinition> capabilities, Set<RequirementDefinition> requirements, Set<String> derivedFroms, Set<String> defaultCapabilities,
-            List<Tag> tags) {
-        IndexedNodeType nodeType = new IndexedNodeType();
-        nodeType.setElementId(id);
-        nodeType.setArchiveName(archiveName);
-        nodeType.setArchiveVersion(archiveVersion);
-        nodeType.setCapabilities(capabilities);
-        nodeType.setDescription(description);
-        nodeType.setDefaultCapabilities(defaultCapabilities);
-        nodeType.setRequirements(requirements);
-        nodeType.setDerivedFrom(derivedFroms);
-        nodeType.setTags(tags);
-        return nodeType;
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
 }

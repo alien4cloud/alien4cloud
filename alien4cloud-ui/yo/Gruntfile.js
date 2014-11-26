@@ -21,6 +21,9 @@ module.exports = function(grunt) {
   // Load protractor packaged selenium server
   grunt.loadNpmTasks('grunt-protractor_webdriver');
 
+  // load grunt-ng-annotate module
+  grunt.loadNpmTasks('grunt-ng-annotate');
+
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
@@ -256,7 +259,7 @@ module.exports = function(grunt) {
           collapseWhitespace: true,
           collapseBooleanAttributes: true,
           removeCommentsFromCDATA: true,
-          removeOptionalTags: true
+          removeOptionalTags: false
         },
         files: [{
           expand: true,
@@ -270,7 +273,7 @@ module.exports = function(grunt) {
 
     // Allow the use of non-minsafe AngularJS files. Automatically makes it
     // minsafe compatible so Uglify does not destroy the ng references
-    ngmin: {
+    ngAnnotate: {
       dist: {
         files: [{
           expand: true,
@@ -418,12 +421,12 @@ module.exports = function(grunt) {
             baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
-              'test/e2e/scenarios/admin_cloud.js',
-              //              'test/e2e/scenarios/admin_cloud_image.js',
+              // 'test/e2e/scenarios/admin_cloud.js',
+              // 'test/e2e/scenarios/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin_groups_management.js',
               //              'test/e2e/scenarios/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin_users_management.js',
-              //              'test/e2e/scenarios/application.js',
+                            'test/e2e/scenarios/application.js',
               //              'test/e2e/scenarios/application_metaprops.js',
               //              'test/e2e/scenarios/application_security.js',
               //              'test/e2e/scenarios/application_security_role_check.js',
@@ -448,8 +451,8 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/plugins.js',
               //              'test/e2e/scenarios/quick_search.js',
               //              'test/e2e/scenarios/security_cloud.js',
-              'test/e2e/scenarios/security_groups.js',
-              'test/e2e/scenarios/security_users.js',
+              // 'test/e2e/scenarios/security_groups.js',
+              // 'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
               //              'test/e2e/scenarios/*'
             ]
@@ -512,7 +515,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('continuoustest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:jenkins']);
 
-  grunt.registerTask('build', ['clean:dist', 'bower-install', 'useminPrepare', 'concurrent:dist', 'autoprefixer', 'concat', 'ngmin', 'copy:dist', 'cdnify',
+  grunt.registerTask('build', ['clean:dist', 'bower-install', 'useminPrepare', 'concurrent:dist', 'autoprefixer', 'concat', 'ngAnnotate', 'copy:dist', 'cdnify',
     'cssmin', 'uglify', 'rev', 'usemin', 'htmlmin'
   ]);
 

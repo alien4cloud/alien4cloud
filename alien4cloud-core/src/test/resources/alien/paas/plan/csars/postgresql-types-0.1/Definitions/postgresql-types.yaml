@@ -1,6 +1,6 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
 
 name: postgresql
-namespace: fastconnect
 description: PostgreSQL recipe.
 
 node_types:
@@ -16,7 +16,7 @@ node_types:
         lower_bound: 0
         upper_bound: unbounded
     interfaces:
-      lifecycle:
+      Standard:
         operations:
           create:
             implementation_artifact:
@@ -43,6 +43,5 @@ node_types:
               artifact_type: tosca.artifacts.GroovyScript
               artifact_ref: "scripts/postgresql_addUser.groovy"
     artifacts:
-      scripts:
-        artifact_type: fastconnect.artifacts.ResourceDirectory
-        artifact_ref: "scripts"
+      - scripts: scripts
+        type: fastconnect.artifacts.ResourceDirectory

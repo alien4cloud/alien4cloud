@@ -13,21 +13,20 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.collect.Sets;
 import org.elasticsearch.mapping.MappingBuilder;
 
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -39,8 +38,6 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class SearchDefinitionSteps {
-
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private static final String DEFAULT_ARCHIVE_VERSION = "1.0";
     private static final Map<String, QueryComponentType> QUERY_TYPES;
     private Map<String, String> indexedComponentTypes = Maps.newHashMap();
@@ -138,11 +135,11 @@ public class SearchDefinitionSteps {
                 switch (property) {
                 case "capability":
                     assertNotNull(idnt.getCapabilities());
-                    assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1, 1)));
+                    assertTrue(idnt.getCapabilities().contains(new CapabilityDefinition(propertyValue, propertyValue, 1)));
                     break;
                 case "requirement":
                     assertNotNull(idnt.getRequirements());
-                    assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue, null, 1, 1)));
+                    assertTrue(idnt.getRequirements().contains(new RequirementDefinition(propertyValue, propertyValue)));
                     break;
                 default:
                     break;
@@ -212,14 +209,13 @@ public class SearchDefinitionSteps {
                 if (type.equalsIgnoreCase("node types")) {
                     switch (property) {
                     case "capability":
-                        ((IndexedNodeType) componentTemplate).setCapabilities(Sets.newHashSet(new CapabilityDefinition(propertyValue, propertyValue, 1, 1)));
+                        ((IndexedNodeType) componentTemplate).setCapabilities(Lists.newArrayList(new CapabilityDefinition(propertyValue, propertyValue, 1)));
                         break;
                     case "requirement":
-                        ((IndexedNodeType) componentTemplate).setRequirements((Sets.newHashSet(new RequirementDefinition(propertyValue, propertyValue, null, 1,
-                                1))));
+                        ((IndexedNodeType) componentTemplate).setRequirements((Lists.newArrayList(new RequirementDefinition(propertyValue, propertyValue))));
                         break;
                     case "default capability":
-                        ((IndexedNodeType) componentTemplate).setDefaultCapabilities((Sets.newHashSet(propertyValue)));
+                        ((IndexedNodeType) componentTemplate).setDefaultCapabilities((Lists.newArrayList(propertyValue)));
                         break;
                     case "elementId":
                         ((IndexedNodeType) componentTemplate).setElementId(propertyValue);
@@ -236,7 +232,7 @@ public class SearchDefinitionSteps {
 
             String serializeDatum = jsonMapper.writeValueAsString(componentTemplate);
             log.debug("Saving in ES: " + serializeDatum);
-            esClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
+            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(true).execute().actionGet();
 
             if (componentTemplate instanceof IndexedNodeType) {
                 testDataList.add((IndexedNodeType) (componentTemplate));

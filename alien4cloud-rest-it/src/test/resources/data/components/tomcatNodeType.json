@@ -1,11 +1,11 @@
 {
-    "id" : "fastconnect.nodes.Tomcat",
+    "elementId" : "fastconnect.nodes.Tomcat",
     "description" : "A Tomcat server.\n",
-    "tags" : {
-      "icon" : "/images/java.png",
-      "marurity" : "very bad"
-    },
-    "derivedFrom" : "tosca.nodes.Root",
+    "tags" : [
+      {"name":"icon", "value": "/images/java.png"},
+      {"name":"marurity", "value": "very bad"}
+    ],
+    "derivedFrom" : ["tosca.nodes.Root"],
     "properties" : {
       "version" : {
         "type" : "version",
@@ -38,16 +38,14 @@
         "default" : null
       }
     },
-    "requirements" : {
-      "compute" : {
+    "requirements" : [
+      {
         "id" : "compute",
         "type" : "tosca.capabilities.Container",
         "lowerBound" : 1,
         "upperBound" : 1
       }
-    },
-    "instanceStates" : null,
+    ],
     "interfaces" : null,
-    "abstract" : false,
-    "final" : false
+    "abstract" : false
   }

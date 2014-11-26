@@ -381,7 +381,7 @@
                         <span  class="btn btn-default btn-xs cardinalities_show"
                         tooltip="{{'APPLICATIONS.TOPOLOGY.CARDINALITIES_TOOLTIP' | translate}}"
                         tooltip-append-to-body="true">
-                            {{capability.lowerBound}}..{{capability.upperBound | replaceAll:'unbounded':'&infin;' }}
+                            {{capability.upperBound | replaceAll:'unbounded':'&infin;' }}
                             ({{capability.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
                       </span>

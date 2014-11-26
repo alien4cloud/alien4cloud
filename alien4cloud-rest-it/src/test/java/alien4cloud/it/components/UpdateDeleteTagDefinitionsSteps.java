@@ -20,7 +20,6 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.ToscaElement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -32,7 +31,6 @@ import cucumber.api.java.en.When;
 
 public class UpdateDeleteTagDefinitionsSteps {
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
     private final Client esClient = Context.getEsClientInstance();
 
@@ -125,13 +123,7 @@ public class UpdateDeleteTagDefinitionsSteps {
             }
 
             String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
-            esClient
-                    .prepareIndex(COMPONENT_INDEX, typeName)
-                    .setSource(serializeDatum)
-                    .setRefresh(refresh)
-                    .execute()
-                    .actionGet();
-
+            esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
         }
     }
 }

@@ -1,0 +1,34 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: Contains a sample node type with constraints.
+
+node_types:
+  alien.nodes.test.PropertyConstraint:
+    description: Simple node that defines properties using various property constraints.
+    properties:
+      greater_than_prop:
+        type: integer
+        constraints:
+          - greater_than: 0
+      greater_or_equal_prop:
+        type: integer
+        constraints:
+          -  greater_or_equal: 3
+      less_than_prop:
+        type: integer
+        constraints:
+          - less_than: 1
+      multiple_version_prop: #target_jvm_version:
+        type: version
+        constraints:
+          - in_range: ["1.5","1.7"]
+          - greater_than: "1.6"
+          - valid_values: ["1.5","1.6","1.7"]
+      valid_values_version_prop: # target_jvm:
+        type: version
+        constraints:
+          - valid_values: ["1.5","1.6","1.7"]
+      equal_prop: #instance_max_count:
+        type: integer
+        constraints:
+          - equal: 2

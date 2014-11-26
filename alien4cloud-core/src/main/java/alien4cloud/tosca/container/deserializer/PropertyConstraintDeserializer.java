@@ -5,16 +5,11 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
+import alien4cloud.tosca.model.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.InRangeConstraint;
 import alien4cloud.tosca.properties.constraints.exception.InvalidPropertyConstraintImplementationException;
 import alien4cloud.utils.TypeScanner;
@@ -29,7 +24,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Maps;
 
-@Slf4j
 public class PropertyConstraintDeserializer extends StdDeserializer<PropertyConstraint> {
 
     private static final String CONSTRAINT_PACKAGE = "alien4cloud.tosca.properties.constraints";
@@ -52,7 +46,6 @@ public class PropertyConstraintDeserializer extends StdDeserializer<PropertyCons
         this.constraintsCache = Maps.newConcurrentMap();
 
         // Retrieve all classes which belong to this package
-
         Set<Class<?>> classes = TypeScanner.scanTypes(CONSTRAINT_PACKAGE, PropertyConstraint.class);
 
         for (Class<?> propClass : classes) {
@@ -73,25 +66,6 @@ public class PropertyConstraintDeserializer extends StdDeserializer<PropertyCons
                     throw new InvalidPropertyConstraintImplementationException(
                             "A constraint validator must have a readable/writable property to inject configuration.");
                 }
-            }
-        }
-    }
-
-    private void displayUrls(ClassLoader classLoader) {
-        if (classLoader.getParent() != null) {
-            displayUrls(classLoader.getParent());
-        }
-        if (classLoader instanceof URLClassLoader) {
-            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            for (URL entry : urlClassLoader.getURLs()) {
-                URI uri;
-                try {
-                    uri = entry.toURI();
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException(e);
-                }
-                log.info(uri.toString());
-                log.info("IS OK ?" + uri.getScheme().equals("file"));
             }
         }
     }

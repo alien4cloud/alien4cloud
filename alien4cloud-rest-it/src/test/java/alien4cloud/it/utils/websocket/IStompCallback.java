@@ -5,6 +5,8 @@ package alien4cloud.it.utils.websocket;
  */
 public interface IStompCallback<T> {
 
+    Class<T> getExpectedDataType();
+
     void onData(String topic, T data);
 
     void onError(Throwable error);

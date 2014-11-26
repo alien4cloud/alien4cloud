@@ -3,12 +3,7 @@ package alien4cloud.it.application;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +37,7 @@ import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.template.PropertyValue;
+import alien4cloud.tosca.model.ScalarPropertyValue;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -346,7 +341,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/deployments/" + deploymentId + "/undeploy"));
     }
 
-    private Map<String, StompConnection> stompConnections = Maps.newHashMap();
+    private StompConnection stompConnection = null;
 
     private Map<String, IStompDataFuture> stompDataFutures = Maps.newHashMap();
 
@@ -361,33 +356,31 @@ public class ApplicationsDeploymentStepDefinitions {
         Map<String, String> headers = Maps.newHashMap();
         Header cookieHeader = Context.getRestClientInstance().getCookieHeader();
         headers.put(cookieHeader.getName(), cookieHeader.getValue());
-        StompConnection connection = null;
+        String topic = null;
+        if (stompConnection == null) {
+            stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
+        }
         switch (eventTopic) {
         case "deployment-status":
-            String topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
                     + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT, topic);
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSDeploymentStatusMonitorEvent.class));
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
             break;
         case "instance-state":
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT,
-                    "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
-                            + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase());
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStateMonitorEvent.class));
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+                    + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
             break;
         case "storage":
-            connection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT,
-                    "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
-                            + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase());
-            this.stompDataFutures.put(eventTopic, connection.getData(PaaSInstanceStorageMonitorEvent.class));
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+                    + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
             break;
         }
-        this.stompConnections.put(eventTopic, connection);
     }
 
     @And("^I should receive \"([^\"]*)\" events that containing$")
     public void I_should_receive_events_that_containing(String eventTopic, List<String> expectedEvents) throws Throwable {
-        Assert.assertTrue(this.stompConnections.containsKey(eventTopic));
         Assert.assertTrue(this.stompDataFutures.containsKey(eventTopic));
         List<String> actualEvents = Lists.newArrayList();
         try {
@@ -417,8 +410,11 @@ public class ApplicationsDeploymentStepDefinitions {
             Assert.assertEquals(expectedEvents.size(), actualEvents.size());
             Assert.assertArrayEquals(expectedEvents.toArray(), actualEvents.toArray());
         } finally {
-            this.stompConnections.remove(eventTopic).close();
             this.stompDataFutures.remove(eventTopic);
+            if (this.stompDataFutures.isEmpty()) {
+                this.stompConnection.close();
+                this.stompConnection = null;
+            }
         }
     }
 
@@ -440,11 +436,11 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @And("^The deployment setup of the application should contain following deployment properties:$")
     public void The_deployment_setup_of_the_application_should_contain_following_deployment_properties(DataTable deploymentProperties) throws Throwable {
-        Map<String, PropertyValue> expectedDeploymentProperties = Maps.newHashMap();
+        Map<String, ScalarPropertyValue> expectedDeploymentProperties = Maps.newHashMap();
         for (List<String> deploymentProperty : deploymentProperties.raw()) {
             String deploymentPropertyName = deploymentProperty.get(0).trim();
             String deploymentPropertyValue = deploymentProperty.get(1).trim();
-            expectedDeploymentProperties.put(deploymentPropertyName, new PropertyValue(deploymentPropertyValue));
+            expectedDeploymentProperties.put(deploymentPropertyName, new ScalarPropertyValue(deploymentPropertyValue));
         }
         DeploymentSetup deploymentSetup = JsonUtil.read(
                 Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),

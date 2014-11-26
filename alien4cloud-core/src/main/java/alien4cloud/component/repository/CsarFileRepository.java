@@ -13,10 +13,14 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import alien4cloud.component.repository.exception.CSARDirectoryCreationFailureException;
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
+import alien4cloud.tosca.model.Csar;
+import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.FileUtil;
 
@@ -32,9 +36,8 @@ import alien4cloud.utils.FileUtil;
 @Setter
 @Component
 public class CsarFileRepository implements ICsarRepositry {
-    private Path rootPath;
     public static final String CSAR_EXTENSION = "csar";
-    public static final String SNAPSHOT_IDENTIFIER = "SNAPSHOT";
+    private Path rootPath;
 
     public CsarFileRepository() {
     }
@@ -49,19 +52,37 @@ public class CsarFileRepository implements ICsarRepositry {
     }
 
     @Override
+    public void storeParsingResults(String name, String version, ParsingResult<Csar> parsingResult) {
+        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
+
+        try {
+            Files.createDirectories(csarDirectoryPath);
+        } catch (IOException e) {
+            throw new CSARDirectoryCreationFailureException("Error while trying to create the CSAR directory <" + csarDirectoryPath.toString() + ">. "
+                    + e.getMessage(), e);
+        }
+
+        try {
+            // save the parsing result as a json file
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(csarDirectoryPath.resolve("parsingresult.json").toFile(), parsingResult);
+        } catch (IOException e) {
+            throw new CSARDirectoryCreationFailureException("Error while saving parsing results", e);
+        }
+    }
+
+    @Override
     public void storeCSAR(String name, String version, Path tmpPath) throws CSARVersionAlreadyExistsException {
         // check the tmpPath.
         if (!Files.isReadable(tmpPath)) {
             throw new CSARStorageFailureException("CSAR temp location <" + tmpPath.toString() + "> not found or not readable!");
         }
+
         Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
         String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
 
-        // override if the version contains the snapshot identifier key
-        boolean override = version.toUpperCase().contains(SNAPSHOT_IDENTIFIER);
-
         // create the storage directory
-        createCSARDirectory(csarDirectoryPath, realName, override, "CSAR: " + name + ", Version: " + version + " already exists in the repository.");
+        createCSARDirectory(csarDirectoryPath, realName);
 
         // move the archive
         try {
@@ -76,7 +97,6 @@ public class CsarFileRepository implements ICsarRepositry {
             Path expandedPath = csarDirectoryPath.resolve("expanded");
             FileUtil.unzip(csarTargetPath, expandedPath);
             DirectoryJSonWalker.directoryJson(expandedPath, csarDirectoryPath.resolve("content.json"));
-
         } catch (IOException e) {
             throw new CSARStorageFailureException("Error while trying to store the CSAR: " + name + ", Version: " + version + "...." + e.getMessage(), e);
         }
@@ -85,27 +105,13 @@ public class CsarFileRepository implements ICsarRepositry {
     @Override
     public Path getCSAR(String name, String version) throws CSARVersionNotFoundException {
         String realName = name.concat("-").concat(version).concat("." + CSAR_EXTENSION);
-        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("CSAR Path: " + csarDirectoryPath.resolve(realName));
-            }
-            checkCSARVersionExists(csarDirectoryPath, realName, false, "");
-        } catch (CSARVersionAlreadyExistsException e) {
-            return csarDirectoryPath.resolve(realName);
+
+        Path path = rootPath.resolve(name).resolve(version).resolve(realName);
+        if (Files.exists(path)) {
+            return path;
         }
 
         throw new CSARVersionNotFoundException("CSAR: " + name + ", Version: " + version + " not found in the repository.");
-    }
-
-    @Override
-    public String getName() {
-        return rootPath.getFileName().toString();
-    }
-
-    @Override
-    public String getRootPathString() {
-        return rootPath.toString();
     }
 
     private void checkCSARRepository(Path rootPath) {
@@ -122,24 +128,16 @@ public class CsarFileRepository implements ICsarRepositry {
         }
     }
 
-    private void checkCSARVersionExists(Path csarDirectoryPath, String realName, boolean override, String errorMsg) throws CSARVersionAlreadyExistsException {
+    private void createCSARDirectory(Path csarDirectoryPath, String realName) throws CSARVersionAlreadyExistsException {
         if (Files.exists(csarDirectoryPath.resolve(realName))) {
-            if (override) {
-                log.info("Snapshot version detected! trying to override it...");
-                try {
-                    FileUtil.delete(csarDirectoryPath);
-                } catch (IOException e) {
-                    throw new CSARDirectoryCreationFailureException("Error while trying to delete the CSAR directory <" + csarDirectoryPath.toString() + ">. "
-                            + e.getMessage(), e);
-                }
-            } else {
-                throw new CSARVersionAlreadyExistsException(errorMsg);
+            log.info("Overriding CSAR with new one.");
+            try {
+                FileUtil.delete(csarDirectoryPath);
+            } catch (IOException e) {
+                throw new CSARDirectoryCreationFailureException("Error while trying to delete the CSAR directory <" + csarDirectoryPath.toString() + ">. "
+                        + e.getMessage(), e);
             }
         }
-    }
-
-    private void createCSARDirectory(Path csarDirectoryPath, String realName, boolean override, String existErrorMsg) throws CSARVersionAlreadyExistsException {
-        checkCSARVersionExists(csarDirectoryPath, realName, override, existErrorMsg);
 
         try {
             Files.createDirectories(csarDirectoryPath);

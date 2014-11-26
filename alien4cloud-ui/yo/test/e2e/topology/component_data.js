@@ -103,6 +103,7 @@ module.exports.simpleTopology = {
       source: 'JavaRPM',
       requirement: 'dependency',
       target: 'Compute_2',
+      capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }
   }
@@ -133,6 +134,7 @@ module.exports.simpleAbstractTopology = {
       source: 'Java',
       requirement: 'dependency',
       target: 'Compute_2',
+      capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }
   }

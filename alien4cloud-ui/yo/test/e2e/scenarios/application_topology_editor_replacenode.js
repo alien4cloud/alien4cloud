@@ -24,8 +24,8 @@ describe('Replacing a node template', function() {
   it('should be able to replace a nodetemplate being a source / target of a relationship', function() {
     console.log('################# should be able to replace a nodetemplate being a source / target of a relationship');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleAbstractTopology.nodes);
-
     topologyEditorCommon.addRelationship(componentData.simpleAbstractTopology.relationships.hostedOnCompute);
+    common.removeAllFacetFilters();
 
     // replace the Java node
     topologyEditorCommon.replaceNodeTemplates('Java', javaPuppet);

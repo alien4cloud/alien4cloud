@@ -284,3 +284,22 @@ var deleteWithConfirm = function(deleteConfirmDirectiveId, confirm) {
   browser.actions().click(buttonToClick).perform();
 };
 module.exports.deleteWithConfirm = deleteWithConfirm;
+
+var toggleDisplayFacetManagementButton = function toggleDisplayFacetManagementButton() {
+  element(by.id('displayFacetManagement')).isDisplayed().then(function(isDisplay) {
+    if (isDisplay) {
+      element(by.id('displayFacetManagement')).click();
+    }
+  });
+  browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
+};
+
+var removeAllFacetFilters = function removeAllFacetFilters() {
+  toggleDisplayFacetManagementButton();
+  element.all(by.repeater('filter in facetFilters')).each(function(facet) {
+    facet.element(by.tagName('a')).click();
+  });
+  toggleDisplayFacetManagementButton();
+  browser.waitForAngular();
+};
+module.exports.removeAllFacetFilters = removeAllFacetFilters;

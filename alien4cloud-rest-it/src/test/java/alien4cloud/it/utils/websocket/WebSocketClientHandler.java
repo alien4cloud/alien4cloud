@@ -1,5 +1,10 @@
 package alien4cloud.it.utils.websocket;
 
+import java.nio.charset.Charset;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -21,12 +26,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
 
-import java.nio.charset.Charset;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.it.exception.ITException;
-
 @Slf4j
 public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Object> {
 
@@ -44,16 +43,12 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
 
     private Set<Cookie> cookies;
 
-    private IStompCallback<T> callback;
-
-    public WebSocketClientHandler(WebSocketClientHandshaker handShaker, String host, String user, String password, String authenticationUrl,
-            IStompCallback<T> callback) {
+    public WebSocketClientHandler(WebSocketClientHandshaker handShaker, String host, String user, String password, String authenticationUrl) {
         this.handShaker = handShaker;
         this.host = host;
         this.user = user;
         this.password = password;
         this.authenticationUrl = authenticationUrl;
-        this.callback = callback;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -165,7 +160,6 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
-        this.callback.onError(cause);
         ctx.close();
     }
 }

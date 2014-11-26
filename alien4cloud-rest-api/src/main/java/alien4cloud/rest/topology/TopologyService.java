@@ -20,23 +20,14 @@ import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.component.model.*;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
-import alien4cloud.rest.topology.task.PropertiesTask;
-import alien4cloud.rest.topology.task.RequirementToSatify;
-import alien4cloud.rest.topology.task.RequirementsTask;
-import alien4cloud.rest.topology.task.SuggestionsTask;
-import alien4cloud.rest.topology.task.TaskCode;
-import alien4cloud.rest.topology.task.TopologyTask;
+import alien4cloud.rest.topology.task.*;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
@@ -50,11 +41,11 @@ import alien4cloud.tosca.container.model.template.Requirement;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.AttributeDefinition;
-import alien4cloud.tosca.container.model.type.CapabilityDefinition;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
-import alien4cloud.tosca.container.model.type.RequirementDefinition;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.model.AttributeDefinition;
+import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.model.RequirementDefinition;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.VersionUtil;
@@ -108,7 +99,7 @@ public class TopologyService {
         }
     }
 
-    private void fillCapabilitiesMap(Map<String, Capability> map, Set<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
+    private void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Capability> mapToMerge) {
         if (elements == null) {
             return;
@@ -127,7 +118,7 @@ public class TopologyService {
         }
     }
 
-    private void fillRequirementsMap(Map<String, Requirement> map, Set<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
+    private void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Requirement> mapToMerge) {
         for (RequirementDefinition requirement : elements) {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());

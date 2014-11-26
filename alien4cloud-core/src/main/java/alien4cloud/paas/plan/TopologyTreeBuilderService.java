@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.container.model.NormativeNetworkConstants;
 import lombok.SneakyThrows;
 
 import org.springframework.stereotype.Component;
@@ -22,9 +21,10 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.tosca.ToscaService;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
+import alien4cloud.tosca.container.model.NormativeNetworkConstants;
 import alien4cloud.tosca.container.model.NormativeRelationshipConstants;
 import alien4cloud.tosca.container.model.topology.AbstractTemplate;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
@@ -44,12 +44,10 @@ public class TopologyTreeBuilderService {
     private CsarFileRepository repository;
     @Resource
     private CSARRepositorySearchService csarSearchService;
-    @Resource
-    private ToscaService toscaService;
 
     /**
      * Fetch informations from the repository to complete the topology node template informations with additional data such as artifacts paths etc.
-     * 
+     *
      * @param topology The topology for which to build PaaSNodeTemplate map.
      * @return A map of PaaSNodeTemplate that match the one of the NodeTempaltes in the given topology (and filled with artifact paths etc.).
      */
@@ -90,7 +88,7 @@ public class TopologyTreeBuilderService {
 
     /**
      * Build a tree of the topology nodes based on hosted on relationships.
-     * 
+     *
      * @param nodeTemplates The node templates that are part of the topology.
      * @return A list of root nodes on the topology hosted on tree.
      */
@@ -99,11 +97,11 @@ public class TopologyTreeBuilderService {
         List<PaaSNodeTemplate> roots = new ArrayList<PaaSNodeTemplate>();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
-            boolean isCompute = toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
-            boolean isNetwork = toscaService.isOfType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
+            boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
+            boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
 
             // manage blockstorages
-            if (paaSNodeTemplate.getIndexedNodeType().getElementId().equals(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE)) {
+            if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
                 manageBlockStorage(paaSNodeTemplate, nodeTemplates);
                 continue;
             }

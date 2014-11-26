@@ -3,16 +3,17 @@ package alien4cloud.it.components;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.it.csars.CrudCSARSStepDefinition;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.When;
 
 public class AddCommponentDefinitionSteps {
-
     private static final String COMPONENT_TEST_DATA_PACKAGE = "./src/test/resources/data/components/";
 
     private CrudCSARSStepDefinition crudCSARSStepDefinition = new CrudCSARSStepDefinition();
@@ -29,8 +30,7 @@ public class AddCommponentDefinitionSteps {
 
     public String uploadComponent(String componentName) throws IOException {
         String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentName + ".json"));
-        NodeType nodeType = JsonUtil.readObject(componentJson, NodeType.class);
         String csarId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
-        return Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", JsonUtil.toString(nodeType));
+        return Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", componentJson);
     }
 }

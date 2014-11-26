@@ -5,7 +5,8 @@ Feature: Deployment setup feature.
     And I upload a plugin
     And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
     And I enable the cloud "Mount doom cloud"
-    And I upload the archive file that is "containing default tosca base types"
+    And I upload the archive "tosca base types 1.0"
+    And I should receive a RestResponse with no error
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
@@ -44,5 +45,5 @@ Feature: Deployment setup feature.
     And I update the node template "NewCompute"'s property "os_type" to "windows"
     Then The deployment setup of the application should contain following resources mapping:
       | NewCompute | Windows 7 | small |
-    And I update the node template "NewCompute"'s property "os_type" to "unknown_system"
+    And I update the node template "NewCompute"'s property "os_version" to "unknown_os_version"
     Then The deployment setup of the application should contain no resources mapping

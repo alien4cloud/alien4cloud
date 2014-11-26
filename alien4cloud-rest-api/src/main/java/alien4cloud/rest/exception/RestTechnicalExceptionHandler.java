@@ -33,7 +33,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
-import alien4cloud.tosca.container.exception.CSARTechnicalException;
 
 import com.google.common.collect.Lists;
 
@@ -127,17 +126,6 @@ public class RestTechnicalExceptionHandler {
                 .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.REPOSITORY_SERVICE_ERROR)
                         .message("Repository service has encoutered unexpected error " + e.getMessage()).build()).build();
-    }
-
-    @ExceptionHandler(value = CSARTechnicalException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public RestResponse<Void> csarErrorHandler(CSARTechnicalException e) {
-        log.error("CSAR processing has encoutered unexpected error", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).message("CSAR processing has encoutered unexpected error " + e.getMessage())
-                        .build()).build();
     }
 
     @ExceptionHandler(value = ImageUploadException.class)

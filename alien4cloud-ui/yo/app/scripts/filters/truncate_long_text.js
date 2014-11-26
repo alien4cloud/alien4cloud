@@ -68,7 +68,7 @@ alienApp.filter('explodeandget', function() {
     if (!UTILS.isUndefinedOrNull(text)) {
       separator = separator || '.'; // by defult . if not defined
       var res = text.split(separator);
-      if (Number.isInteger(indexToReturn) && indexToReturn >= 0) {
+      if (parseInt(indexToReturn) && indexToReturn >= 0) {
         return res[indexToReturn];
       }
     } else {

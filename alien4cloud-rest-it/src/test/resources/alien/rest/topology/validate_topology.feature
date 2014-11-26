@@ -25,7 +25,7 @@ Scenario: checking if an empty topology is deployable
   Then I should receive a RestResponse with no error
     And the topology should not be deployable
 
-Scenario: adding nodes templates and check if topoogy is deployable
+Scenario: adding nodes templates and check if topology is deployable
   Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
       |computeNodeType|

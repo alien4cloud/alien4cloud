@@ -13,7 +13,7 @@ import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.Network;
-import alien4cloud.tosca.container.model.template.PropertyValue;
+import alien4cloud.tosca.model.ScalarPropertyValue;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -33,7 +33,7 @@ public class DeploymentSetup {
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String environmentId;
 
-    private Map<String, PropertyValue> providerDeploymentProperties;
+    private Map<String, ScalarPropertyValue> providerDeploymentProperties;
 
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;

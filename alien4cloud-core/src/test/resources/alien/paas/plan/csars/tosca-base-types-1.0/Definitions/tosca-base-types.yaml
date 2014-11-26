@@ -1,6 +1,6 @@
-# tosca_definitions_version: tosca_simple_yaml_1_0
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
 name: tosca-base-types
-namespace: alien
 description: Contains the normative types definition.
 
 node_types:
@@ -23,19 +23,18 @@ node_types:
         lower_bound: 0
         upper_bound: unbounded
     interfaces:
-      lifecycle:
+      Standard:
         description: Default lifecycle for nodes in TOSCA.
-        operations:
-          create:
-            description: Basic lifecycle create operation.
-          configure:
-            description: Basic lifecycle configure operation.
-          start:
-            description: Basic lifecycle start operation.
-          stop:
-            description: Basic lifecycle stop operation.
-          delete:
-            description: Basic lifecycle delete operation.
+        create:
+          description: Basic lifecycle create operation.
+        configure:
+          description: Basic lifecycle configure operation.
+        start:
+          description: Basic lifecycle start operation.
+        stop:
+          description: Basic lifecycle stop operation.
+        delete:
+          description: Basic lifecycle delete operation.
 
   # Infrastructure components
   tosca.nodes.Compute:
@@ -120,6 +119,7 @@ node_types:
 
 capability_types:
   tosca.capabilities.Root:
+    description: This is the default (root) TOSCA Capability Type definition that all other TOSCA Capability Types derive from
   tosca.capabilities.Feature:
     derived_from: tosca.capabilities.Root
     description: >
@@ -154,19 +154,18 @@ relationship_types:
       tosca.interfaces.relationship.Configure:
         description: >
           Default lifecycle for nodes in TOSCA.
-        operations:
-          pre_configure_source:
-            description: Operation to pre-configure the source endpoint.
-          pre_configure_target:
-            description: Operation to pre-configure the target endpoint.
-          post_configure_source:
-            description: Operation to post-configure the source endpoint.
-          post_configure_target:
-            description: Operation to post-configure the target endpoint.
-          add_target:
-            description: Operation to add a target node.
-          remove_target:
-            description: Operation to remove a target node.
+        pre_configure_source:
+          description: Operation to pre-configure the source endpoint.
+        pre_configure_target:
+          description: Operation to pre-configure the target endpoint.
+        post_configure_source:
+          description: Operation to post-configure the source endpoint.
+        post_configure_target:
+          description: Operation to post-configure the target endpoint.
+        add_target:
+          description: Operation to add a target node.
+        remove_target:
+          description: Operation to remove a target node.
   tosca.relationships.DependsOn:
     derived_from: tosca.relationships.Root
     description: >

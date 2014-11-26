@@ -20,7 +20,7 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.Network;
-import alien4cloud.tosca.ToscaService;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.container.model.NormativeComputeConstants;
 import alien4cloud.tosca.container.model.NormativeNetworkConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
@@ -38,9 +38,6 @@ public class CloudResourceMatcherService {
 
     @Resource
     private CloudImageService cloudImageService;
-
-    @Resource
-    private ToscaService toscaService;
 
     /**
      * Match a topology to cloud resources and return cloud's matched resources each matchable resource of the topology
@@ -133,10 +130,10 @@ public class CloudResourceMatcherService {
             return matchableNodeTemplates;
         }
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : allNodeTemplates.entrySet()) {
-            if (toscaService.isOfType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
+            if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
                 matchableNodeTemplates.computeTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
-            if (toscaService.isOfType(NormativeNetworkConstants.NETWORK_TYPE, types.get(nodeTemplateEntry.getKey()))) {
+            if (ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, types.get(nodeTemplateEntry.getKey()))) {
                 matchableNodeTemplates.networkTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
         }

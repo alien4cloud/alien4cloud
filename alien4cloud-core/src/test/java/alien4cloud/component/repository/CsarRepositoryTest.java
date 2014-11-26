@@ -24,11 +24,6 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.utils.FileUtil;
 
-/**
- *
- * @author 'Igor Ngouagna'
- *
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 public class CsarRepositoryTest {
@@ -37,7 +32,7 @@ public class CsarRepositoryTest {
 
     @Resource
     private ICsarRepositry repo;
-    private String tmpPath = "src/test/files/positive.csar";
+    private String tmpPath = "src/test/resources/data/test-file.zip";
     private String testFileName = "positive";
     private static final String ARCHIVE_EXTENSION = "csar";
     @Value("${directories.alien}/${directories.csar_repository}")
@@ -60,13 +55,6 @@ public class CsarRepositoryTest {
         cleanup();
         storeTestCSAR(testFileName, "1.0", tmpPath);
         testGetCSARSuccessul();
-    }
-
-    @Test(expected = CSARVersionAlreadyExistsException.class)
-    public void testVersionAlreadyExist() throws CSARVersionAlreadyExistsException {
-        cleanup();
-        storeTestCSAR(testFileName, "1.0", tmpPath);
-        storeTestCSAR(testFileName, "1.0", tmpPath);
     }
 
     @Test(expected = CSARStorageFailureException.class)

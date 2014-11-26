@@ -83,6 +83,8 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   searchImput.sendKeys(ntype); // e.g. tosca.nodes.Network
   var btnSearch = element(by.id('btn-search-component'));
   btnSearch.click();
+  common.removeAllFacetFilters();
+
   // select and dnd the element
   var version = archiveVersion ? archiveVersion : '1.0';
   var nodeTypeElement = element(by.id('li_' + ntype + ':' + version));
@@ -233,7 +235,7 @@ module.exports.addRelationshipToNode = addRelationshipToNode;
 
 module.exports.addRelationship = function(relationshipDescription) {
   addRelationshipToNode(relationshipDescription.source, relationshipDescription.target, relationshipDescription.requirement,
-    relationshipDescription.type, relationshipDescription.name);
+    relationshipDescription.type, relationshipDescription.name, relationshipDescription.capability);
 };
 
 // check if a text is present in a repeater list

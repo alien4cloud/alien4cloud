@@ -2,11 +2,11 @@ package alien4cloud.rest.paasprovider;
 
 import java.util.Map;
 
-import alien4cloud.plugin.PluginComponentDescriptor;
-import alien4cloud.tosca.container.model.template.PropertyValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.plugin.PluginComponentDescriptor;
+import alien4cloud.tosca.model.ScalarPropertyValue;
 
 @Getter
 @Setter
@@ -17,5 +17,5 @@ public class PaaSProviderDTO {
     private String pluginName;
     private String version;
     private PluginComponentDescriptor componentDescriptor;
-    private Map<String, PropertyValue> deploymentProperties;
+    private Map<String, ScalarPropertyValue> deploymentProperties;
 }

@@ -31,6 +31,7 @@ import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
@@ -41,12 +42,10 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
-import alien4cloud.tosca.container.model.type.NodeType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -65,7 +64,6 @@ import cucumber.api.java.en.When;
 @Slf4j
 public class TopologyStepDefinitions {
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private final static Map<String, Class<? extends IndexedToscaElement>> WORDS_TO_CLASSES;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final Client esClient = Context.getEsClientInstance();
@@ -377,8 +375,8 @@ public class TopologyStepDefinitions {
             }
         }
 
-        esClient.prepareIndex(COMPONENT_INDEX, MappingBuilder.indexTypeFromClass(IndexedRelationshipType.class)).setSource(JsonUtil.toString(relationship))
-                .setRefresh(true).execute().actionGet();
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(IndexedRelationshipType.class))
+                .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -395,8 +393,8 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-        esClient.prepareIndex(COMPONENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element)).setRefresh(true).execute()
-                .actionGet();
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element))
+                .setRefresh(true).execute().actionGet();
     }
 
     @Given("^I create \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -409,10 +407,8 @@ public class TopologyStepDefinitions {
     @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the component \"([^\"]*)\"$")
     public void I_add_to_the_csar_the_component(String csarName, String csarVersion, String componentFileName) throws Throwable {
         String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentFileName + ".json"));
-        NodeType nodeType = JsonUtil.readObject(componentJson, NodeType.class);
         String csarId = csarName + ":" + csarVersion;
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", JsonUtil.toString(nodeType)));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", componentJson));
     }
 
     @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the components$")
