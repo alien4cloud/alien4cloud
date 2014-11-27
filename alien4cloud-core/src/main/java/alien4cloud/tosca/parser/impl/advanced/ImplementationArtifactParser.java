@@ -62,6 +62,9 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
     }
 
     private IndexedArtifactType getFromArchiveRoot(ArchiveRoot archiveRoot, String extension) {
+        if (archiveRoot == null || archiveRoot.getArtifactTypes() == null) {
+            return null;
+        }
         for (IndexedArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
             if (artifactType.getFileExt().contains(extension)) {
                 return artifactType;
