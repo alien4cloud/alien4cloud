@@ -14,8 +14,8 @@ import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.rest.cloud.CloudComputeResourcesDTO;
 import alien4cloud.rest.cloud.CloudDTO;
-import alien4cloud.rest.cloud.CloudResourcesDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.google.common.collect.Lists;
@@ -38,7 +38,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
     public void I_should_receive_a_RestResponse_with_compute_templates(int numberOfTemplate, DataTable expectedTemplatesTable) throws Throwable {
-        CloudResourcesDTO resources = JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourcesDTO.class).getData();
+        CloudComputeResourcesDTO resources = JsonUtil.read(Context.getInstance().getRestResponse(), CloudComputeResourcesDTO.class).getData();
         if (numberOfTemplate == 0) {
             Assert.assertTrue(resources.getComputeTemplates() == null || resources.getComputeTemplates().isEmpty());
         } else {
