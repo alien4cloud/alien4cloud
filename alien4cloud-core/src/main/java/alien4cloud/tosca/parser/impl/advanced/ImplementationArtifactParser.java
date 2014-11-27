@@ -2,12 +2,17 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+
+import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
+import alien4cloud.component.model.IndexedArtifactType;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ImplementationArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
@@ -18,9 +23,8 @@ import com.google.common.io.Files;
 
 @Component
 public class ImplementationArtifactParser implements INodeParser<ImplementationArtifact> {
-    // TODO manage that from repository....
-    private static final Map<String, String> EXTENTIONS_TO_ARTIFACT_TYPES = MapUtil.newHashMap(new String[] { "sh", "war", "zip" }, new String[] {
-            "tosca.artifacts.ShellScript", "tosca.artifacts.WarFile", "tosca.artifacts.ZipFile" });
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDao;
 
     @Override
     public ImplementationArtifact parse(Node node, ParsingContextExecution context) {
@@ -29,7 +33,25 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
 
             Path artifactPath = Paths.get(artifactReference);
             String extension = Files.getFileExtension(artifactPath.getFileName().toString());
-            String type = EXTENTIONS_TO_ARTIFACT_TYPES.get(extension);
+
+            String type = null;
+            if (extension != null) {
+                ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
+                IndexedArtifactType indexedType = getFromArchiveRoot(archiveRoot, extension);
+
+                if (indexedType == null) {
+                    GetMultipleDataResult<IndexedArtifactType> artifactType = alienDao.find(IndexedArtifactType.class,
+                            MapUtil.newHashMap(new String[] { "fileExt" }, new String[][] { new String[] { extension } }), 1);
+
+                    if (artifactType != null && artifactType.getData() != null && artifactType.getData().length > 0) {
+                        type = artifactType.getData()[0].getElementId();
+                    } else {
+                        type = "unknown";
+                    }
+                } else {
+                    type = indexedType.getElementId();
+                }
+            }
 
             ImplementationArtifact artifact = new ImplementationArtifact();
             artifact.setArtifactRef(artifactReference);
@@ -37,6 +59,18 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
             return artifact;
         } else {
             ParserUtils.addTypeError(node, context.getParsingErrors(), "Artifact definition");
+        }
+        return null;
+    }
+
+    private IndexedArtifactType getFromArchiveRoot(ArchiveRoot archiveRoot, String extension) {
+        if (archiveRoot == null || archiveRoot.getArtifactTypes() == null || extension == null) {
+            return null;
+        }
+        for (IndexedArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
+            if (artifactType.getFileExt() != null && artifactType.getFileExt().contains(extension)) {
+                return artifactType;
+            }
         }
         return null;
     }

@@ -8,6 +8,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
+import alien4cloud.paas.plan.PlanGeneratorConstants;
 import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
@@ -22,7 +23,13 @@ public class InterfacesParser extends MapParser<Interface> {
     @Override
     public Map<String, Interface> parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
-            return super.parse(node, context);
+            Map<String, Interface> interfaces = super.parse(node, context);
+            Map<String, Interface> cleanedInterfaces = Maps.newHashMap();
+            for (Map.Entry<String, Interface> entry : interfaces.entrySet()) {
+                String interfaceType = getInterfaceType(entry.getKey());
+                cleanedInterfaces.put(interfaceType, entry.getValue());
+            }
+            return cleanedInterfaces;
         }
         // Specific for interfaces node can define or only reference interfaces
         Map<String, Interface> interfaces = Maps.newHashMap();
@@ -44,8 +51,16 @@ public class InterfacesParser extends MapParser<Interface> {
     }
 
     private void addInterfaceFromType(ScalarNode node, Map<String, Interface> interfaces, ParsingContextExecution context) {
-        String interfaceType = ((ScalarNode) node).getValue();
-        // TODO type validation
+        String interfaceType = getInterfaceType(((ScalarNode) node).getValue());
         interfaces.put(interfaceType, new Interface());
+    }
+
+    public String getInterfaceType(String interfaceType) {
+        if (PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME_SHORT.equalsIgnoreCase(interfaceType)) {
+            return PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME;
+        } else if (PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME_SHORT.equalsIgnoreCase(interfaceType)) {
+            return PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME;
+        }
+        return interfaceType;
     }
 }

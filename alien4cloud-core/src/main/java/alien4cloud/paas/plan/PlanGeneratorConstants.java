@@ -8,8 +8,9 @@ import com.google.common.collect.Lists;
  * Constants for TOSCA default lifecycle interfaces.
  */
 public final class PlanGeneratorConstants {
-    public static final List<String> NODE_LIFECYCLE_INTERFACE_NAMES = Lists.newArrayList("tosca.interfaces.node.lifecycle.Standard", "Standard", "standard");
-    public static final String NODE_LIFECYCLE_INTERFACE_NAME = "Standard";
+    public static final String NODE_LIFECYCLE_INTERFACE_NAME_SHORT = "Standard";
+    public static final String NODE_LIFECYCLE_INTERFACE_NAME = "tosca.interfaces.node.lifecycle.Standard";
+
     public static final String STATE_UNKNOWN = "unknown";
     public static final String STATE_INITIAL = "initial";
     public static final String STATE_CREATED = "created";
@@ -26,9 +27,8 @@ public final class PlanGeneratorConstants {
     public static final String STOP_OPERATION_NAME = "stop";
     public static final String DELETE_OPERATION_NAME = "delete";
 
-    public static final List<String> RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES = Lists.newArrayList("tosca.interfaces.relationship.Configure", "Configure",
-            "configure");
-    public static final String RELATIONSHIP_LIFECYCLE_INTERFACE_NAME = "Configure";
+    public static final String RELATIONSHIP_LIFECYCLE_INTERFACE_NAME_SHORT = "Configure";
+    public static final String RELATIONSHIP_LIFECYCLE_INTERFACE_NAME = "tosca.interfaces.relationship.Configure";
     public static final String PRE_CONFIGURE_SOURCE = "pre_configure_source";
     public static final String PRE_CONFIGURE_TARGET = "pre_configure_target";
     public static final String POST_CONFIGURE_SOURCE = "post_configure_source";
