@@ -1,22 +1,6 @@
 package alien4cloud.paas.plan;
 
-import static alien4cloud.paas.plan.PlanGeneratorConstants.ADD_TARGET;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.CONFIGURE_OPERATION_NAME;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.CREATE_OPERATION_NAME;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.POST_CONFIGURE_SOURCE;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.POST_CONFIGURE_TARGET;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.PRE_CONFIGURE_SOURCE;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.PRE_CONFIGURE_TARGET;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.REMOVE_TARGET;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.START_OPERATION_NAME;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CONFIGURED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_CREATED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STARTED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STATE_STOPPED;
-import static alien4cloud.paas.plan.PlanGeneratorConstants.STOP_OPERATION_NAME;
+import static alien4cloud.paas.plan.PlanGeneratorConstants.*;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -63,7 +47,7 @@ public final class PaaSPlanGenerator {
     /**
      * Create the creation plan for a given node. The creation plan is a sub-plan of the build plan. It includes the creation and configuration steps for the
      * different nodes of the topology.
-     * 
+     *
      * @param nodeTemplate The node template for which to build a creation plan (this should be done on a root node in a topology).
      * @return The start event for the node creation plan.
      */
@@ -77,7 +61,7 @@ public final class PaaSPlanGenerator {
      * Create the creation plan for a given node. The creation plan is a sub-plan of the build plan. It includes the creation and configuration steps for the
      * different nodes of the topology.
      * 
-     * @param preStep The step on which to append the first step of the node plan. This can be either
+     * @param previousStep The step on which to append the first step of the node plan. This can be either
      * @param nodeTemplate The node template for which to build the flow.
      * @return The last step of the node creation plan. This allows to add some other steps (like the start plan).
      */
@@ -225,7 +209,6 @@ public final class PaaSPlanGenerator {
      * @param currentNode The node that is currently under process.
      * @param relationshipTemplate The relationship template for which to generate lifecycle.
      * @param previousStep The step that executes before the relationship lifecycle.
-     * @param nodeDependencies The set of all nodes from wich current node depends.
      * @param connectedNodeTemplateIds The set of all nodes that are connected to the current node.
      * @return the last step added to the workflow.
      */
@@ -346,7 +329,7 @@ public final class PaaSPlanGenerator {
             if (relationshipTemplate.getSource().equals(currentNode.getId())) {
                 // Source of the relationship so lets execute remove target
                 lastStep = lastStep.setNextStep(createOperationActivity(relationshipTemplate.getCsarPath(), configure, relationshipTemplate.getSource(),
-                        relationshipTemplate.getId(), PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES.get(1), REMOVE_TARGET));
+                        relationshipTemplate.getId(), PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME, REMOVE_TARGET));
             }
         }
         return lastStep;
@@ -382,7 +365,7 @@ public final class PaaSPlanGenerator {
      * @return The lifecycle interface as defined on the node.
      */
     private static Interface getLifecycleInterface(PaaSNodeTemplate nodeTemplate) {
-        Interface lifecycle = getInterface(PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAMES, nodeTemplate.getIndexedNodeType().getInterfaces());
+        Interface lifecycle = getInterface(PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME, nodeTemplate.getIndexedNodeType().getInterfaces());
         if (lifecycle == null) {
             throw new IllegalArgumentException("Plan cannot be generated for topologies that contains nodes that doesn't inherit from tosca.nodes.Root.");
         }
@@ -398,11 +381,11 @@ public final class PaaSPlanGenerator {
      * uses this interface.
      * </p>
      * 
-     * @param nodeTemplate The relationship template for which to get the lifecycle interface.
+     * @param relationshipTemplate The relationship template for which to get the lifecycle interface.
      * @return The lifecycle interface as defined on the relationship.
      */
     private static Interface getLifecycleInterface(PaaSRelationshipTemplate relationshipTemplate) {
-        Interface configure = getInterface(RELATIONSHIP_LIFECYCLE_INTERFACE_NAMES, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
+        Interface configure = getInterface(RELATIONSHIP_LIFECYCLE_INTERFACE_NAME, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
         if (configure == null) {
             throw new IllegalArgumentException(
                     "Plan cannot be generated for topologies that contains relationship that doesn't inherit from tosca.relationships.Root.");
@@ -410,16 +393,10 @@ public final class PaaSPlanGenerator {
         return configure;
     }
 
-    private static Interface getInterface(List<String> targetNames, Map<String, Interface> interfaces) {
+    private static Interface getInterface(String targetName, Map<String, Interface> interfaces) {
         if (interfaces == null) {
             return null;
         }
-        for (String targetName : targetNames) {
-            Interface interfaz = interfaces.get(targetName);
-            if (interfaz != null) {
-                return interfaz;
-            }
-        }
-        return null;
+        return interfaces.get(targetName);
     }
 }

@@ -25,9 +25,7 @@ describe('NodeTemplate relationships edition', function() {
 
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
-
-    browser.sleep(10000);
-
+    
     // check on relationships count
     var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
     expect(relationships.count()).toBe(2);
