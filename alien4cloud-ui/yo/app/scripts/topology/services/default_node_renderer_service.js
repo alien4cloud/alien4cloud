@@ -14,19 +14,19 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
 
       setRuntime: function(isRuntime) {
         this.isRuntime = isRuntime;
-        if(isRuntime) {
+        if (isRuntime) {
           this.height = 100;
         } else {
           this.height = 50;
         }
       },
 
-      createNode: function (nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
+      createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
         if (nodeType.tags) {
           var tags = UTILS.convertNameValueListToMap(nodeType.tags);
           if (tags.icon) {
             nodeGroup.append('image').attr('x', oX + 8).attr('y', oY + 8).attr('width', '32').attr('height', '32').attr('xlink:href',
-            'img?id=' + tags.icon + '&quality=QUALITY_32');
+                'img?id=' + tags.icon + '&quality=QUALITY_32');
           }
         }
 
@@ -73,8 +73,10 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
               nodeInstancesCount = Object.keys(nodeInstances).length;
             }
           }
-
-          this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
+          // TODO better draw network node
+          if (nodeType.elementId !== 'tosca.nodes.Network') {
+            this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
+          }
         }
       },
 
@@ -114,10 +116,10 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
           }
           if (nodeInstancesCount === successCount) {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-            .attr('orient', 'auto').attr('style', 'stroke: none; fill: green');
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: green');
           } else {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-            .attr('orient', 'auto').attr('style', 'stroke: none; fill: orange');
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: orange');
           }
         } else {
           runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12').attr(
@@ -125,24 +127,26 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
         }
 
         runtimeGroup.append('text').attr('text-anchor', 'start').attr('x', rectOriginX + this.width - 20).attr('y', rectOriginY + 20).attr('font-weight',
-        'bold').attr('fill', 'white').text(function() { return nodeInstancesCount || 0; });
+          'bold').attr('fill', 'white').text(function() {
+            return nodeInstancesCount || 0;
+          });
       },
 
-      drawRuntimeCount: function (runtimeGroup, id, rectOriginX, currentY, iconCode, count, instanceCount) {
-        var groupSelection = runtimeGroup.select('#'+id);
+      drawRuntimeCount: function(runtimeGroup, id, rectOriginX, currentY, iconCode, count, instanceCount) {
+        var groupSelection = runtimeGroup.select('#' + id);
         // improve that...
-        if(groupSelection.empty()) {
+        if (groupSelection.empty()) {
           groupSelection = runtimeGroup.append('g').attr('id', id);
           groupSelection.append('text').attr('class', 'topology-svg-icon').attr('text-anchor', 'start').attr('x', rectOriginX + 60).attr('y', currentY).text(iconCode);
-          groupSelection.append('text').attr('id','count-text').attr('text-anchor', 'start').attr('x', rectOriginX + 80).attr('y', currentY).text(count + '/' + instanceCount);
+          groupSelection.append('text').attr('id', 'count-text').attr('text-anchor', 'start').attr('x', rectOriginX + 80).attr('y', currentY).text(count + '/' + instanceCount);
         } else {
           groupSelection.select('#count-text').text(count + '/' + instanceCount);
         }
       },
 
       removeRuntimeCount: function(runtimeGroup, id) {
-        var groupSelection = runtimeGroup.select('#'+id);
-        if(!groupSelection.empty()) {
+        var groupSelection = runtimeGroup.select('#' + id);
+        if (!groupSelection.empty()) {
           groupSelection.remove();
         }
       },

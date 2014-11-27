@@ -34,21 +34,23 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
             Path artifactPath = Paths.get(artifactReference);
             String extension = Files.getFileExtension(artifactPath.getFileName().toString());
 
-            ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-            IndexedArtifactType indexedType = getFromArchiveRoot(archiveRoot, extension);
-
             String type = null;
-            if (indexedType == null) {
-                GetMultipleDataResult<IndexedArtifactType> artifactType = alienDao.find(IndexedArtifactType.class,
-                        MapUtil.newHashMap(new String[] { "fileExt" }, new String[][] { new String[] { extension } }), 1);
+            if (extension != null) {
+                ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
+                IndexedArtifactType indexedType = getFromArchiveRoot(archiveRoot, extension);
 
-                if (artifactType != null && artifactType.getData() != null && artifactType.getData().length > 0) {
-                    type = artifactType.getData()[0].getElementId();
+                if (indexedType == null) {
+                    GetMultipleDataResult<IndexedArtifactType> artifactType = alienDao.find(IndexedArtifactType.class,
+                            MapUtil.newHashMap(new String[] { "fileExt" }, new String[][] { new String[] { extension } }), 1);
+
+                    if (artifactType != null && artifactType.getData() != null && artifactType.getData().length > 0) {
+                        type = artifactType.getData()[0].getElementId();
+                    } else {
+                        type = "unknown";
+                    }
                 } else {
-                    type = "unknown";
+                    type = indexedType.getElementId();
                 }
-            } else {
-                type = indexedType.getElementId();
             }
 
             ImplementationArtifact artifact = new ImplementationArtifact();
@@ -62,8 +64,11 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
     }
 
     private IndexedArtifactType getFromArchiveRoot(ArchiveRoot archiveRoot, String extension) {
+        if (archiveRoot == null || archiveRoot.getArtifactTypes() == null || extension == null) {
+            return null;
+        }
         for (IndexedArtifactType artifactType : archiveRoot.getArtifactTypes().values()) {
-            if (artifactType.getFileExt().contains(extension)) {
+            if (artifactType.getFileExt() != null && artifactType.getFileExt().contains(extension)) {
                 return artifactType;
             }
         }

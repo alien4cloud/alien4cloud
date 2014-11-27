@@ -31,6 +31,8 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
 
+import com.google.common.collect.Sets;
+
 @Slf4j
 @Component
 @DependsOn("plugin-manager")
@@ -647,5 +649,89 @@ public class CloudService {
             }
         }
         return null;
+    }
+
+    public void addNetwork(Cloud cloud, Network network) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        if (existingNetworks == null) {
+            existingNetworks = Sets.newHashSet();
+            cloud.setNetworks(existingNetworks);
+        }
+        existingNetworks.add(network);
+        alienDAO.save(cloud);
+    }
+
+    public void removeNetwork(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        Iterator<Network> networkIterator = existingNetworks.iterator();
+        while (networkIterator.hasNext()) {
+            Network network = networkIterator.next();
+            if (network.getNetworkName().equals(networkName)) {
+                networkIterator.remove();
+            }
+        }
+        if (config != null) {
+            List<MatchedNetwork> matchedNetworks = config.getMatchedNetworks();
+            Iterator<MatchedNetwork> matchedNetworkIterator = matchedNetworks.iterator();
+            while (matchedNetworkIterator.hasNext()) {
+                MatchedNetwork matchedNetwork = matchedNetworkIterator.next();
+                if (matchedNetwork.getNetwork().getNetworkName().equals(networkName)) {
+                    matchedNetworkIterator.remove();
+                }
+            }
+            alienDAO.save(config);
+        }
+        alienDAO.save(cloud);
+    }
+
+    private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
+        Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
+        while (networkIterator.hasNext()) {
+            MatchedNetwork network = networkIterator.next();
+            if (network.getNetwork().getNetworkName().equals(networkName)) {
+                if (take) {
+                    networkIterator.remove();
+                }
+                return network;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set the network resource id
+     *
+     * @param cloud the cloud to update
+     * @param networkName the network's name
+     * @param paaSResourceId paaS resource id
+     */
+    public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) {
+        Set<Network> networks = cloud.getNetworks();
+        Network foundNetwork = null;
+        for (Network network : networks) {
+            if (network.getNetworkName().equals(networkName)) {
+                foundNetwork = network;
+            }
+        }
+        if (foundNetwork == null) {
+            throw new NotFoundException("Network [" + networkName + "] not found");
+        }
+        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+        if (paaSResourceId == null) {
+            getMatchedNetwork(matcherConfig, networkName, true);
+        } else {
+            MatchedNetwork existing = getMatchedNetwork(matcherConfig, networkName, false);
+            if (existing != null) {
+                existing.setPaaSResourceId(paaSResourceId);
+            } else {
+                matcherConfig.getMatchedNetworks().add(new MatchedNetwork(foundNetwork, paaSResourceId));
+            }
+        }
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider != null) {
+            // Cloud may not be initialized yet
+            initializeMatcherConfig(paaSProvider, cloud);
+        }
+        alienDAO.save(matcherConfig);
     }
 }
