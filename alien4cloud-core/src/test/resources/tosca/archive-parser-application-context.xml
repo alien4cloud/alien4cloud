@@ -12,6 +12,7 @@
 	<bean id="archiveParser" class="alien4cloud.tosca.ArchiveParser" />
 	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
 
+	<mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO" />
 	<mockito:mock id="csar-service" class="alien4cloud.csar.services.CsarService" />
 	<mockito:mock id="csar-search-service"
 		class="alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService" />
