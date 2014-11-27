@@ -101,6 +101,18 @@ tosca_function:
           type: scalar
           mapping: parameters
 
+property_definition:
+  type: type:
+  required: required
+  description: description
+  default
+  quickMap("type");
+        quickMap("required");
+        quickMap("description");
+        quickMap("default");
+        quickMap(new ListParser<PropertyConstraint>(constraintParser, "Constraints"), "constraints");
+        quickMap(schema.getParser(), "entrySchema");
+
 operation_definition:
   java_type: alien4cloud.tosca.model.Operation
   implementation: implementation_artifact
