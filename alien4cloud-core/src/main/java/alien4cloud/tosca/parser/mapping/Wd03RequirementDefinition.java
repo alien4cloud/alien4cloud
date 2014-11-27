@@ -33,7 +33,7 @@ public class Wd03RequirementDefinition extends AbstractMapper<RequirementDefinit
     public void initMapping() {
         instance.getYamlOrderedToObjectMapping().put(
                 0,
-                new KeyValueMappingTarget("id", false, "type", typeReferenceParserFactory.getTypeReferenceParser(IndexedCapabilityType.class,
+                new KeyValueMappingTarget("id", "type", typeReferenceParserFactory.getTypeReferenceParser(IndexedCapabilityType.class,
                         IndexedNodeType.class)));
         quickMap("lowerBound");
         quickMap(boundParser, "upperBound");

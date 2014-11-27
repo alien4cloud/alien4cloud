@@ -1,4 +1,4 @@
-package alien4cloud.tosca.parser.impl.advanced;
+package alien4cloud.tosca.parser.impl.base;
 
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -13,7 +13,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 @Component
 public class ScalarParser implements INodeParser<String> {
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 

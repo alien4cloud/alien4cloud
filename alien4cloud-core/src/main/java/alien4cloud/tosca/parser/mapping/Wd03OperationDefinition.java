@@ -43,7 +43,7 @@ public class Wd03OperationDefinition extends AbstractMapper<Operation> {
         TypeNodeParser<FunctionPropertyValue> functionParser = new TypeNodeParser<>(FunctionPropertyValue.class, "Property function");
         // String keyPath, boolean keyPathRelativeToValue, String path, INodeParser<?> parser
         functionParser.getYamlOrderedToObjectMapping().put(0,
-                new KeyValueMappingTarget("function", false, "parameters", new ListParser<String>(getScalarParser(), "function parameter")));
+                new KeyValueMappingTarget("function", "parameters", new ListParser<String>(getScalarParser(), "function parameter")));
 
         discriminationMap.put("type", propertyDefinition.getParser());
         discriminationMap.put("get_input", functionParser);

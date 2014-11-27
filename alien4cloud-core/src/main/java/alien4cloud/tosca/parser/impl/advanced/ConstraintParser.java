@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.BeanWrapper;
@@ -71,7 +72,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 

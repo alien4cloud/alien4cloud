@@ -5,17 +5,14 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.component.model.*;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the dependencies.
@@ -31,7 +28,7 @@ public class TypeReferenceParser implements INodeParser<String> {
     private final Class<? extends IndexedInheritableToscaElement>[] validTypes;
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return true;
     }
 

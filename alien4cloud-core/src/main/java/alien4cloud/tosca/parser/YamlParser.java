@@ -95,7 +95,7 @@ public abstract class YamlParser<T> {
         }
 
         // process deferred parsing
-        for (Runnable defferedParser : context.getDefferedParsers()) {
+        for (Runnable defferedParser : context.getDeferredParsers()) {
             defferedParser.run();
         }
 

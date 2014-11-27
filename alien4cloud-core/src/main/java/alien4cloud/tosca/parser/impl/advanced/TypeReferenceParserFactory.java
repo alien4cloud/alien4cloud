@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;

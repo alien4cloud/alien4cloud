@@ -1,6 +1,7 @@
 package alien4cloud.tosca.parser;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +14,10 @@ import com.google.common.collect.Lists;
 @Setter
 public class ParsingContextExecution {
     private BeanWrapper root;
-    private final List<Runnable> defferedParsers = Lists.newArrayList();
+    private final List<Runnable> deferredParsers = Lists.newArrayList();
     private final ParsingContext parsingContext;
+    /** Map of parsers by type */
+    private Map<String, INodeParser> registry;
 
     public ParsingContextExecution(String fileName) {
         parsingContext = new ParsingContext(fileName);

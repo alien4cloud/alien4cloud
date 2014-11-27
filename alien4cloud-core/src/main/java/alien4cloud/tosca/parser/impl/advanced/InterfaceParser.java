@@ -68,7 +68,7 @@ public class InterfaceParser implements INodeParser<Interface> {
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 }

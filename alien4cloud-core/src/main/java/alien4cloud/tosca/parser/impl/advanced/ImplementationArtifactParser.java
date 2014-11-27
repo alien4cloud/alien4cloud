@@ -42,7 +42,7 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return true;
     }
 }

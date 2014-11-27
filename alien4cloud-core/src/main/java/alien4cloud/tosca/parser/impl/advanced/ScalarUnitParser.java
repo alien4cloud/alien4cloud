@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.ParsingContextExecution;

@@ -31,11 +31,15 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
 
     @PostConstruct
     public void initialize() {
+        // initialize type registry for working draft 3.
+        Map<String, INodeParser> registry = Maps.newHashMap();
+
         nodeParserRegistry.put(Wd03ArchiveRoot.VERSION, wd03ArchiveRoot.getParser());
     }
 
     @Override
     protected INodeParser<ArchiveRoot> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException {
+
         // try to find the tosca version
         DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(rootNode.getValue(), context.getParsingErrors());
         // call the parser for the given tosca version

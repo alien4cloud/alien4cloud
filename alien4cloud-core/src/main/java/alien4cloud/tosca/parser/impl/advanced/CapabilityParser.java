@@ -1,4 +1,4 @@
-package alien4cloud.tosca.parser.mapping;
+package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,8 +16,7 @@ import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParser;
-import alien4cloud.tosca.parser.impl.advanced.TypeReferenceParserFactory;
+import alien4cloud.tosca.parser.mapping.Wd03CapabilityDefinition;
 
 @Component
 public class CapabilityParser implements INodeParser<CapabilityDefinition> {
@@ -33,7 +32,7 @@ public class CapabilityParser implements INodeParser<CapabilityDefinition> {
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 
@@ -42,7 +41,7 @@ public class CapabilityParser implements INodeParser<CapabilityDefinition> {
         if (node instanceof ScalarNode) {
             CapabilityDefinition definition = new CapabilityDefinition();
             BeanWrapper instanceWrapper = new BeanWrapperImpl(definition);
-            context.getDefferedParsers().add(
+            context.getDeferredParsers().add(
                     new DefferedParsingValueExecutor(null, instanceWrapper, context, new MappingTarget("type", typeReferenceParser), node));
             return definition;
         }

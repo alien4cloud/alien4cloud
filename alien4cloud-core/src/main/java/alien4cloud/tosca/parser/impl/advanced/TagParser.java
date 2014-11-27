@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 public class TagParser implements INodeParser<List<Tag>> {
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 

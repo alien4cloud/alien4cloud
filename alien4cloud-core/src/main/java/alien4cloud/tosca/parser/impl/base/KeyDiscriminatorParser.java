@@ -55,7 +55,7 @@ public class KeyDiscriminatorParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 }

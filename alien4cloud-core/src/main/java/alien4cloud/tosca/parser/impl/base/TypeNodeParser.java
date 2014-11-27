@@ -2,12 +2,11 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.IllegalFormatCodePointException;
 import java.util.Map;
 
 import lombok.Getter;
-
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -15,15 +14,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.parser.AbstractTypeNodeParser;
-import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingTechnicalException;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 import com.google.common.collect.Maps;
@@ -32,16 +23,26 @@ import com.google.common.collect.Maps;
 @Getter
 public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodeParser<T> {
     private final Class<T> type;
-    private final Map<String, MappingTarget> yamlToObjectMapping = Maps.newHashMap();
-    private final Map<Integer, MappingTarget> yamlOrderedToObjectMapping = Maps.newHashMap();
+    private final Map<String, MappingTarget> yamlToObjectMapping;
+    private final Map<Integer, MappingTarget> yamlOrderedToObjectMapping;
 
     public TypeNodeParser(Class<T> type, String toscaType) {
         super(toscaType);
         this.type = type;
+        yamlToObjectMapping = Maps.newHashMap();
+        yamlOrderedToObjectMapping = Maps.newHashMap();
+    }
+
+    public TypeNodeParser(Class<T> type, String toscaType, Map<String, MappingTarget> yamlToObjectMapping,
+            Map<Integer, MappingTarget> yamlOrderedToObjectMapping) {
+        super(toscaType);
+        this.type = type;
+        this.yamlToObjectMapping = yamlToObjectMapping;
+        this.yamlOrderedToObjectMapping = yamlOrderedToObjectMapping;
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 
@@ -134,8 +135,8 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
-            if (target.getParser().isDeferred()) {
-                context.getDefferedParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
+            if (target.getParser().isDeferred(context)) {
+                context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
             } else {
                 parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }

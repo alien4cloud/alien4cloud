@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.List;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import lombok.AllArgsConstructor;
 
 import org.yaml.snakeyaml.nodes.Node;
@@ -30,7 +31,7 @@ public class DerivedFromParser implements INodeParser<List<String>> {
     private final Class<? extends IndexedInheritableToscaElement> validType;
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return true;
     }
 
