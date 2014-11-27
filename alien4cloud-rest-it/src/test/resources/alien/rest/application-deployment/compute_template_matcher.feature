@@ -5,6 +5,7 @@ Background:
   And I upload a plugin
   And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
   And I enable the cloud "Mount doom cloud"
+  And I upload the archive "tosca base types 1.0"
   And There are these users in the system
     | sangoku |
   And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
@@ -175,6 +176,7 @@ Scenario: Match a topology for resources, with filters
 
 Scenario: Find a matching resource for a type derived from Compute
   Given I am authenticated with "ADMIN" role
+  And I upload the archive "ubuntu types 0.1"
   And I am authenticated with user named "sangoku"
   And I have an application "ALIEN_2" with a topology containing a nodeTemplate "Ubuntu" related to "alien.nodes.Ubuntu:0.1"
   And I assign the cloud with name "Mount doom cloud" for the application
