@@ -6,7 +6,7 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
    * pagination handlers
    */
 
-    // pagination vars
+  // pagination vars
   $scope.pagination = {};
   $scope.pagination.maxItemsPerPage = 20;
   $scope.pagination.maxSize = 10;
@@ -16,12 +16,12 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
    */
   $scope.getFormatedFacetValue = function(term, value) {
     // Add other boolean term facet in the condition
-    if (term === "abstract") {
-        if (value === 'F' || value[0] === false) {
-          return $filter('translate')("FALSE");
-        } else {
-          return $filter('translate')("TRUE");
-        }
+    if (term === 'abstract') {
+      if (value === 'F' || value[0] === false) {
+        return $filter('translate')('FALSE');
+      } else {
+        return $filter('translate')('TRUE');
+      }
     } else {
       return value;
     }
@@ -32,12 +32,12 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
    */
   function getFormatedFacetId(term, facetId) {
     // Add other boolean term facet in the condition
-    if (term === "abstract") {
-        if (facetId === 'F') {
-          return false;
-        } else {
-          return true;
-        }
+    if (term === 'abstract') {
+      if (facetId === 'F') {
+        return false;
+      } else {
+        return true;
+      }
     } else {
       return facetId;
     }
@@ -45,7 +45,9 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
 
   //update paginations vars
   function updatePagination() {
-    $scope.pagination.totalItems = $scope.searchResult.data.totalResults;
+    $scope.searchResult.$promise.then(function successResult(result) {
+      $scope.pagination.totalItems = result.data.data.totalResults;
+    });
   }
 
   function resetPagination() {
@@ -182,7 +184,7 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
   /** check if this component is default for a capability */
   $scope.isADefaultCapability = function(component, capability) {
     if (component.defaultCapabilities) {
-      return  (component.defaultCapabilities.indexOf(capability) >= 0);
+      return (component.defaultCapabilities.indexOf(capability) >= 0);
     }
   };
 
@@ -211,7 +213,9 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
         height: $scope.height + 'px'
       };
     }
-    return { overflow: 'auto' };
+    return {
+      overflow: 'auto'
+    };
   };
 
   //get the icon
@@ -254,6 +258,6 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
 
   // Init : by default, don't display abastract components on topology view
   if (!$scope.globalContext) {
-    $scope.addFilter("abstract", "F");
+    $scope.addFilter('abstract', 'F');
   }
 }]);
