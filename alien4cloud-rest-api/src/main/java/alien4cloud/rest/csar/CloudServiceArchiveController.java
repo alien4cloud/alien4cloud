@@ -1,12 +1,7 @@
 package alien4cloud.rest.csar;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.Set;
@@ -25,13 +20,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.DeploymentSetupService;
@@ -53,11 +42,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
@@ -66,11 +51,7 @@ import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.Csar;
-import alien4cloud.tosca.parser.ParsingContext;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
@@ -203,7 +184,8 @@ public class CloudServiceArchiveController {
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
 
-        // TODO cleanup node types, relationship types etc.
+        // TODO check if some of the nodes are used in topologies.
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
 
         csarDAO.delete(Csar.class, csarId);
         return RestResponseBuilder.<Void> builder().build();

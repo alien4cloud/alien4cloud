@@ -1,11 +1,6 @@
 package alien4cloud.tosca.container.services.csar.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -62,6 +57,14 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             elementsByIds.put(element.getId(), element);
         }
         return elementsByIds;
+    }
+
+    @Override
+    public void deleteElements(String archiveName, String archiveVersion) {
+        QueryBuilder archiveNameMatch = QueryBuilders.termQuery("archiveName", archiveName);
+        QueryBuilder archiveVersionMatch = QueryBuilders.matchQuery("archiveVersion", archiveVersion);
+        QueryBuilder query = QueryBuilders.boolQuery().must(archiveNameMatch).must(archiveVersionMatch);
+        alienDAO.delete(IndexedToscaElement.class, query);
     }
 
     @Override

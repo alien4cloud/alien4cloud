@@ -21,6 +21,14 @@ public interface ICSARRepositoryIndexerService {
     Map<String, IndexedToscaElement> getArchiveElements(String archiveName, String archiveVersion);
 
     /**
+     * Delete all elements from a given archive.
+     * 
+     * @param archiveName The name of the archive to delete.
+     * @param archiveVersion The version of the archive to delete.
+     */
+    void deleteElements(String archiveName, String archiveVersion);
+
+    /**
      * Index multiple elements into the repository.
      * 
      * @param archiveName The name of the archive in which the elements lies.
@@ -36,7 +44,7 @@ public interface ICSARRepositoryIndexerService {
      * 
      * @param archiveName The name of the archive in which the elements lies.
      * @param archiveVersion The version of the archive in which the elements lies.
-     * @param archiveElements The element to index.
+     * @param element The element to index.
      * @param dependencies The archive dependencies (in order to add infos from the parent element to the child...)
      */
     void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element, Collection<CSARDependency> dependencies);
