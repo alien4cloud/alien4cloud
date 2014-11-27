@@ -32,7 +32,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
                 for (String property : deploymentSetup.getProviderDeploymentProperties().keySet()) {
                     log.info(property);
                     if (deploymentSetup.getProviderDeploymentProperties().get(property) != null) {
-                        log.info("[ " + property + " : " + deploymentSetup.getProviderDeploymentProperties().get(property).getValue() + "]");
+                        log.info("[ " + property + " : " + deploymentSetup.getProviderDeploymentProperties().get(property) + "]");
                     }
                 }
             }

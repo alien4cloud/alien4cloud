@@ -23,7 +23,6 @@ import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.model.ScalarPropertyValue;
 
 import com.google.common.collect.Maps;
 
@@ -131,9 +130,9 @@ public class DeploymentSetupService {
         Map<String, PropertyDefinition> propertyDefinitionMap = cloudService.getDeploymentPropertyDefinitions(cloud.getId());
         if (propertyDefinitionMap != null) {
             // Reset deployment properties as it might have changed between cloud
-            Map<String, ScalarPropertyValue> propertyValueMap = Maps.newHashMap();
+            Map<String, String> propertyValueMap = Maps.newHashMap();
             for (Map.Entry<String, PropertyDefinition> propertyDefinitionEntry : propertyDefinitionMap.entrySet()) {
-                propertyValueMap.put(propertyDefinitionEntry.getKey(), new ScalarPropertyValue(propertyDefinitionEntry.getValue().getDefault()));
+                propertyValueMap.put(propertyDefinitionEntry.getKey(), propertyDefinitionEntry.getValue().getDefault());
             }
             deploymentSetup.setProviderDeploymentProperties(propertyValueMap);
         }
