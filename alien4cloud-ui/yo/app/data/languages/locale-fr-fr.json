@@ -294,7 +294,10 @@
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disque",
       "TITLE_RAM": "RAM",
-      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud"
+      "TITLE_NETWORK": "Nom du réseau",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Réseau"
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -469,6 +472,17 @@
       "TO_BE_ADDED_TITLE": "Images sélectionnées",
       "NEW_MODAL_TITLE": "Ajouter des images",
       "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'ajouter"
+    },
+    "NETWORK": "Réseaux",
+    "NETWORKS": {
+      "NEW": "Ajouter",
+      "NAME": "Nom",
+      "CIDR": "CIDR",
+      "GATEWAY_IP": "IP du Gateway",
+      "IP_VERSION": "Version d'IP",
+      "RESOURCE_ID": "Resource id",
+      "NEW_MODAL_TITLE": "Créer un nouveau réseau",
+      "NOT_CONFIGURED": "Non configuré"
     },
     "IAAS": {
       "OTHER": "Autre",

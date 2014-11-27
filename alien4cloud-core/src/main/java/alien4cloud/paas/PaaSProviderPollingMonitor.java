@@ -63,35 +63,25 @@ public class PaaSProviderPollingMonitor implements Runnable {
     @Override
     @SuppressWarnings("rawtypes")
     public void run() {
-        Date latestDate = new Date();
+        Date currentDate = new Date();
         AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
         if (auditEvents != null && auditEvents.length > 0) {
             dao.save(auditEvents);
-            // for (AbstractMonitorEvent event : auditEvents) {
-            // latestDate = new Date(event.getDate());
-            // if (latestDate.after(lastPollingDate)) {
-            // lastPollingDate = latestDate;
-            // log.debug("Event more recent found, the last polling date will be {}", this.lastPollingDate);
-            // }
-            // }
             for (IPaasEventListener listener : listeners) {
                 for (AbstractMonitorEvent event : auditEvents) {
                     if (listener.canHandle(event)) {
                         listener.eventHappened(event);
                     }
                     Date eventDate = new Date(event.getDate());
-                    latestDate = eventDate.after(latestDate) ? eventDate : latestDate;
+                    lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
                 }
             }
-        }
-        updateLastPollingDate(latestDate);
-    }
-
-    private void updateLastPollingDate(Date latestDate) {
-        if (latestDate.after(lastPollingDate)) {
-            lastPollingDate = latestDate;
         } else {
-            log.warn("There may be time shift between the server producing events and the alien server");
+            if (currentDate.after(lastPollingDate)) {
+                lastPollingDate = currentDate;
+            } else if (currentDate.before(lastPollingDate)) {
+                log.warn("There may be time shift between the server producing events and the alien server");
+            }
         }
     }
 }

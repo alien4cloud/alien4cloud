@@ -5,7 +5,6 @@ package alien4cloud.tosca.container.model;
  */
 public final class NormativeComputeConstants {
     public static final String COMPUTE_TYPE = "tosca.nodes.Compute";
-
     public static final String NUM_CPUS = "num_cpus";
     public static final String DISK_SIZE = "disk_size";
     public static final String MEM_SIZE = "mem_size";

@@ -6,10 +6,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import lombok.AllArgsConstructor;
+
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.cloud.CloudResourceMatcherService;
+import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -20,6 +23,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.Network;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyDefinition;
@@ -78,25 +82,47 @@ public class DeploymentSetupService {
      * @return true if the topology's deployment setup is valid (all resources are matchable), false otherwise
      */
     public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave) {
-        boolean changed = false;
         CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
-        Map<String, List<ComputeTemplate>> matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig, types)
-                .getMatchResult();
-        // Generate default matching for deployment setup
-        Map<String, ComputeTemplate> cloudResourcesMapping = deploymentSetup.getCloudResourcesMapping();
+        CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig, types);
+
+        // Generate default matching for compute template
+        MappingGenerationResult<ComputeTemplate> computeMapping = generateDefaultMapping(deploymentSetup.getCloudResourcesMapping(),
+                matchResult.getComputeMatchResult(), topology);
+
+        // Generate default matching for network
+        MappingGenerationResult<Network> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(), matchResult.getNetworkMatchResult(),
+                topology);
+
+        deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
+        deploymentSetup.setNetworkMapping(networkMapping.mapping);
+        if ((computeMapping.changed || networkMapping.changed) && automaticSave) {
+            alienDAO.save(deploymentSetup);
+        }
+        return computeMapping.valid && networkMapping.valid;
+    }
+
+    @AllArgsConstructor
+    private static class MappingGenerationResult<T> {
+        private Map<String, T> mapping;
+        private boolean valid;
+        private boolean changed;
+    }
+
+    private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, List<T>> matchResult, Topology topology) {
         boolean valid = true;
-        for (Map.Entry<String, List<ComputeTemplate>> matchResultEntry : matchResult.entrySet()) {
+        for (Map.Entry<String, List<T>> matchResultEntry : matchResult.entrySet()) {
             valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
         }
-        if (cloudResourcesMapping == null) {
+        boolean changed = false;
+        if (mapping == null) {
             changed = true;
-            cloudResourcesMapping = Maps.newHashMap();
+            mapping = Maps.newHashMap();
         } else {
             // Try to remove unknown mapping from existing config
-            Iterator<Map.Entry<String, ComputeTemplate>> mappingEntryIterator = cloudResourcesMapping.entrySet().iterator();
+            Iterator<Map.Entry<String, T>> mappingEntryIterator = mapping.entrySet().iterator();
             while (mappingEntryIterator.hasNext()) {
-                Map.Entry<String, ComputeTemplate> entry = mappingEntryIterator.next();
+                Map.Entry<String, T> entry = mappingEntryIterator.next();
                 if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(entry.getKey()) || !matchResult.containsKey(entry.getKey())
                         || !matchResult.get(entry.getKey()).contains(entry.getValue())) {
                     // Remove the mapping if topology do not contain the node with that name and of type compute
@@ -106,18 +132,14 @@ public class DeploymentSetupService {
                 }
             }
         }
-        for (Map.Entry<String, List<ComputeTemplate>> entry : matchResult.entrySet()) {
-            if (!entry.getValue().isEmpty() && !cloudResourcesMapping.containsKey(entry.getKey())) {
+        for (Map.Entry<String, List<T>> entry : matchResult.entrySet()) {
+            if (!entry.getValue().isEmpty() && !mapping.containsKey(entry.getKey())) {
                 // Only take the first element as selected if no configuration has been set before
                 changed = true;
-                cloudResourcesMapping.put(entry.getKey(), entry.getValue().get(0));
+                mapping.put(entry.getKey(), entry.getValue().get(0));
             }
         }
-        deploymentSetup.setCloudResourcesMapping(cloudResourcesMapping);
-        if (changed && automaticSave) {
-            alienDAO.save(deploymentSetup);
-        }
-        return valid;
+        return new MappingGenerationResult<>(mapping, valid, changed);
     }
 
     /**

@@ -294,7 +294,10 @@
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disk",
       "TITLE_RAM": "RAM",
-      "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources"
+      "TITLE_NETWORK": "Network's name",
+      "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Network"
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
@@ -468,6 +471,17 @@
       "IMAGE_NAME": "Image's name",
       "FLAVOR_NAME": "Flavor's name",
       "RESOURCE_ID": "PaaS resource's id"
+    },
+    "NETWORK": "Network",
+    "NETWORKS": {
+      "NEW": "Add",
+      "NAME": "Name",
+      "CIDR": "CIDR",
+      "GATEWAY_IP": "Gateway's IP",
+      "IP_VERSION": "IP version",
+      "RESOURCE_ID": "Resource id",
+      "NEW_MODAL_TITLE": "Create a new network",
+      "NOT_CONFIGURED": "Not configured"
     },
     "IAAS": {
       "OTHER": "Other",

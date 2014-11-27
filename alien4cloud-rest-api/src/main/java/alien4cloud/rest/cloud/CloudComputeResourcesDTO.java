@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class CloudResourcesDTO {
+public class CloudComputeResourcesDTO {
 
     /**
      * The compute templates that are available for this cloud

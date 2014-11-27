@@ -102,8 +102,8 @@
             <fieldset>
               <legend class="text-center">
                 <h4>
-            <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
-          </h4>
+                  <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+                </h4>
               </legend>
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
@@ -162,8 +162,8 @@
             <fieldset>
               <legend class="text-center">
                 <h4>
-            <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
-          </h4>
+                  <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
+                </h4>
               </legend>
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
@@ -207,30 +207,30 @@
         <tab-heading>
           {{'CLOUDS.TEMPLATE' | translate}}
           <span ng-if="tabs.newTemplates != 0" class="badge">
-    <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
+            <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
           </span>
           <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
-    <i class="fa fa-warning text-danger"></i>
-  </span>
+            <i class="fa fa-warning text-danger"></i>
+          </span>
         </tab-heading>
         <div class="row">
           <div class="col-md-6">
             <fieldset>
               <legend class="text-center">
                 <h4>
-            <i class="fa fa-desktop"></i> {{'CLOUDS.TEMPLATE' | translate }}
-            <span style="font-size: 14px">
-              (
-                {{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}
-              <span ng-if="templateFilteredCount > 0">
-                , {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}
-              </span>
-              <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
-                , <i class="fa fa-warning text-danger"></i> {{templateNotConfiguredCount}} {{ 'CLOUDS.TEMPLATES.NOT_CONFIGURED' | translate }}
-              </span>
-              )
-            </span>
-          </h4>
+                  <i class="fa fa-desktop"></i> {{'CLOUDS.TEMPLATE' | translate }}
+                  <span style="font-size: 14px">
+                    (
+                      {{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}
+                    <span ng-if="templateFilteredCount > 0">
+                      , {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}
+                    </span>
+                    <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
+                      , <i class="fa fa-warning text-danger"></i> {{templateNotConfiguredCount}} {{ 'CLOUDS.TEMPLATES.NOT_CONFIGURED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
               </legend>
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-12" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
@@ -259,12 +259,12 @@
                           <td>{{flavor.id}}</td>
                           <td ng-if="manualMatchResource" ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
                             <span editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
-                          {{template.paaSResourceId}}
-                          <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
-                            {{'GENERIC_FORM.UNDEFINED' | translate}}
-                          </em>
-                          <i class="fa fa-pencil-square-o"></i>
-                      </span>
+                              {{template.paaSResourceId}}
+                              <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
                           </td>
                         </tr>
                       </tbody>
@@ -384,6 +384,76 @@
                 </div>
               </fieldset>
             </div>
+          </div>
+        </div>
+      </tab>
+      <tab id="tab-clouds-network">
+        <tab-heading>
+          {{'CLOUDS.NETWORK' | translate}}
+          <span ng-if="networkNotConfiguredCount > 0 && manualMatchResource">
+            <i class="fa fa-warning text-danger"></i>
+          </span>
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-wifi"></i> {{'CLOUDS.NETWORK' | translate }}
+                  <span ng-if="networkNotConfiguredCount > 0 && manualMatchResource" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-warning text-danger"></i> {{networkNotConfiguredCount}} {{ 'CLOUDS.NETWORKS.NOT_CONFIGURED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-network-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.RESOURCE_ID' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="network in cloud.networks" id='cloud_network_{{network.networkName}}'>
+                          <td>{{network.networkName}}</td>
+                          <td>{{network.cidr}}</td>
+                          <td>{{network.gatewayIp || '---'}}</td>
+                          <td>{{network.ipVersion}}</td>
+                          <td ng-if="manualMatchResource" ng-class="{'has-error': !network.paaSResourceId}">
+                            <span editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
+                                {{network.paaSResourceId}}
+                              <em ng-if="network.paaSResourceId === null || network.paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.networkName)"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-network-add-button" class="btn btn-success btn-sm pull-right" ng-click="openNetworkCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
           </div>
         </div>
       </tab>

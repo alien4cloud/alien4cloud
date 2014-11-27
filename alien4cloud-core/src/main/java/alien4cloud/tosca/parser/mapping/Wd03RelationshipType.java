@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.AttributeDefinition;
 import alien4cloud.tosca.parser.impl.advanced.InterfaceParser;
+import alien4cloud.tosca.parser.impl.advanced.InterfacesParser;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.MapParser;
 import alien4cloud.tosca.parser.impl.base.SequenceToMapParser;
@@ -31,7 +31,7 @@ public class Wd03RelationshipType extends Wd03InheritableToscaElement<IndexedRel
     public void initMapping() {
         super.initMapping();
         quickMap(new MapParser<AttributeDefinition>(attributeDefinition.getParser(), "Attributes"), "attributes");
-        quickMap(new MapParser<Interface>(interfaceParser, "interfaces"), "interfaces");
+        quickMap(new InterfacesParser(interfaceParser, "interfaces"), "interfaces");
         quickMap(new SequenceToMapParser<DeploymentArtifact>(artifactDefinition.getParser(), "Artifacts"), "artifacts");
         quickMap(new ListParser<String>(getScalarParser(), "valid targets"), "validTargets");
         quickMap(new ListParser<String>(getScalarParser(), "valid sources"), "validSources");
