@@ -59,7 +59,7 @@ public abstract class YamlParser<T> {
         try {
             rootNode = composer.getSingleNode();
             if (rootNode == null) {
-                throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.SYNTAX_ERROR, "Empty file.", new Mark("root", 0, 0, 0,
+                throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.INVALID_YAML, "Empty file.", new Mark("root", 0, 0, 0,
                         null, 0), "No yaml content found in file.", new Mark("root", 0, 0, 0, null, 0), yamlPath.toString()));
             }
         } catch (MarkedYAMLException exception) {

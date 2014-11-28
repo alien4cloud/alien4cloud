@@ -1,3 +1,4 @@
+/* global UTILS */
 'use strict';
 
 angular.module('alienUiApp').controller('UploadCtrl', ['$scope', '$upload',
@@ -39,12 +40,18 @@ angular.module('alienUiApp').controller('UploadCtrl', ['$scope', '$upload',
       }).progress(function(evt) {
         $scope.uploadInfos[index].progress = parseInt(100.0 * evt.loaded / evt.total);
       }).success(function(data) {
+        console.log('got response', data);
         // file is uploaded successfully and the server respond without error
         if (data.error === null) {
           $scope.uploadInfos[index].infoType = statesToClasses.success;
           if($scope.uploadSuccessCallback) {
             $scope.uploadSuccessCallback(data);
           }
+
+          if (UTILS.isDefinedAndNotNull(data.data)) {
+            $scope.uploadInfos[index].errors = data.data.errors;
+          }
+
         } else {
           $scope.uploadInfos[index].infoType = statesToClasses.error;
           handleUploadErrors(index, data);

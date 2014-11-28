@@ -41,7 +41,8 @@ public class ValidatedNodeParser<T> implements INodeParser<T> {
                     .getSimpleName() : "";
 
             context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.VALIDATION_ERROR, errorCode, node.getStartMark(), buffer.toString(), node.getEndMark(), null));
+                    new ParsingError(ErrorCode.VALIDATION_ERROR, errorCode, node.getStartMark(), buffer.toString(), node.getEndMark(), violation
+                            .getPropertyPath().toString()));
         }
 
         return parsed;

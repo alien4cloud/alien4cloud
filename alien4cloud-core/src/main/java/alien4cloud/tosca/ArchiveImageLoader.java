@@ -1,12 +1,7 @@
 package alien4cloud.tosca;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +53,9 @@ public class ArchiveImageLoader {
 
     private void importImages(Path archiveFile, ParsingResult<ArchiveRoot> parsingResult,
             Map<String, ? extends IndexedInheritableToscaElement> toscaInheritableElement) {
+        if (toscaInheritableElement == null) {
+            return;
+        }
         for (Map.Entry<String, ? extends IndexedInheritableToscaElement> element : toscaInheritableElement.entrySet()) {
             if (element.getValue().getTags() != null) {
                 List<Tag> tags = element.getValue().getTags();

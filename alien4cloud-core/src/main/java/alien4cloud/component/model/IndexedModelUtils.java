@@ -1,11 +1,6 @@
 package alien4cloud.component.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.elasticsearch.common.collect.Maps;
 
@@ -32,6 +27,9 @@ public final class IndexedModelUtils {
      * @return
      */
     public static List<IndexedInheritableToscaElement> orderForIndex(final Map<String, ? extends IndexedInheritableToscaElement> elementsByIdMap) {
+        if(elementsByIdMap == null) {
+            return null;
+        }
         List<IndexedInheritableToscaElement> orderedElements = new ArrayList<IndexedInheritableToscaElement>(elementsByIdMap.values());
         final Map<String, Integer> elementsLevelMap = Maps.newHashMap();
         for (IndexedInheritableToscaElement element : orderedElements) {

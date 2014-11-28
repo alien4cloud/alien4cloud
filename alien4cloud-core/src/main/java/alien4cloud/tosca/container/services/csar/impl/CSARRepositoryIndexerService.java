@@ -70,6 +70,9 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     @Override
     public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies) {
+        if (archiveElements == null) {
+            return;
+        }
         List<IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
         for (IndexedInheritableToscaElement element : orderedElements) {
             indexInheritableElement(archiveName, archiveVersion, element, dependencies);
@@ -81,7 +84,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             Collection<CSARDependency> dependencies) {
         IndexedToscaElement indexedNodeType = alienDAO.findById(IndexedToscaElement.class, element.getId());
         element.setLastUpdateDate(new Date());
-        Date creationDate = indexedNodeType == null ? element.getLastUpdateDate() : indexedNodeType.getCreationDate();
+        Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
         element.setCreationDate(creationDate);
         if (element.getDerivedFrom() != null) {
             Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
@@ -161,7 +164,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             if (iconTag != null) {
                 imageDAO.delete(iconTag.getValue());
             }
-            alienDAO.delete(IndexedToscaElement.class, element.getId());
+            alienDAO.delete(element.getClass(), element.getId());
         }
     }
 }
