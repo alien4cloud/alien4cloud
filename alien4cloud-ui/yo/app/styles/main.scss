@@ -30,14 +30,11 @@ $screen-md-min: 1015px;
 
 .navbar-logout-dropdown {
   z-index: 2000;
-
 }
 
 .navbar-brand {
   padding: 0 5px;
-
 }
-
 
 @media all and (min-width: 768px) and (max-width: 1000px) {
   #alien-navbar-collapse i + span {
@@ -60,12 +57,10 @@ $screen-md-min: 1015px;
   #alien-navbar-collapse input[placeholder] {
     text-overflow: ellipsis;
   }
-
 }
 
 .main-view {
   margin-top: 64px;
-
 }
 
 @media(min-width: $screen-sm-min) {
