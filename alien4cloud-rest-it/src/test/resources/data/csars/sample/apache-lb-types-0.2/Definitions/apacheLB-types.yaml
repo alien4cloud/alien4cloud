@@ -43,8 +43,10 @@ node_types:
           inputs:
             instanceId:
               type: string
+              required: true
             node:
               type: string
+              required: true
           implementation: scripts/apacheLB_addNode.groovy
         removeNode: scripts/apacheLB_removeNode.groovy
         deployPublic:

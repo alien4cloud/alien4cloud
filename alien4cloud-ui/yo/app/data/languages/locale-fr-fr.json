@@ -361,7 +361,7 @@
       },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
-      "TEMPLATE_SELECT": "-- Selectionner un modèle de topologie --",
+      "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
@@ -378,7 +378,9 @@
         "NAME" : "Nom",
         "DESCRIPTION": "Description",
         "CLOUD": "Cloud actif",
-        "ENV_TYPE": "Type d'environnement"
+        "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
+        "ENV_TYPE": "Type d'environnement",
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --"
       }
     },
     "ERRORS": {

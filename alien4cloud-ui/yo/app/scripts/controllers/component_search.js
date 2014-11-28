@@ -45,9 +45,7 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
 
   //update paginations vars
   function updatePagination() {
-    $scope.searchResult.$promise.then(function successResult(result) {
-      $scope.pagination.totalItems = result.data.data.totalResults;
-    });
+    $scope.pagination.totalItems = $scope.searchResult.data.totalResults;
   }
 
   function resetPagination() {
