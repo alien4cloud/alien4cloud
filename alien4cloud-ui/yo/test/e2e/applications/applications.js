@@ -9,6 +9,17 @@ var topologyEditorCommon = require('../topology/topology_editor_common');
 var cloudsCommon = require('../admin/clouds_common');
 var rolesCommon = require('../common/roles_common');
 
+var environments_type = {
+  other: 'OTHER',
+  dev: 'DEVELOPMENT',
+  it: 'INTEGRATION_TESTS',
+  uat: 'USER_ACCEPTANCE_TESTS',
+  pprod: 'PRE_PRODUCTION',
+  prod: 'PRODUCTION'
+};
+module.exports.environments_type = environments_type;
+
+
 module.exports.checkApplicationManager = function(isManager) {
   navigation.go('main', 'applications');
   var message = isManager ? 'A user that is application manager or admin should have access to the create application button on the applications list page.' : 'A user that is not application manager or admin should not have access to the create application button on the applications list page.';
@@ -115,3 +126,46 @@ module.exports.deployExistingApplication = function(applicationName) {
 
   navigation.go('applications', 'runtime');
 };
+
+function goToApplicationEnvironmentPageForApp(applicationName) {
+  goToApplicationDetailPage(applicationName, false);
+  navigation.go('applications', 'environments');
+}
+module.exports.goToApplicationEnvironmentPageForApp = goToApplicationEnvironmentPageForApp;
+
+// create application environment
+var createApplicationEnvironment = function(envName, envDescription, cloudSelectName, envTypeSelectName) {
+
+  navigation.go('applications', 'environments');
+
+  var btnNewApplicationEnv = browser.element(by.id('app-env-new-btn'));
+  browser.actions().click(btnNewApplicationEnv).perform();
+
+  element(by.model('environment.name')).sendKeys(envName);
+  element(by.model('environment.description')).sendKeys(envDescription);
+
+  // Cloud to select
+  if (typeof cloudSelectName !== 'undefined') {
+    // cloudSelectNumber should start at 2 since the one at 1 is (no cloud) first ins the list
+    var selectCloud = element(by.id('cloudid'));
+    common.selectDropdownByText(selectCloud, cloudSelectName, 100);
+  } else {
+    console.error('You should have at least one cloud defined');
+  }
+
+  // Env type to select
+  if (typeof envTypeSelectName !== 'undefined') {
+    // envTypeSelectNumber should start at 2 since the one at 1 is (no envTypeSelectNumber) first ins the list
+    var selectType = element(by.id('envtypelistid'));
+    common.selectDropdownByText(selectType, envTypeSelectName, 100);
+  } else {
+    console.error('You should have at least one environment type defined');
+  }
+
+  // Create an App env
+  var btnCreate = browser.element(by.id('btn-create'));
+  browser.actions().click(btnCreate).perform();
+  browser.waitForAngular();
+
+};
+module.exports.createApplicationEnvironment = createApplicationEnvironment;
