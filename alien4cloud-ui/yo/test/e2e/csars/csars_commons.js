@@ -1,5 +1,5 @@
 'use strict';
-
+// TODO : update for new CSAR UI pages
 var navigation = require('../common/navigation');
 
 var createCsar = function(csarName, csarVersion, description) {
