@@ -38,11 +38,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       template: '<ui-view/>'
     }).state('components.list', {
       url: '/list',
-      templateUrl: 'views/component_list.html',
+      templateUrl: 'views/components/component_list.html',
       controller: 'SearchComponentCtrl'
     }).state('components.detail', {
       url: '/component/:id',
-      templateUrl: 'views/component_details.html',
+      templateUrl: 'views/components/component_details.html',
       controller: 'ComponentDetailsCtrl'
     })
 
@@ -185,15 +185,15 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       template: '<ui-view/>'
     }).state('csars.list', {
       url: '/list',
-      templateUrl: 'views/csar_list.html',
+      templateUrl: 'views/components/csar_list.html',
       controller: 'CsarListCtrl'
     }).state('csardetail', {
       url: '/csar/:csarId',
-      templateUrl: 'views/csar_details.html',
+      templateUrl: 'views/components/csar_details.html',
       controller: 'CsarDetailsCtrl'
     }).state('csardetailnode', {
       url: '/csar/:csarId/node/:nodeTypeId',
-      templateUrl: 'views/csar_component_details.html',
+      templateUrl: 'views/csar_components/component_details.html',
       controller: 'CsarComponentDetailsCtrl'
     })
 
