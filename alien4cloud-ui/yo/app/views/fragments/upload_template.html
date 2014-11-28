@@ -16,7 +16,7 @@
   <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
     <alert type="uploadInfo.infoType" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
       <div class="col-md-5 upload-file-infos">
-        <div class=" show-error-link col-md-4"
+        <div class=" show-error-link col-md-2"
            ng-click="uploadInfo.isErrorBlocCollapsed = !uploadInfo.isErrorBlocCollapsed"
            ng-show="uploadInfo.errors || uploadInfo.otherError">
            <i ng-class="{'fa fa-angle-double-down fa-lg' : uploadInfo.isErrorBlocCollapsed,  'fa fa-angle-double-up fa-lg' : !uploadInfo.isErrorBlocCollapsed }"></i>
