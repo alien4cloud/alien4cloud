@@ -40,10 +40,7 @@ describe('Test the cloud management: ', function() {
   });
 
   it('should create network', function() {
-    cloudsCommon.goToCloudList();
-    cloudsCommon.createNewCloud('testcloud');
     cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.enableCloud();
     cloudsCommon.addNewNetwork('private', '192.168.0.0/24', '192.168.0.1', '4');
     expect(cloudsCommon.countNetworkCloud()).toBe(1);
     cloudsCommon.assignPaaSIdToNetwork('private', 'alienPrivateNetwork');
