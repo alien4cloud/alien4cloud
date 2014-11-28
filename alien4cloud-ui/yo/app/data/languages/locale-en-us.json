@@ -213,7 +213,8 @@
     "MENU_PLAN": "Topology's workflows",
     "MENU_DEPLOYMENT": "Deployments",
     "MENU_RUNTIME": "Runtime",
-    "MENU_USERS": "Users and Groups"
+    "MENU_USERS": "Users and Groups",
+    "MENU_ENVIRONMENT": "Environments"
   },
   "ROLE_TABS": {
     "USERS": "Users",
@@ -360,6 +361,20 @@
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
+    },
+    "ENVIRONMENT": {
+      "NEW": "New environment",
+      "STATUS": "Status",
+      "NAME": "Name",
+      "TYPE": "Type",
+      "DESCRIPTION": "Description",
+      "CLOUD": "Cloud",
+      "FORM" : {
+        "NAME" : "Name",
+        "DESCRIPTION": "Description",
+        "CLOUD": "Active cloud",
+        "ENV_TYPE": "Environment type"
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Delete an application",

@@ -45,7 +45,6 @@ angular.module('alienUiApp').controller(
         $scope.topology = topologyDTO;
         fillBounds($scope.topology.topology);
         initInputsOutputs($scope.topology.topology);
-        console.log('topology is ', $scope.topology.topology);
         $scope.editorContent = jsyaml.safeDump($scope.topology.topology);
         if (UTILS.isDefinedAndNotNull(selectedNodeTemplate)) {
           fillNodeSelectionVars($scope.topology.topology.nodeTemplates[selectedNodeTemplate]);

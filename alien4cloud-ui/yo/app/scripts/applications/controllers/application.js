@@ -53,7 +53,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
       setRuntimeDisabled();
     });
-    
+
     $scope.menu = [
       {
         id: 'am.applications.info',
@@ -95,6 +95,13 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         state: 'applications.detail.users',
         key: 'NAVAPPLICATIONS.MENU_USERS',
         icon: 'fa fa-users',
+        show: isManager
+      },
+      {
+        id: 'am.applications.detail.environments',
+        state: 'applications.detail.environments',
+        key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
+        icon: 'fa fa-share-alt',
         show: isManager
       }
     ];

@@ -213,7 +213,8 @@
     "MENU_PLAN": "Workflows de la topologie",
     "MENU_DEPLOYMENT": "Déploiement",
     "MENU_RUNTIME": "Runtime",
-    "MENU_USERS": "Utilisateurs et Groupes"
+    "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_ENVIRONMENT": "Environnements"
   },
   "ROLE_TABS": {
     "USERS": "Utilisateurs",
@@ -360,6 +361,20 @@
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
+    },
+    "ENVIRONMENT": {
+      "NEW": "Nouvel environnement",
+      "STATUS": "Etat",
+      "NAME": "Nom",
+      "TYPE": "Type",
+      "DESCRIPTION": "Description",
+      "CLOUD": "Cloud",
+      "FORM" : {
+        "NAME" : "Nom",
+        "DESCRIPTION": "Description",
+        "CLOUD": "Cloud actif",
+        "ENV_TYPE": "Type d'environnement"
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",

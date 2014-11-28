@@ -39,7 +39,13 @@ node_types:
         locator: scripts/monitor/locator.groovy
         startDetection: scripts/monitor/startDetection.groovy
       custom:
-        addNode: scripts/apacheLB_addNode.groovy
+        addNode:
+          inputs:
+            instanceId:
+              type: string
+            node:
+              type: string
+          implementation: scripts/apacheLB_addNode.groovy
         removeNode: scripts/apacheLB_removeNode.groovy
         deployPublic:
           inputs:

@@ -94,10 +94,7 @@ describe('Security management on applications for application manager', function
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
-    console.log('DEBUG - 1');
-    // browser.sleep(10000);
     rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.appRoles.appManager);
-    console.log('DEBUG - 2');
     checkApplicationManagerAccess();
   });
 
