@@ -61,7 +61,7 @@
       "CSAR_ALREADY_EXISTS": "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
-      "TYPE_NOT_FOUND": "Le type [ {{notFoundType}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
+      "TYPE_NOT_FOUND": "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
       "INVALID_ICON_FORMAT": "L'Icône n'est pas un fichier d'image supporté",
       "ALIEN_MAPPING_ERROR": "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
@@ -361,7 +361,7 @@
       },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
-      "TEMPLATE_SELECT": "-- Selectionner un modèle de topologie --",
+      "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
@@ -378,7 +378,9 @@
         "NAME" : "Nom",
         "DESCRIPTION": "Description",
         "CLOUD": "Cloud actif",
-        "ENV_TYPE": "Type d'environnement"
+        "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
+        "ENV_TYPE": "Type d'environnement",
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --"
       }
     },
     "ERRORS": {
