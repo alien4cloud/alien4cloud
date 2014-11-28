@@ -60,16 +60,6 @@ angular.module('alienUiApp').factory('csarService', ['$resource', function($reso
 
   var nodeTypeCRUDDAO = $resource('rest/csars/:csarId/nodetypes/:nodeTypeId', {}, {});
 
-  // API REST Definition
-  var resultCreateSnapshot = $resource('rest/csars', {}, {
-    'create': {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8'
-      }
-    }
-  });
-
   var resultGetAndDelete = $resource('rest/csars/:csarId', {
     csarId: '@csarId'
   }, {
@@ -100,7 +90,6 @@ angular.module('alienUiApp').factory('csarService', ['$resource', function($reso
   var csarActiveDeploymentDAO = $resource('rest/csars/:csarId/active-deployment');
 
   return {
-    'createCsarSnapshot': resultCreateSnapshot,
     'getAndDeleteCsar': resultGetAndDelete,
     'getActiveDeployment': csarActiveDeploymentDAO,
     'searchCsar': searchCsar,

@@ -29,9 +29,9 @@ public class ParsingError {
         this.errorLevel = errorLevel;
         this.errorCode = errorCode;
         this.context = context;
-        this.startMark = startMark == null ? null : new SimpleMark(startMark.getLine(), startMark.getColumn());
+        this.startMark = startMark == null ? null : new SimpleMark(startMark);
         this.problem = problem;
-        this.endMark = endMark == null ? null : new SimpleMark(endMark.getLine(), endMark.getColumn());
+        this.endMark = endMark == null ? null : new SimpleMark(endMark);
         this.note = note;
     }
 
@@ -39,9 +39,9 @@ public class ParsingError {
         this.errorLevel = ParsingErrorLevel.ERROR;
         this.errorCode = errorCode;
         this.context = context;
-        this.startMark = startMark == null ? null : new SimpleMark(startMark.getLine(), startMark.getColumn());
+        this.startMark = startMark == null ? null : new SimpleMark(startMark);
         this.problem = problem;
-        this.endMark = endMark == null ? null : new SimpleMark(endMark.getLine(), endMark.getColumn());
+        this.endMark = endMark == null ? null : new SimpleMark(endMark);
         this.note = note;
     }
 
@@ -49,9 +49,9 @@ public class ParsingError {
         this.errorLevel = ParsingErrorLevel.ERROR;
         this.errorCode = errorCode;
         this.context = cause.getContext();
-        this.startMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getContextMark().getLine(), cause.getContextMark().getColumn());
+        this.startMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getContextMark());
         this.problem = cause.getProblem();
-        this.endMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getProblemMark().getLine(), cause.getProblemMark().getColumn());
+        this.endMark = cause.getContextMark() == null ? null : new SimpleMark(cause.getProblemMark());
         this.note = null;
     }
 

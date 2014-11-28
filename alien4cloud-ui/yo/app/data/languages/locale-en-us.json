@@ -63,7 +63,7 @@
       "CSAR_ALREADY_EXISTS": "A released archive with the same name and version already exists in Alien repository. In order to ensure stability for user using it, Alien doesn't allow override of released archives. It is however possible to override a SNAPSHOT archive.",
       "MISSING_FILE": "Reference file {{note}} cannot be found within the archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "The element [ {{note}} ] has already be defined in this definition file.",
-      "TYPE_NOT_FOUND": "Referenced type [ {{notFoundType}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
+      "TYPE_NOT_FOUND": "Referenced type [ {{note}} ] cannot be found neither in the archive or its dependencies. Please check the import section or add the type to your archive.",
       "INVALID_ICON_FORMAT": "Icon file is not a supported image format.",
       "ALIEN_MAPPING_ERROR": "An internal error caused the import to fail. Please submit an issue with the stacktrace and archive.",
       "UNKNOWN_CONSTRAINT": "Constraint [{{note}}] does not exists in TOSCA specification.",
