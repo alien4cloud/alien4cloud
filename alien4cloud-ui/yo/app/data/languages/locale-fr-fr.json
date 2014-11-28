@@ -22,6 +22,11 @@
     "MENU_TOPOLOGY_TEMPLATE": "Modèles de topologie",
     "INPUT_SEARCH_MESSAGE": "Que cherchez vous ?"
   },
+  "HOME": {
+    "ADMIN": {
+      "TOUR": "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
+    }
+  },
   "NAVADMIN": {
     "MENU_USERS": "Utilisateurs",
     "MENU_PLUGINS": "Plugins",
