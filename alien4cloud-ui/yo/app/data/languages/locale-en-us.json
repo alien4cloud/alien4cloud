@@ -378,7 +378,9 @@
         "NAME" : "Name",
         "DESCRIPTION": "Description",
         "CLOUD": "Active cloud",
-        "ENV_TYPE": "Environment type"
+        "CLOUD_SELECT": "-- Select the targeted cloud --",
+        "ENV_TYPE": "Environment type",
+        "ENV_TYPE_SELECT": "-- Select the environment type --"
       }
     },
     "ERRORS": {

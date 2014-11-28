@@ -92,17 +92,19 @@
             <textarea class="form-control" id="descid" rows="3" ng-model="environment.description" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
-        <div class="form-group" ng-show="clouds" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
           <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD' | translate}}</label>
           <div class="col-lg-9">
             <select name="clouds" required="" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
+              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
             </select>
           </div>
         </div>
-        <div class="form-group" ng-show="envTypeList.data" ng-class="{'has-error': newApplicationEnvironment.envtypes.$invalid}">
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.envtypes.$invalid}">
           <label for="envtypelistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate}}</label>
           <div class="col-lg-9">
             <select name="envtypes" required="" class="form-control" id="envtypelistid" ng-model="selectedEnvType" ng-options="e for e in envTypeList.data">
+              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE_SELECT' | translate}}</option>
             </select>
           </div>
         </div>
