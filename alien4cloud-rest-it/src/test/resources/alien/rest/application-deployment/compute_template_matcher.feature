@@ -1,4 +1,4 @@
-Feature: Match topology's node to cloud resources.
+Feature: Match topology's compute template to cloud resources.
 
 Background:
   Given I am authenticated with "ADMIN" role
@@ -25,7 +25,7 @@ Background:
   And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
   And I assign the cloud with name "Mount doom cloud" for the application
 
-Scenario: Match a topology for resources, compute properties empty
+Scenario: Match a topology for computes, compute properties empty
   When I match for resources for my application on the cloud
   Then I should receive a match result with 4 compute templates for the node "Compute":
     | Windows 7     | small  |
@@ -39,7 +39,7 @@ Scenario: Match a topology for resources, compute properties empty
     | small  | 2 | 32 | 2048 |
     | medium | 4 | 64 | 4096 |
 
-Scenario: Match a topology for resources, with filters
+Scenario: Match a topology for computes, with filters
 # Update os type to linux --> only linux available
   Given I update the node template "Compute"'s property "os_type" to "linux"
   When I match for resources for my application on the cloud
