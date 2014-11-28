@@ -23,7 +23,7 @@ Feature: Mixing multiple versions of components
       | 2.0 |
     When I search for "relationship types" from 0 with result size of 1000
     Then I should receive a RestResponse with no error
-      And The response should contains 4 elements from various types of version "3.0" and older versions are
+      And The response should contains 5 elements from various types of version "3.0" and older versions are
         | 1.0 |
         | 2.0 |
 
