@@ -104,12 +104,7 @@ angular.module('alienUiApp').controller(
           csarId: $scope.csarId
         }, angular.toJson(nodeType), function() {
           $scope.refreshDetails();
-          $scope.showForm = false;
         });
-      };
-
-      $scope.cancelNodeTypeCreation = function(nodeType) {
-        $scope.showForm = false;
       };
 
       $scope.formTitle = 'CSAR.DETAILS.COMPONENT_FORM_TITLE';
