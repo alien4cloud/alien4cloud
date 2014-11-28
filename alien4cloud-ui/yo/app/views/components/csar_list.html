@@ -18,29 +18,33 @@
 
     <!-- CSAR search result display -->
     <div class="col-md-10">
-      <ul class="list-group">
-        <li class="list-group-item clickable-media" style="padding:6px;"
-        ng-repeat="csar in csarSearchResult.data.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}">
-          <div class="media">
-            <i class="pull-left media-object fa fa-archive fa-4x"></i>
-            <div class="media-body">
-
-              <div class="pull-right">
-                  <delete-confirm id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                  </delete-confirm>
-              </div>
-
-              <h4 class="media-heading">
-                {{csar.name}}
-                <p>{{csar.description}}</p>
-              </h4>
-
-            </div>
-          </div>
-        </li>
-      </ul>
+      <div class="table-responsive large-data-container" id="users-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'CLOUDS.NAME' | translate}}</th>
+              <th>{{ 'CLOUDS.PAAS_PROVIDER' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="csar in csarSearchResult.data.data" ng-click="openCsar(csar.id)" id="csar_{{csar.id}}" name="csar_{{csar.id}}" class="clickable">
+              <td>
+                <i class="pull-left media-object fa fa-archive fa-2x"></i>
+              </td>
+              <td>{{csar.name}}</td>
+              <td>{{csar.description || '---' }}</td>
+              <td>
+                <delete-confirm id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination"/>
+      </div>
     </div>
-
   </div>
 
   <script type="text/ng-template" id="newCsar.html">

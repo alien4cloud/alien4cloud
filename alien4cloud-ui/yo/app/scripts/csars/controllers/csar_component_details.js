@@ -39,9 +39,9 @@ angular.module('alienUiApp').controller(
               nodeTypeId : $stateParams.nodeTypeId
             }, function() {
               if(UTILS.isDefinedAndNotNull(nodeTypeId)) {
-                $state.go('csardetailnode', { csarId: $scope.csarId, nodeTypeId: nodeTypeId });
+                $state.go('components.csars.csardetailnode', { csarId: $scope.csarId, nodeTypeId: nodeTypeId });
               } else {
-                $state.go('csardetail', { csarId: $scope.csarId });
+                $state.go('components.csars.csardetail', { csarId: $scope.csarId });
               }
             });
           };
@@ -61,6 +61,6 @@ angular.module('alienUiApp').controller(
           };
 
           $scope.cancelNodeTypeUpdate = function() {
-            $state.go('csardetail', { csarId: $scope.csarId });
+            $state.go('components.csars.csardetail', { csarId: $scope.csarId });
           };
         }]);

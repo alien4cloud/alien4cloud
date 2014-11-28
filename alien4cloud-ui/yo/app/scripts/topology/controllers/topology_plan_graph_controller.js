@@ -170,7 +170,7 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
   function openArchiveModal(archiveName, archiveVersion, scriptReference) {
     var openOnFile = scriptReference ? scriptReference : null;
     $modal.open({
-      templateUrl: 'views/csars/csar_explorer.html',
+      templateUrl: 'views/components/csar_explorer.html',
       controller: 'CsarExplorerController',
       windowClass: 'searchModal',
       resolve: {

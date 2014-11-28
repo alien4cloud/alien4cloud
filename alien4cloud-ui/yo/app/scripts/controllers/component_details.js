@@ -276,7 +276,7 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     $scope.openArchiveModal = function(scriptReference) {
       var openOnFile = scriptReference ? scriptReference : null;
       $modal.open({
-        templateUrl: 'views/csars/csar_explorer.html',
+        templateUrl: 'views/components/csar_explorer.html',
         controller: 'CsarExplorerController',
         windowClass: 'searchModal',
         resolve: {
