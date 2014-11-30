@@ -1,0 +1,66 @@
+
+$roboto-font-path: "../bower_components/roboto-fontface/fonts" !default;
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-Thin.eot");
+  src: url("#{$roboto-font-path}/Roboto-Thin.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-Thin.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-Thin.woff") format("woff"), url("#{$roboto-font-path}/Roboto-Thin.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-Thin.svg#Roboto") format("svg");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-ThinItalic.eot");
+  src: url("#{$roboto-font-path}/Roboto-ThinItalic.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-ThinItalic.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-ThinItalic.woff") format("woff"), url("#{$roboto-font-path}/Roboto-ThinItalic.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-ThinItalic.svg#Roboto") format("svg");
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-Light.eot");
+  src: url("#{$roboto-font-path}/Roboto-Light.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-Light.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-Light.woff") format("woff"), url("#{$roboto-font-path}/Roboto-Light.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-Light.svg#Roboto") format("svg");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-LightItalic.eot");
+  src: url("#{$roboto-font-path}/Roboto-LightItalic.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-LightItalic.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-LightItalic.woff") format("woff"), url("#{$roboto-font-path}/Roboto-LightItalic.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-LightItalic.svg#Roboto") format("svg");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-Regular.eot");
+  src: url("#{$roboto-font-path}/Roboto-Regular.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-Regular.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-Regular.woff") format("woff"), url("#{$roboto-font-path}/Roboto-Regular.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-Regular.svg#Roboto") format("svg");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-RegularItalic.eot");
+  src: url("#{$roboto-font-path}/Roboto-RegularItalic.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-RegularItalic.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-RegularItalic.woff") format("woff"), url("#{$roboto-font-path}/Roboto-RegularItalic.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-RegularItalic.svg#Roboto") format("svg");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-Medium.eot");
+  src: url("#{$roboto-font-path}/Roboto-Medium.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-Medium.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-Medium.woff") format("woff"), url("#{$roboto-font-path}/Roboto-Medium.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-Medium.svg#Roboto") format("svg");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Roboto Thin';
+  src: url("#{$roboto-font-path}/Roboto-MediumItalic.eot");
+  src: url("#{$roboto-font-path}/Roboto-MediumItalic.eot?#iefix") format("embedded-opentype"), url("#{$roboto-font-path}/Roboto-MediumItalic.woff2") format("woff2"), url("#{$roboto-font-path}/Roboto-MediumItalic.woff") format("woff"), url("#{$roboto-font-path}/Roboto-MediumItalic.ttf") format("truetype"), url("#{$roboto-font-path}/Roboto-MediumItalic.svg#Roboto") format("svg");
+  font-weight: 700;
+  font-style: italic;
+}
