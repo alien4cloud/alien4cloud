@@ -69,6 +69,7 @@
       "UNKNOWN_CONSTRAINT": "Constraint [{{note}}] does not exists in TOSCA specification.",
       "MISSING_DEPENDENCY": "Dependency [{{note}}] cannot be found in Alien repository.",
       "INVALID_SCALAR_UNIT": "Expected type was a TOSCA scalar unit, both unit and value are required.",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
       "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
       "NotNull": "The property [ {{path}} ] cannot be null",
       "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",

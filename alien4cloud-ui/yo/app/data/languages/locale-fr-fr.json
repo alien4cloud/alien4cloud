@@ -67,6 +67,7 @@
       "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
       "MISSING_DEPENDENCY": "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
       "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
       "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
