@@ -17,6 +17,8 @@ import alien4cloud.tosca.model.ImplementationArtifact;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.io.Files;
@@ -46,6 +48,9 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
                     if (artifactType != null && artifactType.getData() != null && artifactType.getData().length > 0) {
                         type = artifactType.getData()[0].getElementId();
                     } else {
+                        context.getParsingErrors().add(
+                                new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact", node.getStartMark(),
+                                        "No artifact type in the repository uses this extension is not.", node.getEndMark(), extension));
                         type = "unknown";
                     }
                 } else {
