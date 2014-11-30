@@ -95,6 +95,7 @@ relationship_types:
 artifact_types:
   tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
+    file_ext: [ groovy ]
   fastconnect.artifacts.ResourceDirectory:
     description: A directory that contains resources files that are required for a node to be deployed.
 
