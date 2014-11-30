@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>0.0.17-SNAPSHOT</version>
+    <version>1.0.0-M1.0.0-SM18-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-rest-it</artifactId>
   <packaging>war</packaging>
@@ -11,7 +11,7 @@
   <name>Alien 4 Cloud REST Integration Test</name>
   <description>Integration tests for Alien's REST API.</description>
 
-  <properties>
+  <version xmlns="">1.0.0-SM18-SNAPSHOT</version><properties>
     <sonar.language>java</sonar.language>
     <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
