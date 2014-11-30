@@ -7,7 +7,6 @@ var navigationIds = {
     applications: 'menu.applications',
     topologyTemplates: 'menu.topologytemplates',
     components: 'menu.components',
-    csars: 'menu.csars',
     admin: 'menu.admin'
   },
   admin: {
@@ -24,6 +23,10 @@ var navigationIds = {
     deployment: 'am.applications.detail.deployment',
     runtime: 'am.applications.detail.runtime',
     users: 'am.applications.detail.users'
+  },
+  components: {
+    components: 'cm.components.list',
+    csars: 'cm.components.csars.list'
   }
 };
 

@@ -57,7 +57,7 @@
       "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud ne supporte actuellement qu'un unique fichier de definitions.",
       "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
       "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
-      "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] n'est inconnue et a été ignorée.",
+      "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
       "CSAR_ALREADY_EXISTS": "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
       "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",

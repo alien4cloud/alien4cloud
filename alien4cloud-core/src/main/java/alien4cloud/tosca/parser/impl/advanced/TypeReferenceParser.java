@@ -37,7 +37,7 @@ public class TypeReferenceParser implements INodeParser<String> {
 
     @Override
     public String parse(Node node, ParsingContextExecution context) {
-        String valueAsString = scalarParser.parse(node, context).trim();
+        String valueAsString = scalarParser.parse(node, context);
         if (valueAsString == null || valueAsString.isEmpty()) {
             return null;
         }

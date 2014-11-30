@@ -13,7 +13,7 @@ angular.module('alienUiApp').controller('CsarListCtrl', ['$scope', '$modal', '$s
     };
 
     $scope.openCsar = function(csarId) {
-      $state.go('csardetail', { csarId: csarId });
+      $state.go('components.csars.csardetail', { csarId: csarId });
     };
 
     // remove a csar
