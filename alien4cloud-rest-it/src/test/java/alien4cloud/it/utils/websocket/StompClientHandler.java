@@ -1,42 +1,32 @@
 package alien4cloud.it.utils.websocket;
 
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.rest.utils.JsonUtil;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.stomp.DefaultStompFrame;
 import io.netty.handler.codec.stomp.StompCommand;
 import io.netty.handler.codec.stomp.StompFrame;
 import io.netty.handler.codec.stomp.StompHeaders;
 
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.rest.utils.JsonUtil;
-
 /**
  * @author Minh Khang VU
  */
 @Slf4j
-public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
+public class StompClientHandler extends SimpleChannelInboundHandler<Object> {
 
-    private static AtomicInteger counter;
+    private Map<String, IStompCallback> handlers = new ConcurrentHashMap<>();
 
-    private String topic;
-
-    private IStompCallback<T> callback;
-
-    private Class<T> dataType;
-
-    public StompClientHandler(String topic, IStompCallback<T> callback, Class<T> dataType) {
-        this.topic = topic;
-        this.callback = callback;
-        this.dataType = dataType;
-        this.counter = new AtomicInteger();
-    }
+    private ChannelPromise connectFuture;
 
     public void beginStomp(Channel channel) throws Exception {
         StompFrame connFrame = new DefaultStompFrame(StompCommand.CONNECT);
@@ -47,40 +37,56 @@ public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
         }
     }
 
+    public ChannelPromise connectFuture() {
+        return connectFuture;
+    }
+
+    public void connectFuture(ChannelPromise connectFuture) {
+        this.connectFuture = connectFuture;
+    }
+
+    public void listen(String topic, IStompCallback callback) {
+        this.handlers.put(topic, callback);
+    }
+
     @Override
     public void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
-
         StompFrame frame = (StompFrame) msg;
+        String destination = null;
+        if (frame.headers().get(StompHeaders.DESTINATION) != null) {
+            destination = frame.headers().get(StompHeaders.DESTINATION).toString();
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Received frame {} from topic {}", toString(frame), destination);
+        }
+        IStompCallback callback = null;
+        if (destination != null) {
+            callback = handlers.get(destination);
+            if (callback == null) {
+                throw new IllegalStateException("Received message for a topic that was never registered before");
+            }
+        }
         switch (frame.command()) {
         case CONNECTED:
-            if (log.isDebugEnabled()) {
-                log.debug("Connected, sending subscribe for topic ", this.topic);
-            }
-            StompFrame subscribeFrame = new DefaultStompFrame(StompCommand.SUBSCRIBE);
-            subscribeFrame.headers().set(StompHeaders.DESTINATION, topic);
-            subscribeFrame.headers().set(StompHeaders.ID, String.valueOf(this.counter.incrementAndGet()));
-            ctx.writeAndFlush(subscribeFrame);
+            connectFuture.setSuccess();
             break;
         case MESSAGE:
-            if (log.isDebugEnabled()) {
-                log.debug("Received frame {} from topic {}", toString(frame), this.topic);
-            }
-            if (String.class == this.dataType) {
-                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(), (T) frame.content().toString(Charset.forName("UTF-8")));
+            if (String.class == callback.getExpectedDataType()) {
+                callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(), frame.content().toString(Charset.forName("UTF-8")));
             } else {
-                this.callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(),
-                        JsonUtil.readObject(new ByteBufInputStream(frame.content()), this.dataType));
+                callback.onData(frame.headers().get(StompHeaders.DESTINATION).toString(),
+                        JsonUtil.readObject(new ByteBufInputStream(frame.content()), callback.getExpectedDataType()));
             }
             break;
         case ERROR:
             String frameText = toString(frame);
-            log.error("Received stomp error {}", frameText);
-            this.callback.onError(new StompErrorException("Stomp error :\n" + frameText));
+            log.error("Received stomp error {} for topic {}", frameText, destination);
+            callback.onError(new StompErrorException("Stomp error for destination " + destination + " :\n" + frameText));
             break;
         default:
             frameText = toString(frame);
-            log.error("Received unknown frame {}", frameText);
-            this.callback.onError(new StompUnknownCommandException("Unknown stomp command " + frame.command() + " from frame :\n" + frameText));
+            log.error("Received unknown frame {} for topic {}", frameText, destination);
+            callback.onError(new StompUnknownCommandException("Unknown stomp command " + frame.command() + " from frame :\n" + frameText));
             break;
         }
     }
@@ -107,6 +113,8 @@ public class StompClientHandler<T> extends SimpleChannelInboundHandler<Object> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("Stomp error", cause);
         ctx.close();
-        this.callback.onError(cause);
+        for (IStompCallback callback : handlers.values()) {
+            callback.onError(cause);
+        }
     }
 }

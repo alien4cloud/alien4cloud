@@ -14,9 +14,15 @@ var toscaBaseTypes = {
   },
   compute: function(selectedVersion) {
     return this.get({
-        type: 'tosca.nodes.Compute',
-        id: 'rect_Compute'
-      }, selectedVersion);
+      type: 'tosca.nodes.Compute',
+      id: 'rect_Compute'
+    }, selectedVersion);
+  },
+  network: function(selectedVersion) {
+    return this.get({
+      type: 'tosca.nodes.Network',
+      id: 'rect_Network'
+    }, selectedVersion);
   }
 };
 module.exports.toscaBaseTypes = toscaBaseTypes;
@@ -29,43 +35,43 @@ var fcTypes = {
   },
   java: function(requestedVersion) {
     return this.get({
-        type: 'fastconnect.nodes.Java',
-        id: 'rect_Java',
-      }, requestedVersion);
+      type: 'fastconnect.nodes.Java',
+      id: 'rect_Java'
+    }, requestedVersion);
   },
   javaRPM: function(requestedVersion) {
     return this.get({
-        type: 'fastconnect.nodes.JavaRPM',
-        id: 'rect_JavaRPM',
-      }, requestedVersion);
+      type: 'fastconnect.nodes.JavaRPM',
+      id: 'rect_JavaRPM'
+    }, requestedVersion);
   },
   war: function(requestedVersion) {
     return this.get({
-        type: 'fastconnect.nodes.War',
-        id: 'rect_War',
-      }, requestedVersion);
+      type: 'fastconnect.nodes.War',
+      id: 'rect_War'
+    }, requestedVersion);
   },
   tomcatRpm: function(requestedVersion) {
     return this.get({
-        type: 'fastconnect.nodes.TomcatRPM',
-        id: 'rect_TomcatRPM',
-      }, requestedVersion);
+      type: 'fastconnect.nodes.TomcatRPM',
+      id: 'rect_TomcatRPM'
+    }, requestedVersion);
   }
 };
 module.exports.fcTypes = fcTypes;
 
 var apacheTypes = {
-    get: function(node, selectedVersion) {
-      node.archiveVersion = '0.2';
-      node.selectedVersion = selectedVersion;
-      return node;
-    },
-    apacheLBGroovy: function(requestedVersion) {
-      return this.get({
-        type: 'fastconnect.nodes.apacheLBGroovy',
-        id: 'rect_apacheLBGroovy',
-      }, requestedVersion);
-    }
+  get: function(node, selectedVersion) {
+    node.archiveVersion = '0.2';
+    node.selectedVersion = selectedVersion;
+    return node;
+  },
+  apacheLBGroovy: function(requestedVersion) {
+    return this.get({
+      type: 'fastconnect.nodes.apacheLBGroovy',
+      id: 'rect_apacheLBGroovy'
+    }, requestedVersion);
+  }
 };
 module.exports.apacheTypes = apacheTypes;
 
@@ -77,9 +83,9 @@ var ubuntuTypes = {
   },
   ubuntu: function(requestedVersion) {
     return this.get({
-        type: 'alien.nodes.Ubuntu',
-        id: 'rect_Ubuntu',
-      }, requestedVersion);
+      type: 'alien.nodes.Ubuntu',
+      id: 'rect_Ubuntu'
+    }, requestedVersion);
   }
 };
 module.exports.ubuntuTypes = ubuntuTypes;
@@ -103,6 +109,7 @@ module.exports.simpleTopology = {
       source: 'JavaRPM',
       requirement: 'dependency',
       target: 'Compute_2',
+      capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }
   }
@@ -133,6 +140,7 @@ module.exports.simpleAbstractTopology = {
       source: 'Java',
       requirement: 'dependency',
       target: 'Compute_2',
+      capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }
   }

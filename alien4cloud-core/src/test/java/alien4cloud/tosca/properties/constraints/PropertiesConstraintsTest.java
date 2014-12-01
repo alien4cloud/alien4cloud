@@ -5,18 +5,7 @@ import lombok.Setter;
 
 import org.junit.Test;
 
-import alien4cloud.tosca.container.model.type.ToscaType;
-import alien4cloud.tosca.properties.constraints.EqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterThanConstraint;
-import alien4cloud.tosca.properties.constraints.InRangeConstraint;
-import alien4cloud.tosca.properties.constraints.LengthConstraint;
-import alien4cloud.tosca.properties.constraints.LessOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.LessThanConstraint;
-import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
-import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
-import alien4cloud.tosca.properties.constraints.PatternConstraint;
-import alien4cloud.tosca.properties.constraints.ValidValuesConstraint;
+import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.VersionUtil;

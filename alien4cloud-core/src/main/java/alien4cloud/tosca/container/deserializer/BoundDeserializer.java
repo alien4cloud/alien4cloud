@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 /**
- * Utility class to deserialize the unbounded string as a int value for {@link alien4cloud.tosca.container.model.type.RequirementDefinition} and
- * {@link alien4cloud.tosca.container.model.type.CapabilityDefinition}.
+ * Utility class to deserialize the unbounded string as a int value for {@link alien4cloud.tosca.model.RequirementDefinition} and
+ * {@link alien4cloud.tosca.model.CapabilityDefinition}.
  * 
  * @author luc boutier
  */

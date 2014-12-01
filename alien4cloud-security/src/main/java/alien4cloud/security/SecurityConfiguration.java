@@ -102,6 +102,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/formdescriptor/cloudConfig/**").hasAuthority("ADMIN");
 
         http.authorizeRequests().antMatchers("/rest/properties/**").hasAnyAuthority("ADMIN", "APPLICATIONS_MANAGER");
+        http.authorizeRequests().antMatchers("/rest/enums/**").authenticated();
 
         http.authorizeRequests().antMatchers("/rest/deployments/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/clouds/search/**").authenticated();
@@ -114,7 +115,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().anyRequest().denyAll();
 
         http.formLogin().loginPage("/rest/auth/authenticationrequired").defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed")
-                .loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
+                .loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/")
+                .deleteCookies("JSESSIONID");
         http.csrf().disable();
     }
 

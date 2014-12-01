@@ -29,11 +29,19 @@ public class StompCallback<T> implements IStompCallback<T>, IStompDataFuture<T> 
 
     private AtomicInteger dataToBeRetrieved;
 
-    public StompCallback() {
+    private Class<T> dataType;
+
+    public StompCallback(Class<T> dataType) {
         this.exception = new AtomicReference<>();
         this.finishLock = new ReentrantLock();
         this.finishCondition = this.finishLock.newCondition();
-        this.dataList = new ArrayList<StompData>();
+        this.dataList = new ArrayList<>();
+        this.dataType = dataType;
+    }
+
+    @Override
+    public Class<T> getExpectedDataType() {
+        return this.dataType;
     }
 
     @Override

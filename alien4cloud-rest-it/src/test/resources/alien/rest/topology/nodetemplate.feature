@@ -2,10 +2,10 @@ Feature: Manage Nodetemplates of a topology
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I have a CSAR folder that is "containing base types"
-  And I upload it
-  And I have a CSAR folder that is "containing java types"
-  And I upload it
+  And I upload the archive "tosca base types 1.0"
+  And I should receive a RestResponse with no error
+  And I upload the archive "sample java types 1.0"
+  And I should receive a RestResponse with no error
   And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
   And There is a "node type" with element name "fastconnect.nodes.JavaChef" and archive version "1.0"
   And There is a "node type" with element name "fastconnect.nodes.War" and archive version "1.0"

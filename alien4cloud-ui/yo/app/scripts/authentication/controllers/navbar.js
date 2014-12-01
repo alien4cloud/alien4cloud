@@ -1,32 +1,43 @@
 'use strict';
 
-angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', 'hopscotchService', function(
-  $rootScope, $scope, alienAuthService, alienNavBarService, $translate, hopscotchService) {
-  $scope.signIn = function() {
-    var data = 'username='+$scope.login.username+'&password='+$scope.login.password+'&submit=Login';
-    alienAuthService.logIn(data, $scope);
-  };
+angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', 'hopscotchService', '$http',
+  function($rootScope, $scope, alienAuthService, alienNavBarService, $translate, hopscotchService, $http) {
 
-  // Basic Spring security logout
-  $scope.logout = function(){
-    alienAuthService.logOut();
-  };
+    $scope.signIn = function() {
+      var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
+      alienAuthService.logIn(data, $scope);
+    };
 
-  $scope.search = function(){};
+    // Recover alien version and display github tag link if it's not snapshot (cached request)
+    $http.get('/version.json', {
+      cache: 'true'
+    }).then(function(result) {
+      $scope.version = {};
+      $scope.version.tag = result.data.version;
+      $scope.version.isSnapshot = $scope.version.tag.indexOf('SNAPSHOT') > -1;
+    });
 
-  $scope.menu = alienNavBarService.menu;
-  $scope.quickSearchHandler = alienNavBarService.quickSearchHandler;
+    // Basic Spring security logout
+    $scope.logout = function() {
+      alienAuthService.logOut();
+    };
 
-  alienAuthService.getStatus();
+    $scope.search = function() {};
 
-  /* i18n */
-  $scope.changeLanguage = function(langKey) {
-    $translate.uses(langKey);
-  };
+    $scope.menu = alienNavBarService.menu;
+    $scope.quickSearchHandler = alienNavBarService.quickSearchHandler;
 
-  $scope.status = alienAuthService;
+    alienAuthService.getStatus();
 
-  $scope.startTour = function() {
-    hopscotchService.startTour();
-  };
-}]);
+    /* i18n */
+    $scope.changeLanguage = function(langKey) {
+      $translate.uses(langKey);
+    };
+
+    $scope.status = alienAuthService;
+
+    $scope.startTour = function() {
+      hopscotchService.startTour();
+    };
+  }
+]);

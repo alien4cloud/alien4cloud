@@ -156,10 +156,20 @@ var goToCloudDetailFlavor = function() {
 };
 module.exports.goToCloudDetailFlavor = goToCloudDetailFlavor;
 
+var goToCloudDetailNetwork = function() {
+  element(by.id('tab-clouds-network')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailNetwork = goToCloudDetailNetwork;
+
 var goToCloudDetailTemplate = function() {
   element(by.id('tab-clouds-template')).element(by.tagName('a')).click();
 };
 module.exports.goToCloudDetailTemplate = goToCloudDetailTemplate;
+
+var goToCloudConfiguration = function() {
+  element(by.id('tab-clouds-configuration')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudConfiguration = goToCloudConfiguration;
 
 var countCloud = function() {
   return element.all(by.repeater('cloud in data.data')).count();
@@ -175,6 +185,11 @@ var countFlavorCloud = function() {
   return element.all(by.repeater('flavor in cloud.flavors')).count();
 };
 module.exports.countFlavorCloud = countFlavorCloud;
+
+var countNetworkCloud = function() {
+  return element.all(by.repeater('network in cloud.networks')).count();
+};
+module.exports.countNetworkCloud = countNetworkCloud;
 
 var countTemplateCloud = function() {
   return element.all(by.repeater('template in cloud.computeTemplates')).count();
@@ -194,6 +209,19 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
 };
 module.exports.addNewFlavor = addNewFlavor;
 
+var addNewNetwork = function(name, cidr, gateway, ipVersion) {
+  goToCloudDetailNetwork();
+  browser.element(by.id('clouds-network-add-button')).click();
+  genericForm.sendValueToPrimitive('networkName', name, false, 'input');
+  genericForm.sendValueToPrimitive('cidr', cidr, false, 'input');
+  genericForm.sendValueToPrimitive('gatewayIp', gateway, false, 'input');
+  genericForm.sendValueToPrimitive('ipVersion', ipVersion, false, 'select');
+  browser.actions().click(element(by.id("new-network-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.waitForAngular();
+  common.dismissAlertIfPresent();
+};
+module.exports.addNewNetwork = addNewNetwork;
+
 var selectFirstImageOfCloud = function() {
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
@@ -208,7 +236,7 @@ var selectAllImageOfCloud = function() {
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
   browser.waitForAngular();
-  element.all(by.repeater('cloudImage in data.data')).then(function(images){
+  element.all(by.repeater('cloudImage in data.data')).then(function(images) {
     var nb = images.length;
     for (var int = 0; int < nb; int++) {
       browser.actions().click(images[0].element(by.css('div[ng-click^="selectImage"]'))).perform();
@@ -223,8 +251,8 @@ var selectImageOfCloud = function(imageName) {
   goToCloudDetailImage();
   browser.element(by.id('clouds-image-add-button')).click();
   browser.waitForAngular();
-//  browser.actions().click(element.all(by.repeater('cloudImage in data.data')).first().element(by.css('div[ng-click^="selectImage"]'))).perform();
-  browser.actions().click(element(by.id('imagesToAdd')).element(by.id('li_'+imageName))).perform();
+  //  browser.actions().click(element.all(by.repeater('cloudImage in data.data')).first().element(by.css('div[ng-click^="selectImage"]'))).perform();
+  browser.actions().click(element(by.id('imagesToAdd')).element(by.id('li_' + imageName))).perform();
   browser.element(by.id('clouds-new-image-add-button')).click();
   browser.waitForAngular();
 };
@@ -235,3 +263,9 @@ var assignPaaSResourceToTemplate = function(cloudImageName, flavorId, paaSResour
   common.sendValueToXEditable('computeTemplate_' + cloudImageName + '_' + flavorId, paaSResourceId, false);
 };
 module.exports.assignPaaSResourceToTemplate = assignPaaSResourceToTemplate;
+
+var assignPaaSIdToNetwork = function(networkName, paaSResourceId) {
+  goToCloudDetailNetwork();
+  common.sendValueToXEditable('cloud_network_' + networkName, paaSResourceId, false);
+};
+module.exports.assignPaaSIdToNetwork = assignPaaSIdToNetwork;

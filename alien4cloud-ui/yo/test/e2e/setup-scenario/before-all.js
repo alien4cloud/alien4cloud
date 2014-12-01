@@ -10,18 +10,15 @@ var navigation = require('../common/navigation');
 var SCREENSHOT = require('../common/screenshot');
 
 // Exposing upload csar functionality
-var pathToBaseTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/tosca-base-types-1.0.csar');
-var pathToJavaTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/java-types-1.0.csar');
-var pathToBaseTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/tosca-base-types-2.0.csar');
-var pathToJavaTypesV2 = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/java-types-2.0.csar');
-var pathToApacheLbTypes = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/apacheLB-types-0.2.csar');
-var pathToUbuntuType = path.resolve(__dirname, '../../../../../alien4cloud-core/src/test/resources/examples/ubuntu-types-0.1.csar');
-
+var pathToBaseTypes = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/tosca-base-types-1.0.csar');
+var pathToJavaTypes = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/java-types-1.0.csar');
+var pathToBaseTypesV2 = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/tosca-base-types-2.0.csar');
+var pathToJavaTypesV2 = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/java-types-2.0.csar');
+var pathToApacheLbTypes = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/apache-lb-types-0.2.csar');
+var pathToUbuntuType = path.resolve(__dirname, '../../../../../target/it-artifacts/zipped/ubuntu-types-0.1.csar');
 
 describe('Initialize test environment', function() {
   beforeEach(function() {
-    browser.driver.manage().window().setSize(1920, 1080);
-    browser.driver.manage().window().maximize();
     navigation.home();
   });
 
@@ -30,6 +27,8 @@ describe('Initialize test environment', function() {
   });
 
   it('Setups test environment to be fully cleaned up', function() {
+    browser.driver.manage().window().setSize(1920, 1080);
+    browser.driver.manage().window().maximize();
     browser.driver.manage().window().getSize().then(function(size) {
       console.log('################# Window\'s size  [' + size.width + ', ' + size.height + ']');
     });
@@ -47,7 +46,7 @@ describe('Initialize test environment', function() {
     common.uploadFile(pathToBaseTypes);
     common.uploadFile(pathToJavaTypes);
     SCREENSHOT.takeScreenShot('upload-components');
-
+    common.removeAllFacetFilters();
     expect(element.all(by.repeater('component in searchResult.data.data')).count()).toEqual(20);
   });
 

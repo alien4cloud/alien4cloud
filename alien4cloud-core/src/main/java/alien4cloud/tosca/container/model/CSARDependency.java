@@ -1,6 +1,7 @@
 package alien4cloud.tosca.container.model;
 
-import lombok.AllArgsConstructor;
+import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,15 +10,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Dependency on another CSAR.
- * 
- * @author luc boutier
+ * Defines a dependency on a CloudServiceArchive.
  */
 @Getter
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(of = { "name", "version" })
 @ToString
 public class CSARDependency {
@@ -25,4 +23,9 @@ public class CSARDependency {
     private String name;
     @NonNull
     private String version;
+
+    public CSARDependency(String name, String version) {
+        this.name = name;
+        this.version = version;
+    }
 }

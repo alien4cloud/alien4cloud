@@ -129,13 +129,16 @@
             </div>
         </div>
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-10">
             <div class="input-group">
               <span class="input-group-addon">
                 <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
               </span>
               <span class="form-control"> {{selectedNodeTemplate.type}} </span>
             </div>
+          </div>
+          <div class="col-md-2">
+            <a class=" btn btn-default" href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </div>
         </div>
         <div class="row" style="margin-top: 5px;">
@@ -378,7 +381,7 @@
                         <span  class="btn btn-default btn-xs cardinalities_show"
                         tooltip="{{'APPLICATIONS.TOPOLOGY.CARDINALITIES_TOOLTIP' | translate}}"
                         tooltip-append-to-body="true">
-                            {{capability.lowerBound}}..{{capability.upperBound | replaceAll:'unbounded':'&infin;' }}
+                            {{capability.upperBound | replaceAll:'unbounded':'&infin;' }}
                             ({{capability.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
                       </span>
@@ -398,7 +401,7 @@
                           tooltip-append-to-body="true">{{propertyKey}}</span>
                       </td>
                       <td class="col-md-6" id="p_capa_{{capabilityName}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                        <span> {{propertyValue}} </span>
+                        <span> {{propertyValue.value}} </span>
                       </td>
                     </tr>
                   </table>

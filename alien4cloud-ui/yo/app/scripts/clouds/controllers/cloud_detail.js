@@ -6,7 +6,7 @@ angular.module('alienUiApp').controller(
     function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q) {
       var cloudId = $stateParams.id;
 
-      $scope.iaasTypes = ['OTHER', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
+      $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
       $scope.envTypes = ['OTHER', 'DEVELOPMENT', 'INTEGRATION_TESTS', 'USER_ACCEPTANCE_TESTS', 'PRE_PRODUCTION', 'PRODUCTION'];
       $scope.tabs = {
         newTemplates: 0
@@ -32,7 +32,7 @@ angular.module('alienUiApp').controller(
         }
       };
 
-      var updatePaaSResourceId = function() {
+      var updateComputeResourcesId = function() {
         if ($scope.manualMatchResource) {
           var templateLength = $scope.matchedComputeTemplates.length;
           for (var i = 0; i < templateLength; i++) {
@@ -47,18 +47,36 @@ angular.module('alienUiApp').controller(
         }
       };
 
+      var updateNetworkResourcesId = function() {
+        if ($scope.manualMatchResource) {
+          var networksLength = $scope.matchedNetworks.length;
+          for (var i = 0; i < networksLength; i++) {
+            var matched = $scope.matchedNetworks[i].network;
+            var originalIndex = UTILS.findByFieldValues($scope.cloud.networks, {
+              networkName: matched.networkName
+            });
+            var original = $scope.cloud.networks[originalIndex];
+            original.paaSResourceId = $scope.matchedNetworks[i].paaSResourceId;
+          }
+        }
+      };
+
       cloudServices.get({
         id: cloudId
       }, function(response) {
         $scope.images = response.data.images;
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;
+        $scope.networks = response.data.networks;
         if (response.data.matcherConfig) {
           $scope.manualMatchResource = true;
           $scope.matchedComputeTemplates = response.data.matcherConfig.matchedComputeTemplates;
-          updatePaaSResourceId();
+          $scope.matchedNetworks = response.data.matcherConfig.matchedNetworks;
+          updateComputeResourcesId();
+          updateNetworkResourcesId();
         }
-        updateTemplateStatistic();
+        updateComputeResourcesStatistic();
+        updateNetworkResourcesStatistic();
         $scope.relatedUsers = {};
         if ($scope.cloud.userRoles) {
           var usernames = [];
@@ -102,8 +120,8 @@ angular.module('alienUiApp').controller(
       $resource('rest/auth/roles/cloud', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
-        $scope.cloudRoles = roleResult.data;
-      });
+          $scope.cloudRoles = roleResult.data;
+        });
 
       $scope.updateCloud = function(cloud) {
 
@@ -286,7 +304,16 @@ angular.module('alienUiApp').controller(
         return false;
       };
 
-      var updateTemplateStatistic = function() {
+      var updateNetworkResourcesStatistic = function() {
+        $scope.networkNotConfiguredCount = 0;
+        for (var i = 0; i < $scope.cloud.networks.length; i++) {
+          if (UTILS.isUndefinedOrNull($scope.cloud.networks[i].paaSResourceId)) {
+            $scope.networkNotConfiguredCount++;
+          }
+        }
+      };
+
+      var updateComputeResourcesStatistic = function() {
         $scope.templateActiveCount = 0;
         $scope.templateNotConfiguredCount = 0;
         for (var i = 0; i < $scope.cloud.computeTemplates.length; i++) {
@@ -300,15 +327,20 @@ angular.module('alienUiApp').controller(
         $scope.templateFilteredCount = $scope.cloud.images.length * $scope.cloud.flavors.length - $scope.cloud.computeTemplates.length;
       };
 
-      var updateCloudResources = function(cloudResources) {
+      var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
         $scope.cloud.computeTemplates = newComputeTemplates;
         if (UTILS.isDefinedAndNotNull(cloudResources.matchedComputeTemplates)) {
           $scope.matchedComputeTemplates = cloudResources.matchedComputeTemplates;
         }
-        updatePaaSResourceId();
-        updateTemplateStatistic();
+        updateComputeResourcesId();
+        updateComputeResourcesStatistic();
+      };
+
+      var updateNetworkResources = function() {
+        updateNetworkResourcesId();
+        updateNetworkResourcesStatistic();
       };
 
       /** handle Modal form for cloud image creation */
@@ -324,7 +356,7 @@ angular.module('alienUiApp').controller(
           }, angular.toJson(flavor), function(success) {
             $scope.flavors[flavor.id] = flavor;
             $scope.cloud.flavors.push(flavor);
-            updateCloudResources(success.data);
+            updateComputeResources(success.data);
           });
         });
       };
@@ -337,7 +369,7 @@ angular.module('alienUiApp').controller(
           var indexFlavor = UTILS.findByFieldValue($scope.cloud.flavors, 'id', flavorId);
           $scope.cloud.flavors.splice(indexFlavor, 1);
           delete $scope.flavors[flavorId];
-          updateCloudResources(success.data);
+          updateComputeResources(success.data);
         });
       };
 
@@ -361,7 +393,7 @@ angular.module('alienUiApp').controller(
               $scope.images[images[i].id] = images[i];
             }
             $scope.cloud.images = UTILS.concat($scope.cloud.images, imageIds);
-            updateCloudResources(success.data);
+            updateComputeResources(success.data);
           });
         });
       };
@@ -374,7 +406,50 @@ angular.module('alienUiApp').controller(
           delete $scope.images[imageId];
           var indexOfImage = $scope.cloud.images.indexOf(imageId);
           $scope.cloud.images.splice(indexOfImage, 1);
-          updateCloudResources(success.data);
+          updateComputeResources(success.data);
+        });
+      };
+
+      /** handle Modal form for cloud image creation */
+      $scope.openNetworkCreationModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/clouds/new_network.html',
+          controller: 'NewNetworkController'
+        });
+
+        modalInstance.result.then(function(network) {
+          cloudServices.addNetwork({
+            id: $scope.cloud.id
+          }, angular.toJson(network), function() {
+            $scope.networks[network.id] = network;
+            $scope.cloud.networks.push(network);
+            updateNetworkResources();
+          });
+        });
+      };
+
+      $scope.deleteNetwork = function(networkName) {
+        cloudServices.removeNetwork({
+          id: $scope.cloud.id,
+          networkName: networkName
+        }, undefined, function(success) {
+          delete $scope.networks[networkName];
+          var indexOfNetwork = $scope.cloud.networks.indexOf(networkName);
+          $scope.cloud.networks.splice(indexOfNetwork, 1);
+          updateNetworkResources();
+        });
+      };
+
+      $scope.saveNetworkResource = function(network) {
+        if (network.paaSResourceId === null || network.paaSResourceId === '') {
+          delete network.paaSResourceId;
+        }
+        cloudServices.setNetworkResource({
+          id: $scope.cloud.id,
+          networkName: network.networkName,
+          resourceId: network.paaSResourceId
+        }, undefined, function() {
+          updateNetworkResourcesStatistic();
         });
       };
 
@@ -390,7 +465,7 @@ angular.module('alienUiApp').controller(
           enabled: !template.enabled
         }, undefined, function() {
           template.enabled = !template.enabled;
-          updateTemplateStatistic();
+          updateComputeResourcesStatistic();
         });
       };
 
@@ -420,7 +495,7 @@ angular.module('alienUiApp').controller(
           flavorId: template.cloudImageFlavorId,
           resourceId: template.paaSResourceId
         }, undefined, function() {
-          updateTemplateStatistic();
+          updateComputeResourcesStatistic();
         });
       };
     }

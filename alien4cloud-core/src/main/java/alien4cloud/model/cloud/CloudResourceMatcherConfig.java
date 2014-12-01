@@ -25,12 +25,25 @@ public class CloudResourceMatcherConfig {
 
     private List<MatchedComputeTemplate> matchedComputeTemplates = Lists.newArrayList();
 
+    private List<MatchedNetwork> matchedNetworks = Lists.newArrayList();
+
     @JsonIgnore
     public Map<ComputeTemplate, String> getComputeTemplateMapping() {
         Map<ComputeTemplate, String> config = Maps.newHashMap();
         if (matchedComputeTemplates != null && !matchedComputeTemplates.isEmpty()) {
             for (MatchedComputeTemplate template : matchedComputeTemplates) {
                 config.put(template.getComputeTemplate(), template.getPaaSResourceId());
+            }
+        }
+        return config;
+    }
+
+    @JsonIgnore
+    public Map<Network, String> getNetworkMapping() {
+        Map<Network, String> config = Maps.newHashMap();
+        if (matchedNetworks != null && !matchedNetworks.isEmpty()) {
+            for (MatchedNetwork network : matchedNetworks) {
+                config.put(network.getNetwork(), network.getPaaSResourceId());
             }
         }
         return config;

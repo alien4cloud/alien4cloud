@@ -61,7 +61,7 @@ public class DeploymentService {
      * @param size The maximum number of elements to return.
      * @return A {@link GetMultipleDataResult} that contains deployments.
      */
-    public GetMultipleDataResult getDeployments(String cloudId, String sourceId, int from, int size) {
+    public GetMultipleDataResult<Deployment> getDeployments(String cloudId, String sourceId, int from, int size) {
         return alienDao.search(Deployment.class, null, getDeploymentFilters(cloudId, sourceId, null), from, size);
     }
 
@@ -73,7 +73,7 @@ public class DeploymentService {
      * @param size The number of events to get.
      * @return A result that contains all events.
      */
-    public GetMultipleDataResult getDeploymentEvents(String topologyId, String cloudId, int from, int size) {
+    public GetMultipleDataResult<?> getDeploymentEvents(String topologyId, String cloudId, int from, int size) {
         Deployment deployment = getActiveDeploymentFailIfNotExists(topologyId, cloudId);
 
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
@@ -284,7 +284,7 @@ public class DeploymentService {
     public Deployment getActiveDeployment(String topologyId, String cloudId) {
         Deployment deployment = null;
 
-        GetMultipleDataResult dataResult = alienDao.search(
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(
                 Deployment.class,
                 null,
                 MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { topologyId },
@@ -349,4 +349,17 @@ public class DeploymentService {
             throw new PaaSAlreadyDeployedException("Topology <" + topologyId + "> is already deployed on this cloud.");
         }
     }
+
+    /**
+     * Get all deployments for a given deployment setup id
+     * 
+     * @param deploymentSetupId
+     * @return
+     */
+    public GetMultipleDataResult<Deployment> getDeploymentsByDeploymentSetup(String deploymentSetupId) {
+        GetMultipleDataResult<Deployment> deploymentSearch = alienDao.find(Deployment.class,
+                MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }), Integer.MAX_VALUE);
+        return deploymentSearch;
+    }
+
 }

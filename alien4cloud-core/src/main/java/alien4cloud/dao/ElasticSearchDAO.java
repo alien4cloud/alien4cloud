@@ -7,9 +7,11 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedModelUtils;
+import alien4cloud.component.model.IndexedArtifactType;
+import alien4cloud.component.model.IndexedCapabilityType;
+import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.csar.model.Csar;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -23,10 +25,10 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
 import alien4cloud.tosca.container.serializer.BoundSerializer;
+import alien4cloud.tosca.model.Csar;
 import alien4cloud.utils.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Component("alien-es-dao")
 public class ElasticSearchDAO extends ESGenericSearchDAO {
+    public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
 
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
@@ -53,9 +56,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
 
-        initIndices(ToscaElement.class.getSimpleName().toLowerCase(), false, IndexedModelUtils.getAllIndexClasses());
-        initIndices(ToscaElement.class.getSimpleName().toLowerCase(), false, IndexedToscaElement.class);
-
+        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedToscaElement.class);
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);

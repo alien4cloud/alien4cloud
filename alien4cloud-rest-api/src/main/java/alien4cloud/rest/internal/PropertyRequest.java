@@ -1,10 +1,10 @@
 package alien4cloud.rest.internal;
 
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.model.PropertyDefinition;
 
 @Getter
 @Setter

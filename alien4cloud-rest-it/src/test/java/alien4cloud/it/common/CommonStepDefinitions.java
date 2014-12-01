@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import alien4cloud.model.cloud.CloudImage;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.client.Client;
@@ -13,7 +12,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
 
-import alien4cloud.csar.model.Csar;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -21,6 +20,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
+import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
@@ -29,9 +29,9 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.User;
 import alien4cloud.security.groups.Group;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
+import alien4cloud.tosca.model.Csar;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -39,31 +39,33 @@ import cucumber.api.java.en.Then;
 @Slf4j
 public class CommonStepDefinitions {
     private final Client esClient = Context.getEsClientInstance();
-    // indices to clean
-    private List<Class<?>> IndiceClassesToClean;
+    private List<String> indicesToClean;
+    private final ITCsarRetriever csarRetriever = new ITCsarRetriever();
 
     public CommonStepDefinitions() {
-        IndiceClassesToClean = Lists.newArrayList();
-        IndiceClassesToClean.add(ApplicationEnvironment.class);
-        IndiceClassesToClean.add(ApplicationVersion.class);
-        IndiceClassesToClean.add(DeploymentSetup.class);
-        IndiceClassesToClean.add(ToscaElement.class);
-        IndiceClassesToClean.add(Application.class);
-        IndiceClassesToClean.add(Csar.class);
-        IndiceClassesToClean.add(Topology.class);
-        IndiceClassesToClean.add(TopologyTemplate.class);
-        IndiceClassesToClean.add(Plugin.class);
-        IndiceClassesToClean.add(PluginConfiguration.class);
-        IndiceClassesToClean.add(Cloud.class);
-        IndiceClassesToClean.add(CloudConfiguration.class);
-        IndiceClassesToClean.add(Deployment.class);
-        IndiceClassesToClean.add(Group.class);
-        IndiceClassesToClean.add(User.class);
-        IndiceClassesToClean.add(CloudImage.class);
+        indicesToClean = Lists.newArrayList();
+        indicesToClean.add(ApplicationEnvironment.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ApplicationVersion.class.getSimpleName().toLowerCase());
+        indicesToClean.add(DeploymentSetup.class.getSimpleName().toLowerCase());
+        indicesToClean.add(ElasticSearchDAO.TOSCA_ELEMENT_INDEX);
+        indicesToClean.add(Application.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Csar.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Topology.class.getSimpleName().toLowerCase());
+        indicesToClean.add(TopologyTemplate.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Plugin.class.getSimpleName().toLowerCase());
+        indicesToClean.add(PluginConfiguration.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Cloud.class.getSimpleName().toLowerCase());
+        indicesToClean.add(CloudConfiguration.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Deployment.class.getSimpleName().toLowerCase());
+        indicesToClean.add(Group.class.getSimpleName().toLowerCase());
+        indicesToClean.add(User.class.getSimpleName().toLowerCase());
+        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
     }
 
     @Before
     public void beforeScenario() throws IOException, InterruptedException, ExecutionException {
+        csarRetriever.retrieveGitArtifacts();
+
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());
         }
@@ -95,8 +97,8 @@ public class CommonStepDefinitions {
         Files.createDirectories(Context.getInstance().getArtifactDirPath());
 
         // Clean elastic search cluster
-        for (Class<?> indiceClass : IndiceClassesToClean) {
-            esClient.prepareDeleteByQuery(new String[] { indiceClass.getSimpleName().toLowerCase() }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
+        for (String indice : indicesToClean) {
+            esClient.prepareDeleteByQuery(new String[] { indice }).setQuery(QueryBuilders.matchAllQuery()).execute().get();
         }
 
         // clean things in Context
@@ -110,7 +112,7 @@ public class CommonStepDefinitions {
     public void I_should_receive_a_RestResponse_with_no_error() throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         if (restResponse.getError() != null) {
-            log.debug("Rest response was <" + Context.getInstance().getRestResponse() + ">");
+            log.error("Rest response was <" + Context.getInstance().getRestResponse() + ">");
         }
         Assert.assertNull(restResponse.getError());
     }
@@ -166,5 +168,4 @@ public class CommonStepDefinitions {
         Assert.assertNotNull(restResponse.getData());
         Assert.assertEquals(expectedResponseStr, restResponse.getData());
     }
-
 }

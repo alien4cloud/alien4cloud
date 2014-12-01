@@ -18,13 +18,13 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedRelationshipType;
 import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.tosca.container.model.ToscaElement;
 
 import com.google.common.collect.Sets;
 import com.mangofactory.swagger.annotations.ApiIgnore;
@@ -39,7 +39,7 @@ import com.mangofactory.swagger.annotations.ApiIgnore;
 public class SuggestionController {
     private static final int SUGGESTION_COUNT = 10;
     private static final String TAG_FIELD = "tags";
-    private static final String[] INDEXES = new String[] { ToscaElement.class.getSimpleName().toLowerCase(), Application.class.getSimpleName().toLowerCase() };
+    private static final String[] INDEXES = new String[] { ElasticSearchDAO.TOSCA_ELEMENT_INDEX, Application.class.getSimpleName().toLowerCase() };
     private static final Class<?>[] CLASSES = new Class<?>[] { Application.class, IndexedNodeType.class, IndexedArtifactType.class,
             IndexedCapabilityType.class, IndexedRelationshipType.class };
 

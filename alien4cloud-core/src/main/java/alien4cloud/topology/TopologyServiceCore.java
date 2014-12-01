@@ -135,4 +135,8 @@ public class TopologyServiceCore {
         }
         return relationshipTypes;
     }
+
+    public IndexedNodeType getRelatedIndexedNodeType(NodeTemplate nodeTemplate, Topology topology) {
+        return csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
+    }
 }

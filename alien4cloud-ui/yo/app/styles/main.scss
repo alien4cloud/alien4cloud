@@ -6,6 +6,8 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 
 @import 'bootstrap-sass-official/assets/stylesheets/bootstrap';
 
+@import "roboto-thin";
+
 @import "editable";
 @import "ace-editor";
 @import "form-generator";
@@ -30,24 +32,43 @@ $screen-md-min: 1015px;
 
 .navbar-logout-dropdown {
   z-index: 2000;
-
 }
 
 .navbar-brand {
   padding: 0 5px;
+}
 
+@media all and (min-width: 768px) and (max-width: 1000px) {
+  #alien-navbar-collapse i + span {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-bottom: -3px;
+    width: 39px;
+    height: 18px;
+    text-overflow: ellipsis;
+  }
+
+}
+
+@media all and (min-width: 768px) and (max-width: 1120px) {
+  #alien-navbar-collapse input {
+    width: 104px;
+  }
+
+  #alien-navbar-collapse input[placeholder] {
+    text-overflow: ellipsis;
+  }
 }
 
 .main-view {
   margin-top: 64px;
-
 }
 
 @media(min-width: $screen-sm-min) {
   .main-view {
     margin-left: 20px;
     margin-right: 20px;
-    margin-top: 114px;
   }
 
 }

@@ -1,7 +1,7 @@
 package alien4cloud.rest.component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -144,7 +144,7 @@ public class ComponentController {
         IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
         if (component != null) {
             if (component.getDefaultCapabilities() == null) {
-                component.setDefaultCapabilities(new HashSet<String>());
+                component.setDefaultCapabilities(new ArrayList<String>());
             }
             component.getDefaultCapabilities().add(recommendationRequest.getCapability());
             log.info("Defining the component <" + component.getId() + "> as default for the capability <" + recommendationRequest.getCapability() + ">.");

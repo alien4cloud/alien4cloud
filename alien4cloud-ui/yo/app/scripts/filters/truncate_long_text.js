@@ -57,3 +57,22 @@ alienApp.filter('split', function() {
 
   };
 });
+
+/**
+ * Filter which will explode a text by a given parameter and return
+ * one of the chunk identified by its index
+ * indexToReturn : starts at 0 for the first element
+ */
+alienApp.filter('explodeandget', function() {
+  return function(text, separator, indexToReturn) {
+    if (!UTILS.isUndefinedOrNull(text)) {
+      separator = separator || '.'; // by defult . if not defined
+      var res = text.split(separator);
+      if (parseInt(indexToReturn) && indexToReturn >= 0) {
+        return res[indexToReturn];
+      }
+    } else {
+      return;
+    }
+  };
+});

@@ -16,6 +16,17 @@ public final class VersionUtil {
      * and then it can have alpha numeric bloc separated by '.' or '-'
      */
     private static final Pattern VERSION_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*");
+    private static final String SNAPSHOT_IDENTIFIER = "SNAPSHOT";
+
+    /**
+     * Check if a version is a SNAPSHOT (development) version.
+     * 
+     * @param version The actual version string.
+     * @return True if the version is a SNAPSHOT version, false if not (RELEASE version).
+     */
+    public static boolean isSnapshot(String version) {
+        return version.toUpperCase().contains(SNAPSHOT_IDENTIFIER);
+    }
 
     /**
      * Check if a version is valid

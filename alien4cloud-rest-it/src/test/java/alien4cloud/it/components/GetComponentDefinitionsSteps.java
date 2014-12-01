@@ -1,6 +1,9 @@
 package alien4cloud.it.components;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -18,7 +21,6 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +31,6 @@ import cucumber.api.java.en.When;
 
 public class GetComponentDefinitionsSteps {
 
-    private static final String COMPONENT_INDEX = ToscaElement.class.getSimpleName().toLowerCase();
     private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
     private final Client esClient = Context.getEsClientInstance();
 
@@ -79,7 +80,7 @@ public class GetComponentDefinitionsSteps {
             for (IndexedNodeType indexedNodeType : idntList) {
                 if (indexedNodeType.getId().equalsIgnoreCase(componentId)) {
                     String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
-                    esClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+                    esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
                     return;
                 }
             }
@@ -87,9 +88,8 @@ public class GetComponentDefinitionsSteps {
         } else {
             for (IndexedNodeType indexedNodeType : idntList) {
                 String serializeDatum = jsonMapper.writeValueAsString(indexedNodeType);
-                esClient.prepareIndex(COMPONENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
+                esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
             }
         }
     }
-
 }

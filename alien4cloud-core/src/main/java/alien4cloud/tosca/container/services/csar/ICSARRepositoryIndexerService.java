@@ -3,21 +3,56 @@ package alien4cloud.tosca.container.services.csar;
 import java.util.Collection;
 import java.util.Map;
 
+import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.ToscaInheritableElement;
 
+/**
+ * Service responsible for indexing TOSCA elements.
+ */
 public interface ICSARRepositoryIndexerService {
+    /**
+     * Get all {@link IndexedToscaElement} from a given archive.
+     * 
+     * @param archiveName The name of the archive.
+     * @param archiveVersion The version of the archive.
+     * @return A map of {@link IndexedToscaElement} by id.
+     */
+    Map<String, IndexedToscaElement> getArchiveElements(String archiveName, String archiveVersion);
 
-    void indexElements(String archiveName, String archiveVersion, Map<String, ToscaElement> archiveElements);
+    /**
+     * Delete all elements from a given archive.
+     * 
+     * @param archiveName The name of the archive to delete.
+     * @param archiveVersion The version of the archive to delete.
+     */
+    void deleteElements(String archiveName, String archiveVersion);
 
-    void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ToscaInheritableElement> archiveElements,
+    /**
+     * Index multiple elements into the repository.
+     * 
+     * @param archiveName The name of the archive in which the elements lies.
+     * @param archiveVersion The version of the archive in which the elements lies.
+     * @param archiveElements The elements to index.
+     * @param dependencies The archive dependencies (in order to add infos from the parent element to the child...)
+     */
+    void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies);
 
-    void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element, Collection<CSARDependency> dependencies);
+    /**
+     * Index a single element into the repository.
+     * 
+     * @param archiveName The name of the archive in which the elements lies.
+     * @param archiveVersion The version of the archive in which the elements lies.
+     * @param element The element to index.
+     * @param dependencies The archive dependencies (in order to add infos from the parent element to the child...)
+     */
+    void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element, Collection<CSARDependency> dependencies);
 
-    // TODO : This method should be removed once we manage correctly csar dependencies
-    void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element);
-
-    void deleteElement(String archiveName, String archiveVersion, ToscaElement element);
+    /**
+     * Delete the given elements from the repository.
+     * 
+     * @param elements the elements to delete.
+     */
+    void deleteElements(Collection<IndexedToscaElement> elements);
 }

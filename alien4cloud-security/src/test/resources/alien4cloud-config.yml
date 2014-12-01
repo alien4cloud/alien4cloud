@@ -1,0 +1,43 @@
+
+# Configuration of the elastic search cluster.
+elasticSearch:
+  clusterName: alien_es_test_cluster
+  local: true
+  client: false
+  resetData: true
+  waitForClusterStatus: true
+  prefix_max_expansions: 10
+
+# Configuration of default admin ensurer, if true it creates a default admin user if no admin can be found in the system.
+alien_security:
+  admin:
+    # Alien 4 Cloud checks that an admin user is defined at the application launch.
+    ensure: true
+    username: admin
+    password: admin
+    email: admin@mycompany.com
+
+### Ldap Configuration
+ldap:
+  enabled: true
+  anonymousReadOnly: true
+  url: ldap://ldap.fastconnect.fr:389
+  userDn: uid=admin,ou=system
+  password: secret
+  base: ou=People,dc=fastconnect,dc=fr
+  defaultRoles: COMPONENTS_BROWSER
+
+  # will join all objectClasses with & to get users
+  objectClassesInclude: person,hordePerson
+  objectClassesExclude: CalendarResource
+
+  # user field import mapping
+  userIdKey: uid
+  userFirstNameKey: givenName
+  userLastNameKey: sn
+  userEmailKey: mail
+
+  # field to dertermine if the user is active
+  userActiveKey: accountStatus
+  userActiveValue: active
+### End  Ldap Configuration

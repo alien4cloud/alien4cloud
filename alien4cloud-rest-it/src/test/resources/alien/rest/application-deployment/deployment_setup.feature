@@ -5,9 +5,8 @@ Feature: Deployment setup feature.
     And I upload a plugin
     And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
     And I enable the cloud "Mount doom cloud"
-    And I upload the archive file that is "containing default tosca base types"
-    And There are these users in the system
-      | sangoku |
+    And I upload the archive "tosca base types 1.0"
+    And I should receive a RestResponse with no error
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
     And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "Mount doom cloud"
     And I have already created a cloud image with name "Windows 7", architecture "x86_64", type "windows", distribution "Windows" and version "7.0"
@@ -20,19 +19,22 @@ Feature: Deployment setup feature.
     And I match the template composed of image "Windows 7" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
     And I match the template composed of image "Ubuntu Trusty" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_LINUX"
     And I match the template composed of image "Ubuntu Trusty" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_LINUX"
-    And I am authenticated with user named "sangoku"
+    And I add the network with name "private" and CIDR "192.168.1.0/24" and IP version 4 and gateway "192.168.1.1" to the cloud "Mount doom cloud"
+    And I add the network with name "public" and CIDR "192.168.2.0/24" and IP version 4 and gateway "192.168.2.1" to the cloud "Mount doom cloud"
+    And I match the network with name "private" of the cloud "Mount doom cloud" to the PaaS resource "alienPrivateNetwork"
+    And I match the network with name "public" of the cloud "Mount doom cloud" to the PaaS resource "alienPublicNetwork"
     And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0"
-    And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
+    And I add a node template "Network" related to the "tosca.nodes.Network:1.0" node type
     And I assign the cloud with name "Mount doom cloud" for the application
 
   Scenario: Select a compute template for a node
-    When I select the the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
+    When I select the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
     Then I should receive a RestResponse with no error
     And The deployment setup of the application should contain following resources mapping:
       | Compute | Ubuntu Trusty | medium |
 
   Scenario: Modify node template's name, property and the deployment setup should be updated with the modification
-    When I select the the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
+    When I select the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
     Then I should receive a RestResponse with no error
     And The deployment setup of the application should contain following resources mapping:
       | Compute | Ubuntu Trusty | medium |
@@ -40,9 +42,31 @@ Feature: Deployment setup feature.
     And I update the node template "NewCompute"'s property "os_type" to "linux"
     Then The deployment setup of the application should contain following resources mapping:
       | NewCompute | Ubuntu Trusty | small |
-    When I select the the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
+    When I select the template composed of image "Ubuntu Trusty" and flavor "medium" for my node "Compute"
     And I update the node template "NewCompute"'s property "os_type" to "windows"
     Then The deployment setup of the application should contain following resources mapping:
       | NewCompute | Windows 7 | small |
-    And I update the node template "NewCompute"'s property "os_type" to "unknown_system"
+    And I update the node template "NewCompute"'s property "os_version" to "unknown_os_version"
     Then The deployment setup of the application should contain no resources mapping
+
+  Scenario: Select a network for a node
+    When I select the network with name "private" for my node "Network"
+    Then I should receive a RestResponse with no error
+    And The deployment setup of the application should contain following network mapping:
+      | Network | private | 192.168.1.0/24 | 4 | 192.168.1.1 |
+
+  Scenario: Modify network's property and see that the mapping is automatically updated
+    When I select the network with name "private" for my node "Network"
+    Then I should receive a RestResponse with no error
+    And The deployment setup of the application should contain following network mapping:
+      | Network | private | 192.168.1.0/24 | 4 | 192.168.1.1 |
+    When I update the node template's name from "Network" to "NewNetwork"
+    And I update the node template "NewNetwork"'s property "cidr" to "192.168.2.0/24"
+    Then The deployment setup of the application should contain following network mapping:
+      | NewNetwork | public | 192.168.2.0/24 | 4 | 192.168.2.1 |
+    When I update the node template "NewNetwork"'s property "gateway_ip" to "192.168.1.1"
+    Then The deployment setup of the application should contain an empty network mapping
+    When I update the node template "NewNetwork"'s property "gateway_ip" to "192.168.2.1"
+    Then The deployment setup of the application should contain following network mapping:
+      | NewNetwork | public | 192.168.2.0/24 | 4 | 192.168.2.1 |
+

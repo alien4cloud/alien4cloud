@@ -10,6 +10,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.Network;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -28,4 +29,6 @@ public class CloudDTO {
     private Map<String, CloudImage> images;
 
     private Map<String, CloudImageFlavor> flavors;
+
+    private Map<String, Network> networks;
 }

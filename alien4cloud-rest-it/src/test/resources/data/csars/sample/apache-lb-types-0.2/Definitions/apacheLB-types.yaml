@@ -1,0 +1,104 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: apache load balancer test recipe (do not include valid implementations and definition).
+
+node_types:
+  fastconnect.nodes.apacheLB:
+    abstract : true
+    derived_from: tosca.nodes.WebServer
+    description: >
+      This is the definition of the Apache LB Recipe.
+      This is based on Cloudify Apache LB groovy recipe.
+    tags:
+      calm_icon: /images/apache.png
+    properties:
+      version:
+        type: version
+        required: true
+    requirements:
+      host:
+        type: tosca.capabilities.Container
+
+  fastconnect.nodes.apacheLBGroovy:
+    derived_from: fastconnect.nodes.apacheLB
+    description: >
+      Installation of apacheLB using Cloudify scripts
+    properties:
+      version:
+        type: version
+        default: 2
+        constraints:
+          - equal: 2
+    interfaces:
+      lifecycle:
+        create: scripts/apacheLB_installCalm.groovy
+        start: scripts/apacheLB_start.groovy
+        stop: scripts/apacheLB_stop.groovy
+        delete: scripts/apacheLB_uninstall.groovy
+      monitor:
+        locator: scripts/monitor/locator.groovy
+        startDetection: scripts/monitor/startDetection.groovy
+      custom:
+        addNode:
+          inputs:
+            instanceId:
+              type: string
+              required: true
+            node:
+              type: string
+              required: true
+          implementation: scripts/apacheLB_addNode.groovy
+        removeNode: scripts/apacheLB_removeNode.groovy
+        deployPublic:
+          inputs:
+            publicUrl:
+              type: string
+              required: true
+        updateWar:
+          inputs:
+            warUrl:
+              type: string
+              required: true
+            countSlave:
+              type: integer
+              required: false
+            tresholdRate:
+              type: float
+              required: true
+          implementation: scripts/updateWarUrl.groovy
+        updateWarFile: scripts/updateWarFile.groovy
+    requirements:
+      httpEndpoint:
+        type: calm.capabilities.HttpEndpoint
+        lower_bound: 0
+        upper_bound: unbounded
+    artifacts:
+      - scripts: scripts
+        type: fastconnect.artifacts.ResourceDirectory
+
+relationship_types:
+  fastconnect.relationships.cloudify.ConnectsToApacheLB:
+    derived_from: tosca.relationships.ConnectsTo
+    description: >
+      Connects a http endpoint to an ApacheLB
+    tags:
+      marurity: draft
+    valid_sources: [ calm.capabilities.HttpEndpoint ]
+    valid_targets: [ calm.capabilities.HttpEndpoint ]
+    interfaces:
+      tosca.interfaces.relationship.Configure:
+        post_configure_target: connecttoscript/invokeAddNode.groovy
+    artifacts:
+      - scripts: connecttoscript
+        type: fastconnect.artifacts.ResourceDirectory
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+    file_ext: [ groovy ]
+  fastconnect.artifacts.ResourceDirectory:
+    description: A directory that contains resources files that are required for a node to be deployed.
+
+capability_types:
+  calm.capabilities.HttpEndpoint:
+    derived_from: tosca.capabilities.Endpoint

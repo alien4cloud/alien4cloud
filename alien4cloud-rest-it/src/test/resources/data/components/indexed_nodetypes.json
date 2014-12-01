@@ -1,5 +1,5 @@
 [{
-  "id": "javaNode:3.0",
+  "elementId": "javaNode:3.0",
   "elementId": "javaNode",
   "archiveName": "Archive-0",
   "archiveVersion": "3.0",
@@ -45,17 +45,15 @@
     "constraints": [{
       "greaterThan":0
     }]
-    
+
     }
   },
   "interfaces": {
     "lifecycle": {
-      "implementationArtifact": null,
       "description": "Default lifecycle for nodes in TOSCA.",
       "operations": {
         "stop": {
           "implementationArtifact": null,
-          "outputParameters": null,
           "inputParameters": null,
           "description": "Basic lifecycle stop operation."
         }
@@ -110,12 +108,10 @@
   },
   "interfaces": {
     "lifecycle": {
-      "implementationArtifact": null,
       "description": "Default lifecycle for nodes in TOSCA.",
       "operations": {
         "stop": {
           "implementationArtifact": null,
-          "outputParameters": null,
           "inputParameters": null,
           "description": "Basic lifecycle stop operation."
         }
@@ -176,12 +172,10 @@
   ],
   "interfaces": {
     "lifecycle": {
-      "implementationArtifact": null,
       "description": "Default lifecycle for nodes in TOSCA.",
       "operations": {
         "stop": {
           "implementationArtifact": null,
-          "outputParameters": null,
           "inputParameters": null,
           "description": "Basic lifecycle stop operation."
         }

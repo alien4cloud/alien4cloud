@@ -14,10 +14,11 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.utils.CommonUtils;
+import alien4cloud.utils.AlienUtils;
 
 @Slf4j
 @Component
@@ -47,13 +48,20 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             log.warn("Fail to update volumeIds for node " + storageEvent.getNodeTemplateId(), e);
             return;
         }
+
+        if (ToscaUtils
+                .isFromType(NormativeBlockStorageConstants.DELETABLE_BLOCKSTORAGE_TYPE, topoServiceCore.getRelatedIndexedNodeType(nodeTemplate, topology))) {
+            log.info("Blockstorage <{}.{}> is a deletable type. Skipping topology volumeId update...", topology.getId(), nodeTemplate.getName());
+            return;
+        }
+
         String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
         if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
-            volumeIds = CommonUtils.putValueCommaSeparatedInPosition(volumeIds, storageEvent.getVolumeId(), Integer.parseInt(storageEvent.getInstanceId()));
+            volumeIds = AlienUtils.putValueCommaSeparatedInPosition(volumeIds, storageEvent.getVolumeId(), Integer.parseInt(storageEvent.getInstanceId()));
         }
         nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
-        log.info("Updated topology <{}> to add VolumeId <{}> in position <{}> . New value is <{}>", topology.getId(), storageEvent.getVolumeId(),
-                storageEvent.getInstanceId(), volumeIds);
+        log.info("Updated NodeTemplate <{}.{}> to add VolumeId <{}> in position <{}> . New value is <{}>", topology.getId(), nodeTemplate.getName(),
+                storageEvent.getVolumeId(), storageEvent.getInstanceId(), volumeIds);
         alienDAO.save(topology);
     }
 

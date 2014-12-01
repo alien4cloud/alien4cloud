@@ -120,12 +120,6 @@ UTILS.relationshipNameFromTypeAndTarget = function(type, targetName) {
   }
 };
 
-UTILS.isHostedOnRelationship = function(relationshipTypeName, relationshipTypes) {
-  var hostedOnRelationshipName = 'tosca.relationships.HostedOn';
-  var superTypes = relationshipTypes[relationshipTypeName].derivedFrom;
-  return relationshipTypeName === hostedOnRelationshipName || (UTILS.isDefinedAndNotNull(superTypes) && superTypes.indexOf(hostedOnRelationshipName) >= 0);
-};
-
 UTILS.isFromNodeType = function(nodeType, type) {
   var superTypes = nodeType.derivedFrom;
   return nodeType.elementId === type || (UTILS.isDefinedAndNotNull(superTypes) && superTypes.indexOf(type) >= 0);

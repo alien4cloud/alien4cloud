@@ -1,11 +1,6 @@
 package alien4cloud.tosca.container.services.csar.impl;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -17,71 +12,99 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedInheritableToscaElement;
 import alien4cloud.component.model.IndexedModelUtils;
-import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.component.model.Tag;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.images.IImageDAO;
+import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.ToscaElement;
-import alien4cloud.tosca.container.model.ToscaInheritableElement;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Component
 public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerService {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
     @Resource
     private ElasticSearchClient elasticSearchClient;
+    @Resource
+    private IImageDAO imageDAO;
 
     private void refreshIndexForSearching() {
-        elasticSearchClient.getClient().admin().indices().prepareRefresh(ToscaElement.class.getSimpleName().toLowerCase()).execute().actionGet();
+        elasticSearchClient.getClient().admin().indices().prepareRefresh(ElasticSearchDAO.TOSCA_ELEMENT_INDEX).execute().actionGet();
     }
 
     @Override
-    public void indexElements(String archiveName, String archiveVersion, Map<String, ToscaElement> archiveElements) {
-        for (ToscaElement element : archiveElements.values()) {
-            IndexedToscaElement indexedElement = IndexedModelUtils.getNonInheritableIndexedModel(element, archiveName, archiveVersion);
-            saveAndUpdateHighestVersion(indexedElement);
+    public Map<String, IndexedToscaElement> getArchiveElements(String archiveName, String archiveVersion) {
+        GetMultipleDataResult<IndexedToscaElement> elements = alienDAO.find(
+                IndexedToscaElement.class,
+                MapUtil.newHashMap(new String[] { "archiveName", "archiveVersion" }, new String[][] { new String[] { archiveName },
+                        new String[] { archiveVersion } }), Integer.MAX_VALUE);
+
+        Map<String, IndexedToscaElement> elementsByIds = Maps.newHashMap();
+        if (elements == null) {
+            return elementsByIds;
         }
+
+        for (IndexedToscaElement element : elements.getData()) {
+            elementsByIds.put(element.getId(), element);
+        }
+        return elementsByIds;
     }
 
     @Override
-    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ToscaInheritableElement> archiveElements,
+    public void deleteElements(String archiveName, String archiveVersion) {
+        QueryBuilder archiveNameMatch = QueryBuilders.termQuery("archiveName", archiveName);
+        QueryBuilder archiveVersionMatch = QueryBuilders.matchQuery("archiveVersion", archiveVersion);
+        QueryBuilder query = QueryBuilders.boolQuery().must(archiveNameMatch).must(archiveVersionMatch);
+        alienDAO.delete(IndexedToscaElement.class, query);
+    }
+
+    @Override
+    public void indexInheritableElements(String archiveName, String archiveVersion, Map<String, ? extends IndexedInheritableToscaElement> archiveElements,
             Collection<CSARDependency> dependencies) {
-        List<ToscaInheritableElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
-        for (ToscaInheritableElement element : orderedElements) {
+        if (archiveElements == null) {
+            return;
+        }
+        List<IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
+        for (IndexedInheritableToscaElement element : orderedElements) {
             indexInheritableElement(archiveName, archiveVersion, element, dependencies);
         }
     }
 
-    public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element, Collection<CSARDependency> dependencies) {
-
-        IndexedNodeType indexedNodeType = getExistingIndexedNodeType(archiveVersion, element);
-        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : null;
-
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion, creationDate);
+    @Override
+    public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
+            Collection<CSARDependency> dependencies) {
+        IndexedToscaElement indexedNodeType = alienDAO.findById(IndexedToscaElement.class, element.getId());
+        element.setLastUpdateDate(new Date());
+        Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
+        element.setCreationDate(creationDate);
         if (element.getDerivedFrom() != null) {
-            Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
+            Class<? extends IndexedInheritableToscaElement> indexedType = element.getClass();
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             // Check dependencies
-            for (CSARDependency dependency : dependencies) {
-                addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom(), dependency.getName(), dependency.getVersion());
+            if (dependencies != null) {
+                for (CSARDependency dependency : dependencies) {
+                    addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), dependency.getName(), dependency.getVersion());
+                }
             }
             // Check in the archive it-self
-            addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom(), archiveName, archiveVersion);
+            addArchiveToQuery(boolQueryBuilder, element.getDerivedFrom().get(0), archiveName, archiveVersion);
             IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, boolQueryBuilder);
             if (superElement == null) {
                 throw new IndexingServiceException("Indexing service is in an inconsistent state, the super element [" + element.getDerivedFrom()
                         + "] is not found for element [" + element.getId() + "]");
             }
-            IndexedModelUtils.mergeInheritableIndex(superElement, indexedElement);
+            IndexedModelUtils.mergeInheritableIndex(superElement, element);
         }
-        saveAndUpdateHighestVersion(indexedElement);
+        saveAndUpdateHighestVersion(element);
     }
 
     private void saveAndUpdateHighestVersion(IndexedToscaElement element) {
@@ -128,46 +151,20 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         refreshIndexForSearching();
     }
 
-    // TODO : This method should be removed once we manage correctly csar dependencies (for snapshot CSAR edited in ALIEN).
-    @Override
-    public void indexInheritableElement(String archiveName, String archiveVersion, ToscaInheritableElement element) {
-
-        IndexedNodeType indexedNodeType = getExistingIndexedNodeType(archiveVersion, element);
-        Date creationDate = (indexedNodeType != null) ? indexedNodeType.getCreationDate() : null;
-
-        IndexedInheritableToscaElement indexedElement = IndexedModelUtils.getInheritableIndexedModel(element, archiveName, archiveVersion, creationDate);
-        if (element.getDerivedFrom() != null) {
-            Class<? extends IndexedInheritableToscaElement> indexedType = IndexedModelUtils.getInheritableIndexClass(element.getClass());
-            QueryBuilder matchElementIdQueryBuilder = QueryBuilders.matchQuery("elementId", element.getDerivedFrom().toLowerCase());
-            IndexedInheritableToscaElement superElement = alienDAO.customFind(indexedType, matchElementIdQueryBuilder);
-            if (superElement == null) {
-                throw new IndexingServiceException("Super element not found [" + element.getDerivedFrom() + "]");
-            }
-            IndexedModelUtils.mergeInheritableIndex(superElement, indexedElement);
-        }
-        saveAndUpdateHighestVersion(indexedElement);
-    }
-
-    /**
-     * Recover an existing indexedNodeType
-     * 
-     * @param archiveVersion
-     * @param element
-     * @return
-     */
-    private IndexedNodeType getExistingIndexedNodeType(String archiveVersion, ToscaInheritableElement element) {
-        String indexedNodeTypeId = element.getId() + ":" + archiveVersion;
-        IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, indexedNodeTypeId);
-        return indexedNodeType;
-    }
-
-    public void deleteElement(String archiveName, String archiveVersion, ToscaElement element) {
-        alienDAO.delete(IndexedModelUtils.getIndexClass(element.getClass()), element.getId() + ":" + archiveVersion);
-    }
-
     private static void addArchiveToQuery(BoolQueryBuilder boolQueryBuilder, String elementId, String archiveName, String archiveVersion) {
         QueryBuilder matchIdQueryBuilder = QueryBuilders.idsQuery().addIds(elementId + ":" + archiveVersion);
         QueryBuilder matchArchiveNameQueryBuilder = QueryBuilders.termQuery("archiveName", archiveName);
         boolQueryBuilder.should(QueryBuilders.boolQuery().must(matchIdQueryBuilder).must(matchArchiveNameQueryBuilder));
+    }
+
+    @Override
+    public void deleteElements(Collection<IndexedToscaElement> elements) {
+        for (IndexedToscaElement element : elements) {
+            Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
+            if (iconTag != null) {
+                imageDAO.delete(iconTag.getValue());
+            }
+            alienDAO.delete(element.getClass(), element.getId());
+        }
     }
 }

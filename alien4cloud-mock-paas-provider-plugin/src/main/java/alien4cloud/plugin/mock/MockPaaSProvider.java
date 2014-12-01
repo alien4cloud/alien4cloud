@@ -31,6 +31,7 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
+import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -45,9 +46,9 @@ import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
 import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.type.PropertyConstraint;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
-import alien4cloud.tosca.container.model.type.ToscaType;
+import alien4cloud.tosca.model.PropertyConstraint;
+import alien4cloud.tosca.model.ToscaType;
+import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.PatternConstraint;
 
@@ -507,10 +508,15 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public void setConfiguration(ProviderConfig configuration) {
+    public void setConfiguration(ProviderConfig configuration) throws PluginConfigurationException {
         log.info("In the plugin configurator <" + this.getClass().getName() + ">");
         try {
-            log.info("The config object Tags is: " + JsonUtil.toString(configuration.getTags()));
+            log.info("The config object Tags is : {}", JsonUtil.toString(configuration.getTags()));
+            log.info("The config object with error : {}", configuration.isWithBadConfiguraton());
+            if (configuration.isWithBadConfiguraton()) {
+                log.info("Throwing error for bad configuration");
+                throw new PluginConfigurationException("Failed to configure Mock PaaS Provider Plugin error.");
+            }
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }

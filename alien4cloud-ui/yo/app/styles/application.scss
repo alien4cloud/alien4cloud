@@ -4,11 +4,14 @@
   width: 266px;
   height: 306px;
   margin: 10px;
+  padding: 10px;
   background-color: white;
   border: 1px solid #dddddd;
   border-radius: 8px;
   text-align: center;
   display: inline-block;
+  cursor: pointer;
+  vertical-align: bottom;
 }
 
 .application-icon {
@@ -18,12 +21,7 @@
 
 .application-name {
   border-top: 1px solid #dddddd;
-  padding-top: 4px;
-}
-
-.application-back {
-  width: 256px;
-  height: 296px;
+  padding: 4px;
 }
 
 .nav-tabs li.active a {

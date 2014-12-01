@@ -1,0 +1,33 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+description: Contains definition of an ubuntu node derived from Compute used for Alien 4 Cloud tests.
+
+node_types:
+  # Infrastructure components Ubuntu Trusty
+  alien.nodes.Ubuntu:
+    derived_from: tosca.nodes.Compute
+    description: >
+      A specify compute Ubuntu 14.04
+    tags:
+      icon: /images/ubuntu_trusty.png
+    properties:
+      os_arch:
+        type: string
+        default: "x86_64"
+        constraints:
+          - equal: "x86_64"
+      os_type:
+        type: string
+        default: "linux"
+        constraints:
+          - equal: "linux"
+      os_distribution:
+        type: string
+        default: "Ubuntu"
+        constraints:
+          - equal: "Ubuntu"
+      os_version:
+        type: string
+        default: "14.04"
+        constraints:
+          - equal: "14.04"

@@ -11,8 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateApplicationRequest {
-
     private String name;
-
     private String description;
 }

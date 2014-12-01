@@ -145,7 +145,7 @@ describe('Topology runtime view', function() {
     // trigger operation with params: addNode
     operationDiv = element(by.id('operation_addNode'));
     operationDiv.element(by.css('div.clickable')).click();
-
+    browser.sleep(1000);
     // enter 2 values befor execute
     common.sendValueToXEditable('p_instanceId', '1', false);
     common.sendValueToXEditable('p_node', 'MyNodeName', false);

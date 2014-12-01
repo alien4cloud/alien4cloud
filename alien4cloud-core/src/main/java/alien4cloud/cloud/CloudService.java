@@ -1,11 +1,7 @@
 package alien4cloud.cloud;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.Resource;
 
@@ -22,30 +18,20 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.ActivableComputeTemplate;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudConfiguration;
-import alien4cloud.model.cloud.CloudImage;
-import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.*;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
-import alien4cloud.paas.IPaaSProvider;
-import alien4cloud.paas.IPaaSProviderFactory;
-import alien4cloud.paas.PaaSProviderFactoriesService;
-import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.*;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.template.PropertyValue;
-import alien4cloud.tosca.container.model.type.PropertyDefinition;
+import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.model.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
+
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Component
@@ -249,8 +235,9 @@ public class CloudService {
      *
      * @param id Id of the cloud for which to get properties.
      */
-    public Map<String, PropertyValue> getDeploymentProps(String id) {
-        return PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(getDeploymentPropertyDefinitions(id));
+    public Map<String, ScalarPropertyValue> getDeploymentProps(String id) {
+        Map map = PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(getDeploymentPropertyDefinitions(id));
+        return map;
     }
 
     /**
@@ -662,5 +649,89 @@ public class CloudService {
             }
         }
         return null;
+    }
+
+    public void addNetwork(Cloud cloud, Network network) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        if (existingNetworks == null) {
+            existingNetworks = Sets.newHashSet();
+            cloud.setNetworks(existingNetworks);
+        }
+        existingNetworks.add(network);
+        alienDAO.save(cloud);
+    }
+
+    public void removeNetwork(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+        Set<Network> existingNetworks = cloud.getNetworks();
+        Iterator<Network> networkIterator = existingNetworks.iterator();
+        while (networkIterator.hasNext()) {
+            Network network = networkIterator.next();
+            if (network.getNetworkName().equals(networkName)) {
+                networkIterator.remove();
+            }
+        }
+        if (config != null) {
+            List<MatchedNetwork> matchedNetworks = config.getMatchedNetworks();
+            Iterator<MatchedNetwork> matchedNetworkIterator = matchedNetworks.iterator();
+            while (matchedNetworkIterator.hasNext()) {
+                MatchedNetwork matchedNetwork = matchedNetworkIterator.next();
+                if (matchedNetwork.getNetwork().getNetworkName().equals(networkName)) {
+                    matchedNetworkIterator.remove();
+                }
+            }
+            alienDAO.save(config);
+        }
+        alienDAO.save(cloud);
+    }
+
+    private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
+        Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
+        while (networkIterator.hasNext()) {
+            MatchedNetwork network = networkIterator.next();
+            if (network.getNetwork().getNetworkName().equals(networkName)) {
+                if (take) {
+                    networkIterator.remove();
+                }
+                return network;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set the network resource id
+     *
+     * @param cloud the cloud to update
+     * @param networkName the network's name
+     * @param paaSResourceId paaS resource id
+     */
+    public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) {
+        Set<Network> networks = cloud.getNetworks();
+        Network foundNetwork = null;
+        for (Network network : networks) {
+            if (network.getNetworkName().equals(networkName)) {
+                foundNetwork = network;
+            }
+        }
+        if (foundNetwork == null) {
+            throw new NotFoundException("Network [" + networkName + "] not found");
+        }
+        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+        if (paaSResourceId == null) {
+            getMatchedNetwork(matcherConfig, networkName, true);
+        } else {
+            MatchedNetwork existing = getMatchedNetwork(matcherConfig, networkName, false);
+            if (existing != null) {
+                existing.setPaaSResourceId(paaSResourceId);
+            } else {
+                matcherConfig.getMatchedNetworks().add(new MatchedNetwork(foundNetwork, paaSResourceId));
+            }
+        }
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider != null) {
+            // Cloud may not be initialized yet
+            initializeMatcherConfig(paaSProvider, cloud);
+        }
+        alienDAO.save(matcherConfig);
     }
 }

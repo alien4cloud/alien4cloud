@@ -10,6 +10,8 @@
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
   "APPLICATION": "Application",
   "CSAR": "Csar",
+  "TRUE": "Vrai",
+  "FALSE": "Faux",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -19,6 +21,11 @@
     "MENU_ADMIN": "Administration",
     "MENU_TOPOLOGY_TEMPLATE": "Modèles de topologie",
     "INPUT_SEARCH_MESSAGE": "Que cherchez vous ?"
+  },
+  "HOME": {
+    "ADMIN": {
+      "TOUR": "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
+    }
   },
   "NAVADMIN": {
     "MENU_USERS": "Utilisateurs",
@@ -44,23 +51,24 @@
     "UPLOAD_ERROR": {
       "LABEL": "Erreurs",
       "FILE_PATH": "Fichier",
-      "SUPER_TYPE_NOT_FOUND": "Erreur pendant la compilation du type [ {{invalidElementName}} ] : Type parent non référencé [ {{notFoundType}} ]",
-      "TYPE_NOT_FOUND": "Erreur pendant la compilation du type [ {{invalidElementName}} ] : Type non référencé [ {{notFoundType}} ]",
-      "401": "Une archive ayant ce nom et cette version existe déjà dans le dépot.",
-      "201": "L'archive contient un fichier YAML mal formé.",
       "ERRONEOUS_ARCHIVE_FILE": "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
-      "DUPLICATED_DEFINITION_DECLARATION": "Cette définition est déclarée plusieurs fois dans le fichier meta-data de cet archive",
-      "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{invalidElementName}} ] est déclaré plusieurs fois dans ce fichier de définition",
-      "ERRONEOUS_ICON_FILE": "L'Icône n'est pas un fichier d'image valide",
-      "MISSING_ICON_FILE": "L'Icône ne peut pas être trouvé dans l'achive",
-      "ERRONEOUS_DEFINITION_FILE": "Le fichier de définition n'est pas un fichier Yaml valide (ligne {{lineNr}}, charactère {{colNr}}).",
-      "MAPPING_ERROR_DEFINITION_FILE": "Le fichier de définition n'est pas un fichier TOSCA valide (ligne {{lineNr}}, charactère {{colNr}}).",
-      "UNRECOGNIZED_PROP_ERROR_DEFINITION_FILE": "Le fichier de définition n'est pas un fichier TOSCA valide: La propriété '{{propertyName}}' n'existe pas (ligne {{lineNr}}, charactère {{colNr}}).",
-      "MISSING_DEFINITION_FILE": "Le fichier de définition ne peut pas être trouvé dans l'achive",
-      "ERRONEOUS_METADATA_FILE": "Le fichier metadata du CSAR n'est pas un fichier Yaml valide",
-      "MAPPING_ERROR_METADATA_FILE": "Le fichier metadata du CSAR n'est pas valide (ligne {{lineNr}}, charactère {{colNr}}).",
-      "UNRECOGNIZED_PROP_ERROR_METADATA_FILE": "Le fichier metadata du CSAR n'est pas valide: La propriété '{{propertyName}}' n'existe pas (ligne {{lineNr}}, charactère {{colNr}}).",
-      "MISSING_METADATA_FILE": "Le fichier metadata du CSAR ne peut pas être trouvé dans l'achive",
+      "FAILED_TO_READ_FILE": "Impossible de lire le fichier à l'emplacement suivant {{note}}",
+      "ENTRY_DEFINITION_NOT_FOUND": "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
+      "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud ne supporte actuellement qu'un unique fichier de definitions.",
+      "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
+      "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
+      "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
+      "CSAR_ALREADY_EXISTS": "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
+      "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
+      "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
+      "TYPE_NOT_FOUND": "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
+      "INVALID_ICON_FORMAT": "L'Icône n'est pas un fichier d'image supporté",
+      "ALIEN_MAPPING_ERROR": "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
+      "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
+      "MISSING_DEPENDENCY": "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
+      "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
+      "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "ToscaPropertyType": "Le type de la propriété [ {{path}} ] n'est pas un type TOSCA valide. Details [ {{message}} ]",
@@ -101,6 +109,7 @@
     "CAPABILITIES": {
       "TYPE": "Capacités"
     },
+    "ABSTRACT": "Composant abstrait",
     "DEFAULTCAPABILITIES": "Capacités défaut",
     "DERIVEDFROM": "Héritage",
     "REQUIREMENTS": {
@@ -210,7 +219,8 @@
     "MENU_PLAN": "Workflows de la topologie",
     "MENU_DEPLOYMENT": "Déploiement",
     "MENU_RUNTIME": "Runtime",
-    "MENU_USERS": "Utilisateurs et Groupes"
+    "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_ENVIRONMENT": "Environnements"
   },
   "ROLE_TABS": {
     "USERS": "Utilisateurs",
@@ -290,7 +300,10 @@
       "TITLE_CPUS": "CPUs",
       "TITLE_SIZE_DISK": "Disque",
       "TITLE_RAM": "RAM",
-      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud"
+      "TITLE_NETWORK": "Nom du réseau",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Réseau"
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -349,11 +362,27 @@
       },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
-      "TEMPLATE_SELECT": "-- Selectionner un modèle de topologie --",
+      "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
+    },
+    "ENVIRONMENT": {
+      "NEW": "Nouvel environnement",
+      "STATUS": "Etat",
+      "NAME": "Nom",
+      "TYPE": "Type",
+      "DESCRIPTION": "Description",
+      "CLOUD": "Cloud",
+      "FORM" : {
+        "NAME" : "Nom",
+        "DESCRIPTION": "Description",
+        "CLOUD": "Cloud actif",
+        "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
+        "ENV_TYPE": "Type d'environnement",
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --"
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",
@@ -452,12 +481,24 @@
       "NEW_MODAL_TITLE": "Ajouter des images",
       "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'ajouter"
     },
+    "NETWORK": "Réseaux",
+    "NETWORKS": {
+      "NEW": "Ajouter",
+      "NAME": "Nom",
+      "CIDR": "CIDR",
+      "GATEWAY_IP": "IP du Gateway",
+      "IP_VERSION": "Version d'IP",
+      "RESOURCE_ID": "Resource id",
+      "NEW_MODAL_TITLE": "Créer un nouveau réseau",
+      "NOT_CONFIGURED": "Non configuré"
+    },
     "IAAS": {
       "OTHER": "Autre",
       "OPENSTACK": "OpenStack",
       "VMWARE": "VMware",
       "AMAZON": "Amazon",
-      "VIRTUALBOX": "Virtual box"
+      "VIRTUALBOX": "Virtual box",
+      "AZURE": "Microsoft Azure"
     },
     "ENVIRONMENT": {
       "OTHER": "Autre",

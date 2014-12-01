@@ -19,8 +19,8 @@ angular.module('alienUiApp').controller(
       var border = 2;
       var detailDivWidth = 450;
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
-      var COMPUTE_TYPE = "tosca.nodes.Compute"; 
-      
+      var COMPUTE_TYPE = 'tosca.nodes.Compute';
+
       function onResize(width, height) {
         $scope.dimensions = {
           width: width,
@@ -335,7 +335,7 @@ angular.module('alienUiApp').controller(
         return topologyServices.nodeTemplate.updateProperty({
           topologyId: $scope.topology.topology.id,
           nodeTemplateName: $scope.selectedNodeTemplate.name
-        }, angular.toJson(updatePropsObject), function(successResult) {
+        }, angular.toJson(updatePropsObject), function() {
           // update the selectedNodeTemplate properties locally
           $scope.selectedNodeTemplate.properties[propertyName] = propertyValue;
         }).$promise;
@@ -685,7 +685,6 @@ angular.module('alienUiApp').controller(
         if (nodeType.capabilities) {
           nodeType.capabilities.forEach(function(capaDef) {
             nodeTemplate.capabilities[capaDef.id].upperBound = capaDef.upperBound;
-            nodeTemplate.capabilities[capaDef.id].lowerBound = capaDef.lowerBound;
             nodeTemplate.capabilities[capaDef.id].canAddRel = canAddRelationshipWithTarget(nodeTemplate, capaDef.id);
           });
         }
@@ -816,7 +815,7 @@ angular.module('alienUiApp').controller(
           });
         } // if end
       };
-      
+
       // check if compute type
       $scope.isComputeType =  function(nodeTemplate){
         if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){

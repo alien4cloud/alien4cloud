@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.junit.Assert;
@@ -15,14 +16,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.Constants;
 import alien4cloud.component.NodeTypeScoreService;
 import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.tosca.container.model.ToscaElement;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
-
-import com.google.common.collect.Sets;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
@@ -37,7 +36,7 @@ public class NodeTypeScoreServiceTest {
 
     @Test
     public void testScoreService() throws InterruptedException {
-        clearIndex(ToscaElement.class.getSimpleName().toLowerCase(), IndexedNodeType.class);
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
         clearIndex(Topology.class.getSimpleName().toLowerCase(), Topology.class);
 
         // Initialize test data
@@ -47,14 +46,14 @@ public class NodeTypeScoreServiceTest {
         indexedNodeType.setArchiveVersion("1.0.0");
         indexedNodeType.setCreationDate(new Date());
         indexedNodeType.setLastUpdateDate(new Date());
-        indexedNodeType.setDefaultCapabilities(Sets.newHashSet("very_evil"));
+        indexedNodeType.setDefaultCapabilities(Lists.newArrayList("very_evil"));
         dao.save(indexedNodeType);
         String mordor100Id = indexedNodeType.getId();
 
         indexedNodeType.setArchiveVersion("1.0.1");
         indexedNodeType.setCreationDate(new Date());
         indexedNodeType.setLastUpdateDate(new Date());
-        indexedNodeType.setDefaultCapabilities(Sets.newHashSet("deprecated_evil"));
+        indexedNodeType.setDefaultCapabilities(Lists.newArrayList("deprecated_evil"));
         dao.save(indexedNodeType);
         String mordor101Id = indexedNodeType.getId();
 
@@ -63,7 +62,7 @@ public class NodeTypeScoreServiceTest {
         indexedNodeType.setArchiveVersion("1.0.0");
         indexedNodeType.setCreationDate(new Date());
         indexedNodeType.setLastUpdateDate(new Date());
-        indexedNodeType.setDefaultCapabilities(Sets.newHashSet("evil"));
+        indexedNodeType.setDefaultCapabilities(Lists.newArrayList("evil"));
         dao.save(indexedNodeType);
         String isengard100Id = indexedNodeType.getId();
 

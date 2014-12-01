@@ -2,21 +2,24 @@ package alien4cloud.tosca.properties.constraints;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.container.deserializer.NumberDeserializer;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = false, of = { "minLength" })
 @SuppressWarnings({ "PMD.UnusedPrivateField" })
 public class MinLengthConstraint extends AbstractStringPropertyConstraint {
-
-    @JsonDeserialize(using = NumberDeserializer.class)
     @NotNull
     private Integer minLength;
+
+    public MinLengthConstraint(Integer minLength) {
+        this.minLength = minLength;
+    }
 
     @Override
     protected void doValidate(String propertyValue) throws ConstraintViolationException {

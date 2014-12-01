@@ -15,14 +15,14 @@ angular.module('alienUiApp').factory(
 
       var getHostedOnRelationship = function(node, relationshipTypes) {
         var hostedOnRelationship = searchRelationship(node, function(relationship) {
-          return toscaService.isHostedOnType(relationship.type, relationshipTypes);
+          return toscaService.isHostedOnType(relationship.type, relationshipTypes) || toscaService.isNetworkType(relationship.type, relationshipTypes);
         });
         return hostedOnRelationship;
       };
 
       var getDependsOnRelationship = function(node, relationshipTypes) {
         var dependsOnRelationship = searchRelationship(node, function(relationship) {
-          return !toscaService.isHostedOnType(relationship.type, relationshipTypes);
+          return !toscaService.isHostedOnType(relationship.type, relationshipTypes) && !toscaService.isNetworkType(relationship.type, relationshipTypes);
         });
         return dependsOnRelationship;
       };
@@ -219,7 +219,7 @@ angular.module('alienUiApp').factory(
             var targetCenter = nodeMap[relationship.target].nodeCoordinate;
             var source = {};
             var target = {};
-            if (toscaService.isHostedOnType(relationship.type, relationshipTypes)) {
+            if (toscaService.isHostedOnType(relationship.type, relationshipTypes) || toscaService.isNetworkType(relationship.type, relationshipTypes)) {
               if (sourceCenter.y > targetCenter.y) {
                 source.y = sourceCenter.y - nodeHeight / 2;
                 target.y = targetCenter.y + nodeHeight / 2;

@@ -2,10 +2,10 @@ Feature: Manage relationships template between node topology
 
 Background:
   Given I am authenticated with "ADMIN" role
-  And I have a CSAR folder that is "containing base types"
-  And I upload it
-  And I have a CSAR folder that is "containing java types"
-  And I upload it
+  And I upload the archive "tosca base types 1.0"
+  And I should receive a RestResponse with no error
+  And I upload the archive "sample java types 1.0"
+  And I should receive a RestResponse with no error
   And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
   And There is a "node type" with element name "fastconnect.nodes.Java" and archive version "1.0"
   And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
@@ -46,7 +46,7 @@ Scenario: delete a relationship from a node template
     And I should not have the relationship "dependsOnCompute" in "Java" node template
 
 Scenario: Add a relationship between 2 nodes: valid sources different of valid target
-  Given I upload the archive file that is "a test archive for valid source/target"
+  Given I upload the archive "relationship-test-types"
     And There is a "node type" with element name "test.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "test.nodes.Java" and archive version "1.0"
     And I have added a node template "Compute_test" related to the "test.nodes.Compute:1.0" node type

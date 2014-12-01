@@ -18,6 +18,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -27,7 +28,6 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.rest.utils.RestClient;
-import alien4cloud.spring.config.YamlPropertiesFactoryBean;
 import alien4cloud.tosca.container.model.topology.TopologyTemplate;
 import alien4cloud.utils.MapUtil;
 
@@ -44,7 +44,6 @@ import cucumber.runtime.io.ClasspathResourceLoader;
  */
 @Slf4j
 public class Context {
-
     public static final String HOST = "localhost";
 
     public static final int PORT = 8088;
@@ -122,8 +121,9 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> cloudImageNameToCloudImageIdMapping;
 
-    private Context() {
+    private ThreadLocal<String> applicationEnvironmentId;
 
+    private Context() {
         restResponseLocal = new ThreadLocal<String>();
         csarLocal = new ThreadLocal<String>();
         componentsIdsLocal = new ThreadLocal<Set<String>>();
@@ -140,6 +140,7 @@ public class Context {
         groupIdToGroupNameMapping.set(new HashMap<String, String>());
         cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
+        applicationEnvironmentId = new ThreadLocal<String>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -447,5 +448,14 @@ public class Context {
 
     public String getTopologyDeploymentId() {
         return topologyDeploymentId.get();
+    }
+
+    public void registerApplicationEnvironmentId(String applicationEnvironmentId) {
+        log.debug("Registering application environment id [" + applicationEnvironmentId + "] in the context");
+        this.applicationEnvironmentId.set(applicationEnvironmentId);
+    }
+
+    public String getApplicationEnvironmentId() {
+        return this.applicationEnvironmentId.get();
     }
 }
