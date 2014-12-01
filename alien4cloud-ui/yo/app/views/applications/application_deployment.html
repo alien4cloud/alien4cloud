@@ -414,6 +414,7 @@
                     <tr>
                       <th></th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DISTRIBUTION' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
@@ -429,6 +430,7 @@
                         <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
                       </td>
                       <td>{{images[template.cloudImageId].osType}}</td>
+                      <td>{{images[template.cloudImageId].osDistribution}}</td>
                       <td>{{images[template.cloudImageId].osVersion}}</td>
                       <td>{{images[template.cloudImageId].osArch}}</td>
                       <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>

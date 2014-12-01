@@ -87,6 +87,11 @@ node_types:
       private_ip_address:
         type: string
         description: Private IP address of the node after deployed
+    requirements:
+      network:
+        type: tosca.capabilities.Connectivity
+        lower_bound: 0
+        upper_bound: unbounded
     capabilities:
       compute:
         type: tosca.capabilities.Container
@@ -115,6 +120,28 @@ node_types:
     derived_from: tosca.nodes.Root
     description: >
       The TOSCA Network node represents a simple, logical network service.
+    properties:
+      ip_version:
+        type: integer
+        required: false
+        default: 4
+        constraints:
+          - valid_values: [ 4, 6 ]
+      cidr:
+        type: string
+        required: false
+      gateway_ip:
+        type: string
+        required: false
+      network_name:
+        type: string
+        required: false
+      network_id:
+        type: string
+        required: false
+    capabilities:
+      connection:
+        type: tosca.capabilities.Connectivity
     tags:
       icon: /images/network.png
 
@@ -218,6 +245,8 @@ capability_types:
       secure:
         type: boolean
         default: false
+  tosca.capabilities.Connectivity:
+    derived_from: tosca.capabilities.Root
 
 relationship_types:
   tosca.relationships.Root:
@@ -254,10 +283,15 @@ relationship_types:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ tosca.capabilities.Endpoint ]
     valid_targets: [ tosca.capabilities.Endpoint ]
+  tosca.relationships.Network:
+    derived_from: tosca.relationships.Root
+    valid_sources: [ tosca.capabilities.Connectivity ]
+    valid_targets: [ tosca.capabilities.Connectivity ]
 
 artifact_types:
   tosca.artifacts.ShellScript:
     description: A shell script (.sh file)
+    file_ext: [ sh ]
   tosca.artifacts.TarGzFile:
     description: A tar gz distribution
   tosca.artifacts.WarFile:

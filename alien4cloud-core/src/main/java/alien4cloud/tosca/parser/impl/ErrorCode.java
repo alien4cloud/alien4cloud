@@ -39,5 +39,7 @@ public enum ErrorCode {
     /** An imported CSAR cannot be found. */
     MISSING_DEPENDENCY,
     /** Scalar unit declaration not well managed. */
-    INVALID_SCALAR_UNIT;
+    INVALID_SCALAR_UNIT,
+    /** Implementation artifact is unknown. */
+    UNKNOWN_IMPLEMENTATION_ARTIFACT;
 }

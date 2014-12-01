@@ -31,6 +31,7 @@ var goToCsarDetails = function(elementNumber) {
 module.exports.goToCsarDetails = goToCsarDetails;
 
 var goToCsarSearchPage = function() {
-  navigation.go('main', 'csars');
+  navigation.go('main', 'components');
+  navigation.go('components', 'csars');
 };
 module.exports.goToCsarSearchPage = goToCsarSearchPage;

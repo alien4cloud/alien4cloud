@@ -12,7 +12,7 @@ describe('Test the cloud management: ', function() {
   var after = false;
 
   beforeEach(function() {
-    if(reset) {
+    if (reset) {
       reset = false;
       common.before();
       authentication.login('admin');
@@ -22,11 +22,10 @@ describe('Test the cloud management: ', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    if(after) {
+    if (after) {
       common.after();
     }
   });
-
 
   it('should be rename a cloud.', function() {
     console.log('################# should be rename a cloud.');
@@ -38,6 +37,13 @@ describe('Test the cloud management: ', function() {
     common.sendValueToXEditable('cloud_name_input', 'testcloud', false);
     cloudsCommon.goToCloudList();
     expect(browser.isElementPresent(by.name('testcloud'))).toBe(true);
+  });
+
+  it('should create network', function() {
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.addNewNetwork('private', '192.168.0.0/24', '192.168.0.1', '4');
+    expect(cloudsCommon.countNetworkCloud()).toBe(1);
+    cloudsCommon.assignPaaSIdToNetwork('private', 'alienPrivateNetwork');
   });
 
   it('should reject a new cloud if a cloud with the same name already exist.', function() {

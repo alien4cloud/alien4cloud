@@ -9,12 +9,15 @@ import org.junit.Assert;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
+import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.Network;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
+import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -36,7 +39,7 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-            DataTable expectedTemplatesTable) throws Throwable {
+                                                                                    DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 CloudResourceTopologyMatchResult.class);
         Assert.assertNull(matchResultResponse.getError());
@@ -70,8 +73,8 @@ public class ApplicationResourceMatcherStepDefinitions {
         }
     }
 
-    @When("^I select the the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" for my node \"([^\"]*)\"$")
-    public void I_select_the_the_template_composed_of_image_and_flavor_for_my_node(String cloudImageName, String flavorId, String nodeName) throws Throwable {
+    @When("^I select the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" for my node \"([^\"]*)\"$")
+    public void I_select_the_template_composed_of_image_and_flavor_for_my_node(String cloudImageName, String flavorId, String nodeName) throws Throwable {
         Map<String, ComputeTemplate> cloudResourcesMatching = Maps.newHashMap();
         cloudResourcesMatching.put(nodeName, new ComputeTemplate(Context.getInstance().getCloudImageId(cloudImageName), flavorId));
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching, null);
@@ -102,5 +105,69 @@ public class ApplicationResourceMatcherStepDefinitions {
                 Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
                 DeploymentSetup.class).getData();
         Assert.assertTrue(deploymentSetup.getCloudResourcesMapping() == null || deploymentSetup.getCloudResourcesMapping().isEmpty());
+    }
+
+    @Then("^I should receive a match result with (\\d+) networks for the node \"([^\"]*)\":$")
+    public void I_should_receive_a_match_result_with_networks_for_the_node_(int numberOfNetworks, String networkNodeName, DataTable expectedTemplatesTable)
+            throws Throwable {
+        RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
+                CloudResourceTopologyMatchResult.class);
+        Assert.assertNull(matchResultResponse.getError());
+        Assert.assertNotNull(matchResultResponse.getData());
+        Assert.assertNotNull(matchResultResponse.getData().getNetworkMatchResult());
+        Assert.assertTrue(matchResultResponse.getData().getNetworkMatchResult().containsKey(networkNodeName));
+        CloudNetworkStepDefinitions.assertNetworks(numberOfNetworks,
+                Sets.newHashSet(matchResultResponse.getData().getNetworkMatchResult().get(networkNodeName)), expectedTemplatesTable);
+    }
+
+    @Then("^I should receive a match result with no networks for the node \"([^\"]*)\"$")
+    public void I_should_receive_a_match_result_with_no_networks_for_the_node(String networkNodeName) throws Throwable {
+        RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
+                CloudResourceTopologyMatchResult.class);
+        Assert.assertTrue(matchResultResponse.getData().getNetworkMatchResult() == null
+                || matchResultResponse.getData().getNetworkMatchResult().get(networkNodeName).isEmpty());
+    }
+
+    @When("^I select the network with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
+    public void I_select_the_the_network_with_name_for_my_node(String networkName, String nodeName) throws Throwable {
+        Context.getInstance().getCloudForTopology();
+        String cloudId = Context.getInstance().getCloudForTopology();
+        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+        Map<String, Network> networkMatching = Maps.newHashMap();
+        networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
+        String response = Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup",
+                JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @And("^The deployment setup of the application should contain following network mapping:$")
+    public void The_deployment_setup_of_the_application_should_contain_following_network_mapping(DataTable networksMatching) throws Throwable {
+        Map<String, Network> expectedNetworksMatching = Maps.newHashMap();
+        for (List<String> rows : networksMatching.raw()) {
+            String name = rows.get(1);
+            String cidr = rows.get(2);
+            int ipVersion = Integer.parseInt(rows.get(3));
+            String gateWay = rows.get(4);
+            Network network = new Network();
+            network.setNetworkName(name);
+            network.setIpVersion(ipVersion);
+            network.setCidr(cidr);
+            network.setGatewayIp(gateWay);
+            expectedNetworksMatching.put(rows.get(0), network);
+        }
+        DeploymentSetup deploymentSetup = JsonUtil.read(
+                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
+                DeploymentSetup.class).getData();
+        Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
+        Assert.assertEquals(expectedNetworksMatching, deploymentSetup.getNetworkMapping());
+    }
+
+    @Then("^The deployment setup of the application should contain an empty network mapping$")
+    public void The_deployment_setup_of_the_application_should_contain_an_empty_network_mapping() throws Throwable {
+        DeploymentSetup deploymentSetup = JsonUtil.read(
+                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
+                DeploymentSetup.class).getData();
+        Assert.assertTrue(deploymentSetup.getNetworkMapping() == null || deploymentSetup.getNetworkMapping().isEmpty());
     }
 }

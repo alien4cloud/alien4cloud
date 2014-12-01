@@ -2,12 +2,11 @@ package alien4cloud.tosca.parser.impl.base;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.IllegalFormatCodePointException;
 import java.util.Map;
 
 import lombok.Getter;
-
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.yaml.snakeyaml.nodes.MappingNode;
@@ -15,15 +14,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.parser.AbstractTypeNodeParser;
-import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingTechnicalException;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 import com.google.common.collect.Maps;
