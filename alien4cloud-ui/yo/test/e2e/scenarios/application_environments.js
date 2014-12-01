@@ -50,7 +50,7 @@ describe('Application environments', function() {
     common.after();
   });
 
-  xit('should create an application and must have a default application environment', function() {
+  it('should create an application and must have a default application environment', function() {
     console.log('################# should create an application and must have a default application environment');
     applications.createApplication('Alien', 'Great Application with application environment to perform deployments...');
     applications.goToApplicationEnvironmentPageForApp('Alien');
@@ -59,7 +59,7 @@ describe('Application environments', function() {
     assertEnvTypeForEnvironment('Environment', applications.environments_type.other);
   });
 
-  xit('should create an application environment for a new application', function() {
+  it('should create an application environment for a new application', function() {
     console.log('################# should create an application environment for a new application');
     // A cloud is created
     // I create my application
@@ -72,7 +72,7 @@ describe('Application environments', function() {
     assertCountEnvironment(2);
   });
 
-  xit('should fail when i create a new application environment with bad cloud name', function() {
+  it('should fail when i create a new application environment with bad cloud name', function() {
     console.log('################# should fail when i create a new application environment with bad cloud name');
     // A cloud is created
     // I create my application
@@ -85,19 +85,18 @@ describe('Application environments', function() {
     assertCountEnvironment(1);
   });
 
-  it('should be able to delete a created environment', function() {
+  it('should be able to delete an application environment', function() {
     console.log('################# should be able to delete a created environment');
     // A cloud is created
     // I create my application
     applications.createApplication('Alien', 'Great Application with application environment to perform deployments...');
     applications.goToApplicationEnvironmentPageForApp('Alien');
     // create environment
-    applications.createApplicationEnvironment('MyAppEnvironment', 'A new environment for my application...', 'testcloud', applications.environments_type.dev);
+    applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environments_type.dev);
     // should have default cloud + new created one
     common.expectNoErrors();
     assertCountEnvironment(2);
-    browser.sleep(10000);
-    common.deleteWithConfirm('delete-app-env_MyAppEnvironment', true);
+    common.deleteWithConfirm('delete-env_ENV', true);
     common.expectNoErrors();
     assertCountEnvironment(1);
   });

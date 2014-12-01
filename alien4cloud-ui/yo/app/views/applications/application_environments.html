@@ -56,11 +56,9 @@
               <td>{{environment.description}}</td>
               <td>{{environment.cloudId}}</td>
               <td ng-if="isManager">
-                <div class="pull-right">
-                  <!-- Remove an environment -->
-                  <delete-confirm id="delete-app-env_{{environment.name}}" func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-                  </delete-confirm>
-                </div>
+                <!-- Remove an environment -->
+                <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
               </td>
             </tr>
           </tbody>
