@@ -136,6 +136,14 @@ function cleanDeployments() {
   return cleanElasticSearch('deployment');
 }
 
+function cleanApplicationEnvironments() {
+  return cleanElasticSearch('applicationenvironment');
+}
+
+function cleanApplicationVersions() {
+  return cleanElasticSearch('applicationversion');
+}
+
 function cleanGroups() {
   // Do not clean all users group
   return cleanElasticSearch('group', JSON.stringify({
@@ -155,6 +163,8 @@ function cleanCloudImage() {
 
 function cleanup() {
   flow.execute(cleanApplication);
+  flow.execute(cleanApplicationEnvironments);
+  flow.execute(cleanApplicationVersions);
   flow.execute(cleanTopology);
   flow.execute(cleanUsers);
   flow.execute(cleanTemplate);
