@@ -6,8 +6,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,12 +36,12 @@ import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.services.ResourceRoleService;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/environments")
 @Api(value = "", description = "Manages application's environments")
@@ -57,6 +55,8 @@ public class ApplicationEnvironmentController {
     private CloudService cloudService;
     @Resource
     private ApplicationService applicationService;
+    @Resource
+    private ResourceRoleService resourceRoleService;
 
     /**
      * Get all application environment for an application
@@ -79,6 +79,7 @@ public class ApplicationEnvironmentController {
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application environments for an application id
      */
+    @SuppressWarnings("rawtypes")
     @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
@@ -209,6 +210,83 @@ public class ApplicationEnvironmentController {
             filterValues.add(new String[] { applicationId });
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
+    }
+
+    /**
+     * Add a role to a user on a specific application environment
+     *
+     * @param applicationEnvironmentId application environment id
+     * @param username user for who to add role
+     * @param role the application role to add to this user
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Add a role to a user on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can assign any role to another user. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> addUserRole(@PathVariable String applicationEnvironmentId, @PathVariable String username, @PathVariable String role) {
+        ApplicationEnvironment applicationEnvironment = checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+        resourceRoleService.addUserRole(applicationEnvironment, username, role);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Add a role to a group on a specific application environment
+     *
+     * @param applicationEnvironmentId application environment id
+     * @param groupId The id of the group to update roles
+     * @param role The role to add to the group on the application environment
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Add a role to a group on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can assign any role to a group of users. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> addGroupRole(@PathVariable String applicationEnvironmentId, @PathVariable String groupId, @PathVariable String role) {
+        ApplicationEnvironment applicationEnvironment = checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+        resourceRoleService.addGroupRole(applicationEnvironment, groupId, role);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Remove a role from a user on a specific application environment
+     *
+     * @param applicationEnvironmentId application environment id
+     * @param username The username of the user to update roles
+     * @param role The role to add to the user on the application environment
+     * @return A {@link Void} {@link RestResponse}
+     */
+    @ApiOperation(value = "Remove a role to a user on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can unassign any role to another user. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> removeUserRole(@PathVariable String applicationEnvironmentId, @PathVariable String username, @PathVariable String role) {
+        ApplicationEnvironment applicationEnvironment = checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+        resourceRoleService.removeUserRole(applicationEnvironment, username, role);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Remove a role from a user on a specific application environment
+     *
+     * @param applicationEnvironmentId application environment id
+     * @param groupId The id of the group to update roles
+     * @param role The role to add to the user on the application environment
+     * @return A {@link Void} {@link RestResponse}.
+     */
+    @ApiOperation(value = "Remove a role of a group on a specific application environment", notes = "Any user with application role APPLICATION_MANAGER can un-assign any role to a group. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> removeGroupRole(@PathVariable String applicationEnvironmentId, @PathVariable String groupId, @PathVariable String role) {
+        ApplicationEnvironment applicationEnvironment = checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+        resourceRoleService.removeGroupRole(applicationEnvironment, groupId, role);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Check rights and get application environment
+     * 
+     * @param applicationEnvironmentId
+     * @param roles
+     * @return the corresponding application environment
+     */
+    private ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationRole.APPLICATION_MANAGER);
+        return applicationEnvironment;
     }
 
 }

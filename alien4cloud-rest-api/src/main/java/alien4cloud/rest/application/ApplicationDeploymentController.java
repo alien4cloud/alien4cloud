@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.application.InvalidDeploymentSetupException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -20,6 +19,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
@@ -103,6 +103,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Deploys the application on the configured Cloud.")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> deploy(@RequestBody DeployApplicationRequest deployApplicationRequest) {
+
         Application application = applicationService.getOrFail(deployApplicationRequest.getApplicationId());
         // TODO rather check that the user is authorized to deploy the current environment.
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
@@ -111,11 +112,18 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
 
-        // TODO check that the environment is not already deployed.
-
-        // get the topology from the version and the cloud from the environment.
+        // get the topology from the version and the cloud from the environment
+        // TODO : recover the goo
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
+
+        // TODO check that the environment is not already deployed
+        // One environment => One deployment deployed at time
+        try {
+            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
+        } catch (CloudDisabledException e1) {
+            e1.printStackTrace();
+        }
 
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());

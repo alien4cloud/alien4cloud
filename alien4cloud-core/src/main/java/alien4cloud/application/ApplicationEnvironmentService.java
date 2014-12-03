@@ -135,6 +135,7 @@ public class ApplicationEnvironmentService {
         GetMultipleDataResult<Deployment> deployments = null;
         DeploymentStatus deploymentStatus = null;
         boolean isDeployed = false;
+        int countDeployed = 0;
         for (DeploymentSetup deploymentSetup : deploymentSetupSearch.getData()) {
             deployments = deploymentService.getDeploymentsByDeploymentSetup(deploymentSetup.getId());
             for (Deployment deployment : deployments.getData()) {
@@ -149,7 +150,8 @@ public class ApplicationEnvironmentService {
                 }
             }
         }
-        return false;
+
+        return isDeployed;
     }
 
     /**
