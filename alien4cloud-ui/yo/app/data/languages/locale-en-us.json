@@ -36,8 +36,10 @@
     "MENU_CLOUD_IMAGES": "Cloud Images"
   },
   "MODAL": {
-    "PROPERTY": {
-      "DESCRIPTION": "Property description"
+    "TITLE": {
+      "PROPERTY": "Property description",
+      "REQUIREMENT": "Requirement description",
+      "CAPABILITY": "Capability description"
     }
   },
   "MAIN": {

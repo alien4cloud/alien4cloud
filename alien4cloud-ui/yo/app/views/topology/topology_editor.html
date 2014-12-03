@@ -193,9 +193,14 @@
                   </td>
 
                   <td class="col-md-1">
-                    <a id="btn-description-{{property.key}}" ng-if="getPropertyDescription(property.key)" ng-click="openPropertyModal(property.key)" class="btn btn-default btn-xs" tooltip="{{ 'MODAL.PROPERTY.DESCRIPTION' | translate}}" tooltip-append-to-body="true">
+                    <button id="btn-description-{{property.key}}"
+                      ng-if="getPropertyDescription(property.key)"
+                      ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', getPropertyDescription(property.key))"
+                      class="btn btn-default btn-xs"
+                      tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
+                      tooltip-append-to-body="true">
                       <i class="fa fa-question-circle"></i>
-                    </a>
+                    </button>
                   </td>
                 </tr>
               </table>
@@ -291,23 +296,15 @@
                   ng-class="{'clickable' : !emptyProps}"
                   ng-click="isReqPropsCollapsed[requirementName] = !isReqPropsCollapsed[requirementName]">
                   <div class="row">
-                    <div class="col-md-4 ">
+                    <div class="col-md-3">
                      <i ng-if = "!emptyProps" class="pull-left fa"
                         ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[requirementName], 'fa-chevron-right': isReqPropsCollapsed[requirementName]}">
                       </i>
                       <span>{{requirementName}}</span>
                     </div>
-                    <div class="col-md-4" id="requirement-{{requirementName}}">
+                    <div class="col-md-3" id="requirement-{{requirementName}}">
                       <span  tooltip="{{requirement.type}}"
                         tooltip-append-to-body="true" >{{getShortName(requirement.type)}}</span>
-                        <span class="info"
-                          ng-init="reqComp = getComponent(selectedNodeTemplate, requirement.type)"
-                          popover-title = "{{requirement.type}}"
-                          popover="{{reqComp.data.description || '...'}}"
-                          popover-trigger = "click"
-                          ng-click="showInfo(); $event.stopPropagation();">
-                          <i class="fa fa-question-circle"></i>
-                        </span>
                     </div>
                     <div class="col-md-4">
                       <span class="btn-group pull-right">
@@ -323,6 +320,15 @@
                             ({{requirement.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
                       </span>
+                    </div>
+                    <div class="col-md-1" ng-init="reqComp = getComponent(selectedNodeTemplate, requirement.type)">
+                      <button id="btn-component-description-{{requirementName}}"
+                        ng-if="reqComp.data.description"
+                        ng-click="openSimpleModal('MODAL.TITLE.REQUIREMENT', reqComp.data.description)"
+                        class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}"
+                        tooltip-append-to-body="true">
+                        <i class="fa fa-question-circle"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -364,23 +370,15 @@
                   ng-class="{'clickable' : !emptyProps}"
                   ng-click="isReqPropsCollapsed[capabilityName] = !isReqPropsCollapsed[capabilityName]">
                   <div class="row">
-                    <div class="col-md-4 ">
+                    <div class="col-md-3 ">
                      <i ng-if = "!emptyProps" class="pull-left fa"
                         ng-class="{'fa-chevron-down' : !isReqPropsCollapsed[capabilityName], 'fa-chevron-right': isReqPropsCollapsed[capabilityName]}">
                       </i>
                       <span>{{capabilityName}}</span>
                     </div>
-                    <div class="col-md-4" id="capability-{{capabilityName}}">
+                    <div class="col-md-3" id="capability-{{capabilityName}}">
                       <span  tooltip="{{capability.type}}"
                         tooltip-append-to-body="true" >{{getShortName(capability.type)}}</span>
-                        <span class="info"
-                          ng-init="capaComp = getComponent(selectedNodeTemplate, capability.type)"
-                          popover-title = "{{capability.type}}"
-                          popover="{{capaComp.data.description || '...'}}"
-                          popover-trigger = "click"
-                          ng-click="showInfo(); $event.stopPropagation();">
-                          <i class="fa fa-question-circle"></i>
-                        </span>
                     </div>
                     <div class="col-md-4">
                       <span class="btn-group pull-right">
@@ -391,6 +389,16 @@
                             ({{capability.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                         </span>
                       </span>
+                    </div>
+                    <div class="col-md-1" ng-init="capaComp = getComponent(selectedNodeTemplate, capability.type)">
+                      <button id="btn-description-{{capability.type}}"
+                      ng-if="capaComp.data.description"
+                      ng-click="openSimpleModal('MODAL.TITLE.CAPABILITY', capaComp.data.description)"
+                      class="btn btn-default btn-xs"
+                      tooltip="{{ 'MODAL.TITLE.CAPABILITY' | translate}}"
+                      tooltip-append-to-body="true">
+                      <i class="fa fa-question-circle"></i>
+                    </button>
                     </div>
                   </div>
                 </div>

@@ -175,7 +175,7 @@
                     </div>
                   </td>
                   <td>
-                    <button ng-if="propDef.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openPropertyModal(propDef.description)">
+                    <button ng-if="propDef.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openSimpleModal(propDef.description)" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}" tooltip-append-to-body="true">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </td>

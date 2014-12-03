@@ -292,9 +292,9 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
       });
     };
 
-    $scope.openPropertyModal = function (content) {
+    $scope.openSimpleModal = function (content) {
       var modalInstance = $modal.open({
-        templateUrl: 'views/fragments/information_modal.html',
+        templateUrl: 'views/fragments/simple_modal.html',
         controller: ModalInstanceCtrl,
         resolve: {
           description: function () {
@@ -305,7 +305,8 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     };
 
     var ModalInstanceCtrl = ['$scope', '$modalInstance', 'description', function ($scope, $modalInstance, description) {
-      $scope.description = description;
+      $scope.title = 'MODAL.TITLE.PROPERTY';
+      $scope.content = description;
 
       $scope.close = function () {
         $modalInstance.dismiss('close');
