@@ -27,6 +27,11 @@
       "TOUR": "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
     }
   },
+  "MODAL": {
+    "PROPERTY": {
+      "DESCRIPTION": "Description de la propriété"
+    }
+  },
   "NAVADMIN": {
     "MENU_USERS": "Utilisateurs",
     "MENU_PLUGINS": "Plugins",

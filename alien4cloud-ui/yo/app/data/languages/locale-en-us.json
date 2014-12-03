@@ -35,6 +35,11 @@
     "MENU_METRICS": "Alien 4 Cloud's Metrics",
     "MENU_CLOUD_IMAGES": "Cloud Images"
   },
+  "MODAL": {
+    "PROPERTY": {
+      "DESCRIPTION": "Property description"
+    }
+  },
   "MAIN": {
     "WELCOME": "Welcome on",
     "BUTTON_LOGIN": "Log in",
