@@ -117,10 +117,6 @@ public final class FileUtil {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        tar(Paths.get("/home/vuminhkh/Projects/cosmo/cloudify-nodecellar-example"), Paths.get("/home/vuminhkh/Projects/cosmo/test.tar.gz"), true, false);
-    }
-
     /**
      * Unzip a zip file to a destination folder.
      * 
