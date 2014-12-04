@@ -6,6 +6,8 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 
 @import 'bootstrap-sass-official/assets/stylesheets/bootstrap';
 
+@import "roboto-thin";
+
 @import "editable";
 @import "ace-editor";
 @import "form-generator";

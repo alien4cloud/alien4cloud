@@ -291,6 +291,7 @@ relationship_types:
 artifact_types:
   tosca.artifacts.ShellScript:
     description: A shell script (.sh file)
+    file_ext: [ sh ]
   tosca.artifacts.TarGzFile:
     description: A tar gz distribution
   tosca.artifacts.WarFile:
