@@ -57,6 +57,7 @@
       "FAILED_TO_READ_FILE": "Unable to read the file {{note}}",
       "ENTRY_DEFINITION_NOT_FOUND": "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud currently supports a single definition file within an archive.",
+      "INVALID_YAML": "The File does not respect YAML format.",
       "MISSING_TOSCA_VERSION": "Tosca version is not specified and is required.",
       "SYNTAX_ERROR": "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
