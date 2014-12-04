@@ -3,11 +3,11 @@ package alien4cloud.utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,6 +19,10 @@ import java.util.zip.ZipOutputStream;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
@@ -29,59 +33,21 @@ public final class FileUtil {
     private FileUtil() {
     }
 
-    private static class ZipDirWalker implements FileVisitor<Path> {
-
-        private Path inputPath;
-
-        private ZipOutputStream zipOutputStream;
-
-        /**
-         * Create the zip directory walker (Walk a directory and add it's content to a {@link ZipOutputStream}.
-         * 
-         * @param inputPath The path of the directory to add to the {@link ZipOutputStream}.
-         * @param zipOutputStream The {@link ZipOutputStream} in which to add directory content.
-         */
-        public ZipDirWalker(Path inputPath, ZipOutputStream zipOutputStream) {
-            super();
-            this.inputPath = inputPath;
-            this.zipOutputStream = zipOutputStream;
-        }
-
-        private String getZipEntryName(Path file) {
-            return inputPath.toUri().relativize(file.toUri()).getPath();
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            if (!dir.equals(inputPath)) {
-                zipOutputStream.putNextEntry(new ZipEntry(getZipEntryName(dir)));
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            putZipEntry(zipOutputStream, new ZipEntry(getZipEntryName(file)), file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            Closeables.close(zipOutputStream, true);
-            throw exc;
-        }
-
-    }
-
-    private static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
+    static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
         ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), zipOutputStream);
         zipOutputStream.closeEntry();
+    }
+
+    static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
+        tarEntry.setSize(Files.size(file));
+        tarOutputStream.putArchiveEntry(tarEntry);
+        ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), tarOutputStream);
+        tarOutputStream.closeArchiveEntry();
+    }
+
+    static String getChildEntryRelativePath(Path base, Path child) {
+        return base.toUri().relativize(child.toUri()).getPath();
     }
 
     /**
@@ -101,7 +67,7 @@ public final class FileUtil {
         }
         ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputPath)));
         try {
-            if (!Files.isDirectory(inputPath) && !Files.isSymbolicLink(inputPath)) {
+            if (!Files.isDirectory(inputPath)) {
                 putZipEntry(zipOutputStream, new ZipEntry(inputPath.getFileName().toString()), inputPath);
             } else {
                 Files.walkFileTree(inputPath, new ZipDirWalker(inputPath, zipOutputStream));
@@ -110,6 +76,49 @@ public final class FileUtil {
         } finally {
             Closeables.close(zipOutputStream, true);
         }
+    }
+
+    /**
+     * Recursively tar file
+     * 
+     * @param inputPath file path can be directory
+     * @param outputPath where to put the archived file
+     * @param childrenOnly if inputPath is directory and if childrenOnly is true, the archive will contain all of its children, else the archive contains unique
+     *            entry which is the inputPath itself
+     * @param gZipped compress with gzip algorithm
+     */
+    public static void tar(Path inputPath, Path outputPath, boolean gZipped, boolean childrenOnly) throws IOException {
+        Path parentDir = outputPath.getParent();
+        if (!Files.exists(parentDir)) {
+            Files.createDirectories(parentDir);
+        }
+        if (!Files.exists(outputPath)) {
+            Files.createFile(outputPath);
+        }
+        OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath));
+        if (gZipped) {
+            outputStream = new GzipCompressorOutputStream(outputStream);
+        }
+        TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(outputStream);
+        try {
+            if (!Files.isDirectory(inputPath)) {
+                putTarEntry(tarArchiveOutputStream, new TarArchiveEntry(inputPath.getFileName().toString()), inputPath);
+            } else {
+                Path sourcePath = inputPath;
+                if (!childrenOnly) {
+                    // In order to have the dossier as the root entry
+                    sourcePath = inputPath.getParent();
+                }
+                Files.walkFileTree(inputPath, new TarDirWalker(sourcePath, tarArchiveOutputStream));
+            }
+            tarArchiveOutputStream.flush();
+        } finally {
+            Closeables.close(tarArchiveOutputStream, true);
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        tar(Paths.get("/home/vuminhkh/Projects/cosmo/cloudify-nodecellar-example"), Paths.get("/home/vuminhkh/Projects/cosmo/test.tar.gz"), true, false);
     }
 
     /**
