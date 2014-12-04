@@ -56,6 +56,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RequestMapping("/rest/applications")
 @Api(value = "", description = "Manage opertions on deployed application.")
 public class ApplicationDeploymentController {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -118,7 +119,7 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = environments[0];
 
         // TODO check that the environment is not already deployed
-        // One environment => One deployment deployed at time
+        // One environment => One deployment deployed at a time
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
         } catch (CloudDisabledException e1) {

@@ -381,7 +381,9 @@
         "CLOUD": "Active cloud",
         "CLOUD_SELECT": "-- Select the targeted cloud --",
         "ENV_TYPE": "Environment type",
-        "ENV_TYPE_SELECT": "-- Select the environment type --"
+        "ENV_TYPE_SELECT": "-- Select the environment type --",
+        "ENV_VERSION": "Application version",
+        "ENV_VERSION_SELECT": "-- Select the application version --"
       }
     },
     "ERRORS": {

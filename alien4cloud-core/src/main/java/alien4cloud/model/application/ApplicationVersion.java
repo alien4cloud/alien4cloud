@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @ESObject
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public class ApplicationVersion implements IManagedSecuredResource {
     @Id

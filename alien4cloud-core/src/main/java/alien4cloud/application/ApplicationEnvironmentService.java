@@ -43,8 +43,8 @@ public class ApplicationEnvironmentService {
      * @param applicationId The id of the application for which to create the environment.
      * @return The id of the newly created environment.
      */
-    public ApplicationEnvironment createApplicationEnvironment(String applicationId) {
-        return createApplicationEnvironment(applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER);
+    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String versionId) {
+        return createApplicationEnvironment(applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, versionId);
     }
 
     /**
@@ -56,7 +56,8 @@ public class ApplicationEnvironmentService {
      * @param environmentType The type of environment.
      * @return The newly created environment.
      */
-    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String name, String description, EnvironmentType environmentType) {
+    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String name, String description, EnvironmentType environmentType,
+            String versionId) {
         // unique app env name for a given app
         ensureNameUnicity(applicationId, name);
         ApplicationEnvironment applicationEnvironment = new ApplicationEnvironment();
@@ -65,6 +66,11 @@ public class ApplicationEnvironmentService {
         applicationEnvironment.setDescription(description);
         applicationEnvironment.setEnvironmentType(environmentType);
         applicationEnvironment.setApplicationId(applicationId);
+        applicationEnvironment.setCurrentVersionId(versionId);
+        // TODO : check application env defzault roles for user / group
+        // Map<String, Set<String>> userRoles = Maps.newHashMap();
+        // userRoles.put(user, Sets.newHashSet(ApplicationRole.APPLICATION_MANAGER.toString()));
+        // applicationEnvironment.setUserRoles(userRoles);
         alienDAO.save(applicationEnvironment);
         return applicationEnvironment;
     }
@@ -118,6 +124,7 @@ public class ApplicationEnvironmentService {
 
     /**
      * True when an application environment is deployed
+     * (has one deployment with status DEPLOYED)
      * 
      * @return true if the environment is currently deployed
      * @throws CloudDisabledException
@@ -134,7 +141,7 @@ public class ApplicationEnvironmentService {
         // Second phase : this deploymentSetup has a deployment in status DeploymentStatus.DEPLOYED
         GetMultipleDataResult<Deployment> deployments = null;
         DeploymentStatus deploymentStatus = null;
-        boolean isDeployed = false;
+        boolean findDeployed = false;
         int countDeployed = 0;
         for (DeploymentSetup deploymentSetup : deploymentSetupSearch.getData()) {
             deployments = deploymentService.getDeploymentsByDeploymentSetup(deploymentSetup.getId());
@@ -144,14 +151,17 @@ public class ApplicationEnvironmentService {
                 } catch (CloudDisabledException e) {
                     throw new CloudDisabledException("Cloud is not enabled and no PaaSProvider instance has been created.");
                 }
-                isDeployed = deploymentStatus.equals(DeploymentStatus.DEPLOYED);
-                if (isDeployed) {
-                    return true;
+                if (deploymentStatus.equals(DeploymentStatus.DEPLOYED)) {
+                    findDeployed = true;
+                    countDeployed++;
                 }
             }
         }
-
-        return isDeployed;
+        // environment must not have more than one deployment at a time
+        if (countDeployed > 1) {
+            log.warn("The environment <{}> has more than one active deployment : <{}>", applicationEnvironment.getId(), countDeployed);
+        }
+        return findDeployed;
     }
 
     /**

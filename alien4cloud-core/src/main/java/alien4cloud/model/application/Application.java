@@ -43,6 +43,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public class Application implements ISecuredResource, IDeploymentSource, ITaggableResource {
+
     @Id
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private String id;

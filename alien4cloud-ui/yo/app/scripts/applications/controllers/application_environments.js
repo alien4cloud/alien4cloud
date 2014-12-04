@@ -1,19 +1,21 @@
 /* global UTILS */
 'use strict';
 
-var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 'searchServiceFactory', '$state', 'applicationEnvironmentServices',
-  function($scope, $modalInstance, $resource, searchServiceFactory, $state, applicationEnvironmentServices) {
+var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 'searchServiceFactory', '$state', 'applicationEnvironmentServices', 'applicationVersionServices',
+  function($scope, $modalInstance, $resource, searchServiceFactory, $state, applicationEnvironmentServices, applicationVersionServices) {
 
     // Created environment object
     $scope.environment = {};
-    $scope.create = function(valid, cloudId, envType) {
+    $scope.create = function(valid, cloudId, envType, version) {
       if (valid) {
         if (!angular.isUndefined(cloudId)) {
           var applicationId = $state.params.id;
           $scope.environment.cloudId = cloudId;
           $scope.environment.applicationId = applicationId;
           $scope.environment.environmentType = envType;
+          $scope.environment.versionId = version;
         }
+        console.log('ENV TO CREATE', $scope.environment);
         $modalInstance.close($scope.environment);
       }
     };
@@ -21,6 +23,9 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     $scope.cancel = function() {
       $modalInstance.dismiss('cancel');
     };
+
+    // recover all versions for this applications
+    $scope.versions = applicationVersionServices.getVersions;
 
     // Cloud search to configure the new environment
     $scope.query = '';
@@ -93,7 +98,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
       if (!angular.isUndefined(appEnvId)) {
         applicationEnvironmentServices.delete({
           applicationId: $scope.application.id,
-          applicationEnvironmentId : appEnvId
+          applicationEnvironmentId: appEnvId
         }, null, function deleteAppEnvironment(result) {
           // Result search
           $scope.search();

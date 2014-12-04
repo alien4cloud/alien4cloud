@@ -8,16 +8,19 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.version.Version;
 
 import com.google.common.collect.Maps;
 
 @Service
 public class ApplicationVersionService {
-    private static final String DEFAULT_VERSION_NAME = "0.1.0-SNAPSHOT";
+
+    private static final Version DEFAULT_VERSION_NAME = new Version("0.0.1-SNAPSHOT");
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -92,5 +95,19 @@ public class ApplicationVersionService {
         for (ApplicationVersion version : versions) {
             deleteVersion(version);
         }
+    }
+
+    /**
+     * Get an application version from it's id and throw a {@link NotFoundException} in case no application version matches the requested id
+     * 
+     * @param applicationVersionId
+     * @return The requested application version
+     */
+    public ApplicationVersion getOrFail(String applicationVersionId) {
+        ApplicationVersion applicationVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
+        if (applicationVersion == null) {
+            throw new NotFoundException("Application version [" + applicationVersionId + "] cannot be found");
+        }
+        return applicationVersion;
     }
 }

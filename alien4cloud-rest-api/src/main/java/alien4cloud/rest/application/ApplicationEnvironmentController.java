@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
+import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -25,6 +26,7 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -57,6 +59,8 @@ public class ApplicationEnvironmentController {
     private ApplicationService applicationService;
     @Resource
     private ResourceRoleService resourceRoleService;
+    @Resource
+    private ApplicationVersionService applicationVersionService;
 
     /**
      * Get all application environment for an application
@@ -83,9 +87,16 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+        // basic search
         GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
                 getApplicationEnvironmentFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResult).build();
+        // parse result and convert to ApplicationEnvironmentDTO objects
+        GetMultipleDataResult<ApplicationEnvironmentDTO> searchResultDTO = new GetMultipleDataResult<ApplicationEnvironmentDTO>();
+        searchResultDTO.setQueryDuration(searchResult.getQueryDuration());
+        searchResultDTO.setTypes(searchResult.getTypes());
+        searchResultDTO.setData(getApplicationEnvironmentDTO(searchResult.getData()));
+        searchResultDTO.setTotalResults(searchResult.getTotalResults());
+        return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResultDTO).build();
     }
 
     /**
@@ -119,7 +130,7 @@ public class ApplicationEnvironmentController {
         if (application != null) {
             AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
             appEnvironment = applicationEnvironmentService.createApplicationEnvironment(request.getApplicationId(), request.getName(),
-                    request.getDescription(), request.getEnvironmentType());
+                    request.getDescription(), request.getEnvironmentType(), request.getVersionId());
             if (request.getCloudId() != null) {
                 // validate cloud and rights
                 Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
@@ -287,6 +298,34 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationRole.APPLICATION_MANAGER);
         return applicationEnvironment;
+    }
+
+    /**
+     * Get a list a application environment DTO
+     * 
+     * @param applicationEnvironments
+     * @return
+     */
+    private ApplicationEnvironmentDTO[] getApplicationEnvironmentDTO(ApplicationEnvironment[] applicationEnvironments) {
+        List<ApplicationEnvironmentDTO> listApplicationEnvironmentsDTO = Lists.newArrayList();
+        ApplicationEnvironmentDTO tempEnvDTO = null;
+        for (ApplicationEnvironment env : applicationEnvironments) {
+            tempEnvDTO = new ApplicationEnvironmentDTO();
+            tempEnvDTO.setApplicationId(env.getApplicationId());
+            tempEnvDTO.setDescription(env.getDescription());
+            tempEnvDTO.setEnvironmentType(env.getEnvironmentType());
+            tempEnvDTO.setId(env.getId());
+            tempEnvDTO.setName(env.getName());
+            if (env.getCloudId() != null) {
+                tempEnvDTO.setCloudName(cloudService.get(env.getCloudId()).getName());
+            } else {
+                tempEnvDTO.setCloudName(null);
+            }
+            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion().toString());
+            tempEnvDTO.setStatus(DeploymentStatus.UNDEPLOYED); // TODO : get real current status
+            listApplicationEnvironmentsDTO.add(tempEnvDTO);
+        }
+        return (ApplicationEnvironmentDTO[]) listApplicationEnvironmentsDTO.toArray();
     }
 
 }

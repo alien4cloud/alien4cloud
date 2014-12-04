@@ -375,13 +375,15 @@
       "TYPE": "Type",
       "DESCRIPTION": "Description",
       "CLOUD": "Cloud",
-      "FORM" : {
-        "NAME" : "Nom",
+      "FORM": {
+        "NAME": "Nom",
         "DESCRIPTION": "Description",
         "CLOUD": "Cloud actif",
         "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
         "ENV_TYPE": "Type d'environnement",
-        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --"
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --",
+        "ENV_VERSION": "Version de l'application",
+        "ENV_VERSION_SELECT": "-- Sélectionner la version de l'application --"
       }
     },
     "ERRORS": {
