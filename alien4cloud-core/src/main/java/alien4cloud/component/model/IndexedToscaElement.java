@@ -41,6 +41,7 @@ public abstract class IndexedToscaElement {
 
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.not_analyzed)
+    @TermFilter
     private String archiveVersion;
 
     @BooleanField
