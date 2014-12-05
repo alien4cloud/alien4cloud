@@ -6,8 +6,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +40,6 @@ import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/versions")
 @Api(value = "", description = "Manages application's versions")
@@ -125,7 +122,8 @@ public class ApplicationVersionController {
                     .<String> builder()
                     .data(null)
                     .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message("Application with id <" + request.getApplicationId() + "> could not be found to create a new application version").build()).build();
+                            .message("Application with id <" + request.getApplicationId() + "> could not be found to create a new application version").build())
+                    .build();
         }
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
@@ -141,7 +139,7 @@ public class ApplicationVersionController {
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody UpdateApplicationVersionRequest request) {
         // check application version id
-    	ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
+        ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
         if (appVersion != null) {
             // check application
             Application application = alienDAO.findById(Application.class, appVersion.getApplicationId());
@@ -188,7 +186,8 @@ public class ApplicationVersionController {
                     .<Boolean> builder()
                     .data(false)
                     .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build()).build();
+                            .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build())
+                    .build();
         }
     }
 

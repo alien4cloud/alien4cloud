@@ -25,7 +25,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.component.SearchRequest;
@@ -327,22 +326,6 @@ public class ApplicationEnvironmentController {
             listApplicationEnvironmentsDTO.add(tempEnvDTO);
         }
         return listApplicationEnvironmentsDTO.toArray(new ApplicationEnvironmentDTO[listApplicationEnvironmentsDTO.size()]);
-    }
-
-    /**
-     * TODO : move this to ApplicationVersionController
-     * 
-     * Get all application environment for an application
-     *
-     * @param applicationId The application id.
-     */
-    @ApiOperation(value = "Get all application versions for an application", notes = "Return all application environments for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/allVersions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ApplicationVersion[]> getVersions(@PathVariable String applicationId) {
-        Application application = alienDAO.findById(Application.class, applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-        return RestResponseBuilder.<ApplicationVersion[]> builder().data(versions).build();
     }
 
 }
