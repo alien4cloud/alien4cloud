@@ -36,27 +36,17 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
     //   }
     // });
 
-    // var envEnumTypes = $resource('rest/enums/environmenttype', {}, {
-    //   'get': {
-    //     method: 'GET',
-    //     cache : true
-    //   }
-    // });
-
-    // TODO : replace this by a real call to rest service on application versions controller
-    var versions = [{
-      id: 'id-0.0.1',
-      name: '0.0.1'
+    var versions = $resource('/rest/applications/:applicationId/environments/allVersions', {
+      applicationId: '@applicationId'
     }, {
-      id: 'id-0.0.2-SNAPSHOT',
-      name: '0.0.1-SNAPSHOT'
-    }, {
-      id: 'id-0.0.3-M1',
-      name: '0.0.3-M1'
-    }];
+      'get': {
+        method: 'GET',
+        cache: true
+      }
+    });
 
     return {
-      'getVersions': versions
+      'getVersions': versions.get
     };
 
   }

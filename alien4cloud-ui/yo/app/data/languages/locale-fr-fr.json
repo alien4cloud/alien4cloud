@@ -382,6 +382,7 @@
       "TYPE": "Type",
       "DESCRIPTION": "Description",
       "CLOUD": "Cloud",
+      "VERSION": "Version",
       "FORM": {
         "NAME": "Nom",
         "DESCRIPTION": "Description",

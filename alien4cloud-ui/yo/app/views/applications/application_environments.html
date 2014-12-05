@@ -110,7 +110,7 @@
             {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION' | translate}}
           </label>
           <div class="col-lg-9">
-            <select name="applicationVersions" required="" class="form-control" id="versionslistid" ng-model="selectedVersion" ng-options="v.name for v in versions">
+            <select name="applicationVersions" required="" class="form-control" id="versionslistid" ng-model="selectedVersion" ng-options="v.version for v in versions.data">
               <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION_SELECT' | translate}}</option>
             </select>
           </div>

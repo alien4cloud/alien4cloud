@@ -35,13 +35,6 @@
     "MENU_METRICS": "Alien 4 Cloud's Metrics",
     "MENU_CLOUD_IMAGES": "Cloud Images"
   },
-  "MODAL": {
-    "TITLE": {
-      "PROPERTY": "Property description",
-      "REQUIREMENT": "Requirement description",
-      "CAPABILITY": "Capability description"
-    }
-  },
   "MAIN": {
     "WELCOME": "Welcome on",
     "BUTTON_LOGIN": "Log in",
@@ -382,8 +375,9 @@
       "TYPE": "Type",
       "DESCRIPTION": "Description",
       "CLOUD": "Cloud",
-      "FORM" : {
-        "NAME" : "Name",
+      "VERSION": "Version",
+      "FORM": {
+        "NAME": "Name",
         "DESCRIPTION": "Description",
         "CLOUD": "Active cloud",
         "CLOUD_SELECT": "-- Select the targeted cloud --",

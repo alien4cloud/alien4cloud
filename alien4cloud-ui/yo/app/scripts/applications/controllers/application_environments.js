@@ -15,7 +15,6 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
           $scope.environment.environmentType = envType;
           $scope.environment.versionId = version;
         }
-        console.log('ENV TO CREATE', $scope.environment);
         $modalInstance.close($scope.environment);
       }
     };
@@ -25,7 +24,9 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     };
 
     // recover all versions for this applications
-    $scope.versions = applicationVersionServices.getVersions;
+    $scope.versions = applicationVersionServices.getVersions({
+      applicationId: $state.params.id
+    });
 
     // Cloud search to configure the new environment
     $scope.query = '';
