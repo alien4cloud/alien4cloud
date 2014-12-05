@@ -27,6 +27,13 @@
       "TOUR": "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
     }
   },
+  "MODAL": {
+    "TITLE": {
+      "PROPERTY": "Description de la propriété",
+      "REQUIREMENT": "Description du prérequis",
+      "CAPABILITY": "Description de la capacité"
+    }
+  },
   "NAVADMIN": {
     "MENU_USERS": "Utilisateurs",
     "MENU_PLUGINS": "Plugins",
@@ -113,7 +120,7 @@
     "DEFAULTCAPABILITIES": "Capacités défaut",
     "DERIVEDFROM": "Héritage",
     "REQUIREMENTS": {
-      "TYPE": "Pré-requis"
+      "TYPE": "Prérequis"
     },
     "SEARCH": {
       "SHOW_ADV_SEARCH": "Recherche avancée...",
@@ -324,7 +331,7 @@
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
-      "REQUIREMENTS": "Pré-requis",
+      "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
       "RELATIONSHIPS": "Relations",
       "ADD_RELATIONSHIP": "Ajouter une relation",
@@ -355,7 +362,7 @@
         "IMPLEMENT": "Implémenter les noeuds",
         "REPLACE_LABEL": "A remplacer",
         "REPLACE": "Remplacer par l'un des noeuds suggérés",
-        "TOADD_RELATIONSHIP_LABEL": "Pré-requis non statisfaits (ajoutez un lien)",
+        "TOADD_RELATIONSHIP_LABEL": "Prérequis non statisfaits (ajoutez un lien)",
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds"
@@ -640,7 +647,7 @@
   "derivedFrom": "Héritage",
   "properties": "Propriétés",
   "attributes": "Attributs",
-  "requirements": "Pré-requis",
+  "requirements": "Prérequis",
   "capabilities": "Capacités",
   "instanceStates": "Etats du composant",
   "interfaces": "Interfaces",

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>alien4cloud</groupId>
 		<artifactId>alien4cloud-parent</artifactId>
-		<version>0.0.17-SNAPSHOT</version>
+		<version>1.0.0-SM18-SNAPSHOT</version>
 	</parent>
 	<artifactId>alien4cloud-verify-tool</artifactId>
 	<packaging>jar</packaging>
@@ -11,7 +11,7 @@
 	<name>Alien 4 Cloud Compilation Tool</name>
 	<description>A command line tool to verify Tosca CSAR archive.</description>
 
-	<dependencies>
+	<version xmlns="">1.0.0-SM18-SNAPSHOT</version><dependencies>
 		<dependency>
 			<groupId>alien4cloud</groupId>
 			<artifactId>alien4cloud-rest-api</artifactId>

@@ -443,6 +443,29 @@ angular.module('alienUiApp').controller(
         toggleInputOutput(attributeName, 'outputAttributes', 'attribute');
       };
 
+      $scope.openSimpleModal = function (modalTitle, modalContent) {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/fragments/simple_modal.html',
+          controller: ModalInstanceCtrl,
+          resolve: {
+            title: function () {
+              return modalTitle;
+            },
+            content: function () {
+              return modalContent;
+            }
+          }
+        });
+      };
+
+      var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function ($scope, $modalInstance, title, content) {
+        $scope.title = title;
+        $scope.content = content;
+
+        $scope.close = function () {
+          $modalInstance.dismiss('close');
+        };
+      }];
 
       $scope.updateInputArtifactList = function(artifactName) {
 
@@ -768,6 +791,10 @@ angular.module('alienUiApp').controller(
         var formatedProperty = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey];
         formatedProperty.name = propertyKey;
         return formatedProperty;
+      };
+
+      $scope.getPropertyDescription = function(propertyKey) {
+        return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey].description;
       };
 
       /**
