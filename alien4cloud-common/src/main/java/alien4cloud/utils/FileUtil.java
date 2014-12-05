@@ -2,6 +2,7 @@ package alien4cloud.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -59,6 +60,9 @@ public final class FileUtil {
      */
     public static void zip(Path inputPath, Path outputPath) throws IOException {
         Path parentDir = outputPath.getParent();
+        if (!Files.exists(inputPath)) {
+            throw new FileNotFoundException("File not found " + inputPath);
+        }
         if (!Files.exists(parentDir)) {
             Files.createDirectories(parentDir);
         }
@@ -88,6 +92,9 @@ public final class FileUtil {
      * @param gZipped compress with gzip algorithm
      */
     public static void tar(Path inputPath, Path outputPath, boolean gZipped, boolean childrenOnly) throws IOException {
+        if (!Files.exists(inputPath)) {
+            throw new FileNotFoundException("File not found " + inputPath);
+        }
         Path parentDir = outputPath.getParent();
         if (!Files.exists(parentDir)) {
             Files.createDirectories(parentDir);
