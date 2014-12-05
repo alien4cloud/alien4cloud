@@ -35,11 +35,10 @@ public class ApplicationVersionService {
         ApplicationVersion version = new ApplicationVersion();
         version.setId(UUID.randomUUID().toString());
         version.setApplicationId(applicationId);
-        version.setVersion(DEFAULT_VERSION_NAME);
+        version.setVersion(DEFAULT_VERSION_NAME.toString());
         version.setReleased(false);
         version.setLatest(true);
         version.setProperties(Maps.<String, String> newHashMap());
-
         Topology topology;
         if (topologyId != null) { // "cloning" the topology
             topology = alienDAO.findById(Topology.class, topologyId);
@@ -50,7 +49,6 @@ public class ApplicationVersionService {
         topology.setDelegateId(applicationId);
         topology.setDelegateType(Application.class.getSimpleName().toLowerCase());
         alienDAO.save(topology);
-
         version.setTopologyId(topology.getId());
         alienDAO.save(version);
         return version;

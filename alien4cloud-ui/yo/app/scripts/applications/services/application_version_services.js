@@ -49,7 +49,7 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
       name: '0.0.1'
     }, {
       id: 'id-0.0.2-SNAPSHOT',
-      name: '0.0.2-SNAPSHOT'
+      name: '0.0.1-SNAPSHOT'
     }, {
       id: 'id-0.0.3-M1',
       name: '0.0.3-M1'

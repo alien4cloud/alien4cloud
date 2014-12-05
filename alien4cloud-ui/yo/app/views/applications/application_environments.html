@@ -52,10 +52,10 @@
                 <i class="fa fa-circle fa-2x" ng-class="{'text-success': cloud.enabled,'text-danger': !cloud.enabled}" tooltip="Should show the real status"></i>
               </td>
               <td>{{environment.name}}</td>
-              <td>{{environment.currentVersionId}}</td>
+              <td>{{environment.currentVersionName}}</td>
               <td>{{environment.environmentType}}</td>
               <td>{{environment.description}}</td>
-              <td>{{environment.cloudId}}</td>
+              <td>{{environment.cloudName || '---'}}</td>
               <td ng-if="isManager">
                 <!-- Remove an environment -->
                 <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">

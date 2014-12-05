@@ -13,7 +13,6 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.security.IManagedSecuredResource;
-import alien4cloud.utils.version.Version;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class ApplicationVersion implements IManagedSecuredResource {
     @Id
     private String id;
-    private Version version;
+    private String version;
     private String description;
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)

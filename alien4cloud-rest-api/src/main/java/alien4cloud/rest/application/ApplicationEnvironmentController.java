@@ -321,11 +321,11 @@ public class ApplicationEnvironmentController {
             } else {
                 tempEnvDTO.setCloudName(null);
             }
-            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion().toString());
+            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion());
             tempEnvDTO.setStatus(DeploymentStatus.UNDEPLOYED); // TODO : get real current status
             listApplicationEnvironmentsDTO.add(tempEnvDTO);
         }
-        return (ApplicationEnvironmentDTO[]) listApplicationEnvironmentsDTO.toArray();
+        return listApplicationEnvironmentsDTO.toArray(new ApplicationEnvironmentDTO[listApplicationEnvironmentsDTO.size()]);
     }
 
 }
