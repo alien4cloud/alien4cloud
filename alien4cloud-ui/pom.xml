@@ -11,7 +11,7 @@
   <name>Alien 4 Cloud UI</name>
   <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.</description>
 
-  <version xmlns="">1.0.0-SM18-SNAPSHOT</version><properties>
+  <properties>
     <sonar.language>js</sonar.language>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/</sonar.javascript.jstestdriver.reportsPath>
