@@ -138,7 +138,7 @@
                           <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
                           <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
                           <td>
-                            <button type="button" class="btn btn-danger btn-sm" assick="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
                             </button>
                           </td>
                         </tr>
