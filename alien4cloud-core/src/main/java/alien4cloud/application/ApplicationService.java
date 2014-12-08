@@ -161,4 +161,18 @@ public class ApplicationService {
         alienDAO.delete(Application.class, applicationId);
         return true;
     }
+
+    /**
+     * Check if the connected user has at least one application role on the related application with a fail when applicationId is not valid
+     * If no roles mentioned, all {@link ApplicationRole} values will be used (one at least required)
+     * 
+     * @param applicationId
+     * @return the related application
+     */
+    public Application checkAndGetApplication(String applicationId, ApplicationRole... roles) {
+        Application application = getOrFail(applicationId);
+        roles = (roles == null) ? ApplicationRole.values() : roles;
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+        return application;
+    }
 }

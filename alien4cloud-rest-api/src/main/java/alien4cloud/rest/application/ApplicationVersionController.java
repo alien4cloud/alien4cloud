@@ -114,7 +114,7 @@ public class ApplicationVersionController {
         ApplicationVersion appVersion = null;
         Application application = alienDAO.findById(Application.class, request.getApplicationId());
         if (application != null) {
-            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
+            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
             appVersion = applicationVersionService.createApplicationVersion(request.getApplicationId(), null);
         } else {
             // no application found to create a version

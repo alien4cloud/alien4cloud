@@ -356,6 +356,7 @@ public class ApplicationController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
+        // TODO : update this with ApplicationVersion implementation
         return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
     }
 }
