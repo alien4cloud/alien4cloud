@@ -59,7 +59,7 @@
     <aspectj.version>1.7.4</aspectj.version>
 
     <!-- Elastic Search -->
-    <es-mapping.version>1.1.16</es-mapping.version>
+    <es-mapping.version>1.1.17</es-mapping.version>
 
     <!-- Logging -->
     <log4j.version>1.2.16</log4j.version>
