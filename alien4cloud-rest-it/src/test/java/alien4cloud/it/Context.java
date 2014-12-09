@@ -121,7 +121,7 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> cloudImageNameToCloudImageIdMapping;
 
-    private ThreadLocal<String> applicationEnvironmentId;
+    private ThreadLocal<Map<String, String>> environmentInfos;
 
     private Context() {
         restResponseLocal = new ThreadLocal<String>();
@@ -140,7 +140,7 @@ public class Context {
         groupIdToGroupNameMapping.set(new HashMap<String, String>());
         cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
-        applicationEnvironmentId = new ThreadLocal<String>();
+        environmentInfos = new ThreadLocal<Map<String, String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -450,12 +450,20 @@ public class Context {
         return topologyDeploymentId.get();
     }
 
-    public void registerApplicationEnvironmentId(String applicationEnvironmentId) {
+    public void registerApplicationEnvironmentId(String applicationEnvironmentId, String applicationEnvironmentName) {
         log.debug("Registering application environment id [" + applicationEnvironmentId + "] in the context");
-        this.applicationEnvironmentId.set(applicationEnvironmentId);
+        if (this.environmentInfos.get() != null) {
+            this.environmentInfos.get().put(applicationEnvironmentName, applicationEnvironmentId);
+            return;
+        }
+        this.environmentInfos.set(MapUtil.newHashMap(new String[] { applicationEnvironmentName }, new String[] { applicationEnvironmentId }));
     }
 
-    public String getApplicationEnvironmentId() {
-        return this.applicationEnvironmentId.get();
+    public String getApplicationEnvironmentId(String applicationEnvironmentName) {
+        return this.environmentInfos.get().get(applicationEnvironmentName);
+    }
+
+    public int getApplicationEnvironmentCount() {
+        return this.environmentInfos.get().size();
     }
 }

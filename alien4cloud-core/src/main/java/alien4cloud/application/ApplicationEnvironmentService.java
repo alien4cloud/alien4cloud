@@ -211,7 +211,7 @@ public class ApplicationEnvironmentService {
     public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
-        roles = (roles == null) ? ApplicationRole.values() : roles;
+        roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
         // check rights on the application linked to this application environment
         AuthorizationUtil.checkAuthorizationForApplication(application, roles);
         return applicationEnvironment;

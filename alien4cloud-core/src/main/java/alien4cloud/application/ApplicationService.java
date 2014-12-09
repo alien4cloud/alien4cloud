@@ -171,7 +171,7 @@ public class ApplicationService {
      */
     public Application checkAndGetApplication(String applicationId, ApplicationRole... roles) {
         Application application = getOrFail(applicationId);
-        roles = (roles == null) ? ApplicationRole.values() : roles;
+        roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
         AuthorizationUtil.checkAuthorizationForApplication(application, roles);
         return application;
     }

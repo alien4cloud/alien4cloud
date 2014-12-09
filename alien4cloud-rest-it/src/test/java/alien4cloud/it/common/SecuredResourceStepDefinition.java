@@ -1,13 +1,15 @@
 package alien4cloud.it.common;
 
+import lombok.extern.slf4j.Slf4j;
 import alien4cloud.it.Context;
 import cucumber.api.java.en.When;
 
+@Slf4j
 public class SecuredResourceStepDefinition {
 
     // Allowed resource types
     private enum RESOURCE_TYPE {
-        APPLICATION, CLOUD;
+        APPLICATION, CLOUD, ENVIRONMENT;
     }
 
     @When("^I add a role \"([^\"]*)\" to group \"([^\"]*)\" on the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -55,6 +57,11 @@ public class SecuredResourceStepDefinition {
             break;
         case CLOUD:
             request = "/rest/clouds/" + Context.getInstance().getCloudId(resourceName);
+            break;
+        case ENVIRONMENT:
+            request = "/rest/applications/" + Context.getInstance().getApplication().getId() + "/environments/"
+                    + Context.getInstance().getApplicationEnvironmentId(resourceName);
+            log.info("request ENVIRONMENT : {}", request);
             break;
         default:
         }
