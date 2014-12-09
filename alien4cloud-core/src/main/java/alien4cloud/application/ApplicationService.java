@@ -172,7 +172,7 @@ public class ApplicationService {
     public Application checkAndGetApplication(String applicationId, ApplicationRole... roles) {
         Application application = getOrFail(applicationId);
         roles = (roles == null) ? ApplicationRole.values() : roles;
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+        AuthorizationUtil.checkAuthorizationForApplication(application, roles);
         return application;
     }
 }
