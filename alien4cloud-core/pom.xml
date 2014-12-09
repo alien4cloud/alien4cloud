@@ -15,7 +15,7 @@
 		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 	</properties>
 
-	<version xmlns="">1.0.0-SM18-SNAPSHOT</version><dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>alien4cloud</groupId>
 			<artifactId>alien4cloud-security</artifactId>
@@ -62,10 +62,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
 		<!-- XML parsing -->
