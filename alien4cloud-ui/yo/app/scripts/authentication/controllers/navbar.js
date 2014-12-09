@@ -3,6 +3,7 @@
 angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', 'hopscotchService', '$http',
   function($rootScope, $scope, alienAuthService, alienNavBarService, $translate, hopscotchService, $http) {
 
+    $scope.login = {};
     $scope.signIn = function() {
       var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
       alienAuthService.logIn(data, $scope);
