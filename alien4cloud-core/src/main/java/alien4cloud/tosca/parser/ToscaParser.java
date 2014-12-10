@@ -38,20 +38,25 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
     }
 
     @Override
-    protected INodeParser<ArchiveRoot> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException {
+    protected INodeParser<ArchiveRoot> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException {
+        if (rootNode instanceof MappingNode) {
+            // try to find the tosca version
+            DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(((MappingNode)rootNode).getValue(), context.getParsingErrors());
+            // call the parser for the given tosca version
+            INodeParser<ArchiveRoot> nodeParser = nodeParserRegistry.get(definitionVersionInfo.definitionVersion);
 
-        // try to find the tosca version
-        DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(rootNode.getValue(), context.getParsingErrors());
-        // call the parser for the given tosca version
-        INodeParser<ArchiveRoot> nodeParser = nodeParserRegistry.get(definitionVersionInfo.definitionVersion);
-
-        if (nodeParser == null) {
-            throw new ParsingException(context.getFileName(), new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION,
-                    "Definition version is not supported", definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(),
-                    "Version is not supported by Alien4Cloud", definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(),
-                    definitionVersionInfo.definitionVersion));
+            if (nodeParser == null) {
+                throw new ParsingException(context.getFileName(), new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION,
+                        "Definition version is not supported", definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(),
+                        "Version is not supported by Alien4Cloud", definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(),
+                        definitionVersionInfo.definitionVersion));
+            }
+            return nodeParser;
+        } else {
+            throw new ParsingException(null, new ParsingError(ErrorCode.SYNTAX_ERROR, "File is not a valid tosca definition file.", new Mark("root", 0, 0, 0,
+                    null, 0), "The provided yaml file doesn't follow the Top-level key definitions of a valid TOSCA Simple profile file.", new Mark("root", 0,
+                    0, 0, null, 0), "TOSCA Definitions"));
         }
-        return nodeParser;
     }
 
     private DefinitionVersionInfo getToscaDefinitionVersion(List<NodeTuple> topLevelNodes, List<ParsingError> parsingErrors) throws ParsingException {

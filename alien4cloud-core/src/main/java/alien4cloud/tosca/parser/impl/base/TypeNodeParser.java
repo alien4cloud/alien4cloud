@@ -116,7 +116,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
     }
 
     private void mapTuple(BeanWrapper instance, NodeTuple nodeTuple, int nodeTupleIndex, ParsingContextExecution context) {
-        String key = ParserUtils.getScalar(nodeTuple.getKeyNode(), context.getParsingErrors());
+        String key = ParserUtils.getScalar(nodeTuple.getKeyNode(), context);
         if (key == null) {
             return;
         }

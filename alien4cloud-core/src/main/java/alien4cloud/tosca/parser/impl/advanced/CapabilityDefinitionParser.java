@@ -1,6 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.beans.BeanWrapper;
@@ -9,26 +8,21 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.model.CapabilityDefinition;
 import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.Wd03CapabilityDefinition;
+import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 @Component
-public class CapabilityParser implements INodeParser<CapabilityDefinition> {
+public class CapabilityDefinitionParser implements INodeParser<CapabilityDefinition> {
     @Resource
-    private TypeReferenceParserFactory typeReferenceParserFactory;
-    private TypeReferenceParser typeReferenceParser;
-    @Resource
-    private Wd03CapabilityDefinition capabilityDefinition;
+    private ReferencedCapabilityTypeParser referencedCapabilityTypeParser;
+    private final ReferencedParser<CapabilityDefinition> capabilityDefinitionParser;
 
-    @PostConstruct
-    public void initialize() {
-        typeReferenceParser = typeReferenceParserFactory.getTypeReferenceParser(IndexedCapabilityType.class, IndexedNodeType.class);
+    public CapabilityDefinitionParser() {
+        this.capabilityDefinitionParser = new ReferencedParser("capability_definition_detailed");
     }
 
     @Override
@@ -42,10 +36,10 @@ public class CapabilityParser implements INodeParser<CapabilityDefinition> {
             CapabilityDefinition definition = new CapabilityDefinition();
             BeanWrapper instanceWrapper = new BeanWrapperImpl(definition);
             context.getDeferredParsers().add(
-                    new DefferedParsingValueExecutor(null, instanceWrapper, context, new MappingTarget("type", typeReferenceParser), node));
+                    new DefferedParsingValueExecutor(null, instanceWrapper, context, new MappingTarget("type", referencedCapabilityTypeParser), node));
             return definition;
         }
 
-        return capabilityDefinition.getParser().parse(node, context);
+        return capabilityDefinitionParser.parse(node, context);
     }
 }

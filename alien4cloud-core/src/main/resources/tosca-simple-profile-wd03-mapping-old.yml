@@ -1,82 +1,100 @@
-# Mapping definitions for tosca simple profile working draft 03.
+# contains mapping definitions for the various tosca types.
 
-# declare custom parsers for complex types that requires specific parser.
-- import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
-- bound: alien4cloud.tosca.parser.impl.advanced.BoundParser
-- property_value: alien4cloud.tosca.parser.impl.base.ScalarParser
-- derived_from_node_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromNodeTypeParser
-- derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
-- derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser
-- derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
-- capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
+definition:
+  # name of the type in java
+  java_type: alien4cloud.tosca.model.ArchiveRoot
+  # fields to be mapped based on their names.
+  named_mapping:
+    tosca_definitions_version: archive.toscaDefinitionsVersion
 
-# declare standard mapping based parsers
-- definition: alien4cloud.tosca.model.ArchiveRoot
-  tosca_definitions_version: archive.toscaDefinitionsVersion
-  tosca_default_namespace: archive.toscaDefaultNamespace
-  template_name: archive.name
-  template_author: archive.templateAuthor
-  template_version: archive.version
-  description: archive.description
-  imports:
-    set: archive.dependencies
-    type: import_definition
-  node_types:
-    map: nodeTypes
-    key: elementId
-    type: node_type
-  capability_types:
-    map: capabilityTypes
-    key: elementId
-    type: capability_type
-  relationship_types:
-    map: relationshipTypes
-    key: elementId
-    type: relationship_type
-  artifact_types:
-    map: artifactTypes
-    key: elementId
-    type: artifact_type
+    tosca_default_namespace: archive.toscaDefaultNamespace
+
+    template_name: archive.name
+
+    template_author: archive.templateAuthor
+
+    template_version: archive.version
+
+    description: archive.description
+
+    imports:
+      set:
+        mapping: archive.dependencies
+        type: import_definition
+
+    node_types:
+      map:
+        key: elementId
+        type: node_type
+        mapping: nodeTypes
+
+    capability_types:
+      map:
+        key: elementId
+        type: capability_type
+        mapping: capabilityTypes
+
+    relationship_types:
+      map:
+        key: elementId
+        type: relationship_type
+        mapping: relationshipTypes
+
+    artifact_types:
+      map:
+        key: elementId
+        type: artifact_type
+        mapping: artifactTypes
 
     # inputs:
     # node_templates:
     # relationship_templates:
     # groups:
     # outputs:
-- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
-- attribute_definition: alien4cloud.tosca.model.AttributeDefinition
-  description: description
-  type: type
-  default: default
+import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 
-# capability definition supports a simple definition or more advanced.
-- capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
-- capability_definition_detailed: java_type: alien4cloud.tosca.model.CapabilityDefinition
-  description: description
-  type:
-    reference: type
-    type: capability_type_reference
-  upper_bound:
-    reference: upperBound
-    type: bound
-  properties:
-    map:
-      type: property_value
-      mapping: properties
+attribute_definition:
+  java_type: alien4cloud.tosca.model.AttributeDefinition
+  named_mapping:
+    description: description
+    type: type
+    default: default
 
-- deployment_artifact: alien4cloud.tosca.container.model.template.DeploymentArtifact
-  __0: artifactRef
-  description: description
-  type:
-    type: artifact_type_reference
-    mapping: type
-  mimeType: mimeType
+capability_definition:
+  java_type: alien4cloud.tosca.model.CapabilityDefinition
+  named_mapping:
+    description: description
+    type:
+      type: capability_type_reference
+      mapping: type
+    upper_bound:
+      type: bound
+      mapping: upperBound
+    properties:
+      map:
+        type: property_value
+        mapping: properties
 
+deployment_artifact:
+  java_type: alien4cloud.tosca.container.model.template.DeploymentArtifact
+  position_mapping:
+    0: artifactRef
+  named_mapping:
+    description: description
+    type:
+      type: artifact_type_reference
+      mapping: type
+    mimeType: mimeType
 
+property_value:
+  java_type: alien4cloud.tosca.model.ScalarPropertyValue
+  named_mapping: value
 
-- tosca_function: alien4cloud.tosca.model.FunctionPropertyValue
-  __0:
+tosca_function:
+  java_type: alien4cloud.tosca.model.FunctionPropertyValue
+  position_mapping:
+    0:
       key: function
       value:
         list:
@@ -84,6 +102,7 @@
           mapping: parameters
 
 property_definition:
+  type: type:
   required: required
   description: description
   default

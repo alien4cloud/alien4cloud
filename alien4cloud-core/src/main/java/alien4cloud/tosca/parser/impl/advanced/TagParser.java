@@ -28,8 +28,8 @@ public class TagParser implements INodeParser<List<Tag>> {
         if (node instanceof MappingNode) {
             MappingNode mapNode = (MappingNode) node;
             for (NodeTuple entry : mapNode.getValue()) {
-                String key = ParserUtils.getScalar(entry.getKeyNode(), context.getParsingErrors());
-                String value = ParserUtils.getScalar(entry.getValueNode(), context.getParsingErrors());
+                String key = ParserUtils.getScalar(entry.getKeyNode(), context);
+                String value = ParserUtils.getScalar(entry.getValueNode(), context);
                 if (value != null) {
                     tagList.add(new Tag(key, value));
                 }

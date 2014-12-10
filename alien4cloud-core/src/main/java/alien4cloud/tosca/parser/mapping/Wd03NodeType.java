@@ -2,7 +2,7 @@ package alien4cloud.tosca.parser.mapping;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.parser.impl.advanced.CapabilityParser;
+import alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedNodeType;
@@ -24,7 +24,7 @@ public class Wd03NodeType extends Wd03InheritableToscaElement<IndexedNodeType> {
     @Resource
     private Wd03RequirementDefinition requirementDefinition;
     @Resource
-    private CapabilityParser capabilityParser;
+    private CapabilityDefinitionParser capabilityParser;
     @Resource
     private InterfaceParser interfaceParser;
     @Resource

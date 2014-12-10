@@ -19,6 +19,6 @@ public class ScalarParser implements INodeParser<String> {
 
     @Override
     public String parse(Node node, ParsingContextExecution context) {
-        return ParserUtils.getScalar(node, context.getParsingErrors());
+        return ParserUtils.getScalar(node, context);
     }
 }

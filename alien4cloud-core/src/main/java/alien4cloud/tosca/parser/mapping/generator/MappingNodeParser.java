@@ -42,8 +42,8 @@ public class MappingNodeParser implements INodeParser<TypeNodeParser<?>> {
     private TypeNodeParser<?> doParse(MappingNode mappingNode, ParsingContextExecution context) throws ClassNotFoundException {
         Map<String, Node> nodeMap = mappingNodeAsMap(mappingNode);
 
-        String typeName = ParserUtils.getScalar(nodeMap.remove(TOSCA_TYPE_KEY), context.getParsingErrors());
-        String className = ParserUtils.getScalar(nodeMap.remove(CLASS_NAME_KEY), context.getParsingErrors());
+        String typeName = ParserUtils.getScalar(nodeMap.remove(TOSCA_TYPE_KEY), context);
+        String className = ParserUtils.getScalar(nodeMap.remove(CLASS_NAME_KEY), context);
 
         Class<?> targetClass = Class.forName(className);
         TypeNodeParser<?> nodeParser = new TypeNodeParser<>(targetClass, typeName);
@@ -82,7 +82,7 @@ public class MappingNodeParser implements INodeParser<TypeNodeParser<?>> {
     private MappingTarget processMapping(Node mapping, ParsingContextExecution context) {
         if (mapping instanceof ScalarNode) {
             // create a scalar mapping
-            String value = ParserUtils.getScalar(mapping, context.getParsingErrors());
+            String value = ParserUtils.getScalar(mapping, context);
             return new MappingTarget(value, SCALAR_PARSER);
         } else if (mapping instanceof MappingNode) {
             // yaml type is either a complex type or a map.
@@ -91,7 +91,7 @@ public class MappingNodeParser implements INodeParser<TypeNodeParser<?>> {
                 // TODO type reference mapping
             } else if (mappings.size() == 1) {
                 // collection mapping
-                String collectionKey = ParserUtils.getScalar(mappings.get(0).getKeyNode(), context.getParsingErrors());
+                String collectionKey = ParserUtils.getScalar(mappings.get(0).getKeyNode(), context);
                 Map<String, Node> collectionNode = mappingNodeAsMap((MappingNode) mappings.get(0).getValueNode());
                 return getCollectionMapping(collectionKey, collectionNode, context);
             }
@@ -100,12 +100,12 @@ public class MappingNodeParser implements INodeParser<TypeNodeParser<?>> {
     }
 
     private MappingTarget getCollectionMapping(String collectionKey, Map<String, Node> collectionNode, ParsingContextExecution context) {
-        String mapping = ParserUtils.getScalar(collectionNode.get("mapping"), context.getParsingErrors());
-        String type = ParserUtils.getScalar(collectionNode.get("type"), context.getParsingErrors());
+        String mapping = ParserUtils.getScalar(collectionNode.get("mapping"), context);
+        String type = ParserUtils.getScalar(collectionNode.get("type"), context);
         String key = null;
         Node keyNode = collectionNode.get("key");
         if (keyNode != null) {
-            key = ParserUtils.getScalar(collectionNode.get("key"), context.getParsingErrors());
+            key = ParserUtils.getScalar(collectionNode.get("key"), context);
         }
 
         ReferencedParser referencedParser = new ReferencedParser(type);

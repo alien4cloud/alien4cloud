@@ -5,16 +5,18 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 /**
  * Parse a tosca Scalar unit field.
  */
+@Component
 public class ScalarUnitParser extends ScalarParser {
     private static final Map<String, Double> factorMap = new HashMap<String, Double>(5);
     private static final Pattern scalarUnitPattern = Pattern.compile("([0-9.]+)\\s*([a-zA-Z]+)");
@@ -27,6 +29,10 @@ public class ScalarUnitParser extends ScalarParser {
     }
 
     private final double factor;
+
+    public ScalarUnitParser() {
+        this("b");
+    }
 
     /**
      * Create a scalar unit parser.

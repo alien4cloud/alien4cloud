@@ -2,33 +2,35 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.List;
 
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import lombok.AllArgsConstructor;
+import javax.annotation.Resource;
 
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.component.model.*;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 import com.google.common.collect.Lists;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the alien repository.
  */
-@AllArgsConstructor
-public class DerivedFromParser implements INodeParser<List<String>> {
-    private final ICSARRepositorySearchService searchService;
-    private final ScalarParser scalarParser;
+public abstract class DerivedFromParser implements INodeParser<List<String>> {
+    @Resource
+    private ICSARRepositorySearchService searchService;
+    @Resource
+    private ScalarParser scalarParser;
+
     private final Class<? extends IndexedInheritableToscaElement> validType;
+
+    public DerivedFromParser(Class<? extends IndexedInheritableToscaElement> validType) {
+        this.validType = validType;
+    }
 
     @Override
     public boolean isDeferred(ParsingContextExecution context) {

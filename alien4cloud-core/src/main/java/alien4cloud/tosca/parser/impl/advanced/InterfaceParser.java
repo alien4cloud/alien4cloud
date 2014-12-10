@@ -45,7 +45,7 @@ public class InterfaceParser implements INodeParser<Interface> {
         interfaz.setOperations(operations);
 
         for (NodeTuple entry : node.getValue()) {
-            String key = ParserUtils.getScalar(entry.getKeyNode(), context.getParsingErrors());
+            String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             if (INPUTS_KEY.equals(key)) {
                 // TODO process inputs.
             } else if (DESCRIPTION_KEY.equals(key)) {

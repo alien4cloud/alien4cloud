@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.BeanWrapper;
@@ -16,27 +15,11 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.parser.AbstractTypeNodeParser;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.MappingTarget;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingTechnicalException;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
-import alien4cloud.tosca.properties.constraints.EqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterThanConstraint;
-import alien4cloud.tosca.properties.constraints.InRangeConstraint;
-import alien4cloud.tosca.properties.constraints.LengthConstraint;
-import alien4cloud.tosca.properties.constraints.LessOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.LessThanConstraint;
-import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
-import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
-import alien4cloud.tosca.properties.constraints.PatternConstraint;
-import alien4cloud.tosca.properties.constraints.ValidValuesConstraint;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.properties.constraints.*;
 
 import com.google.common.collect.Maps;
 
@@ -82,7 +65,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
             MappingNode mappingNode = (MappingNode) node;
             if (mappingNode.getValue().size() == 1) {
                 NodeTuple nodeTuple = mappingNode.getValue().get(0);
-                String operator = ParserUtils.getScalar(nodeTuple.getKeyNode(), context.getParsingErrors());
+                String operator = ParserUtils.getScalar(nodeTuple.getKeyNode(), context);
                 // based on the operator we should load the right constraint.
                 return parseConstraint(operator, nodeTuple.getKeyNode(), nodeTuple.getValueNode(), context);
             } else {

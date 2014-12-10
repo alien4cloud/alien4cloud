@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import org.yaml.snakeyaml.composer.Composer;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
-import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.parser.ParserImpl;
 import org.yaml.snakeyaml.reader.StreamReader;
@@ -30,7 +29,6 @@ public abstract class YamlParser<T> {
      * Parse a yaml file to create a new T instance.
      * 
      * @param yamlPath Path of the yaml file.
-     * @param instance The instance to parse.
      * @return A parsing result that contains the parsing errors as well as the created instance.
      * @throws ParsingException In case there is a blocking issue while parsing the definition.
      */
@@ -66,22 +64,15 @@ public abstract class YamlParser<T> {
             throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.INVALID_YAML, exception));
         }
 
-        if (rootNode instanceof MappingNode) {
-            try {
-                return doParsing(yamlPath.getFileName().toString(), (MappingNode) rootNode, instance);
-            } catch (ParsingException e) {
-                e.setFileName(yamlPath.getFileName().toString());
-                throw e;
-            }
-        } else {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.SYNTAX_ERROR,
-                    "File is not a valid tosca definition file.", new Mark("root", 0, 0, 0, null, 0),
-                    "The provided yaml file doesn't follow the Top-level key definitions of a valid TOSCA Simple profile file.", new Mark("root", 0, 0, 0,
-                            null, 0), "TOSCA Definitions"));
+        try {
+            return doParsing(yamlPath.getFileName().toString(), rootNode, instance);
+        } catch (ParsingException e) {
+            e.setFileName(yamlPath.getFileName().toString());
+            throw e;
         }
     }
 
-    private ParsingResult<T> doParsing(String fileName, MappingNode rootNode, T instance) throws ParsingException {
+    private ParsingResult<T> doParsing(String fileName, Node rootNode, T instance) throws ParsingException {
         ParsingContextExecution context = new ParsingContextExecution(fileName);
 
         INodeParser<T> nodeParser = getParser(rootNode, context);
@@ -109,5 +100,5 @@ public abstract class YamlParser<T> {
      * @param context The parsing context.
      * @return The parser to use.
      */
-    protected abstract INodeParser<T> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException;
+    protected abstract INodeParser<T> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException;
 }
