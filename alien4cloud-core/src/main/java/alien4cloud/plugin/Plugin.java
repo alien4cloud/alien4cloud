@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
-import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
@@ -31,11 +30,9 @@ public class Plugin {
     public static final String LIST_FETCH_CONTEXT = "list";
 
     private PluginDescriptor descriptor;
+    private String pluginPathId;
     private boolean enabled;
     private boolean configurable;
-    /** Plugin archive data. */
-    @FetchContext(contexts = { LIST_FETCH_CONTEXT }, include = { false })
-    private byte[] content;
 
     @Id
     @TermFilter
@@ -61,11 +58,10 @@ public class Plugin {
      * Create a plugin from a given descriptor. The plugin is disabled by default.
      *
      * @param descriptor The descriptor for the plugin.
-     * @param pluginArchiveContent The content of the plugin archive file as a byte array.
+     * @param pluginPathId The id under which the plugin exists on the file system.
      */
-    public Plugin(PluginDescriptor descriptor, byte[] pluginArchiveContent) {
+    public Plugin(PluginDescriptor descriptor, String pluginPathId) {
         this.descriptor = descriptor;
         this.enabled = true;
-        this.content = pluginArchiveContent;
     }
 }
