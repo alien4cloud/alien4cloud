@@ -104,7 +104,7 @@ public class CloudService {
     private void initializeMatcherConfig(IPaaSProvider provider, Cloud cloud) {
         // If the provider manually match resources, then we should update it with saved configuration from Alien
         if (provider instanceof IManualResourceMatcherPaaSProvider) {
-            log.info("Cloud <{}> needs manual resource matcher configuration", cloud.getName());
+            log.info("Loading matching configuration for cloud <{}>.", cloud.getName());
             CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
             if (config == null) {
                 log.info("Publish new manual resource matcher configuration for cloud <{}>", cloud.getName());
