@@ -103,7 +103,7 @@ public class ApplicationController {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
-        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(applicationId, version.getId());
+        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
         deploymentSetupService.create(version, environment);
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }

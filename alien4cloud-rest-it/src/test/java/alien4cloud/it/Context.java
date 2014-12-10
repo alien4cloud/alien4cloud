@@ -107,6 +107,8 @@ public class Context {
 
     private ThreadLocal<Application> applicationLocal;
 
+    private ThreadLocal<Map<String, String>> applicationInfos;
+
     private ThreadLocal<Map<String, String>> cloudInfos;
 
     private ThreadLocal<String> topologyCloudInfos;
@@ -141,6 +143,7 @@ public class Context {
         cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
         environmentInfos = new ThreadLocal<Map<String, String>>();
+        applicationInfos = new ThreadLocal<Map<String, String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -450,8 +453,7 @@ public class Context {
         return topologyDeploymentId.get();
     }
 
-    public void registerApplicationEnvironmentId(String applicationEnvironmentId, String applicationEnvironmentName) {
-        log.debug("Registering application environment id [" + applicationEnvironmentId + "] in the context");
+    public void registerApplicationEnvironmentId(String applicationEnvironmentName, String applicationEnvironmentId) {
         if (this.environmentInfos.get() != null) {
             this.environmentInfos.get().put(applicationEnvironmentName, applicationEnvironmentId);
             return;
@@ -463,7 +465,15 @@ public class Context {
         return this.environmentInfos.get().get(applicationEnvironmentName);
     }
 
-    public int getApplicationEnvironmentCount() {
-        return this.environmentInfos.get().size();
+    public void registerApplicationId(String applicationName, String applicationId) {
+        if (this.applicationInfos.get() != null) {
+            this.applicationInfos.get().put(applicationName, applicationId);
+            return;
+        }
+        this.applicationInfos.set(MapUtil.newHashMap(new String[] { applicationName }, new String[] { applicationId }));
+    }
+
+    public String getApplicationId(String applicationName) {
+        return this.applicationInfos.get().get(applicationName);
     }
 }

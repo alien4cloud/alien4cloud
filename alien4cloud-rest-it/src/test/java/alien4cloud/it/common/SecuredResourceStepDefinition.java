@@ -1,10 +1,8 @@
 package alien4cloud.it.common;
 
-import lombok.extern.slf4j.Slf4j;
 import alien4cloud.it.Context;
 import cucumber.api.java.en.When;
 
-@Slf4j
 public class SecuredResourceStepDefinition {
 
     // Allowed resource types
@@ -53,15 +51,14 @@ public class SecuredResourceStepDefinition {
         String request = null;
         switch (RESOURCE_TYPE.valueOf(resourceTypeId)) {
         case APPLICATION:
-            request = "/rest/applications/" + Context.getInstance().getApplication().getId();
+            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName);
             break;
         case CLOUD:
             request = "/rest/clouds/" + Context.getInstance().getCloudId(resourceName);
             break;
         case ENVIRONMENT:
-            request = "/rest/applications/" + Context.getInstance().getApplication().getId() + "/environments/"
+            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName) + "/environments/"
                     + Context.getInstance().getApplicationEnvironmentId(resourceName);
-            log.info("request ENVIRONMENT : {}", request);
             break;
         default:
         }

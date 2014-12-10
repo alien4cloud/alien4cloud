@@ -69,8 +69,10 @@ public class ApplicationStepDefinitions {
 
         Context.getInstance().registerApplication(CURRENT_APPLICATION);
         if (application.getData() != null) {
-            String topologyId = getTopologyIdFromApplication(application.getData().getId());
+            String appId = application.getData().getId();
+            String topologyId = getTopologyIdFromApplication(appId);
             Context.getInstance().registerTopologyId(topologyId);
+            Context.getInstance().registerApplicationId(name, appId);
         }
     }
 
@@ -107,6 +109,8 @@ public class ApplicationStepDefinitions {
 
         assertNotNull(application);
         CURRENT_APPLICATION = application;
+        Context.getInstance().registerApplication(application);
+        Context.getInstance().registerApplicationId(name, application.getId());
 
         assertNotNull(getTopologyIdFromApplication(application.getId()));
 
@@ -502,7 +506,7 @@ public class ApplicationStepDefinitions {
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Assert.assertNotNull(appEnvId);
         // get and register the app environment id
-        Context.getInstance().registerApplicationEnvironmentId(appEnvId.getData(), appEnvName);
+        Context.getInstance().registerApplicationEnvironmentId(appEnvName, appEnvId.getData());
     }
 
     @When("^I get the application environment named \"([^\"]*)\"$")
@@ -514,11 +518,6 @@ public class ApplicationStepDefinitions {
         RestResponse<ApplicationEnvironment> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), ApplicationEnvironment.class);
         Assert.assertNotNull(appEnvironment.getData());
         Assert.assertEquals(appEnvironment.getData().getId(), applicationEnvId);
-    }
-
-    @Given("^I have an application environment registered in the context$")
-    public void I_have_an_application_environment_registered_in_the_context() throws Throwable {
-        Assert.assertTrue(Context.getInstance().getApplicationEnvironmentCount() > 0);
     }
 
     @When("^I update the application environment named \"([^\"]*)\" with values$")

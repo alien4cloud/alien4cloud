@@ -17,8 +17,8 @@ Feature: Search applications should be able to filter
     And I create a new application with name "lost" and description "Lost application." without errors
 
   Scenario: Searching applications with right given to groups
-    Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the application "a4c"
-    And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the application "smartest"
+    Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the resource type "APPLICATION" named "a4c"
+    And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the resource type "APPLICATION" named "smartest"
     And I am authenticated with user named "khang"
     When I search applications from 0 with result size of 20
     Then I should receive a RestResponse with no error
@@ -27,8 +27,8 @@ Feature: Search applications should be able to filter
       | smartest |
 
   Scenario: Searching applications with right given to users
-    Given I add a role "APPLICATION_USER" to user "dumb" on the application "dumbest"
-    And I add a role "DEPLOYMENT_MANAGER" to user "dumb" on the application "tron"
+    Given I add a role "APPLICATION_DEVOPS" to user "dumb" on the resource type "APPLICATION" named "dumbest"
+    And I add a role "APPLICATION_MANAGER" to user "dumb" on the resource type "APPLICATION" named "tron"
     And I am authenticated with user named "dumb"
     When I search applications from 0 with result size of 20
     Then I should receive a RestResponse with no error
@@ -39,8 +39,8 @@ Feature: Search applications should be able to filter
   Scenario: Searching applications with right given to groups and user
     Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the application "a4c"
     And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the application "smartest"
-    And I add a role "APPLICATION_USER" to user "khang" on the application "dumbest"
-    And I add a role "DEPLOYMENT_MANAGER" to user "khang" on the application "tron"
+    And I add a role "APPLICATION_MANAGER" to user "khang" on the application "dumbest"
+    And I add a role "APPLICATION_DEVOPS" to user "khang" on the application "tron"
     And I am authenticated with user named "khang"
     When I search applications from 0 with result size of 20
     Then I should receive a RestResponse with no error

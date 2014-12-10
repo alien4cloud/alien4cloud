@@ -1,6 +1,8 @@
 package alien4cloud.application;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -21,11 +23,14 @@ import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Service
@@ -50,8 +55,8 @@ public class ApplicationEnvironmentService {
      * @param applicationId The id of the application for which to create the environment.
      * @return The id of the newly created environment.
      */
-    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String versionId) {
-        return createApplicationEnvironment(applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, versionId);
+    public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String versionId) {
+        return createApplicationEnvironment(user, applicationId, DEFAULT_ENVIRONMENT_NAME, null, EnvironmentType.OTHER, versionId);
     }
 
     /**
@@ -63,8 +68,8 @@ public class ApplicationEnvironmentService {
      * @param environmentType The type of environment.
      * @return The newly created environment.
      */
-    public ApplicationEnvironment createApplicationEnvironment(String applicationId, String name, String description, EnvironmentType environmentType,
-            String versionId) {
+    public ApplicationEnvironment createApplicationEnvironment(String user, String applicationId, String name, String description,
+            EnvironmentType environmentType, String versionId) {
         // unique app env name for a given app
         ensureNameUnicity(applicationId, name);
         ApplicationEnvironment applicationEnvironment = new ApplicationEnvironment();
@@ -74,10 +79,9 @@ public class ApplicationEnvironmentService {
         applicationEnvironment.setEnvironmentType(environmentType);
         applicationEnvironment.setApplicationId(applicationId);
         applicationEnvironment.setCurrentVersionId(versionId);
-        // TODO : check application env default roles for user / group
-        // Map<String, Set<String>> userRoles = Maps.newHashMap();
-        // userRoles.put(user, Sets.newHashSet(ApplicationRole.APPLICATION_MANAGER.toString()));
-        // applicationEnvironment.setUserRoles(userRoles);
+        Map<String, Set<String>> userRoles = Maps.newHashMap();
+        userRoles.put(user, Sets.newHashSet(ApplicationEnvironmentRole.DEPLOYMENT_MANAGER.toString()));
+        applicationEnvironment.setUserRoles(userRoles);
         alienDAO.save(applicationEnvironment);
         return applicationEnvironment;
     }

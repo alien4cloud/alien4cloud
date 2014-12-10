@@ -8,6 +8,8 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -129,7 +131,8 @@ public class ApplicationEnvironmentController {
         Application application = alienDAO.findById(Application.class, request.getApplicationId());
         if (application != null) {
             AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-            appEnvironment = applicationEnvironmentService.createApplicationEnvironment(request.getApplicationId(), request.getName(),
+            final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(), request.getName(),
                     request.getDescription(), request.getEnvironmentType(), request.getVersionId());
             if (request.getCloudId() != null) {
                 // validate cloud and rights
