@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
@@ -55,6 +56,7 @@ public class ApplicationVersionService {
         appVersion.setVersion(version);
         appVersion.setReleased(false);
         appVersion.setLatest(true);
+        appVersion.setSnapshot(true);
         appVersion.setProperties(Maps.<String, String> newHashMap());
 
         Topology topology;
@@ -139,5 +141,13 @@ public class ApplicationVersionService {
             return true;
         }
         return false;
+    }
+
+    public ApplicationVersion getOrFail(String id) {
+        ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, id);
+        if (appVersion == null) {
+            throw new NotFoundException("Application version with id <" + id + "> does not exist");
+        }
+        return appVersion;
     }
 }

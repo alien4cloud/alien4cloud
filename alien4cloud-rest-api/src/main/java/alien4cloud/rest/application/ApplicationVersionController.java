@@ -21,6 +21,7 @@ import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.component.SearchRequest;
@@ -137,28 +138,23 @@ public class ApplicationVersionController {
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationVersionId,
             @RequestBody UpdateApplicationVersionRequest request) {
-        // check application version id
-        ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
-        if (appVersion != null) {
-            // check application
-            Application application = alienDAO.findById(Application.class, appVersion.getApplicationId());
-            if (application != null) {
-                ReflectionUtil.mergeObject(request, appVersion);
-                alienDAO.save(appVersion);
-            } else {
-                // linked application id not found
-                return buildApplicationVersionError("Application with id <" + appVersion.getApplicationId() + "> could not be found to update an environment");
-            }
-        } else {
-            // no application found
-            return buildApplicationVersionError("Application version with id <" + applicationVersionId + "> does not exist");
+        applicationService.getOrFail(applicationId);
+        ApplicationVersion appVersion = appVersionService.getOrFail(applicationVersionId);
+
+        if (appVersionService.isApplicationVersionNameExist(applicationId, request.getVersion())) {
+            throw new AlreadyExistException("An application version already exist for this application with the version :" + request.getVersion());
         }
+
+        ReflectionUtil.mergeObject(request, appVersion);
+        appVersion.setSnapshot(VersionUtil.isSnapshot(appVersion.getVersion()));
+        alienDAO.save(appVersion);
         return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
      * Delete an application environment based on it's id. Should not be able to delete a deployed version.
      * 
+     * @param applicationId
      * @param applicationVersionId
      * @return
      */

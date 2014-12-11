@@ -41,6 +41,8 @@ public class ApplicationVersion implements IManagedSecuredResource {
     private boolean released;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean latest;
+    @BooleanField(index = IndexType.not_analyzed)
+    private boolean isSnapshot;
 
     @JsonIgnore
     @Override
