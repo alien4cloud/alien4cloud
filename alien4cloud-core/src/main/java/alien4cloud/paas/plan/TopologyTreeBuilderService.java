@@ -102,13 +102,13 @@ public class TopologyTreeBuilderService {
 
             // manage blockstorages
             if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
-                manageBlockStorage(paaSNodeTemplate, nodeTemplates);
+                processBlockStorage(paaSNodeTemplate, nodeTemplates);
                 continue;
             }
 
             // manage network
             if (isCompute) {
-                manageNetwork(paaSNodeTemplate, nodeTemplates);
+                processNetwork(paaSNodeTemplate, nodeTemplates);
             }
 
             PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
@@ -136,7 +136,28 @@ public class TopologyTreeBuilderService {
         return roots;
     }
 
-    private void manageNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    /**
+     * flatten a hostedOnTree to have a map of all nodeTemplates present in the tree
+     *
+     * @param roots list of the roots of the tree
+     * @param paaSNodeTemplates the map of PaaSNodeTemplate to fill
+     */
+    public void flattenHostedOnTree(List<PaaSNodeTemplate> roots, Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+        for (PaaSNodeTemplate paaSNodeTemplate : roots) {
+            if (!paaSNodeTemplates.containsKey(paaSNodeTemplate.getId())) {
+                paaSNodeTemplates.put(paaSNodeTemplate.getId(), paaSNodeTemplate);
+            }
+            if (paaSNodeTemplate.getAttachedNode() != null && !paaSNodeTemplates.containsKey(paaSNodeTemplate.getAttachedNode().getId())) {
+                paaSNodeTemplates.put(paaSNodeTemplate.getAttachedNode().getId(), paaSNodeTemplate.getAttachedNode());
+            }
+            if (paaSNodeTemplate.getNetworkNode() != null && !paaSNodeTemplates.containsKey(paaSNodeTemplate.getNetworkNode().getId())) {
+                paaSNodeTemplates.put(paaSNodeTemplate.getAttachedNode().getId(), paaSNodeTemplate.getNetworkNode());
+            }
+            flattenHostedOnTree(paaSNodeTemplate.getChildren(), paaSNodeTemplates);
+        }
+    }
+
+    private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
         if (networkRelationship != null) {
             String target = networkRelationship.getRelationshipTemplate().getTarget();
@@ -146,7 +167,7 @@ public class TopologyTreeBuilderService {
         }
     }
 
-    private void manageBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate attachTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ATTACH_TO);
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
@@ -181,4 +202,5 @@ public class TopologyTreeBuilderService {
         Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
         paaSTemplate.setCsarPath(csarPath);
     }
+
 }

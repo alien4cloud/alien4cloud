@@ -1,16 +1,18 @@
 package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.tosca.model.IOperationParameter;
 import alien4cloud.tosca.model.ImplementationArtifact;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * A workflow step that calls an operation.
- * 
+ *
  * @author luc boutier
  */
 @Getter
@@ -30,6 +32,8 @@ public class OperationCallActivity extends AbstractWorkflowStep {
     private Path csarPath;
     /** The artifact that implements the operation. */
     private ImplementationArtifact implementationArtifact;
+    /** The inputs parameters of the the operation. */
+    private Map<String, IOperationParameter> inputParameters;
     /** True if the artifact is related to the operation, false if the artifact is a single artifact for the whole interface (contains several methods) */
     private boolean isOperationArtifact = true;
 }

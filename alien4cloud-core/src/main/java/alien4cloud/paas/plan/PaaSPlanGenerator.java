@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 
 /**
  * Generate the build plan based on normative types and interfaces.
- * 
+ *
  * @author luc boutier
  */
 public final class PaaSPlanGenerator {
@@ -27,7 +27,7 @@ public final class PaaSPlanGenerator {
 
     /**
      * Create a full build plan from a hierarchy of {@link PaaSNodeTemplate}.
-     * 
+     *
      * @param roots The roots of the {@link PaaSNodeTemplate} hierarchy.
      * @return The start event for the flow.
      */
@@ -60,7 +60,7 @@ public final class PaaSPlanGenerator {
     /**
      * Create the creation plan for a given node. The creation plan is a sub-plan of the build plan. It includes the creation and configuration steps for the
      * different nodes of the topology.
-     * 
+     *
      * @param previousStep The step on which to append the first step of the node plan. This can be either
      * @param nodeTemplate The node template for which to build the flow.
      * @return The last step of the node creation plan. This allows to add some other steps (like the start plan).
@@ -96,6 +96,7 @@ public final class PaaSPlanGenerator {
         Operation operation = interfaz.getOperations().get(operationName);
         if (operation != null && operation.getImplementationArtifact() != null) {
             activity.setImplementationArtifact(operation.getImplementationArtifact());
+            activity.setInputParameters(operation.getInputParameters());
         }
         return activity;
     }
@@ -112,7 +113,7 @@ public final class PaaSPlanGenerator {
     /**
      * Create the creation plan for a given node. The creation plan is a sub-plan of the build plan. It includes the creation and configuration steps for the
      * different nodes of the topology.
-     * 
+     *
      * @param nodeTemplate The node template for which to build a creation plan (this should be done on a root node in a topology).
      * @return The start event for the node creation plan.
      */
@@ -205,7 +206,7 @@ public final class PaaSPlanGenerator {
 
     /**
      * Create the worflow for a relationship before the node actually started.
-     * 
+     *
      * @param currentNode The node that is currently under process.
      * @param relationshipTemplate The relationship template for which to generate lifecycle.
      * @param previousStep The step that executes before the relationship lifecycle.
@@ -240,7 +241,7 @@ public final class PaaSPlanGenerator {
 
     /**
      * Create the worflow for a relationship before the node actually started.
-     * 
+     *
      * @param currentNode The node that is currently under process.
      * @param relationshipTemplate The relationship template for which to generate lifecycle.
      * @param previousStep The step that executes before the relationship lifecycle.
@@ -270,7 +271,7 @@ public final class PaaSPlanGenerator {
     /**
      * Create the creation plan for a given node. The creation plan is a sub-plan of the build plan. It includes the creation and configuration steps for the
      * different nodes of the topology.
-     * 
+     *
      * @param nodeTemplate The node template for which to build a creation plan (this should be done on a root node in a topology).
      * @return The start event for the node creation plan.
      */
@@ -310,12 +311,12 @@ public final class PaaSPlanGenerator {
 
     /**
      * Create the stopping workflow for the relationship.
-     * 
+     *
      * TODO Currently we just call the removeTarget script on the target node. We may have to switch the call to the source as this may make more sense.
      * However this cause issues in the way we can get the instance information.
      * Note that this could be actually managed by registering on cloudify events on target node deletion. This would support also failure management and would
      * be better.
-     * 
+     *
      * @param currentNode The node that is currently under process.
      * @param relationshipTemplate The relationship template for which to generate lifecycle.
      * @param previousStep The step that executes before the relationship.
@@ -337,7 +338,7 @@ public final class PaaSPlanGenerator {
 
     /***
      * Add the next step to the previous step. In case previous step is a parallel gateway the step will no be set as the next step but as a parallel step.
-     * 
+     *
      * @param previousStep The previous step. If a parallel gateway, the next step will be added to the parallel steps list, if not append as the next step.
      * @param nextStep The step to be placed as a next step for the previous step.
      * @return The next step.
@@ -360,7 +361,7 @@ public final class PaaSPlanGenerator {
      * Note that if the node has no lifecycle interface we throw an IllegalArgumentException as the plan cannot be generated if nodes doesn't uses this
      * interface.
      * </p>
-     * 
+     *
      * @param nodeTemplate The node template for which to get the lifecycle interface.
      * @return The lifecycle interface as defined on the node.
      */
@@ -380,7 +381,7 @@ public final class PaaSPlanGenerator {
      * Note that if the relationship has no lifecycle interface we throw an IllegalArgumentException as the plan cannot be generated if relationships doesn't
      * uses this interface.
      * </p>
-     * 
+     *
      * @param relationshipTemplate The relationship template for which to get the lifecycle interface.
      * @return The lifecycle interface as defined on the relationship.
      */
