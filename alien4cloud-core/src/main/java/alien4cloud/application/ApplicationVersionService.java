@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
@@ -43,6 +44,10 @@ public class ApplicationVersionService {
      * @param version The number version of the new application version.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version) {
+        if (isApplicationVersionNameExist(applicationId, version)) {
+            throw new AlreadyExistException("An application version already exist for this application with the version :" + version);
+        }
+
         VersionUtil.parseVersion(version);
         ApplicationVersion appVersion = new ApplicationVersion();
         appVersion.setId(UUID.randomUUID().toString());
@@ -118,6 +123,18 @@ public class ApplicationVersionService {
                 null,
                 MapUtil.newHashMap(new String[] { "deploymentSetup.versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
                         new String[] { null } }), 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isApplicationVersionNameExist(String applicationId, String applicationVersionName) {
+        GetMultipleDataResult<ApplicationVersion> dataResult = alienDAO.search(
+                ApplicationVersion.class,
+                null,
+                MapUtil.newHashMap(new String[] { "applicationId", "version" }, new String[][] { new String[] { applicationId },
+                        new String[] { applicationVersionName } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
         }

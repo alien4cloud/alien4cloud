@@ -15,10 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -54,10 +52,6 @@ public class ApplicationVersionController {
     private ApplicationService applicationService;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private DeploymentSetupService deploymentSetupService;
-    @Resource
-    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Get all application versions for an application
@@ -82,10 +76,10 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Search for application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+    public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, searchRequest.getQuery(),
                 getApplicationVersionsFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResult).build();
+        return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
     }
 
     /**
@@ -113,12 +107,9 @@ public class ApplicationVersionController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@Valid @RequestBody UpdateApplicationVersionRequest request) {
-        if(! VersionUtil.isValid(request.getVersion())) {
-            return RestResponseBuilder
-                    .<String> builder()
-                    .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                            .message("This version is not valid [" + request.getVersion() + "] as it does not match [" + VersionUtil.VERSION_PATTERN + "]").build()).build();
+        if (!VersionUtil.isValid(request.getVersion())) {
+            return buildApplicationVersionError("This version is not valid [" + request.getVersion() + "] as it does not match [" + VersionUtil.VERSION_PATTERN
+                    + "]");
         }
 
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
@@ -128,12 +119,9 @@ public class ApplicationVersionController {
             AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
             appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
         } else {
-            // no application found to create a version
-            return RestResponseBuilder
-                    .<String> builder()
-                    .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                            .message("Application with id <" + request.getApplicationId() + "> could not be found to create a new application version").build()).build();
+            // no application found
+            return buildApplicationVersionError("Application with id <" + request.getApplicationId()
+                    + "> could not be found to create a new application version");
         }
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
@@ -150,7 +138,7 @@ public class ApplicationVersionController {
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationVersionId,
             @RequestBody UpdateApplicationVersionRequest request) {
         // check application version id
-    	ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
+        ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
         if (appVersion != null) {
             // check application
             Application application = alienDAO.findById(Application.class, appVersion.getApplicationId());
@@ -159,20 +147,11 @@ public class ApplicationVersionController {
                 alienDAO.save(appVersion);
             } else {
                 // linked application id not found
-                return RestResponseBuilder
-                        .<Void> builder()
-                        .data(null)
-                        .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                                .message("Application with id <" + appVersion.getApplicationId() + "> could not be found to update an environment").build())
-                        .build();
+                return buildApplicationVersionError("Application with id <" + appVersion.getApplicationId() + "> could not be found to update an environment");
             }
         } else {
-            // no application found to create a version
-            return RestResponseBuilder
-                    .<Void> builder()
-                    .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                            .message("Application version with id <" + applicationVersionId + "> does not exist").build()).build();
+            // no application found
+            return buildApplicationVersionError("Application version with id <" + applicationVersionId + "> does not exist");
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -193,11 +172,7 @@ public class ApplicationVersionController {
             return RestResponseBuilder.<Boolean> builder().data(true).build();
         } else {
             // we can't delete an application version if this version is deployed
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(false)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                            .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build()).build();
+            return buildApplicationVersionError("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used");
         }
     }
 
@@ -215,5 +190,10 @@ public class ApplicationVersionController {
             filterValues.add(new String[] { applicationId });
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
+    }
+
+    private <T> RestResponse<T> buildApplicationVersionError(String message) {
+        return RestResponseBuilder.<T> builder().error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message(message).build()).build();
+
     }
 }

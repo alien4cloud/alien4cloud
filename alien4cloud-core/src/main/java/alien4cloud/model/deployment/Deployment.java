@@ -7,7 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.*;
+import org.elasticsearch.annotation.ESObject;
+import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.TimeStamp;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
@@ -38,12 +42,12 @@ public class Deployment {
 
     /** Id of the cloud on which the deployment is performed. */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String cloudId;
 
     /** Id of the application that has been deployed */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String sourceId;
 
     /** Name of the application. This is used as backup if application is deleted. */
@@ -53,7 +57,7 @@ public class Deployment {
 
     /** Id of the topology that is deployed (runtime topology) */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String topologyId;
 
     /** Start date of the deployment */

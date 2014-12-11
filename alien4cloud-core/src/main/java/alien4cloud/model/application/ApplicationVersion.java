@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class ApplicationVersion implements IManagedSecuredResource {
     @Id
     private String id;
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String version;
     private String description;
     @TermFilter
