@@ -13,6 +13,11 @@ Feature: CRUD operations on application version
 	And I create an application version with version "0.3..0-SNAPSHOT-SHOULD-FAILED"
 	Then I should receive a RestResponse with an error code 605
 
+  Scenario: Create an application version with with the same name version raise a conflict
+    Given I have an application with name "ALIEN"
+	And I create an application version with version "0.1.0-SNAPSHOT"
+	Then I should receive a RestResponse with an error code 605
+
   Scenario: Create an application version with success
     Given I have an application with name "ALIEN"
 	And I create an application version with version "0.3.0-SNAPSHOT"

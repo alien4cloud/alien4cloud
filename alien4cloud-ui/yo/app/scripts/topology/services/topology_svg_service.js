@@ -25,7 +25,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var nodeTemplate = instance.topology.topology.nodeTemplates[node.id];
         var nodeType = instance.topology.nodeTypes[nodeTemplate.type];
         return instance.tooltip(node, nodeTemplate, nodeType);
-        });
+      });
       this.svg.call(this.tip);
 
       this.defineMarkers(this.svg);

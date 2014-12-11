@@ -2,13 +2,7 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
@@ -77,13 +71,12 @@ public class PluginManager {
             }
         }
 
-        // Cleanup plugin work directory.
+        // Ensure plugin directory exists.
         Path path = FileSystems.getDefault().getPath(pluginDirectory);
-        if (Files.exists(path)) {
-            FileUtil.delete(path);
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+            log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
         }
-        Files.createDirectories(path);
-        log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
 
         // Load enabled plugins in alien
         int from = 0;
@@ -111,22 +104,28 @@ public class PluginManager {
     /**
      * Upload a plugin from a given path.
      * 
-     * @param pluginPath The path of the plugin to upload.
+     * @param uploadedPluginPath The path of the plugin to upload.
      * @throws IOException In case there is an issue with the access to the plugin file.
      * @throws PluginLoadingException
      * @throws AlreadyExistException if a plugin with the same id already exists in the repository
      * @return the uploaded plugin
      */
-    public Plugin uploadPlugin(Path pluginPath) throws IOException, PluginLoadingException {
+    public Plugin uploadPlugin(Path uploadedPluginPath) throws IOException, PluginLoadingException {
         // load the plugin descriptor
-        FileSystem fs = FileSystems.newFileSystem(pluginPath, null);
+        FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
         try {
             PluginDescriptor descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
-            Plugin plugin = new Plugin(descriptor, Files.readAllBytes(pluginPath));
+
+            String pluginPathId = getPluginPathId();
+            Plugin plugin = new Plugin(descriptor, pluginPathId);
+
+            Path pluginPath = getPluginPath(pluginPathId);
+            FileUtil.unzip(uploadedPluginPath, pluginPath);
+
             // check plugin already exists
             long count = alienDAO.count(Plugin.class, QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId()));
             if (count > 0) {
-                log.debug("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
+                log.warn("Uploading Plugin <{}> impossible (already exists)", plugin.getId());
                 throw new AlreadyExistException("A plugin with the given id and version already exists.");
             }
             loadPlugin(plugin);
@@ -216,13 +215,7 @@ public class PluginManager {
 
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
         try {
-            Path pluginPath = getPluginPath();
-            Path zipFile = getPluginZipFilePath(plugin.getId());
-            if (Files.exists(zipFile)) {
-                FileUtil.delete(zipFile);
-            }
-            Files.write(zipFile, plugin.getContent(), StandardOpenOption.CREATE);
-            FileUtil.unzip(zipFile, pluginPath);
+            Path pluginPath = getPluginPath(plugin.getPluginPathId());
             loadPlugin(plugin, pluginPath);
         } catch (Throwable e) {
             log.error("Failed to load plugin <" + plugin.getId() + "> alien will ignore this plugin.", e);
@@ -230,14 +223,20 @@ public class PluginManager {
         }
     }
 
-    private Path getPluginPath() {
+    private String getPluginPathId() {
         // JVM has a bug that makes a classloader keep a lock on loaded files while the VM is running.
         // we create a unique random folder for plugins so the lock cannot prevent to delete and re-upload the same plugin.
-        Path pluginPath = FileSystems.getDefault().getPath(pluginDirectory, UUID.randomUUID().toString());
+        String pluginId = UUID.randomUUID().toString();
+        Path pluginPath = getPluginPath(pluginId);
         while (Files.exists(pluginPath)) {
-            pluginPath = FileSystems.getDefault().getPath(pluginDirectory, UUID.randomUUID().toString());
+            pluginId = UUID.randomUUID().toString();
+            pluginPath = getPluginPath(pluginId);
         }
-        return pluginPath;
+        return pluginId;
+    }
+
+    private Path getPluginPath(String pluginPathId) {
+        return FileSystems.getDefault().getPath(pluginDirectory, pluginPathId);
     }
 
     private Path getPluginZipFilePath(String pluginId) {
@@ -247,8 +246,9 @@ public class PluginManager {
 
     /**
      * Actually load and link a plugin in Alien 4 Cloud.
-     * 
-     * @param pluginJarPath The path to the file that contains the plugin.
+     *
+     * @param plugin The plugin the load and link.
+     * @param pluginPath the path to the directory that contains the un-zipped plugin.
      * @throws IOException In case there is an IO issue with the file.
      * @throws ClassNotFoundException If we cannot load the class
      */
