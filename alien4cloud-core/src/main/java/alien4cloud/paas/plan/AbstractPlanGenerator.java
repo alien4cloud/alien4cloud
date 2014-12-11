@@ -27,12 +27,25 @@ public abstract class AbstractPlanGenerator {
     /**
      * Generate a plan for a nodes hierarchy.
      * 
-     * @return A the start workflow step.
+     * @return The start workflow step.
      */
     public StartEvent generate(List<PaaSNodeTemplate> roots) {
         StartEvent startEvent = new StartEvent();
         lastStep = startEvent;
         parallel(roots);
+        return startEvent;
+    }
+
+    /**
+     * Generate a plan for a single node hierarchy.
+     * 
+     * @param node The node for which to generate the plan.
+     * @return The start workflow step.
+     */
+    public StartEvent generate(PaaSNodeTemplate node) {
+        StartEvent startEvent = new StartEvent();
+        lastStep = startEvent;
+        generateNodeWorkflow(node);
         return startEvent;
     }
 
