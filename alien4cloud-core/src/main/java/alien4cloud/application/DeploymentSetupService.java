@@ -8,7 +8,10 @@ import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
 
+import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.mapping.IndexType;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.cloud.CloudResourceMatcherService;
@@ -16,6 +19,7 @@ import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -47,6 +51,10 @@ public class DeploymentSetupService {
 
     @Resource
     private CloudService cloudService;
+
+    @TermFilter
+    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
+    private String versionId;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return alienDAO.findById(DeploymentSetup.class, generateId(version.getId(), environment.getId()));
@@ -176,9 +184,20 @@ public class DeploymentSetupService {
     /**
      * Delete a deployment setup based on the id of the related version.
      *
-     * @param environmentId The id of the version
+     * @param versionId The id of the version
      */
-    public void deleteByVersionId(String environmentId) {
-        alienDAO.delete(DeploymentSetup.class, QueryBuilders.termQuery("versionId", environmentId));
+    public void deleteByVersionId(String versionId) {
+        alienDAO.delete(DeploymentSetup.class, QueryBuilders.termQuery("versionId", versionId));
+    }
+
+    /**
+     * Get all deployments setup based on the id of the related version.
+     *
+     * @param versionId The id of the version
+     */
+    public GetMultipleDataResult<DeploymentSetup> getByVersionId(String versionId) {
+        Map<String, String[]> filters = Maps.newHashMap();
+        filters.put("versionId", new String[] { versionId });
+        return alienDAO.search(DeploymentSetup.class, null, filters , 0, 20);
     }
 }

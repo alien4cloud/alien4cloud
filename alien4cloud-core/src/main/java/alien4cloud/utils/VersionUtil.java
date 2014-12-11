@@ -2,12 +2,12 @@ package alien4cloud.utils;
 
 import java.util.regex.Pattern;
 
-import alien4cloud.utils.version.InvalidVersionException;
+import alien4cloud.utils.version.ApplicationVersionException;
 import alien4cloud.utils.version.Version;
 
 public final class VersionUtil {
 
-    /** Utility class should have default constructor. */
+    /** Utility class should not have public constructor. */
     private VersionUtil() {
     }
 
@@ -15,7 +15,7 @@ public final class VersionUtil {
      * The version must begin with a bloc of numbers, and then it can have one or more bloc of numbers separated by '.'
      * and then it can have alpha numeric bloc separated by '.' or '-'
      */
-    private static final Pattern VERSION_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*");
+    public static final Pattern VERSION_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*");
     private static final String SNAPSHOT_IDENTIFIER = "SNAPSHOT";
 
     /**
@@ -43,11 +43,11 @@ public final class VersionUtil {
      * 
      * @param version version text to parse
      * @return a comparable version object
-     * @throws InvalidVersionException if the version text is not following the defined version pattern
+     * @throws ApplicationVersionException if the version text is not following the defined version pattern
      */
     public static Version parseVersion(String version) {
         if (!isValid(version)) {
-            throw new InvalidVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
+            throw new ApplicationVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
         } else {
             return new Version(version);
         }

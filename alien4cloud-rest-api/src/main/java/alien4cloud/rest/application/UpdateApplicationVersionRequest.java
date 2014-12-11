@@ -2,6 +2,9 @@ package alien4cloud.rest.application;
 
 import java.util.Map;
 
+import com.wordnik.swagger.annotations.ApiModelProperty;
+import com.wordnik.swagger.annotations.ApiParam;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,9 +20,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class UpdateApplicationVersionRequest {
-    private String id;
+	@ApiModelProperty(required=true)
     private String version;
-    private String description;
+	@ApiModelProperty(required=true)
     private String applicationId;
+    private String description;
     private boolean released;
 }

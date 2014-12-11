@@ -121,6 +121,8 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> cloudImageNameToCloudImageIdMapping;
 
+    private ThreadLocal<Map<String, String>> applicationVersionNameToApplicationVersionIdMapping;
+
     private ThreadLocal<String> applicationEnvironmentId;
 
     private Context() {
@@ -140,6 +142,9 @@ public class Context {
         groupIdToGroupNameMapping.set(new HashMap<String, String>());
         cloudImageNameToCloudImageIdMapping = new ThreadLocal<>();
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
+        applicationVersionNameToApplicationVersionIdMapping = new ThreadLocal<>();
+        applicationVersionNameToApplicationVersionIdMapping.set(new HashMap<String, String>());
+
         applicationEnvironmentId = new ThreadLocal<String>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
@@ -206,6 +211,14 @@ public class Context {
 
     public String getCloudImageId(String cloudImageName) {
         return cloudImageNameToCloudImageIdMapping.get().get(cloudImageName);
+    }
+
+    public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
+        applicationVersionNameToApplicationVersionIdMapping.get().put(applicationVersionName, applicationVersionId);
+    }
+
+    public String getApplicationVersionId(String applicationVersionName) {
+        return applicationVersionNameToApplicationVersionIdMapping.get().get(applicationVersionName);
     }
 
     public void registerRestResponse(String restResponse) {

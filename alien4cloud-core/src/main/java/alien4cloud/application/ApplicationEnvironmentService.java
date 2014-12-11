@@ -15,11 +15,9 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -102,7 +100,7 @@ public class ApplicationEnvironmentService {
         List<String> deployedEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            if (!this.isDeployed(environment)) {
+            if (!this.isEnvironmentDeployed(environment.getId())) {
                 delete(environment.getId());
             } else {
                 // collect all deployed environment
@@ -122,32 +120,15 @@ public class ApplicationEnvironmentService {
      * @return true if the environment is currently deployed
      * @throws CloudDisabledException
      */
-    public boolean isDeployed(ApplicationEnvironment applicationEnvironment) throws CloudDisabledException {
-
-        // First phase : there is at least one deploymentSetup with this applicationEnvironmentId
-        GetMultipleDataResult<DeploymentSetup> deploymentSetupSearch = alienDAO.find(DeploymentSetup.class,
-                MapUtil.newHashMap(new String[] { "environmentId" }, new String[][] { new String[] { applicationEnvironment.getId() } }), Integer.MAX_VALUE);
-        // no deploymentSetup => no app environment deployed
-        if (deploymentSetupSearch.getData().length == 0) {
-            return false;
-        }
-        // Second phase : this deploymentSetup has a deployment in status DeploymentStatus.DEPLOYED
-        GetMultipleDataResult<Deployment> deployments = null;
-        DeploymentStatus deploymentStatus = null;
-        boolean isDeployed = false;
-        for (DeploymentSetup deploymentSetup : deploymentSetupSearch.getData()) {
-            deployments = deploymentService.getDeploymentsByDeploymentSetup(deploymentSetup.getId());
-            for (Deployment deployment : deployments.getData()) {
-                try {
-                    deploymentStatus = deploymentService.getDeploymentStatus(deployment.getTopologyId(), applicationEnvironment.getCloudId());
-                } catch (CloudDisabledException e) {
-                    throw new CloudDisabledException("Cloud is not enabled and no PaaSProvider instance has been created.");
-                }
-                isDeployed = deploymentStatus.equals(DeploymentStatus.DEPLOYED);
-                if (isDeployed) {
-                    return true;
-                }
-            }
+    public boolean isEnvironmentDeployed(String appEnvironmentId) throws CloudDisabledException {
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
+                Deployment.class,
+                null,
+                MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] {
+ new String[] { appEnvironmentId },
+                        new String[] { null } }), 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
         }
         return false;
     }

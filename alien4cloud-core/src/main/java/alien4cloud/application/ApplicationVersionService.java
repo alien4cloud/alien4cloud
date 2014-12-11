@@ -10,8 +10,11 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.version.ApplicationVersionException;
 
 import com.google.common.collect.Maps;
 
@@ -23,19 +26,31 @@ public class ApplicationVersionService {
     private IGenericSearchDAO alienDAO;
 
     /**
-     * Create a new version for an application based on an existing topology.
+     * Create a new version for an application based on an existing topology with the default version name.
      *
      * @param applicationId The id of the application for which to create the version.
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
-        ApplicationVersion version = new ApplicationVersion();
-        version.setId(UUID.randomUUID().toString());
-        version.setApplicationId(applicationId);
-        version.setVersion(DEFAULT_VERSION_NAME);
-        version.setReleased(false);
-        version.setLatest(true);
-        version.setProperties(Maps.<String, String> newHashMap());
+        return createApplicationVersion(applicationId, topologyId, DEFAULT_VERSION_NAME);
+    }
+
+    /**
+     * Create a new version for an application based on an existing topology.
+     *
+     * @param applicationId The id of the application for which to create the version.
+     * @param topologyId The id of the topology to clone for the version's topology.
+     * @param version The number version of the new application version.
+     */
+    public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version) {
+        VersionUtil.parseVersion(version);
+        ApplicationVersion appVersion = new ApplicationVersion();
+        appVersion.setId(UUID.randomUUID().toString());
+        appVersion.setApplicationId(applicationId);
+        appVersion.setVersion(version);
+        appVersion.setReleased(false);
+        appVersion.setLatest(true);
+        appVersion.setProperties(Maps.<String, String> newHashMap());
 
         Topology topology;
         if (topologyId != null) { // "cloning" the topology
@@ -48,13 +63,13 @@ public class ApplicationVersionService {
         topology.setDelegateType(Application.class.getSimpleName().toLowerCase());
         alienDAO.save(topology);
 
-        version.setTopologyId(topology.getId());
-        alienDAO.save(version);
-        return version;
+        appVersion.setTopologyId(topology.getId());
+        alienDAO.save(appVersion);
+        return appVersion;
     }
 
     /**
-     * Get all environments for a given application.
+     * Get all application version for a given application.
      *
      * @param applicationId The id of the application for which to get environments.
      * @return An array of the environments for the requested application id.
@@ -79,6 +94,9 @@ public class ApplicationVersionService {
      */
     public void delete(String id) {
         ApplicationVersion version = alienDAO.findById(ApplicationVersion.class, id);
+        if (version == null) {
+            throw new ApplicationVersionException("No application version find with the id :" + id);
+        }
         deleteVersion(version);
     }
 
@@ -92,5 +110,17 @@ public class ApplicationVersionService {
         for (ApplicationVersion version : versions) {
             deleteVersion(version);
         }
+    }
+
+    public boolean isApplicationVersionDeployed(String applicationVersionId) {
+        GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
+                Deployment.class,
+                null,
+                MapUtil.newHashMap(new String[] { "deploymentSetup.versionId", "endDate" }, new String[][] { new String[] { applicationVersionId },
+                        new String[] { null } }), 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
+        }
+        return false;
     }
 }

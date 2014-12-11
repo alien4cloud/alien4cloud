@@ -6,8 +6,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,16 +15,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.cloud.CloudService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -37,12 +35,12 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
+import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/versions")
 @Api(value = "", description = "Manages application's versions")
@@ -51,25 +49,27 @@ public class ApplicationVersionController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
-    private ApplicationVersionService applicationVersionService;
-    @Resource
-    private CloudService cloudService;
+    private ApplicationVersionService appVersionService;
     @Resource
     private ApplicationService applicationService;
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Get all application versions for an application
      *
      * @param applicationId The application id.
      */
-    @ApiOperation(value = "Get all application vesions for an application", notes = "Return all application vesions for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get an application vesion.", notes = "Return an application vesion. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationVersion> get(@PathVariable String applicationId) {
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
+        ApplicationVersion[] versions = appVersionService.getByApplicationId(applicationId);
         return RestResponseBuilder.<ApplicationVersion> builder().data(versions[0]).build();
     }
 
@@ -113,18 +113,26 @@ public class ApplicationVersionController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@Valid @RequestBody UpdateApplicationVersionRequest request) {
+        if(! VersionUtil.isValid(request.getVersion())) {
+            return RestResponseBuilder
+                    .<String> builder()
+                    .data(null)
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
+                            .message("This version is not valid [" + request.getVersion() + "] as it does not match [" + VersionUtil.VERSION_PATTERN + "]").build()).build();
+        }
+
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         ApplicationVersion appVersion = null;
         Application application = alienDAO.findById(Application.class, request.getApplicationId());
         if (application != null) {
             AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
-            appVersion = applicationVersionService.createApplicationVersion(request.getApplicationId(), null);
+            appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
         } else {
             // no application found to create a version
             return RestResponseBuilder
                     .<String> builder()
                     .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
                             .message("Application with id <" + request.getApplicationId() + "> could not be found to create a new application version").build()).build();
         }
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
@@ -137,9 +145,10 @@ public class ApplicationVersionController {
      * @param request
      * @return
      */
-    @ApiOperation(value = "Updates by merging the given request into the given application environment", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody UpdateApplicationVersionRequest request) {
+    @ApiOperation(value = "Updates by merging the given request into the given application version", notes = "Updates by merging the given request into the given application version. The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
+    @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationVersionId,
+            @RequestBody UpdateApplicationVersionRequest request) {
         // check application version id
     	ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, applicationVersionId);
         if (appVersion != null) {
@@ -153,7 +162,7 @@ public class ApplicationVersionController {
                 return RestResponseBuilder
                         .<Void> builder()
                         .data(null)
-                        .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                        .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
                                 .message("Application with id <" + appVersion.getApplicationId() + "> could not be found to update an environment").build())
                         .build();
             }
@@ -162,7 +171,7 @@ public class ApplicationVersionController {
             return RestResponseBuilder
                     .<Void> builder()
                     .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
                             .message("Application version with id <" + applicationVersionId + "> does not exist").build()).build();
         }
         return RestResponseBuilder.<Void> builder().build();
@@ -179,15 +188,15 @@ public class ApplicationVersionController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        if (deploymentService.getDeployment(applicationId).equals(DeploymentStatus.UNDEPLOYED)) {
-            applicationVersionService.delete(applicationVersionId);
+        if (!appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
+            appVersionService.delete(applicationVersionId);
             return RestResponseBuilder.<Boolean> builder().data(true).build();
         } else {
             // we can't delete an application version if this version is deployed
             return RestResponseBuilder
                     .<Boolean> builder()
                     .data(false)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
                             .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build()).build();
         }
     }
@@ -207,5 +216,4 @@ public class ApplicationVersionController {
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
-
 }
