@@ -20,14 +20,23 @@ import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationService;
-import alien4cloud.component.model.*;
+import alien4cloud.component.model.IndexedCapabilityType;
+import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
-import alien4cloud.rest.topology.task.*;
+import alien4cloud.rest.topology.task.PropertiesTask;
+import alien4cloud.rest.topology.task.RequirementToSatify;
+import alien4cloud.rest.topology.task.RequirementsTask;
+import alien4cloud.rest.topology.task.SuggestionsTask;
+import alien4cloud.rest.topology.task.TaskCode;
+import alien4cloud.rest.topology.task.TopologyTask;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
@@ -120,6 +129,9 @@ public class TopologyService {
 
     private void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Requirement> mapToMerge) {
+        if (elements == null) {
+            return;
+        }
         for (RequirementDefinition requirement : elements) {
             Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
             if (toAddRequirement == null) {

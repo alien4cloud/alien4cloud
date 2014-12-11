@@ -37,10 +37,10 @@ Feature: Search applications should be able to filter
       | tron    |
 
   Scenario: Searching applications with right given to groups and user
-    Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the application "a4c"
-    And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the application "smartest"
-    And I add a role "APPLICATION_MANAGER" to user "khang" on the application "dumbest"
-    And I add a role "APPLICATION_DEVOPS" to user "khang" on the application "tron"
+    Given I add a role "APPLICATION_MANAGER" to group "a4c dev" on the resource type "APPLICATION" named "a4c"
+    And I add a role "APPLICATION_DEVOPS" to group "a4c dev" on the resource type "APPLICATION" named "smartest"
+    And I add a role "APPLICATION_DEVOPS" to user "khang" on the resource type "APPLICATION" named "dumbest"
+    And I add a role "APPLICATION_DEVOPS" to user "khang" on the resource type "APPLICATION" named "tron"
     And I am authenticated with user named "khang"
     When I search applications from 0 with result size of 20
     Then I should receive a RestResponse with no error
