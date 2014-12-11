@@ -27,8 +27,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Plugin {
-    public static final String LIST_FETCH_CONTEXT = "list";
-
     private PluginDescriptor descriptor;
     private String pluginPathId;
     private boolean enabled;
