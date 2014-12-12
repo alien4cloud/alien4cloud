@@ -16,12 +16,7 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.component.repository.CsarFileRepository;
@@ -29,18 +24,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.plugin.IPluginConfigurator;
-import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.plugin.PluginLoadingException;
-import alien4cloud.plugin.PluginManager;
-import alien4cloud.plugin.PluginUsage;
-import alien4cloud.rest.model.BasicSearchRequest;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.plugin.*;
+import alien4cloud.rest.model.*;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
@@ -134,8 +119,7 @@ public class PluginController {
     @ApiOperation(value = "Search for plugins registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> search(@RequestBody BasicSearchRequest request) {
-        GetMultipleDataResult result = this.alienDAO.search(Plugin.class, request.getQuery(), null, Plugin.LIST_FETCH_CONTEXT, request.getFrom(),
-                request.getSize());
+        GetMultipleDataResult result = this.alienDAO.search(Plugin.class, request.getQuery(), null, request.getFrom(), request.getSize());
         return RestResponseBuilder.<GetMultipleDataResult> builder().data(result).build();
     }
 
@@ -200,8 +184,8 @@ public class PluginController {
         if (pluginManager.isPluginConfigurable(pluginId)) {
             Class<?> configType = pluginManager.getConfigurationType(pluginId);
             try {
-                Object confingObject = configType.newInstance();
-                response.setData(confingObject);
+                Object configObject = configType.newInstance();
+                response.setData(configObject);
             } catch (InstantiationException | IllegalAccessException e) {
                 response.setError(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION).message(e.getMessage()).build());
                 return response;
@@ -236,5 +220,4 @@ public class PluginController {
         }
         return response;
     }
-
 }
