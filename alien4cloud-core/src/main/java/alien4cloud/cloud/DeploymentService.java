@@ -116,6 +116,8 @@ public class DeploymentService {
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
         deployment.setStartDate(new Date());
         deployment.setTopologyId(topologyId);
+        deployment.setDeploymentSetup(deploymentSetup);
+
         alienDao.save(deployment);
         // save the topology as a deployed topology.
         // change the Id before saving
@@ -290,7 +292,7 @@ public class DeploymentService {
                 MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { topologyId },
                         new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            deployment = (Deployment) dataResult.getData()[0];
+            deployment = dataResult.getData()[0];
         }
         return deployment;
     }
