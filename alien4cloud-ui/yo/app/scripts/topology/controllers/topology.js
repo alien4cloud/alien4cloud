@@ -444,7 +444,7 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.openSimpleModal = function (modalTitle, modalContent) {
-        var modalInstance = $modal.open({
+        $modal.open({
           templateUrl: 'views/fragments/simple_modal.html',
           controller: ModalInstanceCtrl,
           resolve: {

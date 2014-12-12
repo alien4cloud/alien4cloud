@@ -432,11 +432,11 @@
   <repositories>
     <repository>
       <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource</url>
     </repository>
     <repository>
       <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
     </repository>
     <repository>
       <id>projectlombok.org</id>

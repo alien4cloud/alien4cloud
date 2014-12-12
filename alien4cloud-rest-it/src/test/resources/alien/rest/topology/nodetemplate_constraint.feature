@@ -9,7 +9,7 @@ Background:
 
 Scenario: Update a nodetemplate's property with greaterThan constraint violated
   Given I have added a node template "Template1" related to the "alien.nodes.test.PropertyConstraint:1.0" node type
-  When I update the node template "Template1"'s property "disk_size" to "A"
+  When I update the node template "Template1"'s property "greater_than_prop" to "A"
   Then I should receive a RestResponse with an error code 800
   	And I should receive a RestResponse with constraint data name "greaterThan" and reference "0"
 
@@ -38,17 +38,17 @@ Scenario: Update a nodetemplate's property with validValues constraint with in r
 
 Scenario: Update a nodetemplate's property with greaterOrEqual constraint violated
   Given I have added a node template "Template3" related to the "alien.nodes.test.PropertyConstraint:1.0" node type
-  When I update the node template "Template3"'s property "num_cpus" to "2"
+  When I update the node template "Template3"'s property "greater_or_equal_prop" to "2"
   Then I should receive a RestResponse with an error code 800
   	And I should receive a RestResponse with constraint data name "greaterOrEqual" and reference "3"
 
-Scenario: Update a nodetemplate's property num_cpus with greaterOrEqual constraint without error
+Scenario: Update a nodetemplate's property with greaterOrEqual constraint without error
   Given I have added a node template "Template3" related to the "alien.nodes.test.PropertyConstraint:1.0" node type
-  When I update the node template "Template3"'s property "num_cpus" to "3"
+  When I update the node template "Template3"'s property "greater_or_equal_prop" to "3"
   Then I should receive a RestResponse with no error
 
-Scenario: Update a nodetemplate's property instance_max_count with equal constraint
+Scenario: Update a nodetemplate's property with equal constraint
   Given I have added a node template "Template4" related to the "alien.nodes.test.PropertyConstraint:1.0" node type
-  When I update the node template "Template4"'s property "instance_max_count" to "3"
+  When I update the node template "Template4"'s property "equal_prop" to "3"
   Then I should receive a RestResponse with an error code 800
     And I should receive a RestResponse with constraint data name "equal" and reference "2"
