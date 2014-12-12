@@ -10,7 +10,13 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -76,13 +82,13 @@ public class RuntimeController {
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
-    @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = { @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public RestResponse<Object> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
 
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER, ApplicationRole.APPLICATION_MANAGER);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
         // validate the operation request
         try {
@@ -121,14 +127,13 @@ public class RuntimeController {
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
      *         {@link alien4cloud.component.model.IndexedNodeType} related to his {@link NodeTemplate}s
      */
-    @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER"),
-            @Authorization("DEPLOYMENT_MANAGER") })
+    @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{applicationId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
             @ApiParam(value = "Id of the cloud on which the runtime topology is deployed.") @RequestParam(required = true) String cloudId) {
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER, ApplicationRole.APPLICATION_MANAGER);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
         // Get the application environment associated with the application (in the current version of A4C there is just a single environment.
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());

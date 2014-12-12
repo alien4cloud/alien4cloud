@@ -14,10 +14,15 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -34,6 +39,10 @@ public class ApplicationEnvironmentService {
     private DeploymentSetupService deploymentSetupService;
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
+    @Resource
+    private ApplicationService applicationService;
 
     /**
      * Method used to create a default environment
@@ -100,7 +109,7 @@ public class ApplicationEnvironmentService {
         List<String> deployedEnvironments = Lists.newArrayList();
         ApplicationEnvironment[] environments = getByApplicationId(applicationId);
         for (ApplicationEnvironment environment : environments) {
-            if (!this.isEnvironmentDeployed(environment.getId())) {
+            if (!this.isDeployed(environment.getId())) {
                 delete(environment.getId());
             } else {
                 // collect all deployed environment
@@ -120,12 +129,11 @@ public class ApplicationEnvironmentService {
      * @return true if the environment is currently deployed
      * @throws CloudDisabledException
      */
-    public boolean isEnvironmentDeployed(String appEnvironmentId) throws CloudDisabledException {
+    public boolean isDeployed(String appEnvironmentId) throws CloudDisabledException {
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
                 Deployment.class,
                 null,
-                MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] {
- new String[] { appEnvironmentId },
+                MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId },
                         new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return true;
@@ -160,6 +168,58 @@ public class ApplicationEnvironmentService {
             log.debug("Application environment with name <{}> already exists for application id <{}>", name, applicationId);
             throw new AlreadyExistException("An application environment with the given name already exists");
         }
+    }
+
+    /**
+     * Check rights on the related application and get the application environment
+     * If no roles mentioned, all {@link ApplicationRole} values will be used
+     * 
+     * @param applicationEnvironmentId
+     * @param roles {@link ApplicationRole} to check right on the underlying application
+     * @return the corresponding application environment
+     */
+    public ApplicationEnvironment checkAndGetApplicationEnvironment(String applicationEnvironmentId, ApplicationRole... roles) {
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        Application application = applicationService.checkAndGetApplication(applicationEnvironment.getApplicationId());
+        roles = (roles == null || roles.length == 0) ? ApplicationRole.values() : roles;
+        // check rights on the application linked to this application environment
+        AuthorizationUtil.checkAuthorizationForApplication(application, roles);
+        return applicationEnvironment;
+    }
+
+    public boolean getDeployed(ApplicationEnvironment applicationEnvironment) throws CloudDisabledException {
+
+        // First phase : there is at least one deploymentSetup with this applicationEnvironmentId
+        GetMultipleDataResult<DeploymentSetup> deploymentSetupSearch = alienDAO.find(DeploymentSetup.class,
+                MapUtil.newHashMap(new String[] { "environmentId" }, new String[][] { new String[] { applicationEnvironment.getId() } }), Integer.MAX_VALUE);
+        // no deploymentSetup => no app environment deployed
+        if (deploymentSetupSearch.getData().length == 0) {
+            return false;
+        }
+        // Second phase : this deploymentSetup has a deployment in status DeploymentStatus.DEPLOYED
+        GetMultipleDataResult<Deployment> deployments = null;
+        DeploymentStatus deploymentStatus = null;
+        boolean findDeployed = false;
+        int countDeployed = 0;
+        for (DeploymentSetup deploymentSetup : deploymentSetupSearch.getData()) {
+            deployments = deploymentService.getDeploymentsByDeploymentSetup(deploymentSetup.getId());
+            for (Deployment deployment : deployments.getData()) {
+                try {
+                    deploymentStatus = deploymentService.getDeploymentStatus(deployment.getTopologyId(), applicationEnvironment.getCloudId());
+                } catch (CloudDisabledException e) {
+                    throw new CloudDisabledException("Cloud is not enabled and no PaaSProvider instance has been created.");
+                }
+                if (deploymentStatus.equals(DeploymentStatus.DEPLOYED)) {
+                    findDeployed = true;
+                    countDeployed++;
+                }
+            }
+        }
+        // environment must not have more than one deployment at a time
+        if (countDeployed > 1) {
+            log.warn("The environment <{}> has more than one active deployment : <{}>", applicationEnvironment.getId(), countDeployed);
+        }
+        return findDeployed;
     }
 
 }

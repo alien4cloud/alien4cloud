@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
-import alien4cloud.application.InvalidDeploymentSetupException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -20,6 +20,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
@@ -40,6 +41,7 @@ import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
@@ -56,6 +58,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RequestMapping("/rest/applications")
 @Api(value = "", description = "Manage opertions on deployed application.")
 public class ApplicationDeploymentController {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -75,17 +78,26 @@ public class ApplicationDeploymentController {
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
-    @ApiOperation(value = "Set the cloud to use by default in order to deploy the application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Set the cloud to use by default in order to deploy the application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+}/cloud", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> setCloud(@PathVariable String applicationId, @RequestBody String cloudId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+    public RestResponse<Void> setCloud(@PathVariable String applicationId, @RequestBody UpdateApplicationCloudRequest updateApplicationCloudRequest) {
 
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
-        environments[0].setCloudId(cloudId);
-        alienDAO.save(environments[0]);
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        ApplicationVersion version = versions[0];
+        // recover an check basic rights on the underlying application
+        Application application = applicationService.checkAndGetApplication(applicationId);
+
+        // Application environment : get an check right on the environment
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), updateApplicationCloudRequest.getApplicationEnvironmentId());
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+
+        // set the cloud to this environment
+        String cloudId = updateApplicationCloudRequest.getCloudId();
+        environment.setCloudId(cloudId);
+        alienDAO.save(environment);
+
+        // Application version : check right on the version
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
+
+        // Configure and save the deployment setup
         DeploymentSetup deploymentSetup = getDeploymentSetup(application);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
@@ -100,23 +112,37 @@ public class ApplicationDeploymentController {
      * @param deployApplicationRequest application details for deployment (applicationId + deploymentProperties)
      * @return An empty rest response.
      */
-    @ApiOperation(value = "Deploys the application on the configured Cloud.")
+    @ApiOperation(value = "Deploys the application on the configured Cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> deploy(@RequestBody DeployApplicationRequest deployApplicationRequest) {
-        Application application = applicationService.getOrFail(deployApplicationRequest.getApplicationId());
-        // TODO rather check that the user is authorized to deploy the current environment.
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+    public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
 
-        // Get the application environment associated with the application (in the current version of A4C there is just a single environment.
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
+        Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId());
 
-        // TODO check that the environment is not already deployed.
+        // Application environment : get an check right on the environment
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), deployApplicationRequest.getApplicationEnvironmentId());
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
 
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        // Application version : check right on the version
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), deployApplicationRequest.getApplicationVersionId());
 
+        // check that the environment is not already deployed
+        // One environment => One deployment deployed at a time
+        try {
+            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
+            if (isEnvironmentDeployed) {
+                return RestResponseBuilder
+                        .<Void> builder()
+                        .error(new RestError(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR.getCode(), "The environment with id <" + environment.getCloudId()
+                                + "> is already deployed")).build();
+            }
+        } catch (CloudDisabledException e) {
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId()
+                            + "> is disabled or not found")).build();
+        }
+
+        // get the cloud from the environment and check rights
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
@@ -132,7 +158,10 @@ public class ApplicationDeploymentController {
         try {
             deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + environment.getCloudId()
+                            + "> is disabled or not found")).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -143,20 +172,22 @@ public class ApplicationDeploymentController {
      * @param applicationId The id of the application to undeploy.
      * @return An empty rest response.
      */
-    @ApiOperation(value = "Un-Deploys the application on the configured PaaS.", notes = "The logged-in user must have the application manager role for this application. Application role required [ DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Un-Deploys the application on the configured PaaS.", notes = "The logged-in user must have the [ APPLICATION_MANAGER ] role for this application. Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> undeploy(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
 
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
 
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
         try {
-            deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
+            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
+            if (isEnvironmentDeployed) {
+                deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
+            }
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
@@ -169,17 +200,17 @@ public class ApplicationDeploymentController {
      * @param applicationId id of the topology
      * @return the active deployment
      */
-    @ApiOperation(value = "Get active deployment for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get active deployment for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
 
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        Application application = applicationService.checkAndGetApplication(applicationId);
+
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
 
         Deployment deployment = deploymentService.getActiveDeployment(version.getTopologyId(), environment.getCloudId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
@@ -192,33 +223,32 @@ public class ApplicationDeploymentController {
      * @return A {@link RestResponse} that contains the application's current {@link DeploymentStatus}.
      */
     @ApiOperation(value = "Get the current status of the application on the PaaS.", notes = "Returns the current status of the application on the PaaS it is deployed."
-            + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationId}/deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<DeploymentStatus> getDeploymentStatus(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+        Application application = applicationService.checkAndGetApplication(applicationId);
         return RestResponseBuilder.<DeploymentStatus> builder().data(getApplicationDeploymentStatus(application)).build();
     }
 
     @ApiOperation(value = "Get the current statuses of an application list on the PaaS.", notes = "Returns the current status of an application list from the PaaS it is deployed on."
-            + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Map<String, DeploymentStatus>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
         Map<String, DeploymentStatus> statuses = Maps.newHashMap();
+        Application application = null;
         for (String applicationId : applicationIds) {
-            Application application = applicationService.getOrFail(applicationId);
-            AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+            application = applicationService.checkAndGetApplication(applicationId);
             statuses.put(applicationId, getApplicationDeploymentStatus(application));
         }
         return RestResponseBuilder.<Map<String, DeploymentStatus>> builder().data(statuses).build();
     }
 
     private DeploymentStatus getApplicationDeploymentStatus(Application application) {
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
 
         DeploymentStatus deploymentStatus;
         if (version.getTopologyId() == null) {
@@ -240,19 +270,16 @@ public class ApplicationDeploymentController {
      * @param applicationId The id of the application to be deployed.
      * @return A {@link RestResponse} that contains detailed informations (See {@link InstanceInformation}) of the application on the PaaS it is deployed.
      */
-    @ApiOperation(value = "Get detailed informations for every instances of every node of the application on the PaaS.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
-            + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get detailed informations for every instances of every node of the application on the PaaS.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment/informations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Map<String, Map<Integer, InstanceInformation>>> getInstanceInformation(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
 
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
 
         try {
             return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder()
@@ -273,17 +300,17 @@ public class ApplicationDeploymentController {
      * @return A {@link RestResponse} that contains the application's current {@link DeploymentStatus}.
      */
     @ApiOperation(value = "Scale the application on a particular node.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
-            + " Application role required [ DEPLOYMENT_MANAGER ]")
+            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/scale/{nodeTemplateId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> scale(@PathVariable String applicationId, @PathVariable String nodeTemplateId, @RequestParam int instances) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
 
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+        Application application = applicationService.checkAndGetApplication(applicationId);
+
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
 
         try {
             deploymentService.scale(version.getTopologyId(), environment.getCloudId(), nodeTemplateId, instances);
@@ -293,17 +320,28 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology")
+    @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
+            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId) {
+
+        // Application application = applicationService.checkAndGetApplication(applicationId);
+        //
+        // // get the topology from the version and the cloud from the environment
+        // // TODO : get the good environment / version
+        // ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        // AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        // ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
+
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
 
         ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
+
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getName() + "] does not have any cloud assigned");
@@ -316,20 +354,24 @@ public class ApplicationDeploymentController {
                         topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
     }
 
-    @ApiOperation(value = "Get the deployment setup for an application")
+    @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<DeploymentSetup> getDeploymentSetup(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER);
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        // TODO : get the good version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         return RestResponseBuilder.<DeploymentSetup> builder().data(getDeploymentSetup(application)).build();
     }
 
     private DeploymentSetup getDeploymentSetup(Application application) {
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-        ApplicationEnvironment environment = environments[0];
+
+        // get the topology from the version and the cloud from the environment
+        // TODO : get the good environment / version
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
+
         DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
         if (deploymentSetup == null) {
             deploymentSetup = deploymentSetupService.create(version, environment);
@@ -348,14 +390,47 @@ public class ApplicationDeploymentController {
      * @param applicationId The application id.
      * @return nothing if success, error will be handled in global exception strategy
      */
-    @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.")
+    @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateDeploymentSetup(@PathVariable String applicationId, @RequestBody UpdateDeploymentSetupRequest updateRequest) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        // check rights on related environment
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+
         DeploymentSetup setup = getDeploymentSetup(application);
         ReflectionUtil.mergeObject(updateRequest, setup);
         alienDAO.save(setup);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * TODO : Temp methods waiting complete API change with environment / version as parameters in services
+     * 
+     * @param applicationId
+     * @param applicationVersionId
+     * @return
+     */
+    private ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
+        ApplicationVersion version = null;
+        if (applicationVersionId == null) {
+            ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
+            version = versions[0];
+        } else {
+            version = applicationVersionService.getOrFail(applicationVersionId);
+        }
+        return version;
+    }
+
+    private ApplicationEnvironment getEnvironmentByIdOrDefault(String applicationId, String applicationEnvironmentId) {
+        ApplicationEnvironment environment = null;
+        if (applicationEnvironmentId == null) {
+            ApplicationEnvironment[] applicationEnvironments = applicationEnvironmentService.getByApplicationId(applicationId);
+            environment = applicationEnvironments[0];
+        } else {
+            environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        }
+        return environment;
     }
 }

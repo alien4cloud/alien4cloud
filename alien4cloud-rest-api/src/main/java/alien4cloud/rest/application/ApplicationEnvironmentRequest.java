@@ -26,4 +26,5 @@ public class ApplicationEnvironmentRequest {
     private String cloudId;
     private String name;
     private String description;
+    private String versionId;
 }

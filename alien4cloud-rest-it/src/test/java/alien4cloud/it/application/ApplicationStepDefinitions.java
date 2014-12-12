@@ -69,8 +69,10 @@ public class ApplicationStepDefinitions {
 
         Context.getInstance().registerApplication(CURRENT_APPLICATION);
         if (application.getData() != null) {
-            String topologyId = getTopologyIdFromApplication(application.getData().getId());
+            String appId = application.getData().getId();
+            String topologyId = getTopologyIdFromApplication(appId);
             Context.getInstance().registerTopologyId(topologyId);
+            Context.getInstance().registerApplicationId(name, appId);
         }
     }
 
@@ -107,6 +109,8 @@ public class ApplicationStepDefinitions {
 
         assertNotNull(application);
         CURRENT_APPLICATION = application;
+        Context.getInstance().registerApplication(application);
+        Context.getInstance().registerApplicationId(name, application.getId());
 
         assertNotNull(getTopologyIdFromApplication(application.getId()));
 
@@ -502,13 +506,13 @@ public class ApplicationStepDefinitions {
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         Assert.assertNotNull(appEnvId);
         // get and register the app environment id
-        Context.getInstance().registerApplicationEnvironmentId(appEnvId.getData());
+        Context.getInstance().registerApplicationEnvironmentId(appEnvName, appEnvId.getData());
     }
 
-    @When("^I get the application environment from the registered application environment id$")
-    public void I_get_the_application_environment_from_the_registered_application_environment_id() throws Throwable {
+    @When("^I get the application environment named \"([^\"]*)\"$")
+    public void I_get_the_application_environment_named(String applicationEnvironmentName) throws Throwable {
         Assert.assertNotNull(CURRENT_APPLICATION);
-        String applicationEnvId = Context.getInstance().getApplicationEnvironmentId();
+        String applicationEnvId = Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get("/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + applicationEnvId));
         RestResponse<ApplicationEnvironment> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), ApplicationEnvironment.class);
@@ -516,13 +520,8 @@ public class ApplicationStepDefinitions {
         Assert.assertEquals(appEnvironment.getData().getId(), applicationEnvId);
     }
 
-    @Given("^I have an application environment registered in the context$")
-    public void I_have_an_application_environment_registered_in_the_context() throws Throwable {
-        Assert.assertNotNull(Context.getInstance().getApplicationEnvironmentId());
-    }
-
-    @When("^I update the created application environment with values$")
-    public void I_update_the_created_application_environment_with_values(DataTable appEnvAttributeValues) throws Throwable {
+    @When("^I update the application environment named \"([^\"]*)\" with values$")
+    public void I_update_the_application_environment_named_with_values(String applicationEnvironmentName, DataTable appEnvAttributeValues) throws Throwable {
         UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
         String attribute = null, attributeValue = null;
         for (List<String> attributesToUpdate : appEnvAttributeValues.raw()) {
@@ -549,15 +548,16 @@ public class ApplicationStepDefinitions {
         // send the update request
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId(),
-                        JsonUtil.toString(appEnvRequest)));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
+                                + Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName), JsonUtil.toString(appEnvRequest)));
     }
 
-    @When("^I delete the registered application environment from its id$")
-    public void I_delete_the_registered_application_environment_from_its_id() throws Throwable {
+    @When("^I delete the registered application environment named \"([^\"]*)\" from its id$")
+    public void I_delete_the_registered_application_environment_named_from_its_id(String applicationEnvironmentName) throws Throwable {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + Context.getInstance().getApplicationEnvironmentId()));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
+                                + Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName)));
         RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
         Assert.assertNotNull(appEnvironment.getData());
     }

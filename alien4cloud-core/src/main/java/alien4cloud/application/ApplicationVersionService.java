@@ -76,10 +76,10 @@ public class ApplicationVersionService {
     }
 
     /**
-     * Get all application version for a given application.
+     * Get all application versions for a given application
      *
      * @param applicationId The id of the application for which to get environments.
-     * @return An array of the environments for the requested application id.
+     * @return An array of the applications versions for the requested application id.
      */
     public ApplicationVersion[] getByApplicationId(String applicationId) {
         GetMultipleDataResult<ApplicationVersion> result = alienDAO.find(ApplicationVersion.class,

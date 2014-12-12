@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.apache.http.NameValuePair;
 import org.junit.Assert;
 
@@ -15,7 +13,6 @@ import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-@Slf4j
 public class InputOutputPropertiesStepDefinitions {
 
     private String getPropertyUrl(String propertyName, String nodeName, String propertyType) {
@@ -116,13 +113,11 @@ public class InputOutputPropertiesStepDefinitions {
 
     @When("^I remove the attribute \"([^\"]*)\" of the node \"([^\"]*)\" from the output attributes$")
     public void I_remove_the_attribute_of_the_node_from_the_output_attributes(String attributeName, String nodeName) throws Throwable {
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete(getAttributesUrl(attributeName, nodeName, "output")));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(getAttributesUrl(attributeName, nodeName, "output")));
     }
 
     @Then("^The topology should not have the attribute \"([^\"]*)\" of the node \"([^\"]*)\" defined as output attribute$")
     public void The_topology_should_not_have_the_attribute_of_the_node_defined_as_output_attribute(String attributeName, String nodeName) throws Throwable {
-
         TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class).getData();
         Map<String, Set<String>> outputAttributes = topologyDTO.getTopology().getOutputAttributes();

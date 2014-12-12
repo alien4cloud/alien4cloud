@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuppressWarnings("PMD.UnusedPrivateField")
-public class DeployApplicationRequest {
-    private String applicationId;
+public class UpdateApplicationCloudRequest {
+    private String cloudId;
     private String applicationEnvironmentId;
-    private String applicationVersionId;
 }

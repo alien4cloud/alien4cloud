@@ -7,7 +7,7 @@ public class SecuredResourceStepDefinition {
 
     // Allowed resource types
     private enum RESOURCE_TYPE {
-        APPLICATION, CLOUD;
+        APPLICATION, CLOUD, ENVIRONMENT;
     }
 
     @When("^I add a role \"([^\"]*)\" to group \"([^\"]*)\" on the resource type \"([^\"]*)\" named \"([^\"]*)\"$")
@@ -51,10 +51,14 @@ public class SecuredResourceStepDefinition {
         String request = null;
         switch (RESOURCE_TYPE.valueOf(resourceTypeId)) {
         case APPLICATION:
-            request = "/rest/applications/" + Context.getInstance().getApplication().getId();
+            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName);
             break;
         case CLOUD:
             request = "/rest/clouds/" + Context.getInstance().getCloudId(resourceName);
+            break;
+        case ENVIRONMENT:
+            request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName) + "/environments/"
+                    + Context.getInstance().getApplicationEnvironmentId(resourceName);
             break;
         default:
         }

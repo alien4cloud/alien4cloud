@@ -40,6 +40,7 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.application.DeployApplicationRequest;
+import alien4cloud.rest.application.UpdateApplicationCloudRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
@@ -180,10 +181,12 @@ public class ApplicationsDeploymentStepDefinitions {
     @When("^I assign the cloud with name \"([^\"]*)\" for the application$")
     public void I_assign_the_cloud_with_name_for_the_application(String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
-
+        UpdateApplicationCloudRequest updateApplicationCloudRequest = new UpdateApplicationCloudRequest();
+        updateApplicationCloudRequest.setCloudId(cloudId);
+        updateApplicationCloudRequest.setApplicationEnvironmentId(null);// take the default one
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/cloud/", cloudId));
-
+                Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/cloud",
+                        JsonUtil.toString(updateApplicationCloudRequest)));
         // Register paas provider details
         Context.getInstance().registerCloudForTopology(cloudId);
     }

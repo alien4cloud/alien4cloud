@@ -101,13 +101,13 @@ public class ApplicationVersionController {
      * @return application environment id
      */
     @ApiOperation(value = "Create a new application version.", notes = "If successfull returns a rest response with the id of the created application version in data. If not successful a rest response with an error content is returned. Role required [ APPLICATIONS_MANAGER ]. "
-            + "By default the application version creator will have application roles [APPLICATION_MANAGER, DEPLOYMENT_MANAGER]")
+            + "By default the application version creator will have application roles [APPLICATION_MANAGER]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@Valid @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(request.getApplicationId());
-        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
+        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         ApplicationVersion appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }

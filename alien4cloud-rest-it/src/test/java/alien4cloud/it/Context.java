@@ -107,6 +107,8 @@ public class Context {
 
     private ThreadLocal<Application> applicationLocal;
 
+    private ThreadLocal<Map<String, String>> applicationInfos;
+
     private ThreadLocal<Map<String, String>> cloudInfos;
 
     private ThreadLocal<String> topologyCloudInfos;
@@ -123,7 +125,7 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> applicationVersionNameToApplicationVersionIdMapping;
 
-    private ThreadLocal<String> applicationEnvironmentId;
+    private ThreadLocal<Map<String, String>> environmentInfos;
 
     private Context() {
         restResponseLocal = new ThreadLocal<String>();
@@ -144,8 +146,8 @@ public class Context {
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
         applicationVersionNameToApplicationVersionIdMapping = new ThreadLocal<>();
         applicationVersionNameToApplicationVersionIdMapping.set(new HashMap<String, String>());
-
-        applicationEnvironmentId = new ThreadLocal<String>();
+        environmentInfos = new ThreadLocal<Map<String, String>>();
+        applicationInfos = new ThreadLocal<Map<String, String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -463,12 +465,27 @@ public class Context {
         return topologyDeploymentId.get();
     }
 
-    public void registerApplicationEnvironmentId(String applicationEnvironmentId) {
-        log.debug("Registering application environment id [" + applicationEnvironmentId + "] in the context");
-        this.applicationEnvironmentId.set(applicationEnvironmentId);
+    public void registerApplicationEnvironmentId(String applicationEnvironmentName, String applicationEnvironmentId) {
+        if (this.environmentInfos.get() != null) {
+            this.environmentInfos.get().put(applicationEnvironmentName, applicationEnvironmentId);
+            return;
+        }
+        this.environmentInfos.set(MapUtil.newHashMap(new String[] { applicationEnvironmentName }, new String[] { applicationEnvironmentId }));
     }
 
-    public String getApplicationEnvironmentId() {
-        return this.applicationEnvironmentId.get();
+    public String getApplicationEnvironmentId(String applicationEnvironmentName) {
+        return this.environmentInfos.get().get(applicationEnvironmentName);
+    }
+
+    public void registerApplicationId(String applicationName, String applicationId) {
+        if (this.applicationInfos.get() != null) {
+            this.applicationInfos.get().put(applicationName, applicationId);
+            return;
+        }
+        this.applicationInfos.set(MapUtil.newHashMap(new String[] { applicationName }, new String[] { applicationId }));
+    }
+
+    public String getApplicationId(String applicationName) {
+        return this.applicationInfos.get().get(applicationName);
     }
 }
