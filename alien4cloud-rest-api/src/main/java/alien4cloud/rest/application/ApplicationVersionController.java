@@ -75,6 +75,8 @@ public class ApplicationVersionController {
     @ApiOperation(value = "Search for application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, searchRequest.getQuery(),
                 getApplicationVersionsFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();

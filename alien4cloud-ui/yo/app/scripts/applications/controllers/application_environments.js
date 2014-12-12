@@ -24,8 +24,17 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     };
 
     // recover all versions for this applications
-    $scope.versions = applicationVersionServices.getVersions({
+    var searchRequestObject = {
+      'query': '',
+      'from': 0,
+      'size': 50
+    };
+    applicationVersionServices.searchVersion({
       applicationId: $state.params.id
+    }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
+      // Result search
+      $scope.versions = result.data.data;
+      console.log('VERSION', $scope.versions);
     });
 
     // Cloud search to configure the new environment
