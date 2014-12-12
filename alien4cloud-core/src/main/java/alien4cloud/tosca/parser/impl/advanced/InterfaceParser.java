@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
@@ -12,9 +14,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.Operation;
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 import com.google.common.collect.Maps;
@@ -56,7 +56,10 @@ public class InterfaceParser implements INodeParser<Interface> {
             } else {
                 if (entry.getValueNode() instanceof ScalarNode) {
                     Operation operation = new Operation();
-                    operation.setImplementationArtifact(implementationArtifactParser.parse(entry.getValueNode(), context));
+                    // implementation artifact parsing should be done using a deferred parser as we need to look for artifact types.
+                    BeanWrapper targetBean = new BeanWrapperImpl(operation);
+                    MappingTarget target = new MappingTarget("implementationArtifact", implementationArtifactParser);
+                    context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
                     operations.put(key, operation);
                 } else {
                     operations.put(key, operationParser.parse(entry.getValueNode(), context));

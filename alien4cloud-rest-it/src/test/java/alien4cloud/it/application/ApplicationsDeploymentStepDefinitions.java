@@ -1,9 +1,17 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +45,6 @@ import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.model.ScalarPropertyValue;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -436,11 +443,11 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @And("^The deployment setup of the application should contain following deployment properties:$")
     public void The_deployment_setup_of_the_application_should_contain_following_deployment_properties(DataTable deploymentProperties) throws Throwable {
-        Map<String, ScalarPropertyValue> expectedDeploymentProperties = Maps.newHashMap();
+        Map<String, String> expectedDeploymentProperties = Maps.newHashMap();
         for (List<String> deploymentProperty : deploymentProperties.raw()) {
             String deploymentPropertyName = deploymentProperty.get(0).trim();
             String deploymentPropertyValue = deploymentProperty.get(1).trim();
-            expectedDeploymentProperties.put(deploymentPropertyName, new ScalarPropertyValue(deploymentPropertyValue));
+            expectedDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         DeploymentSetup deploymentSetup = JsonUtil.read(
                 Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),

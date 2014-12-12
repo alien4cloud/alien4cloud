@@ -46,7 +46,7 @@ Scenario: delete a relationship from a node template
     And I should not have the relationship "dependsOnCompute" in "Java" node template
 
 Scenario: Add a relationship between 2 nodes: valid sources different of valid target
-  Given I upload the archive "relationship-test-types"
+  Given I upload the archive "relationship test types"
     And There is a "node type" with element name "test.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "test.nodes.Java" and archive version "1.0"
     And I have added a node template "Compute_test" related to the "test.nodes.Compute:1.0" node type

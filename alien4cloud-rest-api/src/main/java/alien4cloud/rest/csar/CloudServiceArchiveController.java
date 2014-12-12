@@ -1,12 +1,7 @@
 package alien4cloud.rest.csar;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.Set;
@@ -25,13 +20,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.DeploymentSetupService;
@@ -53,11 +42,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
@@ -66,7 +51,6 @@ import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.Csar;
-import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -77,6 +61,7 @@ import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.YamlParserUtil;
 
+import com.google.common.collect.Lists;
 import com.mangofactory.swagger.annotations.ApiIgnore;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -110,7 +95,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ParsingResult<Csar>> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
+    public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
         try {
             log.info("Serving file upload with name [" + csar.getOriginalFilename() + "]");
@@ -123,23 +108,24 @@ public class CloudServiceArchiveController {
             if (ArchiveUploadService.hasError(result, ParsingErrorLevel.ERROR)) {
                 error = RestErrorBuilder.builder(RestErrorCode.CSAR_PARSING_ERROR).build();
             }
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(error).data(result).build();
+            return RestResponseBuilder.<CsarUploadResult> builder().error(error).data(toUploadResult(result)).build();
         } catch (ParsingException e) {
             log.error("Error happened while parsing csar file <" + e.getFileName() + ">", e);
             String fileName = e.getFileName() == null ? csar.getOriginalFilename() : e.getFileName();
-            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(fileName));
-            result.getContext().getParsingErrors().addAll(e.getParsingErrors());
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build()).data(result)
-                    .build();
+
+            CsarUploadResult uploadResult = new CsarUploadResult();
+            uploadResult.getErrors().put(fileName, e.getParsingErrors());
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_INVALID_ERROR).build())
+                    .data(uploadResult).build();
         } catch (CSARVersionAlreadyExistsException e) {
             log.error("A CSAR with the same name and the same version already existed in the repository", e);
-            ParsingResult<Csar> result = new ParsingResult<Csar>(null, new ParsingContext(csar.getOriginalFilename()));
-            result.getContext()
-                    .getParsingErrors()
-                    .add(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
-                            "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null));
-            return RestResponseBuilder.<ParsingResult<Csar>> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build()).data(result)
-                    .build();
+            CsarUploadResult uploadResult = new CsarUploadResult();
+            uploadResult.getErrors().put(
+                    csar.getOriginalFilename(),
+                    Lists.newArrayList(new ParsingError(ErrorCode.CSAR_ALREADY_EXISTS, "CSAR already exists", null,
+                            "Unable to override an existing CSAR if the version is not a SNAPSHOT version.", null, null)));
+            return RestResponseBuilder.<CsarUploadResult> builder().error(RestErrorBuilder.builder(RestErrorCode.ALREADY_EXIST_ERROR).build())
+                    .data(uploadResult).build();
         } finally {
             if (csarPath != null) {
                 // Clean up
@@ -149,6 +135,22 @@ public class CloudServiceArchiveController {
                     // The repository might just move the file instead of copying to save IO disk access
                 }
             }
+        }
+    }
+
+    private CsarUploadResult toUploadResult(ParsingResult<Csar> result) {
+        CsarUploadResult uploadResult = new CsarUploadResult();
+        uploadResult.setCsar(result.getResult());
+        addAllSubResultErrors(result, uploadResult);
+        return uploadResult;
+    }
+
+    private void addAllSubResultErrors(ParsingResult<?> result, CsarUploadResult uploadResult) {
+        if (result.getContext().getParsingErrors() != null && !result.getContext().getParsingErrors().isEmpty()) {
+            uploadResult.getErrors().put(result.getContext().getFileName(), result.getContext().getParsingErrors());
+        }
+        for (ParsingResult<?> subResult : result.getContext().getSubResults()) {
+            addAllSubResultErrors(subResult, uploadResult);
         }
     }
 
@@ -203,7 +205,8 @@ public class CloudServiceArchiveController {
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
 
-        // TODO cleanup node types, relationship types etc.
+        // TODO check if some of the nodes are used in topologies.
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
 
         csarDAO.delete(Csar.class, csarId);
         return RestResponseBuilder.<Void> builder().build();

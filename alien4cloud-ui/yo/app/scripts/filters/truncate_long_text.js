@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var alienApp = angular.module('alienUiApp');
@@ -12,7 +14,7 @@ alienApp.filter('truncate', function() {
     }
 
     if (UTILS.isUndefinedOrNull(end)) {
-      end = "...";
+      end = '...';
     }
 
     if (UTILS.isUndefinedOrNull(text)) {
@@ -63,11 +65,14 @@ alienApp.filter('split', function() {
  * one of the chunk identified by its index
  * indexToReturn : starts at 0 for the first element
  */
-alienApp.filter('explodeandget', function() {
+alienApp.filter('splitAndGet', function() {
   return function(text, separator, indexToReturn) {
     if (!UTILS.isUndefinedOrNull(text)) {
       separator = separator || '.'; // by defult . if not defined
       var res = text.split(separator);
+      if(indexToReturn === 'last') {
+        indexToReturn = res.length - 1;
+      }
       if (parseInt(indexToReturn) && indexToReturn >= 0) {
         return res[indexToReturn];
       }

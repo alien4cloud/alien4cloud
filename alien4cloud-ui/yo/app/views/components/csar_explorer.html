@@ -1,0 +1,18 @@
+<div class="modal-header">
+  <h3 class="modal-title">{{archiveName}} {{archiveVersion}}</h3>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-md-2">
+      <treecontrol class="tree-classic" tree-model="treedata" options="opts" on-selection="showSelected(node)" selected-node="selected" expanded-nodes="expandedNodes">
+        {{node.name}}
+      </treecontrol>
+    </div>
+    <div class="col-md-10">
+      <div ng-model="editorContent" ui-ace="{mode: 'yaml'}" readonly="true" style="height: 500px;"></div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-primary" ng-click="cancel()">Cancel</button>
+</div>

@@ -244,18 +244,6 @@ var selectDropdownByText = function selectOption(selectElement, item, millisecon
 };
 module.exports.selectDropdownByText = selectDropdownByText;
 
-// For a SELECT element : select by number
-var selectDropdownByNumber = function selectDropdownByNumber(selectElement, index, milliseconds) {
-  selectElement.findElements(by.tagName('option'))
-    .then(function(options) {
-      options[index].click();
-    });
-  if (typeof milliseconds !== 'undefined') {
-    browser.sleep(milliseconds);
-  }
-};
-module.exports.selectDropdownByNumber = selectDropdownByNumber;
-
 // For a SELECT element : return select count
 var selectCount = function selectCount(selectId) {
   var deferred = protractor.promise.defer();

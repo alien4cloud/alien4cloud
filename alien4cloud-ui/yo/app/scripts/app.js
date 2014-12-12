@@ -35,15 +35,31 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     // components states
     .state('components', {
       url: '/components',
-      template: '<ui-view/>'
+      templateUrl: 'views/common/vertical_menu_layout.html',
+      controller: 'ComponentCtrl'
     }).state('components.list', {
       url: '/list',
-      templateUrl: 'views/component_list.html',
+      templateUrl: 'views/components/component_list.html',
       controller: 'SearchComponentCtrl'
     }).state('components.detail', {
       url: '/component/:id',
-      templateUrl: 'views/component_details.html',
+      templateUrl: 'views/components/component_details.html',
       controller: 'ComponentDetailsCtrl'
+    }).state('components.csars', {
+      url: '/csars',
+      template: '<ui-view/>'
+    }).state('components.csars.list', {
+      url: '/list',
+      templateUrl: 'views/components/csar_list.html',
+      controller: 'CsarListCtrl'
+    }).state('components.csars.csardetail', {
+      url: '/:csarId',
+      templateUrl: 'views/components/csar_details.html',
+      controller: 'CsarDetailsCtrl'
+    }).state('components.csars.csardetailnode', {
+      url: '/:csarId/node/:nodeTypeId',
+      templateUrl: 'views/csar_components/component_details.html',
+      controller: 'CsarComponentDetailsCtrl'
     })
 
     // applications states
@@ -130,6 +146,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         ]
       },
       controller: 'ApplicationUsersCtrl'
+    }).state('applications.detail.environments', {
+      url: '/environment',
+      templateUrl: 'views/applications/application_environments.html',
+      resolve: {
+        environment: ['$http', 'application',
+          function($http, application) {
+            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
+              return result.data.data;
+            });
+          }
+        ]
+      },
+      controller: 'ApplicationEnvironmentsCtrl'
     })
 
     // topology templates
@@ -164,24 +193,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         ]
       },
       controller: 'TopologyCtrl'
-    })
-
-    // cloud service archives
-    .state('csars', {
-      url: '/csars',
-      template: '<ui-view/>'
-    }).state('csars.list', {
-      url: '/list',
-      templateUrl: 'views/csar_list.html',
-      controller: 'CsarListCtrl'
-    }).state('csardetail', {
-      url: '/csar/:csarId',
-      templateUrl: 'views/csar_details.html',
-      controller: 'CsarDetailsCtrl'
-    }).state('csardetailnode', {
-      url: '/csar/:csarId/node/:nodeTypeId',
-      templateUrl: 'views/csar_component_details.html',
-      controller: 'CsarComponentDetailsCtrl'
     })
 
     // administration
@@ -242,14 +253,14 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             return cloudImageServices.get({
               id: $stateParams.id
             }).$promise.then(function(success) {
-                var cloudImage = success.data;
-                if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
-                  cloudImage.numCPUs = cloudImage.requirement.numCPUs;
-                  cloudImage.diskSize = cloudImage.requirement.diskSize;
-                  cloudImage.memSize = cloudImage.requirement.memSize;
-                }
-                return cloudImage;
-              });
+              var cloudImage = success.data;
+              if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
+                cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                cloudImage.diskSize = cloudImage.requirement.diskSize;
+                cloudImage.memSize = cloudImage.requirement.memSize;
+              }
+              return cloudImage;
+            });
           }
         ]
       },
@@ -282,7 +293,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     // check when the state is about to change
     $rootScope.$on('$stateChangeStart', function(event, toState) {
       alienAuthService.getStatus().$promise.then(function(result) {
-        if(toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
+        if (toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
           $state.go('user_home_admin');
         }
         // check all the menu array & permissions
@@ -314,12 +325,6 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
       'key': 'NAVBAR.MENU_COMPONENTS',
       'state': 'components.list',
       'icon': 'fa fa-cubes'
-    }, {
-      'roles': ['COMPONENTS_MANAGER'],
-      'id': 'menu.csars',
-      'key': 'NAVBAR.MENU_CSARS',
-      'state': 'csars.list',
-      'icon': 'fa fa-archive'
     }, {
       'roles': ['ADMIN'],
       'id': 'menu.admin',

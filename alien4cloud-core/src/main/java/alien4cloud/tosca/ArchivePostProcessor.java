@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.component.model.IndexedArtifactToscaElement;
 import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.model.ImplementationArtifact;
 import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.Operation;
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -53,6 +53,9 @@ public class ArchivePostProcessor {
 
     private final void postProcessElements(String archiveName, String archiveVersion, ParsingResult<ArchiveRoot> parsedArchive,
             Map<String, ? extends IndexedInheritableToscaElement> elements, Map<String, String> globalElementsMap) {
+        if (elements == null) {
+            return;
+        }
         for (Entry<String, ? extends IndexedInheritableToscaElement> element : elements.entrySet()) {
             element.getValue().setId(element.getKey());
             element.getValue().setArchiveName(archiveName);
@@ -69,6 +72,9 @@ public class ArchivePostProcessor {
     }
 
     private void postProcessIndexedArtifactToscaElement(ArchiveRoot archive, Map<String, ? extends IndexedArtifactToscaElement> elements) {
+        if (elements == null) {
+            return;
+        }
         for (IndexedArtifactToscaElement element : elements.values()) {
             postProcessInterfaces(archive, element);
         }

@@ -26,7 +26,7 @@ public final class ToscaParsingUtil {
             return scalarNode.getValue();
         }
         parsingErrors.add(new ParsingError(ErrorCode.SYNTAX_ERROR, "Error while parsing field " + keyNode.getValue(), keyNode.getStartMark(),
-                "Expected a scalar type.", valueNode.getStartMark(), null));
+                "Expected a scalar type.", valueNode.getStartMark(), "scalar"));
         return null;
     }
 }

@@ -50,6 +50,9 @@ public class ArchiveIndexer {
     }
 
     private void updateCreationDates(Map<String, ? extends IndexedInheritableToscaElement> newElements, Map<String, IndexedToscaElement> previousElements) {
+        if(newElements == null) {
+            return;
+        }
         for (IndexedInheritableToscaElement newElement : newElements.values()) {
             IndexedToscaElement previousElement = previousElements.get(newElement.getId());
             if (previousElement != null) {

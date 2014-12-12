@@ -1,5 +1,8 @@
 package alien4cloud.rest.application;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
@@ -18,11 +21,13 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -31,8 +36,10 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 
+import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -66,6 +73,21 @@ public class ApplicationEnvironmentController {
     }
 
     /**
+     * Search for application environment for a given application id
+     * 
+     * @param applicationId the targeted application id
+     * @param searchRequest
+     * @return A rest response that contains a {@link FacetedSearchResult} containing application environments for an application id
+     */
+    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+        GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
+                getApplicationEnvironmentFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
+        return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResult).build();
+    }
+
+    /**
      * Get application environment from it's id
      *
      * @param applicationId The application id
@@ -82,7 +104,7 @@ public class ApplicationEnvironmentController {
     /**
      * Create the application environment for an application
      * 
-     * @param request
+     * @param request data to create an application environment
      * @return application environment id
      */
     @ApiOperation(value = "Create a new application environment.", notes = "If successfull returns a rest response with the id of the created application environment in data. If not successful a rest response with an error content is returned. Role required [ APPLICATIONS_MANAGER ]. "
@@ -167,23 +189,26 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Delete an application environment from its id", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        try {
-            applicationEnvironmentService.deleteByApplication(applicationEnvironment.getApplicationId());
-        } catch (CloudDisabledException e) {
-            log.error("Failed to delete the application environment due to Cloud error", e);
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(false)
-                    .error(RestErrorBuilder.builder(RestErrorCode.CLOUD_DISABLED_ERROR)
-                            .message("Could not delete the application environment with id <" + applicationEnvironmentId + "> with error : " + e.getMessage())
-                            .build()).build();
-        }
-
         boolean deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
+    }
+
+    /**
+     * Filter to search app environments only for an application id
+     * 
+     * @param applicationId
+     * @return
+     */
+    private Map<String, String[]> getApplicationEnvironmentFilters(String applicationId) {
+        List<String> filterKeys = Lists.newArrayList();
+        List<String[]> filterValues = Lists.newArrayList();
+        if (applicationId != null) {
+            filterKeys.add("applicationId");
+            filterValues.add(new String[] { applicationId });
+        }
+        return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
 
 }

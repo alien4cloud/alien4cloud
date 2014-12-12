@@ -39,7 +39,15 @@ node_types:
         locator: scripts/monitor/locator.groovy
         startDetection: scripts/monitor/startDetection.groovy
       custom:
-        addNode: scripts/apacheLB_addNode.groovy
+        addNode:
+          inputs:
+            instanceId:
+              type: string
+              required: true
+            node:
+              type: string
+              required: true
+          implementation: scripts/apacheLB_addNode.groovy
         removeNode: scripts/apacheLB_removeNode.groovy
         deployPublic:
           inputs:
@@ -87,6 +95,7 @@ relationship_types:
 artifact_types:
   tosca.artifacts.GroovyScript:
     description: A groovy script (.groovy file)
+    file_ext: [ groovy ]
   fastconnect.artifacts.ResourceDirectory:
     description: A directory that contains resources files that are required for a node to be deployed.
 

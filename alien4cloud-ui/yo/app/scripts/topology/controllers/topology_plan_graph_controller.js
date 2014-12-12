@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$http', '$modal', 'resizeServices', 'svgServiceFactory', 'runtimeColorsService', 'topologyServices', 'topologyId', function($scope, $http, $modal, resizeServices, svgServiceFactory, runtimeColorsService, topologyServices, topologyId) {
+angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$filter', '$http', '$modal', 'resizeServices', 'svgServiceFactory', 'runtimeColorsService', 'topologyServices', 'topologyId', function($scope, $filter, $http, $modal, resizeServices, svgServiceFactory, runtimeColorsService, topologyServices, topologyId) {
   var topology;
   var containerElement = d3.select('#plan-graph-container');
 
@@ -27,6 +27,11 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
   definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke:black; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
   definition.append('path').attr('d', 'M-10 0 L10 0 Z').attr('style', 'fill:none; stroke:black; stroke-width:2');
   definition.append('path').attr('d', 'M0 -10 L0 10 Z').attr('style', 'fill:none; stroke:black; stroke-width:2');
+
+  definition =  defs.append('g').attr('id', 'parallel-join-gateway-shape');
+  definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke:blue; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
+  definition.append('path').attr('d', 'M-10 0 L10 0 Z').attr('style', 'fill:none; stroke:blue; stroke-width:2');
+  definition.append('path').attr('d', 'M0 -10 L0 10 Z').attr('style', 'fill:none; stroke:blue; stroke-width:2');
 
   definition =  defs.append('g').attr('id', 'event-based-gateway-shape');
   definition.append('rect').attr('x', '-12').attr('y', '-12').attr('width', '24').attr('height', '24').attr('style', 'fill:none; stroke: black; stroke-width:1').attr('transform', 'rotate(45, 0, 0)');
@@ -82,19 +87,20 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
     }
     var parallel;
     if(gateway.parallelSteps.length === 1) {
-      parallel = processNextStep(graph, gateway.parallelSteps[0], previousStep);
+      parallel = processStep(graph, gateway.parallelSteps[0], previousStep);
       return processNextStep(graph, gateway, parallel);
     }
+    // var parallel;
     idGenerator++;
     var joinStep = {id: 'pj_'+idGenerator};
     gateway.id = 'pg_'+idGenerator;
     graph.nodes.push({id: gateway.id, def: {label: 'pg', useDef: 'parallel-gateway-shape', clickable: false}});
-    graph.nodes.push({id: joinStep.id, def: {label: 'pj', useDef: 'parallel-gateway-shape', clickable: false}});
+    // graph.nodes.push({id: joinStep.id, def: {label: 'pj', useDef: 'parallel-gateway-shape', clickable: false}});
     graph.edges.push({from: previousStep.id, to: gateway.id, def: {label: ''}});
     for(var i=0; i<gateway.parallelSteps.length; i++) {
       parallel = processStep(graph, gateway.parallelSteps[i], gateway);
       // join from last chained elements.
-      graph.edges.push({from: parallel.id, to: joinStep.id, def: {label: ''}});
+      // graph.edges.push({from: parallel.id, to: joinStep.id, def: {label: ''}});
     }
     return processNextStep(graph, gateway, joinStep);
   };
@@ -109,19 +115,11 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
   eventProcessors.StateUpdateEvent = function(graph, stateUpdateEvent, previousStep) {
     stateUpdateEvent.id = stateUpdateEvent.elementId+'::'+stateUpdateEvent.state;
 
-    // var nodeTemplate = topology.topology.nodeTemplates[stateUpdateEvent.elementId];
-    // var nodeType = topology.nodeTypes[nodeTemplate.type];
-    // var tags = UTILS.convertNameValueListToMap(nodeType.tags);
-    var htmlLabel = '<div class="plan-box plan-state" style="border-color: '+runtimeColorsService[stateUpdateEvent.state]+'">'
-    // if (tags.icon) {
-      // htmlLabel += '<img src="img?id='+tags.icon+'&quality=QUALITY_32" width="32px" />';
-    // }
+    var htmlLabel = '<div class="plan-box plan-state" style="border-color: '+runtimeColorsService[stateUpdateEvent.state]+'">';
     htmlLabel += '<div>'+stateUpdateEvent.elementId+'</div>';
     htmlLabel += '<div>'+stateUpdateEvent.state+'</div>';
     htmlLabel += '</div>';
-    graph.nodes.push({id: stateUpdateEvent.id, def: {
-      label: htmlLabel,
-      clickable: false}});
+    graph.nodes.push({id: stateUpdateEvent.id, def: { label: htmlLabel, clickable: false}});
 
     graph.edges.push({from: previousStep.id, to: stateUpdateEvent.id, def: {label: ''}});
     return processNextStep(graph, stateUpdateEvent);
@@ -132,12 +130,12 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
       idGenerator++;
       opCallActivity.id = 'oca_'+idGenerator;
       var htmlLabel = '<div class="plan-box plan-operation">';
-      htmlLabel += '<div><span>Noeud :</span><span class="text-info">'+opCallActivity.nodeTemplateId+'</span></div>';
+      htmlLabel += '<div><span class="plan-icon">\uf1b2</span><span class="text-info"> '+opCallActivity.nodeTemplateId+'</span></div>';
       if(UTILS.isDefinedAndNotNull(opCallActivity.relationshipId)) {
-        htmlLabel += '<div><span>Relationship :</span><span class="text-info">'+opCallActivity.relationshipId+'</span></div>';
+        htmlLabel += '<div><span class="plan-icon">\uf0c1</span><span class="text-info"> '+opCallActivity.relationshipId+'</span></div>';
       }
-      htmlLabel += '<div><span>Interface :</span><span class="text-info">'+opCallActivity.interfaceName+'</span></div>';
-      htmlLabel += '<div><span>Operation :</span><span class="text-info">'+opCallActivity.operationName+'</span></div>';
+      htmlLabel += '<div><span class="plan-icon">\uf085</span><span class="text-info"> '+$filter('splitAndGet')(opCallActivity.interfaceName, '.', 'last')+'</span></div>';
+      htmlLabel += '<div><span class="plan-icon">\uf013</span><span class="text-info"> '+opCallActivity.operationName+'</span></div>';
       htmlLabel += '</div>';
       graph.nodes.push({id: opCallActivity.id, def: {label: htmlLabel,
         nodeTemplateId: opCallActivity.elementId,
@@ -154,7 +152,7 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
   eventProcessors.ParallelJoinStateGateway = function(graph, pjsGateway, previousStep) {
     idGenerator++;
     pjsGateway.id = 'pjsg_'+idGenerator;
-    graph.nodes.push({id: pjsGateway.id, def: {label: 'pjsg', useDef: 'parallel-gateway-shape', clickable: false}});
+    graph.nodes.push({id: pjsGateway.id, def: {label: 'pjsg', useDef: 'parallel-join-gateway-shape', clickable: false}});
     graph.edges.push({from: previousStep.id, to: pjsGateway.id, def: {label: ''}});
     for(var nodeTemplateId in pjsGateway.validStatesPerElementMap) {
       if(pjsGateway.validStatesPerElementMap.hasOwnProperty(nodeTemplateId)) {
@@ -170,7 +168,7 @@ angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$ht
   function openArchiveModal(archiveName, archiveVersion, scriptReference) {
     var openOnFile = scriptReference ? scriptReference : null;
     $modal.open({
-      templateUrl: 'views/csars/csar_explorer.html',
+      templateUrl: 'views/components/csar_explorer.html',
       controller: 'CsarExplorerController',
       windowClass: 'searchModal',
       resolve: {

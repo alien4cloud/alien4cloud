@@ -64,7 +64,7 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.goToNodeTypeDetail = function(nodeTypeId) {
-        $state.go('csardetailnode', {
+        $state.go('components.csars.csardetailnode', {
           csarId: $scope.csarId,
           nodeTypeId: nodeTypeId
         });
@@ -74,7 +74,7 @@ angular.module('alienUiApp').controller(
         csarService.getAndDeleteCsar.remove({
           csarId: csarId
         }, function() {
-          $state.go('csars.list');
+          $state.go('components.csars.list');
         });
       };
 
@@ -104,12 +104,7 @@ angular.module('alienUiApp').controller(
           csarId: $scope.csarId
         }, angular.toJson(nodeType), function() {
           $scope.refreshDetails();
-          $scope.showForm = false;
         });
-      };
-
-      $scope.cancelNodeTypeCreation = function(nodeType) {
-        $scope.showForm = false;
       };
 
       $scope.formTitle = 'CSAR.DETAILS.COMPONENT_FORM_TITLE';

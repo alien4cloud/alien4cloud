@@ -69,8 +69,8 @@ public class ToscaParser extends YamlParser<ArchiveRoot> {
                 }
             }
         }
-        throw new ParsingException(null, new ParsingError(null, "File is not a valid tosca definition file.", new Mark("root", 0, 0, 0, null, 0),
-                "Unable to find the mandatory tosca_definitions_version.", new Mark("root", 0, 0, 0, null, 0), null));
+        throw new ParsingException(null, new ParsingError(ErrorCode.MISSING_TOSCA_VERSION, "File is not a valid tosca definition file.", new Mark("root", 0, 0,
+                0, null, 0), "Unable to find the mandatory tosca_definitions_version.", new Mark("root", 0, 0, 0, null, 0), null));
     }
 
     private class DefinitionVersionInfo {

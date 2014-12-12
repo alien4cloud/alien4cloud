@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>0.0.17-SNAPSHOT</version>
+  <version>1.0.0-SM18-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -52,14 +52,14 @@
 
     <!-- Spring (DI / Rest / Security) -->
     <spring-boot.version>1.1.6.RELEASE</spring-boot.version>
-    <spring.version>4.0.5.RELEASE</spring.version>
+    <spring.version>4.0.7.RELEASE</spring.version>
     <spring.security.version>3.2.3.RELEASE</spring.security.version>
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
 
     <aspectj.version>1.7.4</aspectj.version>
 
     <!-- Elastic Search -->
-    <es-mapping.version>1.1.16</es-mapping.version>
+    <es-mapping.version>1.1.17</es-mapping.version>
 
     <!-- Logging -->
     <log4j.version>1.2.16</log4j.version>
@@ -352,12 +352,6 @@
         <artifactId>commons-cli</artifactId>
         <version>${commons-cli.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -433,11 +427,11 @@
   <repositories>
     <repository>
       <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource</url>
     </repository>
     <repository>
       <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
     </repository>
     <repository>
       <id>projectlombok.org</id>

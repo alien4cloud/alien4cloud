@@ -97,6 +97,7 @@
           </div>
         </tab>
         <!-- details -->
+        <!-- TODO correctly manage network tab-->
         <tab ng-if="selectedNodeTemplate">
           <tab-heading id="details-tab">
             <i class="fa fa-list"></i> {{'DETAILS' | translate}}
@@ -119,7 +120,7 @@
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div class="row" ng-if="selectedNodeTemplate.type != 'tosca.nodes.Network'">
               <div class="col-md-12">
                 <table class="table">
                   <thead>

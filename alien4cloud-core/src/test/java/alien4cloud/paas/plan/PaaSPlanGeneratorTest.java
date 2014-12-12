@@ -94,7 +94,8 @@ public class PaaSPlanGeneratorTest {
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.getHostedOnTree(nodeTemplates);
 
         // now build the plans and check results
-        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots);
+        BuildPlanGenerator generator = new BuildPlanGenerator();
+        StartEvent startEvent = generator.generate(roots);
         printPlan(startEvent);
 
         // TODO validation of the plan...
@@ -122,11 +123,15 @@ public class PaaSPlanGeneratorTest {
 
             if (step instanceof ParallelGateway) {
                 List<WorkflowStep> parallelSteps = ((ParallelGateway) step).getParallelSteps();
+                System.out.println("[");
+                level++;
                 for (WorkflowStep workflowStep : parallelSteps) {
-                    System.out.println("{");
+                    System.out.println("  {");
                     printPlan(workflowStep, level + 1, true);
-                    System.out.println("}");
+                    System.out.println("  }");
                 }
+                level--;
+                System.out.println("]");
             } else {
                 printPlan(step.getNextStep(), level, false);
             }

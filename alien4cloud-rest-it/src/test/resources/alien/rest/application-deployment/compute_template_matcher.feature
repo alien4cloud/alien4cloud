@@ -1,11 +1,11 @@
-Feature: Match topology's node to cloud resources.
+Feature: Match topology's compute template to cloud resources.
 
 Background:
   Given I am authenticated with "ADMIN" role
   And I upload a plugin
   And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
   And I enable the cloud "Mount doom cloud"
-  And I upload the archive file that is "containing default tosca base types"
+  And I upload the archive "tosca base types 1.0"
   And There are these users in the system
     | sangoku |
   And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
@@ -25,7 +25,7 @@ Background:
   And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
   And I assign the cloud with name "Mount doom cloud" for the application
 
-Scenario: Match a topology for resources, compute properties empty
+Scenario: Match a topology for computes, compute properties empty
   When I match for resources for my application on the cloud
   Then I should receive a match result with 4 compute templates for the node "Compute":
     | Windows 7     | small  |
@@ -39,7 +39,7 @@ Scenario: Match a topology for resources, compute properties empty
     | small  | 2 | 32 | 2048 |
     | medium | 4 | 64 | 4096 |
 
-Scenario: Match a topology for resources, with filters
+Scenario: Match a topology for computes, with filters
 # Update os type to linux --> only linux available
   Given I update the node template "Compute"'s property "os_type" to "linux"
   When I match for resources for my application on the cloud
@@ -174,9 +174,9 @@ Scenario: Match a topology for resources, with filters
   And I match for resources for my application on the cloud
   Then I should receive an empty match result
 
-Scenario: Find a mathing resource for a type derived from Compute
+Scenario: Find a matching resource for a type derived from Compute
   Given I am authenticated with "ADMIN" role
-  And I upload the archive file that is "csar file containing ubuntu types V0.1"
+  And I upload the archive "ubuntu types 0.1"
   And I am authenticated with user named "sangoku"
   And I have an application "ALIEN_2" with a topology containing a nodeTemplate "Ubuntu" related to "alien.nodes.Ubuntu:0.1"
   And I assign the cloud with name "Mount doom cloud" for the application

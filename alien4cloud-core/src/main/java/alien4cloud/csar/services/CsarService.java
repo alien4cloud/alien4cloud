@@ -13,7 +13,6 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.model.Csar;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -63,7 +62,10 @@ public class CsarService implements ICsarDependencyLoader {
         if (csar.getDependencies() != null) {
             mergedDependencies = Sets.newHashSet(csar.getDependencies());
             for (CSARDependency dependency : csar.getDependencies()) {
-                mergedDependencies.addAll(getDependencies(dependency.getName(), dependency.getVersion()));
+                Csar dependencyCsar = getIfExists(dependency.getName(), dependency.getVersion());
+                if (dependencyCsar != null && dependencyCsar.getDependencies() != null) {
+                    mergedDependencies.addAll(dependencyCsar.getDependencies());
+                }
             }
         }
         csar.setDependencies(mergedDependencies);

@@ -19,6 +19,7 @@ import alien4cloud.component.model.IndexedArtifactType;
 import alien4cloud.component.model.IndexedCapabilityType;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.csar.services.CsarService;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.*;
@@ -321,7 +322,7 @@ public class ToscaParserSimpleProfileWd03Test {
 
         Assert.assertNotNull(nodeType.getInterfaces());
         Assert.assertEquals(2, nodeType.getInterfaces().size());
-        Assert.assertNotNull(nodeType.getInterfaces().get("standard"));
+        Assert.assertNotNull(nodeType.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD));
         Interface customInterface = nodeType.getInterfaces().get("custom");
         Assert.assertNotNull(customInterface);
         Assert.assertEquals("this is a sample interface used to execute custom operations.", customInterface.getDescription());

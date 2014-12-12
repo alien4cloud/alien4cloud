@@ -26,6 +26,7 @@ public class ApplicationEnvironment implements IManagedSecuredResource {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String name;
+    @TermFilter
     private String description;
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
