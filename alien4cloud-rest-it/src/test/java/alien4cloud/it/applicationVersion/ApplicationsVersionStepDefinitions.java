@@ -7,7 +7,7 @@ import org.junit.Assert;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
-import alien4cloud.rest.application.UpdateApplicationVersionRequest;
+import alien4cloud.rest.application.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -20,7 +20,7 @@ public class ApplicationsVersionStepDefinitions {
     @Given("^I create an application version with version \"([^\"]*)\"$")
     public void I_create_an_application_version_with_version(String version) throws Throwable {
         Application app = Context.getInstance().getApplication();
-        UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
+        ApplicationVersionRequest request = new ApplicationVersionRequest();
         request.setApplicationId(app.getId());
         request.setVersion(version);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/" + app.getId() + "/versions" , JsonUtil.toString(request)));
@@ -61,7 +61,7 @@ public class ApplicationsVersionStepDefinitions {
     public void I_update_an_application_version_with_version(String oldNameVersion, String newNameVersion) throws Throwable {
         Application app = Context.getInstance().getApplication();
         String currentApplicationVersionId = Context.getInstance().getApplicationVersionId(oldNameVersion);
-        UpdateApplicationVersionRequest request = new UpdateApplicationVersionRequest();
+        ApplicationVersionRequest request = new ApplicationVersionRequest();
         request.setApplicationId(app.getId());
         request.setVersion(newNameVersion);
         Context.getInstance().registerRestResponse(

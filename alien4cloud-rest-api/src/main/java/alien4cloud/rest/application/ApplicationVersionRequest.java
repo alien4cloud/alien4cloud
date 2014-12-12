@@ -16,7 +16,7 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class UpdateApplicationVersionRequest {
+public class ApplicationVersionRequest {
     @ApiModelProperty(required = true)
     private String version;
     @ApiModelProperty(required = true)

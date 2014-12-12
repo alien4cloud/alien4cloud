@@ -119,6 +119,12 @@ public class ApplicationVersionService {
         }
     }
 
+    /**
+     * Check if an application version is deployed.
+     * 
+     * @param applicationVersionId
+     * @return isDeployed A boolean.
+     */
     public boolean isApplicationVersionDeployed(String applicationVersionId) {
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
                 Deployment.class,
@@ -131,6 +137,13 @@ public class ApplicationVersionService {
         return false;
     }
 
+    /**
+     * Check if a name version is already use by an other application version is a specific application.
+     * 
+     * @param applicationId
+     * @param applicationVersionName
+     * @return isUsed A boolean.
+     */
     public boolean isApplicationVersionNameExist(String applicationId, String applicationVersionName) {
         GetMultipleDataResult<ApplicationVersion> dataResult = alienDAO.search(
                 ApplicationVersion.class,
@@ -143,6 +156,12 @@ public class ApplicationVersionService {
         return false;
     }
 
+    /**
+     * Get an application version by id or fail if not found.
+     * 
+     * @param id
+     * @return The application version of id or throw an exception
+     */
     public ApplicationVersion getOrFail(String id) {
         ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, id);
         if (appVersion == null) {

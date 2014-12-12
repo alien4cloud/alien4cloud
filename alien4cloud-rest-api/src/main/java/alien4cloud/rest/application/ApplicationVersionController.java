@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -51,11 +50,9 @@ public class ApplicationVersionController {
     private ApplicationVersionService appVersionService;
     @Resource
     private ApplicationService applicationService;
-    @Resource
-    private DeploymentService deploymentService;
 
     /**
-     * Get all application versions for an application
+     * Get an application version for an application
      *
      * @param applicationId The application id.
      */
@@ -91,9 +88,9 @@ public class ApplicationVersionController {
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationVersion> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        Application application = alienDAO.findById(Application.class, applicationId);
+        Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion applicationEnvironment = alienDAO.findById(ApplicationVersion.class, applicationEnvironmentId);
+        ApplicationVersion applicationEnvironment = appVersionService.getOrFail(applicationEnvironmentId);
         return RestResponseBuilder.<ApplicationVersion> builder().data(applicationEnvironment).build();
     }
 
@@ -107,23 +104,11 @@ public class ApplicationVersionController {
             + "By default the application version creator will have application roles [APPLICATION_MANAGER, DEPLOYMENT_MANAGER]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public RestResponse<String> create(@Valid @RequestBody UpdateApplicationVersionRequest request) {
-        if (!VersionUtil.isValid(request.getVersion())) {
-            return buildApplicationVersionError("This version is not valid [" + request.getVersion() + "] as it does not match [" + VersionUtil.VERSION_PATTERN
-                    + "]");
-        }
-
+    public RestResponse<String> create(@Valid @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-        ApplicationVersion appVersion = null;
-        Application application = alienDAO.findById(Application.class, request.getApplicationId());
-        if (application != null) {
-            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
-            appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
-        } else {
-            // no application found
-            return buildApplicationVersionError("Application with id <" + request.getApplicationId()
-                    + "> could not be found to create a new application version");
-        }
+        Application application = applicationService.getOrFail(request.getApplicationId());
+        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.DEPLOYMENT_MANAGER);
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 
@@ -136,13 +121,12 @@ public class ApplicationVersionController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application version", notes = "Updates by merging the given request into the given application version. The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationVersionId,
-            @RequestBody UpdateApplicationVersionRequest request) {
-        applicationService.getOrFail(applicationId);
+    public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody ApplicationVersionRequest request) {
         ApplicationVersion appVersion = appVersionService.getOrFail(applicationVersionId);
 
-        if (appVersionService.isApplicationVersionNameExist(applicationId, request.getVersion())) {
-            throw new AlreadyExistException("An application version already exist for this application with the version :" + request.getVersion());
+        if (!appVersion.getVersion().equals(applicationVersionId)
+                && appVersionService.isApplicationVersionNameExist(appVersion.getApplicationId(), request.getVersion())) {
+            throw new AlreadyExistException("An application version already exist for this application with the version :" + applicationVersionId);
         }
 
         ReflectionUtil.mergeObject(request, appVersion);
@@ -156,27 +140,30 @@ public class ApplicationVersionController {
      * 
      * @param applicationId
      * @param applicationVersionId
-     * @return
+     * @return boolean is delete
      */
     @ApiOperation(value = "Delete an application version from its id", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        if (!appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
-            appVersionService.delete(applicationVersionId);
-            return RestResponseBuilder.<Boolean> builder().data(true).build();
-        } else {
-            // we can't delete an application version if this version is deployed
-            return buildApplicationVersionError("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used");
+        if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
+            return RestResponseBuilder
+                    .<Boolean> builder()
+                    .data(false)
+                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
+                            .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build())
+                    .build();
         }
+        appVersionService.delete(applicationVersionId);
+        return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
 
     /**
      * Filter to search app versions only for an application id
      * 
      * @param applicationId
-     * @return
+     * @return a filter for application versions
      */
     private Map<String, String[]> getApplicationVersionsFilters(String applicationId) {
         List<String> filterKeys = Lists.newArrayList();
@@ -188,8 +175,4 @@ public class ApplicationVersionController {
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
 
-    private <T> RestResponse<T> buildApplicationVersionError(String message) {
-        return RestResponseBuilder.<T> builder().error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message(message).build()).build();
-
-    }
 }
