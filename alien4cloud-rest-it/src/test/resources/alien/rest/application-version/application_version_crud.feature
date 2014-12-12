@@ -26,7 +26,7 @@ Feature: CRUD operations on application version
   Scenario: Delete an application version with failure
     Given I have an application with name "ALIEN"
     And I delete an application version with name "0.2.0-SNAPSHOT"
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 504
 
   Scenario: Delete an application version with success
     Given I have an application with name "ALIEN"

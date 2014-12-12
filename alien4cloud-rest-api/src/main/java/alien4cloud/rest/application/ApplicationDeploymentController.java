@@ -128,7 +128,7 @@ public class ApplicationDeploymentController {
         // check that the environment is not already deployed
         // One environment => One deployment deployed at a time
         try {
-            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
+            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
                 return RestResponseBuilder
                         .<Void> builder()
@@ -184,7 +184,7 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
         try {
-            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment);
+            boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
                 deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
             }

@@ -16,7 +16,6 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.ApplicationVersionException;
 
 import com.google.common.collect.Maps;
 
@@ -88,22 +87,17 @@ public class ApplicationVersionService {
     }
 
     private void deleteVersion(ApplicationVersion version) {
-        if (version != null) {
-            alienDAO.delete(Topology.class, version.getTopologyId());
-            alienDAO.delete(ApplicationVersion.class, version.getId());
-        }
+        alienDAO.delete(Topology.class, version.getTopologyId());
+        alienDAO.delete(ApplicationVersion.class, version.getId());
     }
 
     /**
-     * Delete a version and the related topologies.
+     * Delete a application version and the related topologies. Fail if application version don't exist.
      *
      * @param id The id of the version to delete.
      */
     public void delete(String id) {
-        ApplicationVersion version = alienDAO.findById(ApplicationVersion.class, id);
-        if (version == null) {
-            throw new ApplicationVersionException("No application version find with the id :" + id);
-        }
+        ApplicationVersion version = this.getOrFail(id);
         deleteVersion(version);
     }
 
