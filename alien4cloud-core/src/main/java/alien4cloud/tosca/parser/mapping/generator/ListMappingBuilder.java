@@ -6,11 +6,10 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 import com.google.common.collect.Maps;
@@ -19,14 +18,14 @@ import com.google.common.collect.Maps;
  * Build Mapping target for map.
  */
 @Component
-public class MapMappingBuilder implements IMappingBuilder {
-    private static final String MAP = "map";
+public class ListMappingBuilder implements IMappingBuilder {
+    private static final String LIST = "list";
     private static final String TYPE = "type";
     private static final String KEY = "key";
 
     @Override
     public String getKey() {
-        return MAP;
+        return LIST;
     }
 
     @Override
@@ -37,7 +36,12 @@ public class MapMappingBuilder implements IMappingBuilder {
             String value = ParserUtils.getScalar(tuple.getValueNode(), context);
             map.put(key, value);
         }
-
-        return new MappingTarget(map.get(MAP), new MapParser<IndexedNodeType>(new ReferencedParser(map.get(TYPE)), "map of " + map.get(TYPE), map.get(KEY)));
+        ListParser parser;
+        if (map.get(KEY) == null) {
+            parser = new ListParser(new ReferencedParser(map.get(TYPE)), "sequence of " + map.get(TYPE));
+        } else {
+            parser = new ListParser(new ReferencedParser(map.get(TYPE)), "sequence of " + map.get(TYPE), map.get(KEY));
+        }
+        return new MappingTarget(map.get(LIST), parser);
     }
 }

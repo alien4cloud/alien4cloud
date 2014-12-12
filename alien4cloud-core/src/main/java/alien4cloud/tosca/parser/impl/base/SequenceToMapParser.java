@@ -21,7 +21,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
  */
 @AllArgsConstructor
 public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
-    private TypeNodeParser<T> valueParser;
+    private INodeParser<T> valueParser;
     /** The tosca type of the map. */
     private String toscaType;
 

@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.mapping.generator;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
@@ -16,12 +17,15 @@ import com.google.common.collect.Maps;
 /**
  * Build Mapping target for map.
  */
+@Component
 public class SetMappingBuilder implements IMappingBuilder {
-    private static final String SET_KEY = "set";
+    private static final String SET = "set";
+    private static final String TYPE = "type";
+    private static final String KEY = "key";
 
     @Override
     public String getKey() {
-        return SET_KEY;
+        return SET;
     }
 
     @Override
@@ -33,11 +37,11 @@ public class SetMappingBuilder implements IMappingBuilder {
             map.put(key, value);
         }
         SetParser parser;
-        if (map.get("key") == null) {
-            parser = new SetParser(new ReferencedParser(map.get("type")), "sequence of " + map.get("type"));
+        if (map.get(KEY) == null) {
+            parser = new SetParser(new ReferencedParser(map.get(TYPE)), "sequence of " + map.get(TYPE));
         } else {
-            parser = new SetParser(new ReferencedParser(map.get("type")), "map of " + map.get("type"), map.get("key"));
+            parser = new SetParser(new ReferencedParser(map.get(TYPE)), "map of " + map.get(TYPE), map.get(KEY));
         }
-        return new MappingTarget(map.get(SET_KEY), parser);
+        return new MappingTarget(map.get(SET), parser);
     }
 }

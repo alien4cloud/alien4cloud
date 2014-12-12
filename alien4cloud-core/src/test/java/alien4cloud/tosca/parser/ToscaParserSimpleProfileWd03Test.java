@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package alien4cloud.tosca.parser;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;

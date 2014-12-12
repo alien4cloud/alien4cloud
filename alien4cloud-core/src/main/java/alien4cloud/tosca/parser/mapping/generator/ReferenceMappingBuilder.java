@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.mapping.generator;
 
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
@@ -15,6 +16,7 @@ import com.google.common.collect.Maps;
 /**
  * Mapping of a type reference.
  */
+@Component
 public class ReferenceMappingBuilder implements IMappingBuilder {
     private static final String REFERENCE_KEY = "reference";
 

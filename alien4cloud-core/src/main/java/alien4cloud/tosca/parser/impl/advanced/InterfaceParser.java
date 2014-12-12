@@ -15,7 +15,7 @@ import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
-import alien4cloud.tosca.parser.mapping.Wd03OperationDefinition;
+import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 import com.google.common.collect.Maps;
 
@@ -25,9 +25,8 @@ public class InterfaceParser implements INodeParser<Interface> {
     private static final String DESCRIPTION_KEY = "description";
 
     @Resource
-    private Wd03OperationDefinition operationDefinition;
-    @Resource
     private ImplementationArtifactParser implementationArtifactParser;
+    private ReferencedParser<Operation> operationParser = new ReferencedParser<>("operation_definition");
 
     @Override
     public Interface parse(Node node, ParsingContextExecution context) {
@@ -60,7 +59,7 @@ public class InterfaceParser implements INodeParser<Interface> {
                     operation.setImplementationArtifact(implementationArtifactParser.parse(entry.getValueNode(), context));
                     operations.put(key, operation);
                 } else {
-                    operations.put(key, operationDefinition.getParser().parse(entry.getValueNode(), context));
+                    operations.put(key, operationParser.parse(entry.getValueNode(), context));
                 }
             }
         }
