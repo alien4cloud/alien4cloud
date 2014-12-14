@@ -301,7 +301,7 @@ module.exports = function(grunt) {
           dest: '<%= yeoman.dist %>',
           src: ['*.{ico,png,txt}', '.htaccess', '*.html',
             // 'views/{,*/}*.html',
-            'views/**/*.html', 'bower_components/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*',
+            'views/**/*.html', 'bower_components/**/*', 'js-lib/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*',
             // 'images/{,*/}*.{webp}',
             // 'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             'fonts/*'

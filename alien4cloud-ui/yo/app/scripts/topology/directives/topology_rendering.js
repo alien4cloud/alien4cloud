@@ -38,7 +38,7 @@ angular.module('alienUiApp').directive(
             topologySvg.onResize(dimensions);
           });
 
-          scope.$watch('simple', function(dimensions) {
+          scope.$watch('simple', function() {
             topologySvg.setNodeRenderer(getNodeRenderer());
           });
         }

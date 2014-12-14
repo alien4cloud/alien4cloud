@@ -136,27 +136,6 @@ public class TopologyTreeBuilderService {
         return roots;
     }
 
-    /**
-     * flatten a hostedOnTree to have a map of all nodeTemplates present in the tree
-     *
-     * @param roots list of the roots of the tree
-     * @param paaSNodeTemplates the map of PaaSNodeTemplate to fill
-     */
-    public void flattenHostedOnTree(List<PaaSNodeTemplate> roots, Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
-        for (PaaSNodeTemplate paaSNodeTemplate : roots) {
-            if (!paaSNodeTemplates.containsKey(paaSNodeTemplate.getId())) {
-                paaSNodeTemplates.put(paaSNodeTemplate.getId(), paaSNodeTemplate);
-            }
-            if (paaSNodeTemplate.getAttachedNode() != null && !paaSNodeTemplates.containsKey(paaSNodeTemplate.getAttachedNode().getId())) {
-                paaSNodeTemplates.put(paaSNodeTemplate.getAttachedNode().getId(), paaSNodeTemplate.getAttachedNode());
-            }
-            if (paaSNodeTemplate.getNetworkNode() != null && !paaSNodeTemplates.containsKey(paaSNodeTemplate.getNetworkNode().getId())) {
-                paaSNodeTemplates.put(paaSNodeTemplate.getAttachedNode().getId(), paaSNodeTemplate.getNetworkNode());
-            }
-            flattenHostedOnTree(paaSNodeTemplate.getChildren(), paaSNodeTemplates);
-        }
-    }
-
     private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
         if (networkRelationship != null) {
