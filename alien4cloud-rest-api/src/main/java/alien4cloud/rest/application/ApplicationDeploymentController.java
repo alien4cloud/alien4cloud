@@ -5,7 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.application.InvalidDeploymentSetupException;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -20,6 +19,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
@@ -243,7 +243,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get detailed informations for every instances of every node of the application on the PaaS.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment/informations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Map<String, Map<Integer, InstanceInformation>>> getInstanceInformation(@PathVariable String applicationId) {
+    public RestResponse<Map<String, Map<String, InstanceInformation>>> getInstanceInformation(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
 
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
@@ -255,13 +255,13 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = environments[0];
 
         try {
-            return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder()
+            return RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder()
                     .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId())).build();
         } catch (CloudDisabledException e) {
             log.error("Cannot get instance informations as topology plugin cannot be found.", e);
         }
 
-        return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder().build();
+        return RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build();
     }
 
     /**

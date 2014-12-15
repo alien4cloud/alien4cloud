@@ -4,13 +4,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.application.DeploymentSetup;
 import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.AbstractPaaSProvider;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -45,13 +46,13 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
+    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
         return null;
     }
 
     @Override
-    public AbstractMonitorEvent[] getEventsSince(Date date, int maxEvents) {
-        return null;
+    public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> callback) {
+        callback.onData(null);
     }
 
     @Override

@@ -31,6 +31,7 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -47,8 +48,8 @@ import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.PatternConstraint;
 
@@ -71,7 +72,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     /**
      * A little bit scary isn't it ? It's just a mock man.
      */
-    private final Map<String, Map<String, Map<Integer, InstanceInformation>>> instanceInformationsMap = Maps.newConcurrentMap();
+    private final Map<String, Map<String, Map<String, InstanceInformation>>> instanceInformationsMap = Maps.newConcurrentMap();
 
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
 
@@ -92,7 +93,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
             @Override
             public void run() {
-                for (Map.Entry<String, Map<String, Map<Integer, InstanceInformation>>> topologyInfo : instanceInformationsMap.entrySet()) {
+                for (Map.Entry<String, Map<String, Map<String, InstanceInformation>>> topologyInfo : instanceInformationsMap.entrySet()) {
                     // Call this just to change instance state and push to client
                     doChangeInstanceInformations(topologyInfo.getKey(), topologyInfo.getValue());
                 }
@@ -173,16 +174,16 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
             if (nodeTemplates == null) {
                 nodeTemplates = Maps.newHashMap();
             }
-            Map<String, Map<Integer, InstanceInformation>> currentInformations = Maps.newHashMap();
+            Map<String, Map<String, InstanceInformation>> currentInformations = Maps.newHashMap();
             for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplates.entrySet()) {
-                Map<Integer, InstanceInformation> instanceInformations = Maps.newHashMap();
+                Map<String, InstanceInformation> instanceInformations = Maps.newHashMap();
                 currentInformations.put(nodeTemplateEntry.getKey(), instanceInformations);
                 ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), policies, nodeTemplates);
                 int initialInstances = policy != null ? policy.getInitialInstances() : 1;
                 for (int i = 1; i <= initialInstances; i++) {
                     InstanceInformation newInstanceInformation = newInstance(i);
-                    instanceInformations.put(i, newInstanceInformation);
-                    notifyInstanceStateChanged(deploymentId, nodeTemplateEntry.getKey(), i, newInstanceInformation, 1);
+                    instanceInformations.put(String.valueOf(i), newInstanceInformation);
+                    notifyInstanceStateChanged(deploymentId, nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
                 }
             }
             instanceInformationsMap.put(deploymentId, currentInformations);
@@ -217,9 +218,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         log.info("Undeploying deployment [" + deploymentId + "]");
         changeStatus(deploymentId, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
         if (instanceInformationsMap.containsKey(deploymentId)) {
-            Map<String, Map<Integer, InstanceInformation>> appInfo = instanceInformationsMap.get(deploymentId);
-            for (Map.Entry<String, Map<Integer, InstanceInformation>> nodeEntry : appInfo.entrySet()) {
-                for (Map.Entry<Integer, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
+            Map<String, Map<String, InstanceInformation>> appInfo = instanceInformationsMap.get(deploymentId);
+            for (Map.Entry<String, Map<String, InstanceInformation>> nodeEntry : appInfo.entrySet()) {
+                for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
                     instanceEntry.getValue().setInstanceStatus(InstanceStatus.PROCESSING);
                     notifyInstanceStateChanged(deploymentId, nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
@@ -265,7 +266,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         return oldDeploymentStatus;
     }
 
-    private void notifyInstanceStateChanged(final String deploymentId, final String nodeId, final Integer instanceId, final InstanceInformation information,
+    private void notifyInstanceStateChanged(final String deploymentId, final String nodeId, final String instanceId, final InstanceInformation information,
             long delay) {
         final InstanceInformation cloned = new InstanceInformation();
         cloned.setAttributes(information.getAttributes());
@@ -308,7 +309,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         }, delay, TimeUnit.SECONDS);
     }
 
-    private void notifyInstanceRemoved(final String deploymentId, final String nodeId, final Integer instanceId, long delay) {
+    private void notifyInstanceRemoved(final String deploymentId, final String nodeId, final String instanceId, long delay) {
         executorService.schedule(new Runnable() {
 
             @Override
@@ -326,17 +327,17 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
+    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
         return instanceInformationsMap.get(deploymentId);
     }
 
-    private synchronized void doChangeInstanceInformations(String applicationId, Map<String, Map<Integer, InstanceInformation>> currentInformations) {
-        Iterator<Entry<String, Map<Integer, InstanceInformation>>> appIterator = currentInformations.entrySet().iterator();
+    private synchronized void doChangeInstanceInformations(String applicationId, Map<String, Map<String, InstanceInformation>> currentInformations) {
+        Iterator<Entry<String, Map<String, InstanceInformation>>> appIterator = currentInformations.entrySet().iterator();
         while (appIterator.hasNext()) {
-            Entry<String, Map<Integer, InstanceInformation>> iStatuses = appIterator.next();
-            Iterator<Entry<Integer, InstanceInformation>> iterator = iStatuses.getValue().entrySet().iterator();
+            Entry<String, Map<String, InstanceInformation>> iStatuses = appIterator.next();
+            Iterator<Entry<String, InstanceInformation>> iterator = iStatuses.getValue().entrySet().iterator();
             while (iterator.hasNext()) {
-                Map.Entry<Integer, InstanceInformation> iStatus = iterator.next();
+                Map.Entry<String, InstanceInformation> iStatus = iterator.next();
                 changeInstanceState(applicationId, iStatuses.getKey(), iStatus.getKey(), iStatus.getValue(), iterator);
             }
             if (iStatuses.getValue().isEmpty()) {
@@ -345,8 +346,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         }
     }
 
-    private void changeInstanceState(String id, String nodeId, Integer instanceId, InstanceInformation information,
-            Iterator<Entry<Integer, InstanceInformation>> iterator) {
+    private void changeInstanceState(String id, String nodeId, String instanceId, InstanceInformation information,
+            Iterator<Entry<String, InstanceInformation>> iterator) {
         String currentState = information.getState();
         String nextState = getNextState(currentState);
         if (nextState != null) {
@@ -409,17 +410,17 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     public void scale(String deploymentId, String nodeTemplateId, final int instances) {
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
         Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
-        final Map<String, Map<Integer, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
+        final Map<String, Map<String, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)) {
             ScalingVisitor scalingVisitor = new ScalingVisitor() {
                 @Override
                 public void visit(String nodeTemplateId) {
-                    Map<Integer, InstanceInformation> nodeInformations = existingInformations.get(nodeTemplateId);
+                    Map<String, InstanceInformation> nodeInformations = existingInformations.get(nodeTemplateId);
                     if (nodeInformations != null) {
                         int currentSize = nodeInformations.size();
                         if (instances > 0) {
                             for (int i = currentSize + 1; i < currentSize + instances + 1; i++) {
-                                nodeInformations.put(i, newInstance(i));
+                                nodeInformations.put(String.valueOf(i), newInstance(i));
                             }
                         } else {
                             for (int i = currentSize + instances + 1; i < currentSize + 1; i++) {
@@ -437,10 +438,10 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public AbstractMonitorEvent[] getEventsSince(Date date, int maxEvents) {
+    public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventsCallback) {
         AbstractMonitorEvent[] events = toBeDeliveredEvents.toArray(new AbstractMonitorEvent[toBeDeliveredEvents.size()]);
         toBeDeliveredEvents.clear();
-        return events;
+        eventsCallback.onData(events);
     }
 
     @Override

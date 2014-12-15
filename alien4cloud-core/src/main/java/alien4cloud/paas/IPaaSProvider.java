@@ -65,7 +65,7 @@ public interface IPaaSProvider {
      * @param topology The topology for which to get instance information.
      * @return (map : node template's id => (map : instance's id => instance status))
      */
-    Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology);
+    Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case
@@ -75,7 +75,7 @@ public interface IPaaSProvider {
      * @param maxEvents The maximum number of events to return.
      * @return An array of time ordered audit events with a maximum size of maxEvents.
      */
-    AbstractMonitorEvent[] getEventsSince(Date date, int maxEvents);
+    void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventCallback);
 
     /**
      * Trigger a custom command on a node

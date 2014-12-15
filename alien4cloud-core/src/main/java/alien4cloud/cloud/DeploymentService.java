@@ -225,7 +225,7 @@ public class DeploymentService {
      * @return (map : node template's id => (map : instance's id => instance status))
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String topologyId, String cloudId) throws CloudDisabledException {
+    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String topologyId, String cloudId) throws CloudDisabledException {
         Deployment deployment = getActiveDeployment(topologyId, cloudId);
         if (deployment == null) {
             return null;
@@ -352,7 +352,7 @@ public class DeploymentService {
 
     /**
      * Get all deployments for a given deployment setup id
-     * 
+     *
      * @param deploymentSetupId
      * @return
      */

@@ -25,6 +25,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private Date lastPollingDate;
     @SuppressWarnings("rawtypes")
     private List<IPaasEventListener> listeners;
+    private PaaSEventsCallback paaSEventsCallback;
 
     /**
      * Create a new instance of the {@link PaaSProviderPollingMonitor} to monitor the given paas provider.
@@ -58,30 +59,43 @@ public class PaaSProviderPollingMonitor implements Runnable {
             this.lastPollingDate = new Date();
             log.debug("No monitor events found, the last polling date will be current date {}", this.lastPollingDate);
         }
+        paaSEventsCallback = new PaaSEventsCallback();
+    }
+
+    private class PaaSEventsCallback implements IPaaSCallback<AbstractMonitorEvent[]> {
+
+        @Override
+        public void onData(AbstractMonitorEvent[] auditEvents) {
+            Date currentDate = new Date();
+            if (auditEvents != null && auditEvents.length > 0) {
+                dao.save(auditEvents);
+                for (IPaasEventListener listener : listeners) {
+                    for (AbstractMonitorEvent event : auditEvents) {
+                        if (listener.canHandle(event)) {
+                            listener.eventHappened(event);
+                        }
+                        Date eventDate = new Date(event.getDate());
+                        lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
+                    }
+                }
+            } else {
+                if (currentDate.after(lastPollingDate)) {
+                    lastPollingDate = currentDate;
+                } else if (currentDate.before(lastPollingDate)) {
+                    log.warn("There may be time shift between the server producing events and the alien server");
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
+        }
     }
 
     @Override
     @SuppressWarnings("rawtypes")
     public void run() {
-        Date currentDate = new Date();
-        AbstractMonitorEvent[] auditEvents = paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS);
-        if (auditEvents != null && auditEvents.length > 0) {
-            dao.save(auditEvents);
-            for (IPaasEventListener listener : listeners) {
-                for (AbstractMonitorEvent event : auditEvents) {
-                    if (listener.canHandle(event)) {
-                        listener.eventHappened(event);
-                    }
-                    Date eventDate = new Date(event.getDate());
-                    lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
-                }
-            }
-        } else {
-            if (currentDate.after(lastPollingDate)) {
-                lastPollingDate = currentDate;
-            } else if (currentDate.before(lastPollingDate)) {
-                log.warn("There may be time shift between the server producing events and the alien server");
-            }
-        }
+        paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
     }
 }
