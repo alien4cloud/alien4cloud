@@ -56,7 +56,8 @@ public class MappingGenerator implements INodeParser<Map<String, INodeParser>> {
             }
             throw new ParsingException(resource.getFilename(), result.getContext().getParsingErrors());
         } catch (IOException e) {
-            throw new ParsingException(resource.getFilename(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null,
+            log.error("Failed to open stream", e);
+            throw new ParsingException(resource.getFilename(), new ParsingError(ErrorCode.MISSING_FILE, "Unable to load file.", null, e.getMessage(), null,
                     resourceLocation));
         }
     }

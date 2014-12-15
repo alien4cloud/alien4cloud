@@ -12,7 +12,7 @@
 - derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
 - capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
 - relationship_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
-- artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
+- artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedArtifactTypeParser
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
@@ -120,7 +120,7 @@
     value: artifactRef
   description: description
   type:
-    reference: type
+    reference: artifactType
     type: artifact_type_reference
   mimeType: mimeType
 
