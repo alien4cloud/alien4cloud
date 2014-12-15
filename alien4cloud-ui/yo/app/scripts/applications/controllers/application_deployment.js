@@ -2,11 +2,11 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environment', 'applicationEventServices', '$state', '$rootScope',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environment, applicationEventServices, $state, $rootScope) {
+  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environments', 'applicationEventServices', '$state', '$rootScope',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environments, applicationEventServices, $state, $rootScope) {
     var pageStateId = $state.current.name;
     $scope.application = applicationResult.data;
-    $scope.environment = environment;
+    $scope.environments = environments;
     $scope.topologyId = topologyId;
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');

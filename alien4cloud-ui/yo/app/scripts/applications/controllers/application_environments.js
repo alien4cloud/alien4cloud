@@ -24,8 +24,16 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     };
 
     // recover all versions for this applications
-    $scope.versions = applicationVersionServices.getVersions({
+    var searchRequestObject = {
+      'query': '',
+      'from': 0,
+      'size': 50
+    };
+    applicationVersionServices.searchVersion({
       applicationId: $state.params.id
+    }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
+      // Result search
+      $scope.versions = result.data.data;
     });
 
     // Cloud search to configure the new environment
@@ -48,10 +56,14 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices) {
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', 'environments',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, environments) {
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
+    console.log('ENVIRONMENTTTTT', environments);
+
+    // Initial scope environment loaded from parent state : applications.details
+    $scope.searchAppEnvResult =   environments;
 
     // Modal to create an new application environment
     $scope.openNewAppEnv = function() {
@@ -71,27 +83,24 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
 
     // Search for application environments
     $scope.search = function() {
-
       var searchRequestObject = {
         'query': $scope.query,
         'from': 0,
         'size': 50
       };
-
       applicationEnvironmentServices.searchEnvironment({
         applicationId: $scope.application.id
       }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
         // Result search
         $scope.searchAppEnvResult = result.data.data;
       });
-
       // TODO : UPDATE env status ?
       // // when apps search result is ready, update apps statuses
       // searchResult.$promise.then(function(applisationListResult) {
       //   updateApplicationStatuses(applisationListResult);
       // });
     };
-    $scope.search();
+
 
     // Delete the app environment
     $scope.delete = function deleteAppEnvironment(appEnvId) {

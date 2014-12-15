@@ -65,22 +65,23 @@ public class ApplicationEnvironmentController {
     @Resource
     private ApplicationVersionService applicationVersionService;
 
-    /**
-     * Get all application environment for an application
-     *
-     * @param applicationId The application id.
-     */
-    @ApiOperation(value = "Get all application environments for an application", notes = "Return all application environments for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ApplicationEnvironment> getEnvironments(@PathVariable String applicationId) {
-        applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
-        return RestResponseBuilder.<ApplicationEnvironment> builder().data(environments[0]).build();
-    }
+    // /**
+    // * Get all application environment for an application
+    // *
+    // * @param applicationId The application id.
+    // */
+    // @ApiOperation(value = "Get all application environments for an application", notes =
+    // "Return all application environments for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    // @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<ApplicationEnvironment> getEnvironments(@PathVariable String applicationId) {
+    // applicationService.checkAndGetApplication(applicationId);
+    // ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
+    // return RestResponseBuilder.<ApplicationEnvironment> builder().data(environments[0]).build();
+    // }
 
     /**
      * Search for application environment for a given application id
-     * 
+     *
      * @param applicationId the targeted application id
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application environments for an application id
@@ -117,12 +118,12 @@ public class ApplicationEnvironmentController {
 
     /**
      * Create the application environment for an application
-     * 
+     *
      * @param request data to create an application environment
      * @return application environment id
      */
     @ApiOperation(value = "Create a new application environment", notes = "If successfull returns a rest response with the id of the created application environment in data. If not successful a rest response with an error content is returned. Role required [ APPLICATIONS_MANAGER ]"
-            + "By default the application environment creator will have application roles [APPLICATION_MANAGER, DEPLOYMENT_MANAGER]")
+            + "By default the application environment creator will have application roles [ APPLICATION_MANAGER, DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@PathVariable String applicationId, @Valid @RequestBody ApplicationEnvironmentRequest request) {
@@ -154,7 +155,7 @@ public class ApplicationEnvironmentController {
 
     /**
      * Update application environment
-     * 
+     *
      * @param applicationEnvironmentId
      * @param request
      * @return
@@ -198,7 +199,7 @@ public class ApplicationEnvironmentController {
 
     /**
      * Delete an application environment based on it's id
-     * 
+     *
      * @param applicationEnvironmentId
      * @return
      */
@@ -212,7 +213,7 @@ public class ApplicationEnvironmentController {
 
     /**
      * Filter to search app environments only for an application id
-     * 
+     *
      * @param applicationId
      * @return
      */
@@ -296,7 +297,7 @@ public class ApplicationEnvironmentController {
 
     /**
      * Get a list a application environment DTO
-     * 
+     *
      * @param applicationEnvironments
      * @return
      */

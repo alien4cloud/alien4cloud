@@ -303,7 +303,7 @@ public class CloudServiceArchiveController {
      * @param csarId id of the topology
      * @return the active deployment
      */
-    @ApiOperation(value = "Get active deployment for the given csar snapshot's test topology on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get active deployment for the given csar snapshot's test topology on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{csarId:.+?}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);

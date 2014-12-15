@@ -73,7 +73,7 @@ public class ApplicationVersionController {
 
     /**
      * Search for application version for a given application id
-     * 
+     *
      * @param applicationId the targeted application id
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id
@@ -81,6 +81,8 @@ public class ApplicationVersionController {
     @ApiOperation(value = "Search for application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, searchRequest.getQuery(),
                 getApplicationVersionsFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
@@ -91,7 +93,7 @@ public class ApplicationVersionController {
      *
      * @param applicationId The application id
      */
-    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationVersion> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
@@ -102,7 +104,7 @@ public class ApplicationVersionController {
 
     /**
      * Create a new application version for an application
-     * 
+     *
      * @param request data to create an application environment
      * @return application environment id
      */
@@ -120,7 +122,7 @@ public class ApplicationVersionController {
 
     /**
      * Update application version
-     * 
+     *
      * @param applicationVersionId
      * @param request
      * @return
@@ -143,7 +145,7 @@ public class ApplicationVersionController {
 
     /**
      * Delete an application environment based on it's id. Should not be able to delete a deployed version.
-     * 
+     *
      * @param applicationId
      * @param applicationVersionId
      * @return boolean is delete
@@ -167,7 +169,7 @@ public class ApplicationVersionController {
 
     /**
      * Filter to search app versions only for an application id
-     * 
+     *
      * @param applicationId
      * @return a filter for application versions
      */
