@@ -15,15 +15,12 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.component.model.*;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.*;
-import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
 import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
@@ -241,7 +238,11 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
-
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
+        
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type.yml"));
 
         assertNoBlocker(parsingResult);
@@ -306,6 +307,10 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-interface-operations.yml"));
 
