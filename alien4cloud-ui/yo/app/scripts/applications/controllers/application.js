@@ -2,14 +2,32 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state',
-  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state) {
-   var pageStateId = 'application.side.bar';
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'environments',
+  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, environments) {
+
+    var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     var isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     var isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
     var isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // get all environments
+    $scope.environments = environments;
+    $scope.environments.$promise.then(function getSelected(environments) {
+      // Select initial default environment
+      $scope.selectedEnvironment = environments.data.data[0];
+    });
+
+    $scope.changeEnvironment = function(switchToEnvironment) {
+      var currentEnvironment = $scope.selectedEnvironment;
+      var newEnvironment = switchToEnvironment;
+      if (currentEnvironment.id != newEnvironment.id) {
+        console.log('CURRENT ENV FROM', $scope.selectedEnvironment);
+        console.log('CHANGE ENV TO', switchToEnvironment);
+        $scope.selectedEnvironment = switchToEnvironment;
+      }
+    };
 
     // Start listening immediately if deployment active exists
     applicationEventServices.start();
@@ -54,57 +72,48 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       setRuntimeDisabled();
     });
 
-    $scope.menu = [
-      {
-        id: 'am.applications.info',
-        state: 'applications.detail.info',
-        key: 'NAVAPPLICATIONS.MENU_INFO',
-        icon: 'fa fa-info',
-        show: (isManager || isDeployer || isDevops || isUser)
-      },
-      {
-        id: 'am.applications.detail.topology',
-        state: 'applications.detail.topology',
-        key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
-        icon: 'fa fa-sitemap',
-        show: (isManager || isDevops)
-      },
-      {
-        id: 'am.applications.detail.plans',
-        state: 'applications.detail.plans',
-        key: 'NAVAPPLICATIONS.MENU_PLAN',
-        icon: 'fa fa-sitemap fa-rotate-270',
-        show: (isManager || isDevops)
-      },
-      {
-        id: 'am.applications.detail.deployment',
-        state: 'applications.detail.deployment',
-        key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',
-        icon: 'fa fa-cloud-upload',
-        show: (isManager || isDeployer)
-      },
-      {
-        id: 'am.applications.detail.runtime',
-        state: 'applications.detail.runtime',
-        key: 'NAVAPPLICATIONS.MENU_RUNTIME',
-        icon: 'fa fa-cogs',
-        show: (isManager || isDeployer)
-      },
-      {
-        id: 'am.applications.detail.users',
-        state: 'applications.detail.users',
-        key: 'NAVAPPLICATIONS.MENU_USERS',
-        icon: 'fa fa-users',
-        show: isManager
-      },
-      {
-        id: 'am.applications.detail.environments',
-        state: 'applications.detail.environments',
-        key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
-        icon: 'fa fa-share-alt',
-        show: isManager
-      }
-    ];
+    $scope.menu = [{
+      id: 'am.applications.info',
+      state: 'applications.detail.info',
+      key: 'NAVAPPLICATIONS.MENU_INFO',
+      icon: 'fa fa-info',
+      show: (isManager || isDeployer || isDevops || isUser)
+    }, {
+      id: 'am.applications.detail.topology',
+      state: 'applications.detail.topology',
+      key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
+      icon: 'fa fa-sitemap',
+      show: (isManager || isDevops)
+    }, {
+      id: 'am.applications.detail.plans',
+      state: 'applications.detail.plans',
+      key: 'NAVAPPLICATIONS.MENU_PLAN',
+      icon: 'fa fa-sitemap fa-rotate-270',
+      show: (isManager || isDevops)
+    }, {
+      id: 'am.applications.detail.deployment',
+      state: 'applications.detail.deployment',
+      key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',
+      icon: 'fa fa-cloud-upload',
+      show: (isManager || isDeployer)
+    }, {
+      id: 'am.applications.detail.runtime',
+      state: 'applications.detail.runtime',
+      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
+      icon: 'fa fa-cogs',
+      show: (isManager || isDeployer)
+    }, {
+      id: 'am.applications.detail.users',
+      state: 'applications.detail.users',
+      key: 'NAVAPPLICATIONS.MENU_USERS',
+      icon: 'fa fa-users',
+      show: isManager
+    }, {
+      id: 'am.applications.detail.environments',
+      state: 'applications.detail.environments',
+      key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
+      icon: 'fa fa-share-alt',
+      show: isManager
+    }];
   }
-])
-;
+]);

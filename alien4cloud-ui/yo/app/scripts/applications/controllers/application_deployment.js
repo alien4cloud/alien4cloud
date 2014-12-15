@@ -6,7 +6,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
   function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environments, applicationEventServices, $state, $rootScope) {
     var pageStateId = $state.current.name;
     $scope.application = applicationResult.data;
-    $scope.environments = environments;
+
     $scope.topologyId = topologyId;
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -414,13 +414,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         enabledOnly: true
       }, function(result) {
         var clouds = result.data.data;
+        console.log('SELECTED ENV', $scope.selectedEnvironment);
         $scope.clouds = clouds;
         if (clouds) {
           // select the cloud that is currently associated with the topology
           var found = false,
             i = 0;
           while (!found && i < clouds.length) {
-            if (clouds[i].id === $scope.environment.cloudId) {
+            if (clouds[i].id === $scope.selectedEnvironment.cloudId) {
               $scope.selectedCloud = clouds[i];
               refreshDeploymentSetup();
               found = true;
