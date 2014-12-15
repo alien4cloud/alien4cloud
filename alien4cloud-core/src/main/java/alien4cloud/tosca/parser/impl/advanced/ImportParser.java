@@ -2,6 +2,7 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -23,7 +24,7 @@ public class ImportParser implements INodeParser<CSARDependency> {
     private ScalarParser scalarParser;
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 
