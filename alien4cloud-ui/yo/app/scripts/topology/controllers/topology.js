@@ -3,8 +3,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId',
-    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId) {
+  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId', 'applicationVersionServices',
+    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId, applicationVersionServices) {
       if (topologyId) {
         $scope.topologyId = topologyId;
       }
@@ -20,6 +20,73 @@ angular.module('alienUiApp').controller(
       var detailDivWidth = 450;
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
       var COMPUTE_TYPE = 'tosca.nodes.Compute';
+
+      var getLastedVersion = function () {
+        return applicationVersionServices.get({
+          applicationId: $scope.application.id
+        }, function updateSelectedVersion(result) {
+          console.log("2", result.data);
+           return result.data;
+        });
+      }
+
+
+      $scope.changeVersion = function(selectedVersion) {
+        $scope.selectedVersion = selectedVersion;
+      };
+
+      /** change the cloud for the topology */
+      // $scope.changeCloud = function(selectedCloud) {
+      //   $scope.selectedComputeTemplates = {};
+      //   $scope.selectedNetworks = {};
+      //   topologyServices.cloud.set({
+      //     applicationId: $scope.application.id
+      //   }, selectedCloud.id, function(result) {
+      //     if (result.error === null) {
+      //       $scope.selectedCloud = selectedCloud;
+      //       $scope.environment.cloudId = selectedCloud.id;
+      //       refreshDeploymentStatus(true);
+      //       refreshDeploymentSetup();
+      //     }
+      //   });
+      // };
+
+      // search for clouds
+      var searchRequestObject = {
+        'from': 0,
+        'size': 20
+      };
+
+      applicationVersionServices.searchVersion({
+        applicationId: $scope.application.id
+      }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
+        $scope.appVersions = result.data.data;
+        console.log("1", $scope.selectedVersion);
+        $scope.selectedVersion = getLastedVersion().$promise;
+        console.log("3", $scope.selectedVersion);
+
+      });
+      // var refreshCloudList = function() {
+      //   Cloud.get({
+      //     enabledOnly: true
+      //   }, function(result) {
+      //     var clouds = result.data.data;
+      //     $scope.clouds = clouds;
+      //     if (clouds) {
+      //       // select the cloud that is currently associated with the topology
+      //       var found = false,
+      //       i = 0;
+      //       while (!found && i < clouds.length) {
+      //         if (clouds[i].id === $scope.environment.cloudId) {
+      //           $scope.selectedCloud = clouds[i];
+      //           refreshDeploymentSetup();
+      //           found = true;
+      //         }
+      //         i++;
+      //       }
+      //     }
+      //   });
+      // };
 
       function onResize(width, height) {
         $scope.dimensions = {

@@ -52,17 +52,23 @@ public class ApplicationVersionController {
     private ApplicationService applicationService;
 
     /**
-     * Get an application version for an application
+     * Get most recent snapshot application version for an application
      *
      * @param applicationId The application id.
      */
-    @ApiOperation(value = "Get an application vesion.", notes = "Return an application vesion. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get the most recent snapshot application version for an application.", notes = "Return the most recent snapshot application version for an application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationVersion> get(@PathVariable String applicationId) {
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         ApplicationVersion[] versions = appVersionService.getByApplicationId(applicationId);
-        return RestResponseBuilder.<ApplicationVersion> builder().data(versions[0]).build();
+        ApplicationVersion mostReventVersion = versions[0];
+        for (ApplicationVersion current : versions) {
+            if (VersionUtil.compare(mostReventVersion.getVersion(), current.getVersion()) < 0) {
+                mostReventVersion = current;
+            }
+        }
+        return RestResponseBuilder.<ApplicationVersion> builder().data(mostReventVersion).build();
     }
 
     /**

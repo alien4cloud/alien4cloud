@@ -23,7 +23,7 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
       }
     });
 
-    var applicationVersionMiscResource = $resource('rest/applications/:applicationId/versions/:applicationEnvironmentId', {}, {
+    var applicationVersionMiscResource = $resource('rest/applications/:applicationId/versions/:applicationVersionId', {}, {
       'get': {
         method: 'GET'
       },
@@ -36,7 +36,7 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
     });
 
     return {
-      'get': null,
+      'get': applicationVersionMiscResource.get,
       'create': applicationVersionResource.create,
       'delete': applicationVersionMiscResource.delete,
       'update': null,
