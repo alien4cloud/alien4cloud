@@ -106,7 +106,10 @@
   upper_bound:
     reference: upperBound
     type: bound
-  relationship:
+  type:
+    reference: relationshipType
+    type: relationship_type_reference
+  relationship_type:
     reference: relationshipType
     type: relationship_type_reference
   capability: capabilityName
