@@ -91,6 +91,22 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           function(applicationEventServicesFactory, $stateParams) {
             return applicationEventServicesFactory($stateParams.id);
           }
+        ],
+        environments: ['$http', 'application', 'applicationEnvironmentServices',
+          function($http, application, applicationEnvironmentServices) {
+            var searchRequestObject = {
+              'query': '',
+              'from': 0,
+              'size': 20
+            };
+            return applicationEnvironmentServices.searchEnvironment({
+              applicationId: application.data.id
+            }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
+              // Result search
+              console.log('Parent environment search', result.data.data);
+              return result.data.data;
+            });
+          }
         ]
       },
       templateUrl: 'views/applications/vertical_menu_layout.html',
@@ -110,13 +126,9 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.deployment', {
       url: '/deployment',
       resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
+        environments: function(environments) {
+          return environments.data.data;
+        }
       },
       templateUrl: 'views/applications/application_deployment.html',
       controller: 'ApplicationDeploymentCtrl'
@@ -124,13 +136,9 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       url: '/runtime',
       templateUrl: 'views/applications/topology_runtime.html',
       resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
+        environments: function(environments) {
+          return environments.data.data;
+        }
       },
       controller: 'TopologyRuntimeCtrl'
     }).state('applications.detail.users', {
@@ -150,13 +158,9 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
       resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
+        environments: function(environments) {
+          return environments.data.data;
+        }
       },
       controller: 'ApplicationEnvironmentsCtrl'
     })
