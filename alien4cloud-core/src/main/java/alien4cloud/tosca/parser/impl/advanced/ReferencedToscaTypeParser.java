@@ -1,37 +1,39 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import lombok.AllArgsConstructor;
+import javax.annotation.Resource;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.component.model.*;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the dependencies.
  */
-@AllArgsConstructor
-public class TypeReferenceParser implements INodeParser<String> {
+public abstract class ReferencedToscaTypeParser implements INodeParser<String> {
     @SuppressWarnings("unchecked")
     private static final Class<? extends IndexedInheritableToscaElement>[] possibleTypes = new Class[] { IndexedNodeType.class, IndexedRelationshipType.class,
             IndexedCapabilityType.class, IndexedArtifactType.class };
 
-    private final ICSARRepositorySearchService searchService;
-    private final ScalarParser scalarParser;
+    @Resource
+    private ICSARRepositorySearchService searchService;
+    @Resource
+    private ScalarParser scalarParser;
     private final Class<? extends IndexedInheritableToscaElement>[] validTypes;
 
+    public ReferencedToscaTypeParser(Class<? extends IndexedInheritableToscaElement>... validTypes) {
+        this.validTypes = validTypes;
+    }
+
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return true;
     }
 

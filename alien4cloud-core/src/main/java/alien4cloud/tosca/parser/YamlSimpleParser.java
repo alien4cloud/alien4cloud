@@ -2,14 +2,14 @@ package alien4cloud.tosca.parser;
 
 import lombok.AllArgsConstructor;
 
-import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
 
 @AllArgsConstructor
 public class YamlSimpleParser<T> extends YamlParser<T> {
     private INodeParser<T> nodeParser;
 
     @Override
-    protected INodeParser<T> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException {
+    protected INodeParser<T> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException {
         return nodeParser;
     }
 }
