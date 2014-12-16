@@ -19,8 +19,5 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 public class ApplicationVersionRequest {
     @ApiModelProperty(required = true)
     private String version;
-    @ApiModelProperty(required = true)
-    private String applicationId;
     private String description;
-    private boolean released;
 }

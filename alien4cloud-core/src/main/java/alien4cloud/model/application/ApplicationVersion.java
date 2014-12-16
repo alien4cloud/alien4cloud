@@ -1,7 +1,5 @@
 package alien4cloud.model.application;
 
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,7 +33,6 @@ public class ApplicationVersion implements IManagedSecuredResource {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String topologyId;
-    private Map<String, String> properties;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean released;
     @BooleanField(index = IndexType.not_analyzed)

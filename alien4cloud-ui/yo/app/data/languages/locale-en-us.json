@@ -220,7 +220,8 @@
     "MENU_DEPLOYMENT": "Deployments",
     "MENU_RUNTIME": "Runtime",
     "MENU_USERS": "Users and Groups",
-    "MENU_ENVIRONMENT": "Environments"
+    "MENU_ENVIRONMENT": "Environments",
+    "MENU_VERSIONS": "Version"
   },
   "ROLE_TABS": {
     "USERS": "Users",
@@ -386,6 +387,13 @@
         "ENV_VERSION": "Application version",
         "ENV_VERSION_SELECT": "-- Select the application version --"
       }
+    },
+    "VERSION": {
+      "NEW": "Create a new version",
+      "VERSION": "Version",
+      "DESCRIPTION": "Description",
+      "ID": "Version ID",
+      "FLAVOR-TITLE": "New version"
     },
     "ERRORS": {
       "DELETE_TITLE": "Delete an application",

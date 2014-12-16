@@ -115,6 +115,12 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         icon: 'fa fa-users',
         show: isManager
       },
+      { id: 'am.applications.detail.versions',
+        state: 'applications.detail.versions',
+        key: 'NAVAPPLICATIONS.MENU_VERSIONS',
+        icon: 'fa fa-tasks',
+        show: isManager
+      },
       {
         id: 'am.applications.detail.environments',
         state: 'applications.detail.environments',

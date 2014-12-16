@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -112,11 +111,11 @@ public class ApplicationVersionController {
             + "By default the application version creator will have application roles [APPLICATION_MANAGER]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public RestResponse<String> create(@Valid @RequestBody ApplicationVersionRequest request) {
+    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-        Application application = applicationService.getOrFail(request.getApplicationId());
+        Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        ApplicationVersion appVersion = appVersionService.createApplicationVersion(request.getApplicationId(), null, request.getVersion());
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, null, request.getVersion());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 

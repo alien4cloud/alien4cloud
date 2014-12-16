@@ -17,8 +17,6 @@ import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
-import com.google.common.collect.Maps;
-
 @Service
 public class ApplicationVersionService {
     private static final String DEFAULT_VERSION_NAME = "0.1.0-SNAPSHOT";
@@ -56,7 +54,6 @@ public class ApplicationVersionService {
         appVersion.setReleased(false);
         appVersion.setLatest(true);
         appVersion.setSnapshot(true);
-        appVersion.setProperties(Maps.<String, String> newHashMap());
 
         Topology topology;
         if (topologyId != null) { // "cloning" the topology

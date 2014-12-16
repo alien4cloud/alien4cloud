@@ -1206,6 +1206,17 @@ FORMS.constraintFactory = function(name, $filter) {
           return true;
         }
       };
+    case 'pattern':
+      return function(value, reference) {
+        var patt = new RegExp(reference);
+        if (!patt.test(value.toString())) {
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.pattern', {
+            reference: reference
+          });
+        } else {
+          return true;
+        }
+      };
     default:
       return function() {
         return true;
