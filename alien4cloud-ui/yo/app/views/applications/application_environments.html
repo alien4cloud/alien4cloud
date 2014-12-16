@@ -92,7 +92,7 @@
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
           <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD' | translate}}</label>
           <div class="col-lg-9">
-            <select name="clouds" required="" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
+            <select name="clouds" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
               <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
             </select>
           </div>
@@ -121,6 +121,7 @@
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
       </div>
     </form>
+
   </script>
 
 </div>

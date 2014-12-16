@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
+import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -18,7 +19,6 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
@@ -48,6 +48,10 @@ public class ApplicationEnvironmentService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ApplicationService applicationService;
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+    @Resource
+    private CloudService cloudService;
 
     /**
      * Method used to create a default environment
@@ -197,39 +201,16 @@ public class ApplicationEnvironmentService {
         return applicationEnvironment;
     }
 
-    public boolean getDeployed(ApplicationEnvironment applicationEnvironment) throws CloudDisabledException {
-
-        // First phase : there is at least one deploymentSetup with this applicationEnvironmentId
-        GetMultipleDataResult<DeploymentSetup> deploymentSetupSearch = alienDAO.find(DeploymentSetup.class,
-                MapUtil.newHashMap(new String[] { "environmentId" }, new String[][] { new String[] { applicationEnvironment.getId() } }), Integer.MAX_VALUE);
-        // no deploymentSetup => no app environment deployed
-        if (deploymentSetupSearch.getData().length == 0) {
-            return false;
-        }
-        // Second phase : this deploymentSetup has a deployment in status DeploymentStatus.DEPLOYED
-        GetMultipleDataResult<Deployment> deployments = null;
-        DeploymentStatus deploymentStatus = null;
-        boolean findDeployed = false;
-        int countDeployed = 0;
-        for (DeploymentSetup deploymentSetup : deploymentSetupSearch.getData()) {
-            deployments = deploymentService.getDeploymentsByDeploymentSetup(deploymentSetup.getId());
-            for (Deployment deployment : deployments.getData()) {
-                try {
-                    deploymentStatus = deploymentService.getDeploymentStatus(deployment.getTopologyId(), applicationEnvironment.getCloudId());
-                } catch (CloudDisabledException e) {
-                    throw new CloudDisabledException("Cloud is not enabled and no PaaSProvider instance has been created.");
-                }
-                if (deploymentStatus.equals(DeploymentStatus.DEPLOYED)) {
-                    findDeployed = true;
-                    countDeployed++;
-                }
-            }
-        }
-        // environment must not have more than one deployment at a time
-        if (countDeployed > 1) {
-            log.warn("The environment <{}> has more than one active deployment : <{}>", applicationEnvironment.getId(), countDeployed);
-        }
-        return findDeployed;
+    /**
+     * Get the environment status regarding the linked topology and cloud
+     * 
+     * @param environment to determine the status
+     * @return {@link DeploymentStatus}
+     * @throws CloudDisabledException
+     */
+    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws CloudDisabledException {
+        return deploymentService.getDeploymentStatus(applicationVersionService.getOrFail(environment.getCurrentVersionId()).getTopologyId(),
+                environment.getCloudId());
     }
 
 }

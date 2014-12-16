@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +22,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -28,6 +30,7 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -47,6 +50,7 @@ import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
+@Slf4j
 @RestController
 @RequestMapping("/rest/applications/{applicationId:.+}/environments")
 @Api(value = "", description = "Manages application's environments")
@@ -64,6 +68,8 @@ public class ApplicationEnvironmentController {
     private ResourceRoleService resourceRoleService;
     @Resource
     private ApplicationVersionService applicationVersionService;
+    @Resource
+    private DeploymentService deploymentService;
 
     /**
      * Search for application environment for a given application id
@@ -112,7 +118,7 @@ public class ApplicationEnvironmentController {
             + "By default the application environment creator will have application roles [ APPLICATION_MANAGER, DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public RestResponse<String> create(@PathVariable String applicationId, @Valid @RequestBody ApplicationEnvironmentRequest request) {
+    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         ApplicationEnvironment appEnvironment = null;
         Application application = alienDAO.findById(Application.class, request.getApplicationId());
@@ -302,9 +308,15 @@ public class ApplicationEnvironmentController {
             } else {
                 tempEnvDTO.setCloudName(null);
             }
+            tempEnvDTO.setCloudId(env.getCloudId());
             tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion());
-            // TODO : get real current status
-            tempEnvDTO.setStatus(DeploymentStatus.UNDEPLOYED);
+            try {
+                tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
+            } catch (CloudDisabledException e) {
+                log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
+                        + "> seems disabled. Returned status is UNKNOWN.", e);
+                tempEnvDTO.setStatus(DeploymentStatus.UNKNOWN);
+            }
             listApplicationEnvironmentsDTO.add(tempEnvDTO);
         }
         return listApplicationEnvironmentsDTO.toArray(new ApplicationEnvironmentDTO[listApplicationEnvironmentsDTO.size()]);
