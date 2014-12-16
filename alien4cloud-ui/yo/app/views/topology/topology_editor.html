@@ -346,7 +346,7 @@
                           tooltip-append-to-body="true">{{propertyKey}}</span>
                       </td>
                       <td class="col-md-6" id="p_req_{{requirementName}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                        <span> {{propertyValue || '...'}} </span>
+                        <span> {{propertyValue.value || '...'}} </span>
                       </td>
                     </tr>
                   </table>
