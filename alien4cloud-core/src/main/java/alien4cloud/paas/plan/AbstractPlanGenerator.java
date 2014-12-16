@@ -136,11 +136,11 @@ public abstract class AbstractPlanGenerator {
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
             boolean isCandidate = waitTarget ? relationshipTemplate.getSource().equals(nodeTemplate.getId()) : relationshipTemplate.getRelationshipTemplate()
                     .getTarget().equals(nodeTemplate.getId());
+            String dependencyTarget = waitTarget ? relationshipTemplate.getRelationshipTemplate().getTarget() : relationshipTemplate.getSource();
 
             // if the sate is already reached by synchronous implementation we don't have to generate it here.
-            if (relationshipTemplate.instanceOf(relationshipType) && isCandidate
-                    && !isStateSyncPrevious(relationshipTemplate.getRelationshipTemplate().getTarget(), states)) {
-                nodeDependencies.add(relationshipTemplate.getRelationshipTemplate().getTarget());
+            if (relationshipTemplate.instanceOf(relationshipType) && isCandidate && !isStateSyncPrevious(dependencyTarget, states)) {
+                nodeDependencies.add(dependencyTarget);
             }
         }
 

@@ -30,7 +30,7 @@
   "MODAL": {
     "TITLE": {
       "PROPERTY": "Description de la propriété",
-      "REQUIREMENT": "Description du prérequis",
+      "REQUIREMENT": "Description du pré-requis",
       "CAPABILITY": "Description de la capacité"
     }
   },

@@ -16,7 +16,6 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         state(node.getId(), CREATED);
 
         waitTarget(node, DEPENDS_ON, STARTED);
-        waitSource(node, DEPENDS_ON, CREATED);
 
         callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, PRE_CONFIGURE_SOURCE, PRE_CONFIGURE_TARGET);
 
@@ -28,10 +27,10 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         call(node, STANDARD, START);
         state(node.getId(), STARTED);
 
-        waitTarget(node, DEPENDS_ON, AVAILABLE);
+        waitSource(node, CONNECTS_TO, STARTED);
 
         // synchronous add source / target implementation.
-        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
+        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_TARGET, ADD_SOURCE);
 
         state(node.getId(), AVAILABLE);
 
