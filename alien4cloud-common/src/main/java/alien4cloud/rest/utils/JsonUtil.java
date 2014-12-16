@@ -53,14 +53,9 @@ public final class JsonUtil {
      *             In case of an IO error.
      */
     public static <T> RestResponse<T> read(String responseAsString, Class<T> dataType) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, dataType);
-            return mapper.readValue(responseAsString, restResponseType);
-        } catch (IOException e) {
-            log.error("Error deserializing object :\n" + responseAsString, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, dataType);
+        return mapper.readValue(responseAsString, restResponseType);
     }
 
     /**
@@ -74,12 +69,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> T readObject(String objectText, Class<T> objectClass) throws IOException {
-        try {
-            return getOneObjectMapper().readValue(objectText, objectClass);
-        } catch (IOException e) {
-            log.error("Error deserializing object :\n" + objectText, e);
-            throw e;
-        }
+        return getOneObjectMapper().readValue(objectText, objectClass);
     }
 
     /**
@@ -93,11 +83,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> T readObject(InputStream jsonStream, Class<T> objectClass) throws IOException {
-        try {
-            return getOneObjectMapper().readValue(jsonStream, objectClass);
-        } catch (IOException e) {
-            throw e;
-        }
+        return getOneObjectMapper().readValue(jsonStream, objectClass);
     }
 
     /**
@@ -112,12 +98,7 @@ public final class JsonUtil {
     public static <T> T readObject(String objectText) throws IOException {
         TypeReference<T> typeRef = new TypeReference<T>() {
         };
-        try {
-            return getOneObjectMapper().readValue(objectText, typeRef);
-        } catch (IOException e) {
-            log.error("Error deserializing object :\n" + objectText, e);
-            throw e;
-        }
+        return getOneObjectMapper().readValue(objectText, typeRef);
     }
 
     /**
@@ -130,12 +111,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static RestResponse<?> read(String responseAsString) throws IOException {
-        try {
-            return getOneObjectMapper().readValue(responseAsString, RestResponse.class);
-        } catch (IOException e) {
-            log.error("Error deserializing object :\n" + responseAsString, e);
-            throw e;
-        }
+        return getOneObjectMapper().readValue(responseAsString, RestResponse.class);
     }
 
     /**
@@ -148,12 +124,7 @@ public final class JsonUtil {
      *             In case of a failure in serialization.
      */
     public static String toString(Object obj) throws JsonProcessingException {
-        try {
-            return getOneObjectMapper().writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
-            log.error("Error serializing object " + obj, e);
-            throw e;
-        }
+        return getOneObjectMapper().writeValueAsString(obj);
     }
 
     /**
@@ -165,14 +136,9 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static Map<String, Object> toMap(String json) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Object.class);
-            return mapper.readValue(json, mapStringObjectType);
-        } catch (IOException e) {
-            log.error("Error deserializing object to map \n" + json, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Object.class);
+        return mapper.readValue(json, mapStringObjectType);
     }
 
     /**
@@ -185,14 +151,9 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <K, V> Map<K, V> toMap(String json, Class<K> keyTypeClass, Class<V> valueTypeClass) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyTypeClass, valueTypeClass);
-            return mapper.readValue(json, mapStringObjectType);
-        } catch (IOException e) {
-            log.error("Error deserializing object to map \n" + json, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyTypeClass, valueTypeClass);
+        return mapper.readValue(json, mapStringObjectType);
     }
 
     /**
@@ -209,14 +170,9 @@ public final class JsonUtil {
     }
 
     public static <V> V[] toArray(String json, Class<V> valueTypeClass) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType arrayStringObjectType = mapper.getTypeFactory().constructArrayType(valueTypeClass);
-            return mapper.readValue(json, arrayStringObjectType);
-        } catch (IOException e) {
-            log.error("Error deserializing object to array \n" + json, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType arrayStringObjectType = mapper.getTypeFactory().constructArrayType(valueTypeClass);
+        return mapper.readValue(json, arrayStringObjectType);
     }
 
     /**
@@ -228,25 +184,15 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> List<T> toList(String json, Class<T> clazz) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
-            return mapper.readValue(json, type);
-        } catch (IOException e) {
-            log.error("Error deserializing object to list \n" + json, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
+        return mapper.readValue(json, type);
     }
 
     public static <T> List<T> toList(String json, Class<T> elementClass, Class<?> elementGenericClass) throws IOException {
-        try {
-            ObjectMapper mapper = getOneObjectMapper();
-            JavaType elementType = mapper.getTypeFactory().constructParametricType(elementClass, elementGenericClass);
-            JavaType listType = mapper.getTypeFactory().constructCollectionType(List.class, elementType);
-            return mapper.readValue(json, listType);
-        } catch (IOException e) {
-            log.error("Error deserializing object to list \n" + json, e);
-            throw e;
-        }
+        ObjectMapper mapper = getOneObjectMapper();
+        JavaType elementType = mapper.getTypeFactory().constructParametricType(elementClass, elementGenericClass);
+        JavaType listType = mapper.getTypeFactory().constructCollectionType(List.class, elementType);
+        return mapper.readValue(json, listType);
     }
 }

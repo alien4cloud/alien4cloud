@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.tosca.ArchiveUploadService;
-import alien4cloud.tosca.ToscaParserSimpleProfileWd03Test;
+import alien4cloud.tosca.parser.ToscaParserSimpleProfileWd03Test;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
@@ -94,7 +94,8 @@ public class PaaSPlanGeneratorTest {
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.getHostedOnTree(nodeTemplates);
 
         // now build the plans and check results
-        StartEvent startEvent = PaaSPlanGenerator.buildPlan(roots);
+        BuildPlanGenerator generator = new BuildPlanGenerator();
+        StartEvent startEvent = generator.generate(roots);
         printPlan(startEvent);
 
         // TODO validation of the plan...
@@ -122,11 +123,15 @@ public class PaaSPlanGeneratorTest {
 
             if (step instanceof ParallelGateway) {
                 List<WorkflowStep> parallelSteps = ((ParallelGateway) step).getParallelSteps();
+                System.out.println("[");
+                level++;
                 for (WorkflowStep workflowStep : parallelSteps) {
-                    System.out.println("{");
+                    System.out.println("  {");
                     printPlan(workflowStep, level + 1, true);
-                    System.out.println("}");
+                    System.out.println("  }");
                 }
+                level--;
+                System.out.println("]");
             } else {
                 printPlan(step.getNextStep(), level, false);
             }

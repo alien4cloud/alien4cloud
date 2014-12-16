@@ -1,4 +1,4 @@
-package alien4cloud.tosca;
+package alien4cloud.tosca.parser;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
@@ -15,26 +15,12 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.component.model.*;
 import alien4cloud.csar.services.CsarService;
-import alien4cloud.paas.plan.PlanGeneratorConstants;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.tosca.container.model.CSARDependency;
 import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.model.Csar;
-import alien4cloud.tosca.model.FunctionPropertyValue;
-import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.model.Operation;
-import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.model.ScalarPropertyValue;
-import alien4cloud.tosca.parser.ParsingError;
-import alien4cloud.tosca.parser.ParsingErrorLevel;
-import alien4cloud.tosca.parser.ParsingException;
-import alien4cloud.tosca.parser.ParsingResult;
-import alien4cloud.tosca.parser.ToscaParser;
+import alien4cloud.tosca.model.*;
 import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
 import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
@@ -252,7 +238,11 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
-
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
+        
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type.yml"));
 
         assertNoBlocker(parsingResult);
@@ -317,6 +307,10 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
                         Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
 
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-interface-operations.yml"));
 
@@ -333,7 +327,7 @@ public class ToscaParserSimpleProfileWd03Test {
 
         Assert.assertNotNull(nodeType.getInterfaces());
         Assert.assertEquals(2, nodeType.getInterfaces().size());
-        Assert.assertNotNull(nodeType.getInterfaces().get(PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME));
+        Assert.assertNotNull(nodeType.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD));
         Interface customInterface = nodeType.getInterfaces().get("custom");
         Assert.assertNotNull(customInterface);
         Assert.assertEquals("this is a sample interface used to execute custom operations.", customInterface.getDescription());

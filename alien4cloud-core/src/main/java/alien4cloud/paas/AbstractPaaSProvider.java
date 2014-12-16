@@ -15,12 +15,6 @@ import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchServic
 
 @Getter
 public abstract class AbstractPaaSProvider implements IPaaSProvider {
-    public static final String HOSTED_ON = "tosca.relationships.HostedOn";
-    public static final String DEPENDS_ON = "tosca.relationships.DependsOn";
-    public static final String CONNECTS_TO = "tosca.relationships.ConnectsTo";
-
-    // @Resource
-    // private ArchiveParser archiveParser;
     @Resource
     private CSARRepositorySearchService csarRepoSearch;
     @Resource
@@ -48,10 +42,4 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
      */
     protected abstract void doDeploy(String deploymentName, String deploymentId, Topology topology, List<PaaSNodeTemplate> roots,
             Map<String, PaaSNodeTemplate> nodeTemplates, DeploymentSetup deploymentSetup);
-
-    // @SneakyThrows
-    // protected CloudServiceArchive getCloudServiceArchive(IndexedToscaElement indexedNodeType) {
-    // Path csarPath = repository.getCSAR(indexedNodeType.getArchiveName(), indexedNodeType.getArchiveVersion());
-    // return archiveParser.parseArchive(csarPath);
-    // }
 }

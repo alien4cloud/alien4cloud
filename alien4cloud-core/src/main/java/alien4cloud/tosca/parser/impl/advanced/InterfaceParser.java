@@ -15,7 +15,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.parser.*;
-import alien4cloud.tosca.parser.mapping.Wd03OperationDefinition;
+import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
 import com.google.common.collect.Maps;
 
@@ -25,9 +25,8 @@ public class InterfaceParser implements INodeParser<Interface> {
     private static final String DESCRIPTION_KEY = "description";
 
     @Resource
-    private Wd03OperationDefinition operationDefinition;
-    @Resource
     private ImplementationArtifactParser implementationArtifactParser;
+    private ReferencedParser<Operation> operationParser = new ReferencedParser<>("operation_definition");
 
     @Override
     public Interface parse(Node node, ParsingContextExecution context) {
@@ -45,7 +44,7 @@ public class InterfaceParser implements INodeParser<Interface> {
         interfaz.setOperations(operations);
 
         for (NodeTuple entry : node.getValue()) {
-            String key = ParserUtils.getScalar(entry.getKeyNode(), context.getParsingErrors());
+            String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             if (INPUTS_KEY.equals(key)) {
                 // TODO process inputs.
             } else if (DESCRIPTION_KEY.equals(key)) {
@@ -60,10 +59,10 @@ public class InterfaceParser implements INodeParser<Interface> {
                     // implementation artifact parsing should be done using a deferred parser as we need to look for artifact types.
                     BeanWrapper targetBean = new BeanWrapperImpl(operation);
                     MappingTarget target = new MappingTarget("implementationArtifact", implementationArtifactParser);
-                    context.getDefferedParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
+                    context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
                     operations.put(key, operation);
                 } else {
-                    operations.put(key, operationDefinition.getParser().parse(entry.getValueNode(), context));
+                    operations.put(key, operationParser.parse(entry.getValueNode(), context));
                 }
             }
         }
@@ -71,7 +70,7 @@ public class InterfaceParser implements INodeParser<Interface> {
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 }

@@ -1,0 +1,247 @@
+# Mapping definitions for tosca simple profile working draft 03.
+
+# declare custom parsers for complex types that requires specific parser.
+- scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
+- property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
+- import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
+- bound: alien4cloud.tosca.parser.impl.advanced.BoundParser
+- implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
+- derived_from_node_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromNodeTypeParser
+- derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
+- derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser
+- derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
+- capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
+- relationship_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
+- artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedArtifactTypeParser
+- tag: alien4cloud.tosca.parser.impl.advanced.TagParser
+- interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
+- interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
+
+# declare standard mapping based parsers
+- definition: alien4cloud.tosca.model.ArchiveRoot
+  tosca_definitions_version: archive.toscaDefinitionsVersion
+  tosca_default_namespace: archive.toscaDefaultNamespace
+  template_name: archive.name
+  template_author: archive.templateAuthor
+  template_version: archive.version
+  description: archive.description
+  imports:
+    set: archive.dependencies
+    type: import_definition
+  node_types:
+    map: nodeTypes
+    key: elementId
+    type: node_type
+  capability_types:
+    map: capabilityTypes
+    key: elementId
+    type: capability_type
+  relationship_types:
+    map: relationshipTypes
+    key: elementId
+    type: relationship_type
+  artifact_types:
+    map: artifactTypes
+    key: elementId
+    type: artifact_type
+    # inputs:
+    # node_templates:
+    # relationship_templates:
+    # groups:
+    # outputs:
+
+- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+
+- attribute_definition: alien4cloud.tosca.model.AttributeDefinition
+  description: description
+  type: type
+  default: default
+
+- schema: alien4cloud.tosca.model.Schema
+  derived_from: derivedFrom
+  constraints: constraint
+  properties:
+    map: properties
+    type: property_definition
+
+- non_validated_property_definition: alien4cloud.tosca.model.PropertyDefinition
+  type: type
+  required: required
+  description: description
+  default: default
+  constraints:
+    list: constraints
+    type: constraint
+  entry_schema:
+    reference: entrySchema
+    type: schema
+
+- property_definition: __validated
+  type: non_validated_property_definition
+
+# capability definition supports a simple definition or more advanced.
+- capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
+- capability_definition_detailed: alien4cloud.tosca.model.CapabilityDefinition
+  description: description
+  type:
+    reference: type
+    type: capability_type_reference
+  upper_bound:
+    reference: upperBound
+    type: bound
+  properties:
+    map: properties
+    type: property_value
+
+- requirement_definition: alien4cloud.tosca.model.RequirementDefinition
+  __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
+    key: id # map the key of the first mapping
+    value: # map the value as a capability_type_reference
+      reference: type
+      type: capability_type_reference
+  description: description
+  lower_bound:
+    reference: lowerBound
+    type: bound
+  upper_bound:
+    reference: upperBound
+    type: bound
+  type:
+    reference: relationshipType
+    type: relationship_type_reference
+  relationship_type:
+    reference: relationshipType
+    type: relationship_type_reference
+  capability: capabilityName
+  constraints:
+    map: constraints
+    type: constraint
+
+- deployment_artifact: alien4cloud.tosca.container.model.template.DeploymentArtifact
+  __0:
+    key: artifactName
+    value: artifactRef
+  description: description
+  type:
+    reference: artifactType
+    type: artifact_type_reference
+  mimeType: mimeType
+
+- tosca_function: alien4cloud.tosca.model.FunctionPropertyValue
+  __0:
+    key: function
+    value:
+      list: parameters
+      type: scalar
+
+# created using constructor(String)
+- scalar_property_input: alien4cloud.tosca.model.ScalarPropertyValue
+
+- input: __discriminator
+  keys:
+    type: property_definition
+    get_input: tosca_function
+    get_property: tosca_function
+    get_attribute: tosca_function
+    get_operation_output: tosca_function
+  default: scalar_property_input
+
+- operation_definition: alien4cloud.tosca.model.Operation
+  implementation:
+    reference: implementationArtifact
+    type: implementation_artifact
+  description: description
+  inputs:
+    map: inputParameters
+    type: input
+  input: # add tolerance to input as wd03 is inconsistent.
+    map: inputParameters
+    type: input
+
+- node_type: alien4cloud.component.model.IndexedNodeType
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_node_type
+  properties:
+    map: properties
+    type: property_definition
+  attributes:
+    map: attributes
+    type: attribute_definition
+  requirements:
+    list: requirements
+    key: id
+    type: requirement_definition
+  capabilities:
+    list: capabilities
+    key: id
+    type: capability_definition
+  interfaces:
+    reference: interfaces
+    type: interfaces
+  artifacts:
+    sequence_to_map: artifacts
+    type: deployment_artifact
+
+- capability_type: alien4cloud.component.model.IndexedCapabilityType
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_capability_type
+  properties:
+    map: properties
+    type: property_definition
+
+- relationship_type: alien4cloud.component.model.IndexedRelationshipType
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_relationship_type
+  properties:
+    map: properties
+    type: property_definition
+  attributes:
+    map: attributes
+    type: attribute_definition
+  interfaces:
+    reference: interfaces
+    type: interfaces
+  artifacts:
+    sequence_to_map: artifacts
+    type: deployment_artifact
+  valid_targets:
+    list: validTargets
+    type: scalar
+  valid_sources:
+    list: validSources
+    type: scalar
+
+- artifact_type: alien4cloud.component.model.IndexedArtifactType
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_artifact_type
+  properties:
+    map: properties
+    type: property_definition
+  mime_type: mimeType
+  file_ext:
+    list: fileExt
+    type: scalar

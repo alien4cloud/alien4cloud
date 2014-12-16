@@ -2,12 +2,13 @@ package alien4cloud.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,91 +18,56 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public final class FileUtil {
-    /** Utility class should have private constructor. */
+    /**
+     * Utility class should have private constructor.
+     */
     private FileUtil() {
     }
 
-    private static class ZipDirWalker implements FileVisitor<Path> {
-
-        private Path inputPath;
-
-        private ZipOutputStream zipOutputStream;
-
-        /**
-         * Create the zip directory walker (Walk a directory and add it's content to a {@link ZipOutputStream}.
-         * 
-         * @param inputPath The path of the directory to add to the {@link ZipOutputStream}.
-         * @param zipOutputStream The {@link ZipOutputStream} in which to add directory content.
-         */
-        public ZipDirWalker(Path inputPath, ZipOutputStream zipOutputStream) {
-            super();
-            this.inputPath = inputPath;
-            this.zipOutputStream = zipOutputStream;
-        }
-
-        private String getZipEntryName(Path file) {
-            return inputPath.toUri().relativize(file.toUri()).getPath();
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            if (!dir.equals(inputPath)) {
-                zipOutputStream.putNextEntry(new ZipEntry(getZipEntryName(dir)));
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            putZipEntry(zipOutputStream, new ZipEntry(getZipEntryName(file)), file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            Closeables.close(zipOutputStream, true);
-            throw exc;
-        }
-
-    }
-
-    private static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
+    static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
         ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), zipOutputStream);
         zipOutputStream.closeEntry();
     }
 
+    static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
+        tarEntry.setSize(Files.size(file));
+        tarOutputStream.putArchiveEntry(tarEntry);
+        ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), tarOutputStream);
+        tarOutputStream.closeArchiveEntry();
+    }
+
+    static String getChildEntryRelativePath(Path base, Path child) {
+        return base.toUri().relativize(child.toUri()).getPath();
+    }
+
     /**
      * Recursively zip file and directory
-     * 
-     * @param inputPath file path can be directory
+     *
+     * @param inputPath  file path can be directory
      * @param outputPath where to put the zip
      * @throws IOException when IO error happened
      */
     public static void zip(Path inputPath, Path outputPath) throws IOException {
-        Path parentDir = outputPath.getParent();
-        if (!Files.exists(parentDir)) {
-            Files.createDirectories(parentDir);
+        if (!Files.exists(inputPath)) {
+            throw new FileNotFoundException("File not found " + inputPath);
         }
-        if (!Files.exists(outputPath)) {
-            Files.createFile(outputPath);
-        }
+        touch(outputPath);
         ZipOutputStream zipOutputStream = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(outputPath)));
         try {
-            if (!Files.isDirectory(inputPath) && !Files.isSymbolicLink(inputPath)) {
+            if (!Files.isDirectory(inputPath)) {
                 putZipEntry(zipOutputStream, new ZipEntry(inputPath.getFileName().toString()), inputPath);
             } else {
                 Files.walkFileTree(inputPath, new ZipDirWalker(inputPath, zipOutputStream));
@@ -113,9 +79,45 @@ public final class FileUtil {
     }
 
     /**
+     * Recursively tar file
+     *
+     * @param inputPath    file path can be directory
+     * @param outputPath   where to put the archived file
+     * @param childrenOnly if inputPath is directory and if childrenOnly is true, the archive will contain all of its children, else the archive contains unique
+     *                     entry which is the inputPath itself
+     * @param gZipped      compress with gzip algorithm
+     */
+    public static void tar(Path inputPath, Path outputPath, boolean gZipped, boolean childrenOnly) throws IOException {
+        if (!Files.exists(inputPath)) {
+            throw new FileNotFoundException("File not found " + inputPath);
+        }
+        touch(outputPath);
+        OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(outputPath));
+        if (gZipped) {
+            outputStream = new GzipCompressorOutputStream(outputStream);
+        }
+        TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(outputStream);
+        try {
+            if (!Files.isDirectory(inputPath)) {
+                putTarEntry(tarArchiveOutputStream, new TarArchiveEntry(inputPath.getFileName().toString()), inputPath);
+            } else {
+                Path sourcePath = inputPath;
+                if (!childrenOnly) {
+                    // In order to have the dossier as the root entry
+                    sourcePath = inputPath.getParent();
+                }
+                Files.walkFileTree(inputPath, new TarDirWalker(sourcePath, tarArchiveOutputStream));
+            }
+            tarArchiveOutputStream.flush();
+        } finally {
+            Closeables.close(tarArchiveOutputStream, true);
+        }
+    }
+
+    /**
      * Unzip a zip file to a destination folder.
-     * 
-     * @param zipFile The zip file to unzip.
+     *
+     * @param zipFile     The zip file to unzip.
      * @param destination The destination folder in which to save the file.
      * @throws IOException In case something fails.
      */
@@ -163,7 +165,7 @@ public final class FileUtil {
 
     /**
      * Recursively delete file and directory
-     * 
+     *
      * @param deletePath file path can be directory
      * @throws IOException when IO error happened
      */
@@ -177,8 +179,8 @@ public final class FileUtil {
 
     /**
      * Read all files bytes and create a string.
-     * 
-     * @param path The file's path.
+     *
+     * @param path    The file's path.
      * @param charset The charset to use to convert the bytes to string.
      * @return A string from the file content.
      * @throws IOException In case the file cannot be read.
@@ -189,7 +191,7 @@ public final class FileUtil {
 
     /**
      * Read all files bytes and create a string using UTF_8 charset.
-     * 
+     *
      * @param path The file's path.
      * @return A string from the file content.
      * @throws IOException In case the file cannot be read.
@@ -200,7 +202,7 @@ public final class FileUtil {
 
     /**
      * Create a directory from path if it does not exist
-     * 
+     *
      * @param directoryPath
      * @throws IOException
      */
@@ -213,4 +215,22 @@ public final class FileUtil {
         return tempPath;
     }
 
+    /**
+     * Create an empty file at the given path
+     *
+     * @param path to create file
+     * @throws IOException
+     */
+    public static boolean touch(Path path) throws IOException {
+        Path parentDir = path.getParent();
+        if (!Files.exists(parentDir)) {
+            Files.createDirectories(parentDir);
+            return true;
+        }
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+            return true;
+        }
+        return false;
+    }
 }

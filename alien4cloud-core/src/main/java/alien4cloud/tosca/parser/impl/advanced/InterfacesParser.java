@@ -3,21 +3,24 @@ package alien4cloud.tosca.parser.impl.advanced;
 import java.util.Map;
 
 import org.elasticsearch.common.collect.Maps;
+import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
-import alien4cloud.paas.plan.PlanGeneratorConstants;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.MapParser;
+import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 
+@Component
 public class InterfacesParser extends MapParser<Interface> {
-    public InterfacesParser(INodeParser<Interface> valueParser, String toscaType) {
-        super(valueParser, toscaType);
+    public InterfacesParser() {
+        super(new ReferencedParser("interface"), "Interfaces");
     }
 
     @Override
@@ -56,10 +59,10 @@ public class InterfacesParser extends MapParser<Interface> {
     }
 
     public String getInterfaceType(String interfaceType) {
-        if (PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME_SHORT.equalsIgnoreCase(interfaceType)) {
-            return PlanGeneratorConstants.NODE_LIFECYCLE_INTERFACE_NAME;
-        } else if (PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME_SHORT.equalsIgnoreCase(interfaceType)) {
-            return PlanGeneratorConstants.RELATIONSHIP_LIFECYCLE_INTERFACE_NAME;
+        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceType)) {
+            return ToscaNodeLifecycleConstants.STANDARD;
+        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceType)) {
+            return ToscaRelationshipLifecycleConstants.CONFIGURE;
         }
         return interfaceType;
     }
