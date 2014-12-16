@@ -16,6 +16,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.environments = environments;
     $scope.environments.$promise.then(function getSelected(environments) {
       // Select initial default environment
+      // TODO : select by most recent version ?
       $scope.selectedEnvironment = environments.data.data[0];
     });
 

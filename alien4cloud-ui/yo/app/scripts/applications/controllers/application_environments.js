@@ -7,14 +7,14 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     // Created environment object
     $scope.environment = {};
     $scope.create = function(valid, cloudId, envType, version) {
+      console.log(valid, cloudId, envType, version);
       if (valid) {
-        if (!angular.isUndefined(cloudId)) {
-          var applicationId = $state.params.id;
-          $scope.environment.cloudId = cloudId;
-          $scope.environment.applicationId = applicationId;
-          $scope.environment.environmentType = envType;
-          $scope.environment.versionId = version;
-        }
+        // prepare the good request
+        var applicationId = $state.params.id;
+        $scope.environment.cloudId = cloudId;
+        $scope.environment.applicationId = applicationId;
+        $scope.environment.environmentType = envType;
+        $scope.environment.versionId = version;
         $modalInstance.close($scope.environment);
       }
     };
@@ -60,10 +60,9 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
   function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, environments) {
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    console.log('ENVIRONMENTTTTT', environments);
 
     // Initial scope environment loaded from parent state : applications.details
-    $scope.searchAppEnvResult =   environments;
+    $scope.searchAppEnvResult = environments;
 
     // Modal to create an new application environment
     $scope.openNewAppEnv = function() {

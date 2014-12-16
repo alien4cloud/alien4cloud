@@ -303,7 +303,8 @@
       "TITLE_NETWORK": "Network's name",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
-      "NETWORK_RESOURCES": "Network"
+      "NETWORK_RESOURCES": "Network",
+      "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy."
     },
     "TOPOLOGY": {
       "LABEL": "Topology",

@@ -310,7 +310,8 @@
       "TITLE_NETWORK": "Nom du réseau",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
-      "NETWORK_RESOURCES": "Réseau"
+      "NETWORK_RESOURCES": "Réseau",
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",

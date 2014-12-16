@@ -21,6 +21,7 @@ public class ApplicationEnvironmentDTO {
     private String description;
     private String applicationId;
     private String cloudName;
+    private String cloudId;
     private EnvironmentType environmentType;
     private String currentVersionName;
 }
