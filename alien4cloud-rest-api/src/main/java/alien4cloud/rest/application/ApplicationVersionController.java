@@ -56,29 +56,29 @@ public class ApplicationVersionController {
      *
      * @param applicationId The application id.
      */
-    @ApiOperation(value = "Get the most recent snapshot application version for an application.", notes = "Return the most recent snapshot application version for an application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get the first snapshot application version for an application.", notes = "Return the first snapshot application version for an application. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationVersion> get(@PathVariable String applicationId) {
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         ApplicationVersion[] versions = appVersionService.getByApplicationId(applicationId);
-        ApplicationVersion mostReventVersion = versions[0];
+        ApplicationVersion firstSnapshot = versions[0];
         for (ApplicationVersion current : versions) {
-            if (VersionUtil.compare(mostReventVersion.getVersion(), current.getVersion()) < 0) {
-                mostReventVersion = current;
+            if (VersionUtil.compare(firstSnapshot.getVersion(), current.getVersion()) > 0) {
+                return RestResponseBuilder.<ApplicationVersion> builder().data(current).build();
             }
         }
-        return RestResponseBuilder.<ApplicationVersion> builder().data(mostReventVersion).build();
+        return RestResponseBuilder.<ApplicationVersion> builder().data(firstSnapshot).build();
     }
 
     /**
-     * Search for application version for a given application id
+     * Search application versions for a given application id
      *
      * @param applicationId the targeted application id
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id
      */
-    @ApiOperation(value = "Search for application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Search application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         Application application = applicationService.getOrFail(applicationId);

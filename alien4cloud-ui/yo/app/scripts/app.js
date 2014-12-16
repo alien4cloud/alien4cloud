@@ -163,6 +163,10 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         }
       },
       controller: 'ApplicationEnvironmentsCtrl'
+    }).state('applications.detail.versions', {
+      url: '/versions',
+      templateUrl: 'views/applications/application_versions.html',
+      controller: 'ApplicationVersionsCtrl'
     })
 
     // topology templates

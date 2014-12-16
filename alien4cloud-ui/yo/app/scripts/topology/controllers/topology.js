@@ -21,37 +21,30 @@ angular.module('alienUiApp').controller(
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
       var COMPUTE_TYPE = 'tosca.nodes.Compute';
 
-      var getLastedVersion = function () {
-        return applicationVersionServices.get({
+      var updateSelectedVersionName = function() {
+        applicationVersionServices.get({
           applicationId: $scope.application.id
         }, function updateSelectedVersion(result) {
-          console.log("2", result.data);
-           return result.data;
+          $scope.selectedVersionName = result.data.version;
+          for(var i=0; i<$scope.appVersions.length; i++) {
+            if ($scope.appVersions[i].version == $scope.selectedVersionName) {
+              $scope.selectedVersion = $scope.appVersions[i];
+            }
+          }
         });
-      }
-
+      };
+      updateSelectedVersionName();
 
       $scope.changeVersion = function(selectedVersion) {
         $scope.selectedVersion = selectedVersion;
+        $scope.topologyId = selectedVersion.topologyId;
+        topologyServices.dao.get({
+          topologyId: $scope.topologyId
+        }, function(successResult) {
+          refreshTopology(successResult.data);
+        });
       };
 
-      /** change the cloud for the topology */
-      // $scope.changeCloud = function(selectedCloud) {
-      //   $scope.selectedComputeTemplates = {};
-      //   $scope.selectedNetworks = {};
-      //   topologyServices.cloud.set({
-      //     applicationId: $scope.application.id
-      //   }, selectedCloud.id, function(result) {
-      //     if (result.error === null) {
-      //       $scope.selectedCloud = selectedCloud;
-      //       $scope.environment.cloudId = selectedCloud.id;
-      //       refreshDeploymentStatus(true);
-      //       refreshDeploymentSetup();
-      //     }
-      //   });
-      // };
-
-      // search for clouds
       var searchRequestObject = {
         'from': 0,
         'size': 20
@@ -61,32 +54,8 @@ angular.module('alienUiApp').controller(
         applicationId: $scope.application.id
       }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
         $scope.appVersions = result.data.data;
-        console.log("1", $scope.selectedVersion);
-        $scope.selectedVersion = getLastedVersion().$promise;
-        console.log("3", $scope.selectedVersion);
-
+        updateSelectedVersionName();
       });
-      // var refreshCloudList = function() {
-      //   Cloud.get({
-      //     enabledOnly: true
-      //   }, function(result) {
-      //     var clouds = result.data.data;
-      //     $scope.clouds = clouds;
-      //     if (clouds) {
-      //       // select the cloud that is currently associated with the topology
-      //       var found = false,
-      //       i = 0;
-      //       while (!found && i < clouds.length) {
-      //         if (clouds[i].id === $scope.environment.cloudId) {
-      //           $scope.selectedCloud = clouds[i];
-      //           refreshDeploymentSetup();
-      //           found = true;
-      //         }
-      //         i++;
-      //       }
-      //     }
-      //   });
-      // };
 
       function onResize(width, height) {
         $scope.dimensions = {

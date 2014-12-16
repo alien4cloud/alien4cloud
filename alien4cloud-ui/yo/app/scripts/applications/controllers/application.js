@@ -98,6 +98,13 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         show: isManager
       },
       {
+        id: 'am.applications.detail.versions',
+        state: 'applications.detail.versions',
+        key: 'NAVAPPLICATIONS.MENU_VERSIONS',
+        icon: 'fa fa-tasks',
+        show: isManager
+      },
+      {
         id: 'am.applications.detail.environments',
         state: 'applications.detail.environments',
         key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
