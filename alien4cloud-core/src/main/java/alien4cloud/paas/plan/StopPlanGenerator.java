@@ -17,7 +17,7 @@ public class StopPlanGenerator extends AbstractPlanGenerator {
         call(node, STANDARD, STOP);
         state(node.getId(), STOPPED);
 
-        callRelations(node, CONFIGURE, REMOVE_SOURCE, REMOVE_TARGET);
+        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, REMOVE_SOURCE, REMOVE_TARGET);
 
         call(node, STANDARD, DELETE);
         state(node.getId(), DELETED);
