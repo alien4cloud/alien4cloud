@@ -36,9 +36,6 @@ public abstract class AbstractTypeNodeParser {
         if (mappingTarget instanceof KeyValueMappingTarget) {
             KeyValueMappingTarget kvmt = (KeyValueMappingTarget) mappingTarget;
             BeanWrapper keyBeanWrapper = target;
-            if (kvmt.isKeyPathRelativeToValue()) {
-                keyBeanWrapper = new BeanWrapperImpl(value);
-            }
             try {
                 if (!(keyBeanWrapper.getPropertyValue(kvmt.getKeyPath()) != null && mappingTarget.getPath().equals(key))) {
                     keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);

@@ -16,14 +16,14 @@ public final class ParserUtils {
      * Utility to get a scalar.
      * 
      * @param node The node from which to get a scalar value.
-     * @param parsingErrors The parsing errors in which to add errors in case the node is not a scalar node.
+     * @param context The parsing execution context in which to add errors in which to add errors in case the node is not a scalar node.
      * @return The Scalar value or null if the node is not a scalar node.
      */
-    public static String getScalar(Node node, List<ParsingError> parsingErrors) {
+    public static String getScalar(Node node, ParsingContextExecution context) {
         if (node instanceof ScalarNode) {
             return ((ScalarNode) node).getValue();
         }
-        addTypeError(node, parsingErrors, "scalar");
+        addTypeError(node, context.getParsingErrors(), "scalar");
         return null;
     }
 

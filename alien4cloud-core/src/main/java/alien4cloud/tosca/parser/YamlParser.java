@@ -1,13 +1,13 @@
 package alien4cloud.tosca.parser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.yaml.snakeyaml.composer.Composer;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
-import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.parser.ParserImpl;
 import org.yaml.snakeyaml.reader.StreamReader;
@@ -30,7 +30,6 @@ public abstract class YamlParser<T> {
      * Parse a yaml file to create a new T instance.
      * 
      * @param yamlPath Path of the yaml file.
-     * @param instance The instance to parse.
      * @return A parsing result that contains the parsing errors as well as the created instance.
      * @throws ParsingException In case there is a blocking issue while parsing the definition.
      */
@@ -47,41 +46,45 @@ public abstract class YamlParser<T> {
      * @throws ParsingException In case there is a blocking issue while parsing the definition.
      */
     public ParsingResult<T> parseFile(Path yamlPath, T instance) throws ParsingException {
-        StreamReader sreader;
         try {
-            sreader = new StreamReader(new UnicodeReader(Files.newInputStream(yamlPath)));
-        } catch (IOException e1) {
-            throw new ParsingException(yamlPath.toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null, null,
-                    yamlPath.toString()));
+            return parseFile(yamlPath.toString(), yamlPath.getFileName().toString(), Files.newInputStream(yamlPath), instance);
+        } catch (IOException e) {
+            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.MISSING_FILE, "File not found in archive.", null, null,
+                    null, yamlPath.toString()));
         }
+    }
+
+    /**
+     * Parse a yaml file into the given T instance.
+     *
+     * @param yamlStream Input stream that contains the yaml.
+     * @param instance The instance to parse.
+     * @return A parsing result that contains the parsing errors as well as the created instance.
+     * @throws ParsingException In case there is a blocking issue while parsing the definition.
+     */
+    public ParsingResult<T> parseFile(String filePath, String fileName, InputStream yamlStream, T instance) throws ParsingException {
+        StreamReader sreader = new StreamReader(new UnicodeReader(yamlStream));
         Composer composer = new Composer(new ParserImpl(sreader), new Resolver());
         Node rootNode = null;
         try {
             rootNode = composer.getSingleNode();
             if (rootNode == null) {
-                throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.SYNTAX_ERROR, "Empty file.", new Mark("root", 0, 0, 0,
-                        null, 0), "No yaml content found in file.", new Mark("root", 0, 0, 0, null, 0), yamlPath.toString()));
+                throw new ParsingException(fileName, new ParsingError(ErrorCode.SYNTAX_ERROR, "Empty file.", new Mark("root", 0, 0, 0, null, 0),
+                        "No yaml content found in file.", new Mark("root", 0, 0, 0, null, 0), filePath));
             }
         } catch (MarkedYAMLException exception) {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.INVALID_YAML, exception));
+            throw new ParsingException(fileName, new ParsingError(ErrorCode.INVALID_YAML, exception));
         }
 
-        if (rootNode instanceof MappingNode) {
-            try {
-                return doParsing(yamlPath.getFileName().toString(), (MappingNode) rootNode, instance);
-            } catch (ParsingException e) {
-                e.setFileName(yamlPath.getFileName().toString());
-                throw e;
-            }
-        } else {
-            throw new ParsingException(yamlPath.getFileName().toString(), new ParsingError(ErrorCode.SYNTAX_ERROR,
-                    "File is not a valid tosca definition file.", new Mark("root", 0, 0, 0, null, 0),
-                    "The provided yaml file doesn't follow the Top-level key definitions of a valid TOSCA Simple profile file.", new Mark("root", 0, 0, 0,
-                            null, 0), "TOSCA Definitions"));
+        try {
+            return doParsing(fileName, rootNode, instance);
+        } catch (ParsingException e) {
+            e.setFileName(fileName);
+            throw e;
         }
     }
 
-    private ParsingResult<T> doParsing(String fileName, MappingNode rootNode, T instance) throws ParsingException {
+    private ParsingResult<T> doParsing(String fileName, Node rootNode, T instance) throws ParsingException {
         ParsingContextExecution context = new ParsingContextExecution(fileName);
 
         INodeParser<T> nodeParser = getParser(rootNode, context);
@@ -95,7 +98,7 @@ public abstract class YamlParser<T> {
         }
 
         // process deferred parsing
-        for (Runnable defferedParser : context.getDefferedParsers()) {
+        for (Runnable defferedParser : context.getDeferredParsers()) {
             defferedParser.run();
         }
 
@@ -109,5 +112,5 @@ public abstract class YamlParser<T> {
      * @param context The parsing context.
      * @return The parser to use.
      */
-    protected abstract INodeParser<T> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException;
+    protected abstract INodeParser<T> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException;
 }

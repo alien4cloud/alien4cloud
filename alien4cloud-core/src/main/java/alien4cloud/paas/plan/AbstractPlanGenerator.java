@@ -240,7 +240,6 @@ public abstract class AbstractPlanGenerator {
     private static Interface getRelationshipInterface(PaaSRelationshipTemplate relationshipTemplate, String interfaceName) {
         Interface interfaz = getInterface(interfaceName, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
         if (interfaz == null) {
-
             throw new IllegalArgumentException("Plan cannot be generated as required interface <" + interfaceName + "> has not been found on relationship <"
                     + relationshipTemplate.getId() + "> from type <" + relationshipTemplate.getRelationshipTemplate().getType() + "> from source node <"
                     + relationshipTemplate.getSource() + ">.");

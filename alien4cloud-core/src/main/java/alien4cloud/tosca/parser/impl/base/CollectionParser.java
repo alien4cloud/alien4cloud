@@ -61,7 +61,7 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
     private Collection<T> doParseFromMap(MappingNode node, ParsingContextExecution context) {
         Collection<T> collection = getCollectionInstance();
         for (NodeTuple entry : node.getValue()) {
-            String key = ParserUtils.getScalar(entry.getKeyNode(), context.getParsingErrors());
+            String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             T value = null;
             value = valueParser.parse(entry.getValueNode(), context);
             if (value != null) {
@@ -78,7 +78,7 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
     protected abstract Collection<T> getCollectionInstance();
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 }
