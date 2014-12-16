@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.NotWritablePropertyException;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -27,7 +26,7 @@ public abstract class AbstractTypeNodeParser {
         try {
             target.setPropertyValue(mappingTarget.getPath(), value);
         } catch (NotWritablePropertyException e) {
-            log.debug("Error while setting property for yaml parsing.", e);
+            log.warn("Error while setting property for yaml parsing.", e);
             context.getParsingErrors().add(
                     new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
                             valueNode.getEndMark(), toscaType));
@@ -41,7 +40,7 @@ public abstract class AbstractTypeNodeParser {
                     keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
                 }
             } catch (NotWritablePropertyException e) {
-                log.debug("Error while setting key to property for yaml parsing.", e);
+                log.warn("Error while setting key to property for yaml parsing.", e);
                 context.getParsingErrors().add(
                         new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
                                 valueNode.getEndMark(), toscaType));

@@ -147,7 +147,9 @@
   default: scalar_property_input
 
 - operation_definition: alien4cloud.tosca.model.Operation
-  implementation: implementation_artifact
+  implementation:
+    reference: implementationArtifact
+    type: implementation_artifact
   description: description
   inputs:
     map: inputParameters
