@@ -3,7 +3,10 @@ package alien4cloud.it.csars;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
+import alien4cloud.tosca.parser.ParsingError;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
@@ -12,9 +15,9 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.setup.TestDataRegistry;
+import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.parser.ParsingResult;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 
@@ -33,17 +36,18 @@ public class UploadCSARSStepDefinition {
     @Then("^I should receive a RestResponse with an error code (\\d+) and (\\d+) compilation errors in (\\d+) file\\(s\\)$")
     public void I_should_receive_a_RestResponse_with_an_error_code_and_compilation_errors_in_file_s(int expectedCode, int compilationErrors, int errornousFiles)
             throws Throwable {
-        RestResponse<ParsingResult> result = JsonUtil.read(Context.getInstance().takeRestResponse(), ParsingResult.class);
+
+        RestResponse<CsarUploadResult> result = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarUploadResult.class);
 
         Assert.assertNotNull(result.getError());
         Assert.assertEquals(expectedCode, result.getError().getCode());
-        // Assert.assertFalse("CSAR must be invalid", result.getData().isValid());
-        // Assert.assertEquals(errornousFiles, result.getData().getErrors().size());
-        // Set<CSARError> allErrors = Sets.newHashSet();
-        // for (Set<CSARError> errors : result.getData().getErrors().values()) {
-        // allErrors.addAll(errors);
-        // }
-        // Assert.assertEquals(compilationErrors, allErrors.size());
+        Assert.assertFalse("CSAR must be invalid", result.getData().getErrors().isEmpty());
+        Assert.assertEquals(errornousFiles, result.getData().getErrors().size());
+        int errorCount = 0;
+        for (Map.Entry<String, List<ParsingError>> errorEntry :  result.getData().getErrors().entrySet()) {
+            errorCount += errorEntry.getValue().size();
+        }
+        Assert.assertEquals(compilationErrors, errorCount);
     }
 
     @Then("^I should have last update date greater than creation date$")
