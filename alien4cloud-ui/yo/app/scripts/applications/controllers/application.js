@@ -2,14 +2,32 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state',
-  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state) {
-   var pageStateId = 'application.side.bar';
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'environments',
+  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, environments) {
+
+    var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     var isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     var isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
     var isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // get all environments
+    $scope.environments = environments;
+    $scope.environments.$promise.then(function getSelected(environments) {
+      // Select initial default environment
+      $scope.selectedEnvironment = environments.data.data[0];
+    });
+
+    $scope.changeEnvironment = function(switchToEnvironment) {
+      var currentEnvironment = $scope.selectedEnvironment;
+      var newEnvironment = switchToEnvironment;
+      if (currentEnvironment.id != newEnvironment.id) {
+        console.log('CURRENT ENV FROM', $scope.selectedEnvironment);
+        console.log('CHANGE ENV TO', switchToEnvironment);
+        $scope.selectedEnvironment = switchToEnvironment;
+      }
+    };
 
     // Start listening immediately if deployment active exists
     applicationEventServices.start();
@@ -98,13 +116,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         show: isManager
       },
       {
-        id: 'am.applications.detail.versions',
-        state: 'applications.detail.versions',
-        key: 'NAVAPPLICATIONS.MENU_VERSIONS',
-        icon: 'fa fa-tasks',
-        show: isManager
-      },
-      {
         id: 'am.applications.detail.environments',
         state: 'applications.detail.environments',
         key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
@@ -113,5 +124,4 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
     ];
   }
-])
-;
+]);

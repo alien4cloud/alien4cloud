@@ -127,6 +127,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       url: '/deployment',
       resolve: {
         environments: function(environments) {
+          console.log('ENV DEPLOYMENT',environments);
           return environments.data.data;
         }
       },
@@ -137,6 +138,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/applications/topology_runtime.html',
       resolve: {
         environments: function(environments) {
+          console.log('ENV RUNTIME',environments);
           return environments.data.data;
         }
       },
@@ -159,6 +161,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/applications/application_environments.html',
       resolve: {
         environments: function(environments) {
+          console.log('ENV ADMIN',environments, environments.data.data);
           return environments.data.data;
         }
       },

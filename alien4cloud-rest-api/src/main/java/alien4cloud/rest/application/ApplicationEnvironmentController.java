@@ -65,20 +65,6 @@ public class ApplicationEnvironmentController {
     @Resource
     private ApplicationVersionService applicationVersionService;
 
-    // /**
-    // * Get all application environment for an application
-    // *
-    // * @param applicationId The application id.
-    // */
-    // @ApiOperation(value = "Get all application environments for an application", notes =
-    // "Return all application environments for one application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    // @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<ApplicationEnvironment> getEnvironments(@PathVariable String applicationId) {
-    // applicationService.checkAndGetApplication(applicationId);
-    // ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(applicationId);
-    // return RestResponseBuilder.<ApplicationEnvironment> builder().data(environments[0]).build();
-    // }
-
     /**
      * Search for application environment for a given application id
      *
