@@ -1,0 +1,126 @@
+<div>
+  <div class="alert alert-warning">
+    Feature Preview, only the first environment is used for deployment yet. Fonctionalité en construction, seul le premier environnement est utilisé pour le déploiement.
+  </div>
+  <div class="row" style="margin-bottom: 10px;">
+
+    <!--  Create button -->
+    <div class="col-md-9" ng-if="isManager">
+      <button class="btn btn-success" id="app-env-new-btn" ng-click="openNewAppEnv()">
+        <i class="fa fa fa-plus-circle"></i> {{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}
+      </button>
+    </div>
+
+    <!--  Environment search -->
+    <div class="col-md-3 pull-right">
+      <form role="search" ng-submit="search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query">
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <div class="row" style="margin-top: 10px;">
+
+    <div class="col-md-12">
+      <div class="table-responsive large-data-container" id="users-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.STATUS' | translate}}</th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.NAME' | translate}}</th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.VERSION' | translate}}</th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.TYPE' | translate}}</th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.DESCRIPTION' | translate}}</th>
+              <th>{{'APPLICATIONS.ENVIRONMENT.CLOUD' | translate}}</th>
+
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="environment in searchAppEnvResult" id="{{environment.id}}">
+              <td></td>
+              <td>
+                <i class="fa fa-circle fa-2x" ng-class="{'text-success': cloud.enabled,'text-danger': !cloud.enabled}" tooltip="Should show the real status"></i>
+              </td>
+              <td>{{environment.name}}</td>
+              <td>{{environment.currentVersionName}}</td>
+              <td>{{environment.environmentType}}</td>
+              <td>{{environment.description}}</td>
+              <td>{{environment.cloudName || '---'}}</td>
+              <td ng-if="isManager">
+                <!-- Remove an environment -->
+                <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+
+  </div>
+
+  <script type="text/ng-template" id="newApplicationEnvironment.html">
+
+    <form name="newApplicationEnvironment" class="form-horizontal" role="form" ng-submit="create(newApplicationEnvironment.$valid,selectedCloud.id,selectedEnvType,selectedVersion.id)" novalidate>
+      <div class="modal-header">
+        <h3>{{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.name.$invalid}">
+          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.NAME' | translate}}</label>
+          <div class="col-lg-9">
+            <input type="text" class="form-control" id="nameid" ng-model="environment.name" name="name" required="" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.NAME' | translate}}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}</label>
+          <div class="col-lg-9">
+            <textarea class="form-control" id="descid" rows="3" ng-model="environment.description" placeholder="{{'APPLICATIONS.ENVIRONMENT.FORM.DESCRIPTION' | translate}}"></textarea>
+          </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
+          <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD' | translate}}</label>
+          <div class="col-lg-9">
+            <select name="clouds" required="" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
+              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.envtypes.$invalid}">
+          <label for="envtypelistid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE' | translate}}</label>
+          <div class="col-lg-9">
+            <select name="envtypes" required="" class="form-control" id="envtypelistid" ng-model="selectedEnvType" ng-options="e for e in envTypeList.data">
+              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_TYPE_SELECT' | translate}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.applicationVersions.$invalid}">
+          <label for="envtypelistid" class="col-lg-3 control-label">
+            {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION' | translate}}
+          </label>
+          <div class="col-lg-9">
+            <select name="applicationVersions" required="" class="form-control" id="versionslistid" ng-model="selectedVersion" ng-options="v.version for v in versions">
+              <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION_SELECT' | translate}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-create" ng-disabled="newApplicationEnvironment.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+      </div>
+    </form>
+  </script>
+
+</div>

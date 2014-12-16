@@ -73,48 +73,56 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       setRuntimeDisabled();
     });
 
-    $scope.menu = [{
-      id: 'am.applications.info',
-      state: 'applications.detail.info',
-      key: 'NAVAPPLICATIONS.MENU_INFO',
-      icon: 'fa fa-info',
-      show: (isManager || isDeployer || isDevops || isUser)
-    }, {
-      id: 'am.applications.detail.topology',
-      state: 'applications.detail.topology',
-      key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
-      icon: 'fa fa-sitemap',
-      show: (isManager || isDevops)
-    }, {
-      id: 'am.applications.detail.plans',
-      state: 'applications.detail.plans',
-      key: 'NAVAPPLICATIONS.MENU_PLAN',
-      icon: 'fa fa-sitemap fa-rotate-270',
-      show: (isManager || isDevops)
-    }, {
-      id: 'am.applications.detail.deployment',
-      state: 'applications.detail.deployment',
-      key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',
-      icon: 'fa fa-cloud-upload',
-      show: (isManager || isDeployer)
-    }, {
-      id: 'am.applications.detail.runtime',
-      state: 'applications.detail.runtime',
-      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
-      icon: 'fa fa-cogs',
-      show: (isManager || isDeployer)
-    }, {
-      id: 'am.applications.detail.users',
-      state: 'applications.detail.users',
-      key: 'NAVAPPLICATIONS.MENU_USERS',
-      icon: 'fa fa-users',
-      show: isManager
-    }, {
-      id: 'am.applications.detail.environments',
-      state: 'applications.detail.environments',
-      key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
-      icon: 'fa fa-share-alt',
-      show: isManager
-    }];
+    $scope.menu = [
+      {
+        id: 'am.applications.info',
+        state: 'applications.detail.info',
+        key: 'NAVAPPLICATIONS.MENU_INFO',
+        icon: 'fa fa-info',
+        show: (isManager || isDeployer || isDevops || isUser)
+      },
+      {
+        id: 'am.applications.detail.topology',
+        state: 'applications.detail.topology',
+        key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
+        icon: 'fa fa-sitemap',
+        show: (isManager || isDevops)
+      },
+      {
+        id: 'am.applications.detail.plans',
+        state: 'applications.detail.plans',
+        key: 'NAVAPPLICATIONS.MENU_PLAN',
+        icon: 'fa fa-sitemap fa-rotate-270',
+        show: (isManager || isDevops)
+      },
+      {
+        id: 'am.applications.detail.deployment',
+        state: 'applications.detail.deployment',
+        key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',
+        icon: 'fa fa-cloud-upload',
+        show: (isManager || isDeployer)
+      },
+      {
+        id: 'am.applications.detail.runtime',
+        state: 'applications.detail.runtime',
+        key: 'NAVAPPLICATIONS.MENU_RUNTIME',
+        icon: 'fa fa-cogs',
+        show: (isManager || isDeployer)
+      },
+      {
+        id: 'am.applications.detail.users',
+        state: 'applications.detail.users',
+        key: 'NAVAPPLICATIONS.MENU_USERS',
+        icon: 'fa fa-users',
+        show: isManager
+      },
+      {
+        id: 'am.applications.detail.environments',
+        state: 'applications.detail.environments',
+        key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
+        icon: 'fa fa-share-alt',
+        show: isManager
+      }
+    ];
   }
 ]);

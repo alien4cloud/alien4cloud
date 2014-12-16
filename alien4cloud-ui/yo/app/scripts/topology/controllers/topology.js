@@ -3,8 +3,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId',
-    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId) {
+  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId', 'applicationVersionServices',
+    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId, applicationVersionServices) {
       if (topologyId) {
         $scope.topologyId = topologyId;
       }
@@ -20,6 +20,42 @@ angular.module('alienUiApp').controller(
       var detailDivWidth = 450;
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
       var COMPUTE_TYPE = 'tosca.nodes.Compute';
+
+      var updateSelectedVersionName = function() {
+        applicationVersionServices.get({
+          applicationId: $scope.application.id
+        }, function updateSelectedVersion(result) {
+          $scope.selectedVersionName = result.data.version;
+          for(var i=0; i<$scope.appVersions.length; i++) {
+            if ($scope.appVersions[i].version == $scope.selectedVersionName) {
+              $scope.selectedVersion = $scope.appVersions[i];
+            }
+          }
+        });
+      };
+      updateSelectedVersionName();
+
+      $scope.changeVersion = function(selectedVersion) {
+        $scope.selectedVersion = selectedVersion;
+        $scope.topologyId = selectedVersion.topologyId;
+        topologyServices.dao.get({
+          topologyId: $scope.topologyId
+        }, function(successResult) {
+          refreshTopology(successResult.data);
+        });
+      };
+
+      var searchRequestObject = {
+        'from': 0,
+        'size': 20
+      };
+
+      applicationVersionServices.searchVersion({
+        applicationId: $scope.application.id
+      }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
+        $scope.appVersions = result.data.data;
+        updateSelectedVersionName();
+      });
 
       function onResize(width, height) {
         $scope.dimensions = {

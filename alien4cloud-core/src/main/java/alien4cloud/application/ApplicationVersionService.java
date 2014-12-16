@@ -86,6 +86,19 @@ public class ApplicationVersionService {
         return result.getData();
     }
 
+    /**
+     * Get all application versions snapshot for a given application
+     *
+     * @param applicationId The id of the application for which to get environments.
+     * @return An array of the applications versions snapshot for the requested application id.
+     */
+    public ApplicationVersion[] getSnapshotByApplicationId(String applicationId) {
+        GetMultipleDataResult<ApplicationVersion> result = alienDAO.find(ApplicationVersion.class,
+                MapUtil.newHashMap(new String[] { "applicationId", "isSnapshot" }, new String[][] { new String[] { applicationId }, new String[] { "true" } }),
+                Integer.MAX_VALUE);
+        return result.getData();
+    }
+
     private void deleteVersion(ApplicationVersion version) {
         alienDAO.delete(Topology.class, version.getTopologyId());
         alienDAO.delete(ApplicationVersion.class, version.getId());

@@ -17,7 +17,11 @@
 
     <!-- NodeTemplate details -->
   <div class="topology-columns topology-details">
-    <tabset style="height: {{dimensions.height}}px; overflow: auto;">
+    <select id="app-version-select" ng-model="selectedVersion" class="form-control " ng-options="appVersion.version for appVersion in appVersions"
+      ng-change="changeVersion(selectedVersion)">
+    </select>
+
+    <tabset style="height: {{dimensions.height}}px; overflow: auto; padding-top: 12px;">
       <tab>
         <!-- Components search -->
         <tab-heading id="components-search">
