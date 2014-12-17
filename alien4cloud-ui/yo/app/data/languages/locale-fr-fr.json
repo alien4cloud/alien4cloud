@@ -115,7 +115,8 @@
       "TAG_KEY": "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
     },
     "CAPABILITIES": {
-      "TYPE": "Capacités"
+      "TYPE": "Capacités",
+      "CARDINALITIES_TOOLTIP": "maximum"
     },
     "ABSTRACT": "Composant abstrait",
     "DEFAULTCAPABILITIES": "Capacités défaut",
@@ -372,6 +373,7 @@
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
+      "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
