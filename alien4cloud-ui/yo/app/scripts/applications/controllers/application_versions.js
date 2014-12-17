@@ -1,22 +1,22 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationVersionServices',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationVersionServices) {
+angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationVersionServices', 'appVersions',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationVersionServices, appVersions) {
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    console.log('VersionsSSS');
-
+    $scope.searchAppVersionResult = appVersions;
     $scope.query = "";
+
     $scope.openNewAppVersion = function() {
       var modalInstance = $modal.open({
-        templateUrl: 'views/applications/new_app_version.html',
+        templateUrl: 'newApplicationVersion.html',
         controller: NewApplicationVersionCtrl,
         scope: $scope
       });
-      modalInstance.result.then(function(environment) {
+      modalInstance.result.then(function(appVersion) {
         applicationVersionServices.create({
           applicationId: $scope.application.id
-        }, angular.toJson(environment), function(successResponse) {
+        }, angular.toJson(appVersion), function(successResponse) {
           $scope.search();
         });
       });
@@ -29,7 +29,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
         'from': 0,
         'size': 50
       };
-      applicationVersionServices.searchVersion({
+      applicationVersionServices.searchVersions({
         applicationId: $scope.application.id
       }, angular.toJson(searchRequestObject), function updateAppVersionSearchResult(result) {
         $scope.searchAppVersionResult = result.data.data;
@@ -53,7 +53,6 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
 
 var NewApplicationVersionCtrl = ['$scope', '$modalInstance', '$resource', 'searchServiceFactory', '$state', 'applicationVersionServices',
   function($scope, $modalInstance, $resource, searchServiceFactory, $state, applicationVersionServices) {
-    $scope.versionFormDescriptor = applicationVersionServices.getFormDescriptor();
     $scope.appVersion = {};
 
     $scope.save = function(appVersion) {

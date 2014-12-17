@@ -52,54 +52,35 @@
     </div>
   </div>
 
-  <script type="text/ng-template" id="newApplicationVERSION.html">
-
-    <form name="newApplicationVERSION" class="form-horizontal" role="form" ng-submit="create(newApplicationVERSION.$valid,selectedCloud.id,selectedEnvType,selectedVersion.id)" novalidate>
+  <script type="text/ng-template" id="newApplicationVersion.html">
+    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(newApplicationVersion.$valid, selectedTopologyTemplate.topologyId)" novalidate>
       <div class="modal-header">
-        <h3>{{'APPLICATIONS.VERSION.NEW' | translate}}</h3>
+        <h3>{{'APPLICATIONS.VERSION.TITLE' | translate}}</h3>
       </div>
       <div class="modal-body">
-        <div class="form-group" ng-class="{'has-error': newApplicationVERSION.name.$invalid}">
-          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.FORM.NAME' | translate}}</label>
+        <div class="form-group" ng-class="{'has-error': newApplicationVersion.name.$invalid}">
+          <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="nameid" ng-model="VERSION.name" name="name" required="" placeholder="{{'APPLICATIONS.VERSION.FORM.NAME' | translate}}">
+            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'APPLICATIONS.NAME' | translate}}">
           </div>
         </div>
         <div class="form-group">
-          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.FORM.DESCRIPTION' | translate}}</label>
+          <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descid" rows="3" ng-model="VERSION.description" placeholder="{{'APPLICATIONS.VERSION.FORM.DESCRIPTION' | translate}}"></textarea>
+            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
-        <div class="form-group" ng-class="{'has-error': newApplicationVERSION.clouds.$invalid}">
-          <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.FORM.CLOUD' | translate}}</label>
+        <div class="form-group">
+          <label for="versionid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.SELECT-TITLE' | translate}}</label>
           <div class="col-lg-9">
-            <select name="clouds" required="" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
-              <option value="">{{'APPLICATIONS.VERSION.FORM.CLOUD_SELECT' | translate}}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{'has-error': newApplicationVERSION.envtypes.$invalid}">
-          <label for="envtypelistid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.FORM.ENV_TYPE' | translate}}</label>
-          <div class="col-lg-9">
-            <select name="envtypes" required="" class="form-control" id="envtypelistid" ng-model="selectedEnvType" ng-options="e for e in envTypeList.data">
-              <option value="">{{'APPLICATIONS.VERSION.FORM.ENV_TYPE_SELECT' | translate}}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group" ng-class="{'has-error': newApplicationVERSION.applicationVersions.$invalid}">
-          <label for="envtypelistid" class="col-lg-3 control-label">
-            {{'APPLICATIONS.VERSION.FORM.ENV_VERSION' | translate}}
-          </label>
-          <div class="col-lg-9">
-            <select name="applicationVersions" required="" class="form-control" id="versionslistid" ng-model="selectedVersion" ng-options="v.version for v in versions">
-              <option value="">{{'APPLICATIONS.VERSION.FORM.ENV_VERSION_SELECT' | translate}}</option>
+            <select class="form-control" id="versionid" ng-model="selectedTopologyTemplate" ng-options="t.version for t in appVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+              <option value="">{{'APPLICATIONS.VERSION.SELECT-DESC' | translate}}</option>
             </select>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="btn-create" ng-disabled="newApplicationVERSION.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-create" ng-disabled="newApplicationVersion.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
       </div>
     </form>

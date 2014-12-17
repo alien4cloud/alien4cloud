@@ -3,8 +3,10 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId', 'applicationVersionServices',
-    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId, applicationVersionServices) {
+  'TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'topologyId', 'applicationVersionServices', 'appVersions',
+    function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, topologyId, applicationVersionServices, appVersions) {
+      $scope.appVersions = appVersions;
+      
       if (topologyId) {
         $scope.topologyId = topologyId;
       }
@@ -44,18 +46,6 @@ angular.module('alienUiApp').controller(
           refreshTopology(successResult.data);
         });
       };
-
-      var searchRequestObject = {
-        'from': 0,
-        'size': 20
-      };
-
-      applicationVersionServices.searchVersion({
-        applicationId: $scope.application.id
-      }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
-        $scope.appVersions = result.data.data;
-        updateSelectedVersionName();
-      });
 
       function onResize(width, height) {
         $scope.dimensions = {

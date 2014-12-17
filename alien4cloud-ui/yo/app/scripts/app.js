@@ -109,6 +109,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               return result.data.data;
             });
           }
+        ],
+        appVersions: ['$http', 'application', 'applicationVersionServices',
+          function($http, application, applicationVersionServices) {
+            var searchAppVersionRequestObject = {
+              'from': 0,
+              'size': 20
+            };
+            return applicationVersionServices.searchVersion({
+              applicationId: application.data.id
+            }, angular.toJson(searchAppVersionRequestObject), function updateAppVersionSearchResult(result) {
+              return result.data.data;
+            });
+          }
         ]
       },
       templateUrl: 'views/applications/vertical_menu_layout.html',
@@ -120,7 +133,12 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.topology', {
       url: '/topology',
       templateUrl: 'views/topology/topology_editor.html',
-      controller: 'TopologyCtrl'
+      controller: 'TopologyCtrl',
+      resolve: {
+        appVersions: function(appVersions) {
+          return appVersions.data.data;
+        }
+      },
     }).state('applications.detail.plans', {
       url: '/workflow',
       templateUrl: 'views/topology/plan_graph.html',
@@ -171,7 +189,12 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.versions', {
       url: '/versions',
       templateUrl: 'views/applications/application_versions.html',
-      controller: 'ApplicationVersionsCtrl'
+      controller: 'ApplicationVersionsCtrl',
+      resolve: {
+        appVersions: function(appVersions) {
+          return appVersions.data.data;
+        }
+      },
     })
 
     // topology templates

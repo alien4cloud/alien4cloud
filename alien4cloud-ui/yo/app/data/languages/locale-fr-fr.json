@@ -398,10 +398,12 @@
     },
     "VERSION": {
       "NEW": "Créer une nouvelle version",
-      "VERSION": "Version",
+      "VERSION": "Numéro de version",
       "DESCRIPTION": "Description",
       "ID": "ID de la version",
-      "FLAVOR-TITLE": "Nouvelle version"
+      "TITLE": "Nouvelle version",
+      "SELECT-TITLE": "Topologie",
+      "SELECT-DESC": "Sélectionnez une ancienne verison pour dupliquer sa topologie"
     },
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",
