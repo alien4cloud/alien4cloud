@@ -58,7 +58,7 @@ public class PaaSProviderService implements IPaasEventService {
             throw new AlreadyExistException("Cloud [" + cloudId + "] has already been registered");
         }
         // create the polling monitor responsible to monitor this instance.
-        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienMonitorDao, instance, listeners);
+        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienMonitorDao, instance, listeners, cloudId);
         ScheduledFuture<?> monitorFuture = scheduler.scheduleAtFixedRate(monitor, monitorIntervalMs);
         Registration registration = new Registration(instance, monitorFuture);
         monitorRegistrations.put(cloudId, registration);

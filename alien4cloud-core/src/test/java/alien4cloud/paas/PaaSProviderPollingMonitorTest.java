@@ -95,7 +95,7 @@ public class PaaSProviderPollingMonitorTest {
         // init with some events
         initEvents();
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null);
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null, "test");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
@@ -106,7 +106,7 @@ public class PaaSProviderPollingMonitorTest {
     @Test
     public void testLoadEventsWithoutEvents() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null);
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null, "test");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);

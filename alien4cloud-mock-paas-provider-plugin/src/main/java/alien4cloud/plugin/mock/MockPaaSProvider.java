@@ -326,11 +326,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         }, delay, TimeUnit.SECONDS);
     }
 
-    @Override
-    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
-        return instanceInformationsMap.get(deploymentId);
-    }
-
     private synchronized void doChangeInstanceInformations(String applicationId, Map<String, Map<String, InstanceInformation>> currentInformations) {
         Iterator<Entry<String, Map<String, InstanceInformation>>> appIterator = currentInformations.entrySet().iterator();
         while (appIterator.hasNext()) {

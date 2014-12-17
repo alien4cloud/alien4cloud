@@ -85,21 +85,6 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
         }
     }
 
-    @Override
-    public DeploymentStatus[] getStatuses(String[] deploymentIds) {
-        try {
-            providerLock.readLock().lock();
-            DeploymentStatus[] status = new DeploymentStatus[deploymentIds.length];
-            for (int i = 0; i < deploymentIds.length; i++) {
-                status[i] = getStatus(deploymentIds[i]);
-            }
-            return status;
-        } finally {
-            providerLock.readLock().unlock();
-        }
-    }
-
-    @Override
     public DeploymentStatus getStatus(String deploymentId) {
         try {
             providerLock.readLock().lock();

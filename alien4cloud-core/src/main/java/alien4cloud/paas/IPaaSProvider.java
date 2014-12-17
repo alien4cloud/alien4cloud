@@ -6,8 +6,6 @@ import java.util.Map;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyDefinition;
@@ -41,31 +39,6 @@ public interface IPaaSProvider {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
     void scale(String deploymentId, String nodeTemplateId, int instances);
-
-    /**
-     * Get the status of a given topology.
-     *
-     * @param deploymentId id of the deployment.
-     * @return the deployment status of the topology.
-     */
-    DeploymentStatus getStatus(String deploymentId);
-
-    /**
-     * Get the status of a list of deployments
-     *
-     * @param deploymentIds ids of the deployments
-     * @return list of deployment status
-     */
-    DeploymentStatus[] getStatuses(String[] deploymentIds);
-
-    /**
-     * Get the detailed status for each instance of each node template.
-     *
-     * @param deploymentId id of the deployment
-     * @param topology The topology for which to get instance information.
-     * @return (map : node template's id => (map : instance's id => instance status))
-     */
-    Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case

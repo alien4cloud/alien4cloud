@@ -36,21 +36,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public DeploymentStatus getStatus(String deploymentId) {
-        return null;
-    }
-
-    @Override
-    public DeploymentStatus[] getStatuses(String[] deploymentIds) {
-        return null;
-    }
-
-    @Override
-    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
-        return null;
-    }
-
-    @Override
     public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> callback) {
         callback.onData(null);
     }

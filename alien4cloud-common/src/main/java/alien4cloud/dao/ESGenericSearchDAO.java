@@ -27,6 +27,7 @@ import org.elasticsearch.mapping.SourceFetchContext;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -71,12 +72,14 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
     }
 
     @SneakyThrows({ IOException.class })
-    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, int size) {
+    private <T> List<T> doCustomFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder, int size) {
         String indexName = getIndexForType(clazz);
-        String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(typeName).setSize(size);
+        SearchRequestBuilder searchRequestBuilder = getClient().prepareSearch(indexName).setTypes(getTypesFromClass(clazz)).setSize(size);
         if (query != null) {
             searchRequestBuilder.setQuery(query);
+        }
+        if (sortBuilder != null) {
+            searchRequestBuilder.addSort(sortBuilder);
         }
         SearchResponse response = searchRequestBuilder.execute().actionGet();
         if (!somethingFound(response)) {
@@ -93,7 +96,12 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
 
     @Override
     public <T> T customFind(Class<T> clazz, QueryBuilder query) {
-        List<T> results = doCustomFind(clazz, query, 1);
+        return customFind(clazz, query, null);
+    }
+
+    @Override
+    public <T> T customFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
+        List<T> results = doCustomFind(clazz, query, sortBuilder, 1);
         if (results == null || results.isEmpty()) {
             return null;
         } else {
@@ -103,7 +111,12 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
 
     @Override
     public <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query) {
-        return doCustomFind(clazz, query, Integer.MAX_VALUE);
+        return customFindAll(clazz, query, null);
+    }
+
+    @Override
+    public <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder) {
+        return doCustomFind(clazz, query, sortBuilder, Integer.MAX_VALUE);
     }
 
     @Override

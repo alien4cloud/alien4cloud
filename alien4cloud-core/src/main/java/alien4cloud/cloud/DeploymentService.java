@@ -9,8 +9,11 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -32,10 +35,12 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Manage deployment operations on a cloud.
@@ -208,14 +213,17 @@ public class DeploymentService {
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
+        // Get the last deployment status event for the deployment
+        PaaSDeploymentStatusMonitorEvent lastStatusEvent = alienMonitorDao.customFind(PaaSDeploymentStatusMonitorEvent.class,
+                QueryBuilders.termQuery("deploymentId", deployment.getId()),
+                SortBuilders.fieldSort("date").order(SortOrder.DESC));
 
-        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
-        DeploymentStatus status = paaSProvider.getStatus(deployment.getId());
-        if (status == DeploymentStatus.UNDEPLOYED) {
-            deployment.setEndDate(new Date());
-            alienDao.save(deployment);
+        if (lastStatusEvent == null) {
+            // Active deployment exists but no event ==> deployment in progress but no event returned back yet
+            return DeploymentStatus.DEPLOYMENT_IN_PROGRESS;
+        } else {
+            return lastStatusEvent.getDeploymentStatus();
         }
-        return status;
     }
 
     /**
@@ -230,9 +238,45 @@ public class DeploymentService {
         if (deployment == null) {
             return null;
         }
-        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        return paaSProvider.getInstancesInformation(deployment.getId(), runtimeTopology);
+        List<PaaSInstanceStateMonitorEvent> instancesEvents = alienMonitorDao.customFindAll(PaaSInstanceStateMonitorEvent.class,
+                QueryBuilders.termQuery("deploymentId", deployment.getId()),
+                SortBuilders.fieldSort("date").order(SortOrder.DESC));
+        if (instancesEvents == null || instancesEvents.isEmpty()) {
+            return null;
+        }
+        Map<String, Map<String, InstanceInformation>> instancesInformation = Maps.newHashMap();
+        for (PaaSInstanceStateMonitorEvent instanceStateMonitorEvent : instancesEvents) {
+            if (instanceStateMonitorEvent.getInstanceState() == null) {
+                // Delete event, will just skip
+                continue;
+            }
+            String nodeId = instanceStateMonitorEvent.getNodeTemplateId();
+            String instanceId = instanceStateMonitorEvent.getInstanceId();
+            if (instancesInformation.containsKey(nodeId) && instancesInformation.get(nodeId).containsKey(instanceId)) {
+                // Event has already been processed for this instance so will just skip
+                continue;
+            }
+            if (!instancesInformation.containsKey(nodeId)) {
+                Map<String, InstanceInformation> nodeInformation = Maps.newHashMap();
+                nodeInformation.put(instanceId, buildInstanceInformation(instanceStateMonitorEvent, runtimeTopology));
+                instancesInformation.put(nodeId, nodeInformation);
+            } else {
+                instancesInformation.get(nodeId).put(instanceId, buildInstanceInformation(instanceStateMonitorEvent, runtimeTopology));
+            }
+        }
+        return instancesInformation.isEmpty() ? null : instancesInformation;
+    }
+
+    private InstanceInformation buildInstanceInformation(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, Topology topology) {
+        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(instanceStateMonitorEvent.getNodeTemplateId());
+        InstanceInformation instanceInformation = new InstanceInformation();
+        instanceInformation.setAttributes(nodeTemplate.getAttributes());
+        instanceInformation.setProperties(nodeTemplate.getProperties());
+        instanceInformation.setInstanceStatus(instanceStateMonitorEvent.getInstanceStatus());
+        instanceInformation.setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
+        instanceInformation.setState(instanceStateMonitorEvent.getInstanceState());
+        return instanceInformation;
     }
 
     /**
