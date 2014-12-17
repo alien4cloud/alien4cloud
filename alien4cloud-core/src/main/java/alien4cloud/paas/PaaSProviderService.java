@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
 
-import org.elasticsearch.mapping.QueryHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
@@ -25,8 +24,6 @@ import com.google.common.collect.Maps;
  */
 @Component
 public class PaaSProviderService implements IPaasEventService {
-    @Resource
-    private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
     @Resource(name = "alien-monitor-es-dao")
@@ -58,7 +55,7 @@ public class PaaSProviderService implements IPaasEventService {
             throw new AlreadyExistException("Cloud [" + cloudId + "] has already been registered");
         }
         // create the polling monitor responsible to monitor this instance.
-        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienMonitorDao, instance, listeners, cloudId);
+        PaaSProviderPollingMonitor monitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, instance, listeners, cloudId);
         ScheduledFuture<?> monitorFuture = scheduler.scheduleAtFixedRate(monitor, monitorIntervalMs);
         Registration registration = new Registration(instance, monitorFuture);
         monitorRegistrations.put(cloudId, registration);

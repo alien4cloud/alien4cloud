@@ -20,9 +20,11 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -31,10 +33,14 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
@@ -56,6 +62,8 @@ public class DeploymentService {
     private IGenericSearchDAO alienMonitorDao;
     @Resource
     private CloudService cloudService;
+    @Resource
+    private TopologyTreeBuilderService topologyTreeBuilderService;
 
     /**
      * Get deployments for a given cloud
@@ -101,8 +109,8 @@ public class DeploymentService {
      * @return The id of the generated deployment.
      * @throws CloudDisabledException In case the cloud is actually disabled and no deployments can be performed on this cloud.
      */
-    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup)
-            throws CloudDisabledException {
+    public synchronized String deployTopology(Topology topology, String cloudId, IDeploymentSource deploymentSource, String environmentName, String version,
+            DeploymentSetup deploymentSetup) throws CloudDisabledException {
         log.info("Deploying topology [{}] on cloud [{}]", topology.getId(), cloudId);
         String topologyId = topology.getId();
 
@@ -117,8 +125,16 @@ public class DeploymentService {
         deployment.setCloudId(cloudId);
         deployment.setId(UUID.randomUUID().toString());
         deployment.setSourceId(deploymentSource.getId());
-        deployment.setSourceName(deploymentSource.getName());
+        String sourceName;
+        if (deploymentSource.getName() == null) {
+            sourceName = UUID.randomUUID().toString();
+        } else {
+            sourceName = deploymentSource.getName();
+        }
+        deployment.setSourceName(sourceName);
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
+        deployment.setEnvironmentName(environmentName);
+        deployment.setVersion(version);
         deployment.setStartDate(new Date());
         deployment.setTopologyId(topologyId);
         alienDao.save(deployment);
@@ -126,18 +142,36 @@ public class DeploymentService {
         // change the Id before saving
         topology.setId(deployment.getId());
         alienMonitorDao.save(topology);
-
         // put back the old Id for deployment
         topology.setId(topologyId);
-        String sourceName;
-        if (deploymentSource.getName() == null) {
-            sourceName = UUID.randomUUID().toString();
-        } else {
-            sourceName = deploymentSource.getName();
-        }
-        paaSProvider.deploy(sourceName, deployment.getId(), topology, deploymentSetup);
+        // Build the context for deployment and deploy
+        paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology, deploymentSetup));
         log.info("Deployed topology [{}] on cloud [{}], generated deployment with id [{}]", topology.getId(), cloudId, deployment.getId());
         return deployment.getId();
+    }
+
+    private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
+        PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext();
+        buildDeploymentContext(deploymentContext, deployment);
+        return deploymentContext;
+    }
+
+    private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
+        deploymentContext.setDeploymentId(deployment.getId());
+        deploymentContext.setRecipeId((deployment.getSourceName() + "_" + deployment.getEnvironmentName() + "_" + deployment.getVersion()).replaceAll(
+                "[^\\p{Alnum}]", "_"));
+    }
+
+    private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
+        PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
+        buildDeploymentContext(topologyDeploymentContext, deployment);
+        Map<String, PaaSNodeTemplate> paaSNodes = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
+        List<PaaSNodeTemplate> paaSComputeNodes = topologyTreeBuilderService.getHostedOnTree(paaSNodes);
+        topologyDeploymentContext.setComputes(paaSComputeNodes);
+        topologyDeploymentContext.setNodes(paaSNodes);
+        topologyDeploymentContext.setTopology(topology);
+        topologyDeploymentContext.setDeploymentSetup(deploymentSetup);
+        return topologyDeploymentContext;
     }
 
     /**
@@ -156,15 +190,16 @@ public class DeploymentService {
      * Un-deploy a deployment
      * (delete the related Deployment object)
      *
-     * @param deploymentId
-     * @param cloudId
+     * @param deploymentId deployment's id
+     * @param cloudId cloud's id
      * @throws CloudDisabledException
      */
     public synchronized void undeploy(String deploymentId, String cloudId) throws CloudDisabledException {
         log.info("Un-deploying deployment [{}] on cloud [{}]", deploymentId, cloudId);
-        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
-        paaSProvider.undeploy(deploymentId);
         Deployment deployment = getMandatoryDeployment(deploymentId);
+        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.undeploy(deploymentContext);
         deployment.setEndDate(new Date());
         alienDao.save(deployment);
         log.info("Un-deployed deployment [{}] on cloud [{}]", deploymentId, cloudId);
@@ -195,7 +230,8 @@ public class DeploymentService {
         alienMonitorDao.save(topology);
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
-        paaSProvider.scale(deployment.getId(), nodeTemplateId, instances);
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances);
     }
 
     /**
@@ -215,12 +251,17 @@ public class DeploymentService {
         }
         // Get the last deployment status event for the deployment
         PaaSDeploymentStatusMonitorEvent lastStatusEvent = alienMonitorDao.customFind(PaaSDeploymentStatusMonitorEvent.class,
-                QueryBuilders.termQuery("deploymentId", deployment.getId()),
-                SortBuilders.fieldSort("date").order(SortOrder.DESC));
+                QueryBuilders.termQuery("deploymentId", deployment.getId()), SortBuilders.fieldSort("date").order(SortOrder.DESC));
 
         if (lastStatusEvent == null) {
-            // Active deployment exists but no event ==> deployment in progress but no event returned back yet
-            return DeploymentStatus.DEPLOYMENT_IN_PROGRESS;
+            Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+            if (!cloud.isEnabled()) {
+                // The cloud is not up due to a pb we cannot know the application status
+                return DeploymentStatus.UNKNOWN;
+            } else {
+                // Active deployment exists but no event ==> deployment in progress but no event returned back yet
+                return DeploymentStatus.DEPLOYMENT_IN_PROGRESS;
+            }
         } else {
             return lastStatusEvent.getDeploymentStatus();
         }
@@ -230,7 +271,7 @@ public class DeploymentService {
      * Get the detailed status for each instance of each node template.
      *
      * @param topologyId id of the topology
-     * @return (map : node template's id => (map : instance's id => instance status))
+     * @return map of node template's id to map of instance's id to instance information
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String topologyId, String cloudId) throws CloudDisabledException {
@@ -240,8 +281,7 @@ public class DeploymentService {
         }
         Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
         List<PaaSInstanceStateMonitorEvent> instancesEvents = alienMonitorDao.customFindAll(PaaSInstanceStateMonitorEvent.class,
-                QueryBuilders.termQuery("deploymentId", deployment.getId()),
-                SortBuilders.fieldSort("date").order(SortOrder.DESC));
+                QueryBuilders.termQuery("deploymentId", deployment.getId()), SortBuilders.fieldSort("date").order(SortOrder.DESC));
         if (instancesEvents == null || instancesEvents.isEmpty()) {
             return null;
         }
@@ -283,14 +323,14 @@ public class DeploymentService {
      * Trigger the execution of an operation on a node.
      *
      * @param request the operation's execution description ( see {@link OperationExecRequest})
-     * @return a map representing the operation execution response <instanceId,result>
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      * @throws OperationExecutionException runtime exception during an operation
      */
-    public Map<String, String> triggerOperationExecution(OperationExecRequest request) throws CloudDisabledException, OperationExecutionException {
+    public void triggerOperationExecution(OperationExecRequest request, IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException,
+            OperationExecutionException {
         Deployment activeDeployment = this.getActiveDeploymentFailIfNotExists(request.getTopologyId(), request.getCloudId());
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(request.getCloudId());
-        return paaSProvider.executeOperation(activeDeployment.getId(), request);
+        paaSProvider.executeOperation(buildDeploymentContext(activeDeployment), request, callback);
     }
 
     /**
@@ -334,7 +374,7 @@ public class DeploymentService {
                 MapUtil.newHashMap(new String[] { "cloudId", "topologyId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { topologyId },
                         new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            deployment = (Deployment) dataResult.getData()[0];
+            deployment = dataResult.getData()[0];
         }
         return deployment;
     }
@@ -342,8 +382,8 @@ public class DeploymentService {
     /**
      * Get a deployment given its id
      *
-     * @param id
-     * @return
+     * @param id id of the deployment
+     * @return deployment with given id
      */
     public Deployment getDeployment(String id) {
         return alienDao.findById(Deployment.class, id);
@@ -397,13 +437,12 @@ public class DeploymentService {
     /**
      * Get all deployments for a given deployment setup id
      *
-     * @param deploymentSetupId
-     * @return
+     * @param deploymentSetupId deployment setup's id
+     * @return deployment which have the given deployment setup id
      */
     public GetMultipleDataResult<Deployment> getDeploymentsByDeploymentSetup(String deploymentSetupId) {
-        GetMultipleDataResult<Deployment> deploymentSearch = alienDao.find(Deployment.class,
+        return alienDao.find(Deployment.class,
                 MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }), Integer.MAX_VALUE);
-        return deploymentSearch;
     }
 
 }

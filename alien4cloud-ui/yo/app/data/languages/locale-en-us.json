@@ -245,6 +245,7 @@
     "STATUS": "Status",
     "DEPLOYED": "Deployed",
     "UNDEPLOYED": "Undeployed",
+    "UNKNOWN": "Unknown",
     "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
     "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
     "WARNING": "Warning",

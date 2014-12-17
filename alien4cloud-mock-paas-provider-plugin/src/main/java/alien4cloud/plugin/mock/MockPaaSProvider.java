@@ -38,6 +38,7 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
@@ -402,7 +403,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public void scale(String deploymentId, String nodeTemplateId, final int instances) {
+    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, final int instances) {
+        String deploymentId = deploymentContext.getDeploymentId();
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
         Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
         final Map<String, Map<String, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);

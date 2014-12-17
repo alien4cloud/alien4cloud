@@ -7,14 +7,17 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.utils.TypeScanner;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Monitor service to watch a deployed topologies for a given PaaS provider.
@@ -30,6 +33,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private List<IPaasEventListener> listeners;
     private PaaSEventsCallback paaSEventsCallback;
     private String cloudId;
+    private boolean hasDeployments;
 
     /**
      * Create a new instance of the {@link PaaSProviderPollingMonitor} to monitor the given paas provider.
@@ -37,12 +41,13 @@ public class PaaSProviderPollingMonitor implements Runnable {
      * @param paaSProvider The paas provider to monitor.
      */
     @SuppressWarnings("rawtypes")
-    public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners, String cloudId) {
+    public PaaSProviderPollingMonitor(IGenericSearchDAO dao, IGenericSearchDAO monitorDAO, IPaaSProvider paaSProvider, List<IPaasEventListener> listeners,
+            String cloudId) {
         this.cloudId = cloudId;
         this.dao = dao;
         this.paaSProvider = paaSProvider;
         this.listeners = listeners;
-        Set<Class<?>> eventClasses = null;
+        Set<Class<?>> eventClasses = Sets.newHashSet();
         try {
             eventClasses = TypeScanner.scanTypes("alien4cloud.paas.model", AbstractMonitorEvent.class);
         } catch (ClassNotFoundException e) {
@@ -51,11 +56,11 @@ public class PaaSProviderPollingMonitor implements Runnable {
         Map<String, String[]> filter = Maps.newHashMap();
         filter.put("cloudId", new String[] { this.cloudId });
         // sort by filed date DESC
-        SearchQueryHelperBuilder searchQueryHelperBuilder = dao.getQueryHelper().buildSearchQuery("deploymentmonitorevents")
+        SearchQueryHelperBuilder searchQueryHelperBuilder = monitorDAO.getQueryHelper().buildSearchQuery("deploymentmonitorevents")
                 .types(eventClasses.toArray(new Class<?>[eventClasses.size()])).filters(filter).fieldSort("date", true);
 
         // the first one is the one with the latest date
-        GetMultipleDataResult lastestEventResult = dao.search(searchQueryHelperBuilder, 0, 1);
+        GetMultipleDataResult lastestEventResult = monitorDAO.search(searchQueryHelperBuilder, 0, 1);
         if (lastestEventResult.getData().length > 0) {
             AbstractMonitorEvent lastEvent = (AbstractMonitorEvent) lastestEventResult.getData()[0];
             Date lastEventDate = new Date(lastEvent.getDate());
@@ -106,6 +111,11 @@ public class PaaSProviderPollingMonitor implements Runnable {
     @Override
     @SuppressWarnings("rawtypes")
     public void run() {
-        paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
+        // TODO Work-around for cloudify 3
+        if (hasDeployments) {
+            paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
+        } else {
+            hasDeployments = this.dao.count(Deployment.class, QueryBuilders.matchAllQuery()) > 0;
+        }
     }
 }

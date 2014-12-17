@@ -245,6 +245,7 @@
     "STATUS": "Statut",
     "DEPLOYED": "Déployé",
     "UNDEPLOYED": "Non déployé",
+    "UNKNOWN": "Inconnu",
     "DEPLOYMENT_IN_PROGRESS": "Déploiement en cours",
     "UNDEPLOYMENT_IN_PROGRESS": "Arrêt en cours",
     "WARNING": "Alerte",

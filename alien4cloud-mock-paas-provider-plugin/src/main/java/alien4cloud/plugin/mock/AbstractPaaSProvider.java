@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -12,6 +13,8 @@ import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
 import alien4cloud.paas.exception.PaaSNotYetDeployedException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
@@ -20,7 +23,11 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     @Override
-    public void deploy(String applicationName, String deploymentId, Topology topology, DeploymentSetup deploymentSetup) {
+    public void deploy(PaaSTopologyDeploymentContext deploymentContext) {
+        String applicationName = deploymentContext.getRecipeId();
+        String deploymentId = deploymentContext.getDeploymentId();
+        Topology topology = deploymentContext.getTopology();
+        DeploymentSetup deploymentSetup = deploymentContext.getDeploymentSetup();
         try {
             providerLock.writeLock().lock();
 
@@ -60,7 +67,8 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     }
 
     @Override
-    public void undeploy(String deploymentId) {
+    public void undeploy(PaaSDeploymentContext deploymentContext) {
+        String deploymentId = deploymentContext.getDeploymentId();
         try {
             providerLock.writeLock().lock();
             DeploymentStatus deploymentStatus = getStatus(deploymentId);
@@ -104,8 +112,10 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     }
 
     @Override
-    public Map<String, String> executeOperation(String deploymentId, NodeOperationExecRequest request) throws OperationExecutionException {
+    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
+            throws OperationExecutionException {
         try {
+            String deploymentId = deploymentContext.getDeploymentId();
             providerLock.writeLock().lock();
             String doExecuteOperationResult = doExecuteOperation(request);
             String resultException = null;
@@ -114,9 +124,9 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
             }
             // Raise operation exception
             if (resultException != null) {
-                throw new OperationExecutionException(resultException);
+                callback.onFailure(new OperationExecutionException(resultException));
             }
-            return MapUtil.newHashMap(new String[] { "1" }, new String[] { doExecuteOperationResult });
+            callback.onData(MapUtil.newHashMap(new String[] { "1" }, new String[] { doExecuteOperationResult }));
         } finally {
             providerLock.writeLock().unlock();
         }

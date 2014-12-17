@@ -33,6 +33,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @ContextConfiguration("classpath:application-context-test.xml")
 public class PaaSProviderPollingMonitorTest {
 
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDao;
+
     @Resource(name = "alien-monitor-es-dao")
     private IGenericSearchDAO alienMonitorDao;
 
@@ -95,7 +98,7 @@ public class PaaSProviderPollingMonitorTest {
         // init with some events
         initEvents();
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null, "test");
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "test");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
@@ -106,7 +109,7 @@ public class PaaSProviderPollingMonitorTest {
     @Test
     public void testLoadEventsWithoutEvents() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienMonitorDao, null, null, "test");
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "test");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
