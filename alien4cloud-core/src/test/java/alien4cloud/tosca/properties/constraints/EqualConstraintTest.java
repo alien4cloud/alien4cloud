@@ -21,8 +21,8 @@ public class EqualConstraintTest {
         constraint.initialize(ToscaType.STRING);
         constraint.validate(null);
     }
-    
-    @Test
+
+    @Test(expected = ConstraintViolationException.class)
     public void testEqualConstraintFailNullProperty() throws ConstraintViolationException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual(null);
