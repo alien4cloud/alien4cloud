@@ -194,12 +194,12 @@ public class RestTechnicalExceptionHandler {
     }
 
     @ExceptionHandler(value = ApplicationVersionException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RestResponse<Void> applicationVersionErrorHandler(ImageUploadException e) {
+    public RestResponse<Void> applicationVersionErrorHandler(ApplicationVersionException e) {
         log.error("Application version error", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message("Application version error " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())
                 .build();
     }
 }

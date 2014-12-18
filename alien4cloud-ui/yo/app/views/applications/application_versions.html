@@ -30,17 +30,14 @@
             <tr>
               <th>{{'APPLICATIONS.VERSION.VERSION' | translate}}</th>
               <th>{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}</th>
-              <th>{{'APPLICATIONS.VERSION.ID' | translate}}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="version in searchAppVersionResult" id="{{version.id}}">
-              <td>{{version.version}}</td>
-              <td>{{version.description}}</td>
-              <td>{{version.id}}</td>
+              <td><span editable-text="version.version" onbeforesave="updateApplicationVersion('version',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.version}} <i class="fa fa-edit"></span></td>
+              <td><span editable-text="version.description" onbeforesave="updateApplicationVersion('description',$data, version.id)" buttons="no" style="font-style:inherit;" blur="submit">{{version.description}} <i class="fa fa-edit"></i></span></td>
               <td ng-if="isManager">
-                <!-- Remove an VERSION -->
                 <delete-confirm class="pull-right" id='delete-env_{{version.version}}' func="delete(version.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
@@ -61,7 +58,7 @@
         <div class="form-group" ng-class="{'has-error': newApplicationVersion.name.$invalid}">
           <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="/^\d*(?:\.\d+)*(?:\.\d+)*(-(\w)*)*$/" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="versionPattern" placeholder="{{'APPLICATIONS.NAME' | translate}}">
             <span ng-show="newApplicationVersion.versionId.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
           </div>
         </div>

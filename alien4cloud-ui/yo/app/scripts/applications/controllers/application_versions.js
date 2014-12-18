@@ -6,6 +6,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
     $scope.appVersions = appVersions;
     $scope.searchAppVersionResult = appVersions;
+    $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*$');
 
     $scope.openNewAppVersion = function() {
       var modalInstance = $modal.open({
@@ -52,6 +53,22 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
         });
       }
     };
+
+    $scope.updateApplicationVersion = function(fieldName, fieldValue, versionId) {
+      var applicationVersionUpdateRequest = {};
+      applicationVersionUpdateRequest[fieldName] = fieldValue;
+      return applicationVersionServices.update({
+        applicationId: $scope.application.id,
+        applicationVersionId: versionId,
+      }, angular.toJson(applicationVersionUpdateRequest), undefined).$promise.then(
+        function() {
+          // Success, nothing to do
+        }, function(errorResponse) {
+          return $translate('ERRORS.' + errorResponse.data.error.code);
+        }
+      );
+    };
+
 
   }
 ]);
