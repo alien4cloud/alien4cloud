@@ -1,10 +1,11 @@
 alien4cloud
 ===========
 
-ALIEN 4 Cloud means Application LIfecycle ENablement for Cloud. It is a project started by FastConnect in order to help enterprises adopting the cloud for their new or even existing applications in an Open way meaning with Open-Source model (Apache 2 License) and standardization support in mind.
+ALIEN 4 Cloud stands for Application LIfecycle ENablement for Cloud.
 
-You can find more informations on the project on the website:
-http://alien4cloud.github.io/index.html
+FastConnect started this project in order to help enterprises adopting the cloud for their new and existing applications in an Open way. A4C has an Open-Source model (Apache 2 License) and standardization support in mind.
+
+You can find more details and informations on the [project's website](http://alien4cloud.github.io/index.html)
 
 ## Building Alien 4 Cloud
 
