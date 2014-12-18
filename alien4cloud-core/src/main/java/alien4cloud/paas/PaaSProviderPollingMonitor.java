@@ -27,6 +27,7 @@ import com.google.common.collect.Sets;
 public class PaaSProviderPollingMonitor implements Runnable {
     private static final int MAX_POLLED_EVENTS = 100;
     private final IGenericSearchDAO dao;
+    private final IGenericSearchDAO monitorDAO;
     private final IPaaSProvider paaSProvider;
     private Date lastPollingDate;
     @SuppressWarnings("rawtypes")
@@ -45,6 +46,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
             String cloudId) {
         this.cloudId = cloudId;
         this.dao = dao;
+        this.monitorDAO = monitorDAO;
         this.paaSProvider = paaSProvider;
         this.listeners = listeners;
         Set<Class<?>> eventClasses = Sets.newHashSet();
@@ -77,13 +79,21 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
         @Override
         public void onData(AbstractMonitorEvent[] auditEvents) {
+            if (log.isDebugEnabled()) {
+                if (auditEvents != null && auditEvents.length > 0) {
+                    log.debug("Saving events for cloud {}", cloudId);
+                    for (AbstractMonitorEvent event : auditEvents) {
+                        log.debug(event.toString());
+                    }
+                }
+            }
             Date currentDate = new Date();
             if (auditEvents != null && auditEvents.length > 0) {
                 for (AbstractMonitorEvent event : auditEvents) {
                     // Enrich event with cloud id before saving them
                     event.setCloudId(cloudId);
                 }
-                dao.save(auditEvents);
+                monitorDAO.save(auditEvents);
                 for (IPaasEventListener listener : listeners) {
                     for (AbstractMonitorEvent event : auditEvents) {
                         if (listener.canHandle(event)) {

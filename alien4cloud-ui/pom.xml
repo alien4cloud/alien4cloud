@@ -159,6 +159,27 @@
   </build>
 
   <profiles>
+      <profile>
+          <id>intellij</id>
+          <dependencies>
+              <dependency>
+                  <groupId>alien4cloud</groupId>
+                  <artifactId>alien4cloud-rest-api</artifactId>
+                  <scope>compile</scope>
+                  <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                  <groupId>org.eclipse.jetty</groupId>
+                  <artifactId>jetty-webapp</artifactId>
+                  <scope>compile</scope>
+              </dependency>
+              <dependency>
+                  <groupId>org.eclipse.jetty.websocket</groupId>
+                  <artifactId>websocket-server</artifactId>
+                  <scope>compile</scope>
+              </dependency>
+          </dependencies>
+      </profile>
     <profile>
       <id>default</id>
       <activation>
