@@ -73,7 +73,7 @@ UTILS.deepCopy = function(obj) {
     }
     if (typeof obj === 'object') {
       out = {};
-      for (var j in obj) {
+      for ( var j in obj) {
         out[j] = UTILS.deepCopy(obj[j]);
       }
       return out;
@@ -91,7 +91,7 @@ UTILS.convertNameValueListToMap = function(list) {
 };
 
 UTILS.getIcon = function(tags) {
-  for (var i in tags) {
+  for ( var i in tags) {
     var tag = tags[i];
     if (tag.name === 'icon') {
       return tag.value;
@@ -117,6 +117,15 @@ UTILS.relationshipNameFromTypeAndTarget = function(type, targetName) {
     return toLowerCase(tokens[tokens.length - 1]) + toUpperCase(targetName);
   } else {
     return toLowerCase(type) + toUpperCase(targetName);
+  }
+};
+
+UTILS.getShortName = function(longName) {
+  var tokens = longName.split('.');
+  if (tokens.length > 0) {
+    return tokens[tokens.length - 1];
+  } else {
+    return longName;
   }
 };
 
@@ -158,18 +167,19 @@ UTILS.arrayUnique = function(array) {
 
 /**
  * Merge all properties from object 'from' into object 'into'
+ * 
  * @param into
  * @param from
  * @returns {{}}
  */
 UTILS.mergeObjects = function(from, into) {
   var merged = {};
-  for (var intoAttrName in into) {
+  for ( var intoAttrName in into) {
     if (into.hasOwnProperty(intoAttrName)) {
       merged[intoAttrName] = into[intoAttrName];
     }
   }
-  for (var fromAttrName in from) {
+  for ( var fromAttrName in from) {
     if (from.hasOwnProperty(fromAttrName)) {
       merged[fromAttrName] = from[fromAttrName];
     }
@@ -189,7 +199,7 @@ UTILS.findByFieldValue = function(array, fieldName, fieldValue) {
 UTILS.findByFieldValues = function(array, nameValueEntries) {
   for (var i = 0; i < array.length; i++) {
     var found;
-    for (var fieldName in nameValueEntries) {
+    for ( var fieldName in nameValueEntries) {
       if (nameValueEntries.hasOwnProperty(fieldName)) {
         found = array[i].hasOwnProperty(fieldName) && array[i][fieldName] === nameValueEntries[fieldName];
         if (!found) {

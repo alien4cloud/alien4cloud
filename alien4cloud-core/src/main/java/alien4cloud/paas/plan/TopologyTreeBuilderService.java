@@ -104,13 +104,13 @@ public class TopologyTreeBuilderService {
 
             // manage block storage
             if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
-                manageBlockStorage(paaSNodeTemplate, nodeTemplates);
+                processBlockStorage(paaSNodeTemplate, nodeTemplates);
                 continue;
             }
 
             // manage network
             if (isCompute) {
-                manageNetwork(paaSNodeTemplate, nodeTemplates);
+                processNetwork(paaSNodeTemplate, nodeTemplates);
             }
 
             // do nothing special for network nodes. We should manage them in the workflow later on.
@@ -138,7 +138,7 @@ public class TopologyTreeBuilderService {
         return roots;
     }
 
-    private void manageNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
         if (networkRelationship != null) {
             String target = networkRelationship.getRelationshipTemplate().getTarget();
@@ -148,7 +148,7 @@ public class TopologyTreeBuilderService {
         }
     }
 
-    private void manageBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate attachTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ATTACH_TO);
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
@@ -209,4 +209,5 @@ public class TopologyTreeBuilderService {
         Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
         paaSTemplate.setCsarPath(csarPath);
     }
+
 }
