@@ -12,9 +12,7 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
     });
 
     $scope.handleGroupRoleSelection = function(group, role) {
-      console.log('handle group selction', group, role);
       if (!group.roles || group.roles.indexOf(role) < 0) {
-        console.log('handle add role to group');
         groupServices.addRole([], {
           groupId: group.id,
           role: role
@@ -28,7 +26,6 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
           }
         });
       } else {
-        console.log('handle remove role to group');
         groupServices.removeRole([], {
           groupId: group.id,
           role: role
@@ -47,7 +44,6 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
     };
 
     $scope.handleRoleSelection = function(user, role) {
-      console.log('+++ change role for user ', user, '--- role ', role);
       if (!user.roles || user.roles.indexOf(role) < 0) {
         userServices.addRole([], {
           username: user.username,
@@ -68,13 +64,10 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
     };
 
     $scope.handleGroupSelection = function(invalid, user, groupId) {
-      console.log(invalid, '--- change group for user ', user, '--- group ', groupId);
       if (invalid) {
         return;
       }
-      console.log('Continue change group for user');
       if (UTILS.arrayContains(user.groups, groupId)) {
-        console.log('REMOVE USER TO GROUP');
         groupServices.removeUser([], {
           username: user.username,
           groupId: groupId
@@ -84,7 +77,6 @@ angular.module('alienUiApp').controller('UsersCtrl', ['$scope', '$rootScope', 'u
           userServices.initRolesToDisplay(user);
         });
       } else {
-        console.log('ADD USER TO GROUP');
         groupServices.addUser([], {
           username: user.username,
           groupId: groupId

@@ -28,7 +28,7 @@
               <th ng-if="displayAll || displayEmail">{{ 'GROUPS.EMAIL' | translate}}</th>
               <th>{{ 'GROUPS.DESC' | translate}}</th>
               <th ng-if="displayAll || displayRoles">{{ 'GROUPS.ROLES' | translate}}</th>
-              <th><i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="Application" tooltip-placement="right" tooltip-append-to-body="true"></i></th>
+              <th> <i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="Application" tooltip-placement="right" tooltip-append-to-body="true"></i></th>
               <th ng-if="managedEnvRoleList"><i class="fa fa-share-alt" tooltip="Environment" tooltip-placement="right" tooltip-append-to-body="true"></i></th>
             </tr>
           </thead>
@@ -82,10 +82,10 @@
                   </delete-confirm>
                 </div>
               </td>
-              <td>
-                
+              <td ng-if="managedEnvRoleList">
+
                 <!-- Environment rights -->
-                <div class="btn-group" ng-if="managedEnvRoleList">
+                <div class="btn-group">
                   <a id="edit-group-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'GROUPS.EDIT_ROLE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'GROUPS.EDIT_ROLE_HEADER' | translate }}</li>

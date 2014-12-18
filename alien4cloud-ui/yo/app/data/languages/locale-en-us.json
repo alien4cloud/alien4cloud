@@ -455,6 +455,7 @@
     "NAME": "Name",
     "STATE": "State",
     "PAAS_PROVIDER": "PaaS provider",
+    "PAAS_PROVIDER_SELECT": "-- Select a PaaS Provider --",
     "DEPLOYMENTS": "Deployments",
     "DEPLOYMENT_SOURCE": "Source",
     "DEPLOYMENT_TYPE": "Type",

@@ -31,9 +31,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.environments.$promise.then(function getSelected(environments) {
         // Select initial default environment
         // TODO : select by most recent version ?
-        console.log('Loading default env.....', environments.data);
         $scope.selectedEnvironment = environments.data.data[0];
-
         console.log('---- Environment page loading');
         console.log('Environment                  : ', $scope.selectedEnvironment);
         console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER'));

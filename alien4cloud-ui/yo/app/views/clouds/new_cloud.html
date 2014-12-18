@@ -20,6 +20,7 @@
       </label>
       <div class="col-lg-9">
         <select class="form-control" name="provider" required ng-model="newCloud.paaSProvider" ng-options="p.nameAndId for p in paasProviders" ng-change="selectPaaSProvider(selectedPaaSProvider)">
+          <option value="">{{'CLOUDS.PAAS_PROVIDER_SELECT' | translate}}</option>
         </select>
       </div>
     </div>

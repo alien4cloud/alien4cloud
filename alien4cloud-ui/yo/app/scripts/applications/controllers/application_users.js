@@ -21,19 +21,17 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
       if ($scope.application.userRoles) {
         for (var username in $scope.application.userRoles) {
           if ($scope.application.userRoles.hasOwnProperty(username)) {
-            console.log('push userRole from APP : ', username);
             usernames.push(username);
           }
         }
       }
-      if ($scope.selectedEnvironment.userRoles) {
-        for (var username in $scope.selectedEnvironment.userRoles) {
-          if ($scope.selectedEnvironment.userRoles.hasOwnProperty(username)) {
-            console.log('push userRole from ENV : ', username);
-            usernames.push(username);
-          }
-        }
-      }
+      // if ($scope.selectedEnvironment.userRoles) {
+      //   for (var username in $scope.selectedEnvironment.userRoles) {
+      //     if ($scope.selectedEnvironment.userRoles.hasOwnProperty(username)) {
+      //       usernames.push(username);
+      //     }
+      //   }
+      // }
       if (usernames.length > 0) {
         userServices.get([], angular.toJson(usernames), function(usersResults) {
           var data = usersResults.data;
@@ -42,7 +40,6 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           }
         });
       }
-      console.log('USERNAMES', usernames, $scope.relatedUsers);
     };
     loadUsers();
 
@@ -75,7 +72,6 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           }
         });
       }
-      console.log('GROUPNAMES', groupIds, $scope.relatedGroups);
     };
     loadGroups();
 

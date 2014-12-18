@@ -92,7 +92,7 @@
                     </li>
                     <li ng-repeat="group in groups | filter:{name:groupQuery} | orderBy:'name'">
                       <a id="{{user.username}}_{{group.name}}" ng-class="{'checked_role':( checked = checkIfAppGroupSelected(user, group.id))}" ng-click="onSelectAppGroupCallback({invalid: false, user: user, groupId: group.id})">
-                        -- <i class="fa fa-fw" ng-class="{'fa-check-square-o' : checked,  'fa-square-o': !checked}"></i> {{group.name}}
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : checked,  'fa-square-o': !checked}"></i> {{group.name}}
                       </a>
                     </li>
                   </ul>
@@ -104,12 +104,11 @@
                     <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>
                     <li ng-repeat="role in managedAppRoleList | orderBy:'toString()' ">
                       <a id="{{user.username}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfAppRoleSelected(user, role))}" ng-click="onSelectAppRoleCallback({user:user, role:role})">
-                        ++ <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
+                        <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
                       </a>
                     </li>
                   </ul>
                 </div>
-
                 <div class="btn-group">
                   <!-- Delete a user -->
                   <delete-confirm id="user_{{user.username}}_delete" ng-if="crudSupport && user.internalDirectory" func="remove(user)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
@@ -117,11 +116,11 @@
                 </div>
 
               </td>
-              <td>
+              <td ng-if="managedEnvRoleList">
 
                 <!-- MANAGE USER/GROUP ROLES ON ENVIRONMENTS -->
                 <!-- roles management -->
-                <div class="btn-group" ng-if="managedEnvRoleList">
+                <div class="btn-group">
                   <a id="edit-env-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'USERS.EDIT_ROLE' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
                     <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>

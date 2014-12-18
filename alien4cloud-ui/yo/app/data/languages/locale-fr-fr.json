@@ -462,6 +462,7 @@
     "NAME": "Nom",
     "STATE": "État",
     "PAAS_PROVIDER": "Fournisseur PaaS",
+    "PAAS_PROVIDER_SELECT": "-- Sélectionner un PaaS Provider --",
     "DEPLOYMENTS": "Déploiements",
     "DEPLOYMENT_SOURCE": "Source",
     "DEPLOYMENT_TYPE": "Type",

@@ -59,7 +59,6 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
 
       //check if a app role is selected for a user
       $scope.checkIfAppRoleSelected = function(user, role) {
-        console.log('check if App Role Selected', user, role);
         if ($scope.checkAppRoleSelectedCallback) {
           return $scope.checkAppRoleSelectedCallback({
             user: user,
@@ -75,7 +74,7 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
         return false;
       };
 
-      $scope.checkAppIfGroupSelected = function(user, group) {
+      $scope.checkIfAppGroupSelected = function(user, group) {
         return UTILS.arrayContains(user.groups, group);
       };
 
