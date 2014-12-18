@@ -80,6 +80,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
         @Override
         public void onData(AbstractMonitorEvent[] auditEvents) {
             if (log.isDebugEnabled()) {
+                log.debug("Polled from date {}", lastPollingDate);
                 if (auditEvents != null && auditEvents.length > 0) {
                     log.debug("Saving events for cloud {}", cloudId);
                     for (AbstractMonitorEvent event : auditEvents) {
@@ -87,7 +88,6 @@ public class PaaSProviderPollingMonitor implements Runnable {
                     }
                 }
             }
-            Date currentDate = new Date();
             if (auditEvents != null && auditEvents.length > 0) {
                 for (AbstractMonitorEvent event : auditEvents) {
                     // Enrich event with cloud id before saving them
@@ -102,12 +102,6 @@ public class PaaSProviderPollingMonitor implements Runnable {
                         Date eventDate = new Date(event.getDate());
                         lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
                     }
-                }
-            } else {
-                if (currentDate.after(lastPollingDate)) {
-                    lastPollingDate = currentDate;
-                } else if (currentDate.before(lastPollingDate)) {
-                    log.warn("There may be time shift between the server producing events and the alien server");
                 }
             }
         }

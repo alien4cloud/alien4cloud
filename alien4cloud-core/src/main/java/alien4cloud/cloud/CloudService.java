@@ -1,7 +1,11 @@
 package alien4cloud.cloud;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -18,9 +22,23 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.*;
+import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.CloudConfiguration;
+import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.MatchedNetwork;
+import alien4cloud.model.cloud.Network;
 import alien4cloud.model.deployment.Deployment;
-import alien4cloud.paas.*;
+import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
+import alien4cloud.paas.IPaaSProvider;
+import alien4cloud.paas.IPaaSProviderFactory;
+import alien4cloud.paas.PaaSProviderFactoriesService;
+import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;

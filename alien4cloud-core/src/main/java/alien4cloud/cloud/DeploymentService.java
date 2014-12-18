@@ -275,17 +275,17 @@ public class DeploymentService {
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String topologyId, String cloudId) throws CloudDisabledException {
+        Map<String, Map<String, InstanceInformation>> instancesInformation = Maps.newHashMap();
         Deployment deployment = getActiveDeployment(topologyId, cloudId);
         if (deployment == null) {
-            return null;
+            return instancesInformation;
         }
         Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
         List<PaaSInstanceStateMonitorEvent> instancesEvents = alienMonitorDao.customFindAll(PaaSInstanceStateMonitorEvent.class,
                 QueryBuilders.termQuery("deploymentId", deployment.getId()), SortBuilders.fieldSort("date").order(SortOrder.DESC));
         if (instancesEvents == null || instancesEvents.isEmpty()) {
-            return null;
+            return instancesInformation;
         }
-        Map<String, Map<String, InstanceInformation>> instancesInformation = Maps.newHashMap();
         for (PaaSInstanceStateMonitorEvent instanceStateMonitorEvent : instancesEvents) {
             if (instanceStateMonitorEvent.getInstanceState() == null) {
                 // Delete event, will just skip
@@ -305,7 +305,7 @@ public class DeploymentService {
                 instancesInformation.get(nodeId).put(instanceId, buildInstanceInformation(instanceStateMonitorEvent, runtimeTopology));
             }
         }
-        return instancesInformation.isEmpty() ? null : instancesInformation;
+        return instancesInformation;
     }
 
     private InstanceInformation buildInstanceInformation(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, Topology topology) {
