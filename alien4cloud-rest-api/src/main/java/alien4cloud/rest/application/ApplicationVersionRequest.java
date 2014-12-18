@@ -20,4 +20,5 @@ public class ApplicationVersionRequest {
     @ApiModelProperty(required = true)
     private String version;
     private String description;
+    private String topologyId;
 }

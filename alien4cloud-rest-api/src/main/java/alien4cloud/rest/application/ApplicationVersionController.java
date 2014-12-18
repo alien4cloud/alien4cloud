@@ -115,7 +115,8 @@ public class ApplicationVersionController {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, null, request.getVersion());
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), request.getVersion(),
+                request.getDescription());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 

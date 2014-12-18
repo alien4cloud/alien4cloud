@@ -31,7 +31,7 @@ public class ApplicationVersionService {
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
-        return createApplicationVersion(applicationId, topologyId, DEFAULT_VERSION_NAME);
+        return createApplicationVersion(applicationId, topologyId, DEFAULT_VERSION_NAME, null);
     }
 
     /**
@@ -41,7 +41,7 @@ public class ApplicationVersionService {
      * @param topologyId The id of the topology to clone for the version's topology.
      * @param version The number version of the new application version.
      */
-    public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version) {
+    public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version, String desc) {
         if (isApplicationVersionNameExist(applicationId, version)) {
             throw new AlreadyExistException("An application version already exist for this application with the version :" + version);
         }
@@ -54,6 +54,7 @@ public class ApplicationVersionService {
         appVersion.setReleased(false);
         appVersion.setLatest(true);
         appVersion.setSnapshot(true);
+        appVersion.setDescription(desc);
 
         Topology topology;
         if (topologyId != null) { // "cloning" the topology

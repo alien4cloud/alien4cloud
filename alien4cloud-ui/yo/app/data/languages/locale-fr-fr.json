@@ -402,8 +402,11 @@
       "DESCRIPTION": "Description",
       "ID": "ID de la version",
       "TITLE": "Nouvelle version",
-      "SELECT-TITLE": "Topologie",
-      "SELECT-DESC": "Sélectionnez une ancienne verison pour dupliquer sa topologie"
+      "MODAL": {
+        "SELECT-TITLE": "Topologie",
+        "DESC": "Sélectionnez une ancienne version pour dupliquer sa topologie",
+        "PATTERN": "Le format du numéro de version est invalide."
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Supprimer une application",

@@ -395,8 +395,11 @@
       "DESCRIPTION": "Description",
       "ID": "Version ID",
       "TITLE": "New version",
-      "SELECT-TITLE": "Topology",
-      "SELECT-DESC": "Select an older verison to duplicate its topology"
+      "MODAL": {
+        "SELECT-TITLE": "Topology",
+        "DESC": "Select an older verison to duplicate its topology",
+        "PATTERN": "Invalid format version."
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Delete an application",

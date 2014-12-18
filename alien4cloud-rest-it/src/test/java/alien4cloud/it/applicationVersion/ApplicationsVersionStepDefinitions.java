@@ -21,7 +21,6 @@ public class ApplicationsVersionStepDefinitions {
     public void I_create_an_application_version_with_version(String version) throws Throwable {
         Application app = Context.getInstance().getApplication();
         ApplicationVersionRequest request = new ApplicationVersionRequest();
-        request.setApplicationId(app.getId());
         request.setVersion(version);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/" + app.getId() + "/versions" , JsonUtil.toString(request)));
         String currentApplicationVersionId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
@@ -62,7 +61,6 @@ public class ApplicationsVersionStepDefinitions {
         Application app = Context.getInstance().getApplication();
         String currentApplicationVersionId = Context.getInstance().getApplicationVersionId(oldNameVersion);
         ApplicationVersionRequest request = new ApplicationVersionRequest();
-        request.setApplicationId(app.getId());
         request.setVersion(newNameVersion);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon("/rest/applications/" + app.getId() + "/versions/" + currentApplicationVersionId,

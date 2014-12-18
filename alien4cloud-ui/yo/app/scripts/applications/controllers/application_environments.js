@@ -29,7 +29,7 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
       'from': 0,
       'size': 50
     };
-    applicationVersionServices.searchVersions({
+    applicationVersionServices.searchVersion({
       applicationId: $state.params.id
     }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
       // Result search

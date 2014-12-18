@@ -7,7 +7,7 @@
       </button>
     </div>
 
-    <!--  Version search -->
+    <!--  App version search -->
     <div class="col-md-3 pull-right">
       <form role="search" ng-submit="search()">
         <div class="input-group">
@@ -53,7 +53,7 @@
   </div>
 
   <script type="text/ng-template" id="newApplicationVersion.html">
-    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(newApplicationVersion.$valid, selectedTopologyTemplate.topologyId)" novalidate>
+    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(newApplicationVersion.$valid, versionId, descId, t.topologyId)" novalidate>
       <div class="modal-header">
         <h3>{{'APPLICATIONS.VERSION.TITLE' | translate}}</h3>
       </div>
@@ -61,26 +61,27 @@
         <div class="form-group" ng-class="{'has-error': newApplicationVersion.name.$invalid}">
           <label for="nameid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.VERSION' | translate}}</label>
           <div class="col-lg-9">
-            <input type="text" class="form-control" id="nameid" ng-model="app.name" name="name" required="" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <input type="text" class="form-control" id="versionId" ng-model="versionId" name="versionId" required="" ng-pattern="/^\d*(?:\.\d+)*(?:\.\d+)*(-(\w)*)*$/" placeholder="{{'APPLICATIONS.NAME' | translate}}">
+            <span ng-show="newApplicationVersion.versionId.$error.pattern">{{'APPLICATIONS.VERSION.MODAL.PATTERN' | translate}}</span>
           </div>
         </div>
         <div class="form-group">
           <label for="descid" class="col-lg-3 control-label">{{'APPLICATIONS.DESC' | translate}}</label>
           <div class="col-lg-9">
-            <textarea class="form-control" id="descid" rows="3" ng-model="app.description" placeholder="{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}"></textarea>
+            <textarea class="form-control" id="descId" rows="3" ng-model="descId" placeholder="{{'APPLICATIONS.VERSION.DESCRIPTION' | translate}}"></textarea>
           </div>
         </div>
         <div class="form-group">
-          <label for="versionid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.SELECT-TITLE' | translate}}</label>
+          <label for="versionid" class="col-lg-3 control-label">{{'APPLICATIONS.VERSION.MODAL.SELECT-TITLE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="versionid" ng-model="selectedTopologyTemplate" ng-options="t.version for t in appVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
-              <option value="">{{'APPLICATIONS.VERSION.SELECT-DESC' | translate}}</option>
+            <select class="form-control" id="topologyId" ng-model="t.topologyId" ng-options="t.version for t in appVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+              <option value="">{{'APPLICATIONS.VERSION.MODAL.DESC' | translate}}</option>
             </select>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="btn-create" ng-disabled="newApplicationVersion.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-create" ng-disabled="newApplicationVersion.versionId.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
       </div>
     </form>
