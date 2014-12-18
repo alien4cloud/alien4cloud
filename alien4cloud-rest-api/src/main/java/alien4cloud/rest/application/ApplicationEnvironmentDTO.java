@@ -1,5 +1,8 @@
 package alien4cloud.rest.application;
 
+import java.util.Map;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,4 +27,6 @@ public class ApplicationEnvironmentDTO {
     private String cloudId;
     private EnvironmentType environmentType;
     private String currentVersionName;
+    private Map<String, Set<String>> userRoles;
+    private Map<String, Set<String>> groupRoles;
 }

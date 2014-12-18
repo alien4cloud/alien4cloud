@@ -1,5 +1,7 @@
 package alien4cloud.rest.security;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.model.UserStatus;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
@@ -26,6 +29,7 @@ import alien4cloud.security.User;
 import alien4cloud.security.groups.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
 
+import com.google.common.collect.Lists;
 import com.mangofactory.swagger.annotations.ApiIgnore;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -95,7 +99,16 @@ public class AuthController {
     @ApiIgnore
     @RequestMapping(value = "/roles/application", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationRole[]> getApplicationRoles() {
-        return RestResponseBuilder.<ApplicationRole[]> builder().data(ApplicationRole.values()).build();
+        // APPLICATION_USER is a technical role in ApplicationRole enum (do not return it)
+        List<ApplicationRole> applicationRoleList = Lists.newArrayList(ApplicationRole.values());
+        applicationRoleList.remove(ApplicationRole.APPLICATION_USER);
+        return RestResponseBuilder.<ApplicationRole[]> builder().data(applicationRoleList.toArray(new ApplicationRole[applicationRoleList.size()])).build();
+    }
+
+    @ApiIgnore
+    @RequestMapping(value = "/roles/environment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<ApplicationEnvironmentRole[]> getApplicationEnvironmentRoles() {
+        return RestResponseBuilder.<ApplicationEnvironmentRole[]> builder().data(ApplicationEnvironmentRole.values()).build();
     }
 
     @ApiIgnore

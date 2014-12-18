@@ -60,9 +60,9 @@ angular.module('alienUiApp').controller('GroupsDirectiveCtrl', ['$scope', '$root
     };
 
     //check if a role is selected for a group
-    $scope.checkIfRoleSelected = function(group, role) {
-      if ($scope.checkRoleSelectedCallback) {
-        return $scope.checkRoleSelectedCallback({
+    $scope.checkIfAppRoleSelected = function(group, role) {
+      if ($scope.checkAppRoleSelectedCallback) {
+        return $scope.checkAppRoleSelectedCallback({
           group: group,
           role: role
         });
@@ -72,12 +72,27 @@ angular.module('alienUiApp').controller('GroupsDirectiveCtrl', ['$scope', '$root
           return group.roles.indexOf(role) > -1;
         }
       }
-
       //return false either
       return false;
     };
 
-    $scope.$watch('managedRoleList', function(newVal) {
+    $scope.checkIfEnvRoleSelected = function(group, role) {
+      if ($scope.checkEnvRoleSelectedCallback) {
+        return $scope.checkEnvRoleSelectedCallback({
+          group: group,
+          role: role
+        });
+      } else {
+        //default checker
+        if (group.roles) {
+          return group.roles.indexOf(role) > -1;
+        }
+      }
+      //return false either
+      return false;
+    };
+
+    $scope.$watch('managedAppRoleList', function(newVal) {
       if (!newVal) {
         return;
       }

@@ -2,10 +2,12 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alienAuthService',
-  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles',
-  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult) {
+  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices',
+  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices) {
+
     $scope.application = applicationResult.data;
     $scope.appRoles = applicationRolesResult.data;
+    $scope.environmentRoles = environmentRolesResult.data;
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
@@ -13,11 +15,23 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
 
     // get users related to the application
     $scope.relatedUsers = {};
-    if ($scope.application.userRoles) {
+    var loadUsers = function loadUsersToDisplay() {
       var usernames = [];
-      for (var username in $scope.application.userRoles) {
-        if ($scope.application.userRoles.hasOwnProperty(username)) {
-          usernames.push(username);
+      // get usernames from application userRoles
+      if ($scope.application.userRoles) {
+        for (var username in $scope.application.userRoles) {
+          if ($scope.application.userRoles.hasOwnProperty(username)) {
+            console.log('push userRole from APP : ', username);
+            usernames.push(username);
+          }
+        }
+      }
+      if ($scope.selectedEnvironment.userRoles) {
+        for (var username in $scope.selectedEnvironment.userRoles) {
+          if ($scope.selectedEnvironment.userRoles.hasOwnProperty(username)) {
+            console.log('push userRole from ENV : ', username);
+            usernames.push(username);
+          }
         }
       }
       if (usernames.length > 0) {
@@ -28,16 +42,31 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           }
         });
       }
-    }
+      console.log('USERNAMES', usernames, $scope.relatedUsers);
+    };
+    loadUsers();
 
+    // Handle groups in groupRoles from application / environment
     $scope.relatedGroups = {};
-    if ($scope.application.groupRoles) {
+    var loadGroups = function loadGroupToDisplay() {
       var groupIds = [];
-      for (var groupId in $scope.application.groupRoles) {
-        if ($scope.application.groupRoles.hasOwnProperty(groupId)) {
-          groupIds.push(groupId);
+      // get group ids from application group roles
+      if ($scope.application.groupRoles) {
+        for (var groupId in $scope.application.groupRoles) {
+          if ($scope.application.groupRoles.hasOwnProperty(groupId)) {
+            groupIds.push(groupId);
+          }
         }
       }
+      // get group ids from environment group roles
+      if ($scope.selectedEnvironment.groupRoles) {
+        for (var groupId in $scope.selectedEnvironment.groupRoles) {
+          if ($scope.selectedEnvironment.groupRoles.hasOwnProperty(groupId)) {
+            groupIds.push(groupId);
+          }
+        }
+      }
+      // get the goot name from group id
       if (groupIds.length > 0) {
         groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
           var data = groupsResults.data;
@@ -46,7 +75,9 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           }
         });
       }
-    }
+      console.log('GROUPNAMES', groupIds, $scope.relatedGroups);
+    };
+    loadGroups();
 
     /**
      * FOR USER SEARCH AND ADD APPLICATION'S ROLE
@@ -63,13 +94,13 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           var index = roles.indexOf(role);
           roles.splice(index, 1);
           return roles;
-
         default:
           break;
       }
     };
 
-    $scope.handleRoleSelectionForUser = function(user, role) {
+    // Handle selection for USER
+    $scope.handleAppRoleSelectionForUser = function(user, role) {
       if (UTILS.isUndefinedOrNull($scope.application.userRoles)) {
         $scope.application.userRoles = {};
       }
@@ -99,12 +130,44 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
       }
     };
 
-    $scope.handleRoleSelectionForGroup = function(group, role) {
+    $scope.handleEnvRoleSelectionForUser = function(user, role) {
+      if (UTILS.isUndefinedOrNull($scope.selectedEnvironment.userRoles)) {
+        $scope.selectedEnvironment.userRoles = {};
+      }
+      var envUserRoles = $scope.selectedEnvironment.userRoles[user.username];
+      var envId = $scope.selectedEnvironment.id;
+      if (!envUserRoles || envUserRoles.indexOf(role) < 0) {
+
+        applicationEnvironmentServices.userRoles.addUserRole([], {
+          applicationEnvironmentId: envId,
+          applicationId: $scope.application.id,
+          username: user.username,
+          role: role
+        }, function() {
+          $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'add');
+          if (!$scope.relatedUsers[user.username]) {
+            $scope.relatedUsers[user.username] = user;
+          }
+        });
+
+      } else {
+        applicationEnvironmentServices.userRoles.removeUserRole([], {
+          applicationEnvironmentId: envId,
+          applicationId: $scope.application.id,
+          username: user.username,
+          role: role
+        }, function() {
+          $scope.selectedEnvironment.userRoles[user.username] = updateRoles(envUserRoles, role, 'remove');
+        });
+      }
+    };
+
+    // Handle selection for GROUP
+    $scope.handleAppRoleSelectionForGroup = function(group, role) {
       if (UTILS.isUndefinedOrNull($scope.application.groupRoles)) {
         $scope.application.groupRoles = {};
       }
       var appGroupRoles = $scope.application.groupRoles[group.id];
-
       if (!appGroupRoles || appGroupRoles.indexOf(role) < 0) {
         applicationServices.groupRoles.addGroupRole([], {
           applicationId: $scope.application.id,
@@ -128,6 +191,39 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
       }
     };
 
+    $scope.handleEnvRoleSelectionForGroup = function(group, role) {
+      if (UTILS.isUndefinedOrNull($scope.selectedEnvironment.groupRoles)) {
+        $scope.selectedEnvironment.groupRoles = {};
+      }
+      var envGroupRoles = $scope.selectedEnvironment.groupRoles[group.id];
+      var envId = $scope.selectedEnvironment.id;
+      if (!envGroupRoles || envGroupRoles.indexOf(role) < 0) {
+
+        applicationEnvironmentServices.groupRoles.addGroupRole([], {
+          applicationEnvironmentId: envId,
+          applicationId: $scope.application.id,
+          groupId: group.id,
+          role: role
+        }, function() {
+          $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'add');
+          if (!$scope.relatedGroups[group.id]) {
+            $scope.relatedGroups[group.id] = group;
+          }
+        });
+
+      } else {
+        applicationEnvironmentServices.groupRoles.removeGroupRole([], {
+          applicationEnvironmentId: envId,
+          applicationId: $scope.application.id,
+          groupId: group.id,
+          role: role
+        }, function() {
+          $scope.selectedEnvironment.groupRoles[group.id] = updateRoles(envGroupRoles, role, 'remove');
+        });
+      }
+    };
+
+    // Checks to update roles on applications or environments
     $scope.checkAppRoleSelectedForUser = function(user, role) {
       if ($scope.application && $scope.application.userRoles && $scope.application.userRoles[user.username]) {
         return $scope.application.userRoles[user.username].indexOf(role) > -1;
@@ -141,5 +237,20 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
       }
       return false;
     };
+
+    $scope.checkEnvRoleSelectedForUser = function(user, role) {
+      if ($scope.selectedEnvironment && $scope.selectedEnvironment.userRoles && $scope.selectedEnvironment.userRoles[user.username]) {
+        return $scope.selectedEnvironment.userRoles[user.username].indexOf(role) > -1;
+      }
+      return false;
+    };
+
+    $scope.checkEnvRoleSelectedForGroup = function(group, role) {
+      if ($scope.selectedEnvironment && $scope.selectedEnvironment.groupRoles && $scope.selectedEnvironment.groupRoles[group.id]) {
+        return $scope.selectedEnvironment.groupRoles[group.id].indexOf(role) > -1;
+      }
+      return false;
+    };
+
   }
 ]);

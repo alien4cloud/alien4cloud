@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -82,9 +83,13 @@ public class ApplicationEnvironmentController {
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         applicationService.checkAndGetApplication(applicationId);
-        // basic search
+        // basic search with rights
+        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+        Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
+        // GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
         GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
-                getApplicationEnvironmentFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
+                applicationEnvironmentFilters, authorizationFilter, null, searchRequest.getFrom(), searchRequest.getSize());
+        // GetMultipleDataResult result = cloudService.get(query, enabledOnly, from, size, authorizationFilter);
         // parse result and convert to ApplicationEnvironmentDTO objects
         GetMultipleDataResult<ApplicationEnvironmentDTO> searchResultDTO = new GetMultipleDataResult<ApplicationEnvironmentDTO>();
         searchResultDTO.setQueryDuration(searchResult.getQueryDuration());
@@ -303,6 +308,8 @@ public class ApplicationEnvironmentController {
             tempEnvDTO.setEnvironmentType(env.getEnvironmentType());
             tempEnvDTO.setId(env.getId());
             tempEnvDTO.setName(env.getName());
+            tempEnvDTO.setUserRoles(env.getUserRoles());
+            tempEnvDTO.setGroupRoles(env.getGroupRoles());
             if (env.getCloudId() != null) {
                 tempEnvDTO.setCloudName(cloudService.get(env.getCloudId()).getName());
             } else {

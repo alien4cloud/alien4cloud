@@ -247,7 +247,7 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment
         // TODO : get the good environment / version
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
-        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.values());
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
 
         DeploymentStatus deploymentStatus;

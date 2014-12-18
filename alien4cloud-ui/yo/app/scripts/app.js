@@ -173,6 +173,13 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               method: 'GET'
             }).get().$promise;
           }
+        ],
+        environmentRoles: ['$resource',
+          function($resource) {
+            return $resource('rest/auth/roles/environment', {}, {
+              method: 'GET'
+            }).get().$promise;
+          }
         ]
       },
       controller: 'ApplicationUsersCtrl'
@@ -181,7 +188,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/applications/application_environments.html',
       resolve: {
         environments: function(environments) {
-          console.log('ENV ADMIN', environments, environments.data.data);
           return environments.data.data;
         }
       },

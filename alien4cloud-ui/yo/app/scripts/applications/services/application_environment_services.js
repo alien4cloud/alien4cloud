@@ -39,7 +39,62 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
     var envEnumTypes = $resource('rest/enums/environmenttype', {}, {
       'get': {
         method: 'GET',
-        cache : true
+        cache: true
+      }
+    });
+
+    /*Users roles on an environment*/
+    var manageEnvUserRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/userRoles/:username/:role', {}, {
+      'addUserRole': {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          applicationEnvironmentId: '@applicationEnvironmentId',
+          applicationId: '@applicationId',
+          username: '@username',
+          role: '@role'
+        }
+      },
+      'removeUserRole': {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          applicationEnvironmentId: '@applicationEnvironmentId',
+          applicationId: '@applicationId',
+          username: '@username',
+          role: '@role'
+        }
+      }
+    });
+
+    var manageEnvGroupRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/groupRoles/:groupId/:role', {}, {
+      'addGroupRole': {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          applicationEnvironmentId: '@applicationEnvironmentId',
+          applicationId: '@applicationId',
+          groupId: '@groupId',
+          role: '@role'
+        }
+      },
+      'removeGroupRole': {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        params: {
+          applicationEnvironmentId: '@applicationEnvironmentId',
+          applicationId: '@applicationId',
+          groupId: '@groupId',
+          role: '@role'
+        }
       }
     });
 
@@ -49,7 +104,9 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       'delete': applicationEnvironmentMiscResource.delete,
       'update': null,
       'environmentTypeList': envEnumTypes.get,
-      'searchEnvironment': searchEnvironmentResource.search
+      'searchEnvironment': searchEnvironmentResource.search,
+      'userRoles': manageEnvUserRoles,
+      'groupRoles': manageEnvGroupRoles
     };
 
   }

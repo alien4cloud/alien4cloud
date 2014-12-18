@@ -414,7 +414,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         enabledOnly: true
       }, function(result) {
         var clouds = result.data.data;
-        console.log('SELECTED ENV', $scope.selectedEnvironment);
         $scope.clouds = clouds;
         if (clouds) {
           // select the cloud that is currently associated with the topology
@@ -434,6 +433,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     /** change the cloud for the topology */
     $scope.changeCloud = function(selectedCloud) {
+      console.log('Change to cloud', selectedCloud);
       $scope.selectedComputeTemplates = {};
       $scope.selectedNetworks = {};
       topologyServices.cloud.set({

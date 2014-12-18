@@ -7,7 +7,6 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
     // Created environment object
     $scope.environment = {};
     $scope.create = function(valid, cloudId, envType, version) {
-      console.log(valid, cloudId, envType, version);
       if (valid) {
         // prepare the good request
         var applicationId = $state.params.id;
@@ -23,18 +22,22 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
       $modalInstance.dismiss('cancel');
     };
 
-    // recover all versions for this applications
-    var searchRequestObject = {
-      'query': '',
-      'from': 0,
-      'size': 50
+    var searchVersions = function () {
+      // recover all versions for this applications
+      var searchRequestObject = {
+        'query': '',
+        'from': 0,
+        'size': 50
+      };
+      applicationVersionServices.searchVersion({
+        applicationId: $state.params.id
+      }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
+        // Result search
+        $scope.versions = result.data.data;
+      });
+
     };
-    applicationVersionServices.searchVersions({
-      applicationId: $state.params.id
-    }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
-      // Result search
-      $scope.versions = result.data.data;
-    });
+    searchVersions();
 
     // Cloud search to configure the new environment
     $scope.query = '';
