@@ -33,6 +33,7 @@ import alien4cloud.security.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
+import alien4cloud.utils.version.ApplicationVersionException;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
@@ -115,7 +116,8 @@ public class ApplicationVersionController {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, null, request.getVersion());
+        ApplicationVersion appVersion = appVersionService.createApplicationVersion(applicationId, request.getTopologyId(), request.getVersion(),
+                request.getDescription());
         return RestResponseBuilder.<String> builder().data(appVersion.getId()).build();
     }
 
@@ -131,7 +133,11 @@ public class ApplicationVersionController {
     public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody ApplicationVersionRequest request) {
         ApplicationVersion appVersion = appVersionService.getOrFail(applicationVersionId);
 
-        if (!appVersion.getVersion().equals(applicationVersionId)
+        if (request.getVersion() != null && !VersionUtil.isValid(request.getVersion())) {
+            throw new ApplicationVersionException(request.getVersion() + "is not a valid version name");
+        }
+
+        if (request.getVersion() != null && !appVersion.getVersion().equals(request.getVersion())
                 && appVersionService.isApplicationVersionNameExist(appVersion.getApplicationId(), request.getVersion())) {
             throw new AlreadyExistException("An application version already exist for this application with the version :" + applicationVersionId);
         }

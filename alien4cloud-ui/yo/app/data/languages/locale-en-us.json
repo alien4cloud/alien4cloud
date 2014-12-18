@@ -395,8 +395,11 @@
       "DESCRIPTION": "Description",
       "ID": "Version ID",
       "TITLE": "New version",
-      "SELECT-TITLE": "Topology",
-      "SELECT-DESC": "Select an older verison to duplicate its topology"
+      "MODAL": {
+        "SELECT-TITLE": "Topology",
+        "DESC": "Select an older verison to duplicate its topology",
+        "PATTERN": "Invalid format version."
+      }
     },
     "ERRORS": {
       "DELETE_TITLE": "Delete an application",
@@ -601,6 +604,7 @@
     "507": "Cannot delete this object as it's still being used by other objects",
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
+    "605": " Invalid format version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
