@@ -10,7 +10,13 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -40,6 +46,7 @@ import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -96,6 +103,9 @@ public class RuntimeController {
         } catch (ConstraintRequiredParameterException e) {
             return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
                     .error(new RestError(RestErrorCode.PROPERTY_REQUIRED_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+        } catch (ConstraintFunctionalException e) {
+            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build();
         }
 
         // try to trigger the execution of the operation
@@ -140,8 +150,7 @@ public class RuntimeController {
                 .data(topologyService.buildTopologyDTO(deploymentService.getRuntimeTopology(version.getTopologyId(), cloudId))).build();
     }
 
-    private void validateCommand(OperationExecRequest operationRequest) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintRequiredParameterException {
+    private void validateCommand(OperationExecRequest operationRequest) throws ConstraintFunctionalException {
 
         // get if exisits the runtime version of the topology
         Topology topology = deploymentService.getRuntimeTopology(operationRequest.getTopologyId(), operationRequest.getCloudId());
@@ -158,9 +167,12 @@ public class RuntimeController {
         }
 
         Interface interfass = interfaces.get(operationRequest.getInterfaceName());
-        validateOperation(interfass, operationRequest);
 
-        // validate parameters (value/type and required value)
+        validateOperation(interfass, operationRequest);
+    }
+
+    private void validateParameters(Interface interfass, OperationExecRequest operationRequest) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException, ConstraintRequiredParameterException {
         ArrayList<String> missingParams = Lists.newArrayList();
 
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
@@ -195,11 +207,14 @@ public class RuntimeController {
         }
     }
 
-    private void validateOperation(Interface interfass, OperationExecRequest operationRequest) {
+    private void validateOperation(Interface interfass, OperationExecRequest operationRequest) throws ConstraintFunctionalException {
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
         if (operation == null) {
             throw new NotFoundException("Operation [" + operationRequest.getOperationName() + "] is not defined in the interface ["
                     + operationRequest.getInterfaceName() + "] of the node [" + operationRequest.getNodeTemplateName() + "]");
         }
+
+        // validate parameters (value/type and required value)
+        validateParameters(interfass, operationRequest);
     }
 }

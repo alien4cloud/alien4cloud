@@ -26,7 +26,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Generate a plan for a nodes hierarchy.
-     * 
+     *
      * @return The start workflow step.
      */
     public StartEvent generate(List<PaaSNodeTemplate> roots) {
@@ -38,7 +38,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Generate a plan for a single node hierarchy.
-     * 
+     *
      * @param node The node for which to generate the plan.
      * @return The start workflow step.
      */
@@ -53,7 +53,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * process generation of the given nodes in parallel.
-     * 
+     *
      * @param nodes The nodes to generate.
      */
     protected void parallel(List<PaaSNodeTemplate> nodes) {
@@ -76,7 +76,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Change the state of a node.
-     * 
+     *
      * @param id Id of the template for which to change the state.
      * @param state The new state for the node template.
      */
@@ -86,7 +86,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call an operation on a node.
-     * 
+     *
      * @param nodeTemplate The node template on which to execute the operation.
      * @param interfaceName The interface name.
      * @param operationName The operation name.
@@ -98,7 +98,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call an operation on a relationship.
-     * 
+     *
      * @param relationshipTemplate The relationship template on which to execute the operation.
      * @param interfaceName The interface name.
      * @param operation The operation name.
@@ -110,7 +110,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Wait for all target nodes of relationships to reach the expected state.
-     * 
+     *
      * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
      * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
      * @param states The states to reach.
@@ -121,7 +121,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Wait for all source nodes of relationships to reach the expected state.
-     * 
+     *
      * @param nodeTemplate The node that should wait for it's relationships source to reach the given state.
      * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
      * @param states The states to reach.
@@ -174,7 +174,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call operations from the node relationships.
-     * 
+     *
      * @param nodeTemplate The node that is source or target of the relations.
      * @param interfaceName The interface that holds the operations.
      * @param sourceOperation The operation to be triggered if the node is source.
@@ -225,6 +225,7 @@ public abstract class AbstractPlanGenerator {
         activity.setNodeTemplateId(nodeTemplateId);
         activity.setRelationshipId(relationshipId);
         activity.setImplementationArtifact(operation.getImplementationArtifact());
+        activity.setInputParameters(operation.getInputParameters());
         next(activity);
     }
 

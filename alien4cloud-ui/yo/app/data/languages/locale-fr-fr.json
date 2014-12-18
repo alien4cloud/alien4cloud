@@ -62,6 +62,7 @@
       "FAILED_TO_READ_FILE": "Impossible de lire le fichier à l'emplacement suivant {{note}}",
       "ENTRY_DEFINITION_NOT_FOUND": "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
       "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud ne supporte actuellement qu'un unique fichier de definitions.",
+      "INVALID_YAML": "Le fichier reférencé n'est pas conforme au format YAML.",
       "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
       "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
       "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
@@ -114,7 +115,8 @@
       "TAG_KEY": "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
     },
     "CAPABILITIES": {
-      "TYPE": "Capacités"
+      "TYPE": "Capacités",
+      "CARDINALITIES_TOOLTIP": "maximum"
     },
     "ABSTRACT": "Composant abstrait",
     "DEFAULTCAPABILITIES": "Capacités défaut",
@@ -371,6 +373,7 @@
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
+      "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
@@ -693,7 +696,8 @@
     "deleting": "Suppression en cours",
     "deleted": "Supprimé",
     "uninstalling": "Désinstallation",
-    "uninstalled": "Désinstallé"
+    "uninstalled": "Désinstallé",
+    "available": "Disponible"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",

@@ -64,6 +64,7 @@
       "FAILED_TO_READ_FILE": "Unable to read the file {{note}}",
       "ENTRY_DEFINITION_NOT_FOUND": "Entry definition file has not been found. Please put a valid definition file at the root of the archive.",
       "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud currently supports a single definition file within an archive.",
+      "INVALID_YAML": "The File does not respect YAML format.",
       "MISSING_TOSCA_VERSION": "Tosca version is not specified and is required.",
       "SYNTAX_ERROR": "Syntax error: Yaml definition for the type {{note}} doesn't follow the TOSCA specification.",
       "UNRECOGNIZED_PROPERTY": "Property [ {{note}} ] is unknown and has been ignored.",
@@ -115,7 +116,8 @@
       "TAG_KEY": "Tag name can only contain characters a to Z, -, _ without spaces"
     },
     "CAPABILITIES": {
-      "TYPE": "Capabilities"
+      "TYPE": "Capabilities",
+      "CARDINALITIES_TOOLTIP" : "upperBound"
     },
     "ABSTRACT": "Abstract component",
     "DEFAULTCAPABILITIES": "Default Capabilities",
@@ -371,6 +373,7 @@
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
+      "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
@@ -692,7 +695,8 @@
     "deleting": "Deleting",
     "deleted": "Deleted",
     "uninstalling": "Uninstalling",
-    "uninstalled": "Uninstalled"
+    "uninstalled": "Uninstalled",
+    "available": "Available"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",

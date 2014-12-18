@@ -1,46 +1,29 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('SearchRelationshipCtrl', ['$scope', '$modalInstance', 'relationshipTopologyService', function($scope, $modalInstance, relationshipTopologyService) {
+angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$modalInstance', 'relationshipTopologyService', function($scope, $modalInstance, relationshipTopologyService) {
   $scope.totalStep = 3;
   $scope.step = 1;
 
   $scope.relationshipModalData = {};
 
-  relationshipTopologyService.getTargets(
-    $scope.sourceElementName, $scope.requirement, $scope.requirementName, $scope.topology.topology.nodeTemplates, $scope.topology.nodeTypes, $scope.topology.relationshipTypes, $scope.topology.capabilityTypes, $scope.topology.topology.dependencies, $scope.targetNodeTemplateName).then(function(result) {
+  relationshipTopologyService.getTargets($scope.sourceElementName, $scope.requirement, $scope.requirementName, $scope.topology.topology.nodeTemplates,
+      $scope.topology.nodeTypes, $scope.topology.relationshipTypes, $scope.topology.capabilityTypes, $scope.topology.topology.dependencies,
+      $scope.targetNodeTemplateName).then(function(result) {
     $scope.targets = result.targets;
     $scope.relationshipModalData.relationship = result.relationshipType;
-    if(result.preferedMatch !== null) {
+    if (result.preferedMatch !== null) {
       // pre-select the target node if a single capability matches.
-      if(result.preferedMatch.capabilities.length === 1) {
+      if (result.preferedMatch.capabilities.length === 1) {
         $scope.onSelectedTarget(result.preferedMatch.template.name, result.preferedMatch.capabilities[0].id);
       }
     }
   });
 
-  var toLowerCase = function(text) {
-    return text.charAt(0).toLowerCase() + text.slice(1);
-  };
-
-  var toUpperCase = function(text) {
-    return text.charAt(0).toUpperCase() + text.slice(1);
-  };
-
-  var relationshipNameFromTypeAndTarget = function() {
-    var type = $scope.relationshipModalData.relationship.elementId;
-    var target = $scope.relationshipModalData.target;
-    var tokens = type.split('.');
-    if (tokens.length === 3) {
-      return toLowerCase(tokens[2]) + toUpperCase(target);
-    } else {
-      return toLowerCase(type) + toUpperCase(target);
-    }
-  };
-
   $scope.onSelectedRelationship = function(relationship) {
     $scope.relationshipModalData.relationship = relationship;
-    $scope.relationshipModalData.name = relationshipNameFromTypeAndTarget();
+    $scope.relationshipModalData.name = UTILS.relationshipNameFromTypeAndTarget($scope.relationshipModalData.relationship.elementId,
+        $scope.relationshipModalData.target);
     $scope.next();
   };
 
@@ -62,7 +45,8 @@ angular.module('alienUiApp').controller('SearchRelationshipCtrl', ['$scope', '$m
     // if a relationship has already been provided skip the relationship search.
     if($scope.relationshipModalData.relationship) {
       $scope.next();
-      $scope.relationshipModalData.name = relationshipNameFromTypeAndTarget();
+      $scope.relationshipModalData.name = UTILS.relationshipNameFromTypeAndTarget($scope.relationshipModalData.relationship.elementId,
+          $scope.relationshipModalData.target);
     }
   };
 
