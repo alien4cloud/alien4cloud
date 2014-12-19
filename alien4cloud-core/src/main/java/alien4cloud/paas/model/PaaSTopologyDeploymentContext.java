@@ -1,8 +1,5 @@
 package alien4cloud.paas.model;
 
-import java.util.List;
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -24,9 +21,7 @@ public class PaaSTopologyDeploymentContext extends PaaSDeploymentContext {
 
     private Topology topology;
 
-    private List<PaaSNodeTemplate> computes;
-
-    private Map<String, PaaSNodeTemplate> nodes;
+    private PaaSTopology paaSTopology;
 
     private DeploymentSetup deploymentSetup;
 }

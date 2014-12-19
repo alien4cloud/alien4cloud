@@ -1,6 +1,11 @@
 package alien4cloud.component.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.common.collect.Maps;
 
@@ -21,16 +26,17 @@ public final class IndexedModelUtils {
     }
 
     /**
-     * This utility method returns an ordered {@link alien4cloud.component.model.IndexedInheritableToscaElement} collection. The parent elements will be before the children elements
+     * This utility method returns an ordered {@link alien4cloud.component.model.IndexedInheritableToscaElement} collection. The parent elements will be before
+     * the children elements
      * 
      * @param elementsByIdMap map of {@link alien4cloud.component.model.IndexedInheritableToscaElement} by id
      * @return
      */
-    public static List<IndexedInheritableToscaElement> orderForIndex(final Map<String, ? extends IndexedInheritableToscaElement> elementsByIdMap) {
-        if(elementsByIdMap == null) {
+    public static <T extends IndexedInheritableToscaElement> List<T> orderByDerivedFromHierarchy(final Map<String, T> elementsByIdMap) {
+        if (elementsByIdMap == null) {
             return null;
         }
-        List<IndexedInheritableToscaElement> orderedElements = new ArrayList<IndexedInheritableToscaElement>(elementsByIdMap.values());
+        List<T> orderedElements = new ArrayList<T>(elementsByIdMap.values());
         final Map<String, Integer> elementsLevelMap = Maps.newHashMap();
         for (IndexedInheritableToscaElement element : orderedElements) {
             IndexedInheritableToscaElement parent = element;

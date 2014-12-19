@@ -38,7 +38,7 @@ public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaa
 
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext) {
-        this.roots = deploymentContext.getComputes();
+        this.roots = deploymentContext.getPaaSTopology().getComputes();
     }
 
     @Override
