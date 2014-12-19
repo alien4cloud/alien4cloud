@@ -18,4 +18,5 @@ public class ToscaFunctionConstants {
     public static final String HOST = "HOST";
     public static final String SOURCE_HOST = "SOURCE_HOST";
     public static final String TARGET_HOST = "TARGET_HOST";
+    public static final String PARENT = "PARENT";
 }
