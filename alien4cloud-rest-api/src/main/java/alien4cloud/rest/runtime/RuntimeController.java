@@ -9,14 +9,9 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -176,25 +171,23 @@ public class RuntimeController {
         ArrayList<String> missingParams = Lists.newArrayList();
 
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
-        IOperationParameter currentOperationParameter = null;
 
         if (operation.getInputParameters() != null) {
             for (Entry<String, IOperationParameter> inputParameter : operation.getInputParameters().entrySet()) {
-                String inputParamKey = inputParameter.getKey();
-                String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(inputParamKey);
-                if (requestInputParameter != null) {
-                    currentOperationParameter = inputParameter.getValue();
-                    if (currentOperationParameter instanceof PropertyDefinition) {
-                        PropertyDefinition operationParamPropertyDefinition = (PropertyDefinition) currentOperationParameter;
-                        if (operationParamPropertyDefinition.isRequired() && requestInputParameter.isEmpty()) {
-                            missingParams.add(inputParamKey);
-                        }
+                if (inputParameter.getValue().isDefinition()) {
+                    String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(
+                            inputParameter.getKey());
+                    PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
+                    if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        constraintPropertyService.checkPropertyConstraint(inputParamKey, requestInputParameter, operationParamPropertyDefinition);
+                        constraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                    } else if (currentOperationParameter.isRequired()) {
+                        // input param not in the request, id required this is a missing parameter...
+                        missingParams.add(inputParameter.getKey());
+                    } else {
+                        // set the value to null
+                        operation.getInputParameters().put(inputParameter.getKey(), null);
                     }
-                } else if (inputParameter.getValue() instanceof PropertyDefinition && ((PropertyDefinition) inputParameter.getValue()).isRequired()) {
-                    // input param not in the request, id required this is a missing parameter...
-                    missingParams.add(inputParamKey);
                 }
             }
         }
