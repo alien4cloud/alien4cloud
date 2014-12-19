@@ -10,7 +10,7 @@ angular.module('alienUiApp').controller(
       }
       // TODO remove this!!!
       $scope.editRights = true;
-      // $scope.hasYamlEditor = true;
+      
       $scope.editorContent = '';
       var inputOutputKeys = ['inputProperties', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
       var regexPatternn = '^[\\w_]*$';
@@ -33,7 +33,7 @@ angular.module('alienUiApp').controller(
 
       $scope.dimensions = {
         height: resizeServices.getHeight(120),
-        width: resizeServices.getWidth(widthOffset),
+        width: resizeServices.getWidth(widthOffset)
       };
 
       var refreshTopology = function(topologyDTO, selectedNodeTemplate) {

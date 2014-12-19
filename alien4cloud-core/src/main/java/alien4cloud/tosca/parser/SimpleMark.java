@@ -15,6 +15,10 @@ public class SimpleMark {
     private int line;
     private int column;
 
+    /** No args constructor for de-serialization. */
+    public SimpleMark() {
+    }
+
     public SimpleMark(Mark mark) {
         this.line = mark.getLine() + 1;
         this.column = mark.getColumn() + 1;

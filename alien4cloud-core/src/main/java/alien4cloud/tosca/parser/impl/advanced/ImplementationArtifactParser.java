@@ -50,7 +50,7 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
                     } else {
                         context.getParsingErrors().add(
                                 new ParsingError(ErrorCode.UNKNOWN_IMPLEMENTATION_ARTIFACT, "Implementation artifact", node.getStartMark(),
-                                        "No artifact type in the repository uses this extension is not.", node.getEndMark(), extension));
+                                        "No artifact type in the repository references the artifact's extension", node.getEndMark(), extension));
                         type = "unknown";
                     }
                 } else {

@@ -20,12 +20,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Simple utility for JSon processing.
- *
- * @author luc boutier
  */
 @Slf4j
 public final class JsonUtil {
-
     private static ObjectMapper getOneObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -154,19 +151,6 @@ public final class JsonUtil {
         ObjectMapper mapper = getOneObjectMapper();
         JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyTypeClass, valueTypeClass);
         return mapper.readValue(json, mapStringObjectType);
-    }
-
-    /**
-     * transform the given object to a map
-     *
-     * @param object
-     * @param keyTypeClass
-     * @param valueTypeClass
-     * @return
-     * @throws IOException
-     */
-    public static <K, V> Map<K, V> toMap(Object object, Class<K> keyTypeClass, Class<V> valueTypeClass) throws IOException {
-        return toMap(toString(object), keyTypeClass, valueTypeClass);
     }
 
     public static <V> V[] toArray(String json, Class<V> valueTypeClass) throws IOException {
