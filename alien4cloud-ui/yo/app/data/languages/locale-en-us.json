@@ -696,6 +696,7 @@
     "deleted": "Deleted",
     "uninstalling": "Uninstalling",
     "uninstalled": "Uninstalled",
+    "initial": "Initial",
     "available": "Available"
   },
   "metrics": {
