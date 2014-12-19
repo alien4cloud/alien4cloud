@@ -119,11 +119,12 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId());
 
         // Application environment : get an check right on the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), deployApplicationRequest.getApplicationEnvironmentId());
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(deployApplicationRequest.getApplicationId(),
+                deployApplicationRequest.getEnvironmentId());
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
 
         // Application version : check right on the version
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), deployApplicationRequest.getApplicationVersionId());
+        ApplicationVersion version = getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // check that the environment is not already deployed
         // One environment => One deployment deployed at a time
@@ -174,15 +175,14 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Un-Deploys the application on the configured PaaS.", notes = "The logged-in user must have the [ APPLICATION_MANAGER ] role for this application. Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> undeploy(@PathVariable String applicationId) {
+    public RestResponse<Void> undeploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
 
-        Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
+        Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId(), ApplicationRole.APPLICATION_MANAGER);
 
         // get the topology from the version and the cloud from the environment
-        // TODO : get the good environment / version
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), null);
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), deployApplicationRequest.getEnvironmentId());
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), null);
+        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {

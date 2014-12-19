@@ -12,6 +12,5 @@ import lombok.Setter;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class DeployApplicationRequest {
     private String applicationId;
-    private String applicationEnvironmentId;
-    private String applicationVersionId;
+    private String environmentId;
 }

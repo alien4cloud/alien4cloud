@@ -262,8 +262,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Deployment handler
     $scope.deploy = function() {
       // Application details with deployment properties
+      // TODO : deploy from environment
+      console.log('ENVIRONMENT', $scope.selectedEnvironment);
       var deployApplicationRequest = {
-        applicationId: $scope.application.id
+        applicationId: $scope.application.id,
+        environmentId: null
       };
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {

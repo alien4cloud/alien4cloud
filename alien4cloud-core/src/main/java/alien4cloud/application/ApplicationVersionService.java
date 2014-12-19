@@ -53,7 +53,7 @@ public class ApplicationVersionService {
         appVersion.setVersion(version);
         appVersion.setReleased(false);
         appVersion.setLatest(true);
-        appVersion.setSnapshot(true);
+        appVersion.setSnapshot(VersionUtil.isSnapshot(version));
         appVersion.setDescription(desc);
 
         Topology topology;
