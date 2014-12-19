@@ -25,13 +25,6 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
           }
         }
       }
-      // if ($scope.selectedEnvironment.userRoles) {
-      //   for (var username in $scope.selectedEnvironment.userRoles) {
-      //     if ($scope.selectedEnvironment.userRoles.hasOwnProperty(username)) {
-      //       usernames.push(username);
-      //     }
-      //   }
-      // }
       if (usernames.length > 0) {
         userServices.get([], angular.toJson(usernames), function(usersResults) {
           var data = usersResults.data;

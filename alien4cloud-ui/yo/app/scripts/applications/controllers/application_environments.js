@@ -22,7 +22,7 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
       $modalInstance.dismiss('cancel');
     };
 
-    var searchVersions = function () {
+    var searchVersions = function() {
       // recover all versions for this applications
       var searchRequestObject = {
         'query': '',
@@ -59,8 +59,8 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', 's
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', 'environments',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, environments) {
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', 'environments', '$rootScope', '$resolve',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, environments, $rootScope, $resolve) {
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
 
@@ -78,7 +78,8 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         applicationEnvironmentServices.create({
           applicationId: $scope.application.id
         }, angular.toJson(environment), function(successResponse) {
-          $scope.search();
+          // update environment list
+          updateEnvironments();
         });
       });
     };
@@ -90,12 +91,14 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         'from': 0,
         'size': 50
       };
-      applicationEnvironmentServices.searchEnvironment({
+      return applicationEnvironmentServices.searchEnvironment({
         applicationId: $scope.application.id
       }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
         // Result search
         $scope.searchAppEnvResult = result.data.data;
-      });
+        // environments = $scope.searchAppEnvResult;
+        return $scope.searchAppEnvResult;
+      }).$promise;
       // TODO : UPDATE env status ?
       // // when apps search result is ready, update apps statuses
       // searchResult.$promise.then(function(applisationListResult) {
@@ -106,16 +109,23 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
 
     // Delete the app environment
     $scope.delete = function deleteAppEnvironment(appEnvId) {
-      console.log('Delete the appEnvID : ', appEnvId);
       if (!angular.isUndefined(appEnvId)) {
         applicationEnvironmentServices.delete({
           applicationId: $scope.application.id,
           applicationEnvironmentId: appEnvId
         }, null, function deleteAppEnvironment(result) {
-          // Result search
-          $scope.search();
+          // update environment list
+          updateEnvironments();
         });
       }
+    };
+
+    // trigger an event to update environment main list
+    var updateEnvironments = function updateEnvs() {
+      $scope.search().then(function(result) {
+        // update application environment list
+        $rootScope.$emit('UPDATE_ENVIRONMENTS', $scope.searchAppEnvResult);
+      });
     };
 
   }

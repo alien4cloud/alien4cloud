@@ -84,7 +84,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           function($http, $stateParams) {
             // TODO : change this to adapt to selected enviroment
             return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
-              console.log('SELECTED DEFAULT TOPOLOGY', result);
               return result.data.data;
             });
           }
@@ -105,7 +104,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               applicationId: application.data.id
             }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
               // Result search
-              console.log('Parent environment search', result.data.data);
               return result.data.data;
             });
           }
@@ -187,9 +185,9 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
       resolve: {
-        environments: function(environments) {
+        environments: ['$rootScope', 'environments', function($rootScope, environments) {
           return environments.data.data;
-        }
+        }]
       },
       controller: 'ApplicationEnvironmentsCtrl'
     }).state('applications.detail.versions', {

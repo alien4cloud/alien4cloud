@@ -199,8 +199,6 @@
     "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
     "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Editer les roles",
-    "EDIT_ROLE_HEADER": "Ajouter ou retirer des roles",
     "OPERATIONS": "Opérations",
     "DELETE": "Supprimer"
   },
@@ -215,10 +213,14 @@
     "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
     "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Editer les roles",
-    "EDIT_ROLE_HEADER": "Ajouter ou retirer des roles",
     "DELETE": "Supprimer",
     "OPERATIONS": "Opérations"
+  },
+  "EDIT_RIGHTS" : {
+    "EDIT_ROLE_RESOURCE": "Editer les roles sur la ressource",
+    "EDIT_ROLE_HEADER_RESOURCE": "Ajouter ou retirer des roles à la ressource",
+    "EDIT_ROLE_ENV": "Editer les roles sur l'environnement",
+    "EDIT_ROLE_HEADER_ENV": "Ajouter ou retirer des roles à l'environnement"
   },
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
@@ -378,6 +380,7 @@
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
     },
     "ENVIRONMENT": {
+      "ENV": "Environnement",
       "NEW": "Nouvel environnement",
       "STATUS": "Etat",
       "NAME": "Nom",

@@ -21,27 +21,22 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     console.log('Application page IS USER     : ', isUser);
     console.log('-----------------------------');
 
-    // get all environments
-    $scope.environments = environments;
+    // default get all environments
+    environments.$promise.then(function loadEnvironments(result) {
+      $scope.envs = result.data.data;
+      $scope.selectedEnvironment = result.data.data[0];
+      console.log('---- Environment page loading');
+      console.log('Environment                  : ', $scope.selectedEnvironment);
+      console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER'));
+      console.log('Environment page IS USER     : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER'));
+      console.log('-----------------------------');
+    });
 
-    // select one environment by default
-    // var selectDefaultEnvironment = function() {
-    if (UTILS.isUndefinedOrNull($scope.selectedEnvironment)) {
-      console.log('LOAD DEFAULT ENV', $scope.selectedEnvironment, UTILS.isUndefinedOrNull($scope.selectedEnvironment));
-      $scope.environments.$promise.then(function getSelected(environments) {
-        // Select initial default environment
-        // TODO : select by most recent version ?
-        $scope.selectedEnvironment = environments.data.data[0];
-        console.log('---- Environment page loading');
-        console.log('Environment                  : ', $scope.selectedEnvironment);
-        console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER'));
-        console.log('Environment page IS USER     : ', alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER'));
-        console.log('-----------------------------');
-
-      });
-    }
-    // };
-    // selectDefaultEnvironment();
+    // update environments main list when add / remove an evironment
+    $rootScope.$on('UPDATE_ENVIRONMENTS', function(event, updatedEnvs) {
+      $scope.envs = updatedEnvs;
+      $scope.selectedEnvironment = updatedEnvs[0];
+    });
 
     // switch environment for all application.detail child states
     $scope.changeEnvironment = function(switchToEnvironment) {

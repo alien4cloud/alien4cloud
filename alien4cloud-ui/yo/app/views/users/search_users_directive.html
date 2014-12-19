@@ -30,8 +30,8 @@
               <th ng-if="displayAll || displayEmail">{{ 'USERS.EMAIL' | translate}}</th>
               <th>{{ 'USERS.GROUPS' | translate}}</th>
               <th ng-if="displayAll || displayRoles">{{ 'USERS.ROLES' | translate}}</th>
-              <th><i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="Application" tooltip-placement="right" tooltip-append-to-body="true"></i></th>
-              <th ng-if="managedEnvRoleList"><i class="fa fa-share-alt" tooltip="Environment" tooltip-placement="right" tooltip-append-to-body="true"></i></th>
+              <th class="text-center"><i ng-if="managedEnvRoleList" class="fa fa-desktop" tooltip="{{'APPLICATIONS.APPLICATION' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
+              <th class="text-center" ng-if="managedEnvRoleList"><i class="fa fa-share-alt" tooltip="{{'APPLICATIONS.ENVIRONMENT.ENV' | translate }}" tooltip-placement="top" tooltip-append-to-body="true"></i></th>
             </tr>
           </thead>
           <tbody>
@@ -80,7 +80,7 @@
                 </span>
                 <span ng-if="user.allRoles.size == 0">---</span>
               </td>
-              <td>
+              <td class="text-center">
                 <!--  MANAGE USER/GROUP ROLES ON APPLICATIONS -->
                 <!-- groups management -->
                 <div class="btn-group" ng-if="crudSupport">
@@ -99,9 +99,9 @@
                 </div>
                 <!-- roles management -->
                 <div class="btn-group">
-                  <a id="edit-app-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'USERS.EDIT_ROLE' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <a id="edit-app-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_RESOURCE' | translate }}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
-                    <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>
+                    <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_RESOURCE' | translate }}</li>
                     <li ng-repeat="role in managedAppRoleList | orderBy:'toString()' ">
                       <a id="{{user.username}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfAppRoleSelected(user, role))}" ng-click="onSelectAppRoleCallback({user:user, role:role})">
                         <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
@@ -116,14 +116,14 @@
                 </div>
 
               </td>
-              <td ng-if="managedEnvRoleList">
+              <td class="text-center" ng-if="managedEnvRoleList">
 
                 <!-- MANAGE USER/GROUP ROLES ON ENVIRONMENTS -->
                 <!-- roles management -->
                 <div class="btn-group">
-                  <a id="edit-env-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'USERS.EDIT_ROLE' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
+                  <a id="edit-env-user-role-button" class="dropdown-toggle btn btn-sm btn-default" tooltip="{{'EDIT_RIGHTS.EDIT_ROLE_ENV' | translate}}" tooltip-append-to-body="true"><i class="fa fa-key"></i></a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-click="preventClose($event)">
-                    <li role="presentation" class="dropdown-header">{{'USERS.EDIT_ROLE_HEADER' | translate }}</li>
+                    <li role="presentation" class="dropdown-header">{{'EDIT_RIGHTS.EDIT_ROLE_HEADER_ENV' | translate }}</li>
                     <li ng-repeat="role in managedEnvRoleList | orderBy:'toString()' ">
                       <a id="{{user.username}}_{{role}}" ng-class="{'checked_role':( roleChecked = checkIfEnvRoleSelected(user, role))}" ng-click="onSelectEnvRoleCallback({user:user, role:role})">
                         <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked}"></i> {{role}}
