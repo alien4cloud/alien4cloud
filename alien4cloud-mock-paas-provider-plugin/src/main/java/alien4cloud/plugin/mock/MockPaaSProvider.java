@@ -403,7 +403,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, final int instances) {
+    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, final int instances, IPaaSCallback<?> callback) {
         String deploymentId = deploymentContext.getDeploymentId();
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
         Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
@@ -438,7 +438,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventsCallback) {
         AbstractMonitorEvent[] events = toBeDeliveredEvents.toArray(new AbstractMonitorEvent[toBeDeliveredEvents.size()]);
         toBeDeliveredEvents.clear();
-        eventsCallback.onData(events);
+        eventsCallback.onSuccess(events);
     }
 
     @Override

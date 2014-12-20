@@ -5,7 +5,7 @@ package alien4cloud.paas;
  */
 public interface IPaaSCallback<T> {
 
-    void onData(T data);
+    void onSuccess(T data);
 
     void onFailure(Throwable throwable);
 }

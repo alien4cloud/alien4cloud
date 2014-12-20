@@ -78,7 +78,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private class PaaSEventsCallback implements IPaaSCallback<AbstractMonitorEvent[]> {
 
         @Override
-        public void onData(AbstractMonitorEvent[] auditEvents) {
+        public void onSuccess(AbstractMonitorEvent[] auditEvents) {
             if (log.isDebugEnabled()) {
                 log.debug("Polled from date {}", lastPollingDate);
                 if (auditEvents != null && auditEvents.length > 0) {

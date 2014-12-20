@@ -20,14 +20,14 @@ public interface IPaaSProvider {
      * 
      * @param deploymentContext the context of the deployment
      */
-    void deploy(PaaSTopologyDeploymentContext deploymentContext);
+    void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
      * Undeploy a given topology.
      *
      * @param deploymentContext the context of the un-deployment
      */
-    void undeploy(PaaSDeploymentContext deploymentContext);
+    void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
      * Scale up/down a node
@@ -36,7 +36,7 @@ public interface IPaaSProvider {
      * @param nodeTemplateId id of the compute node to scale up
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
-    void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances);
+    void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case

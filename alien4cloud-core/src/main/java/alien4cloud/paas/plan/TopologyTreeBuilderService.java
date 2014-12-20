@@ -90,7 +90,17 @@ public class TopologyTreeBuilderService {
     }
 
     /**
-     * Build the topology for the PaaS.
+     * Build the topology for deployment on the PaaS.
+     *
+     * @param topology The topology.
+     * @return The parsed topology for the PaaS with.
+     */
+    public PaaSTopology buildPaaSTopology(Topology topology) {
+        return buildPaaSTopology(buildPaaSNodeTemplate(topology));
+    }
+
+    /**
+     * Build the topology for deployment on the PaaS.
      *
      * @param nodeTemplates The node templates that are part of the topology.
      * @return The parsed topology for the PaaS with.

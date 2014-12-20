@@ -107,7 +107,7 @@ public class RuntimeController {
         try {
             deploymentService.triggerOperationExecution(operationRequest, new IPaaSCallback<Map<String, String>>() {
                 @Override
-                public void onData(Map<String, String> data) {
+                public void onSuccess(Map<String, String> data) {
                     result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
                 }
 

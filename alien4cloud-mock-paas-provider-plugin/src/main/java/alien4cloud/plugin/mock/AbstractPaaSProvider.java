@@ -23,7 +23,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     @Override
-    public void deploy(PaaSTopologyDeploymentContext deploymentContext) {
+    public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         String applicationName = deploymentContext.getRecipeId();
         String deploymentId = deploymentContext.getDeploymentId();
         Topology topology = deploymentContext.getTopology();
@@ -67,7 +67,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
     }
 
     @Override
-    public void undeploy(PaaSDeploymentContext deploymentContext) {
+    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         String deploymentId = deploymentContext.getDeploymentId();
         try {
             providerLock.writeLock().lock();
@@ -126,7 +126,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
             if (resultException != null) {
                 callback.onFailure(new OperationExecutionException(resultException));
             }
-            callback.onData(MapUtil.newHashMap(new String[] { "1" }, new String[] { doExecuteOperationResult }));
+            callback.onSuccess(MapUtil.newHashMap(new String[]{"1"}, new String[]{doExecuteOperationResult}));
         } finally {
             providerLock.writeLock().unlock();
         }

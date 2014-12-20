@@ -37,17 +37,17 @@ public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaa
     }
 
     @Override
-    public void deploy(PaaSTopologyDeploymentContext deploymentContext) {
+    public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         this.roots = deploymentContext.getPaaSTopology().getComputes();
     }
 
     @Override
-    public void undeploy(PaaSDeploymentContext deploymentContext) {
+    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
 
     }
 
     @Override
-    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances) {
+    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback) {
 
     }
 

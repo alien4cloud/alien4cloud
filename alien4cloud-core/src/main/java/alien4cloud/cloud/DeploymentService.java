@@ -146,7 +146,7 @@ public class DeploymentService {
         // put back the old Id for deployment
         topology.setId(topologyId);
         // Build the context for deployment and deploy
-        paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology, deploymentSetup));
+        paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology, deploymentSetup), null);
         log.info("Deployed topology [{}] on cloud [{}], generated deployment with id [{}]", topology.getId(), cloudId, deployment.getId());
         return deployment.getId();
     }
@@ -199,7 +199,7 @@ public class DeploymentService {
         Deployment deployment = getMandatoryDeployment(deploymentId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.undeploy(deploymentContext);
+        paaSProvider.undeploy(deploymentContext, null);
         deployment.setEndDate(new Date());
         alienDao.save(deployment);
         log.info("Un-deployed deployment [{}] on cloud [{}]", deploymentId, cloudId);
@@ -231,7 +231,7 @@ public class DeploymentService {
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.scale(deploymentContext, nodeTemplateId, instances);
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
     }
 
     /**
