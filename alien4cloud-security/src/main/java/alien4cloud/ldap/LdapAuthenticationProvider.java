@@ -8,19 +8,20 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.security.IAlienUserDao;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
+
+import com.google.common.collect.Lists;
 
 /**
  * Provider responsible to authenticate agains LDAP.
@@ -29,7 +30,7 @@ import alien4cloud.security.User;
  * @author mourouvi
  */
 @Slf4j
-//@Profile("security-ldap")
+// @Profile("security-ldap")
 @Conditional(LdapCondition.class)
 @Component("ldap-provider")
 public class LdapAuthenticationProvider implements AuthenticationProvider {
@@ -63,7 +64,8 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         if (ldapUserDao.authenticate(login, password)) {
-            return new UsernamePasswordAuthenticationToken(login, password, Lists.newArrayList(new SimpleGrantedAuthority("")));
+            List<? extends GrantedAuthority> emptyList = Lists.newArrayList();
+            return new UsernamePasswordAuthenticationToken(login, password, emptyList);
         } else {
             log.debug("Wrong password for user <" + login + ">");
             throw new BadCredentialsException("Incorrect password for user <" + login + ">");
