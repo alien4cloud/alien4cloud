@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.0.0-M3</version>
+  <version>1.0.0-SM18</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -39,6 +39,7 @@
     <commons-cli.version>1.2</commons-cli.version>
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-collections.version>4.0</commons-collections.version>
+    <commons-compress.version>1.9</commons-compress.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.3.1</jackson.version>
@@ -59,7 +60,7 @@
     <aspectj.version>1.7.4</aspectj.version>
 
     <!-- Elastic Search -->
-    <es-mapping.version>1.1.16</es-mapping.version>
+    <es-mapping.version>1.1.17</es-mapping.version>
 
     <!-- Logging -->
     <log4j.version>1.2.16</log4j.version>
@@ -210,7 +211,11 @@
         <artifactId>commons-collections4</artifactId>
         <version>${commons-collections.version}</version>
       </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
@@ -352,12 +357,6 @@
         <artifactId>commons-cli</artifactId>
         <version>${commons-cli.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>${log4j.version}</version>
-      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -433,11 +432,11 @@
   <repositories>
     <repository>
       <id>repo.opensource.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource</url>
     </repository>
     <repository>
       <id>repo.opensource.snapshot.fastconnect.org</id>
-      <url>https://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
+      <url>http://fastconnect.org/maven/content/repositories/opensource-snapshot</url>
     </repository>
     <repository>
       <id>projectlombok.org</id>

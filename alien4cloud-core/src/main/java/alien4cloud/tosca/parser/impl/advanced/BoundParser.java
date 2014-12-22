@@ -1,5 +1,6 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 

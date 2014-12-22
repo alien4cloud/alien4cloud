@@ -22,7 +22,7 @@ public class ParsingException extends FunctionalException {
         parsingErrors = Lists.newArrayList(toscaParsingError);
     }
 
-    ParsingException(String fileName, List<ParsingError> toscaParsingErrors) {
+    public ParsingException(String fileName, List<ParsingError> toscaParsingErrors) {
         super(toscaParsingErrors.toString());
         this.fileName = fileName;
         parsingErrors = toscaParsingErrors;

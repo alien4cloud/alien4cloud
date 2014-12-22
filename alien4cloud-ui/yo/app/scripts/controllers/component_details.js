@@ -272,7 +272,6 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
       minLength: 2
     };
 
-
     $scope.openArchiveModal = function(scriptReference) {
       var openOnFile = scriptReference ? scriptReference : null;
       $modal.open({
@@ -292,5 +291,27 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
         }
       });
     };
+
+    $scope.openSimpleModal = function (content) {
+      var modalInstance = $modal.open({
+        templateUrl: 'views/fragments/simple_modal.html',
+        controller: ModalInstanceCtrl,
+        resolve: {
+          description: function () {
+            return content;
+          }
+        }
+      });
+    };
+
+    var ModalInstanceCtrl = ['$scope', '$modalInstance', 'description', function ($scope, $modalInstance, description) {
+      $scope.title = 'MODAL.TITLE.PROPERTY';
+      $scope.content = description;
+
+      $scope.close = function () {
+        $modalInstance.dismiss('close');
+      };
+    }];
+
   }
 ]);

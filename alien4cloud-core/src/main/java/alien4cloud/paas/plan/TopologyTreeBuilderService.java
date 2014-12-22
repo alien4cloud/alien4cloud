@@ -19,6 +19,7 @@ import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.paas.IPaaSTemplate;
+import alien4cloud.paas.exception.InvalidTopologyException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
@@ -33,6 +34,7 @@ import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
 import alien4cloud.utils.TypeMap;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -100,43 +102,46 @@ public class TopologyTreeBuilderService {
             boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
             boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
 
-            // manage blockstorages
+            // manage block storage
             if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
-                manageBlockStorage(paaSNodeTemplate, nodeTemplates);
+                processBlockStorage(paaSNodeTemplate, nodeTemplates);
                 continue;
             }
 
             // manage network
             if (isCompute) {
-                manageNetwork(paaSNodeTemplate, nodeTemplates);
+                processNetwork(paaSNodeTemplate, nodeTemplates);
             }
 
-            PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
-            // TODO recheck the condition to declare a node as root
-            if (hostedOnRelationship == null) {
-                if (!isNetwork) {
+            // do nothing special for network nodes. We should manage them in the workflow later on.
+            if (!isNetwork) {
+                PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
+                if (hostedOnRelationship == null) {
                     roots.add(paaSNodeTemplate);
+                } else {
+                    String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
+                    PaaSNodeTemplate parent = nodeTemplates.get(target);
+                    parent.getChildren().add(paaSNodeTemplate);
+                    paaSNodeTemplate.setParent(parent);
+                    if (hostedOnRelationship.instanceOf(NormativeRelationshipConstants.SEQUENCE_HOSTED_ON)) {
+                        parent.setCreateChildrenSequence(true);
+                    }
                 }
-            } else {
-                String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
-                PaaSNodeTemplate parent = nodeTemplates.get(target);
-                parent.getChildren().add(paaSNodeTemplate);
-                paaSNodeTemplate.setParent(parent);
             }
 
-            // Add connects_to relationship
-            // The idea is to add the relationship into the target PaaSNodeTemplate
-            PaaSRelationshipTemplate connectsTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.CONNECTS_TO);
-            if (connectsTo != null) {
-                String target = connectsTo.getRelationshipTemplate().getTarget();
-                nodeTemplates.get(target).getRelationshipTemplates().add(connectsTo);
+            // Relationships are defined from sources to target. We have to make sure that target node also has the relationship injected.
+            List<PaaSRelationshipTemplate> allRelationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ROOT);
+            for (PaaSRelationshipTemplate relationship : allRelationships) {
+                // inject the relationship in it's target.
+                String target = relationship.getRelationshipTemplate().getTarget();
+                nodeTemplates.get(target).getRelationshipTemplates().add(relationship);
             }
         }
 
         return roots;
     }
 
-    private void manageNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
         if (networkRelationship != null) {
             String target = networkRelationship.getRelationshipTemplate().getTarget();
@@ -146,7 +151,7 @@ public class TopologyTreeBuilderService {
         }
     }
 
-    private void manageBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate attachTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ATTACH_TO);
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
@@ -156,13 +161,39 @@ public class TopologyTreeBuilderService {
         }
     }
 
+    /**
+     * Get a single relationship from a given type. Note that the relationship MUST be unique, if not we throw an exception as the workflow cannot be generated.
+     *
+     * @param paaSNodeTemplate The node for which to get relationship.
+     * @param type The type of relationship.
+     * @return The unique relationship that matches the given type.
+     */
     private PaaSRelationshipTemplate getPaaSRelationshipTemplateFromType(PaaSNodeTemplate paaSNodeTemplate, String type) {
-        for (PaaSRelationshipTemplate relationship : paaSNodeTemplate.getRelationshipTemplates()) {
-            if (relationship.instanceOf(type)) {
-                return relationship;
-            }
+        List<PaaSRelationshipTemplate> relationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, type);
+        if (relationships.size() == 1) {
+            return relationships.get(0);
+        }
+        if (relationships.size() > 1) {
+            throw new InvalidTopologyException("Relationship that extends <" + type + "> must be unique on a given node.");
         }
         return null;
+    }
+
+    /**
+     * Get all relationships from a given type (only if the node is the source of the relationship).
+     * 
+     * @param paaSNodeTemplate The node.
+     * @param type The type of relationships to get.
+     * @return The relationship template
+     */
+    private List<PaaSRelationshipTemplate> getPaaSRelationshipsTemplateFromType(PaaSNodeTemplate paaSNodeTemplate, String type) {
+        List<PaaSRelationshipTemplate> relationships = Lists.newArrayList();
+        for (PaaSRelationshipTemplate relationship : paaSNodeTemplate.getRelationshipTemplates()) {
+            if (relationship.instanceOf(type) && relationship.getSource().equals(paaSNodeTemplate.getId())) {
+                relationships.add(relationship);
+            }
+        }
+        return relationships;
     }
 
     @SuppressWarnings("unchecked")
@@ -181,4 +212,5 @@ public class TopologyTreeBuilderService {
         Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
         paaSTemplate.setCsarPath(csarPath);
     }
+
 }

@@ -6,6 +6,7 @@
       "_type" : "tosca",
       "_definition" : {
         "type" : "integer",
+        "definition":true,
         "description" : "Integer of the component",
         "constraints" : [ {
           "validValues" : [ "1", "2", "3", "4" ]
@@ -19,6 +20,7 @@
       "_type" : "tosca",
       "_definition" : {
         "type" : "version",
+        "definition":true,
         "description" : "Version of the component",
         "constraints" : [ {
           "greaterThan" : "1.6"
@@ -32,6 +34,7 @@
       "_type" : "tosca",
       "_definition" : {
         "type" : "string",
+        "definition":true,
         "description" : "String of the component",
         "constraints" : [ {
           "pattern" : "\\d+"
@@ -45,6 +48,7 @@
       "_type" : "tosca",
       "_definition" : {
         "type" : "float",
+        "definition":true,
         "description" : "All constraint of the component",
         "constraints" : [ {
           "equal" : "5"

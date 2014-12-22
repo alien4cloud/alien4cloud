@@ -7,7 +7,7 @@
       </a>
       <div class="media-body">
         <h4 class="media-heading">
-          <span tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ component.elementId | explodeandget:'.':2 }} </span>
+          <span tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ component.elementId | splitAndGet:'.':'last' }} </span>
           <img ng-if="component.abstract"
                class="icon_16"
                alt="abstract_ico_16"

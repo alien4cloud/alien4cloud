@@ -15,7 +15,7 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.mapping.Wd03ArchiveRoot;
+import alien4cloud.tosca.parser.mapping.generator.MappingGenerator;
 
 import com.google.common.collect.Maps;
 
@@ -24,30 +24,39 @@ import com.google.common.collect.Maps;
  */
 @Component
 public class ToscaParser extends YamlParser<ArchiveRoot> {
-    @Resource
-    public Wd03ArchiveRoot wd03ArchiveRoot;
+    private static final String DEFINITION_TYPE = "definition";
+    private Map<String, Map<String, INodeParser>> parserRegistriesByVersion = Maps.newHashMap();
 
-    private Map<String, INodeParser<ArchiveRoot>> nodeParserRegistry = Maps.newHashMap();
+    @Resource
+    private MappingGenerator mappingGenerator;
 
     @PostConstruct
-    public void initialize() {
-        nodeParserRegistry.put(Wd03ArchiveRoot.VERSION, wd03ArchiveRoot.getParser());
+    public void initialize() throws ParsingException {
+        // initialize type registry for working draft 3.
+        Map<String, INodeParser> registry = mappingGenerator.process("classpath:tosca-simple-profile-wd03-mapping.yml");
+        parserRegistriesByVersion.put("tosca_simple_yaml_1_0_0_wd03", registry);
     }
 
     @Override
-    protected INodeParser<ArchiveRoot> getParser(MappingNode rootNode, ParsingContextExecution context) throws ParsingException {
-        // try to find the tosca version
-        DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(rootNode.getValue(), context.getParsingErrors());
-        // call the parser for the given tosca version
-        INodeParser<ArchiveRoot> nodeParser = nodeParserRegistry.get(definitionVersionInfo.definitionVersion);
-
-        if (nodeParser == null) {
-            throw new ParsingException(context.getFileName(), new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION,
-                    "Definition version is not supported", definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(),
-                    "Version is not supported by Alien4Cloud", definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(),
-                    definitionVersionInfo.definitionVersion));
+    protected INodeParser<ArchiveRoot> getParser(Node rootNode, ParsingContextExecution context) throws ParsingException {
+        if (rootNode instanceof MappingNode) {
+            // try to find the tosca version
+            DefinitionVersionInfo definitionVersionInfo = getToscaDefinitionVersion(((MappingNode) rootNode).getValue(), context.getParsingErrors());
+            // call the parser for the given tosca version
+            Map<String, INodeParser> registry = parserRegistriesByVersion.get(definitionVersionInfo.definitionVersion);
+            if (registry == null) {
+                throw new ParsingException(context.getFileName(), new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOSCA_VERSION,
+                        "Definition version is not supported", definitionVersionInfo.definitionVersionTuple.getKeyNode().getStartMark(),
+                        "Version is not supported by Alien4Cloud", definitionVersionInfo.definitionVersionTuple.getValueNode().getStartMark(),
+                        definitionVersionInfo.definitionVersion));
+            }
+            context.setRegistry(registry);
+            return registry.get(DEFINITION_TYPE);
+        } else {
+            throw new ParsingException(null, new ParsingError(ErrorCode.SYNTAX_ERROR, "File is not a valid tosca definition file.", new Mark("root", 0, 0, 0,
+                    null, 0), "The provided yaml file doesn't follow the Top-level key definitions of a valid TOSCA Simple profile file.", new Mark("root", 0,
+                    0, 0, null, 0), "TOSCA Definitions"));
         }
-        return nodeParser;
     }
 
     private DefinitionVersionInfo getToscaDefinitionVersion(List<NodeTuple> topLevelNodes, List<ParsingError> parsingErrors) throws ParsingException {

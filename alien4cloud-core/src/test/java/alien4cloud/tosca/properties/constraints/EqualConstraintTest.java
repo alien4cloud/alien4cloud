@@ -23,6 +23,13 @@ public class EqualConstraintTest {
     }
 
     @Test(expected = ConstraintViolationException.class)
+    public void testEqualConstraintFailNullProperty() throws ConstraintViolationException {
+        EqualConstraint constraint = new EqualConstraint();
+        constraint.setEqual(null);
+        constraint.validate("value");
+    }
+
+    @Test(expected = ConstraintViolationException.class)
     public void testEqualConstraintFailNullDef() throws ConstraintViolationException {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual(null);

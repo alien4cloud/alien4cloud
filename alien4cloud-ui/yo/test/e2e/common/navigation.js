@@ -22,7 +22,8 @@ var navigationIds = {
     plan: 'am.applications.detail.plans',
     deployment: 'am.applications.detail.deployment',
     runtime: 'am.applications.detail.runtime',
-    users: 'am.applications.detail.users'
+    users: 'am.applications.detail.users',
+    environments: 'am.applications.detail.environments'
   },
   components: {
     components: 'cm.components.list',

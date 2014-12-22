@@ -5,12 +5,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -238,13 +233,32 @@ public final class ReflectionUtil {
     }
 
     /**
+     * Recursive getDeclaredField that allows looking for parent types fields.
+     * 
+     * @param fieldName The name of the field to get.
+     * @param clazz The class in which to search.
+     */
+    public static Field getDeclaredField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            return field;
+        } catch (NoSuchFieldException e) {
+            if (Object.class.equals(clazz.getSuperclass())) {
+                throw e;
+            }
+            return getDeclaredField(clazz.getSuperclass(), fieldName);
+        }
+    }
+
+    /**
      * Return true if the given class is a primitive type, a primitive wrapper or a String.
      * 
      * @param clazz The class to check.
      * @return True if the class is String, a primitive type or a primitive Wrapper type.
      */
     public static boolean isPrimitiveOrWrapperOrString(Class<?> clazz) {
-        return clazz.isPrimitive() || clazz.equals(String.class) || clazz.equals(Boolean.class) || clazz.equals(Integer.TYPE) || clazz.equals(Long.TYPE)
-                || clazz.equals(Float.TYPE) || clazz.equals(Double.TYPE) || clazz.equals(Character.TYPE) || clazz.equals(Byte.TYPE) || clazz.equals(Short.TYPE);
+        return clazz.isPrimitive() || clazz.equals(String.class) || clazz.equals(Boolean.class) || clazz.equals(Integer.class) || clazz.equals(Long.class)
+                || clazz.equals(Float.class) || clazz.equals(Double.class) || clazz.equals(Character.class) || clazz.equals(Byte.class)
+                || clazz.equals(Short.class);
     }
 }

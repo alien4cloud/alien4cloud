@@ -9,7 +9,7 @@
         <div class="col-md-10">
           <div id="compElementIdDetail">
             <h1>
-              <span>{{ component.elementId | explodeandget:'.':2 }} <small>({{component.elementId}})</small></span>
+              <span>{{ component.elementId | splitAndGet:'.':'last' }} <small>({{component.elementId}})</small></span>
               <img ng-if="component.abstract"
                   class="icon_24"
                   alt="abstract_ico"
@@ -139,7 +139,7 @@
                     {{capability.type}}
                   </td>
                   <td>
-                    <span class="cardinalities_show_component" tooltip="{{'COMPONENTS.CARDINALITIES_TOOLTIP' | translate}}" tooltip-append-to-body="true"><strong>
+                    <span class="cardinalities_show_component" tooltip="{{'COMPONENTS.CAPABILITIES.CARDINALITIES_TOOLTIP' | translate}}" tooltip-append-to-body="true"><strong>
                         {{'BOUNDS' | translate}}:
                         {{capability.upperBound | replaceAll:'unbounded':'&infin;' }}</strong>
                     </span>
@@ -173,6 +173,11 @@
                     <div ng-repeat="constraint in propDef.constraints">
                       <span ng-repeat="(name, value) in constraint"> {{name}} : {{value}} </span>
                     </div>
+                  </td>
+                  <td>
+                    <button ng-if="propDef.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openSimpleModal(propDef.description)" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}" tooltip-append-to-body="true">
+                      <i class="fa fa-question-circle"></i>
+                    </button>
                   </td>
                 </tr>
               </table>

@@ -10,11 +10,7 @@ import javax.validation.Valid;
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.DeploymentService;
@@ -93,16 +89,26 @@ public class DeploymentController {
                 if (sourceIds != null) {// can have no application deployed
                     switch (sourceType) {
                     case APPLICATION:
-                        sources = applicationService.findByIdsIfAuthorized(FetchContext.DEPLOYMENT, sourceIds);
+                        Map<String, ? extends IDeploymentSource> appSources = applicationService.findByIdsIfAuthorized(FetchContext.DEPLOYMENT, sourceIds);
+                        if (appSources != null) {
+                            sources = appSources;
+                        }
                         break;
                     case CSAR:
-                        sources = csarService.findByIds(FetchContext.DEPLOYMENT, sourceIds);
+                        Map<String, ? extends IDeploymentSource> csarSources = csarService.findByIds(FetchContext.DEPLOYMENT, sourceIds);
+                        if (csarSources != null) {
+                            sources = csarSources;
+                        }
                     }
                 }
             }
             for (Object object : deployments) {
                 Deployment deployment = (Deployment) object;
-                DeploymentDTO dto = new DeploymentDTO(deployment, sources.get(deployment.getSourceId()));
+                IDeploymentSource source = sources.get(deployment.getSourceId());
+                if(source == null) {
+                    source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
+                }
+                DeploymentDTO dto = new DeploymentDTO(deployment, source);
                 dtos.add(dto);
             }
         }
