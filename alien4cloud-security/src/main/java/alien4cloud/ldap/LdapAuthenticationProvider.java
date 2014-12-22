@@ -63,7 +63,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         if (ldapUserDao.authenticate(login, password)) {
-            return new UsernamePasswordAuthenticationToken(login, password, Lists.newArrayList(new SimpleGrantedAuthority(getRoles().toString())));
+            return new UsernamePasswordAuthenticationToken(login, password, Lists.newArrayList(new SimpleGrantedAuthority("")));
         } else {
             log.debug("Wrong password for user <" + login + ">");
             throw new BadCredentialsException("Incorrect password for user <" + login + ">");
