@@ -34,7 +34,12 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
 
         state(node.getId(), AVAILABLE);
 
-        // process child nodes.
-        parallel(node.getChildren());
+        // custom alien support of sequence hosted on.
+        if(node.isCreateChildrenSequence()) {
+            sequencial(node.getChildren());
+        } else {
+            // process child nodes.
+            parallel(node.getChildren());
+        }
     }
 }

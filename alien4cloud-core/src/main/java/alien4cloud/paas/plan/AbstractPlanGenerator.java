@@ -52,6 +52,17 @@ public abstract class AbstractPlanGenerator {
     protected abstract void generateNodeWorkflow(PaaSNodeTemplate node);
 
     /**
+     * process generation of the given nodes in sequence.
+     *
+     * @param nodes The nodes to generate.
+     */
+    protected void sequencial(List<PaaSNodeTemplate> nodes) {
+        for(PaaSNodeTemplate node : nodes) {
+            generateNodeWorkflow(node);
+        }
+    }
+
+    /**
      * process generation of the given nodes in parallel.
      *
      * @param nodes The nodes to generate.

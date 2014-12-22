@@ -123,6 +123,9 @@ public class TopologyTreeBuilderService {
                     PaaSNodeTemplate parent = nodeTemplates.get(target);
                     parent.getChildren().add(paaSNodeTemplate);
                     paaSNodeTemplate.setParent(parent);
+                    if (hostedOnRelationship.instanceOf(NormativeRelationshipConstants.SEQUENCE_HOSTED_ON)) {
+                        parent.setCreateChildrenSequence(true);
+                    }
                 }
             }
 
