@@ -21,7 +21,7 @@
     </dependency>
   </dependencies>
 
-  <version xmlns="">1.0.0-SM18-SNAPSHOT</version><profiles>
+  <profiles>
     <profile>
       <id>do-test</id>
       <activation>
