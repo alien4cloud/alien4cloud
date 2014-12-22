@@ -2,6 +2,7 @@ package alien4cloud.paas.plan;
 
 import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.*;
 import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.*;
+
 import alien4cloud.paas.model.PaaSNodeTemplate;
 
 /**
@@ -28,6 +29,8 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         state(node.getId(), STARTED);
 
         waitSource(node, CONNECTS_TO, STARTED);
+        // in case the relationships is a dependency on myself the only status i will wait is STARTED before I call the add target and add source
+        waitMyself(node, DEPENDS_ON, STARTED);
 
         // synchronous add source / target implementation.
         callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_TARGET, ADD_SOURCE);
@@ -35,7 +38,7 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         state(node.getId(), AVAILABLE);
 
         // custom alien support of sequence hosted on.
-        if(node.isCreateChildrenSequence()) {
+        if (node.isCreateChildrenSequence()) {
             sequencial(node.getChildren());
         } else {
             // process child nodes.

@@ -120,14 +120,25 @@ public abstract class AbstractPlanGenerator {
     }
 
     /**
-     * Wait for all target nodes of relationships to reach the expected state.
+     * Wait for all target nodes of relationships (except if target and source are the same node) to reach the expected state.
      *
      * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
      * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
      * @param states The states to reach.
      */
     protected void waitTarget(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
-        wait(nodeTemplate, relationshipType, true, states);
+        wait(nodeTemplate, relationshipType, true, false, states);
+    }
+
+    /**
+     * Wait for all target nodes of relationships (only if target and source are the same node) to reach the expected state.
+     *
+     * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
+     * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
+     * @param states The states to reach.
+     */
+    protected void waitMyself(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
+        wait(nodeTemplate, relationshipType, true, true, states);
     }
 
     /**
@@ -138,19 +149,26 @@ public abstract class AbstractPlanGenerator {
      * @param states The states to reach.
      */
     protected void waitSource(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
-        wait(nodeTemplate, relationshipType, false, states);
+        wait(nodeTemplate, relationshipType, false, false, states);
     }
 
-    private void wait(PaaSNodeTemplate nodeTemplate, String relationshipType, boolean waitTarget, String... states) {
+    private void wait(PaaSNodeTemplate nodeTemplate, String relationshipType, boolean waitTarget, boolean myselfOnly, String... states) {
         Set<String> nodeDependencies = Sets.newHashSet();
         // for all relationships (processed in order)
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
             boolean isCandidate = waitTarget ? relationshipTemplate.getSource().equals(nodeTemplate.getId()) : relationshipTemplate.getRelationshipTemplate()
                     .getTarget().equals(nodeTemplate.getId());
             String dependencyTarget = waitTarget ? relationshipTemplate.getRelationshipTemplate().getTarget() : relationshipTemplate.getSource();
+            boolean waitMySelf = dependencyTarget.equals(nodeTemplate.getId());
+            if(waitMySelf && !myselfOnly) {
+                isCandidate = false;
+            }
+            if(myselfOnly && !waitMySelf) {
+                isCandidate = false;
+            }
 
             // if the sate is already reached by synchronous implementation we don't have to generate it here.
-            if (relationshipTemplate.instanceOf(relationshipType) && isCandidate && !isStateSyncPrevious(dependencyTarget, states)) {
+            if (isCandidate && relationshipTemplate.instanceOf(relationshipType) && !isStateSyncPrevious(dependencyTarget, states)) {
                 nodeDependencies.add(dependencyTarget);
             }
         }
