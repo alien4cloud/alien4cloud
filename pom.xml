@@ -53,7 +53,7 @@
 
     <!-- Spring (DI / Rest / Security) -->
     <spring-boot.version>1.1.6.RELEASE</spring-boot.version>
-    <spring.version>4.0.5.RELEASE</spring.version>
+    <spring.version>4.0.7.RELEASE</spring.version>
     <spring.security.version>3.2.3.RELEASE</spring.security.version>
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
 
@@ -558,7 +558,7 @@
         </property>
       </activation>
       <properties>
-        <maven.test.skip>true</maven.test.skip>
+        <skipTests>true</skipTests>
       </properties>
     </profile>
     <profile>
