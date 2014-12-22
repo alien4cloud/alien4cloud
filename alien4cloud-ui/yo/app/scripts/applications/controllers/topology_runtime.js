@@ -179,7 +179,8 @@ angular.module('alienUiApp').controller(
 
       var refreshInstancesStatuses = function() {
         applicationServices.runtime.get({
-          applicationId: $scope.application.id
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) {
           if (!angular.equals($scope.topology.instances, successResult.data)) {
             getPAASEvents();
@@ -353,10 +354,11 @@ angular.module('alienUiApp').controller(
           });
         }
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
-          applicationServices.scale.scale({
+          applicationServices.scale({
             applicationId: $scope.application.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
-            instances: (newValue - $scope.selectedNodeTemplate.instancesCount)
+            instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
+            applicationEnvironmentId: $scope.selectedEnvironment.id
           }, undefined);
         }
       };
@@ -446,7 +448,7 @@ angular.module('alienUiApp').controller(
         // reset parameter inputs ?
         injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterface);
       };
-      
+
       // check if compute type
       $scope.isComputeType =  function (nodeTemplate){
         if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
@@ -455,6 +457,6 @@ angular.module('alienUiApp').controller(
         var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
         return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
       };
-      
+
     }
   ]);

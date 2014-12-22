@@ -242,7 +242,7 @@ public class ApplicationsDeploymentStepDefinitions {
             checkDeploymentPropertyRequest.setDeploymentPropertyName(deploymentPropertyName);
             checkDeploymentPropertyRequest.setDeploymentPropertyValue(deploymentPropertyValue);
             Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/applications/checkDeploymentProperty", JsonUtil.toString(checkDeploymentPropertyRequest)));
+                    Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property", JsonUtil.toString(checkDeploymentPropertyRequest)));
             finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         // register deployment application properties to use it

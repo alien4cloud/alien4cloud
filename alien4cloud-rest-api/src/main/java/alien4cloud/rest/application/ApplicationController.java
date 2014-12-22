@@ -256,7 +256,7 @@ public class ApplicationController {
     }
 
     @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })
-    @RequestMapping(value = "/checkDeploymentProperty", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/check-deployment-property", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> checkPluginDeploymentProperties(
             @RequestBody CloudDeploymentPropertyValidationRequest deploymentPropertyValidationRequest) {
         Map<String, PropertyDefinition> deploymentPropertyDefinitions = cloudService.getDeploymentPropertyDefinitions(deploymentPropertyValidationRequest

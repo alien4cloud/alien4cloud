@@ -105,7 +105,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
       //   updateApplicationStatuses(applisationListResult);
       // });
     };
-
+    $scope.search();
 
     // Delete the app environment
     $scope.delete = function deleteAppEnvironment(appEnvId) {
