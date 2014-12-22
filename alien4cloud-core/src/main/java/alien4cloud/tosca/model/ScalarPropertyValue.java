@@ -1,6 +1,11 @@
 package alien4cloud.tosca.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import alien4cloud.ui.form.annotation.FormProperties;
 
 /**
  * Represents a simple scalar property value.
@@ -10,6 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@FormProperties({ "value" })
 public class ScalarPropertyValue extends AbstractPropertyValue {
     private String value;
 }
