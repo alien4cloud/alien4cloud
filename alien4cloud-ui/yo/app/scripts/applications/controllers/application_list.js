@@ -52,40 +52,18 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
 
-    var applicationResource = $resource('rest/applications', {}, {
-      'create': {
-        method: 'POST',
-        isArray: false,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
     $scope.openNewApp = function() {
       var modalInstance = $modal.open({
         templateUrl: 'newApplication.html',
         controller: NewApplicationCtrl
       });
-
       modalInstance.result.then(function(application) {
         // create a new application from the given name and description.
-        applicationResource.create([], angular.toJson(application), function(successResponse) {
+        applicationServices.create([], angular.toJson(application), function(successResponse) {
           $scope.openApplication(successResponse.data);
         });
       });
     };
-
-    // API REST Definition
-    var searchResource = $resource('rest/applications/search', {}, {
-      'search': {
-        method: 'POST',
-        isArray: false,
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
 
     // Update applications statuses
     var getApplicationStatuses = function(applications) {
@@ -112,14 +90,13 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return applicationSearchResult;
     };
 
-
     $scope.search = function() {
       var searchRequestObject = {
         'query': $scope.query,
         'from': 0,
         'size': 50
       };
-      var searchResult = searchResource.search([], angular.toJson(searchRequestObject));
+      var searchResult = applicationServices.search([], angular.toJson(searchRequestObject));
 
       // when apps search result is ready, update apps statuses
       searchResult.$promise.then(function(applisationListResult) {
@@ -130,7 +107,9 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
     $scope.search();
 
     $scope.openApplication = function(applicationId) {
-      $state.go('applications.detail.info', { id: applicationId });
+      $state.go('applications.detail.info', {
+        id: applicationId
+      });
     };
 
     $scope.removeApplication = function(applicationId) {

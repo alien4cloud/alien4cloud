@@ -80,19 +80,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             }).$promise;
           }
         ],
-        topologyId: ['$http', '$stateParams',
-          function($http, $stateParams) {
-            // TODO : change this to adapt to selected enviroment
-            return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ],
-        applicationEventServices: ['applicationEventServicesFactory', '$stateParams',
-          function(applicationEventServicesFactory, $stateParams) {
-            return applicationEventServicesFactory($stateParams.id);
-          }
-        ],
         environments: ['$http', 'application', 'applicationEnvironmentServices',
           function($http, application, applicationEnvironmentServices) {
             var searchRequestObject = {
@@ -102,8 +89,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             };
             return applicationEnvironmentServices.searchEnvironment({
               applicationId: application.data.id
-            }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
-              // Result search
+            }, angular.toJson(searchRequestObject)).$promise;
+          }
+        ],
+        applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'environments',
+          function(applicationEventServicesFactory, $stateParams, environments) {
+            // this supposes you have at least one environment
+            return applicationEventServicesFactory($stateParams.id, environments.data.data[0].id);
+          }
+        ],
+        topologyId: ['$http', '$stateParams',
+          function($http, $stateParams) {
+            // TODO : change this to adapt to selected enviroment
+            return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
               return result.data.data;
             });
           }

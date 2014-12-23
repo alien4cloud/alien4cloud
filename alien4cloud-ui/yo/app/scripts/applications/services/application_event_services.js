@@ -1,18 +1,19 @@
 'use strict';
 
-angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices', '$scope',
-  function(deploymentEventServicesFactory, applicationServices, $scope) {
+angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices',
+  function(deploymentEventServicesFactory, applicationServices) {
 
-    return function(applicationId) {
+    return function(applicationId, selectedEnvironmentId) {
 
       var deploymentEventServices = null;
       var applicationEventServices = {};
       var subscribeQueue = [];
 
-      applicationEventServices.refreshApplicationStatus = function(onSuccess) {
+      applicationEventServices.refreshApplicationStatus = function(environmentId, onSuccess) {
+        environmentId = environmentId || selectedEnvironmentId;
         applicationServices.deployment.status({
           applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
+          applicationEnvironmentId: environmentId
         }, function(successResult) {
           if (UTILS.isDefinedAndNotNull(onSuccess)) {
             onSuccess(successResult.data);
@@ -27,7 +28,7 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       applicationEventServices.doStart = function(existingListeners) {
         applicationServices.getActiveDeployment.get({
           applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
+          applicationEnvironmentId: selectedEnvironmentId
         }, undefined, function(success) {
           if (UTILS.isDefinedAndNotNull(success.data)) {
             deploymentEventServices = deploymentEventServicesFactory(success.data.id, existingListeners);

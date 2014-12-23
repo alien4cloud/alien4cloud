@@ -22,15 +22,13 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     console.log('-----------------------------');
 
     // default get all environments
-    environments.$promise.then(function loadEnvironments(result) {
-      $scope.envs = result.data.data;
-      $scope.selectedEnvironment = result.data.data[0];
-      console.log('---- Environment page loading');
-      console.log('Environment                  : ', $scope.selectedEnvironment);
-      console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER'));
-      console.log('Environment page IS USER     : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER'));
-      console.log('-----------------------------');
-    });
+    $scope.envs = environments.data.data;
+    $scope.selectedEnvironment = $scope.envs[0];
+    console.log('---- Environment page loading');
+    console.log('Environment                  : ', $scope.selectedEnvironment);
+    console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER'));
+    console.log('Environment page IS USER     : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER'));
+    console.log('-----------------------------');
 
     // update environments main list when add / remove an evironment
     $rootScope.$on('UPDATE_ENVIRONMENTS', function(event, updatedEnvs) {
@@ -42,8 +40,12 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.changeEnvironment = function(switchToEnvironment) {
       var currentEnvironment = $scope.selectedEnvironment;
       var newEnvironment = switchToEnvironment;
+
       if (currentEnvironment.id != newEnvironment.id) {
         $scope.selectedEnvironment = switchToEnvironment;
+        refreshAppStatus();
+        // run update deployment status on deployment controller
+        $rootScope.$emit('REFRESH_DEPLOYMENT_STATUS');
       }
     };
 
@@ -61,15 +63,18 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
     };
 
-    applicationEventServices.refreshApplicationStatus(function(newStatus) {
-      applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
-        $scope.deploymentStatus = event.deploymentStatus;
+    var refreshAppStatus = function refreshAppStatus() {
+      applicationEventServices.refreshApplicationStatus($scope.selectedEnvironment.id, function(newStatus) {
+        applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
+          $scope.deploymentStatus = event.deploymentStatus;
+          setRuntimeDisabled();
+          $scope.$apply();
+        });
+        $scope.deploymentStatus = newStatus;
         setRuntimeDisabled();
-        $scope.$apply();
       });
-      $scope.deploymentStatus = newStatus;
-      setRuntimeDisabled();
-    });
+    }
+    refreshAppStatus();
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {

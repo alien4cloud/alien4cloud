@@ -55,6 +55,26 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
     //
     // APPLICATION API
     //
+    var applicationCreate = $resource('rest/applications', {}, {
+      'create': {
+        method: 'POST',
+        isArray: false,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var applicationSearch = $resource('rest/applications/search', {}, {
+      'search': {
+        method: 'POST',
+        isArray: false,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var applicationDAO = $resource('rest/applications/:applicationId', {}, {
       'get': {
         method: 'GET'
@@ -95,7 +115,7 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
     });
 
     // Cloud resource for the deployment
-    var cloudResourcesDAO = $resource('rest/applications/:applicationId/:applicationEnvironmentId/cloud-resources', {}, {});
+    var cloudResourcesDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/cloud-resources', {}, {});
 
     // Handle roles on application
     var manageAppUserRoles = $resource('rest/applications/:applicationId/userRoles/:username/:role', {}, {
@@ -165,7 +185,9 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
       'checkProperty': deploymentProperty.check,
       'matchResources': cloudResourcesDAO.get,
       'getDeploymentSetup': applicationDeploymentSetupDAO.get,
-      'updateDeploymentSetup': applicationDeploymentSetupDAO.update
+      'updateDeploymentSetup': applicationDeploymentSetupDAO.update,
+      'create': applicationCreate.create,
+      'search': applicationSearch.search
     };
   }
 ]);

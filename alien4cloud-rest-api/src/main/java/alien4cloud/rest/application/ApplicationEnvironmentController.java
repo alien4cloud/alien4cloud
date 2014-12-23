@@ -159,7 +159,9 @@ public class ApplicationEnvironmentController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application environment", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> update(@PathVariable String applicationEnvironmentId, @RequestBody UpdateApplicationEnvironmentRequest request) {
+    public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+            @RequestBody UpdateApplicationEnvironmentRequest request) {
+        applicationService.checkAndGetApplication(applicationId);
         // check application env id
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
@@ -204,7 +206,21 @@ public class ApplicationEnvironmentController {
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
-        boolean deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
+        int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
+        boolean deleted = false;
+        if (countEnvironment > 1) {
+            deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
+        } else {
+            // delete the last environment is forbidden
+            return RestResponseBuilder
+                    .<Boolean> builder()
+                    .data(null)
+                    .error(RestErrorBuilder
+                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                            .message(
+                                    "Application environment with id <" + applicationEnvironmentId
+                                            + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.").build()).build();
+        }
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
 

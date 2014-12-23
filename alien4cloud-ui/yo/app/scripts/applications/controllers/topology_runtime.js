@@ -118,20 +118,20 @@ angular.module('alienUiApp').controller(
           case 'paasinstancestatemonitorevent':
             if (UTILS.isDefinedAndNotNull(event.instanceState)) {
               event.message = {
-                  template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
-                  data: {
-                    state: event.instanceState,
-                    nodeId: event.nodeTemplateId,
-                    instanceId: event.instanceId
-                  }
+                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
+                data: {
+                  state: event.instanceState,
+                  nodeId: event.nodeTemplateId,
+                  instanceId: event.instanceId
+                }
               };
             } else {
               event.message = {
-                  template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_DELETED_MESSAGE',
-                  data: {
-                    nodeId: event.nodeTemplateId,
-                    instanceId: event.instanceId
-                  }
+                template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_DELETED_MESSAGE',
+                data: {
+                  nodeId: event.nodeTemplateId,
+                  instanceId: event.instanceId
+                }
               };
             }
             break;
@@ -450,8 +450,8 @@ angular.module('alienUiApp').controller(
       };
 
       // check if compute type
-      $scope.isComputeType =  function (nodeTemplate){
-        if(UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)){
+      $scope.isComputeType = function(nodeTemplate) {
+        if (UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)) {
           return false;
         }
         var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
