@@ -23,11 +23,13 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.servlet.AbstractInstrumentedFilter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link Filter} implementation which captures request information and a breakdown of the response
  * codes being returned.
  */
+@Slf4j
 public class MetricsFilter implements Filter {
     private static final String NAME_PREFIX = "responseCodes.";
     private static final int OK = 200;
@@ -60,6 +62,7 @@ public class MetricsFilter implements Filter {
         this.otherMeter = metricsRegistry.meter(name(AbstractInstrumentedFilter.class, otherMetricName));
         this.activeRequests = metricsRegistry.counter(name(AbstractInstrumentedFilter.class, "activeRequests"));
         this.requestTimer = metricsRegistry.timer(name(AbstractInstrumentedFilter.class, "requests"));
+        log.info("Metrics filter initialized.");
     }
 
     private static Map<Integer, String> createMeterNamesByStatusCode() {
