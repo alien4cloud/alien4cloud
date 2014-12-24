@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,6 +47,7 @@ import alien4cloud.tosca.model.Interface;
 import alien4cloud.tosca.model.Operation;
 import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -102,6 +104,9 @@ public class RuntimeController {
         } catch (ConstraintRequiredParameterException e) {
             return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
                     .error(new RestError(RestErrorCode.PROPERTY_REQUIRED_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+        } catch (ConstraintFunctionalException e) {
+            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build();
         }
 
         // try to trigger the execution of the operation
@@ -145,8 +150,7 @@ public class RuntimeController {
                 .data(topologyService.buildTopologyDTO(deploymentService.getRuntimeTopology(version.getTopologyId(), cloudId))).build();
     }
 
-    private void validateCommand(OperationExecRequest operationRequest) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException,
-            ConstraintRequiredParameterException {
+    private void validateCommand(OperationExecRequest operationRequest) throws ConstraintFunctionalException {
 
         // get if exisits the runtime version of the topology
         Topology topology = deploymentService.getRuntimeTopology(operationRequest.getTopologyId(), operationRequest.getCloudId());
@@ -163,31 +167,32 @@ public class RuntimeController {
         }
 
         Interface interfass = interfaces.get(operationRequest.getInterfaceName());
-        validateOperation(interfass, operationRequest);
 
-        // validate parameters (value/type and required value)
+        validateOperation(interfass, operationRequest);
+    }
+
+    private void validateParameters(Interface interfass, OperationExecRequest operationRequest) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException, ConstraintRequiredParameterException {
         ArrayList<String> missingParams = Lists.newArrayList();
 
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
-        IOperationParameter currentOperationParameter = null;
 
         if (operation.getInputParameters() != null) {
             for (Entry<String, IOperationParameter> inputParameter : operation.getInputParameters().entrySet()) {
-                String inputParamKey = inputParameter.getKey();
-                String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(inputParamKey);
-                if (requestInputParameter != null) {
-                    currentOperationParameter = inputParameter.getValue();
-                    if (currentOperationParameter instanceof PropertyDefinition) {
-                        PropertyDefinition operationParamPropertyDefinition = (PropertyDefinition) currentOperationParameter;
-                        if (operationParamPropertyDefinition.isRequired() && requestInputParameter.isEmpty()) {
-                            missingParams.add(inputParamKey);
-                        }
+                if (inputParameter.getValue().isDefinition()) {
+                    String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(
+                            inputParameter.getKey());
+                    PropertyDefinition currentOperationParameter = (PropertyDefinition) inputParameter.getValue();
+                    if (StringUtils.isNotBlank(requestInputParameter)) {
                         // recover the good property definition for the current parameter
-                        constraintPropertyService.checkPropertyConstraint(inputParamKey, requestInputParameter, operationParamPropertyDefinition);
+                        constraintPropertyService.checkPropertyConstraint(inputParameter.getKey(), requestInputParameter, currentOperationParameter);
+                    } else if (currentOperationParameter.isRequired()) {
+                        // input param not in the request, id required this is a missing parameter...
+                        missingParams.add(inputParameter.getKey());
+                    } else {
+                        // set the value to null
+                        operation.getInputParameters().put(inputParameter.getKey(), null);
                     }
-                } else if (inputParameter.getValue() instanceof PropertyDefinition && ((PropertyDefinition) inputParameter.getValue()).isRequired()) {
-                    // input param not in the request, id required this is a missing parameter...
-                    missingParams.add(inputParamKey);
                 }
             }
         }
@@ -200,11 +205,14 @@ public class RuntimeController {
         }
     }
 
-    private void validateOperation(Interface interfass, OperationExecRequest operationRequest) {
+    private void validateOperation(Interface interfass, OperationExecRequest operationRequest) throws ConstraintFunctionalException {
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
         if (operation == null) {
             throw new NotFoundException("Operation [" + operationRequest.getOperationName() + "] is not defined in the interface ["
                     + operationRequest.getInterfaceName() + "] of the node [" + operationRequest.getNodeTemplateName() + "]");
         }
+
+        // validate parameters (value/type and required value)
+        validateParameters(interfass, operationRequest);
     }
 }

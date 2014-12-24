@@ -17,7 +17,6 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         state(node.getId(), CREATED);
 
         waitTarget(node, DEPENDS_ON, STARTED);
-        waitSource(node, DEPENDS_ON, CREATED);
 
         callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, PRE_CONFIGURE_SOURCE, PRE_CONFIGURE_TARGET);
 
@@ -29,15 +28,21 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         call(node, STANDARD, START);
         state(node.getId(), STARTED);
 
-        waitTarget(node, DEPENDS_ON, AVAILABLE);
+        waitSource(node, CONNECTS_TO, STARTED);
+        // in case the relationships is a dependency on myself the only status i will wait is STARTED before I call the add target and add source
+        waitMyself(node, DEPENDS_ON, STARTED);
 
         // synchronous add source / target implementation.
-        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
+        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_TARGET, ADD_SOURCE);
 
-        call(node, STANDARD, POST_START);
         state(node.getId(), AVAILABLE);
 
-        // process child nodes.
-        parallel(node.getChildren());
+        // custom alien support of sequence hosted on.
+        if (node.isCreateChildrenSequence()) {
+            sequencial(node.getChildren());
+        } else {
+            // process child nodes.
+            parallel(node.getChildren());
+        }
     }
 }

@@ -23,16 +23,18 @@ import com.google.common.collect.Maps;
 @Getter
 public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodeParser<T> {
     private final Class<T> type;
-    private final Map<String, MappingTarget> yamlToObjectMapping = Maps.newHashMap();
-    private final Map<Integer, MappingTarget> yamlOrderedToObjectMapping = Maps.newHashMap();
+    private final Map<String, MappingTarget> yamlToObjectMapping;
+    private final Map<Integer, MappingTarget> yamlOrderedToObjectMapping;
 
     public TypeNodeParser(Class<T> type, String toscaType) {
         super(toscaType);
         this.type = type;
+        yamlToObjectMapping = Maps.newHashMap();
+        yamlOrderedToObjectMapping = Maps.newHashMap();
     }
 
     @Override
-    public boolean isDeferred() {
+    public boolean isDeferred(ParsingContextExecution context) {
         return false;
     }
 
@@ -106,7 +108,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
     }
 
     private void mapTuple(BeanWrapper instance, NodeTuple nodeTuple, int nodeTupleIndex, ParsingContextExecution context) {
-        String key = ParserUtils.getScalar(nodeTuple.getKeyNode(), context.getParsingErrors());
+        String key = ParserUtils.getScalar(nodeTuple.getKeyNode(), context);
         if (key == null) {
             return;
         }
@@ -125,8 +127,8 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
-            if (target.getParser().isDeferred()) {
-                context.getDefferedParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
+            if (target.getParser().isDeferred(context)) {
+                context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
             } else {
                 parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }

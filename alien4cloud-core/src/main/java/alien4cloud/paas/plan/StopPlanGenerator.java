@@ -1,8 +1,8 @@
 package alien4cloud.paas.plan;
 
 import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.*;
-import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.*;
-
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.REMOVE_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.REMOVE_TARGET;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 
 /**

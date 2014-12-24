@@ -19,8 +19,9 @@ public interface INodeParser<T> {
 
     /**
      * If true the parser will be executed after all other parsers have been completed.
-     * 
+     *
+     * @param context The parsing context that contains the root object as well as errors and deferred parsers to be executed after the primary parsing is done.
      * @return True if deferred, false if not.
      */
-    boolean isDeferred();
+    boolean isDeferred(ParsingContextExecution context);
 }

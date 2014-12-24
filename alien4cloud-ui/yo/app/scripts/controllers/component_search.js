@@ -25,7 +25,7 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
     } else {
       return value;
     }
-  }
+  };
 
   /**
    * Use to send the correct request to ES
@@ -45,7 +45,9 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
 
   //update paginations vars
   function updatePagination() {
-    $scope.pagination.totalItems = $scope.searchResult.data.totalResults;
+    if(UTILS.isDefinedAndNotNull($scope.searchResult.data)) {
+      $scope.pagination.totalItems = $scope.searchResult.data.totalResults;
+    }
   }
 
   function resetPagination() {

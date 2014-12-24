@@ -245,31 +245,36 @@ angular.module('alienUiApp').controller(
           var propteryDefinitionModel = {};
           var inputParameter = {};
           Object.keys(interfaces.operations).forEach(function(operation) {
-            if (interfaces.operations[operation]['inputParameters'] !== null) {
-              Object.keys(interfaces.operations[operation]['inputParameters']).forEach(function(inputParam) {
-                inputParameter = interfaces.operations[operation]['inputParameters'][inputParam];
-                propteryDefinitionModel = {};
-                propteryDefinitionModel.type = inputParameter.type;
-                propteryDefinitionModel.required = inputParameter.required;
-                propteryDefinitionModel.name = inputParam;
-                propteryDefinitionModel.default = inputParameter.paramValue || ''; // needed for the directive
-                propteryDefinitionModel.password = false;
-                propteryDefinitionModel.constraints = null;
-                propteryDefinitionModel.from = operation;
-                if (inputParameter.type == 'boolean') {
-                  inputParameter.paramValue = false;
+            if (UTILS.isDefinedAndNotNull(interfaces.operations[operation]['inputParameters'])) {
+              Object.keys(interfaces.operations[operation]['inputParameters']).forEach(function(paramName) {
+                inputParameter = interfaces.operations[operation]['inputParameters'][paramName];
+                if(inputParameter.definition){
+                  propteryDefinitionModel = {};
+                  propteryDefinitionModel.type = inputParameter.type;
+                  propteryDefinitionModel.required = inputParameter.required;
+                  propteryDefinitionModel.name = paramName;
+                  propteryDefinitionModel.default = inputParameter.paramValue || ''; // needed for the directive
+                  propteryDefinitionModel.password = false;
+                  propteryDefinitionModel.constraints = null;
+                  propteryDefinitionModel.from = operation;
+                  if (inputParameter.type == 'boolean') {
+                    inputParameter.paramValue = false;
+                  }
+                  if (inputParameter.type == 'timestamp') {
+                    inputParameter.paramValue = Date.now();
+                  }
+                  inputParameter.definitionModel = propteryDefinitionModel;
+                }else{
+                  //we don't want function type params in the ui
+                 delete interfaces.operations[operation]['inputParameters'][paramName];
                 }
-                if (inputParameter.type == 'timestamp') {
-                  inputParameter.paramValue = Date.now();
-                }
-                inputParameter.definition = propteryDefinitionModel;
               });
             }
           });
 
         }
 
-      }
+      };
 
       $scope.checkProperty = function(definition, value, operation) {
 
@@ -368,8 +373,10 @@ angular.module('alienUiApp').controller(
       /** EXECUTE OPERATIONS */
       $scope.isMapNotNullOrEmpty = UTILS.isMapNotNullOrEmpty;
 
-      $scope.executeOperation = function(operationName, params) {
-
+      $scope.executeOperation = function(operationName, params, event) {
+        if(event) {
+          event.stopPropagation();
+        }
         var instanceId = $scope.selectedInstance ? $scope.selectedInstance.id : null;
 
         // prepare parameters and operationParamDefinitions
@@ -377,10 +384,9 @@ angular.module('alienUiApp').controller(
         var preparedPramsDef = {};
         if (params != null) {
           Object.keys(params).forEach(function(param) {
-            preparedParams[params[param].definition.name] = params[param].paramValue;
+            preparedParams[params[param].definitionModel.name] = params[param].paramValue;
           });
         }
-
         // generate the request object
         var operationExecRequest = {
           topologyId: $scope.topologyId,

@@ -26,6 +26,8 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     private Path csarPath;
     /** The node tempalte that actually is the parent from the current node. */
     private PaaSNodeTemplate parent;
+    /** flag to know if children must be processed in sequence or in parallel. */
+    private boolean createChildrenSequence = false;
     /** List of node templates that are hosted on this node template. */
     private List<PaaSNodeTemplate> children = Lists.newArrayList();
 

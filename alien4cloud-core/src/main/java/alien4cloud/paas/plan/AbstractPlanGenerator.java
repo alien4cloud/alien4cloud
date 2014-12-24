@@ -26,7 +26,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Generate a plan for a nodes hierarchy.
-     * 
+     *
      * @return The start workflow step.
      */
     public StartEvent generate(List<PaaSNodeTemplate> roots) {
@@ -38,7 +38,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Generate a plan for a single node hierarchy.
-     * 
+     *
      * @param node The node for which to generate the plan.
      * @return The start workflow step.
      */
@@ -52,8 +52,19 @@ public abstract class AbstractPlanGenerator {
     protected abstract void generateNodeWorkflow(PaaSNodeTemplate node);
 
     /**
+     * process generation of the given nodes in sequence.
+     *
+     * @param nodes The nodes to generate.
+     */
+    protected void sequencial(List<PaaSNodeTemplate> nodes) {
+        for(PaaSNodeTemplate node : nodes) {
+            generateNodeWorkflow(node);
+        }
+    }
+
+    /**
      * process generation of the given nodes in parallel.
-     * 
+     *
      * @param nodes The nodes to generate.
      */
     protected void parallel(List<PaaSNodeTemplate> nodes) {
@@ -76,7 +87,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Change the state of a node.
-     * 
+     *
      * @param id Id of the template for which to change the state.
      * @param state The new state for the node template.
      */
@@ -86,7 +97,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call an operation on a node.
-     * 
+     *
      * @param nodeTemplate The node template on which to execute the operation.
      * @param interfaceName The interface name.
      * @param operationName The operation name.
@@ -98,7 +109,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call an operation on a relationship.
-     * 
+     *
      * @param relationshipTemplate The relationship template on which to execute the operation.
      * @param interfaceName The interface name.
      * @param operation The operation name.
@@ -109,38 +120,56 @@ public abstract class AbstractPlanGenerator {
     }
 
     /**
-     * Wait for all target nodes of relationships to reach the expected state.
-     * 
+     * Wait for all target nodes of relationships (except if target and source are the same node) to reach the expected state.
+     *
      * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
      * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
      * @param states The states to reach.
      */
     protected void waitTarget(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
-        wait(nodeTemplate, relationshipType, true, states);
+        wait(nodeTemplate, relationshipType, true, false, states);
+    }
+
+    /**
+     * Wait for all target nodes of relationships (only if target and source are the same node) to reach the expected state.
+     *
+     * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
+     * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
+     * @param states The states to reach.
+     */
+    protected void waitMyself(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
+        wait(nodeTemplate, relationshipType, true, true, states);
     }
 
     /**
      * Wait for all source nodes of relationships to reach the expected state.
-     * 
+     *
      * @param nodeTemplate The node that should wait for it's relationships source to reach the given state.
      * @param relationshipType The type that relationship must derive from (or be) in order for the wait to be applied.
      * @param states The states to reach.
      */
     protected void waitSource(PaaSNodeTemplate nodeTemplate, String relationshipType, String... states) {
-        wait(nodeTemplate, relationshipType, false, states);
+        wait(nodeTemplate, relationshipType, false, false, states);
     }
 
-    private void wait(PaaSNodeTemplate nodeTemplate, String relationshipType, boolean waitTarget, String... states) {
+    private void wait(PaaSNodeTemplate nodeTemplate, String relationshipType, boolean waitTarget, boolean myselfOnly, String... states) {
         Set<String> nodeDependencies = Sets.newHashSet();
         // for all relationships (processed in order)
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
             boolean isCandidate = waitTarget ? relationshipTemplate.getSource().equals(nodeTemplate.getId()) : relationshipTemplate.getRelationshipTemplate()
                     .getTarget().equals(nodeTemplate.getId());
+            String dependencyTarget = waitTarget ? relationshipTemplate.getRelationshipTemplate().getTarget() : relationshipTemplate.getSource();
+            boolean waitMySelf = dependencyTarget.equals(nodeTemplate.getId());
+            if(waitMySelf && !myselfOnly) {
+                isCandidate = false;
+            }
+            if(myselfOnly && !waitMySelf) {
+                isCandidate = false;
+            }
 
             // if the sate is already reached by synchronous implementation we don't have to generate it here.
-            if (relationshipTemplate.instanceOf(relationshipType) && isCandidate
-                    && !isStateSyncPrevious(relationshipTemplate.getRelationshipTemplate().getTarget(), states)) {
-                nodeDependencies.add(relationshipTemplate.getRelationshipTemplate().getTarget());
+            if (isCandidate && relationshipTemplate.instanceOf(relationshipType) && !isStateSyncPrevious(dependencyTarget, states)) {
+                nodeDependencies.add(dependencyTarget);
             }
         }
 
@@ -174,7 +203,7 @@ public abstract class AbstractPlanGenerator {
 
     /**
      * Call operations from the node relationships.
-     * 
+     *
      * @param nodeTemplate The node that is source or target of the relations.
      * @param interfaceName The interface that holds the operations.
      * @param sourceOperation The operation to be triggered if the node is source.
@@ -225,6 +254,7 @@ public abstract class AbstractPlanGenerator {
         activity.setNodeTemplateId(nodeTemplateId);
         activity.setRelationshipId(relationshipId);
         activity.setImplementationArtifact(operation.getImplementationArtifact());
+        activity.setInputParameters(operation.getInputParameters());
         next(activity);
     }
 
@@ -240,7 +270,6 @@ public abstract class AbstractPlanGenerator {
     private static Interface getRelationshipInterface(PaaSRelationshipTemplate relationshipTemplate, String interfaceName) {
         Interface interfaz = getInterface(interfaceName, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
         if (interfaz == null) {
-
             throw new IllegalArgumentException("Plan cannot be generated as required interface <" + interfaceName + "> has not been found on relationship <"
                     + relationshipTemplate.getId() + "> from type <" + relationshipTemplate.getRelationshipTemplate().getType() + "> from source node <"
                     + relationshipTemplate.getSource() + ">.");

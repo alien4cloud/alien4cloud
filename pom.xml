@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.0.0-SM18-SNAPSHOT</version>
+  <version>1.0.0-SM19-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -39,6 +39,7 @@
     <commons-cli.version>1.2</commons-cli.version>
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-collections.version>4.0</commons-collections.version>
+    <commons-compress.version>1.9</commons-compress.version>
 
     <!-- JSON and YAML Parsing -->
     <jackson.version>2.3.1</jackson.version>
@@ -210,7 +211,11 @@
         <artifactId>commons-collections4</artifactId>
         <version>${commons-collections.version}</version>
       </dependency>
-
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${commons-compress.version}</version>
+        </dependency>
       <dependency>
         <groupId>org.yaml</groupId>
         <artifactId>snakeyaml</artifactId>
