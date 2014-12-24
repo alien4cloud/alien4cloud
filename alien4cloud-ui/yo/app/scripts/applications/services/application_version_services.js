@@ -19,6 +19,9 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
         }
+      },
+      'get': {
+        method: 'GET'
       }
     });
 
@@ -35,8 +38,9 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
     });
 
     return {
-      'get': applicationVersionMiscResource.get,
+      'getFirst': applicationVersionResource.get,
       'create': applicationVersionResource.create,
+      'get': applicationVersionMiscResource.get,
       'delete': applicationVersionMiscResource.delete,
       'update': applicationVersionMiscResource.update,
       'searchVersion': searchVersionResource.search

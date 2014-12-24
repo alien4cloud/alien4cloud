@@ -50,7 +50,7 @@
   </div>
 
   <script type="text/ng-template" id="newApplicationVersion.html">
-    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(newApplicationVersion.$valid, versionId, descId, t.topologyId)" novalidate>
+    <form name="newApplicationVersion" class="form-horizontal" role="form" ng-submit="create(versionId, descId, t.topologyId)" novalidate>
       <div class="modal-header">
         <h3>{{'APPLICATIONS.VERSION.TITLE' | translate}}</h3>
       </div>

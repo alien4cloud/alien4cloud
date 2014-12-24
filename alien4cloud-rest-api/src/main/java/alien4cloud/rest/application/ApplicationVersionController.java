@@ -93,13 +93,13 @@ public class ApplicationVersionController {
      *
      * @param applicationId The application id
      */
-    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ApplicationVersion> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    @ApiOperation(value = "Get an application version based from its id.", notes = "Returns the application version details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{applicationVersionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<ApplicationVersion> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion applicationEnvironment = appVersionService.getOrFail(applicationEnvironmentId);
-        return RestResponseBuilder.<ApplicationVersion> builder().data(applicationEnvironment).build();
+        ApplicationVersion applicationVersion = appVersionService.getOrFail(applicationVersionId);
+        return RestResponseBuilder.<ApplicationVersion> builder().data(applicationVersion).build();
     }
 
     /**

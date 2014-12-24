@@ -6,7 +6,16 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
     $scope.appVersions = appVersions;
     $scope.searchAppVersionResult = appVersions;
-    $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[\\.-]\\p{Alnum}+)*$');
+    $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
+
+    var addNewAppVersionToAppVersionsArray = function(appVersionId) {
+      applicationVersionServices.get({
+        applicationId: $scope.application.id,
+        applicationVersionId: appVersionId
+      }, function(successResponse) {
+        appVersions.push(successResponse.data);
+      });
+    }
 
     $scope.openNewAppVersion = function() {
       var modalInstance = $modal.open({
@@ -19,7 +28,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
           applicationId: $scope.application.id
         }, angular.toJson(appVersion), function(successResponse) {
           $scope.search();
-          appVersions.push(appVersion);
+          addNewAppVersionToAppVersionsArray(successResponse.data);
         });
       });
     };
@@ -77,15 +86,13 @@ var NewApplicationVersionCtrl = ['$scope', '$modalInstance', '$resource', 'searc
   function($scope, $modalInstance, $resource, searchServiceFactory, $state, applicationVersionServices) {
     $scope.appVersion = {};
 
-    $scope.create = function(valid, version, desc, oldAppVersion) {
-      if (valid) {
-        $scope.appVersion.version = version;
-        $scope.appVersion.description = desc;
-        if (oldAppVersion) {
-          $scope.appVersion.topologyId = oldAppVersion.topologyId;
-        }
-        $modalInstance.close($scope.appVersion);
+    $scope.create = function(version, desc, oldAppVersion) {
+      $scope.appVersion.version = version;
+      $scope.appVersion.description = desc;
+      if (oldAppVersion) {
+        $scope.appVersion.topologyId = oldAppVersion.topologyId;
       }
+      $modalInstance.close($scope.appVersion);
     };
 
     $scope.cancel = function() {
