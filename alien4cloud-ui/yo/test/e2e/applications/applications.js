@@ -169,3 +169,33 @@ var createApplicationEnvironment = function(envName, envDescription, cloudSelect
 
 };
 module.exports.createApplicationEnvironment = createApplicationEnvironment;
+
+function goToApplicationVersionPageForApp(applicationName) {
+  goToApplicationDetailPage(applicationName, false);
+  navigation.go('applications', 'versions');
+}
+module.exports.goToApplicationVersionPageForApp = goToApplicationVersionPageForApp;
+
+var createApplicationVersion = function(version, description, selectTopology) {
+  navigation.go('applications', 'versions');
+
+  var btnNewApplicationVersion = browser.element(by.id('app-version-new-btn'));
+  browser.actions().click(btnNewApplicationVersion).perform();
+
+  element(by.model('versionId')).sendKeys(version);
+  element(by.model('descId')).sendKeys(description);
+
+  if (typeof selectTopology !== 'undefined') {
+    var selectCloud = element(by.id('topologyId'));
+    common.selectDropdownByText(selectCloud, selectTopology, 100);
+  } else {
+    console.error('Create an application version with an empty topology');
+  }
+
+  // Create an App env
+  var btnCreate = browser.element(by.id('btn-create'));
+  browser.actions().click(btnCreate).perform();
+  browser.waitForAngular();
+
+};
+module.exports.createApplicationVersion = createApplicationVersion;

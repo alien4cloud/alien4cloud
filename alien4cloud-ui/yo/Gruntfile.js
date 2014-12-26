@@ -417,8 +417,8 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            //            baseUrl: 'http://localhost:9999',
-            baseUrl: 'http://localhost:8088',
+                        baseUrl: 'http://localhost:9999',
+            // baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
               // 'test/e2e/scenarios/admin_cloud.js',
@@ -427,8 +427,9 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin_users_management.js',
               // 'test/e2e/scenarios/application.js',
-              'test/e2e/scenarios/application_environments.js',
               //              'test/e2e/scenarios/application_metaprops.js',
+              //              'test/e2e/scenarios/application_environments.js',
+              'test/e2e/scenarios/application_versions.js',
               //              'test/e2e/scenarios/application_security.js',
               //              'test/e2e/scenarios/application_security_role_check.js',
               //              'test/e2e/scenarios/application_tags.js',
