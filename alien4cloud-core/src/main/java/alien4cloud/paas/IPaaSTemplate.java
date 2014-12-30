@@ -27,4 +27,6 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
      *            path of the CSAR that contains the related tosca element
      */
     void setCsarPath(Path csarPath);
+
+    Path getCsarPath();
 }
