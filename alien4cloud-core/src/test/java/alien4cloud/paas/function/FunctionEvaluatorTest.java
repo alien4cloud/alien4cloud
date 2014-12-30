@@ -1,10 +1,11 @@
-package alien4cloud.tosca.container;
+package alien4cloud.paas.function;
 
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
@@ -12,7 +13,7 @@ import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
 
-public class FunctionProcessorTest {
+public class FunctionEvaluatorTest {
 
     @Test
     public void test() {
@@ -28,7 +29,7 @@ public class FunctionProcessorTest {
 
         Map<String, Map<Integer, InstanceInformation>> runtimeInformations = Maps.newHashMap();
 
-        String parsedString = ToscaFunctionProcessor.parseString(
+        String parsedString = FunctionEvaluator.parseString(
                 "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
                 runtimeInformations, 0);
         Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
