@@ -46,21 +46,9 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements En
         this.propertyResolver = new RelaxedPropertyResolver(environment, ENV_METRICS);
     }
 
-    @Override
-    @Bean
-    public MetricRegistry getMetricRegistry() {
-        return METRIC_REGISTRY;
-    }
-
-    @Override
-    @Bean
-    public HealthCheckRegistry getHealthCheckRegistry() {
-        return HEALTH_CHECK_REGISTRY;
-    }
-
     @PostConstruct
     public void init() {
-        log.debug("Registering JVM gauges");
+        log.info("Registering JVM gauges");
         METRIC_REGISTRY.register(PROP_METRIC_REG_JVM_MEMORY, new MemoryUsageGaugeSet());
         METRIC_REGISTRY.register(PROP_METRIC_REG_JVM_GARBAGE, new GarbageCollectorMetricSet());
         METRIC_REGISTRY.register(PROP_METRIC_REG_JVM_THREADS, new ThreadStatesGaugeSet());
@@ -73,6 +61,18 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements En
         }
     }
 
+    @Override
+    @Bean
+    public MetricRegistry getMetricRegistry() {
+        return METRIC_REGISTRY;
+    }
+
+    @Override
+    @Bean
+    public HealthCheckRegistry getHealthCheckRegistry() {
+        return HEALTH_CHECK_REGISTRY;
+    }
+
     @Bean
     public MetricsServlet metricsServlet(MetricRegistry metricRegistry) {
         return new MetricsServlet(metricRegistry);
@@ -80,6 +80,7 @@ public class MetricsConfiguration extends MetricsConfigurerAdapter implements En
 
     @Bean
     public FilterRegistrationBean metricsFilterRegistration(MetricRegistry metricRegistry) {
+        log.info("Registering Metrics filter.");
         return new FilterRegistrationBean(new MetricsFilter(METRIC_REGISTRY));
     }
 
