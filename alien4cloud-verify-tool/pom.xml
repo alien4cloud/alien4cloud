@@ -11,7 +11,7 @@
 	<name>Alien 4 Cloud Compilation Tool</name>
 	<description>A command line tool to verify Tosca CSAR archive.</description>
 
-	<version xmlns="">1.0.0-SM18-SNAPSHOT</version><dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>alien4cloud</groupId>
 			<artifactId>alien4cloud-rest-api</artifactId>
