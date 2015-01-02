@@ -24,7 +24,14 @@ import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
@@ -133,7 +140,7 @@ public class DeploymentService {
     /**
      * Un-deploy a topology.
      *
-     * @param topologyId if of the topology that has been deployed that needs to be un-deployed.
+     * @param topologyId of the topology that has been deployed that needs to be un-deployed.
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
     public synchronized void undeployTopology(String topologyId, String cloudId) throws CloudDisabledException {

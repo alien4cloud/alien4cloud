@@ -384,7 +384,7 @@ public class ApplicationDeploymentController {
 
         DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
         if (deploymentSetup == null) {
-            deploymentSetup = deploymentSetupService.create(version, environment);
+            deploymentSetup = deploymentSetupService.createOrFail(version, environment);
         }
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());

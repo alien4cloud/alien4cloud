@@ -20,6 +20,7 @@ import alien4cloud.cloud.CloudService;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -69,12 +70,26 @@ public class DeploymentSetupService {
         }
     }
 
-    public DeploymentSetup create(ApplicationVersion version, ApplicationEnvironment environment) {
-        DeploymentSetup deploymentSetup = new DeploymentSetup();
-        deploymentSetup.setId(generateId(version.getId(), environment.getId()));
-        deploymentSetup.setEnvironmentId(environment.getId());
-        deploymentSetup.setVersionId(version.getId());
-        alienDAO.save(deploymentSetup);
+    /**
+     * Create a deployment setup with a failure when the composed key (version.id, environment.id) already exists
+     * 
+     * @param version
+     * @param environment
+     * @return the created deployment setup
+     */
+    public DeploymentSetup createOrFail(ApplicationVersion version, ApplicationEnvironment environment) {
+        // check if deploymentSetup already exists
+        DeploymentSetup deploymentSetup = get(version, environment);
+        if (deploymentSetup == null) {
+            deploymentSetup = new DeploymentSetup();
+            deploymentSetup.setId(generateId(version.getId(), environment.getId()));
+            deploymentSetup.setEnvironmentId(environment.getId());
+            deploymentSetup.setVersionId(version.getId());
+            alienDAO.save(deploymentSetup);
+        } else {
+            throw new AlreadyExistException("A deployment setup for application <" + environment.getApplicationId() + "> for version [" + version.getId()
+                    + "] / environment [" + environment.getId() + "] already exists");
+        }
         return deploymentSetup;
     }
 
@@ -198,6 +213,6 @@ public class DeploymentSetupService {
     public GetMultipleDataResult<DeploymentSetup> getByVersionId(String versionId) {
         Map<String, String[]> filters = Maps.newHashMap();
         filters.put("versionId", new String[] { versionId });
-        return alienDAO.search(DeploymentSetup.class, null, filters , 0, 20);
+        return alienDAO.search(DeploymentSetup.class, null, filters, 0, 20);
     }
 }

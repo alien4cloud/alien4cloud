@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -71,6 +73,8 @@ public class ApplicationEnvironmentController {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Search for application environment for a given application id
@@ -137,6 +141,13 @@ public class ApplicationEnvironmentController {
                 Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
                 AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
                 appEnvironment.setCloudId(request.getCloudId());
+                // create new DeploymentSetup
+                try {
+                    deploymentSetupService.createOrFail(applicationVersionService.getOrFail(request.getVersionId()), appEnvironment);
+                } catch (AlreadyExistException e) {
+                    // a deployment setup
+                    log.error("DeploymentSetup already exists");
+                }
                 alienDAO.save(appEnvironment);
             }
         } else {
