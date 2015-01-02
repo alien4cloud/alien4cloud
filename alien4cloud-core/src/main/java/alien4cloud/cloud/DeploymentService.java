@@ -9,11 +9,8 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -42,7 +39,6 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
@@ -238,85 +234,54 @@ public class DeploymentService {
      * Get the current deployment status for a topology.
      *
      * @param topologyId Id of the topology for which to get a deployment status.
-     * @return The status of the topology.
+     * @param callback that will be called when status is available
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public DeploymentStatus getDeploymentStatus(String topologyId, String cloudId) throws CloudDisabledException {
+    public void getDeploymentStatus(String topologyId, String cloudId, IPaaSCallback<DeploymentStatus> callback) throws CloudDisabledException {
         if (cloudId == null) {
-            return DeploymentStatus.UNDEPLOYED;
+            callback.onSuccess(DeploymentStatus.UNDEPLOYED);
+            return;
         }
         Deployment deployment = getActiveDeployment(topologyId, cloudId);
         if (deployment == null) {
-            return DeploymentStatus.UNDEPLOYED;
+            callback.onSuccess(DeploymentStatus.UNDEPLOYED);
+            return;
         }
-        // Get the last deployment status event for the deployment
-        PaaSDeploymentStatusMonitorEvent lastStatusEvent = alienMonitorDao.customFind(PaaSDeploymentStatusMonitorEvent.class,
-                QueryBuilders.termQuery("deploymentId", deployment.getId()), SortBuilders.fieldSort("date").order(SortOrder.DESC));
-
-        if (lastStatusEvent == null) {
-            Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-            if (!cloud.isEnabled()) {
-                // The cloud is not up due to a pb we cannot know the application status
-                return DeploymentStatus.UNKNOWN;
-            } else {
-                // Active deployment exists but no event ==> deployment in progress but no event returned back yet
-                return DeploymentStatus.DEPLOYMENT_IN_PROGRESS;
-            }
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        if (!cloud.isEnabled()) {
+            // The cloud is not up due to a pb we cannot know the application status
+            callback.onSuccess(DeploymentStatus.UNKNOWN);
         } else {
-            return lastStatusEvent.getDeploymentStatus();
+            IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+            PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+            paaSProvider.getStatus(deploymentContext, callback);
         }
     }
 
     /**
      * Get the detailed status for each instance of each node template.
      *
-     * @param topologyId id of the topology
-     * @return map of node template's id to map of instance's id to instance information
+     * @param topologyId id of the topology.
+     * @param callback map of node template's id to map of instance's id to instance information.
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String topologyId, String cloudId) throws CloudDisabledException {
+    public void getInstancesInformation(String topologyId, String cloudId, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback)
+            throws CloudDisabledException {
         Map<String, Map<String, InstanceInformation>> instancesInformation = Maps.newHashMap();
         Deployment deployment = getActiveDeployment(topologyId, cloudId);
         if (deployment == null) {
-            return instancesInformation;
+            callback.onSuccess(instancesInformation);
+            return;
         }
-        Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        List<PaaSInstanceStateMonitorEvent> instancesEvents = alienMonitorDao.customFindAll(PaaSInstanceStateMonitorEvent.class,
-                QueryBuilders.termQuery("deploymentId", deployment.getId()), SortBuilders.fieldSort("date").order(SortOrder.DESC));
-        if (instancesEvents == null || instancesEvents.isEmpty()) {
-            return instancesInformation;
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        if (!cloud.isEnabled()) {
+            callback.onSuccess(instancesInformation);
+        } else {
+            Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
+            PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+            IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+            paaSProvider.getInstancesInformation(deploymentContext, runtimeTopology, callback);
         }
-        for (PaaSInstanceStateMonitorEvent instanceStateMonitorEvent : instancesEvents) {
-            if (instanceStateMonitorEvent.getInstanceState() == null) {
-                // Delete event, will just skip
-                continue;
-            }
-            String nodeId = instanceStateMonitorEvent.getNodeTemplateId();
-            String instanceId = instanceStateMonitorEvent.getInstanceId();
-            if (instancesInformation.containsKey(nodeId) && instancesInformation.get(nodeId).containsKey(instanceId)) {
-                // Event has already been processed for this instance so will just skip
-                continue;
-            }
-            if (!instancesInformation.containsKey(nodeId)) {
-                Map<String, InstanceInformation> nodeInformation = Maps.newHashMap();
-                nodeInformation.put(instanceId, buildInstanceInformation(instanceStateMonitorEvent, runtimeTopology));
-                instancesInformation.put(nodeId, nodeInformation);
-            } else {
-                instancesInformation.get(nodeId).put(instanceId, buildInstanceInformation(instanceStateMonitorEvent, runtimeTopology));
-            }
-        }
-        return instancesInformation;
-    }
-
-    private InstanceInformation buildInstanceInformation(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, Topology topology) {
-        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(instanceStateMonitorEvent.getNodeTemplateId());
-        InstanceInformation instanceInformation = new InstanceInformation();
-        instanceInformation.setAttributes(nodeTemplate.getAttributes());
-        instanceInformation.setProperties(nodeTemplate.getProperties());
-        instanceInformation.setInstanceStatus(instanceStateMonitorEvent.getInstanceStatus());
-        instanceInformation.setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
-        instanceInformation.setState(instanceStateMonitorEvent.getInstanceState());
-        return instanceInformation;
     }
 
     /**

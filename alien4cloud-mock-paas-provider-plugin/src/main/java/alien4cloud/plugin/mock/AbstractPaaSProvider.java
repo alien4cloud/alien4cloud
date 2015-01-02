@@ -102,6 +102,19 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
         }
     }
 
+    public void getStatuses(String[] deploymentIds, IPaaSCallback<DeploymentStatus[]> callback) {
+        try {
+            providerLock.readLock().lock();
+            DeploymentStatus[] status = new DeploymentStatus[deploymentIds.length];
+            for (int i = 0; i < deploymentIds.length; i++) {
+                status[i] = getStatus(deploymentIds[i]);
+            }
+            callback.onSuccess(status);
+        } finally {
+            providerLock.readLock().unlock();
+        }
+    }
+
     protected DeploymentStatus changeStatus(String applicationId, DeploymentStatus status) {
         try {
             providerLock.writeLock().lock();
@@ -126,7 +139,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
             if (resultException != null) {
                 callback.onFailure(new OperationExecutionException(resultException));
             }
-            callback.onSuccess(MapUtil.newHashMap(new String[]{"1"}, new String[]{doExecuteOperationResult}));
+            callback.onSuccess(MapUtil.newHashMap(new String[] { "1" }, new String[] { doExecuteOperationResult }));
         } finally {
             providerLock.writeLock().unlock();
         }

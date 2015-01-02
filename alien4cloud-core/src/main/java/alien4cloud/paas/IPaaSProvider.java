@@ -5,9 +5,12 @@ import java.util.Map;
 
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyDefinition;
 
 /**
@@ -37,6 +40,24 @@ public interface IPaaSProvider {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
     void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback);
+
+    /**
+     * Get status of a deployment
+     * 
+     * @param deploymentContext the deployment context
+     * @param callback callback when the status will be available
+     */
+    void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback);
+
+    /**
+     * Get instance information of a topology from the PaaS
+     *
+     * @param deploymentContext the deployment context
+     * @param topology the topology to retrieve information
+     * @param callback callback when the information will be available
+     */
+    void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case

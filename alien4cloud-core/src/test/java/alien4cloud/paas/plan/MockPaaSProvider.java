@@ -14,10 +14,13 @@ import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyDefinition;
 
 @Getter
@@ -65,5 +68,16 @@ public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaa
     @Override
     public Map<String, PropertyDefinition> getDeploymentPropertyMap() {
         return null;
+    }
+
+    @Override
+    public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
+
+    }
+
+    @Override
+    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+
     }
 }

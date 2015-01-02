@@ -435,6 +435,17 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
+    public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
+
+    }
+
+    @Override
+    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+        callback.onSuccess(instanceInformationsMap.get(deploymentContext.getDeploymentId()));
+    }
+
+    @Override
     public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventsCallback) {
         AbstractMonitorEvent[] events = toBeDeliveredEvents.toArray(new AbstractMonitorEvent[toBeDeliveredEvents.size()]);
         toBeDeliveredEvents.clear();

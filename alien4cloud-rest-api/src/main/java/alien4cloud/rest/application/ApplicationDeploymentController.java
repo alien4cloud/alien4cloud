@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -33,6 +34,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -47,7 +49,12 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.ReflectionUtil;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -194,44 +201,82 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get the current status of the application on the PaaS.", notes = "Returns the current status of the application on the PaaS it is deployed."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentStatus> getDeploymentStatus(@PathVariable String applicationId) {
+    public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        return RestResponseBuilder.<DeploymentStatus> builder().data(getApplicationDeploymentStatus(application)).build();
+        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
+        Futures.addCallback(getApplicationDeploymentStatus(application), new FutureCallback<DeploymentStatus>() {
+            @Override
+            public void onSuccess(DeploymentStatus result) {
+                statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                statusResult.setErrorResult(t);
+            }
+        });
+        return statusResult;
     }
 
     @ApiOperation(value = "Get the current statuses of an application list on the PaaS.", notes = "Returns the current status of an application list from the PaaS it is deployed on."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Map<String, DeploymentStatus>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
-        Map<String, DeploymentStatus> statuses = Maps.newHashMap();
+    public DeferredResult<RestResponse<Map<String, DeploymentStatus>>> getApplicationsStatuses(@RequestBody final List<String> applicationIds) {
+        final List<ListenableFuture<DeploymentStatus>> statuses = Lists.newArrayList();
         for (String applicationId : applicationIds) {
             Application application = applicationService.getOrFail(applicationId);
             AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-            statuses.put(applicationId, getApplicationDeploymentStatus(application));
+            statuses.add(getApplicationDeploymentStatus(application));
         }
-        return RestResponseBuilder.<Map<String, DeploymentStatus>> builder().data(statuses).build();
+        final DeferredResult<RestResponse<Map<String, DeploymentStatus>>> statusesDeferredResult = new DeferredResult<>();
+        Futures.addCallback(Futures.allAsList(statuses), new FutureCallback<List<DeploymentStatus>>() {
+            @Override
+            public void onSuccess(List<DeploymentStatus> result) {
+                Map<String, DeploymentStatus> statusesResult = Maps.newHashMap();
+                for (int i = 0; i < applicationIds.size(); i++) {
+                    statusesResult.put(applicationIds.get(i), result.get(i));
+                }
+                statusesDeferredResult.setResult(RestResponseBuilder.<Map<String, DeploymentStatus>> builder().data(statusesResult).build());
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                statusesDeferredResult.setErrorResult(t);
+            }
+        });
+        return statusesDeferredResult;
     }
 
-    private DeploymentStatus getApplicationDeploymentStatus(Application application) {
+    private ListenableFuture<DeploymentStatus> getApplicationDeploymentStatus(Application application) {
         ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
         ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
 
-        DeploymentStatus deploymentStatus;
+        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
         if (version.getTopologyId() == null) {
-            deploymentStatus = DeploymentStatus.UNDEPLOYED;
+            statusSettableFuture.set(DeploymentStatus.UNDEPLOYED);
         } else {
             try {
-                deploymentStatus = deploymentService.getDeploymentStatus(version.getTopologyId(), environment.getCloudId());
+                deploymentService.getDeploymentStatus(version.getTopologyId(), environment.getCloudId(), new IPaaSCallback<DeploymentStatus>() {
+                    @Override
+                    public void onSuccess(DeploymentStatus data) {
+                        statusSettableFuture.set(data);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        statusSettableFuture.setException(throwable);
+                    }
+                });
             } catch (CloudDisabledException e) {
                 log.debug("Getting status for topology failed because plugin wasn't found. Returned status is undeployed.", e);
-                deploymentStatus = DeploymentStatus.UNDEPLOYED;
+                statusSettableFuture.set(DeploymentStatus.UNDEPLOYED);
             }
         }
-        return deploymentStatus;
+        return statusSettableFuture;
     }
 
     /**
@@ -243,7 +288,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get detailed informations for every instances of every node of the application on the PaaS.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/deployment/informations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Map<String, Map<String, InstanceInformation>>> getInstanceInformation(@PathVariable String applicationId) {
+    public DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> getInstanceInformation(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
 
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
@@ -253,15 +298,25 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment.
         ApplicationVersion version = versions[0];
         ApplicationEnvironment environment = environments[0];
-
+        final DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> instancesDeferredResult = new DeferredResult<>();
         try {
-            return RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder()
-                    .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId())).build();
+            deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId(),
+                    new IPaaSCallback<Map<String, Map<String, InstanceInformation>>>() {
+                        @Override
+                        public void onSuccess(Map<String, Map<String, InstanceInformation>> data) {
+                            instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().data(data).build());
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            instancesDeferredResult.setErrorResult(throwable);
+                        }
+                    });
         } catch (CloudDisabledException e) {
             log.error("Cannot get instance informations as topology plugin cannot be found.", e);
+            instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build());
         }
-
-        return RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build();
+        return instancesDeferredResult;
     }
 
     /**
