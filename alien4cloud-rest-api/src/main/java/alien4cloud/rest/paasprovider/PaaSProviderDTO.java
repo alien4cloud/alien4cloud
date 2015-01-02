@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.plugin.PluginComponentDescriptor;
-import alien4cloud.tosca.model.ScalarPropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
 
 @Getter
 @Setter

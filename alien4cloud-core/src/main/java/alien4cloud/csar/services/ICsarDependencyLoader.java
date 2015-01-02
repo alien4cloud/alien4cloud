@@ -2,7 +2,7 @@ package alien4cloud.csar.services;
 
 import java.util.Set;
 
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 
 /**
  * Interface to manage dependencies around Alien 4 Cloud

@@ -1,6 +1,6 @@
 package alien4cloud.tosca;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 
 public class ToscaUtils {
 

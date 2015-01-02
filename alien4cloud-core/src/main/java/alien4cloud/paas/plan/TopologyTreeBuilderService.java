@@ -12,9 +12,9 @@ import lombok.SneakyThrows;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
@@ -23,15 +23,15 @@ import alien4cloud.paas.exception.InvalidTopologyException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
-import alien4cloud.tosca.container.model.NormativeComputeConstants;
-import alien4cloud.tosca.container.model.NormativeNetworkConstants;
-import alien4cloud.tosca.container.model.NormativeRelationshipConstants;
-import alien4cloud.tosca.container.model.topology.AbstractTemplate;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.tosca.normative.NormativeNetworkConstants;
+import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import alien4cloud.model.topology.AbstractTemplate;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;

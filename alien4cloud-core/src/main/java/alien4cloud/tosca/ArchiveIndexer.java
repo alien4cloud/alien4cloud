@@ -6,9 +6,9 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.tosca.container.services.csar.ICSARRepositoryIndexerService;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.tosca.model.ArchiveRoot;
 
 @Component

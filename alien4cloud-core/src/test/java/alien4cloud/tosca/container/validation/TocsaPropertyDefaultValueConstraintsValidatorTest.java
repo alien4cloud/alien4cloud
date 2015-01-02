@@ -10,20 +10,20 @@ import javax.validation.Validator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.ToscaType;
-import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.properties.constraints.EqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.GreaterThanConstraint;
-import alien4cloud.tosca.properties.constraints.InRangeConstraint;
-import alien4cloud.tosca.properties.constraints.LengthConstraint;
-import alien4cloud.tosca.properties.constraints.LessOrEqualConstraint;
-import alien4cloud.tosca.properties.constraints.LessThanConstraint;
-import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
-import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
-import alien4cloud.tosca.properties.constraints.PatternConstraint;
-import alien4cloud.tosca.properties.constraints.ValidValuesConstraint;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 
 import com.google.common.collect.Lists;
 

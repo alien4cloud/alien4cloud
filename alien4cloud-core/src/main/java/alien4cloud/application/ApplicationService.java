@@ -16,7 +16,7 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;

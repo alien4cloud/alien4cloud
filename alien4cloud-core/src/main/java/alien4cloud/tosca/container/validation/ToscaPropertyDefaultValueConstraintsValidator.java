@@ -3,9 +3,9 @@ package alien4cloud.tosca.container.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.ToscaType;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 public class ToscaPropertyDefaultValueConstraintsValidator implements ConstraintValidator<ToscaPropertyDefaultValueConstraints, PropertyDefinition> {

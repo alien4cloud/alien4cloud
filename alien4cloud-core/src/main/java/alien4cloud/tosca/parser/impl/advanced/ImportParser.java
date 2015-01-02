@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.csar.services.CsarService;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;

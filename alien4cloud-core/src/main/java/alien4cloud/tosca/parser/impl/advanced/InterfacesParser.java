@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
-import alien4cloud.tosca.model.Interface;
+import alien4cloud.model.components.Interface;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.MapParser;

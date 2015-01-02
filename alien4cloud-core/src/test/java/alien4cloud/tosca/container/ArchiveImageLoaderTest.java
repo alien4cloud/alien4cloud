@@ -16,8 +16,8 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericIdDAO;
 import alien4cloud.images.IImageDAO;
 import alien4cloud.images.ImageData;

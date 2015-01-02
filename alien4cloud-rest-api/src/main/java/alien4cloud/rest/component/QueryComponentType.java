@@ -1,10 +1,10 @@
 package alien4cloud.rest.component;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 
 /**
  * Enumeration of the components types available for search.

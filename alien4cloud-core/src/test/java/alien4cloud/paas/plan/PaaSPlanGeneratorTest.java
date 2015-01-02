@@ -23,7 +23,7 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ToscaParserSimpleProfileWd03Test;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;

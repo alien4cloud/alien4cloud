@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.PropertyDefinition;
 
 @Getter
 @Setter
