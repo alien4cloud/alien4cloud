@@ -20,14 +20,13 @@ Alien 4 Cloud is written in java for the backend and requires a JDK 7 or newer (
 ```sh
 $ sudo npm install -g bower
 ```
-
 - install grunt  
 ```sh
 $ sudo npm -g install grunt-cli
 ```
 - install compass  
 ```sh
-$ npm install grunt-contrib-compass --save-dev
+$ gem install compass
 ```
 - and grunt-contrib-compass  
 ```sh
