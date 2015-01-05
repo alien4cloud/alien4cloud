@@ -35,7 +35,7 @@ Feature: CRUD operations on application version
     Given I have an application with name "ALIEN"
     And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
     And I delete an application version with name "0.1.0-SNAPSHOT"
-    Then I should receive a RestResponse with an error code 602
+    Then I should receive a RestResponse with an error code 409
 
   Scenario: Delete an application version with success
     Given I have an application with name "ALIEN"

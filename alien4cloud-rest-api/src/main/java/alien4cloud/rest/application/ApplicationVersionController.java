@@ -20,11 +20,10 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
@@ -161,12 +160,8 @@ public class ApplicationVersionController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(false)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR)
-                            .message("Application version with id <" + applicationVersionId + "> could not be found deleted beacause it's used").build())
-                    .build();
+            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId
+                    + "> could not be found deleted beacause it's used");
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();
