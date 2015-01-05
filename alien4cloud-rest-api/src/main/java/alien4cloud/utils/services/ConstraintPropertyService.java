@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
-import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.ToscaType;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;

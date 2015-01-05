@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
@@ -34,8 +34,8 @@ import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.TopologyTemplate;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

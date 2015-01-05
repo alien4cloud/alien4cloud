@@ -1,6 +1,6 @@
 package alien4cloud.rest.topology;
 
-import alien4cloud.tosca.container.model.topology.ScalingPolicy;
+import alien4cloud.model.topology.ScalingPolicy;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

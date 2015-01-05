@@ -2,9 +2,9 @@ package alien4cloud.paas.model;
 
 import java.nio.file.Path;
 
-import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.paas.IPaaSTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
 import lombok.Getter;
 import lombok.Setter;
 

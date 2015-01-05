@@ -5,17 +5,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.container.ToscaFunctionConstants;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.model.FunctionPropertyValue;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
 /**
  * Utility class to process functions defined in attributes level:

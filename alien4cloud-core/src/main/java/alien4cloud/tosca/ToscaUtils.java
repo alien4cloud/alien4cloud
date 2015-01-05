@@ -1,9 +1,9 @@
 package alien4cloud.tosca;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.tosca.container.model.NormativeComputeConstants;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
 
 public class ToscaUtils {
 

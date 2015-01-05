@@ -13,10 +13,10 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
 

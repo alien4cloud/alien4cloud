@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.model.ToscaMeta;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingException;

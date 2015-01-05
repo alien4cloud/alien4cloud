@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.*;
 import org.yaml.snakeyaml.nodes.Node;
 
-import alien4cloud.component.model.*;
-import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;

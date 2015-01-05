@@ -25,7 +25,7 @@ import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
 import alien4cloud.paas.model.*;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

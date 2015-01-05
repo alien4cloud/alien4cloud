@@ -10,8 +10,8 @@ import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.component.CSARRepositorySearchService;
 
 @Getter
 public abstract class AbstractPaaSProvider implements IPaaSProvider {

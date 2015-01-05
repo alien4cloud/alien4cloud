@@ -59,8 +59,10 @@
 
     <aspectj.version>1.7.4</aspectj.version>
 
-    <!-- Elastic Search -->
-    <es-mapping.version>1.1.17</es-mapping.version>
+    <!-- Elastic Search mapper (reference the elastic search version actually). -->
+    <es-mapping.version>1.2.0</es-mapping.version>
+    <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
+    <groovy.version>2.3.5</groovy.version>
 
     <!-- Logging -->
     <log4j.version>1.2.16</log4j.version>
@@ -341,6 +343,11 @@
         <groupId>fr.lucboutier.elasticsearch</groupId>
         <artifactId>elasticsearch-mapping</artifactId>
         <version>${es-mapping.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>${groovy.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>

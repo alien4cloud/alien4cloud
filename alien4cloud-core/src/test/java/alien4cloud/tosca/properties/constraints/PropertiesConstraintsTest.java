@@ -1,11 +1,12 @@
 package alien4cloud.tosca.properties.constraints;
 
+import alien4cloud.model.components.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import org.junit.Test;
 
-import alien4cloud.tosca.model.ToscaType;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.VersionUtil;

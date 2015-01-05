@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

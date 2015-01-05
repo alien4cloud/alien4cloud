@@ -13,7 +13,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.InitializingBean;
 
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.rest.component.ElementFromArchiveRequest;
 import alien4cloud.rest.component.QueryComponentType;
@@ -21,8 +21,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.tool.compilation.exception.CompilationToolRuntimeException;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.component.ICSARRepositorySearchService;
 
 @Slf4j
 public class CheckElementExistService implements ICSARRepositorySearchService, InitializingBean {

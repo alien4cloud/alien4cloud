@@ -2,7 +2,7 @@ package alien4cloud.rest.component;
 
 import java.util.Collection;
 
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

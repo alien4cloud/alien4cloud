@@ -19,7 +19,7 @@ import alien4cloud.component.repository.exception.CSARDirectoryCreationFailureEx
 import alien4cloud.component.repository.exception.CSARStorageFailureException;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.DirectoryJSonWalker;
 import alien4cloud.utils.FileUtil;
