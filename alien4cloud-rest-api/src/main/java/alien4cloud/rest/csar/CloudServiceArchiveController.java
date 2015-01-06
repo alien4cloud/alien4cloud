@@ -241,7 +241,6 @@ public class CloudServiceArchiveController {
         if (filters == null) {
             filters = Maps.newHashMap();
         }
-        filters.put("version", new String[] { "SNAPSHOT" });
         FacetedSearchResult searchResult = csarDAO.facetedSearch(Csar.class, searchRequest.getQuery(), filters, null, searchRequest.getFrom(),
                 searchRequest.getSize());
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();

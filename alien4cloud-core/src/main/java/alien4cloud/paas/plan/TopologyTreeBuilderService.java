@@ -118,12 +118,12 @@ public class TopologyTreeBuilderService {
             boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType());
             if (isVolume) {
                 // manage block storage
-                manageBlockStorage(paaSNodeTemplate, nodeTemplates);
+                processBlockStorage(paaSNodeTemplate, nodeTemplates);
                 volumes.add(paaSNodeTemplate);
             } else if (isCompute) {
                 // manage compute
-                manageComputeNetwork(paaSNodeTemplate, nodeTemplates);
-                manageRelationship(paaSNodeTemplate, nodeTemplates);
+                processNetwork(paaSNodeTemplate, nodeTemplates);
+                processRelationship(paaSNodeTemplate, nodeTemplates);
                 computes.add(paaSNodeTemplate);
             } else if (isNetwork) {
                 // manage network
@@ -131,13 +131,13 @@ public class TopologyTreeBuilderService {
             } else {
                 // manage non native
                 nonNatives.add(paaSNodeTemplate);
-                manageRelationship(paaSNodeTemplate, nodeTemplates);
+                processRelationship(paaSNodeTemplate, nodeTemplates);
             }
         }
         return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates);
     }
 
-    private void manageRelationship(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processRelationship(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
         if (hostedOnRelationship != null) {
             String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
@@ -154,7 +154,7 @@ public class TopologyTreeBuilderService {
         }
     }
 
-    private void manageComputeNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
         if (networkRelationship != null) {
             String target = networkRelationship.getRelationshipTemplate().getTarget();
@@ -164,7 +164,7 @@ public class TopologyTreeBuilderService {
         }
     }
 
-    private void manageBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+    private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
         PaaSRelationshipTemplate attachTo = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ATTACH_TO);
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
