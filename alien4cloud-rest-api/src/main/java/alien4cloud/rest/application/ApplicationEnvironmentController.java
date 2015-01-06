@@ -29,6 +29,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -219,19 +220,11 @@ public class ApplicationEnvironmentController {
         applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
         int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
         boolean deleted = false;
-        if (countEnvironment > 1) {
-            deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
-        } else {
-            // delete the last environment is forbidden
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(null)
-                    .error(RestErrorBuilder
-                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message(
-                                    "Application environment with id <" + applicationEnvironmentId
-                                            + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.").build()).build();
+        if (countEnvironment == 1) {
+            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + applicationEnvironmentId
+                    + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.");
         }
+        deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
 

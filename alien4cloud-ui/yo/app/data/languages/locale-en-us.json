@@ -611,7 +611,8 @@
     "507": "Cannot delete this object as it's still being used by other objects",
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
-    "605": " Invalid format version",
+    "604": "An application must necessarily have at least one environment",
+    "605": "Invalid format version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
