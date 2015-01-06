@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;

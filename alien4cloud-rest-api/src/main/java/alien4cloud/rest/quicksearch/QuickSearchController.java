@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;

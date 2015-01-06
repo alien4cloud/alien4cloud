@@ -15,10 +15,10 @@ import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.container.model.AlienCustomTypes;
-import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.tosca.normative.AlienCustomTypes;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.AlienUtils;
 
 @Slf4j

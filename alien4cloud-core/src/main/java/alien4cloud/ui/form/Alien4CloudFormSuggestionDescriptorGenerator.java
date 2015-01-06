@@ -5,7 +5,7 @@ import java.util.Map;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.ui.form.exception.FormDescriptorGenerationException;
 

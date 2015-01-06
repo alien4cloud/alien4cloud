@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.topology.Topology;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
@@ -39,7 +40,6 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

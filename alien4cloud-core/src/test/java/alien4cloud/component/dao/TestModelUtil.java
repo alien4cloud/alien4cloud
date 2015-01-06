@@ -3,10 +3,10 @@ package alien4cloud.component.dao;
 import java.util.Date;
 import java.util.List;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.model.CapabilityDefinition;
-import alien4cloud.tosca.model.RequirementDefinition;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.RequirementDefinition;
 
 /**
  * Utility class to generate test data.

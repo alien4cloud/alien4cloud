@@ -46,7 +46,7 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;

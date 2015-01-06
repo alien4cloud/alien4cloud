@@ -20,8 +20,8 @@ import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.model.components.PropertyDefinition;
 
 @Getter
 @Component

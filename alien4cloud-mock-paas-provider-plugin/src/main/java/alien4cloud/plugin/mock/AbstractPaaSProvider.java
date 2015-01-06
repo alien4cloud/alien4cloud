@@ -13,9 +13,9 @@ import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
 import alien4cloud.paas.exception.PaaSNotYetDeployedException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 @Slf4j

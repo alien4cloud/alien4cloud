@@ -5,8 +5,8 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.model.IOperationParameter;
-import alien4cloud.tosca.model.ImplementationArtifact;
+import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.ImplementationArtifact;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

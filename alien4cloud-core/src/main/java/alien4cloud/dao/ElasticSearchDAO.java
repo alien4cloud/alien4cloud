@@ -7,11 +7,11 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -25,10 +25,10 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.model.topology.TopologyTemplate;
-import alien4cloud.tosca.container.serializer.BoundSerializer;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.json.serializer.BoundSerializer;
+import alien4cloud.model.components.Csar;
 import alien4cloud.utils.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

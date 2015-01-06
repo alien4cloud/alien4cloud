@@ -31,14 +31,14 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchFacet;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.model.components.CapabilityDefinition;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

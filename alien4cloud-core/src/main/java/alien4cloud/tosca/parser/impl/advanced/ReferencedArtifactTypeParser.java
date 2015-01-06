@@ -1,9 +1,7 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import alien4cloud.component.model.IndexedArtifactType;
+import alien4cloud.model.components.IndexedArtifactType;
 import org.springframework.stereotype.Component;
-
-import alien4cloud.component.model.IndexedRelationshipType;
 
 /**
  *

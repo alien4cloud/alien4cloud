@@ -1,6 +1,6 @@
 package alien4cloud.rest.topology;
 
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

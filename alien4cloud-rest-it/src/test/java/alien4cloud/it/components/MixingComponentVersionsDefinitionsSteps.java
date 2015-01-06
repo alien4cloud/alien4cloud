@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 
-import alien4cloud.component.model.IndexedToscaElement;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.rest.model.RestResponse;

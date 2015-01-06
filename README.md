@@ -13,13 +13,22 @@ Alien 4 Cloud is written in java for the backend and requires a JDK 7 or newer (
 
 - make sure you have a JDK 7 installed
 - make sure you have Maven installed (team is using 3.0.5)
-- Install Ruby
-- Install Python
-- Install Node.js to get nom command. Check here http://nodejs.org
-- Install bower
- sudo npm install -g bower
-- Install grunt
-sudo npm -g install grunt-cli
-- Install  compass and grunt-contrib-compass
-gem install compass
-npm install grunt-contrib-compass --save-dev
+- install Ruby
+- install Python
+- install Node.js to get nom command. Check here http://nodejs.org
+- install bower  
+```sh
+$ sudo npm install -g bower
+```
+- install grunt  
+```sh
+$ sudo npm -g install grunt-cli
+```
+- install compass  
+```sh
+$ gem install compass
+```
+- and grunt-contrib-compass  
+```sh
+$ npm install grunt-contrib-compass --save-dev
+```

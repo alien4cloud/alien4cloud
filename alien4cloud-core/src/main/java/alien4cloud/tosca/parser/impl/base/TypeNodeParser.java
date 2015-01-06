@@ -33,14 +33,6 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         yamlOrderedToObjectMapping = Maps.newHashMap();
     }
 
-    public TypeNodeParser(Class<T> type, String toscaType, Map<String, MappingTarget> yamlToObjectMapping,
-            Map<Integer, MappingTarget> yamlOrderedToObjectMapping) {
-        super(toscaType);
-        this.type = type;
-        this.yamlToObjectMapping = yamlToObjectMapping;
-        this.yamlOrderedToObjectMapping = yamlOrderedToObjectMapping;
-    }
-
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
         return false;

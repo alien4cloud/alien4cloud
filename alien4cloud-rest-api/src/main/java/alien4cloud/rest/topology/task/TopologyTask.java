@@ -1,6 +1,6 @@
 package alien4cloud.rest.topology.task;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

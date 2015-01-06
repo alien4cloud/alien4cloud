@@ -13,8 +13,8 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.serializer.BoundSerializer;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.utils.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

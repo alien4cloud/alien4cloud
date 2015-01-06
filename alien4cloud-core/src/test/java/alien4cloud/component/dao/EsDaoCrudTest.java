@@ -38,18 +38,18 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.model.CapabilityDefinition;
-import alien4cloud.tosca.model.RequirementDefinition;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.PropertyDefinition;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;

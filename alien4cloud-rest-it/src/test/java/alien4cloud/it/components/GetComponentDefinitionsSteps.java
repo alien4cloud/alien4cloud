@@ -15,7 +15,7 @@ import java.util.Map;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;

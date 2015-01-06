@@ -15,12 +15,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.Constants;
 import alien4cloud.component.NodeTypeScoreService;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)

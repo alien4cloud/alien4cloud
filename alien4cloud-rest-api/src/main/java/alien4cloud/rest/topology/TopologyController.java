@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.topology.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -22,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -39,13 +41,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
-import alien4cloud.tosca.container.model.topology.ScalingPolicy;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -85,11 +82,11 @@ public class TopologyController {
     private IFileRepository artifactRepository;
 
     /**
-     * Retrieve an existing {@link Topology}
+     * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
      * @param topologyId The id of the topology to retrieve.
-     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link Topology} and the {@link alien4cloud.tosca.container.model.type.NodeType} related
-     *         to his {@link NodeTemplate}s
+     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the {@link alien4cloud.tosca.container.model.type.NodeType} related
+     *         to his {@link alien4cloud.model.topology.NodeTemplate}s
      */
     @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{topologyId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

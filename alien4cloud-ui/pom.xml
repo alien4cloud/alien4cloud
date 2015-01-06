@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM18-SNAPSHOT</version>
+    <version>1.0.0-SM19-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -200,6 +200,34 @@
         </plugins>
       </build>
     </profile>
+
+
+    <profile>
+      <id>idea</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-webapp</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-util</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.eclipse.jetty.websocket</groupId>
+          <artifactId>websocket-server</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>javax.servlet-api</artifactId>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
     <profile>
       <id>jenkins</id>
       <activation>

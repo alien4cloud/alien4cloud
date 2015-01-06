@@ -10,7 +10,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;

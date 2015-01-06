@@ -24,7 +24,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.cloud.DeploymentService;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
@@ -41,13 +41,13 @@ import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
-import alien4cloud.tosca.model.IOperationParameter;
-import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.model.Operation;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintFunctionalException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintRequiredParameterException;
@@ -145,7 +145,7 @@ public class RuntimeController {
      * @param applicationId Id of the application for which to get deployed topology.
      * @param cloudId of the cloud on which the runtime topology is deployed.
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
-     *         {@link alien4cloud.component.model.IndexedNodeType} related to his {@link NodeTemplate}s
+     *         {@link alien4cloud.model.components.IndexedNodeType} related to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER"),
             @Authorization("DEPLOYMENT_MANAGER") })

@@ -11,17 +11,16 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
     }
     // TODO remove this!!!
     $scope.editRights = true;
-    // $scope.hasYamlEditor = true;
     $scope.editorContent = '';
     var inputOutputKeys = [ 'inputProperties', 'outputProperties', 'outputAttributes', 'inputArtifacts' ];
     var regexPatternn = '^[\\w_]*$';
-  
+
     var borderSpacing = 10;
     var border = 2;
     var detailDivWidth = 450;
     var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
-  
+
     function onResize(width, height) {
       $scope.dimensions = {
         width: width,
@@ -29,14 +28,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       };
       $scope.$apply();
     }
-  
+
     resizeServices.register(onResize, widthOffset, 120);
-  
+
     $scope.dimensions = {
       height: resizeServices.getHeight(120),
-      width: resizeServices.getWidth(widthOffset),
+      width: resizeServices.getWidth(widthOffset)
     };
-  
+
     var refreshTopology = function(topologyDTO, selectedNodeTemplate) {
       for ( var nodeId in topologyDTO.topology.nodeTemplates) {
         if (topologyDTO.topology.nodeTemplates.hasOwnProperty(nodeId)) {
@@ -53,14 +52,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         $scope.selectedNodeTemplate = null;
       }
     };
-  
+
     // Topology can comes from application OR topology template
     topologyServices.dao.get({
       topologyId: $scope.topologyId
     }, function(successResult) {
       refreshTopology(successResult.data);
     });
-  
+
     $scope.isNodeTemplateCollapsed = false;
     $scope.isPropertiesCollapsed = false;
     $scope.isRelationshipsCollapsed = false;
@@ -69,18 +68,18 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
     $scope.isArtifactCollapsed = false;
     $scope.isRequirementsCollapsed = false;
     $scope.isCapabilitiesCollapsed = false;
-  
+
     $scope.checkMapSize = function(map) {
       return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
     };
-  
+
     // do effectively add the relationship
     var doAddRelationship = function(openedOnElementName, relationshipResult, requirementName, requirementType) {
       var addRelationshipNodeTemplate = $scope.topology.topology.nodeTemplates[openedOnElementName];
       if (!addRelationshipNodeTemplate.relationships) {
         addRelationshipNodeTemplate.relationships = {};
       }
-  
+
       var relationshipTemplate = {
         type: relationshipResult.relationship.elementId,
         target: relationshipResult.target,
@@ -102,31 +101,31 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         refreshTopology(result.data, openedOnElementName);
       });
     };
-  
+
     $scope.openSearchRelationshipModal = function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
       if (!openedOnElement.requirements[requirementName].canAddRel.yes) {
         console.debug('Should be able to add relationships');
         return;
       }
-  
+
       $scope.sourceElement = openedOnElement;
       $scope.sourceElementName = openedOnElementName;
       $scope.requirementName = requirementName;
       $scope.requirement = requirement;
       $scope.targetNodeTemplateName = targetNodeTemplateName;
-  
+
       var modalInstance = $modal.open({
         templateUrl: 'views/fragments/search/search_relationship_modal.html',
         controller: 'SearchRelationshipCtrl',
         windowClass: 'searchModal',
         scope: $scope
       });
-  
+
       modalInstance.result.then(function(relationshipResult) {
         doAddRelationship(openedOnElementName, relationshipResult, requirementName, requirement.type);
       });
     };
-  
+
     /**
      * NODE TEMPLATE ADD / DELETE SHOW
      */
@@ -138,7 +137,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       }
       return false;
     };
-  
+
     var nodeTemplateNameFromType = function(type) {
       var baseName = UTILS.getShortName(type);
       var i = 1;
@@ -149,12 +148,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       }
       return tempName;
     };
-  
+
     $scope.nodeTypeSelected = function(nodeType, hostNodeName) {
       var nodeTemplName = nodeTemplateNameFromType(nodeType.elementId);
       doAddNodeTemplate(nodeTemplName, nodeType, hostNodeName);
     };
-  
+
     $scope.onComponentDragged = function(e) {
       var nodeType = angular.fromJson(e.source);
       var evt = e.event;
@@ -164,15 +163,22 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       }
       $scope.nodeTypeSelected(nodeType, hostNodeName);
     };
-  
+
     // refresh a node name in relationships
     function refreshNodeNameInRelationships(oldNodeName, newName) {
       for ( var nodeName in $scope.topology.topology.nodeTemplates) {
+        if (!$scope.topology.topology.nodeTemplates.hasOwnProperty(nodeName)) {
+          continue;
+        }
+
         var node = $scope.topology.topology.nodeTemplates[nodeName];
         var relationships = node.relationships;
         if (UTILS.isDefinedAndNotNull(relationships)) {
           for ( var relationshipId in relationships) {
-  
+            if (!relationships.hasOwnProperty(nodeName)) {
+              continue;
+            }
+
             var rel = relationships[relationshipId];
             var oldRelationshipId = UTILS.relationshipNameFromTypeAndTarget(rel.type, oldNodeName);
             if (relationshipId === oldRelationshipId) {
@@ -180,7 +186,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
               delete relationships[relationshipId];
               relationships[newRelationshipId] = rel;
             }
-  
+
             if (rel.target === oldNodeName) {
               rel.target = newName;
             }
@@ -188,7 +194,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         }
       }
     }
-  
+
     function autoOpenRelationshipModal(sourceNodeTemplateName, targetNodeTemplateName) {
       var sourceNodeTemplate = $scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
       var targetNodeTemplate = $scope.topology.topology.nodeTemplates[targetNodeTemplateName];
@@ -201,7 +207,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
             targetNodeTemplateName);
       }
     }
-  
+
     // do effectively add the node template
     function doAddNodeTemplate(nodeTemplateName, selectedNodeType, targetNodeTemplateName) {
       var nodeTemplateRequest = {
@@ -218,9 +224,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         }
       });
     }
-  
-    $scope.nodeNameObj = {}; // added to support <tabset> "childscope
-    // issue"
+
+    // added to support <tabset> "childscope issue"
+    $scope.nodeNameObj = {};
     function fillNodeSelectionVars(nodeTemplate) {
       var selectedProperties = [];
       for ( var propertyKey in nodeTemplate.properties) {
@@ -237,25 +243,25 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       $scope.nodeNameObj.val = nodeTemplate.name;
       $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
     }
-  
+
     $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
       // select the "Properties" <TAB> to see selected node details
       selectTab('nodetemplate-details');
-  
+
       if (oldSelectedName) {
         var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
         if (oldSelected) {
           oldSelected.selected = false;
         }
       }
-  
+
       var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
       newSelected.selected = true;
-  
+
       fillNodeSelectionVars(newSelected);
       $scope.$apply();
     };
-  
+
     $scope.deleteNodeTemplate = function(nodeTemplName) {
       topologyServices.nodeTemplate.remove({
         topologyId: $scope.topology.topology.id,
@@ -263,26 +269,23 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       }, function(result) {
         // for refreshing the ui
         refreshTopology(result.data);
-  
-        // select the "Add node" <TAB> to see selected node details
-        // $timeout(callback) will wait until the current digest cycle (if
-        // any) is done, then execute your code, then run at the end a
-        // full $apply
-        // without $timeout => ALREADY IN DIGEST CYCLE error
+
+        // select the "Add node" <TAB> to see selected node details $timeout(callback) will wait until the current digest cycle (if any)
+        // is done, then execute your code, then run at the end a full $apply without $timeout => ALREADY IN DIGEST CYCLE error
         $timeout(function() {
           selectTab('components-search');
         });
       });
     };
-  
+
     function selectTab(tabId) {
       document.getElementById(tabId).click();
     }
-  
+
     /**
      * UPDATE NODE TEMPLATE
      */
-  
+
     /* Update node template name */
     $scope.updateNodeName = function(newName) {
       // Update only when the name has changed
@@ -297,7 +300,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
           };
           return ' ';
         }
-  
+
         topologyServices.nodeTemplate.updateName({
           topologyId: $scope.topology.topology.id,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
@@ -317,12 +320,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         });
       } // if end
     };
-  
+
     /* Update properties of a node template */
     $scope.updateProperty = function(propertyDefinition, propertyValue) {
-  
+
       var propertyName = propertyDefinition.name;
-  
+
       if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName]) {
         return;
       }
@@ -330,7 +333,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         'propertyName': propertyName,
         'propertyValue': propertyValue
       };
-  
+
       return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: $scope.selectedNodeTemplate.name
@@ -338,9 +341,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         // update the selectedNodeTemplate properties locally
         $scope.selectedNodeTemplate.properties[propertyName] = propertyValue;
       }).$promise;
-  
+
     };
-  
+
     // Add property / artifact / attributes to input list
     var initInOutMap = function(topology, nodeTemplateName, key) {
       if (angular.isDefined(topology[key])) {
@@ -352,25 +355,25 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         topology[key][nodeTemplateName] = [];
       }
     };
-  
+
     var initInOutMaps = function(topology, nodeTemplateName) {
       inputOutputKeys.forEach(function(key) {
         initInOutMap(topology, nodeTemplateName, key);
       });
     };
-  
+
     var refreshInOutMap = function(topology, oldName, newName, key) {
       var map = topology[key][oldName];
       delete topology[key][oldName];
       topology[key][newName] = map;
     };
-  
+
     var refreshInOutMaps = function(topology, oldName, newName) {
       inputOutputKeys.forEach(function(key) {
         refreshInOutMap(topology, oldName, newName, key);
       });
     };
-  
+
     var initInputsOutputs = function(topology) {
       if (topology.nodeTemplates) {
         Object.keys(topology.nodeTemplates).forEach(function(nodeTemplateName) {
@@ -378,25 +381,25 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         });
       }
     };
-  
+
     var toggleInputOutput = function(propertyName, inputOrOutput, type) {
-  
+
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
       var params = {
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: nodeTemplateName
       };
-  
+
       if (type === 'property') {
         params.propertyName = propertyName;
       }
       if (type === 'attribute') {
         params.attributeName = propertyName;
       }
-  
+
       var inputIndex = topology[inputOrOutput][nodeTemplateName].indexOf(propertyName);
-  
+
       if (inputIndex < 0) {
         // add input property
         topologyServices.nodeTemplate[inputOrOutput].add(params, function(successResult) {
@@ -421,19 +424,19 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         });
       }
     };
-  
+
     $scope.toggleInputProperty = function(propertyName) {
       toggleInputOutput(propertyName, 'inputProperties', 'property');
     };
-  
+
     $scope.toggleOutputProperty = function(propertyName) {
       toggleInputOutput(propertyName, 'outputProperties', 'property');
     };
-  
+
     $scope.toggleOutputAttribute = function(attributeName) {
       toggleInputOutput(attributeName, 'outputAttributes', 'attribute');
     };
-  
+
     $scope.openSimpleModal = function(modalTitle, modalContent) {
       $modal.open({
         templateUrl: 'views/fragments/simple_modal.html',
@@ -448,18 +451,18 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         }
       });
     };
-  
+
     var ModalInstanceCtrl = [ '$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
       $scope.title = title;
       $scope.content = content;
-  
+
       $scope.close = function() {
         $modalInstance.dismiss('close');
       };
     } ];
-  
+
     $scope.updateInputArtifactList = function(artifactName) {
-  
+
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
       var artifactInput = {
@@ -467,9 +470,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         nodeTemplateName: nodeTemplateName,
         artifactName: artifactName
       };
-  
+
       var inputIndex = topology.inputArtifacts[nodeTemplateName].indexOf(artifactName);
-  
+
       if (inputIndex < 0) {
         // add input artifact
         topologyServices.nodeTemplate.artifactInput.add(artifactInput, function(successResult) {
@@ -491,9 +494,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
           console.debug(errorResult);
         });
       }
-  
+
     };
-  
+
     // Upload handler
     $scope.doUpload = function(file, artifactId) {
       var uploadNodeTemplate = $scope.selectedNodeTemplate;
@@ -522,17 +525,17 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         $scope.uploads[artifactId].error.message = 'An Error has occurred on the server!';
       });
     };
-  
+
     $scope.onArtifactSelected = function($files, artifactId) {
       var file = $files[0];
       $scope.doUpload(file, artifactId);
     };
-  
+
     /**
      * REPLACE A NODE TEMPLATE
      */
     $scope.getIcon = UTILS.getIcon;
-  
+
     $scope.getPossibleReplacements = function(selectedNodeTemplate) {
       topologyServices.nodeTemplate.getPossibleReplacements({
         topologyId: $scope.topology.topology.id,
@@ -541,14 +544,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         $scope.suggestedReplacements = result.data;
       });
     };
-  
+
     $scope.swapNodeTemplate = function(selectedNodeTemplate, newNodeType) {
       var newNodeTemplName = nodeTemplateNameFromType(newNodeType.elementId);
       var nodeTemplateRequest = {
         name: newNodeTemplName,
         indexedNodeTypeId: newNodeType.id
       };
-  
+
       topologyServices.nodeTemplate.replace({
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: selectedNodeTemplate.name
@@ -556,7 +559,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         refreshTopology(result.data, newNodeTemplName);
       });
     };
-  
+
     /**
      * REMOVE RELATIONSHIP
      */
@@ -571,7 +574,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         }
       });
     };
-  
+
     /**
      * SCALING POLICIES
      */
@@ -591,7 +594,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         $scope.topology.topology.scalingPolicies[nodeTemplateName] = newScalingPolicy;
       });
     };
-  
+
     $scope.updateScalingPolicy = function(policyFieldName, policyFieldValue) {
       if (policyFieldValue < 0) {
         return $translate('ERRORS.800.greaterOrEqual', {
@@ -639,7 +642,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         nodeTemplateName: $scope.selectedNodeTemplate.name
       }, angular.toJson(existingPolicy), undefined);
     };
-  
+
     $scope.deleteScalingPolicy = function(nodeTemplateName) {
       topologyServices.topologyScalingPoliciesDAO.remove({
         topologyId: $scope.topology.topology.id,
@@ -648,7 +651,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         delete $scope.topology.topology.scalingPolicies[nodeTemplateName];
       });
     };
-  
+
     /**
      * RELATIONSHIPS CARDINALITIES
      */
@@ -658,14 +661,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         yes: true,
         remaining: UNBOUNDED
       };
-  
+
       var relationships = nodeTemplate.relationships;
       var requirement = nodeTemplate.requirements[requirementName];
       // case unbounded
       if (requirement.upperBound === UNBOUNDED) {
         return toReturn;
       }
-  
+
       var count = 0;
       for ( var relName in relationships) {
         if (relationships[relName].requirementName === requirementName && relationships[relName].requirementType === requirement.type) {
@@ -676,7 +679,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       toReturn.remaining = toReturn.yes ? requirement.upperBound - count : 0;
       return toReturn;
     };
-  
+
     var fillRequirementBounds = function(nodeTemplate) {
       var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
       nodeType.requirements.forEach(function(reqDef) {
@@ -685,7 +688,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         nodeTemplate.requirements[reqDef.id].canAddRel = canAddRelationshipWithSource(nodeTemplate, reqDef.id);
       });
     };
-  
+
     var fillCapabilityBounds = function(nodeTemplate) {
       var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
       if (nodeType.capabilities) {
@@ -695,7 +698,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         });
       }
     };
-  
+
     var canAddRelationshipWithTarget = function(nodeTemplate, capabilityName) {
       var nodeTemplates = $scope.topology.topology.nodeTemplates;
       var capability = nodeTemplate.capabilities[capabilityName];
@@ -707,7 +710,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       if (capability.upperBound === UNBOUNDED) {
         return toReturn;
       }
-  
+
       var count = 0;
       for ( var templateName in nodeTemplates) {
         var nodeTemp = nodeTemplates[templateName];
@@ -727,9 +730,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       toReturn.remaining = toReturn.yes ? capability.upperBound - count : 0;
       return toReturn;
     };
-  
+
     $scope.canAddRelationshipWithTarget = canAddRelationshipWithTarget;
-  
+
     var fillBounds = function(topology) {
       if (!topology.nodeTemplates) {
         return;
@@ -740,11 +743,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         fillCapabilityBounds(nodeTemplate);
       });
     };
-  
+
     $scope.getShortName = function(longName) {
       return UTILS.getShortName(longName);
     };
-  
+
     /**
      * Properties scopes
      */
@@ -752,52 +755,50 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       var propDef = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyName];
       return propDef.required;
     };
-  
+
     $scope.isInputProperty = function(propertyName) {
       return $scope.topology.topology.inputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
     };
-  
+
     $scope.isInputArtifact = function(artifactName) {
       return $scope.topology.topology.inputArtifacts[$scope.selectedNodeTemplate.name].indexOf(artifactName) >= 0;
     };
-  
+
     $scope.isOutputProperty = function(propertyName) {
       return $scope.topology.topology.outputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
     };
-  
+
     $scope.isOutputAttribute = function(attributeName) {
       return $scope.topology.topology.outputAttributes[$scope.selectedNodeTemplate.name].indexOf(attributeName) >= 0;
     };
-  
+
     $scope.getFormatedProperty = function(propertyKey) {
       var formatedProperty = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey];
       formatedProperty.name = propertyKey;
       return formatedProperty;
     };
-  
+
     $scope.getPropertyDescription = function(propertyKey) {
       return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey].description;
     };
-  
+
     /**
      * Capabilities and Requirements docs
      */
     $scope.getComponent = function(nodeTemplate, type) {
-  
+
       var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
       var componentId = type + ':' + nodeType.archiveVersion;
-  
+
       return componentService.get({
         componentId: componentId
       }, function(successResult) {
-        if (successResult.error === null) {
-          if (successResult.data !== null) {
-            return successResult.data.description;
-          }
+        if (successResult.error === null && successResult.data !== null) {
+          return successResult.data.description;
         }
       });
     };
-  
+
     /**
      * Rename a relationship
      */
@@ -805,7 +806,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
     /* Update relationship name */
     $scope.updateRelationshipName = function(oldName, newName) {
       // Update only when the name has changed
-      // $scope.relationshipNameEditError[oldName] = null;
       if (oldName !== newName) {
         topologyServices.relationship.updateName({
           topologyId: $scope.topology.topology.id,
@@ -824,7 +824,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
         });
       } // if end
     };
-  
+
     // check if compute type
     $scope.isComputeType = function(nodeTemplate) {
       if (UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)) {

@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.Constants;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedToscaElement;
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
@@ -28,7 +28,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
+import alien4cloud.component.ICSARRepositorySearchService;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

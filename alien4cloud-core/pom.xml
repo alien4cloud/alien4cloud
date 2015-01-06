@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>alien4cloud</groupId>
 		<artifactId>alien4cloud-parent</artifactId>
-		<version>1.0.0-SM18-SNAPSHOT</version>
+		<version>1.0.0-SM19-SNAPSHOT</version>
 	</parent>
 	<artifactId>alien4cloud-core</artifactId>
 	<name>Alien 4 Cloud Core</name>
@@ -56,6 +56,10 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
 		</dependency>
 
 		<!-- logging -->
@@ -128,26 +132,10 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- <plugin> -->
-			<!-- <groupId>fr.fastconnect</groupId> -->
-			<!-- <artifactId>plantuml-maven-plugin</artifactId> -->
-			<!-- <version>1.0.0</version> -->
-			<!-- <configuration> -->
-			<!-- <className>alien4cloud.tosca.container.model.Definitions</className> -->
-			<!-- </configuration> -->
-			<!-- <executions> -->
-			<!-- <execution> -->
-			<!-- <goals> -->
-			<!-- <goal>plant</goal> -->
-			<!-- </goals> -->
-			<!-- </execution> -->
-			<!-- </executions> -->
-			<!-- </plugin> -->
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-					only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
