@@ -7,12 +7,17 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.paas.IPaaSCallback;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -23,6 +28,7 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.OperationExecRequest;
@@ -119,7 +125,8 @@ public class RuntimeController {
 
                 @Override
                 public void onFailure(Throwable throwable) {
-                    result.setErrorResult(throwable);
+                    result.setErrorResult(RestResponseBuilder.<Object> builder()
+                            .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), throwable.getMessage())).build());
                 }
             });
         } catch (OperationExecutionException e) {
