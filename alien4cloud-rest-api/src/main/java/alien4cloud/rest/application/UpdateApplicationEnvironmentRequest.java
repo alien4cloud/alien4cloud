@@ -22,4 +22,5 @@ public class UpdateApplicationEnvironmentRequest {
     private String cloudId;
     private String name;
     private String description;
+    private String currentVersionId;
 }
