@@ -28,6 +28,7 @@ import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.MatchedComputeTemplate;
 import alien4cloud.model.cloud.MatchedNetwork;
@@ -602,6 +603,15 @@ public class CloudService {
     public CloudResourceMatcherConfig findCloudResourceMatcherConfig(Cloud cloud) {
         // A little bit tricky here, the resource matcher has the same id as the cloud
         return alienDAO.findById(CloudResourceMatcherConfig.class, cloud.getId());
+    }
+
+    public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider instanceof IManualResourceMatcherPaaSProvider) {
+            return ((IManualResourceMatcherPaaSProvider) paaSProvider).getAvailableResourceIds(type);
+        } else {
+            return null;
+        }
     }
 
     public CloudResourceMatcherConfig getMandatoryCloudResourceMatcherConfig(Cloud cloud) {

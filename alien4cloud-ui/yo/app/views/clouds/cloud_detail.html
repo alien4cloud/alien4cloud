@@ -258,13 +258,18 @@
                           <td>{{cloudImage.name}}</td>
                           <td>{{flavor.id}}</td>
                           <td ng-if="manualMatchResource" ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
-                            <span editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
+                            <span ng-if="!manualMatchComputeIds" editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
                               {{template.paaSResourceId}}
                               <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
                               </em>
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
+                            <select ng-if="manualMatchComputeIds" ng-model="template.paaSResourceId" ng-change="saveComputeTemplateResource(template)">
+                              <option value="" ng-selected="!template.paaSResourceId">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
+                              <option ng-repeat="value in manualMatchComputeIds" value="{{value}}" ng-selected="value == template.paaSResourceId">{{value}}
+                              </option>
+                            </select>
                           </td>
                         </tr>
                       </tbody>

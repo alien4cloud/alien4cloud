@@ -694,7 +694,8 @@
     "deleting": "Suppression en cours",
     "deleted": "Supprimé",
     "uninstalling": "Désinstallation",
-    "uninstalled": "Désinstallé"
+    "uninstalled": "Désinstallé",
+    "uninitialized": "Non initialisé"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
@@ -436,7 +437,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
-
+        callback.onSuccess(deploymentsMap.get(deploymentContext.getDeploymentId()));
     }
 
     @Override
@@ -529,5 +530,10 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }
+    }
+
+    @Override
+    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
+        return new String[] { "Life", "Is", "Wonderful" };
     }
 }

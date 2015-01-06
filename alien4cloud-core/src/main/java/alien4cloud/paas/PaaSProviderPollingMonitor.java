@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,6 +15,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.TypeScanner;
 
 import com.google.common.collect.Maps;
@@ -35,6 +37,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private PaaSEventsCallback paaSEventsCallback;
     private String cloudId;
     private boolean hasDeployments;
+    private AtomicBoolean getEventsInProgress = new AtomicBoolean(false);
 
     /**
      * Create a new instance of the {@link PaaSProviderPollingMonitor} to monitor the given paas provider.
@@ -79,13 +82,14 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
         @Override
         public void onSuccess(AbstractMonitorEvent[] auditEvents) {
-            if (log.isDebugEnabled()) {
-                log.debug("Polled from date {}", lastPollingDate);
-                if (auditEvents != null && auditEvents.length > 0) {
-                    log.debug("Saving events for cloud {}", cloudId);
-                    for (AbstractMonitorEvent event : auditEvents) {
-                        log.debug(event.toString());
-                    }
+            getEventsInProgress.set(false);
+            if (log.isTraceEnabled()) {
+                log.trace("Polled from date {}", lastPollingDate);
+            }
+            if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
+                log.debug("Saving events for cloud {}", cloudId);
+                for (AbstractMonitorEvent event : auditEvents) {
+                    log.debug(event.toString());
                 }
             }
             if (auditEvents != null && auditEvents.length > 0) {
@@ -108,6 +112,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
         @Override
         public void onFailure(Throwable throwable) {
+            getEventsInProgress.set(false);
             log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
         }
     }
@@ -115,11 +120,27 @@ public class PaaSProviderPollingMonitor implements Runnable {
     @Override
     @SuppressWarnings("rawtypes")
     public void run() {
-        // TODO Work-around for cloudify 3
+        if (getEventsInProgress.get()) {
+            // Get events since is running
+            return;
+        }
+        getEventsInProgress.set(true);
         if (hasDeployments) {
             paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
         } else {
-            hasDeployments = this.dao.count(Deployment.class, QueryBuilders.matchAllQuery()) > 0;
+            getEventsInProgress.set(false);
+            hasDeployments = getActiveDeployment() != null;
         }
+    }
+
+    private Deployment getActiveDeployment() {
+        Deployment deployment = null;
+
+        GetMultipleDataResult<Deployment> dataResult = dao.search(Deployment.class, null,
+                MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { cloudId }, new String[] { null } }), 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            deployment = dataResult.getData()[0];
+        }
+        return deployment;
     }
 }

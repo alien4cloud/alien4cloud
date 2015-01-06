@@ -7,9 +7,9 @@ import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {
-        "classpath:alien/rest/application-deployment/"
-        // "classpath:alien/rest/application-deployment/deploy_application_with_events.feature"
-        // "classpath:alien/rest/application-deployment/deploy_application.feature"
+//        "classpath:alien/rest/application-deployment/"
+//        "classpath:alien/rest/application-deployment/deploy_application_with_events.feature"
+        "classpath:alien/rest/application-deployment/deploy_application.feature"
         // "classpath:alien/rest/application-deployment/deploy_with_deployment_properties.feature"
         // "classpath:alien/rest/application-deployment/deployments.feature"
 //         "classpath:alien/rest/application-deployment/deployment_setup.feature"

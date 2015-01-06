@@ -693,7 +693,8 @@
     "deleting": "Deleting",
     "deleted": "Deleted",
     "uninstalling": "Uninstalling",
-    "uninstalled": "Uninstalled"
+    "uninstalled": "Uninstalled",
+    "uninitialized": "Uninitialized"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",
