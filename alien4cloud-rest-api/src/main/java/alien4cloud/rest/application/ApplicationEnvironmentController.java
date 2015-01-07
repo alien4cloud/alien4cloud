@@ -32,6 +32,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -186,6 +187,7 @@ public class ApplicationEnvironmentController {
                 if (appEnvironment.getName() == null || appEnvironment.getName().isEmpty()) {
                     throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
                 }
+                // TODO : if update is about currentVersionId => change also DeploymentSetup (version)
                 alienDAO.save(appEnvironment);
             } else {
                 // linked application id not found
@@ -343,7 +345,8 @@ public class ApplicationEnvironmentController {
                 tempEnvDTO.setCloudName(null);
             }
             tempEnvDTO.setCloudId(env.getCloudId());
-            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion());
+            ApplicationVersion applicationVersion = applicationVersionService.get(env.getCurrentVersionId());
+            tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
             } catch (CloudDisabledException e) {
