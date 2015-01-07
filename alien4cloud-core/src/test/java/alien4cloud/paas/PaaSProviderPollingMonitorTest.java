@@ -61,7 +61,7 @@ public class PaaSProviderPollingMonitorTest {
         for (i = 0; i < 2; i++) {
 
             eventMessage = new PaaSMessageMonitorEvent();
-            eventMessage.setCloudId("CloudID-" + i);
+            eventMessage.setCloudId("CloudID");
             eventMessage.setDate(addMinutesToDate(2, new Date()).getTime());
             eventMessage.setDeploymentId("ID-XXX+" + i);
             eventMessage.setMessage("EVENT MESSAGE : " + eventMessage.getDate());
@@ -77,7 +77,7 @@ public class PaaSProviderPollingMonitorTest {
         for (i = 0; i < 3; i++) {
 
             eventDeploymentStatus = new PaaSDeploymentStatusMonitorEvent();
-            eventDeploymentStatus.setCloudId("CloudID-" + i);
+            eventDeploymentStatus.setCloudId("CloudID");
             eventDeploymentStatus.setDate(addMinutesToDate(2, new Date()).getTime());
             eventDeploymentStatus.setDeploymentId("DEP_ID-" + i);
             eventDeploymentStatus.setDeploymentStatus(DeploymentStatus.DEPLOYED);
@@ -92,13 +92,13 @@ public class PaaSProviderPollingMonitorTest {
     }
 
     @Test
-    public void testLoadEeventsFromLastRegistered() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException,
+    public void testLoadEventsFromLastRegistered() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException,
             JsonProcessingException, InterruptedException {
 
         // init with some events
         initEvents();
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "test");
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "CloudID");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
@@ -109,7 +109,7 @@ public class PaaSProviderPollingMonitorTest {
     @Test
     public void testLoadEventsWithoutEvents() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
-        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "test");
+        PaaSProviderPollingMonitor paaSProviderPollingMonitor = new PaaSProviderPollingMonitor(alienDao, alienMonitorDao, null, null, "CloudID");
         Field lastPollingDateField = PaaSProviderPollingMonitor.class.getDeclaredField("lastPollingDate");
         lastPollingDateField.setAccessible(true);
         Date lastDate = (Date) lastPollingDateField.get(paaSProviderPollingMonitor);
