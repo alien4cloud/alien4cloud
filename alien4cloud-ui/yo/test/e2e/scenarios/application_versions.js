@@ -86,9 +86,10 @@ describe('Application versions', function() {
   it('should not rename an app version with a bad name', function() {
     after = true;
     console.log('################# should not rename an app version with a bad name');
-    common.sendValueToXEditable('td-0.1.0-SNAPSHOT', '0...1..0', false);
+    common.sendValueToXEditable('td-0.1.0-SNAPSHOT', '0.1.', false);
     common.expectErrors();
-    common.dismissAlert();
+    browser.sleep(5000); // DO NOT REMOVE, we need to send a valid value to the editable text
+    element(by.css('#td-0\\.1\\.0-SNAPSHOT input')).sendKeys('0');
     assertCountVersions(2);
   });
 

@@ -52,11 +52,13 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
           applicationId: $scope.application.id,
           applicationVersionId: versionId
         }, null, function deleteAppEnvironment(result) {
-          $scope.search();
-          for (var i=0; i<appVersions.length; i++) {
-            if (appVersions[i].id === versionId) {
-              appVersions.splice(i, 1);
-              break;
+          if (result) {
+            $scope.search();
+            for (var i=0; i<appVersions.length; i++) {
+              if (appVersions[i].id === versionId) {
+                appVersions.splice(i, 1);
+                break;
+              }
             }
           }
         });

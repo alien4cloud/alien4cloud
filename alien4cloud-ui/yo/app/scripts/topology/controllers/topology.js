@@ -23,7 +23,7 @@ angular.module('alienUiApp').controller(
       var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
       var COMPUTE_TYPE = 'tosca.nodes.Compute';
 
-      var setSelectedversionByName = function(name) {
+      var setSelectedVersionByName = function(name) {
         $scope.selectedVersionName = name;
         for(var i=0; i<$scope.appVersions.length; i++) {
           if ($scope.appVersions[i].version == $scope.selectedVersionName) {
@@ -38,13 +38,13 @@ angular.module('alienUiApp').controller(
           applicationId: $scope.application.id
         }, function updateSelectedVersion(result) {
           $scope.selectedVersionName = result.data.version;
-          setSelectedversionByName($scope.selectedVersionName);
+          setSelectedVersionByName($scope.selectedVersionName);
         });
       };
       updateSelectedVersionName();
 
       $scope.changeVersion = function(selectedVersion) {
-        setSelectedversionByName(selectedVersion.version);
+        setSelectedVersionByName(selectedVersion.version);
         $scope.topologyId = selectedVersion.topologyId;
         topologyServices.dao.get({
           topologyId: $scope.topologyId
