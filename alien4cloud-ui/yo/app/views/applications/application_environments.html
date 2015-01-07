@@ -49,7 +49,7 @@
                   'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
                 }"></i>
               </td>
-              <td><span editable-text="environment.name" onbeforesave="updateApplicationEnvironment('name',$data, environment.id, environment.name)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.name}} <i class="fa fa-edit"></i></span></td>
+              <td id="{{environment.name}}-name-td"><span editable-text="environment.name" onbeforesave="updateApplicationEnvironment('name',$data, environment.id, environment.name)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.name}} <i class="fa fa-edit"></i></span></td>
               <td>
                 <select name="applicationVersionsList" id="{{environment.name}}-versionslistid" ng-model="environment.currentVersionName" ng-options="v.version as v.version for v in versions" ng-change="updateApplicationEnvironment('currentVersionId', environment.currentVersionName, environment.id)"></select>
               </td>
