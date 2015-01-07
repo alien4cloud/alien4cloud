@@ -112,16 +112,11 @@ var toUpperCase = function(text) {
 };
 
 UTILS.relationshipNameFromTypeAndTarget = function(type, targetName) {
-  var tokens = type.split('.');
-  if (tokens.length > 1) {
-    return toLowerCase(tokens[tokens.length - 1]) + toUpperCase(targetName);
-  } else {
-    return toLowerCase(type) + toUpperCase(targetName);
-  }
+  return toLowerCase(getShortName(type)) + toUpperCase(targetName);
 };
 
 UTILS.getShortName = function(longName) {
-  var tokens = longName.split('.');
+  var tokens = longName.trim().split('.');
   if (tokens.length > 0) {
     return tokens[tokens.length - 1];
   } else {

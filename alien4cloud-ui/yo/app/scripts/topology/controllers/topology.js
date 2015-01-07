@@ -744,9 +744,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', [ 'alienAuthService', '$
       });
     };
 
-    $scope.getShortName = function(longName) {
-      return UTILS.getShortName(longName);
-    };
+    $scope.getShortName = UTILS.getShortName;
 
     /**
      * Properties scopes
