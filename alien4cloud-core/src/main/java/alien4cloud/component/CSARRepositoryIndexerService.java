@@ -73,7 +73,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         if (archiveElements == null) {
             return;
         }
-        List<IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderForIndex(archiveElements);
+        List<? extends IndexedInheritableToscaElement> orderedElements = IndexedModelUtils.orderByDerivedFromHierarchy(archiveElements);
         for (IndexedInheritableToscaElement element : orderedElements) {
             indexInheritableElement(archiveName, archiveVersion, element, dependencies);
         }

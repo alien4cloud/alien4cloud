@@ -2,7 +2,9 @@ package alien4cloud.dao;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +31,7 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -185,6 +188,17 @@ public abstract class ESIndexMapper {
                 throw new IndexingServiceException("Class type <" + className + "> not found.", e);
             }
         }
+    }
+
+    public String[] getTypesFromClass(Class<?> clazz) {
+        List<String> types = Lists.newArrayList();
+        Collection<Class<?>> allManagedClasses = typesToClasses.values();
+        for (Class<?> managedClass : allManagedClasses) {
+            if (clazz.isAssignableFrom(managedClass)) {
+                types.add(MappingBuilder.indexTypeFromClass(clazz));
+            }
+        }
+        return types.toArray(new String[types.size()]);
     }
 
     /**

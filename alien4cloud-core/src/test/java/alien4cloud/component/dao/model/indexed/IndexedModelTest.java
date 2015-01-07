@@ -89,7 +89,7 @@ public class IndexedModelTest {
 
     @Test
     public void testOrderInheritableElements() {
-        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderForIndex(elementsByIdMap);
+        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderByDerivedFromHierarchy(elementsByIdMap);
 
         for (IndexedInheritableToscaElement el : sorted) {
             System.out.println(el.getElementId() + " " + el.getDerivedFrom());

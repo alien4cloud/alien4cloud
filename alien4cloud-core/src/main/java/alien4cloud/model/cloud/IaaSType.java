@@ -1,5 +1,15 @@
 package alien4cloud.model.cloud;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public enum IaaSType {
-    AZURE, OPENSTACK, VMWARE, AMAZON, VIRTUALBOX, OTHER
+    AZURE("azure"), OPENSTACK("openstack"), VMWARE("vmware"), AMAZON("amazon"), VIRTUALBOX("virtualbox"), OTHER("other");
+
+    private String name;
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

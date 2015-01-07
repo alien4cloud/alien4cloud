@@ -11,7 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
@@ -21,6 +28,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.OperationExecRequest;
@@ -81,8 +89,8 @@ public class RuntimeController {
     @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public RestResponse<Object> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
-
+    public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
+        final DeferredResult<RestResponse<Object>> result = new DeferredResult<>();
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.DEPLOYMENT_MANAGER, ApplicationRole.APPLICATION_MANAGER);
 
@@ -90,32 +98,45 @@ public class RuntimeController {
         try {
             validateCommand(operationRequest);
         } catch (ConstraintViolationException e) {
-            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
-                    .error(new RestError(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR.getCode(), e.getMessage())).build());
+            return result;
         } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
-                    .error(new RestError(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR.getCode(), e.getMessage())).build());
+            return result;
         } catch (ConstraintRequiredParameterException e) {
-            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
-                    .error(new RestError(RestErrorCode.PROPERTY_REQUIRED_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_REQUIRED_VIOLATION_ERROR.getCode(), e.getMessage())).build());
+            return result;
         } catch (ConstraintFunctionalException e) {
-            return RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
-                    .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
+                    .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build());
+            return result;
         }
 
         // try to trigger the execution of the operation
-        Map<String, String> commandResponse;
-
         try {
-            commandResponse = deploymentService.triggerOperationExecution(operationRequest);
+            deploymentService.triggerOperationExecution(operationRequest, new IPaaSCallback<Map<String, String>>() {
+                @Override
+                public void onSuccess(Map<String, String> data) {
+                    result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    result.setErrorResult(RestResponseBuilder.<Object> builder()
+                            .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), throwable.getMessage())).build());
+                }
+            });
         } catch (OperationExecutionException e) {
-            return RestResponseBuilder.<Object> builder().error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder()
+                    .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), e.getMessage())).build());
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Object> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Object> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+                    .build());
         }
-
-        return RestResponseBuilder.<Object> builder().data(commandResponse).build();
-
+        return result;
     }
 
     /**

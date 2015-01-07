@@ -3,12 +3,13 @@ package alien4cloud.paas;
 import java.util.Date;
 import java.util.Map;
 
-import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.model.components.PropertyDefinition;
 
@@ -16,56 +17,47 @@ import alien4cloud.model.components.PropertyDefinition;
  * Interface of a Platform as a Service provider.
  */
 public interface IPaaSProvider {
+
     /**
-     * Deploy a topology.
-     *
-     * @param applicationName Name of the application that owns the topology.
-     * @param deploymentId The unique id of the deployment.
-     * @param topology The topology to deploy.
-     * @param deploymentSetup Deployment set up
+     * Deploy a topology
+     * 
+     * @param deploymentContext the context of the deployment
      */
-    void deploy(String applicationName, String deploymentId, Topology topology, DeploymentSetup deploymentSetup);
+    void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
      * Undeploy a given topology.
      *
-     * @param deploymentId The id of the topology to undeploy.
+     * @param deploymentContext the context of the un-deployment
      */
-    void undeploy(String deploymentId);
+    void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback);
 
     /**
      * Scale up/down a node
      *
-     * @param deploymentId id of the deployment
+     * @param deploymentContext the deployment context
      * @param nodeTemplateId id of the compute node to scale up
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      */
-    void scale(String deploymentId, String nodeTemplateId, int instances);
+    void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback);
 
     /**
-     * Get the status of a given topology.
-     *
-     * @param deploymentId id of the deployment.
-     * @return the deployment status of the topology.
+     * Get status of a deployment
+     * 
+     * @param deploymentContext the deployment context
+     * @param callback callback when the status will be available
      */
-    DeploymentStatus getStatus(String deploymentId);
+    void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback);
 
     /**
-     * Get the status of a list of deployments
+     * Get instance information of a topology from the PaaS
      *
-     * @param deploymentIds ids of the deployments
-     * @return list of deployment status
+     * @param deploymentContext the deployment context
+     * @param topology the topology to retrieve information
+     * @param callback callback when the information will be available
      */
-    DeploymentStatus[] getStatuses(String[] deploymentIds);
-
-    /**
-     * Get the detailed status for each instance of each node template.
-     *
-     * @param deploymentId id of the deployment
-     * @param topology The topology for which to get instance information.
-     * @return (map : node template's id => (map : instance's id => instance status))
-     */
-    Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology);
+    void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case
@@ -75,22 +67,23 @@ public interface IPaaSProvider {
      * @param maxEvents The maximum number of events to return.
      * @return An array of time ordered audit events with a maximum size of maxEvents.
      */
-    AbstractMonitorEvent[] getEventsSince(Date date, int maxEvents);
+    void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventCallback);
 
     /**
      * Trigger a custom command on a node
      *
-     * @param deploymentId id of the deployment.
+     * @param deploymentContext the deployment context
      * @param request An object of type {@link NodeOperationExecRequest} describing the operation's execution request
-     * @return (map : instance id => operation result on this instance)
+     * @param operationResultCallback the callback that will be triggered when the operation's result become available
      * @throws OperationExecutionException
      */
-    Map<String, String> executeOperation(String deploymentId, NodeOperationExecRequest request) throws OperationExecutionException;
+    void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> operationResultCallback)
+            throws OperationExecutionException;
 
     /**
-     * Get the deployment property map
+     * Get the deployment property definition
      *
-     * @return A property map
+     * @return A map containing property definitions
      */
     Map<String, PropertyDefinition> getDeploymentPropertyMap();
 }

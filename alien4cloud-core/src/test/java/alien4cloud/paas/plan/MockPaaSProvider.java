@@ -4,66 +4,30 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.application.DeploymentSetup;
 import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.paas.AbstractPaaSProvider;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IPaaSCallback;
+import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.model.components.PropertyDefinition;
 
 @Getter
 @Component
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<String> {
+public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaaSProvider {
+
     private List<PaaSNodeTemplate> roots;
-
-    @Override
-    public void undeploy(String deploymentId) {
-    }
-
-    @Override
-    public void scale(String applicationId, String nodeTemplateId, int instances) {
-    }
-
-    @Override
-    public DeploymentStatus getStatus(String deploymentId) {
-        return null;
-    }
-
-    @Override
-    public DeploymentStatus[] getStatuses(String[] deploymentIds) {
-        return null;
-    }
-
-    @Override
-    public Map<String, Map<Integer, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
-        return null;
-    }
-
-    @Override
-    public AbstractMonitorEvent[] getEventsSince(Date date, int maxEvents) {
-        return null;
-    }
-
-    @Override
-    protected void doDeploy(String deploymentName, String deploymentId, Topology topology, List<PaaSNodeTemplate> roots,
-            Map<String, PaaSNodeTemplate> nodeTemplates, DeploymentSetup deploymentSetup) {
-        this.roots = roots;
-    }
-
-    @Override
-    public Map<String, PropertyDefinition> getDeploymentPropertyMap() {
-        return null;
-    }
 
     @Override
     public String getDefaultConfiguration() {
@@ -72,11 +36,48 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public void setConfiguration(String configuration) throws PluginConfigurationException {
+
     }
 
     @Override
-    public Map<String, String> executeOperation(String deploymentId, NodeOperationExecRequest request) throws OperationExecutionException {
+    public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+        this.roots = deploymentContext.getPaaSTopology().getComputes();
+    }
+
+    @Override
+    public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
+
+    }
+
+    @Override
+    public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, int instances, IPaaSCallback<?> callback) {
+
+    }
+
+    @Override
+    public void getEventsSince(Date date, int maxEvents, IPaaSCallback<AbstractMonitorEvent[]> eventCallback) {
+
+    }
+
+    @Override
+    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request,
+            IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException {
+
+    }
+
+    @Override
+    public Map<String, PropertyDefinition> getDeploymentPropertyMap() {
         return null;
     }
 
+    @Override
+    public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
+
+    }
+
+    @Override
+    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+
+    }
 }

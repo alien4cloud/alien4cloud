@@ -91,7 +91,7 @@ public class PaaSPlanGeneratorTest {
 
         // deploy the topology so we build the root tree using the PaaSProvider abstract class.
         Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
-        List<PaaSNodeTemplate> roots = topologyTreeBuilderService.getHostedOnTree(nodeTemplates);
+        List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
 
         // now build the plans and check results
         BuildPlanGenerator generator = new BuildPlanGenerator();
