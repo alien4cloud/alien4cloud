@@ -81,7 +81,7 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return appStatuses;
     };
 
-    var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
+    var colors = {'DEPLOYED': '#398439', 'UNDEPLOYED': '#D8D8D8'};
     var drawPieChart = function(appName, data) {
       var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
         return node.data.name;
