@@ -38,15 +38,15 @@
     <sourceDirectory>yo/app/scripts</sourceDirectory>
     <resources>
       <resource>
+        <directory>version</directory>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
         <directory>src/main/resources</directory>
       </resource>
       <resource>
         <directory>yo/dist</directory>
         <targetPath>static</targetPath>
-      </resource>
-      <resource>
-        <directory>version</directory>
-        <filtering>true</filtering>
       </resource>
     </resources>
     <plugins>
@@ -74,11 +74,11 @@
           <webResources>
             <!-- Add the yeoman dist directory to the war file -->
             <resource>
-              <directory>yo/dist</directory>
-            </resource>
-            <resource>
               <directory>version</directory>
               <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>yo/dist</directory>
             </resource>
             <!-- Add default types archives folder to the war file -->
              <resource>
