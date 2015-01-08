@@ -33,7 +33,7 @@ public final class AuthorizationUtil {
 
     @Autowired
     public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
-        this.alienGroupDao = alienGroupDao;
+        AuthorizationUtil.alienGroupDao = alienGroupDao;
     }
 
     private AuthorizationUtil() {
@@ -318,5 +318,18 @@ public final class AuthorizationUtil {
             }
         }
         return new UsernamePasswordAuthenticationToken(user, password, authorities);
+    }
+
+    /**
+     * Check when a user has only a specific role on a resource
+     * 
+     * @param user
+     * @param resource
+     * @param role
+     * @return true when the role is found and it's the only one
+     */
+    public static boolean hasOnlyOneRoleOnResource(User user, ISecuredResource resource, IResourceRoles role) {
+        Set<String> roles = AuthorizationUtil.getRolesForResource(user, resource);
+        return roles.size() == 1 && roles.contains(role.toString());
     }
 }

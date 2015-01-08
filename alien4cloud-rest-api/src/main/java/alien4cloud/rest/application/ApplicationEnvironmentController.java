@@ -47,6 +47,7 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
+import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ResourceRoleService;
@@ -77,6 +78,8 @@ public class ApplicationEnvironmentController {
     private DeploymentService deploymentService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
+    @Resource
+    private UserService userService;
 
     /**
      * Search for application environment for a given application id
@@ -132,8 +135,7 @@ public class ApplicationEnvironmentController {
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(),
-                request.getName(),
-                request.getDescription(), request.getEnvironmentType(), request.getVersionId());
+                request.getName(), request.getDescription(), request.getEnvironmentType(), request.getVersionId());
 
         if (request.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
@@ -233,6 +235,7 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addUserRole(applicationEnvironment, username, role);
+        handleAddUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -250,6 +253,7 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addGroupRole(applicationEnvironment, groupId, role);
+        handleAddGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -267,11 +271,12 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeUserRole(applicationEnvironment, username, role);
+        handleRemoveUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
-     * Remove a role from a user on a specific application environment
+     * Remove a role from a group on a specific application environment
      *
      * @param applicationEnvironmentId application environment id
      * @param groupId The id of the group to update roles
@@ -284,7 +289,60 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeGroupRole(applicationEnvironment, groupId, role);
+        handleRemoveGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Handle user roles on the targeted application
+     * Any role on an environment implies APPLICATION_USER role on the linked application
+     * 
+     * @param applicationId
+     * @param username
+     */
+    private void handleAddUserRoleOnApplication(String applicationId, String username) {
+        Application application = applicationService.getOrFail(applicationId);
+        resourceRoleService.addUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
+    }
+
+    /**
+     * Handle remove roles on the targeted application
+     * 
+     * @param applicationId
+     * @param username
+     */
+    private void handleRemoveUserRoleOnApplication(String applicationId, String username) {
+        Application application = applicationService.getOrFail(applicationId);
+        boolean isApplicationUserOnly = AuthorizationUtil.hasOnlyOneRoleOnResource(userService.retrieveUser(username), application,
+                ApplicationRole.APPLICATION_USER);
+        // TODO : check this condition > remove the role only if it is not the only role
+        if (!isApplicationUserOnly) {
+            resourceRoleService.removeUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
+        }
+    }
+
+    /**
+     * Handle group roles on the targeted application
+     * Any role on an environment implies APPLICATION_USER role on the linked application
+     * 
+     * @param applicationEnvironmentId
+     * @param username
+     */
+    private void handleAddGrpRoleOnApplication(String applicationId, String groupId) {
+        Application application = applicationService.getOrFail(applicationId);
+        resourceRoleService.addGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
+    }
+
+    /**
+     * Handle group roles on the targeted application
+     * 
+     * @param applicationEnvironmentId
+     * @param username
+     */
+    private void handleRemoveGrpRoleOnApplication(String applicationId, String groupId) {
+        Application application = applicationService.getOrFail(applicationId);
+        // TODO : donc remove if the user has other role on this env
+        resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
     }
 
     /**

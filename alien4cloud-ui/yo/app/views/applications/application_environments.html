@@ -58,7 +58,9 @@
               </td>
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description',$data, environment.id)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
               <td>
-                <select name="cloudsList"  id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)"></select>
+                <select name="cloudsList"  id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)">
+                  <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
+                </select>
               </td>
               <td ng-if="isManager">
                 <!-- Remove an environment -->
@@ -94,7 +96,7 @@
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.clouds.$invalid}">
           <label for="cloudid" class="col-lg-3 control-label">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD' | translate}}</label>
           <div class="col-lg-9">
-            <select name="clouds" required="" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
+            <select name="clouds" class="form-control" id="cloudid" ng-model="selectedCloud" ng-options="c.name for c in clouds">
               <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
             </select>
           </div>

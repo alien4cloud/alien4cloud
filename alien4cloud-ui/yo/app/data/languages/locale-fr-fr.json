@@ -218,7 +218,7 @@
     "DELETE": "Supprimer",
     "OPERATIONS": "Opérations"
   },
-  "EDIT_RIGHTS" : {
+  "EDIT_RIGHTS": {
     "EDIT_ROLE_RESOURCE": "Editer les roles sur la ressource",
     "EDIT_ROLE_HEADER_RESOURCE": "Ajouter ou retirer des roles à la ressource",
     "EDIT_ROLE_ENV": "Editer les roles sur l'environnement",
@@ -240,6 +240,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "APPLICATION_ROLES": "Rôles d'application",
     "NEW": "Nouvelle Application",
     "NAME": "Nom",
     "DESC": "Description",
@@ -384,6 +385,7 @@
     },
     "ENVIRONMENT": {
       "ENV": "Environnement",
+      "ENV_ROLES": "Rôles d'environment",
       "NEW": "Nouvel environnement",
       "STATUS": "Etat",
       "NAME": "Nom",

@@ -141,23 +141,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       controller: 'TopologyPlanGraphCtrl'
     }).state('applications.detail.deployment', {
       url: '/deployment',
-      resolve: {
-        environments: function(environments) {
-          console.log('ENV DEPLOYMENT', environments);
-          return environments.data.data;
-        }
-      },
       templateUrl: 'views/applications/application_deployment.html',
       controller: 'ApplicationDeploymentCtrl'
     }).state('applications.detail.runtime', {
       url: '/runtime',
       templateUrl: 'views/applications/topology_runtime.html',
-      resolve: {
-        environments: function(environments) {
-          console.log('ENV RUNTIME', environments);
-          return environments.data.data;
-        }
-      },
       controller: 'TopologyRuntimeCtrl'
     }).state('applications.detail.users', {
       url: '/users',
@@ -182,11 +170,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.environments', {
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
-      resolve: {
-        environments: ['$rootScope', 'environments', function($rootScope, environments) {
-          return environments.data.data;
-        }]
-      },
       controller: 'ApplicationEnvironmentsCtrl'
     }).state('applications.detail.versions', {
       url: '/versions',

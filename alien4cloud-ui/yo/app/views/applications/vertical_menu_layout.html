@@ -7,30 +7,10 @@
 </ul>
 <div class="horizontal-panel">
 
-  <!-- Application title + Environment select -->
+  <!-- Application title -->
   <div class="row">
-    <div class="col-md-6 pull-left">
+    <div class="col-md-12 pull-left">
       {{application.name}}
-    </div>
-    <div class="col-md-6 pull-right">
-
-      <i class="fa fa-share-alt-square fa-lg"></i>
-
-      <div class="btn-group btn-group-xs">
-
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="environment_{{selectedEnvironment.name}}">
-          {{selectedEnvironment.name}}
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right" role="menu">
-          <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
-            <a id="environment_{{env.name}}" ng-click="changeEnvironment(env)">
-              <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
-            </a>
-          </li>
-        </ul>
-
-      </div>
     </div>
   </div>
 

@@ -4,6 +4,7 @@
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
   '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environments', 'applicationEventServices', '$state', '$rootScope', 'applicationEnvironmentServices',
   function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environments, applicationEventServices, $state, $rootScope, applicationEnvironmentServices) {
+
     var pageStateId = $state.current.name;
     $scope.application = applicationResult.data;
 
