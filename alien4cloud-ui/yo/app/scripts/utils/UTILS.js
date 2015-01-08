@@ -112,7 +112,7 @@ var toUpperCase = function(text) {
 };
 
 UTILS.relationshipNameFromTypeAndTarget = function(type, targetName) {
-  return toLowerCase(getShortName(type)) + toUpperCase(targetName);
+  return toLowerCase(UTILS.getShortName(type)) + toUpperCase(targetName);
 };
 
 UTILS.getShortName = function(longName) {
@@ -162,7 +162,7 @@ UTILS.arrayUnique = function(array) {
 
 /**
  * Merge all properties from object 'from' into object 'into'
- * 
+ *
  * @param into
  * @param from
  * @returns {{}}
