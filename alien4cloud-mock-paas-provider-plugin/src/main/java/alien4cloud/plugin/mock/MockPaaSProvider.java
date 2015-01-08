@@ -422,9 +422,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                             }
                         } else {
                             for (int i = currentSize + instances + 1; i < currentSize + 1; i++) {
-                                if (nodeInformations.containsKey(new Integer(i))) {
-                                    nodeInformations.get(new Integer(i)).setState("stopping");
-                                    nodeInformations.get(new Integer(i)).setInstanceStatus(InstanceStatus.PROCESSING);
+                                if (nodeInformations.containsKey(String.valueOf(i))) {
+                                    nodeInformations.get(String.valueOf(i)).setState("stopping");
+                                    nodeInformations.get(String.valueOf(i)).setInstanceStatus(InstanceStatus.PROCESSING);
                                 }
                             }
                         }
