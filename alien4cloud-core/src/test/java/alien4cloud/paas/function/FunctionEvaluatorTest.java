@@ -94,8 +94,7 @@ public class FunctionEvaluatorTest {
         Topology topology = YamlParserUtil.parseFromUTF8File(Paths.get("src/test/resources/alien/paas/function/topology/badFunctionsTomcatWar.yml"),
                 Topology.class);
         topology.setId(UUID.randomUUID().toString());
-        builtPaaSNodeTemplates = treeBuilder.buildPaaSNodeTemplate(topology);
-        treeBuilder.getHostedOnTree(builtPaaSNodeTemplates);
+        builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();
     }
 
     @Test
@@ -110,11 +109,11 @@ public class FunctionEvaluatorTest {
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);
 
-        Map<String, Map<Integer, InstanceInformation>> runtimeInformations = Maps.newHashMap();
+        Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
 
         String parsedString = FunctionEvaluator.parseString(
                 "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
-                runtimeInformations, 0);
+                runtimeInformations, "0");
         Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
     }
 
@@ -167,7 +166,6 @@ public class FunctionEvaluatorTest {
     public void getPropertyWrongDefOrUSageTest() throws Throwable {
 
         String computeName = "comp_tomcat_war";
-        treeBuilder.getHostedOnTree(builtPaaSNodeTemplates);
         PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
         Operation configOp = computePaaS.getIndexedNodeType().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);

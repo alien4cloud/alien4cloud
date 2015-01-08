@@ -39,7 +39,7 @@ public final class FunctionEvaluator {
      * @param currentInstance The instance id of the current node for which to parse the attribute or property string (str).
      * @return A string with complete informations.
      */
-    public static String parseString(String str, Topology topology, Map<String, Map<Integer, InstanceInformation>> runtimeInformations, int currentInstance) {
+    public static String parseString(String str, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
         String parsedString = parseProperties(str, topology);
         return parseAttributes(parsedString, runtimeInformations, currentInstance);
     }
@@ -69,7 +69,7 @@ public final class FunctionEvaluator {
         return sb.toString();
     }
 
-    public static String parseAttributes(String str, Map<String, Map<Integer, InstanceInformation>> runtimeInformations, int currentInstance) {
+    public static String parseAttributes(String str, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
         if (str == null) {
             return str;
         }
@@ -83,7 +83,7 @@ public final class FunctionEvaluator {
             cursor = matcher.end();
             String attributeValue;
             if (runtimeInformations.get(nodeName) != null) {
-                if (runtimeInformations.get(nodeName).size() > currentInstance) {
+                if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
                     attributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(attributeName);
                 } else {
                     attributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(attributeName);
