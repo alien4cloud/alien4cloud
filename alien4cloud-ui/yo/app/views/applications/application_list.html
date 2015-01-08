@@ -23,8 +23,13 @@
       <div class="application-thumbnail" ng-repeat="application in searchResult.data.data" ng-click="openApplication(application.id)" id="app_{{application.name}}">
         <div class="application-icon">
           <div class="application-icon-small">
-            <i class="pull-left media-object fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
-            <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+            <span class="pull-left media-object">
+              <div>
+                <i class="pull-left media-object fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
+                <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
+              </div>
+              <div id="pieChart-{{application.name}}" class="pull-left" style="margin-left: -10px;"></div>
+            </span>
             <span class="h4">{{application.name}}</span>
           </div>
           <div class="small">
@@ -32,14 +37,6 @@
           </div>
         </div>
         <div class="application-name">
-          <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + application.status | translate }}" tooltip-append-to-body="true" ng-class="{
-              'fa-circle text-success' : application.status == 'DEPLOYED',
-              'fa-circle text-muted' : application.status == 'UNDEPLOYED',
-              'fa-warning text-warning' : application.status == 'WARNING',
-              'fa-circle text-danger' : application.status == 'FAILURE',
-              'fa-question-circle text-muted' : application.status == 'UNKNOWN',
-              'fa-spinner fa-spin' : application.status == 'DEPLOYMENT_IN_PROGRESS' || application.status == 'UNDEPLOYMENT_IN_PROGRESS'
-              }"></i>
           <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
           </delete-confirm>
         </div>

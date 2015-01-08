@@ -49,7 +49,6 @@ var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
 
 angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$modal', '$resource', '$state', 'alienAuthService', 'applicationServices', '$translate', 'toaster',
   function($scope, $modal, $resource, $state, alienAuthService, applicationServices, $translate, toaster) {
-
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
 
     $scope.openNewApp = function() {
@@ -65,6 +64,13 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       });
     };
 
+    var countStatus = function(app, statuses) {
+      app.sumByStatus = {'DEPLOYED' :0, 'UNDEPLOYED' :0, 'DEPLOYMENT_IN_PROGRESS' :0, 'UNDEPLOYMENT_IN_PROGRESS' :0, 'WARNING' :0, 'FAILURE' :0, 'DEPLOY' :0, 'UNDEPLOY' :0};
+      for (var key in statuses) {
+        app.sumByStatus[statuses[key]] ++;
+      }
+    }
+
     // Update applications statuses
     var getApplicationStatuses = function(applications) {
       var requestAppStatuses = [];
@@ -77,13 +83,85 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
 
     var updateApplicationStatuses = function(applicationSearchResult) {
       if (!angular.isUndefined(applicationSearchResult)) {
-        // getting statuses for all applications
         var statuses = getApplicationStatuses(applicationSearchResult.data.data);
-        // enhancing applications list with statuses
         Object.keys(applicationSearchResult.data.data).forEach(function(key) {
           var app = applicationSearchResult.data.data[key];
           statuses.$promise.then(function(statuses) {
-            app.status = statuses.data[app.id];
+
+            var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
+            var datas = [];
+            var segment = {};
+            var tmpArray = statuses.data[app.id];
+            for (var key in tmpArray) {
+              segment['label'] = tmpArray[key];
+              segment['color'] = colors[tmpArray[key]];
+              segment['value'] = 1;
+              datas.push(segment);
+            }
+
+            var pie = new d3pie("pieChart-" + app.name, {
+              "header": {
+                "title": {
+                  "fontSize": 24,
+                  "font": "open sans"
+                },
+                "subtitle": {
+                  "color": "#999999",
+                  "fontSize": 12,
+                  "font": "open sans"
+                },
+                "titleSubtitlePadding": 9
+              },
+              "footer": {
+                "color": "#999999",
+                "fontSize": 10,
+                "font": "open sans",
+                "location": "bottom-left"
+              },
+              "size": {
+                "canvasWidth": 100,
+                "canvasHeight": 100
+              },
+              "data": {
+                "sortOrder": "value-desc",
+                "content": datas
+              },
+              "labels": {
+                "outer": {
+                  "format": "none",
+                  "pieDistance": 32
+                },
+                "inner": {
+                  "format": "none",
+                  "hideWhenLessThanPercentage": 3
+                },
+                "mainLabel": {
+                  "fontSize": 11
+                },
+                "percentage": {
+                  "color": "#ffffff",
+                  "decimalPlaces": 0
+                },
+                "value": {
+                  "color": "#adadad",
+                  "fontSize": 11
+                },
+                "lines": {
+                  "enabled": true
+                },
+              },
+              "effects": {
+                "load": {
+                  "effect": "none"
+                },
+                "pullOutSegmentOnClick": {
+                  "effect": "none"
+                },
+                "highlightSegmentOnMouseover": true,
+                "highlightLuminosity": 0.99
+              },
+            });
+
           });
         });
       }
