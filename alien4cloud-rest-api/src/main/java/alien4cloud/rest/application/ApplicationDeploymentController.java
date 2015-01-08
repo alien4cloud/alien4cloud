@@ -160,7 +160,7 @@ public class ApplicationDeploymentController {
                     + "] because it contains unmatchable resources");
         }
         try {
-            deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
+            deploymentService.deployTopology(topology, application, deploymentSetup);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder
                     .<Void> builder()
@@ -189,7 +189,8 @@ public class ApplicationDeploymentController {
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
-                deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
+                DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+                deploymentService.undeployTopology(deploymentSetup);
             }
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
@@ -210,8 +211,7 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-        Deployment deployment = deploymentService.getActiveDeployment(version.getTopologyId(), environment.getCloudId());
+        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
 
@@ -268,7 +268,7 @@ public class ApplicationDeploymentController {
             deploymentStatus = DeploymentStatus.UNDEPLOYED;
         } else {
             try {
-                deploymentStatus = deploymentService.getDeploymentStatus(version.getTopologyId(), environment.getCloudId());
+                deploymentStatus = applicationEnvironmentService.getStatus(environment);
             } catch (CloudDisabledException e) {
                 log.debug("Getting status for topology failed because plugin wasn't found. Returned status is undeployed.", e);
                 deploymentStatus = DeploymentStatus.UNDEPLOYED;
@@ -295,7 +295,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
         try {
             return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder()
-                    .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId())).build();
+                    .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId(), environment.getId())).build();
         } catch (CloudDisabledException e) {
             log.error("Cannot get instance informations as topology plugin cannot be found.", e);
         }
@@ -322,10 +322,9 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
 
         try {
-            deploymentService.scale(version.getTopologyId(), environment.getCloudId(), nodeTemplateId, instances);
+            deploymentService.scale(environment.getId(), nodeTemplateId, instances);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
@@ -416,13 +415,6 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    /**
-     * TODO : Temp methods waiting complete API change with environment / version as parameters in services
-     * 
-     * @param applicationId
-     * @param applicationVersionId
-     * @return
-     */
     private ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
         ApplicationVersion version = null;
         if (applicationVersionId == null) {

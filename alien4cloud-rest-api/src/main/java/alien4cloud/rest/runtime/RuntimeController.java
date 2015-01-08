@@ -26,6 +26,7 @@ import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -152,10 +153,15 @@ public class RuntimeController {
 
     private void validateCommand(OperationExecRequest operationRequest) throws ConstraintFunctionalException {
 
-        // get if exisits the runtime version of the topology
-        Topology topology = deploymentService.getRuntimeTopology(operationRequest.getTopologyId(), operationRequest.getCloudId());
+        // get the targeted environment
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(operationRequest.getApplicationEnvironmentId());
+        String cloudId = applicationEnvironment.getCloudId();
+        String topologyId = applicationEnvironmentService.getTopologyId(operationRequest.getApplicationEnvironmentId());
 
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(operationRequest.getTopologyId(), operationRequest.getNodeTemplateName(),
+        // get if exists the runtime version of the topology
+        Topology topology = deploymentService.getRuntimeTopology(topologyId, cloudId);
+
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, operationRequest.getNodeTemplateName(),
                 topologyServiceCore.getNodeTemplates(topology));
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());

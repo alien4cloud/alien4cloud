@@ -33,6 +33,7 @@ import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -321,7 +322,8 @@ public class ApplicationEnvironmentController {
                 tempEnvDTO.setCloudName(null);
             }
             tempEnvDTO.setCloudId(env.getCloudId());
-            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion());
+            ApplicationVersion applicationVersion = applicationVersionService.get(env.getCurrentVersionId());
+            tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
             } catch (CloudDisabledException e) {

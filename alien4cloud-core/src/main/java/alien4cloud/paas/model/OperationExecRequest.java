@@ -18,10 +18,6 @@ import org.hibernate.validator.constraints.NotBlank;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class OperationExecRequest extends NodeOperationExecRequest {
-
     @NotBlank
-    String topologyId;
-    /** Id of the cloud on which to execute the command **/
-    @NotBlank
-    String cloudId;
+    String applicationEnvironmentId;
 }

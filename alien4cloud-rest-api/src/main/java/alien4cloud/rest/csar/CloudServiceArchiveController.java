@@ -1,7 +1,12 @@
 package alien4cloud.rest.csar;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +25,13 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.DeploymentSetupService;
@@ -42,7 +53,11 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
@@ -246,36 +261,6 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_RELEASE_IMMUTABLE).build()).build();
     }
 
-    // @ApiOperation(value = "Get a node type defined in a cloud service archive.")
-    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-    // Csar csar = csarService.getMandatoryCsar(csarId);
-    // return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
-    // }
-
-    // @ApiOperation(value = "Removes a node type from a cloud service archive.")
-    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-    // Csar csar = csarService.getMandatoryCsar(csarId);
-    // if (csar.getNodeTypes() != null) {
-    // NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
-    // if (nodeType != null) {
-    // indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-    // csarDAO.save(csar);
-    // }
-    // }
-    // return RestResponseBuilder.<Void> builder().build();
-    // }
-
-    // private NodeType getNodeType(Csar csar, String nodeTypeId) {
-    // Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-    // if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
-    // throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
-    // } else {
-    // return nodeTypes.get(nodeTypeId);
-    // }
-    // }
-
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")
     public void setTempDirPath(String tempDirPath) throws IOException {
@@ -370,7 +355,7 @@ public class CloudServiceArchiveController {
                             + "] because it contains unmatchable resources");
                 }
                 deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-                deploymentId = deploymentService.deployTopology(topology, cloudId, csar, deploymentSetup);
+                deploymentId = deploymentService.deployTopology(topology, csar, deploymentSetup);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

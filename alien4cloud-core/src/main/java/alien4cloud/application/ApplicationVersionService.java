@@ -174,4 +174,15 @@ public class ApplicationVersionService {
         }
         return appVersion;
     }
+
+    /**
+     * Get an application version by id
+     * 
+     * @param id
+     * @return the application version or null if not found
+     */
+    public ApplicationVersion get(String id) {
+        ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, id);
+        return appVersion;
+    }
 }

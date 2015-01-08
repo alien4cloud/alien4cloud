@@ -19,6 +19,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
@@ -109,6 +110,7 @@ public class ApplicationEnvironmentService {
      */
     public boolean delete(String id) {
         deploymentSetupService.deleteByEnvironmentId(id);
+        // TODO : do not delete if it's last environment
         alienDAO.delete(ApplicationEnvironment.class, id);
         return true;
     }
@@ -209,8 +211,18 @@ public class ApplicationEnvironmentService {
      * @throws CloudDisabledException
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws CloudDisabledException {
-        return deploymentService.getDeploymentStatus(applicationVersionService.getOrFail(environment.getCurrentVersionId()).getTopologyId(),
-                environment.getCloudId());
+        return isDeployed(environment.getId()) ? DeploymentStatus.DEPLOYED : DeploymentStatus.UNDEPLOYED;
     }
 
+    /**
+     * Get the topology id linked to the environment
+     * 
+     * @param applicationVersionId
+     * @return a topology id or null
+     */
+    public String getTopologyId(String applicationEnvironmentId) {
+        ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
+        ApplicationVersion applicationVersion = applicationVersionService.get(applicationEnvironment.getCurrentVersionId());
+        return applicationVersion == null ? null : applicationVersion.getTopologyId();
+    }
 }

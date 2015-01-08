@@ -10,7 +10,11 @@ import javax.validation.Valid;
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.DeploymentService;
@@ -36,14 +40,15 @@ import com.wordnik.swagger.annotations.Authorization;
 @RestController
 @RequestMapping("/rest/deployments")
 public class DeploymentController {
+
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Resource
     private DeploymentService deploymentService;
     @Resource
     private ApplicationService applicationService;
     @Resource
     private CsarService csarService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -105,7 +110,7 @@ public class DeploymentController {
             for (Object object : deployments) {
                 Deployment deployment = (Deployment) object;
                 IDeploymentSource source = sources.get(deployment.getSourceId());
-                if(source == null) {
+                if (source == null) {
                     source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
                 }
                 DeploymentDTO dto = new DeploymentDTO(deployment, source);
@@ -144,7 +149,7 @@ public class DeploymentController {
         DeploymentStatus status = null;
         if (deployment != null) {
             try {
-                status = deploymentService.getDeploymentStatus(deployment.getTopologyId(), deployment.getCloudId());
+                status = deploymentService.getDeploymentStatus(deployment);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<DeploymentStatus> builder().data(null)
                         .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
@@ -167,7 +172,7 @@ public class DeploymentController {
         if (deployment != null) {
             try {
                 // Undeploy the topology linked to this deployment
-                deploymentService.undeploy(deploymentId, deployment.getCloudId());
+                deploymentService.undeploy(deploymentId);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<Void> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();
