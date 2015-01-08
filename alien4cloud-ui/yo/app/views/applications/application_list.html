@@ -28,7 +28,7 @@
                 <i class="pull-left media-object fa fa-desktop fa-5x" ng-show="!application.imageId"></i>
                 <img class="pull-left media-object" ng-show="application.imageId" ng-src="{{application.imageId?('img?id=' + application.imageId + '&quality=QUALITY_128'):null}}" ng-file-drop="onImageSelected($files)" />
               </div>
-              <div id="pieChart-{{application.name}}" class="pull-left" style="margin-left: -10px;"></div>
+              <div id="pieChart-{{application.name}}" class="pull-left" style="margin-left: -12px;"></div>
             </span>
             <span class="h4">{{application.name}}</span>
           </div>

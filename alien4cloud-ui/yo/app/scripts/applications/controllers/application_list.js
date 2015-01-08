@@ -71,7 +71,6 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       }
     }
 
-    // Update applications statuses
     var getApplicationStatuses = function(applications) {
       var requestAppStatuses = [];
       Object.keys(applications).forEach(function(key) {
@@ -81,92 +80,61 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return appStatuses;
     };
 
+    var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
+    var drawPieChart = function(appName, data) {
+      var pie = new d3pie("pieChart-" + appName, {
+        "size": {
+          "canvasWidth": 100,
+          "canvasHeight": 100
+        },
+        "data": {
+          "sortOrder": "label-asc",
+          "content": data
+        },
+        "labels": {
+          "outer": {
+            "format": "none"
+          },
+          "inner": {
+            "format": "none"
+          },
+        },
+        "effects": {
+          "load": {
+            "effect": "none"
+          },
+          "pullOutSegmentOnClick": {
+            "effect": "none"
+          },
+          "highlightSegmentOnMouseover": true,
+          "highlightLuminosity": 0.10
+        },
+      });
+    };
+
     var updateApplicationStatuses = function(applicationSearchResult) {
       if (!angular.isUndefined(applicationSearchResult)) {
         var statuses = getApplicationStatuses(applicationSearchResult.data.data);
         Object.keys(applicationSearchResult.data.data).forEach(function(key) {
           var app = applicationSearchResult.data.data[key];
           statuses.$promise.then(function(statuses) {
-
-            var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
-            var datas = [];
-            var segment = {};
+            var data = [];
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
+              var segment = {};
               segment['label'] = tmpArray[key];
               segment['color'] = colors[tmpArray[key]];
               segment['value'] = 1;
-              datas.push(segment);
+              data.push(segment);
             }
-
-            var pie = new d3pie("pieChart-" + app.name, {
-              "header": {
-                "title": {
-                  "fontSize": 24,
-                  "font": "open sans"
-                },
-                "subtitle": {
-                  "color": "#999999",
-                  "fontSize": 12,
-                  "font": "open sans"
-                },
-                "titleSubtitlePadding": 9
-              },
-              "footer": {
-                "color": "#999999",
-                "fontSize": 10,
-                "font": "open sans",
-                "location": "bottom-left"
-              },
-              "size": {
-                "canvasWidth": 100,
-                "canvasHeight": 100
-              },
-              "data": {
-                "sortOrder": "value-desc",
-                "content": datas
-              },
-              "labels": {
-                "outer": {
-                  "format": "none",
-                  "pieDistance": 32
-                },
-                "inner": {
-                  "format": "none",
-                  "hideWhenLessThanPercentage": 3
-                },
-                "mainLabel": {
-                  "fontSize": 11
-                },
-                "percentage": {
-                  "color": "#ffffff",
-                  "decimalPlaces": 0
-                },
-                "value": {
-                  "color": "#adadad",
-                  "fontSize": 11
-                },
-                "lines": {
-                  "enabled": true
-                },
-              },
-              "effects": {
-                "load": {
-                  "effect": "none"
-                },
-                "pullOutSegmentOnClick": {
-                  "effect": "none"
-                },
-                "highlightSegmentOnMouseover": true,
-                "highlightLuminosity": 0.99
-              },
-            });
-
+            drawPieChart(app.name, data);
           });
         });
       }
       return applicationSearchResult;
     };
+
+
 
     $scope.search = function() {
       var searchRequestObject = {
