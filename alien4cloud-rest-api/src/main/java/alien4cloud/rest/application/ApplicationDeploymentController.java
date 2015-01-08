@@ -1,5 +1,6 @@
 package alien4cloud.rest.application;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -233,28 +234,33 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get the current statuses of an application list on the PaaS for all environments.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Map<String, Map<String, DeploymentStatus>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
-        Map<String, Map<String, DeploymentStatus>> statuses = Maps.newHashMap();
+    public RestResponse<Map<String, Map<String, ArrayList<String>>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
+        Map<String, Map<String, ArrayList<String>>> statuses = Maps.newHashMap();
         Application application = null;
-        Map<String, DeploymentStatus> ennvironmentStatuses = Maps.newHashMap();
+        Map<String, ArrayList<String>> ennvironmentStatuses = Maps.newHashMap();
         ApplicationEnvironment[] environments;
         for (String applicationId : applicationIds) {
             application = applicationService.checkAndGetApplication(applicationId);
             // get all environments status for the current application
             environments = applicationEnvironmentService.getByApplicationId(application.getId());
             for (ApplicationEnvironment env : environments) {
+                ArrayList<String> array = new ArrayList<String>();
+                array.add(env.getName());
                 try {
-                    ennvironmentStatuses.put(env.getId(), applicationEnvironmentService.getStatus(env));
+                    array.add(applicationEnvironmentService.getStatus(env).toString());
+                    ennvironmentStatuses.put(env.getId(), array);
                 } catch (CloudDisabledException e) {
                     log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
                             + "> seems disabled. Returned status is UNKNOWN.", e);
-                    ennvironmentStatuses.put(env.getId(), DeploymentStatus.UNKNOWN);
+                    array.add(DeploymentStatus.UNKNOWN.toString());
+                    ennvironmentStatuses.put(env.getId(), array);
+
                 }
             }
             statuses.put(applicationId, ennvironmentStatuses);
             ennvironmentStatuses = Maps.newHashMap();
         }
-        return RestResponseBuilder.<Map<String, Map<String, DeploymentStatus>>> builder().data(statuses).build();
+        return RestResponseBuilder.<Map<String, Map<String,  ArrayList<String>>>> builder().data(statuses).build();
     }
 
     private DeploymentStatus getApplicationDeploymentStatus(Application application, String applicationEnvironmentId) {

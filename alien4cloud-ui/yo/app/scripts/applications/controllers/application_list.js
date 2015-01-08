@@ -49,8 +49,8 @@ var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
 
 angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$modal', '$resource', '$state', 'alienAuthService', 'applicationServices', '$translate', 'toaster',
   function($scope, $modal, $resource, $state, alienAuthService, applicationServices, $translate, toaster) {
-
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
+    d3.selectAll('.d3-tip').remove();
 
     $scope.openNewApp = function() {
       var modalInstance = $modal.open({
@@ -65,7 +65,13 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       });
     };
 
-    // Update applications statuses
+    var countStatus = function(app, statuses) {
+      app.sumByStatus = {'DEPLOYED' :0, 'UNDEPLOYED' :0, 'DEPLOYMENT_IN_PROGRESS' :0, 'UNDEPLOYMENT_IN_PROGRESS' :0, 'WARNING' :0, 'FAILURE' :0, 'DEPLOY' :0, 'UNDEPLOY' :0};
+      for (var key in statuses) {
+        app.sumByStatus[statuses[key]] ++;
+      }
+    }
+
     var getApplicationStatuses = function(applications) {
       var requestAppStatuses = [];
       Object.keys(applications).forEach(function(key) {
@@ -75,20 +81,72 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return appStatuses;
     };
 
+    var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
+    var drawPieChart = function(appName, data) {
+      var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
+        return node.data.name;
+      });
+
+      var pie = new d3pie("pieChart-" + appName, {
+        "size": {
+          "canvasWidth": 100,
+          "canvasHeight": 100
+        },
+        "data": {
+          "sortOrder": "label-asc",
+          "content": data
+        },
+        "labels": {
+          "outer": {
+            "format": "none"
+          },
+          "inner": {
+            "format": "none"
+          },
+        },
+        "effects": {
+          "load": {
+            "effect": "none"
+          },
+          "pullOutSegmentOnClick": {
+            "effect": "none"
+          },
+          "highlightSegmentOnMouseover": true,
+          "highlightLuminosity": 0.10
+        },
+        "callbacks": {
+          "onMouseoverSegment": tip.show,
+          "onMouseoutSegment": tip.hide
+        }
+      });
+
+      pie.svg.call(tip);
+    };
+
     var updateApplicationStatuses = function(applicationSearchResult) {
       if (!angular.isUndefined(applicationSearchResult)) {
-        // getting statuses for all applications
         var statuses = getApplicationStatuses(applicationSearchResult.data.data);
-        // enhancing applications list with statuses
         Object.keys(applicationSearchResult.data.data).forEach(function(key) {
           var app = applicationSearchResult.data.data[key];
           statuses.$promise.then(function(statuses) {
-            app.status = statuses.data[app.id];
+            var data = [];
+            var tmpArray = statuses.data[app.id];
+            for (var key in tmpArray) {
+              var segment = {};
+              segment['label'] = tmpArray[key][1];
+              segment['color'] = colors[tmpArray[key][1]];
+              segment['value'] = 1;
+              segment['name'] = tmpArray[key][0];
+              data.push(segment);
+            }
+            drawPieChart(app.name, data);
           });
         });
       }
       return applicationSearchResult;
     };
+
+
 
     $scope.search = function() {
       var searchRequestObject = {

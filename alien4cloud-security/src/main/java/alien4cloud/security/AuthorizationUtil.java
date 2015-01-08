@@ -134,25 +134,26 @@ public final class AuthorizationUtil {
      */
     public static FilterBuilder getResourceAuthorizationFilters() {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        FilterBuilder filterBuilder = null;
+
         if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ADMIN.toString()))) {
-            return filterBuilder;
+            return null;
+        }
+
+        FilterBuilder filterBuilder;
+        User user = (User) auth.getPrincipal();
+        if (user.getGroups() != null && !user.getGroups().isEmpty()) {
+            filterBuilder = FilterBuilders.boolFilter()
+                    .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
+                    .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
         } else {
-            User user = (User) auth.getPrincipal();
-            if (user.getGroups() != null && !user.getGroups().isEmpty()) {
-                filterBuilder = FilterBuilders.boolFilter()
-                        .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
-                        .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
-            } else {
-                filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
-            }
-            Group group = getAllUsersGroup();
-            if (group != null) {
-                String groupId = group.getId();
-                // add ALL_USERS group as OR filter
-                filterBuilder = FilterBuilders.orFilter(filterBuilder,
-                        FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
-            }
+            filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
+        }
+        Group group = getAllUsersGroup();
+        if (group != null) {
+            String groupId = group.getId();
+            // add ALL_USERS group as OR filter
+            filterBuilder = FilterBuilders.orFilter(filterBuilder,
+                    FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
         }
         return filterBuilder;
     }

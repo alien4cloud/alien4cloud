@@ -47,6 +47,7 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
+import alien4cloud.security.User;
 import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -91,8 +92,7 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments DTO matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<ApplicationEnvironmentDTO>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
-        applicationService.checkAndGetApplication(applicationId);
-        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+        FilterBuilder authorizationFilter = getEnvrionmentAuthorizationFilters(applicationId);
         Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
         GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
                 applicationEnvironmentFilters, authorizationFilter, null, searchRequest.getFrom(), searchRequest.getSize());
@@ -103,6 +103,16 @@ public class ApplicationEnvironmentController {
         searchResultDTO.setData(getApplicationEnvironmentDTO(searchResult.getData()));
         searchResultDTO.setTotalResults(searchResult.getTotalResults());
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder().data(searchResultDTO).build();
+    }
+
+    private FilterBuilder getEnvrionmentAuthorizationFilters(String applicationId) {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        if (application.getUserRoles().get(user.getUsername()).contains(ApplicationRole.APPLICATION_MANAGER.toString())) {
+            return null;
+        }
+        return AuthorizationUtil.getResourceAuthorizationFilters();
     }
 
     /**
