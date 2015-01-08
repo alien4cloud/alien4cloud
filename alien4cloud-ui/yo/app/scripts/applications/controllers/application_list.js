@@ -50,6 +50,7 @@ var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
 angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$modal', '$resource', '$state', 'alienAuthService', 'applicationServices', '$translate', 'toaster',
   function($scope, $modal, $resource, $state, alienAuthService, applicationServices, $translate, toaster) {
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
+    d3.selectAll('.d3-tip').remove();
 
     $scope.openNewApp = function() {
       var modalInstance = $modal.open({
@@ -82,6 +83,10 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
 
     var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
     var drawPieChart = function(appName, data) {
+      var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
+        return node.data.name;
+      });
+
       var pie = new d3pie("pieChart-" + appName, {
         "size": {
           "canvasWidth": 100,
@@ -109,7 +114,13 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
           "highlightSegmentOnMouseover": true,
           "highlightLuminosity": 0.10
         },
+        "callbacks": {
+          "onMouseoverSegment": tip.show,
+          "onMouseoutSegment": tip.hide
+        }
       });
+
+      pie.svg.call(tip);
     };
 
     var updateApplicationStatuses = function(applicationSearchResult) {
@@ -122,9 +133,10 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
               var segment = {};
-              segment['label'] = tmpArray[key];
-              segment['color'] = colors[tmpArray[key]];
+              segment['label'] = tmpArray[key][1];
+              segment['color'] = colors[tmpArray[key][1]];
               segment['value'] = 1;
+              segment['name'] = tmpArray[key][0];
               data.push(segment);
             }
             drawPieChart(app.name, data);
