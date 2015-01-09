@@ -1,31 +1,7 @@
 <div class="row">
   <!-- Topology and deployment detail section -->
   <div class="col-md-6">
-
     <div class="row" style="margin-top: 10px;">
-
-      <div class="col-md-6">
-
-        <!--Environment select -->
-        <div class="col-md-12">
-          <div class="btn-group">
-            <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown" id="environment_{{selectedEnvironment.name}}">
-              {{selectedEnvironment.name}}
-              <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right" role="menu">
-              <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
-                <a id="environment_{{env.name}}" ng-click="changeEnvironment(env)">
-                  <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-      </div>
-      <div class="col-md-6">
-
         <!--  Environment status -->
         <div class="col-md-12">
           <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + deploymentStatus | translate }}" tooltip-append-to-body="true" ng-class="{
@@ -37,19 +13,18 @@
             'fa-spinner fa-spin' : deploymentStatus == 'DEPLOYMENT_IN_PROGRESS' || deploymentStatus == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
         </i>
-
           <h3 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + deploymentStatus | translate}}</h3>
         </div>
-
-      </div>
-
     </div>
 
     <!-- Deployment -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
       <div class="col-md-8">
-        <!-- Cloud selection -->
-        <select id="cloud-select" ng-if="topologyId" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)">
+        <select id="environment-select" class="form-control " ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
+          <option value="selectedEnvironment"></option>
+        </select>
+
+        <select id="cloud-select" ng-if="topologyId" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
@@ -61,7 +36,7 @@
 
       </div>
 
-      <div class="col-md-4">
+      <div class="col-md-4" style="padding-top: 25px;">
         <!-- DEPLOY BUTTON -->
         <button type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="deploymentStatus == 'UNDEPLOYED'">
           <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
