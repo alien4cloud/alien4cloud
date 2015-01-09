@@ -133,10 +133,10 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
               var segment = {};
-              segment['label'] = tmpArray[key][1];
-              segment['color'] = colors[tmpArray[key][1]];
+              segment['label'] = tmpArray[key].environmentName;
+              segment['color'] = colors[tmpArray[key].environmentStatus];
               segment['value'] = 1;
-              segment['name'] = tmpArray[key][0];
+              segment['name'] = tmpArray[key].environmentName;
               data.push(segment);
             }
             drawPieChart(app.name, data);

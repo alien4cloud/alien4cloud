@@ -24,7 +24,7 @@
           <option value="selectedEnvironment"></option>
         </select>
 
-        <select id="cloud-select" ng-if="topologyId" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+        <select id="cloud-select" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
