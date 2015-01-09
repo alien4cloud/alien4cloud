@@ -1,16 +1,12 @@
 <div>
-  <div class="alert alert-warning">
-    Feature Preview, only the first environment is used for deployment yet. Fonctionalité en construction, seul le premier environnement est utilisé pour le déploiement.
-  </div>
-  <div class="row" style="margin-bottom: 10px;">
 
+  <div class="row" style="margin-bottom: 10px;">
     <!--  Create button -->
     <div class="col-md-9" ng-if="isManager">
       <button class="btn btn-success" id="app-env-new-btn" ng-click="openNewAppEnv()">
         <i class="fa fa fa-plus-circle"></i> {{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}
       </button>
     </div>
-
     <!--  Environment search -->
     <div class="col-md-3 pull-right">
       <form role="search" ng-submit="search()">
@@ -24,14 +20,12 @@
         </div>
       </form>
     </div>
-
   </div>
 
   <div class="row" style="margin-top: 10px;">
-
     <div class="col-md-12">
       <div class="table-responsive large-data-container" id="users-table">
-        <table class="table table-hover">
+        <table class="table">
           <thead>
             <tr>
               <th>{{'APPLICATIONS.ENVIRONMENT.STATUS' | translate}}</th>
@@ -55,11 +49,19 @@
                   'fa-spinner fa-spin' : environment.status == 'DEPLOYMENT_IN_PROGRESS' || environment.status == 'UNDEPLOYMENT_IN_PROGRESS'
                 }"></i>
               </td>
-              <td>{{environment.name}}</td>
-              <td>{{environment.currentVersionName}}</td>
-              <td>{{environment.environmentType}}</td>
-              <td>{{environment.description}}</td>
-              <td>{{environment.cloudName || '---'}}</td>
+              <td id="{{environment.name}}-name-td"><span editable-text="environment.name" onbeforesave="updateApplicationEnvironment('name',$data, environment.id, environment.name)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.name}} <i class="fa fa-edit"></i></span></td>
+              <td>
+                <select name="applicationVersionsList" id="{{environment.name}}-versionslistid" ng-model="environment.currentVersionName" ng-options="v.version as v.version for v in versions" ng-change="updateApplicationEnvironment('currentVersionId', environment.currentVersionName, environment.id)"></select>
+              </td>
+              <td>
+                <select name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="e for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
+              </td>
+              <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description',$data, environment.id)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
+              <td>
+                <select name="cloudsList"  id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)">
+                  <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
+                </select>
+              </td>
               <td ng-if="isManager">
                 <!-- Remove an environment -->
                 <delete-confirm class="pull-right" id='delete-env_{{environment.name}}' func="delete(environment.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
@@ -71,11 +73,9 @@
         <pagination-directive pagination-info="searchService.pagination" />
       </div>
     </div>
-
   </div>
 
   <script type="text/ng-template" id="newApplicationEnvironment.html">
-
     <form name="newApplicationEnvironment" class="form-horizontal" role="form" ng-submit="create(newApplicationEnvironment.$valid,selectedCloud.id,selectedEnvType,selectedVersion.id)" novalidate>
       <div class="modal-header">
         <h3>{{'APPLICATIONS.ENVIRONMENT.NEW' | translate}}</h3>
@@ -110,7 +110,7 @@
           </div>
         </div>
         <div class="form-group" ng-class="{'has-error': newApplicationEnvironment.applicationVersions.$invalid}">
-          <label for="envtypelistid" class="col-lg-3 control-label">
+          <label for="versionlistid" class="col-lg-3 control-label">
             {{'APPLICATIONS.ENVIRONMENT.FORM.ENV_VERSION' | translate}}
           </label>
           <div class="col-lg-9">
@@ -125,7 +125,6 @@
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
       </div>
     </form>
-
   </script>
 
 </div>

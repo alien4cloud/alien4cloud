@@ -7,27 +7,28 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
+    // default get all environments
+    $scope.envs = environments.data.data;
+    $scope.selectedEnvironment = $scope.envs[0];
+
+    // Application rights
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-    var isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     var isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-    var isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // Application environment rights
+    var isDeployer = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER');
+    var isUser = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER');
 
     console.log('---- Application page loading');
     console.log('Application userRoles        : ', $scope.application.userRoles);
     console.log('Application groupRoles       : ', $scope.application.groupRoles);
     console.log('Application page IS MANAGER  : ', isManager);
-    console.log('Application page IS DEPLOYER : ', isDeployer);
     console.log('Application page IS DEVOPS   : ', isDevops);
-    console.log('Application page IS USER     : ', isUser);
     console.log('-----------------------------');
-
-    // default get all environments
-    $scope.envs = environments.data.data;
-    $scope.selectedEnvironment = $scope.envs[0];
     console.log('---- Environment page loading');
     console.log('Environment                  : ', $scope.selectedEnvironment);
-    console.log('Environment page IS DEPLOYER : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER'));
-    console.log('Environment page IS USER     : ', alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER'));
+    console.log('Environment page IS DEPLOYER : ', isDeployer);
+    console.log('Environment page IS USER     : ', isUser);
     console.log('-----------------------------');
 
     // update environments main list when add / remove an evironment

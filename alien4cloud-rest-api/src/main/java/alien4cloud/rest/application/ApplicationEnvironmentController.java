@@ -22,14 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -43,6 +47,8 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
+import alien4cloud.security.User;
+import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ResourceRoleService;
@@ -71,6 +77,10 @@ public class ApplicationEnvironmentController {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
+    @Resource
+    private UserService userService;
 
     /**
      * Search for application environment for a given application id
@@ -79,24 +89,30 @@ public class ApplicationEnvironmentController {
      * @param searchRequest
      * @return A rest response that contains a {@link FacetedSearchResult} containing application environments for an application id
      */
-    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Search for application environments", notes = "Returns a search result with that contains application environments DTO matching the request. A application environment is returned only if the connected user has at least one application role in [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<GetMultipleDataResult> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
-        applicationService.checkAndGetApplication(applicationId);
-        // basic search with rights
-        FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
+    public RestResponse<GetMultipleDataResult<ApplicationEnvironmentDTO>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
+        FilterBuilder authorizationFilter = getEnvrionmentAuthorizationFilters(applicationId);
         Map<String, String[]> applicationEnvironmentFilters = getApplicationEnvironmentFilters(applicationId);
-        // GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
         GetMultipleDataResult<ApplicationEnvironment> searchResult = alienDAO.search(ApplicationEnvironment.class, searchRequest.getQuery(),
                 applicationEnvironmentFilters, authorizationFilter, null, searchRequest.getFrom(), searchRequest.getSize());
-        // GetMultipleDataResult result = cloudService.get(query, enabledOnly, from, size, authorizationFilter);
-        // parse result and convert to ApplicationEnvironmentDTO objects
+
         GetMultipleDataResult<ApplicationEnvironmentDTO> searchResultDTO = new GetMultipleDataResult<ApplicationEnvironmentDTO>();
         searchResultDTO.setQueryDuration(searchResult.getQueryDuration());
         searchResultDTO.setTypes(searchResult.getTypes());
         searchResultDTO.setData(getApplicationEnvironmentDTO(searchResult.getData()));
         searchResultDTO.setTotalResults(searchResult.getTotalResults());
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResultDTO).build();
+        return RestResponseBuilder.<GetMultipleDataResult<ApplicationEnvironmentDTO>> builder().data(searchResultDTO).build();
+    }
+
+    private FilterBuilder getEnvrionmentAuthorizationFilters(String applicationId) {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) auth.getPrincipal();
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        if (application.getUserRoles().get(user.getUsername()).contains(ApplicationRole.APPLICATION_MANAGER.toString())) {
+            return null;
+        }
+        return AuthorizationUtil.getResourceAuthorizationFilters();
     }
 
     /**
@@ -125,28 +141,24 @@ public class ApplicationEnvironmentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
-        ApplicationEnvironment appEnvironment = null;
-        Application application = alienDAO.findById(Application.class, request.getApplicationId());
-        if (application != null) {
-            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-            final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(), request.getName(),
-                    request.getDescription(), request.getEnvironmentType(), request.getVersionId());
-            if (request.getCloudId() != null) {
-                // validate cloud and rights
-                Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
-                AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
-                appEnvironment.setCloudId(request.getCloudId());
-                alienDAO.save(appEnvironment);
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(),
+                request.getName(), request.getDescription(), request.getEnvironmentType(), request.getVersionId());
+
+        if (request.getCloudId() != null) {
+            Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
+            AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
+            appEnvironment.setCloudId(request.getCloudId());
+            try {
+                deploymentSetupService.createOrFail(applicationVersionService.getOrFail(request.getVersionId()), appEnvironment);
+            } catch (AlreadyExistException e) {
+                log.error("DeploymentSetup already exists");
             }
-        } else {
-            // no application found to create an env
-            return RestResponseBuilder
-                    .<String> builder()
-                    .data(null)
-                    .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message("Application with id <" + request.getApplicationId() + "> could not be found to create an environment").build()).build();
+            alienDAO.save(appEnvironment);
         }
+
         return RestResponseBuilder.<String> builder().data(appEnvironment.getId()).build();
     }
 
@@ -162,37 +174,24 @@ public class ApplicationEnvironmentController {
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateApplicationEnvironmentRequest request) {
         applicationService.checkAndGetApplication(applicationId);
-        // check application env id
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        if (appEnvironment != null) {
-            // check application
-            Application application = applicationService.checkAndGetApplication(appEnvironment.getApplicationId());
-            if (application != null) {
-                // check : unique app environment name for a given application
-                applicationEnvironmentService.ensureNameUnicity(application.getId(), request.getName());
-                ReflectionUtil.mergeObject(request, appEnvironment);
-                if (appEnvironment.getName() == null || appEnvironment.getName().isEmpty()) {
-                    throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
-                }
-                alienDAO.save(appEnvironment);
-            } else {
-                // linked application id not found
-                return RestResponseBuilder
-                        .<Void> builder()
-                        .data(null)
-                        .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                                .message("Application with id <" + appEnvironment.getApplicationId() + "> could not be found to update an environment").build())
-                        .build();
-            }
-        } else {
-            // no application found to create an env
+
+        if (appEnvironment == null) {
             return RestResponseBuilder
                     .<Void> builder()
                     .data(null)
                     .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
                             .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
         }
+
+        Application application = applicationService.getOrFail(appEnvironment.getApplicationId());
+        applicationEnvironmentService.ensureNameUnicity(application.getId(), request.getName());
+        ReflectionUtil.mergeObject(request, appEnvironment);
+        if (appEnvironment.getName() == null || appEnvironment.getName().isEmpty()) {
+            throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
+        }
+        alienDAO.save(appEnvironment);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -208,19 +207,11 @@ public class ApplicationEnvironmentController {
         applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
         int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
         boolean deleted = false;
-        if (countEnvironment > 1) {
-            deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
-        } else {
-            // delete the last environment is forbidden
-            return RestResponseBuilder
-                    .<Boolean> builder()
-                    .data(null)
-                    .error(RestErrorBuilder
-                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
-                            .message(
-                                    "Application environment with id <" + applicationEnvironmentId
-                                            + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.").build()).build();
+        if (countEnvironment == 1) {
+            throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + applicationEnvironmentId
+                    + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.");
         }
+        deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
 
@@ -254,6 +245,7 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addUserRole(applicationEnvironment, username, role);
+        handleAddUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -271,6 +263,7 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.addGroupRole(applicationEnvironment, groupId, role);
+        handleAddGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -288,11 +281,12 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeUserRole(applicationEnvironment, username, role);
+        handleRemoveUserRoleOnApplication(applicationEnvironment.getApplicationId(), username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
-     * Remove a role from a user on a specific application environment
+     * Remove a role from a group on a specific application environment
      *
      * @param applicationEnvironmentId application environment id
      * @param groupId The id of the group to update roles
@@ -305,7 +299,60 @@ public class ApplicationEnvironmentController {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
         resourceRoleService.removeGroupRole(applicationEnvironment, groupId, role);
+        handleRemoveGrpRoleOnApplication(applicationEnvironment.getApplicationId(), groupId);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Handle user roles on the targeted application
+     * Any role on an environment implies APPLICATION_USER role on the linked application
+     * 
+     * @param applicationId
+     * @param username
+     */
+    private void handleAddUserRoleOnApplication(String applicationId, String username) {
+        Application application = applicationService.getOrFail(applicationId);
+        resourceRoleService.addUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
+    }
+
+    /**
+     * Handle remove roles on the targeted application
+     * 
+     * @param applicationId
+     * @param username
+     */
+    private void handleRemoveUserRoleOnApplication(String applicationId, String username) {
+        Application application = applicationService.getOrFail(applicationId);
+        boolean isApplicationUserOnly = AuthorizationUtil.hasOnlyOneRoleOnResource(userService.retrieveUser(username), application,
+                ApplicationRole.APPLICATION_USER);
+        // TODO : check this condition > remove the role only if it is not the only role
+        if (!isApplicationUserOnly) {
+            resourceRoleService.removeUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
+        }
+    }
+
+    /**
+     * Handle group roles on the targeted application
+     * Any role on an environment implies APPLICATION_USER role on the linked application
+     * 
+     * @param applicationEnvironmentId
+     * @param username
+     */
+    private void handleAddGrpRoleOnApplication(String applicationId, String groupId) {
+        Application application = applicationService.getOrFail(applicationId);
+        resourceRoleService.addGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
+    }
+
+    /**
+     * Handle group roles on the targeted application
+     * 
+     * @param applicationEnvironmentId
+     * @param username
+     */
+    private void handleRemoveGrpRoleOnApplication(String applicationId, String groupId) {
+        Application application = applicationService.getOrFail(applicationId);
+        // TODO : donc remove if the user has other role on this env
+        resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
     }
 
     /**
@@ -332,7 +379,8 @@ public class ApplicationEnvironmentController {
                 tempEnvDTO.setCloudName(null);
             }
             tempEnvDTO.setCloudId(env.getCloudId());
-            tempEnvDTO.setCurrentVersionName(applicationVersionService.getOrFail(env.getCurrentVersionId()).getVersion());
+            ApplicationVersion applicationVersion = applicationVersionService.get(env.getCurrentVersionId());
+            tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
             } catch (CloudDisabledException e) {

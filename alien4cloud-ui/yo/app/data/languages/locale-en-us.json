@@ -110,7 +110,7 @@
     },
     "CAPABILITIES": {
       "TYPE": "Capabilities",
-      "CARDINALITIES_TOOLTIP" : "upperBound"
+      "CARDINALITIES_TOOLTIP": "upperBound"
     },
     "ABSTRACT": "Abstract component",
     "DEFAULTCAPABILITIES": "Default Capabilities",
@@ -211,7 +211,7 @@
     "DELETE": "Delete",
     "OPERATIONS": "Operations"
   },
-  "EDIT_RIGHTS" : {
+  "EDIT_RIGHTS": {
     "EDIT_ROLE_RESOURCE": "Edit roles for resource",
     "EDIT_ROLE_HEADER_RESOURCE": "Add or remove roles to the resource",
     "EDIT_ROLE_ENV": "Edit roles for environement",
@@ -233,6 +233,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "APPLICATION_ROLES": "Application roles",
     "NEW": "New Application",
     "NAME": "Name",
     "DESC": "Description",
@@ -377,6 +378,7 @@
     },
     "ENVIRONMENT": {
       "ENV": "Environment",
+      "ENV_ROLES": "Environment roles",
       "NEW": "New environment",
       "STATUS": "Status",
       "NAME": "Name",
@@ -611,7 +613,8 @@
     "507": "Cannot delete this object as it's still being used by other objects",
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
-    "605": " Invalid format version",
+    "604": "An application must necessarily have at least one environment",
+    "605": "Invalid format version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",

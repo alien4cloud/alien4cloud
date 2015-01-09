@@ -25,6 +25,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
@@ -47,8 +48,8 @@ import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
 import alien4cloud.tosca.container.model.topology.ScalingPolicy;
 import alien4cloud.tosca.container.model.topology.Topology;
 import alien4cloud.tosca.model.PropertyConstraint;
-import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.model.ToscaType;
 import alien4cloud.tosca.properties.constraints.GreaterOrEqualConstraint;
 import alien4cloud.tosca.properties.constraints.PatternConstraint;
 
@@ -67,6 +68,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     private final Map<String, PropertyDefinition> deploymentProperties;
     private final Map<String, DeploymentStatus> deploymentsMap = Maps.newConcurrentMap();
+
+    @Resource
+    private DeploymentService deploymentService;
 
     /**
      * A little bit scary isn't it ? It's just a mock man.
@@ -124,7 +128,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
             if (deployment == null) {
                 return DeploymentStatus.UNDEPLOYED;
             }
-            QueryBuilder matchTopologyIdQueryBuilder = QueryBuilders.termQuery("topologyId", deployment.getTopologyId());
+            QueryBuilder matchTopologyIdQueryBuilder = QueryBuilders.termQuery("topologyId", deploymentService.getTopologyIdByDeployment(deploymentId));
             final Application application = alienDAO.customFind(Application.class, matchTopologyIdQueryBuilder);
             if (application != null && UNKNOWN_APPLICATION_THAT_NEVER_WORKS.equals(application.getName())) {
                 return DeploymentStatus.UNKNOWN;
@@ -164,7 +168,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         log.info("Deploying deployment [" + deploymentId + "]");
         changeStatus(deploymentId, DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
         if (deploymentId != null) {
-            Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
+            Topology topology = alienDAO.findById(Topology.class, deploymentService.getTopologyIdByDeployment(deploymentId));
             Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
             if (policies == null) {
                 policies = Maps.newHashMap();
@@ -407,8 +411,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public void scale(String deploymentId, String nodeTemplateId, final int instances) {
-        Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
+        Topology topology = alienDAO.findById(Topology.class, deploymentService.getTopologyIdByDeployment(deploymentId));
         final Map<String, Map<Integer, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)) {
             ScalingVisitor scalingVisitor = new ScalingVisitor() {

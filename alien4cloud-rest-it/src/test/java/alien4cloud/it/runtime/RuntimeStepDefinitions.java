@@ -38,8 +38,8 @@ public class RuntimeStepDefinitions {
         commandRequest.setNodeTemplateName(nodeTemplateName);
         commandRequest.setInterfaceName(interfaceName);
         commandRequest.setOperationName(commandName);
-        commandRequest.setTopologyId(Context.getInstance().getTopologyId());
-        commandRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+        // TODO : take the default env of a specific on
+        commandRequest.setApplicationEnvironmentId(null);
         String jSon = JsonUtil.toString(commandRequest);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));

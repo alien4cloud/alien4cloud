@@ -4,6 +4,7 @@
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
   '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environments', 'applicationEventServices', '$state', '$rootScope', 'applicationEnvironmentServices',
   function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environments, applicationEventServices, $state, $rootScope, applicationEnvironmentServices) {
+
     var pageStateId = $state.current.name;
     $scope.application = applicationResult.data;
 
@@ -56,7 +57,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.showProperty = function() {
-      return !$scope.showTodoList() && $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
+      return !$scope.showTodoList() && UTILS.isDefinedAndNotNull($scope.deploymentPropertyDefinitions);
     };
 
     $scope.showTodoList = function() {
@@ -424,6 +425,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // search for clouds
     var Cloud = $resource('rest/clouds/search', {}, {});
     var refreshCloudList = function() {
+      delete $scope.selectedCloud;
+      delete $scope.deploymentPropertyDefinitions;
       Cloud.get({
         enabledOnly: true
       }, function(result) {

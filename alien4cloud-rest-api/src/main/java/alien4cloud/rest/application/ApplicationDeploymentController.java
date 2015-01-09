@@ -1,5 +1,6 @@
 package alien4cloud.rest.application;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -160,7 +161,7 @@ public class ApplicationDeploymentController {
                     + "] because it contains unmatchable resources");
         }
         try {
-            deploymentService.deployTopology(topology, environment.getCloudId(), application, deploymentSetup);
+            deploymentService.deployTopology(topology, application, deploymentSetup);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder
                     .<Void> builder()
@@ -189,7 +190,8 @@ public class ApplicationDeploymentController {
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
-                deploymentService.undeployTopology(version.getTopologyId(), environment.getCloudId());
+                DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+                deploymentService.undeployTopology(deploymentSetup);
             }
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
@@ -210,8 +212,7 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-        Deployment deployment = deploymentService.getActiveDeployment(version.getTopologyId(), environment.getCloudId());
+        Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
 
@@ -233,28 +234,33 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Get the current statuses of an application list on the PaaS for all environments.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Map<String, Map<String, DeploymentStatus>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
-        Map<String, Map<String, DeploymentStatus>> statuses = Maps.newHashMap();
+    public RestResponse<Map<String, Map<String, ArrayList<String>>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
+        Map<String, Map<String, ArrayList<String>>> statuses = Maps.newHashMap();
         Application application = null;
-        Map<String, DeploymentStatus> ennvironmentStatuses = Maps.newHashMap();
+        Map<String, ArrayList<String>> ennvironmentStatuses = Maps.newHashMap();
         ApplicationEnvironment[] environments;
         for (String applicationId : applicationIds) {
             application = applicationService.checkAndGetApplication(applicationId);
             // get all environments status for the current application
             environments = applicationEnvironmentService.getByApplicationId(application.getId());
             for (ApplicationEnvironment env : environments) {
+                ArrayList<String> array = new ArrayList<String>();
+                array.add(env.getName());
                 try {
-                    ennvironmentStatuses.put(env.getId(), applicationEnvironmentService.getStatus(env));
+                    array.add(applicationEnvironmentService.getStatus(env).toString());
+                    ennvironmentStatuses.put(env.getId(), array);
                 } catch (CloudDisabledException e) {
                     log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
                             + "> seems disabled. Returned status is UNKNOWN.", e);
-                    ennvironmentStatuses.put(env.getId(), DeploymentStatus.UNKNOWN);
+                    array.add(DeploymentStatus.UNKNOWN.toString());
+                    ennvironmentStatuses.put(env.getId(), array);
+
                 }
             }
             statuses.put(applicationId, ennvironmentStatuses);
             ennvironmentStatuses = Maps.newHashMap();
         }
-        return RestResponseBuilder.<Map<String, Map<String, DeploymentStatus>>> builder().data(statuses).build();
+        return RestResponseBuilder.<Map<String, Map<String,  ArrayList<String>>>> builder().data(statuses).build();
     }
 
     private DeploymentStatus getApplicationDeploymentStatus(Application application, String applicationEnvironmentId) {
@@ -268,7 +274,7 @@ public class ApplicationDeploymentController {
             deploymentStatus = DeploymentStatus.UNDEPLOYED;
         } else {
             try {
-                deploymentStatus = deploymentService.getDeploymentStatus(version.getTopologyId(), environment.getCloudId());
+                deploymentStatus = applicationEnvironmentService.getStatus(environment);
             } catch (CloudDisabledException e) {
                 log.debug("Getting status for topology failed because plugin wasn't found. Returned status is undeployed.", e);
                 deploymentStatus = DeploymentStatus.UNDEPLOYED;
@@ -295,7 +301,7 @@ public class ApplicationDeploymentController {
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
         try {
             return RestResponseBuilder.<Map<String, Map<Integer, InstanceInformation>>> builder()
-                    .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId())).build();
+                    .data(deploymentService.getInstancesInformation(version.getTopologyId(), environment.getCloudId(), environment.getId())).build();
         } catch (CloudDisabledException e) {
             log.error("Cannot get instance informations as topology plugin cannot be found.", e);
         }
@@ -322,10 +328,9 @@ public class ApplicationDeploymentController {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
 
         try {
-            deploymentService.scale(version.getTopologyId(), environment.getCloudId(), nodeTemplateId, instances);
+            deploymentService.scale(environment.getId(), nodeTemplateId, instances);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
         }
@@ -384,7 +389,7 @@ public class ApplicationDeploymentController {
 
         DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
         if (deploymentSetup == null) {
-            deploymentSetup = deploymentSetupService.create(version, environment);
+            deploymentSetup = deploymentSetupService.createOrFail(version, environment);
         }
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
@@ -416,13 +421,6 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    /**
-     * TODO : Temp methods waiting complete API change with environment / version as parameters in services
-     * 
-     * @param applicationId
-     * @param applicationVersionId
-     * @return
-     */
     private ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
         ApplicationVersion version = null;
         if (applicationVersionId == null) {

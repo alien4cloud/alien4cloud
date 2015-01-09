@@ -1,12 +1,29 @@
 <div id="app-user-role">
   <div class="row">
     <div class="col-md-6 resource-user-roles">
-      <h5>{{'APPLICATION_ROLES' | translate}}</h5>
+      <h5>{{'APPLICATIONS.APPLICATION_ROLES' | translate}}</h5>
     </div>
     <div class="col-md-6 resource-user-roles">
-      <h5>{{'ENVIRONMENT_ROLES' | translate}}</h5>
+      <h5>
+        {{'APPLICATIONS.ENVIRONMENT.ENV_ROLES' | translate}}
+        <div class="btn-group btn-group-xs">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="environment_{{selectedEnvironment.name}}">
+            {{selectedEnvironment.name}}
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+            <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
+              <a id="environment_{{env.name}}" ng-click="changeEnvironment(env)">
+                <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </h5>
     </div>
   </div>
+
   <div class="row">
     <div class="col-md-3 resource-user-roles" ng-repeat="appRole in appRoles">
       <div class="thumbnail">
@@ -76,25 +93,13 @@
     <div class="col-md-12">
       <tabset>
         <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
-          <alien-search-user
-            crud-support="false"
-            managed-app-role-list="appRoles"
-            managed-env-role-list="environmentRoles"
-            check-app-role-selected-callback="checkAppRoleSelectedForUser(user, role)"
-            check-env-role-selected-callback="checkEnvRoleSelectedForUser(user, role)"
-            on-select-app-role-callback="handleAppRoleSelectionForUser(user, role)"
-            on-select-env-role-callback="handleEnvRoleSelectionForUser(user, role)">
+          <alien-search-user crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForUser(user, role)" check-env-role-selected-callback="checkEnvRoleSelectedForUser(user, role)"
+          on-select-app-role-callback="handleAppRoleSelectionForUser(user, role)" on-select-env-role-callback="handleEnvRoleSelectionForUser(user, role)">
           </alien-search-user>
         </tab>
         <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
-          <alien-search-group
-            crud-support="false"
-            managed-app-role-list="appRoles"
-            managed-env-role-list="environmentRoles"
-            check-app-role-selected-callback="checkAppRoleSelectedForGroup(group, role)"
-            check-env-role-selected-callback="checkEnvRoleSelectedForGroup(group, role)"
-            on-select-app-role-callback="handleAppRoleSelectionForGroup(group, role)"
-            on-select-env-role-callback="handleEnvRoleSelectionForGroup(group, role)">
+          <alien-search-group crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForGroup(group, role)" check-env-role-selected-callback="checkEnvRoleSelectedForGroup(group, role)"
+          on-select-app-role-callback="handleAppRoleSelectionForGroup(group, role)" on-select-env-role-callback="handleEnvRoleSelectionForGroup(group, role)">
           </alien-search-group>
         </tab>
       </tabset>

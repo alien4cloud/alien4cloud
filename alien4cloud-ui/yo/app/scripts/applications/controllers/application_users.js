@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alienAuthService',
-  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices',
-  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices) {
+  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'environments',
+  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, environments) {
 
     $scope.application = applicationResult.data;
     $scope.appRoles = applicationRolesResult.data;
