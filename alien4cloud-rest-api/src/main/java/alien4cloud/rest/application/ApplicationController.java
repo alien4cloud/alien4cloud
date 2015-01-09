@@ -350,6 +350,7 @@ public class ApplicationController {
         return RestResponseBuilder.<ConstraintInformation> builder().error(updateApplicationPropertyError).build();
     }
 
+    @Deprecated
     @ApiOperation(value = "Get the id of the topology associated with this application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<String> getTopologyId(@PathVariable String applicationId) {

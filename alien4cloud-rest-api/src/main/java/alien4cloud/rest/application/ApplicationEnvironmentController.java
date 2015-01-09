@@ -42,6 +42,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
@@ -81,6 +82,8 @@ public class ApplicationEnvironmentController {
     private DeploymentSetupService deploymentSetupService;
     @Resource
     private UserService userService;
+    @Resource
+    private TopologyService topologyService;
 
     /**
      * Search for application environment for a given application id
@@ -120,7 +123,7 @@ public class ApplicationEnvironmentController {
      *
      * @param applicationId The application id
      */
-    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         applicationService.checkAndGetApplication(applicationId);

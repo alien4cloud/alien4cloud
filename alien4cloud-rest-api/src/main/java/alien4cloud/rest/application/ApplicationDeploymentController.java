@@ -79,37 +79,6 @@ public class ApplicationDeploymentController {
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
-    // @Deprecated
-    // @ApiOperation(value = "Set the cloud to use by default in order to deploy the application.", notes =
-    // "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    // @RequestMapping(value = "/{applicationId:.+}/cloud", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces =
-    // MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<Void> setCloud(@PathVariable String applicationId, @RequestBody UpdateApplicationCloudRequest updateApplicationCloudRequest) {
-    //
-    // // recover an check basic rights on the underlying application
-    // Application application = applicationService.checkAndGetApplication(applicationId);
-    //
-    // // Application environment : get an check right on the environment
-    // ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), updateApplicationCloudRequest.getApplicationEnvironmentId());
-    // AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-    //
-    // // set the cloud to this environment
-    // String cloudId = updateApplicationCloudRequest.getCloudId();
-    // environment.setCloudId(cloudId);
-    // alienDAO.save(environment);
-    //
-    // // Application version : check right on the version
-    // ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-    //
-    // // Configure and save the deployment setup
-    // DeploymentSetup deploymentSetup = getDeploymentSetup(application);
-    // Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-    // deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
-    // deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-    // alienDAO.save(deploymentSetup);
-    // return RestResponseBuilder.<Void> builder().build();
-    // }
-
     /**
      * Trigger deployment of the application on the current configured PaaS.
      *
@@ -260,7 +229,7 @@ public class ApplicationDeploymentController {
             statuses.put(applicationId, ennvironmentStatuses);
             ennvironmentStatuses = Maps.newHashMap();
         }
-        return RestResponseBuilder.<Map<String, Map<String,  ArrayList<String>>>> builder().data(statuses).build();
+        return RestResponseBuilder.<Map<String, Map<String, ArrayList<String>>>> builder().data(statuses).build();
     }
 
     private DeploymentStatus getApplicationDeploymentStatus(Application application, String applicationEnvironmentId) {
@@ -348,15 +317,6 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-
-        // Application application = applicationService.getOrFail(applicationId);
-        // AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        //
-        // ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
-        // ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
-        // // get the topology from the version and the cloud from the environment.
-        // ApplicationVersion version = versions[0];
-        // ApplicationEnvironment environment = environments[0];
 
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {

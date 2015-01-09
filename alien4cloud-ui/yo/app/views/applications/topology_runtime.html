@@ -1,11 +1,18 @@
 <div>
   <div class="row">
+
     <div class="col-md-7 col-lg-8">
       <div class="well topology">
         <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" />
       </div>
     </div>
     <div class="col-md-5 col-lg-4">
+
+      <!--  Environment list -->
+      <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in environments"
+        ng-change="loadTopologyRuntime()">
+      </select>
+
       <tabset>
         <!-- events -->
         <tab>

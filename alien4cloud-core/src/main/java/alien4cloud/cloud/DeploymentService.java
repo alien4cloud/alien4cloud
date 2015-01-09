@@ -335,7 +335,7 @@ public class DeploymentService {
      * @throws alien4cloud.exception.NotFoundException if not any deployment exists
      */
     public Deployment getActiveDeploymentFailIfNotExists(String topologyId, String cloudId) {
-        Deployment deployment = getActiveDeployment(topologyId, cloudId);
+        Deployment deployment = getActiveDeployment(cloudId, topologyId);
         if (deployment == null) {
             throw new NotFoundException("Deployment for cloud <" + cloudId + "> and topology <" + topologyId + "> doesn't exist.");
         }

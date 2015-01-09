@@ -34,12 +34,12 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
     var undeploymentResource = $resource('rest/deployments/:deploymentId/undeploy');
 
     /*runtime controller*/
-    var runtimeTopologyResource = $resource('rest/runtime/:applicationId/topology', {}, {
+    var runtimeTopologyResource = $resource('rest/runtime/:applicationId/environment/:applicationEnvironmentId/topology', {}, {
       'get': {
         method: 'GET',
         params: {
           applicationId: '@applicationId',
-          cloudId: '@cloudId'
+          cloudId: '@applicationEnvironmentId'
         },
         isArray: false
       }

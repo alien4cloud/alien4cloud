@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +26,6 @@ import alien4cloud.component.model.IndexedNodeType;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.OperationExecRequest;
@@ -126,29 +124,29 @@ public class RuntimeController {
     }
 
     /**
-     * Get runtime (deployed) topology of an application on a specific cloud.
-     *
-     * @param applicationId Id of the application for which to get deployed topology.
-     * @param cloudId of the cloud on which the runtime topology is deployed.
+     * Get runtime (deployed) topology of an application on a specific environment
+     * 
+     * @param applicationId application id for which to get the topology
+     * @param applicationEnvironmentId application environment for which to get the topology through the version
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
      *         {@link alien4cloud.component.model.IndexedNodeType} related to his {@link NodeTemplate}s
      */
     @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER") })
-    @RequestMapping(value = "/{applicationId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
-            @ApiParam(value = "Id of the cloud on which the runtime topology is deployed.") @RequestParam(required = true) String cloudId) {
+            @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
+
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
-        // Get the application environment associated with the application (in the current version of A4C there is just a single environment.
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(application.getId());
+        // get the topology linked to the current environment
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
+        String cloudId = applicationEnvironment.getCloudId();
 
-        // get the topology from the version and the cloud from the environment.
-        ApplicationVersion version = versions[0];
-
-        return RestResponseBuilder.<TopologyDTO> builder()
-                .data(topologyService.buildTopologyDTO(deploymentService.getRuntimeTopology(version.getTopologyId(), cloudId))).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(deploymentService.getRuntimeTopology(topologyId, cloudId)))
+                .build();
     }
 
     private void validateCommand(OperationExecRequest operationRequest) throws ConstraintFunctionalException {

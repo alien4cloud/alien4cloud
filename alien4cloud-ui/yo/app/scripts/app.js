@@ -102,6 +102,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           function($http, $stateParams) {
             // TODO : change this to adapt to selected enviroment
             return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
+              console.log('TOPOLOGY ID >', result.data.data);
               return result.data.data;
             });
           }
