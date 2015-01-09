@@ -68,10 +68,11 @@ angular.module('alienUiApp').controller(
         $scope.flavors = response.data.flavors;
         $scope.cloud = response.data.cloud;
         $scope.networks = response.data.networks;
-        if (response.data.matcherConfig) {
+        if (response.data.cloudResourceMatcher) {
           $scope.manualMatchResource = true;
-          $scope.matchedComputeTemplates = response.data.matcherConfig.matchedComputeTemplates;
-          $scope.matchedNetworks = response.data.matcherConfig.matchedNetworks;
+          $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
+          $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
+          $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
           updateComputeResourcesId();
           updateNetworkResourcesId();
         }

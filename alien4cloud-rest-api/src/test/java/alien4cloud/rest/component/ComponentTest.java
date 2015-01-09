@@ -28,14 +28,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.Constants;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.tosca.model.CapabilityDefinition;
+import alien4cloud.model.components.CapabilityDefinition;
 
 import com.google.common.collect.Lists;
 

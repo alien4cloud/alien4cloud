@@ -10,8 +10,8 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import alien4cloud.tosca.model.ToscaType;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.model.components.PropertyDefinition;
 
 public class TocsaPropertyDefaultValueTypeValidatorTest {
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;

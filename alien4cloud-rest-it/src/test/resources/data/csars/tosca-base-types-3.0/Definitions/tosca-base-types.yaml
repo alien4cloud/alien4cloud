@@ -22,7 +22,7 @@ node_types:
         type: tosca.capabilities.Feature
         upper_bound: unbounded
     interfaces:
-      lifecycle:
+      tosca.interfaces.node.lifecycle.Standard:
         description: Default lifecycle for nodes in TOSCA.
         create:
           description: Basic lifecycle create operation.

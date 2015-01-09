@@ -2,9 +2,9 @@ package alien4cloud.utils;
 
 import java.util.Map;
 
-import alien4cloud.tosca.model.AbstractPropertyValue;
-import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.model.ScalarPropertyValue;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 
 import com.google.common.collect.Maps;
 
@@ -18,7 +18,7 @@ public final class PropertyUtil {
      * Note: This method will have to be removed once the ui manages properties correctly.
      * 
      * @param propertyDefinitions The map of {@link PropertyDefinition}s to convert.
-     * @return An equivalent map of default {@link alien4cloud.tosca.model.ScalarPropertyValue}s, that contains all properties definitions keys (default value
+     * @return An equivalent map of default {@link alien4cloud.model.components.ScalarPropertyValue}s, that contains all properties definitions keys (default value
      *         is null when no default value is specified in the property definition).
      */
     public static Map<String, AbstractPropertyValue> getDefaultPropertyValuesFromPropertyDefinitions(Map<String, PropertyDefinition> propertyDefinitions) {

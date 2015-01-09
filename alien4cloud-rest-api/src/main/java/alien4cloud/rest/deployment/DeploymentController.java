@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.DeploymentService;
@@ -25,6 +26,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.model.RestError;
@@ -142,24 +144,35 @@ public class DeploymentController {
 
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{deploymentId}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentStatus> getDeploymentStatus(
+    public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
 
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        DeploymentStatus status = null;
+        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
         if (deployment != null) {
             try {
-                status = deploymentService.getDeploymentStatus(deployment);
+                deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                    @Override
+                    public void onSuccess(DeploymentStatus result) {
+                        statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        statusResult.setErrorResult(t);
+                    }
+                });
+                return statusResult;
             } catch (CloudDisabledException e) {
-                return RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+                statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
             }
         } else {
-            return RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build();
+            statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build());
         }
 
-        return RestResponseBuilder.<DeploymentStatus> builder().data(status).build();
+        return statusResult;
     }
 
     @ApiOperation(value = "Undeploy deployment from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })

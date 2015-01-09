@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.csar.services.ICsarDependencyLoader;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Maps;

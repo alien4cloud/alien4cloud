@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.cloud.CloudService;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.rest.model.RestResponse;

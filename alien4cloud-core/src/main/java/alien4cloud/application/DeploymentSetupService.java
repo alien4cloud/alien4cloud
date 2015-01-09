@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -27,8 +27,8 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.Network;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.model.components.PropertyDefinition;
 
 import com.google.common.collect.Maps;
 

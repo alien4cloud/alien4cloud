@@ -6,7 +6,7 @@ import java.util.Set;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import alien4cloud.tosca.model.PropertyConstraint;
+import alien4cloud.model.components.PropertyConstraint;
 
 import com.google.common.collect.Sets;
 

@@ -12,7 +12,6 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.common.mvel2.PropertyAccessException;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -203,7 +202,7 @@ public final class ReflectionUtil {
                 Object propertyValue = settableProperty.getValue();
                 setPropertyValue(to, propertyName, propertyValue);
             }
-        } catch (IllegalAccessException | InvocationTargetException | PropertyAccessException | BeansException e) {
+        } catch (IllegalAccessException | InvocationTargetException | BeansException e) {
             throw new InvalidArgumentException("Cannot merge object", e);
         }
     }

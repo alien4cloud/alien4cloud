@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.constraints.*;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.BeanWrapper;
@@ -14,12 +15,11 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.tosca.model.PropertyConstraint;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.properties.constraints.*;
 
 import com.google.common.collect.Maps;
 

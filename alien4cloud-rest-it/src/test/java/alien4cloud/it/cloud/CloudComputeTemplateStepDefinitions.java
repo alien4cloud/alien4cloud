@@ -33,7 +33,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[]{cloudImageId})));
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
     }
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
@@ -85,7 +85,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
-                                                                                                 String cloudName) throws Throwable {
+            String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
         cloudImageFlavor.setId(flavorId);
@@ -133,7 +133,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 
     @When("^I remove the cloud image \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
@@ -150,19 +150,24 @@ public class CloudComputeTemplateStepDefinitions {
     }
 
     @When("^I match the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
-    public void I_match_the_template_composed_of_image_and_flavor_of_the_cloud_to_the_PaaS_resource(String cloudImageName, String flavorId, String cloudName, String paaSResourceId) throws Throwable {
+    public void I_match_the_template_composed_of_image_and_flavor_of_the_cloud_to_the_PaaS_resource(String cloudImageName, String flavorId, String cloudName,
+            String paaSResourceId) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource", Lists.<NameValuePair>newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource",
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
     public void The_cloud_should_have_resources_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
         new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertNotNull(cloudDTO.getMatcherConfig());
-        Assert.assertNotNull(cloudDTO.getMatcherConfig().getMatchedComputeTemplates());
-        Set<MatchedComputeTemplate> actualMatchedComputeTemplates = Sets.newHashSet(cloudDTO.getMatcherConfig().getMatchedComputeTemplates());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedComputeTemplates());
+        Set<MatchedComputeTemplate> actualMatchedComputeTemplates = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig()
+                .getMatchedComputeTemplates());
         Set<MatchedComputeTemplate> expectedMatchedComputeTemplates = Sets.newHashSet();
         for (List<String> rows : expectedMappings.raw()) {
             String cloudImageId = Context.getInstance().getCloudImageId(rows.get(0));
@@ -174,9 +179,12 @@ public class CloudComputeTemplateStepDefinitions {
     }
 
     @When("^I delete the mapping for the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
-    public void I_delete_the_mapping_for_the_template_composed_of_image_and_flavor_of_the_cloud(String cloudImageName, String flavorId, String cloudName) throws Throwable {
+    public void I_delete_the_mapping_for_the_template_composed_of_image_and_flavor_of_the_cloud(String cloudImageName, String flavorId, String cloudName)
+            throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource", Lists.<NameValuePair>newArrayList()));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource",
+                        Lists.<NameValuePair> newArrayList()));
     }
 }
