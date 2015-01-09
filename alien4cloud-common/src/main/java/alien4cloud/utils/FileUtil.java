@@ -18,6 +18,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -25,8 +27,6 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public final class FileUtil {
@@ -56,7 +56,7 @@ public final class FileUtil {
     /**
      * Recursively zip file and directory
      *
-     * @param inputPath  file path can be directory
+     * @param inputPath file path can be directory
      * @param outputPath where to put the zip
      * @throws IOException when IO error happened
      */
@@ -81,11 +81,11 @@ public final class FileUtil {
     /**
      * Recursively tar file
      *
-     * @param inputPath    file path can be directory
-     * @param outputPath   where to put the archived file
+     * @param inputPath file path can be directory
+     * @param outputPath where to put the archived file
      * @param childrenOnly if inputPath is directory and if childrenOnly is true, the archive will contain all of its children, else the archive contains unique
-     *                     entry which is the inputPath itself
-     * @param gZipped      compress with gzip algorithm
+     *            entry which is the inputPath itself
+     * @param gZipped compress with gzip algorithm
      */
     public static void tar(Path inputPath, Path outputPath, boolean gZipped, boolean childrenOnly) throws IOException {
         if (!Files.exists(inputPath)) {
@@ -97,6 +97,7 @@ public final class FileUtil {
             outputStream = new GzipCompressorOutputStream(outputStream);
         }
         TarArchiveOutputStream tarArchiveOutputStream = new TarArchiveOutputStream(outputStream);
+        tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
         try {
             if (!Files.isDirectory(inputPath)) {
                 putTarEntry(tarArchiveOutputStream, new TarArchiveEntry(inputPath.getFileName().toString()), inputPath);
@@ -117,7 +118,7 @@ public final class FileUtil {
     /**
      * Unzip a zip file to a destination folder.
      *
-     * @param zipFile     The zip file to unzip.
+     * @param zipFile The zip file to unzip.
      * @param destination The destination folder in which to save the file.
      * @throws IOException In case something fails.
      */
@@ -180,7 +181,7 @@ public final class FileUtil {
     /**
      * Read all files bytes and create a string.
      *
-     * @param path    The file's path.
+     * @param path The file's path.
      * @param charset The charset to use to convert the bytes to string.
      * @return A string from the file content.
      * @throws IOException In case the file cannot be read.

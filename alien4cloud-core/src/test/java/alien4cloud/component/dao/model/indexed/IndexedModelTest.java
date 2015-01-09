@@ -12,12 +12,12 @@ import java.util.Map;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Test;
 
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedModelUtils;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.Tag;
-import alien4cloud.tosca.model.AttributeDefinition;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -89,7 +89,7 @@ public class IndexedModelTest {
 
     @Test
     public void testOrderInheritableElements() {
-        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderForIndex(elementsByIdMap);
+        List<IndexedInheritableToscaElement> sorted = IndexedModelUtils.orderByDerivedFromHierarchy(elementsByIdMap);
 
         for (IndexedInheritableToscaElement el : sorted) {
             System.out.println(el.getElementId() + " " + el.getDerivedFrom());

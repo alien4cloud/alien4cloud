@@ -140,21 +140,33 @@ public class ApplicationEnvironmentService {
     }
 
     /**
-     * True when an application environment is deployed
-     * 
-     * @return true if the environment is currently deployed
-     * @throws CloudDisabledException
+     * Get an active deployment associated with an environment.
+     *
+     * @param appEnvironmentId The id of the environment for which to get an active deployment.
+     * @return The deployment associated with the environment.
      */
-    public boolean isDeployed(String appEnvironmentId) throws CloudDisabledException {
+    public Deployment getActiveDeployment(String appEnvironmentId) {
         GetMultipleDataResult<Deployment> dataResult = alienDAO.search(
                 Deployment.class,
                 null,
                 MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] { new String[] { appEnvironmentId },
                         new String[] { null } }), 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return true;
+            return dataResult.getData()[0];
         }
-        return false;
+        return null;
+    }
+
+    /**
+     * True when an application environment is deployed
+     * 
+     * @return true if the environment is currently deployed
+     */
+    public boolean isDeployed(String appEnvironmentId) {
+        if (getActiveDeployment(appEnvironmentId) == null) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -217,7 +229,7 @@ public class ApplicationEnvironmentService {
     /**
      * Get the topology id linked to the environment
      * 
-     * @param applicationVersionId
+     * @param applicationEnvironmentId The id of the environment.
      * @return a topology id or null
      */
     public String getTopologyId(String applicationEnvironmentId) {

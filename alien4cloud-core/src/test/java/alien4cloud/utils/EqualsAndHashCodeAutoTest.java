@@ -2,17 +2,16 @@ package alien4cloud.utils;
 
 import java.lang.reflect.Field;
 
+import alien4cloud.model.components.*;
+import alien4cloud.model.components.constraints.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.cloud.*;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.model.*;
-import alien4cloud.tosca.properties.constraints.*;
+import alien4cloud.model.components.CSARDependency;
 
 /**
  * Most of the equals and hashcode methods are generated using Lombok.

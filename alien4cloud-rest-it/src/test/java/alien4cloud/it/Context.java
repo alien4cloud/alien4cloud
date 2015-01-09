@@ -28,7 +28,7 @@ import alien4cloud.it.exception.ITException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.rest.utils.RestClient;
-import alien4cloud.tosca.container.model.topology.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -5,12 +5,12 @@ import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedArtifactToscaElement;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.model.ImplementationArtifact;
-import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.model.Operation;
+import alien4cloud.model.components.ImplementationArtifact;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;

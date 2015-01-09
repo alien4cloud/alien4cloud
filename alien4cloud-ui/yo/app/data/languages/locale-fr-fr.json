@@ -723,7 +723,8 @@
     "uninstalling": "Désinstallation",
     "uninstalled": "Désinstallé",
     "initial": "Initial",
-    "available": "Disponible"
+    "available": "Disponible",
+    "uninitialized": "Non initialisé"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",

@@ -88,9 +88,10 @@ public class CloudNetworkStepDefinitions {
     public void The_cloud_should_have_network_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
         new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertNotNull(cloudDTO.getMatcherConfig());
-        Assert.assertNotNull(cloudDTO.getMatcherConfig().getNetworkMapping());
-        Set<MatchedNetwork> actualNetworks = Sets.newHashSet(cloudDTO.getMatcherConfig().getMatchedNetworks());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
+        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getNetworkMapping());
+        Set<MatchedNetwork> actualNetworks = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks());
         Set<MatchedNetwork> expectedNetworks = Sets.newHashSet();
         for (List<String> rows : expectedMappings.raw()) {
             Network network = new Network();
@@ -120,7 +121,8 @@ public class CloudNetworkStepDefinitions {
     public void The_cloud_should_have_empty_network_mapping_configuration(String cloudName) throws Throwable {
         new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertTrue(cloudDTO.getMatcherConfig() == null || cloudDTO.getMatcherConfig().getMatchedNetworks() == null
-                || cloudDTO.getMatcherConfig().getMatchedNetworks().isEmpty());
+        Assert.assertTrue(cloudDTO.getCloudResourceMatcher() == null || cloudDTO.getCloudResourceMatcher().getMatcherConfig() == null
+                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks() == null
+                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks().isEmpty());
     }
 }

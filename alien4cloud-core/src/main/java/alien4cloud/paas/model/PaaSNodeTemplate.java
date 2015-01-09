@@ -5,10 +5,10 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.paas.IPaaSTemplate;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.ScalingPolicy;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.ScalingPolicy;
 
 import com.google.common.collect.Lists;
 

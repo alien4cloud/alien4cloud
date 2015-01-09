@@ -80,7 +80,7 @@ describe('Create topology templates', function() {
     checkTopologyTemplate(newName);
 
     // Change the template's description
-    common.sendValueToXEditable('template_' + newName + '_description', 'New brilliant description', false, 'textarea');
+    common.sendValueToXEditable('template_' + newName + '_description', 'New brilliant description', false);
     expect(element(by.binding('topologyTemplate.description')).getText()).toEqual('New brilliant description');
     common.expectNoErrors();
 

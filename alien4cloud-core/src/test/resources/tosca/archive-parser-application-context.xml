@@ -15,5 +15,5 @@
 	<mockito:mock id="alien-es-dao" class="alien4cloud.dao.IGenericSearchDAO" />
 	<mockito:mock id="csar-service" class="alien4cloud.csar.services.CsarService" />
 	<mockito:mock id="csar-search-service"
-		class="alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService" />
+		class="alien4cloud.component.ICSARRepositorySearchService" />
 </beans>

@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 
 import alien4cloud.csar.services.ICsarDependencyLoader;
 import alien4cloud.tosca.container.ToscaTypeLoader;
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 
 import com.google.common.collect.Sets;
 

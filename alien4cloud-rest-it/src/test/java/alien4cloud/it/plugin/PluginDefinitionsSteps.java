@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
 
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.common.Tag;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;

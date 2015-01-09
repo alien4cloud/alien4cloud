@@ -25,6 +25,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.Network;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -33,7 +34,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;
@@ -107,7 +108,8 @@ public class CloudController {
         for (Network network : cloud.getNetworks()) {
             networks.put(network.getNetworkName(), network);
         }
-        CloudDTO cloudDTO = new CloudDTO(cloud, cloudService.findCloudResourceMatcherConfig(cloud), images, flavors, networks);
+        CloudDTO cloudDTO = new CloudDTO(cloud, new CloudResourceMatcherDTO(cloudService.findCloudResourceMatcherConfig(cloud),
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE)), images, flavors, networks);
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 

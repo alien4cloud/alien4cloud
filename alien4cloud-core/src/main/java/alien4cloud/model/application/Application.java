@@ -19,7 +19,7 @@ import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.component.model.Tag;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.security.ISecuredResource;

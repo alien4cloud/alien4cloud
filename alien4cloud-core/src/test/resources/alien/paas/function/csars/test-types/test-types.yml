@@ -1,0 +1,80 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+template_name: test-types
+template_author: Alien4Cloud
+template_version: 1.0-SNAPSHOT
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - alien-base-types:1.0-SNAPSHOT
+  - tomcat-war-types:1.0-SNAPSHOT
+
+node_types:
+  alien.test.TestCompute:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            customHostName: { get_property: [SELF, customHostName]}
+          implementation: scripts/setHostname.sh
+      custom:
+         helloCmd:
+          input:
+            yourName:
+              type: string
+              required: true
+            customHostName: { get_property: [HOST, customHostName] }
+          implementation: scripts/helloCmd.groovy
+
+
+  alien.test.BadTestCompute:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        configure:
+          inputs:
+            testScalar: test
+            customHostName: { get_property: [SELF, customHostName]}
+            insufficientParams: { get_property: [SELF] } 
+            keywordSourceBadUsage: { get_property: [SOURCE, customHostName]} 
+            KeywordTargetBadUsage: { get_property: [TARGET, customHostName]} 
+          implementation: scripts/setHostname.sh
+        
+  alien.test.nodes.TomcatSh:
+    derived_from: alien.nodes.cloudify.Tomcat
+    description: >
+      Installation of Tomcat from a ZIP archive downloaded from the Web using sh scripts.
+    interfaces:
+      Standard:
+        create: tomcatSh-scripts/tomcat_install.sh
+        start: tomcatSh-scripts/tomcat_start.sh
+        stop: tomcatSh-scripts/tomcat_stop.sh
+      custom:
+         helloCmd:
+          input:
+            yourName:
+              type: string
+              required: true
+            customHostName: { get_property: [HOST, customHostName] }
+          implementation: scripts/helloCmd.groovy
+          
+relationship_types:
+  alien.test.relationships.cloudify.WarHostedOnTomcat:
+    derived_from: alien.relationships.cloudify.WarHostedOnTomcat
+    interfaces:
+      configure:
+        post_configure_source: 
+          inputs:
+            contextPath: { get_property: [SOURCE, contextPath] } 
+            tomcatVersion: { get_property: [TARGET, version] }
+            tomcatIp: { get_attribute: [TARGET, ip_address] }
+            warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
+          implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
+            

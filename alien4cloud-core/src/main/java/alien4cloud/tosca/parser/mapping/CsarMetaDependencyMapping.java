@@ -2,7 +2,7 @@ package alien4cloud.tosca.parser.mapping;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.tosca.parser.impl.base.TypeNodeParser;
 
 @Component

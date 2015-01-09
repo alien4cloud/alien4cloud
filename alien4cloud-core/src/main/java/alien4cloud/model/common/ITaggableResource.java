@@ -2,8 +2,6 @@ package alien4cloud.model.common;
 
 import java.util.List;
 
-import alien4cloud.component.model.Tag;
-
 /**
  * Interface to be implemented by resources that supports tags management.
  */

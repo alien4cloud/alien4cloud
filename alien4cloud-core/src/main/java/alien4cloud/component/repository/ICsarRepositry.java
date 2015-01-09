@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
-import alien4cloud.tosca.model.Csar;
+import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.parser.ParsingResult;
 
 /**

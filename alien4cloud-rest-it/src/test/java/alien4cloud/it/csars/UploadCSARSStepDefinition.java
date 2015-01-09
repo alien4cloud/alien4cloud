@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.setup.TestDataRegistry;

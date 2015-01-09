@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.components.*;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,14 +16,13 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.component.model.*;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.services.csar.ICSARRepositorySearchService;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.tosca.model.*;
-import alien4cloud.tosca.properties.constraints.MaxLengthConstraint;
-import alien4cloud.tosca.properties.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

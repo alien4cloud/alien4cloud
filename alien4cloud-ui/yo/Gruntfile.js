@@ -417,7 +417,7 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-                        baseUrl: 'http://localhost:9999',
+            baseUrl: 'http://localhost:9999',
             // baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',

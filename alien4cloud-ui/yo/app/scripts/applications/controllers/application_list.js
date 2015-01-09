@@ -81,7 +81,7 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return appStatuses;
     };
 
-    var colors = {'DEPLOYED': '#3ADF00', 'UNDEPLOYED': '#D8D8D8'};
+    var colors = {'DEPLOYED': '#398439', 'UNDEPLOYED': '#D8D8D8'};
     var drawPieChart = function(appName, data) {
       var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
         return node.data.name;
@@ -133,10 +133,10 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
               var segment = {};
-              segment['label'] = tmpArray[key][1];
-              segment['color'] = colors[tmpArray[key][1]];
+              segment['label'] = tmpArray[key].environmentName;
+              segment['color'] = colors[tmpArray[key].environmentStatus];
               segment['value'] = 1;
-              segment['name'] = tmpArray[key][0];
+              segment['name'] = tmpArray[key].environmentName;
               data.push(segment);
             }
             drawPieChart(app.name, data);

@@ -11,7 +11,7 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.tosca.model.PropertyDefinition;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.ui.form.annotation.FormLabel;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormValidValues;

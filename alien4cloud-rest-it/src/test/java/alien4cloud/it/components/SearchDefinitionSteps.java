@@ -15,9 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
@@ -25,8 +25,8 @@ import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.model.CapabilityDefinition;
-import alien4cloud.tosca.model.RequirementDefinition;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.RequirementDefinition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;

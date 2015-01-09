@@ -715,7 +715,8 @@
     "uninstalling": "Uninstalling",
     "uninstalled": "Uninstalled",
     "initial": "Initial",
-    "available": "Available"
+    "available": "Available",
+    "uninitialized": "Uninitialized"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",
