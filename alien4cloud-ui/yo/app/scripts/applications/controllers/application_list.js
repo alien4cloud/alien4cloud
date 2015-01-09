@@ -133,7 +133,7 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
               var segment = {};
-              segment['label'] = tmpArray[key].environmentName;
+              segment['label'] = tmpArray[key].environmentStatus;
               segment['color'] = colors[tmpArray[key].environmentStatus];
               segment['value'] = 1;
               segment['name'] = tmpArray[key].environmentName;
