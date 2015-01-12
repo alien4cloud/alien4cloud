@@ -477,6 +477,10 @@ public class Context {
         return this.environmentInfos.get().get(applicationEnvironmentName);
     }
 
+    public String getDefaultApplicationEnvironmentId() {
+        return getApplicationEnvironmentId("Environment");
+    }
+
     public void registerApplicationId(String applicationName, String applicationId) {
         if (this.applicationInfos.get() != null) {
             this.applicationInfos.get().put(applicationName, applicationId);

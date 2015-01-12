@@ -19,6 +19,7 @@ import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
@@ -29,6 +30,7 @@ import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.rest.application.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.CreateApplicationRequest;
 import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
@@ -65,6 +67,19 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerApplicationVersionId(appVersion.getData().getVersion(), appVersion.getData().getId());
     }
 
+    @SuppressWarnings("rawtypes")
+    private void setAppEnvironmentIdToContext(String appId) throws JsonProcessingException, IOException {
+        SearchRequest request = new SearchRequest();
+        request.setFrom(0);
+        request.setSize(10);
+        String applicationEnvironmentsJson = Context.getRestClientInstance().postJSon("/rest/applications/" + appId + "/environments/search",
+                JsonUtil.toString(request));
+        RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(applicationEnvironmentsJson, GetMultipleDataResult.class);
+        GetMultipleDataResult searchResp = restResponse.getData();
+        ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
+        Context.getInstance().registerApplicationEnvironmentId(appEnvDTO.getName(), appEnvDTO.getId());
+    }
+
     @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\"$")
     public void I_create_a_new_application_with_name_and_description(String name, String description) throws Throwable {
         CreateApplicationRequest request = new CreateApplicationRequest(name, description, null);
@@ -78,6 +93,7 @@ public class ApplicationStepDefinitions {
         if (application.getData() != null) {
             String appId = application.getData().getId();
             setAppVersionIdToContext(appId);
+            setAppEnvironmentIdToContext(appId);
             String topologyId = getTopologyIdFromApplication(appId);
             Context.getInstance().registerTopologyId(topologyId);
             Context.getInstance().registerApplicationId(name, appId);
