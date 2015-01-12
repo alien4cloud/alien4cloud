@@ -34,8 +34,8 @@ Scenario: Create a new application environment with a name already used must fai
   Then I should receive a RestResponse with no error
 
 Scenario: Create a new application environment for an non existing/bad application must fail
-  Given I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock-2" and description "Mock App Env" for the newly created application
-  Then I should receive a RestResponse with an error code 604
+  Given I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock-2" and description "Bad application must fail" for the newly created application
+  Then I should receive a RestResponse with an error code 504
 
 Scenario: Get an application environment from its id
   Given I create a new application with name "watchmiddleearth-1" and description "Use my great eye to find frodo and the ring."

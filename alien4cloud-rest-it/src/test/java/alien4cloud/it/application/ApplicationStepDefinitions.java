@@ -18,14 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.rest.application.ApplicationEnvironmentRequest;
 import alien4cloud.rest.application.CreateApplicationRequest;
 import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
@@ -34,8 +37,6 @@ import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,6 +59,12 @@ public class ApplicationStepDefinitions {
     private AuthenticationStepDefinitions authSteps = new AuthenticationStepDefinitions();
     private CommonStepDefinitions commonStepDefinitions = new CommonStepDefinitions();
 
+    private void setAppVersionIdToContext(String appId) throws IOException {
+        String applicationVersionJson = Context.getRestClientInstance().get("/rest/applications/" + appId + "/versions");
+        RestResponse<ApplicationVersion> appVersion = JsonUtil.read(applicationVersionJson, ApplicationVersion.class);
+        Context.getInstance().registerApplicationVersionId(appVersion.getData().getVersion(), appVersion.getData().getId());
+    }
+
     @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\"$")
     public void I_create_a_new_application_with_name_and_description(String name, String description) throws Throwable {
         CreateApplicationRequest request = new CreateApplicationRequest(name, description, null);
@@ -70,6 +77,7 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerApplication(CURRENT_APPLICATION);
         if (application.getData() != null) {
             String appId = application.getData().getId();
+            setAppVersionIdToContext(appId);
             String topologyId = getTopologyIdFromApplication(appId);
             Context.getInstance().registerTopologyId(topologyId);
             Context.getInstance().registerApplicationId(name, appId);
@@ -488,25 +496,25 @@ public class ApplicationStepDefinitions {
     @When("^I create an application environment of type \"([^\"]*)\" on cloud \"([^\"]*)\" with name \"([^\"]*)\" and description \"([^\"]*)\" for the newly created application$")
     public void I_create_an_application_environment_of_type_on_cloud_with_name_and_description_for_the_newly_created_application(String appEnvType,
             String appEnvCloudName, String appEnvName, String appEnvDescription) throws Throwable {
-        // some checks
         Assert.assertNotNull(CURRENT_APPLICATION.getId());
         Assert.assertNotNull(Context.getInstance().getCloudId(appEnvCloudName));
         Assert.assertTrue(EnvironmentType.valueOf(appEnvType).toString().equals(appEnvType));
         Assert.assertNotNull(appEnvName);
-        // create the app env
+
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
         appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
         appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
         appEnvRequest.setDescription(appEnvDescription);
+        appEnvRequest.setVersionId(Context.getInstance().getApplicationVersionId("0.1.0-SNAPSHOT"));
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments",
                         JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        Assert.assertNotNull(appEnvId);
-        // get and register the app environment id
-        Context.getInstance().registerApplicationEnvironmentId(appEnvName, appEnvId.getData());
+        if (appEnvId.getData() != null) {
+            Context.getInstance().registerApplicationEnvironmentId(appEnvName, appEnvId.getData());
+        }
     }
 
     @When("^I get the application environment named \"([^\"]*)\"$")
