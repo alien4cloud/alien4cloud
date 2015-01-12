@@ -81,7 +81,6 @@ ldap:
       #mapping: ROLE_CLOUDADMINS=ADMIN
 ### End Ldap Configuration
 
-
 # configuration for the upload module.
 upload:
   max_archive_size: 52428800

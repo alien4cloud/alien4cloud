@@ -10,9 +10,6 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
-import org.springframework.ldap.filter.NotFilter;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.security.User;
@@ -50,10 +47,9 @@ public class LdapUserDao {
     /**
      * Return all users from LDAP.
      * 
-     * @param onlyActiveUsers If true only users that are active in LDAP will be retrieved.
      * @return The list of users in LDAP.
      */
-    public List<User> getUsers(Boolean onlyActiveUsers) {
+    public List<User> getUsers() {
         return ldapTemplate.search("", this.filter, userLdapAttributeMapper);
     }
 

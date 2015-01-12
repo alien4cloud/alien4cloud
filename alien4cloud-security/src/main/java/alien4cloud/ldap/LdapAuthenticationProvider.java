@@ -65,7 +65,7 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
         }
 
         if (ldapUserDao.getLdapTemplate().getContextSource() != null) {
-            List<User> users = ldapUserDao.getUsers(true);
+            List<User> users = ldapUserDao.getUsers();
             checkRoles();
             for (User user : users) {
                 // refresh roles based on ldap.
