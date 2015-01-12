@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
 
-//@Profile("security-ldap")
 @Conditional(LdapCondition.class)
 @Configuration
 public class LdapConfiguration {

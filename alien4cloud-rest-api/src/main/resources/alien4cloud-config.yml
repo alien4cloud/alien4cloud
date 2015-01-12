@@ -57,28 +57,30 @@ alien_security:
 
 ### Ldap Configuration
 ldap:
-  enabled: false
+  enabled: true
   anonymousReadOnly: true
   url: ldap://ldap.fastconnect.fr:389
   userDn: uid=admin,ou=system
   password: secret
   base: ou=People,dc=fastconnect,dc=fr
-  defaultRoles: COMPONENTS_BROWSER
-
-  # will join all objectClasses with & to get users
-  objectClassesInclude: person,hordePerson
-  objectClassesExclude: CalendarResource
-
+  filter: (&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource))(accountStatus=active))
   # user field import mapping
-  userIdKey: uid
-  userFirstNameKey: givenName
-  userLastNameKey: sn
-  userEmailKey: mail
+  mapping:
+    id: uid
+    firstname: givenName
+    lastname: sn
+    email: mail
+    # optional mapping key and value to dertermine if the user is active
+    active:
+      key: accountStatus
+      value: active
+    roles:
+      defaults: COMPONENTS_BROWSER
+      # optional configuration for role mapping (when you want to manage roles in ldap and not in alien for ldap users).
+      #key: description
+      #mapping: ROLE_CLOUDADMINS=ADMIN
+### End Ldap Configuration
 
-  # field to dertermine if the user is active
-  userActiveKey: accountStatus
-  userActiveValue: active
-### End  Ldap Configuration
 
 # configuration for the upload module.
 upload:
