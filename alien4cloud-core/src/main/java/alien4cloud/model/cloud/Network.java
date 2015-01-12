@@ -2,13 +2,13 @@ package alien4cloud.model.cloud;
 
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class Network {
+public class Network implements ICloudResource {
 
     @NotNull
     private Integer ipVersion;
