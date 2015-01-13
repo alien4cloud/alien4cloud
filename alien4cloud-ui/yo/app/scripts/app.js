@@ -80,31 +80,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             }).$promise;
           }
         ],
-        environments: ['$http', 'application', 'applicationEnvironmentServices',
-          function($http, application, applicationEnvironmentServices) {
-            var searchRequestObject = {
-              'query': '',
-              'from': 0,
-              'size': 20
-            };
-            return applicationEnvironmentServices.searchEnvironment({
-              applicationId: application.data.id
-            }, angular.toJson(searchRequestObject)).$promise;
-          }
-        ],
-        applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'environments',
-          function(applicationEventServicesFactory, $stateParams, environments) {
-            // this supposes you have at least one environment
-            return applicationEventServicesFactory($stateParams.id, environments.data.data[0].id);
-          }
-        ],
-        topologyId: ['$http', '$stateParams',
-          function($http, $stateParams) {
-            // TODO : change this to adapt to selected enviroment
-            return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
-              console.log('TOPOLOGY ID >', result.data.data);
+        appEnvironments: ['application', 'applicationEnvironmentServices',
+          function(application, applicationEnvironmentServices) {
+            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+              // we've at least one environment per application
               return result.data.data;
             });
+          }
+        ],
+        applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'appEnvironments',
+          function(applicationEventServicesFactory, $stateParams, appEnvironments) {
+            // this supposes you have at least one environment
+            console.log('APP ENVS', appEnvironments);
+            return applicationEventServicesFactory($stateParams.id, appEnvironments[0].id);
           }
         ],
         appVersions: ['$http', 'application', 'applicationVersionServices',
@@ -134,20 +122,49 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       resolve: {
         appVersions: function(appVersions) {
           return appVersions.data.data;
+        },
+        topologyId: function() {
+          // TODO : remove this when topology template will use version aswell
+          // Then we won't ned to give topologyId as param
+          return null;
         }
-      },
+      }
     }).state('applications.detail.plans', {
       url: '/workflow',
       templateUrl: 'views/topology/plan_graph.html',
-      controller: 'TopologyPlanGraphCtrl'
+      controller: 'TopologyPlanGraphCtrl',
+      resolve: {
+        topologyId: function() {
+          // TODO : remove this when topology template will use version aswell
+          // Then we won't ned to give topologyId as param
+          return null;
+        }
+      }
     }).state('applications.detail.deployment', {
       url: '/deployment',
       templateUrl: 'views/applications/application_deployment.html',
-      controller: 'ApplicationDeploymentCtrl'
+      controller: 'ApplicationDeploymentCtrl',
+      resolve: {
+        appEnvironments: ['application', 'applicationEnvironmentServices',
+          function(application, applicationEnvironmentServices) {
+            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+              // we've at least one environment per application
+              return result.data.data;
+            });
+          }
+        ]
+      }
     }).state('applications.detail.runtime', {
       url: '/runtime',
       templateUrl: 'views/applications/topology_runtime.html',
       controller: 'TopologyRuntimeCtrl'
+        // resolve: {
+        //   topologyId: function() {
+        //     // TODO : remove this when topology template will use version aswell
+        //     // Then we won't ned to give topologyId as param
+        //     return null;
+        //   }
+        // }
     }).state('applications.detail.users', {
       url: '/users',
       templateUrl: 'views/applications/application_users.html',
@@ -171,7 +188,17 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.environments', {
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
-      controller: 'ApplicationEnvironmentsCtrl'
+      controller: 'ApplicationEnvironmentsCtrl',
+      resolve: {
+        appEnvironments: ['application', 'applicationEnvironmentServices',
+          function(application, applicationEnvironmentServices) {
+            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+              // we've at least one environment per application
+              return result.data.data;
+            });
+          }
+        ]
+      }
     }).state('applications.detail.versions', {
       url: '/versions',
       templateUrl: 'views/applications/application_versions.html',
@@ -180,7 +207,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         appVersions: function(appVersions) {
           return appVersions.data.data;
         }
-      },
+      }
     })
 
     // topology templates
@@ -212,7 +239,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           function(topologyTemplate) {
             return topologyTemplate.data.topologyId;
           }
-        ]
+        ],
+        appVersions: function() {
+          // TODO : handle versions for topology templates
+          return null;
+        }
       },
       controller: 'TopologyCtrl'
     })

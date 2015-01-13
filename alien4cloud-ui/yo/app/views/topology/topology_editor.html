@@ -17,7 +17,8 @@
 
     <!-- NodeTemplate details -->
   <div class="topology-columns topology-details">
-    <select id="app-version-select" ng-model="selectedVersion" class="form-control " ng-options="appVersion.version for appVersion in appVersions"
+
+    <select ng-if="appVersions != null" id="app-version-select" ng-model="selectedVersion" class="form-control " ng-options="appVersion.version for appVersion in appVersions"
       ng-change="changeVersion(selectedVersion)">
     </select>
 

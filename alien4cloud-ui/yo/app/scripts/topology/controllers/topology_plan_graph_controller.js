@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$filter', '$http', '$modal', 'resizeServices', 'svgServiceFactory', 'runtimeColorsService', 'topologyServices', 'topologyId', function($scope, $filter, $http, $modal, resizeServices, svgServiceFactory, runtimeColorsService, topologyServices, topologyId) {
+angular.module('alienUiApp').controller('TopologyPlanGraphCtrl', ['$scope', '$filter', '$http', '$modal', 'resizeServices', 'svgServiceFactory', 'runtimeColorsService', 'topologyServices', function($scope, $filter, $http, $modal, resizeServices, svgServiceFactory, runtimeColorsService, topologyServices) {
   var topology;
   var containerElement = d3.select('#plan-graph-container');
 

@@ -119,15 +119,16 @@ public class ApplicationEnvironmentController {
     }
 
     /**
-     * Get application environment from it's id
+     * Get application environment from its id
      *
      * @param applicationId The application id
      */
-    @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment applicationEnvironment = alienDAO.findById(ApplicationEnvironment.class, applicationEnvironmentId);
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.APPLICATION_MANAGER);
         AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationEnvironmentRole.values());
         return RestResponseBuilder.<ApplicationEnvironment> builder().data(applicationEnvironment).build();
     }
@@ -394,6 +395,18 @@ public class ApplicationEnvironmentController {
             listApplicationEnvironmentsDTO.add(tempEnvDTO);
         }
         return listApplicationEnvironmentsDTO.toArray(new ApplicationEnvironmentDTO[listApplicationEnvironmentsDTO.size()]);
+    }
+
+    @ApiOperation(value = "Get the id of the topology linked to the environment", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+        Application application = applicationService.getOrFail(applicationId);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+                ApplicationRole.APPLICATION_MANAGER);
+        AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationEnvironmentRole.values());
+        String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
+        return RestResponseBuilder.<String> builder().data(topologyId).build();
     }
 
 }

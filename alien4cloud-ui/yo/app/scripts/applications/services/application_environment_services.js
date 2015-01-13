@@ -14,6 +14,19 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       }
     });
 
+    var getAllEnvironmentsForApplication = function(applicationId) {
+      var searchRequestObject = {
+        'query': '',
+        'from': 0,
+        'size': 50
+      };
+      return this.searchEnvironment({
+        applicationId: applicationId
+      }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
+        return result.data.data;
+      }).$promise;
+    }
+
     var applicationEnvironmentResource = $resource('rest/applications/:applicationId/environments', {}, {
       'create': {
         method: 'POST',
@@ -33,6 +46,12 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       },
       'update': {
         method: 'PUT'
+      }
+    });
+
+    var applicationEnvironmentTopology = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/topology', {}, {
+      'get': {
+        method: 'GET'
       }
     });
 
@@ -106,7 +125,9 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       'environmentTypeList': envEnumTypes.get,
       'searchEnvironment': searchEnvironmentResource.search,
       'userRoles': manageEnvUserRoles,
-      'groupRoles': manageEnvGroupRoles
+      'groupRoles': manageEnvGroupRoles,
+      'getAllEnvironments': getAllEnvironmentsForApplication,
+      'getTopologyId': applicationEnvironmentTopology.get
     };
 
   }

@@ -2,16 +2,29 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alienAuthService',
-  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'environments',
-  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, environments) {
+  'applicationServices', 'userServices', 'groupServices', 'application', 'applicationRoles', 'environmentRoles', 'applicationEnvironmentServices', 'appEnvironments',
+  function($scope, alienAuthService, applicationServices, userServices, groupServices, applicationResult, applicationRolesResult, environmentRolesResult, applicationEnvironmentServices, appEnvironments) {
 
     $scope.application = applicationResult.data;
     $scope.appRoles = applicationRolesResult.data;
     $scope.environmentRoles = environmentRolesResult.data;
+
+    // set default seelcted environments
+    $scope.selectedEnvironment = appEnvironments[0];
+
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
     $scope.isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // switch environment
+    $scope.changeUserEnvironment = function(switchToEnvironment) {
+      var currentEnvironment = $scope.selectedEnvironment;
+      var newEnvironment = switchToEnvironment;
+      if (currentEnvironment.id != newEnvironment.id) {
+        $scope.selectedEnvironment = switchToEnvironment;
+      }
+    };
 
     // get users related to the application
     $scope.relatedUsers = {};

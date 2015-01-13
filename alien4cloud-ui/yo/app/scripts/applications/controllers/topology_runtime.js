@@ -12,31 +12,43 @@ angular.module('alienUiApp').controller(
     'resizeServices',
     'deploymentServices',
     'applicationEventServices',
-    'environments',
     '$state',
     'propertiesServices',
     'toaster',
     'cloudServices',
-    'topologyId',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, environments, $state, propertiesServices, toaster, cloudServices, topologyId) {
+    'applicationEnvironmentServices',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices) {
 
       var pageStateId = $state.current.name;
-      $scope.environments = environments.data.data;
-      var environment = environments.data.data[0];
-      $scope.selectedEnvironment = environment;
-
-      console.log('STATE ', $state.params.id);
       var applicationId = $state.params.id;
-      // $scope.application = applicationResult.data;
-      $scope.topologyId = topologyId;
 
-      var cloudId = environment.cloudId;
-      $scope.cloudId = cloudId;
+      // Handle environment list selection + activate only running environments
+      var envs = applicationEnvironmentServices.getAllEnvironments($scope.application.id);
+      envs.then(function handleEnvironmentRuntimeList(newestEnvironments) {
+        var newest = newestEnvironments.data.data;
+        $scope.runtimeEnvironments = [];
+        var runtimeEnvs = [];
+        // keep only deployed environment
+        for (var i = 0; i < newest.length; i++) {
+          if (newest[i].status == 'DEPLOYED') {
+            runtimeEnvs.push(newest[i]);
+          }
+        }
+        $scope.runtimeEnvironments = runtimeEnvs;
+        $scope.selectedEnvironment = runtimeEnvs[0];
+        return runtimeEnvs[0].cloudId;
 
-      cloudServices.get({
-        id: cloudId
-      }, function(response) {
-        $scope.cloud = response.data.cloud;
+      }).then(function getLinkedCloud(cloudId) {
+        // get the related cloud
+        $scope.cloudId = cloudId;
+        cloudServices.get({
+          id: cloudId
+        }, function(response) {
+          $scope.cloud = response.data.cloud;
+        });
+
+        // first topology load
+        $scope.loadTopologyRuntime();
       });
 
       var CUSTOM_INTERFACE_NAME = 'custom';
@@ -88,9 +100,9 @@ angular.module('alienUiApp').controller(
       $scope.eventsDivHeight = resizeServices.getHeight(236);
 
       var getPAASEvents = function() {
+
         deploymentServices.getEvents({
-          topologyId: $scope.topologyId,
-          cloudId: cloudId
+          applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(result) {
           // display events
           if (UTILS.isUndefinedOrNull(result.data) || UTILS.isUndefinedOrNull(result.data.data)) {
@@ -182,7 +194,6 @@ angular.module('alienUiApp').controller(
       };
 
       var refreshInstancesStatuses = function() {
-
         applicationServices.runtime.get({
           applicationId: applicationId,
           applicationEnvironmentId: $scope.selectedEnvironment.id
@@ -200,16 +211,15 @@ angular.module('alienUiApp').controller(
       // Initialize the view (we have to get the runtime topology)
       /////////////////////////////////////////////////////////////
       $scope.loadTopologyRuntime = function loadTopologyRuntime() {
-        console.log('LOAD TOPOLOGY RUNTIME', $scope.selectedEnvironment.id);
+        delete $scope.topology;
         deploymentServices.runtime.getTopology({
           applicationId: applicationId,
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
-          refreshInstancesStatuses(); // update instance states.
+          refreshInstancesStatuses(); // update instance states
         });
       };
-      $scope.loadTopologyRuntime();
 
       var onStatusChange = function(type, event) {
         // Enrich the event with the type based on the topic destination

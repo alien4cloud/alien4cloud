@@ -9,7 +9,7 @@
     <div class="col-md-5 col-lg-4">
 
       <!--  Environment list -->
-      <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in environments"
+      <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in runtimeEnvironments"
         ng-change="loadTopologyRuntime()">
       </select>
 

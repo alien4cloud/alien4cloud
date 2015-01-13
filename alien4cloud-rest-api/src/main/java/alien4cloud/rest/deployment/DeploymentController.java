@@ -133,13 +133,12 @@ public class DeploymentController {
         return sourceIds.toArray(new String[sourceIds.size()]);
     }
 
-    @RequestMapping(value = "/{topologyId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationEnvironmentId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> getEvents(
-            @ApiParam(value = "Id of the topology for which to get events.", required = true) @Valid @NotBlank @PathVariable String topologyId,
-            @ApiParam(value = "Id of the cloud on which the topology is deployed.") @RequestParam(required = true) String cloudId,
+            @ApiParam(value = "Id of the environment for which to get events.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "50") int size) {
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(topologyId, cloudId, from, size)).build();
+        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(applicationEnvironmentId, from, size)).build();
     }
 
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })

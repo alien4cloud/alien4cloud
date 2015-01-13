@@ -2,13 +2,43 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environments', 'applicationEventServices', '$state', '$rootScope', 'applicationEnvironmentServices',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environments, applicationEventServices, $state, $rootScope, applicationEnvironmentServices) {
+  '$resource', '$http', '$q', '$translate', 'application', 'applicationEventServices', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, applicationEventServices, $state, $rootScope, applicationEnvironmentServices, appEnvironments) {
 
     var pageStateId = $state.current.name;
     $scope.application = applicationResult.data;
 
-    $scope.topologyId = topologyId;
+    // get environments and select the default one
+    $scope.envs = appEnvironments;
+    $scope.selectedEnvironment = appEnvironments[0];
+
+    // set the topology id linked to the selected environment
+    var setTopologyId = function() {
+      applicationEnvironmentServices.getTopologyId({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, undefined, function(response) {
+        $scope.topologyId = response.data;
+        checkTopology(response.data);
+      });
+    };
+    setTopologyId();
+
+    // switch environment
+    $scope.changeEnvironment = function(switchToEnvironment) {
+      var currentEnvironment = $scope.selectedEnvironment;
+      var newEnvironment = switchToEnvironment;
+      if (currentEnvironment.id != newEnvironment.id) {
+        $scope.selectedEnvironment = switchToEnvironment;
+        $scope.refreshAppStatus();
+        setTopologyId();
+        refreshDeploymentStatus(true);
+        refreshDeploymentSetup();
+        refreshCloudList();
+      }
+    };
+
+    // console.log('TOPOLOGY ID DEPLOYMENT >', topologyId);
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
@@ -95,59 +125,64 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     // get the topology and it validity status
-    if ($scope.topologyId) {
-      topologyServices.dao.get({
-        topologyId: $scope.topologyId
-      }, function(result) {
-        $scope.topologyDTO = result.data;
-        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
-          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-          $scope.computeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
-        }
-        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
-          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-          $scope.networkImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags[0].value;
-        }
-        $scope.inputProperties = result.data.topology.inputProperties;
-        $scope.outputProperties = result.data.topology.outputProperties;
-        $scope.outputAttributes = result.data.topology.outputAttributes;
-        $scope.inputArtifacts = result.data.topology.inputArtifacts;
-        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+    var checkTopology = function(currentTopologyId) {
 
-        if (angular.isDefined(result.data.topology.inputProperties)) {
-          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
-        } else {
-          $scope.inputPropertiesSize = 0;
-        }
+      if (UTILS.isDefinedAndNotNull(currentTopologyId)) {
+        $scope.topologyId = currentTopologyId;
+        topologyServices.dao.get({
+          topologyId: $scope.topologyId
+        }, function(result) {
+          $scope.topologyDTO = result.data;
+          if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
+            UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
+            $scope.computeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+          }
+          if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
+            UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
+            $scope.networkImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags[0].value;
+          }
+          $scope.inputProperties = result.data.topology.inputProperties;
+          $scope.outputProperties = result.data.topology.outputProperties;
+          $scope.outputAttributes = result.data.topology.outputAttributes;
+          $scope.inputArtifacts = result.data.topology.inputArtifacts;
+          $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
 
-        if (angular.isDefined($scope.outputProperties)) {
-          $scope.outputNodes = Object.keys($scope.outputProperties);
-          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-          refreshOutputProperties();
-        }
+          if (angular.isDefined(result.data.topology.inputProperties)) {
+            $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
+          } else {
+            $scope.inputPropertiesSize = 0;
+          }
 
-        if (angular.isDefined($scope.outputAttributes)) {
-          $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
-          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
-        }
+          if (angular.isDefined($scope.outputProperties)) {
+            $scope.outputNodes = Object.keys($scope.outputProperties);
+            $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+            refreshOutputProperties();
+          }
 
-        if (angular.isDefined(result.data.topology.inputArtifacts)) {
-          $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
-        } else {
-          $scope.inputArtifactsSize = 0;
-        }
+          if (angular.isDefined($scope.outputAttributes)) {
+            $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
+            $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
+          }
 
-        refreshCloudList();
-        // Get the status
-        refreshDeploymentStatus(false);
-      });
+          if (angular.isDefined(result.data.topology.inputArtifacts)) {
+            $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
+          } else {
+            $scope.inputArtifactsSize = 0;
+          }
 
-      topologyServices.isValid({
-        topologyId: $scope.topologyId
-      }, function(result) {
-        $scope.validTopologyDTO = result.data;
-      });
-    }
+          refreshCloudList();
+          // Get the status
+          refreshDeploymentStatus(false);
+        });
+
+        topologyServices.isValid({
+          topologyId: $scope.topologyId
+        }, function(result) {
+          $scope.validTopologyDTO = result.data;
+        });
+      }
+
+    };
 
     var refreshOutputProperties = function() {
       for (var nodeId in $scope.outputProperties) {
@@ -227,12 +262,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       });
     };
 
-    $rootScope.$on('REFRESH_DEPLOYMENT_STATUS', function refresh() {
-      refreshDeploymentStatus(true);
-      refreshDeploymentSetup();
-      refreshCloudList();
-    });
-
     var onInstanceStateChange = function(type, event) {
       if (UTILS.isUndefinedOrNull(event.instanceState)) {
         // Delete event
@@ -272,7 +301,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Deployment handler
     $scope.deploy = function() {
       // Application details with deployment properties
-      // TODO : deploy from environment
       var deployApplicationRequest = {
         applicationId: $scope.application.id,
         applicationEnvironmentId: $scope.selectedEnvironment.id
@@ -280,9 +308,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
         $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
-        //workaround
-        //emit 'DEPLOYMENT_IN_PROGRESS' event, to change the runtime button status
-        $rootScope.$emit('DEPLOYMENT_IN_PROGRESS');
         $scope.isDeploying = false;
         refreshDeploymentStatus(true);
       });
@@ -302,7 +327,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     /* Handle properties inputs */
     $scope.updateProperty = function(nodeTemplateName, propertyName, propertyValue) {
-
       // No update if it's the same value
       if (propertyValue === $scope.nodeTemplates[nodeTemplateName].properties[propertyName]) {
         return;

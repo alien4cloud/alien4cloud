@@ -23,10 +23,11 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', 'environments', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, environments, $rootScope, $resolve, applicationVersionServices, searchServiceFactory) {
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments) {
+
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    $scope.searchAppEnvResult = environments;
+    $scope.searchAppEnvResult = appEnvironments;
     $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function(successResponse) {});
 
     // Application versions search
@@ -66,7 +67,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         applicationEnvironmentServices.create({
           applicationId: $scope.application.id
         }, angular.toJson(environment), function(successResponse) {
-          updateEnvironments();
+          $scope.search();
         });
       });
     };
@@ -94,13 +95,13 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
           applicationId: $scope.application.id,
           applicationEnvironmentId: appEnvId
         }, null, function deleteAppEnvironment(result) {
-          updateEnvironments();
+          $scope.search();
         });
       }
     };
 
     var getVersionIdByName = function(name) {
-      for (var i=0; i<$scope.versions.length; i++) {
+      for (var i = 0; i < $scope.versions.length; i++) {
         if ($scope.versions[i].version === name) {
           return $scope.versions[i].id;
         }
@@ -108,7 +109,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
     }
 
     var getCloudIdByName = function(name) {
-      for (var i=0; i<$scope.clouds.length; i++) {
+      for (var i = 0; i < $scope.clouds.length; i++) {
         if ($scope.clouds[i].name === name) {
           return $scope.clouds[i].id;
         }
@@ -116,7 +117,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
     }
 
     $scope.updateApplicationEnvironment = function(fieldName, fieldValue, environmentId, oldValue) {
-      if (fieldName !== 'name'  || fieldValue !== oldValue) {
+      if (fieldName !== 'name' || fieldValue !== oldValue) {
         var updateApplicationEnvironmentRequest = {};
 
         if (fieldName === 'currentVersionId') {
@@ -130,21 +131,12 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         return applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
           applicationEnvironmentId: environmentId,
-        }, angular.toJson(updateApplicationEnvironmentRequest), undefined).$promise.then(
-          function() {
-            // Success, nothing to do
-          }, function(errorResponse) {
+        }, angular.toJson(updateApplicationEnvironmentRequest), undefined).$promise.then({},
+          function(errorResponse) {
             return $translate('ERRORS.' + errorResponse.data.error.code);
           }
         );
       }
-    };
-
-    // trigger an event to update environment main list
-    var updateEnvironments = function updateEnvs() {
-      $scope.search().then(function(result) {
-        $rootScope.$emit('UPDATE_ENVIRONMENTS', $scope.searchAppEnvResult);
-      });
     };
 
   }

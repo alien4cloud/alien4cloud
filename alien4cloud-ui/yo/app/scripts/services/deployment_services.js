@@ -2,12 +2,11 @@
 
 angular.module('alienUiApp').factory('deploymentServices', ['$resource',
   function($resource) {
-    var deploymentEventResource = $resource('rest/deployments/:topologyId/events', {}, {
+    var deploymentEventResource = $resource('rest/deployments/:applicationEnvironmentId/events', {}, {
       'get': {
         method: 'GET',
         params: {
-          topologyId: '@topologyId',
-          cloudId: '@cloudId',
+          applicationEnvironmentId: '@applicationEnvironmentId',
           from: '@from',
           size: '@size'
         },
@@ -64,4 +63,5 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
         'executeOperation': runtimeResource.executeOperation
       }
     };
-  }]);
+  }
+]);

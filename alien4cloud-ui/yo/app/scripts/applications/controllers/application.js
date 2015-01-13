@@ -2,14 +2,18 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'environments',
-  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, environments) {
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'applicationEnvironmentServices', 'appEnvironments',
+  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, applicationEnvironmentServices, appEnvironments) {
 
     var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
+
     // default get all environments
-    $scope.envs = environments.data.data;
-    $scope.selectedEnvironment = $scope.envs[0];
+    applicationEnvironmentServices.getAllEnvironments($scope.application.id).then(function(result) {
+      $scope.envs = result.data.data;
+      $scope.selectedEnvironment = result.data.data[0];
+      $scope.refreshAppStatus();
+    });
 
     // Application rights
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
@@ -31,40 +35,31 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     console.log('Environment page IS USER     : ', isUser);
     console.log('-----------------------------');
 
-    // update environments main list when add / remove an evironment
-    $rootScope.$on('UPDATE_ENVIRONMENTS', function(event, updatedEnvs) {
-      $scope.envs = updatedEnvs;
-      $scope.selectedEnvironment = updatedEnvs[0];
-    });
-
-    // switch environment for all application.detail child states
-    $scope.changeEnvironment = function(switchToEnvironment) {
-      var currentEnvironment = $scope.selectedEnvironment;
-      var newEnvironment = switchToEnvironment;
-
-      if (currentEnvironment.id != newEnvironment.id) {
-        $scope.selectedEnvironment = switchToEnvironment;
-        refreshAppStatus();
-        // run update deployment status on deployment controller
-        $rootScope.$emit('REFRESH_DEPLOYMENT_STATUS');
-      }
-    };
-
     // start listening immediately if deployment active exists
     applicationEventServices.start();
 
     var setRuntimeDisabled = function() {
-      for (var i = 0; i < $scope.menu.length; i++) {
-        if ($scope.menu[i].id === 'am.applications.detail.runtime') {
-          $scope.menu[i].disabled = UTILS.isUndefinedOrNull($scope.deploymentStatus) ||
-            $scope.deploymentStatus === 'UNDEPLOYED' ||
-            $scope.deploymentStatus === 'UNDEPLOYMENT_IN_PROGRESS' ||
-            $scope.deploymentStatus === 'UNKNOWN';
+      // get newest environments statuses
+      var envs = applicationEnvironmentServices.getAllEnvironments($scope.application.id);
+      envs.then(function updateRuntimeButton(result) {
+        for (var i = 0; i < $scope.menu.length; i++) {
+          if ($scope.menu[i].id === 'am.applications.detail.runtime') {
+            $scope.menu[i].disabled = true;
+            var countRunningEnv = 0;
+            var newEnvs = result.data.data;
+            for (var j = 0; j < newEnvs.length; j++) {
+              if (newEnvs[j].status == 'DEPLOYED') {
+                countRunningEnv++;
+              }
+            }
+            $scope.menu[i].disabled = countRunningEnv == 0;
+            return;
+          }
         }
-      }
+      });
     };
 
-    var refreshAppStatus = function refreshAppStatus() {
+    $scope.refreshAppStatus = function refreshAppStatus() {
       applicationEventServices.refreshApplicationStatus($scope.selectedEnvironment.id, function(newStatus) {
         applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
           $scope.deploymentStatus = event.deploymentStatus;
@@ -75,7 +70,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         setRuntimeDisabled();
       });
     }
-    refreshAppStatus();
+
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {
@@ -88,13 +83,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $event.stopPropagation();
       }
     };
-
-    //workaround
-    //listen to 'DEPLOYMENT_IN_PROGRESS' event, to change the runtime button status
-    $rootScope.$on('DEPLOYMENT_IN_PROGRESS', function() {
-      $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
-      setRuntimeDisabled();
-    });
 
     $scope.menu = [{
       id: 'am.applications.info',
