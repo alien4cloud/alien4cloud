@@ -190,4 +190,16 @@ public final class FunctionEvaluator {
         throw new BadUsageKeywordException("The keyword <" + ToscaFunctionConstants.TARGET + "> can only be used on a Relationship level's parameter. Node<"
                 + basePaaSTemplate.getId() + ">.");
     }
+
+    public static String getEntityName(FunctionPropertyValue function) {
+        return function.getParameters().get(0);
+    }
+
+    public static String getElementName(FunctionPropertyValue function) {
+        return function.getParameters().get(1);
+    }
+
+    public static boolean isGetAttribute(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
+    }
 }
