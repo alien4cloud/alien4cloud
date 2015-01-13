@@ -1,21 +1,16 @@
 package alien4cloud.it.utils.websocket;
 
-import java.nio.charset.Charset;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.it.exception.ITException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.AsciiString;
 import io.netty.handler.codec.http.ClientCookieEncoder;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -25,6 +20,12 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+
+import java.nio.charset.Charset;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 
 @Slf4j
 public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Object> {
@@ -65,7 +66,7 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
         if (msg instanceof HttpRequest) {
             if (this.cookies != null && !this.cookies.isEmpty()) {
                 HttpRequest request = (HttpRequest) msg;
-                request.headers().set(HttpHeaders.Names.COOKIE, ClientCookieEncoder.encode(cookies));
+                request.headers().set(new AsciiString("cookie"), ClientCookieEncoder.encode(cookies));
                 if (log.isDebugEnabled()) {
                     log.debug("Write HttpRequest {} enriched with security cookie", request);
                 }
@@ -85,7 +86,7 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (this.authenticationUrl != null) {
             HttpRequest loginRequest = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, this.authenticationUrl);
-            loginRequest.headers().set(HttpHeaders.Names.HOST, this.host);
+            loginRequest.headers().set(new AsciiString("host"), this.host);
             HttpPostRequestEncoder bodyRequestEncoder = new HttpPostRequestEncoder(loginRequest, false);
             bodyRequestEncoder.addBodyAttribute("j_username", user);
             bodyRequestEncoder.addBodyAttribute("j_password", password);
@@ -112,7 +113,7 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
         // The first message must be authentication response
         if (this.authenticationUrl != null && (this.cookies == null || this.cookies.isEmpty())) {
             HttpResponse response = (HttpResponse) msg;
-            CharSequence cookieData = response.headers().get(HttpHeaders.Names.SET_COOKIE);
+            CharSequence cookieData = response.headers().get(new AsciiString("set-cookie"));
             if (cookieData != null) {
                 this.cookies = CookieDecoder.decode(cookieData.toString());
                 if (this.cookies == null || this.cookies.isEmpty()) {

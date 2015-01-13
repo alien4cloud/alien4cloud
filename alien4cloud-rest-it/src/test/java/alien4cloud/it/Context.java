@@ -27,8 +27,8 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.rest.utils.RestClient;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.rest.utils.RestClient;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -475,6 +475,10 @@ public class Context {
 
     public String getApplicationEnvironmentId(String applicationEnvironmentName) {
         return this.environmentInfos.get().get(applicationEnvironmentName);
+    }
+
+    public String getDefaultApplicationEnvironmentId() {
+        return getApplicationEnvironmentId("Environment");
     }
 
     public void registerApplicationId(String applicationName, String applicationId) {

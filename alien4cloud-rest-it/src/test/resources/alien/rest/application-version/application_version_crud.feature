@@ -63,4 +63,4 @@ Feature: CRUD operations on application version
     And I create an application version with version "0.2.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
     And I update an application version with version "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
-    Then I should receive a RestResponse with an error code 504
+    Then I should receive a RestResponse with an error code 502
