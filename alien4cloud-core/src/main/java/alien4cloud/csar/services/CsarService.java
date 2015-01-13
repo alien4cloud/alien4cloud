@@ -6,12 +6,17 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -51,6 +56,30 @@ public class CsarService implements ICsarDependencyLoader {
         return Sets.newHashSet(csar.getDependencies());
     }
 
+    /**
+     * @return an array of CSARs that depend on this name:version.
+     */
+    public Csar[] getDependantCsars(String name, String version) {
+        FilterBuilder filter = FilterBuilders.nestedFilter(
+                "dependencies",
+                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
+                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        GetMultipleDataResult<Csar> result = csarDAO.search(Csar.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        return result.getData();
+    }
+
+    /**
+     * @return an array of <code>Topology</code>s that depend on this name:version.
+     */
+    public Topology[] getDependantTopologies(String name, String version) {
+        FilterBuilder filter = FilterBuilders.nestedFilter(
+                "dependencies",
+                FilterBuilders.boolFilter().must(FilterBuilders.termFilter("dependencies.name", name))
+                        .must(FilterBuilders.termFilter("dependencies.version", version)));
+        GetMultipleDataResult<Topology> result = csarDAO.search(Topology.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        return result.getData();
+    }
+    
     /**
      * Save a Cloud Service Archive in ElasticSearch.
      * 
