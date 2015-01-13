@@ -71,6 +71,9 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
                 // refresh roles based on ldap.
                 User alienUser = alienUserDao.find(user.getUsername());
                 if (alienUser == null) {
+                    // initialize the user with default roles.
+                    user.setRoles(defaultRoles);
+                    // eventually update if a mapping exists for this user.
                     mapLdapRoles(user, user);
                     alienUserDao.save(user);
                 } else {
@@ -112,10 +115,9 @@ public class LdapAuthenticationProvider implements AuthenticationProvider {
 
     private void mapLdapRoles(User ldapUser, User user) {
         if(ldapUser.getRoles() == null) {
-            user.setRoles(defaultRoles);
             return;
         }
-        
+
         List<String> userRoles = Lists.newArrayList();
         for (String role : ldapUser.getRoles()) {
             String alienRole = parsedRoleMappings.get(role);
