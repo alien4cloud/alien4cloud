@@ -31,7 +31,6 @@ var cloudRoles = {
 module.exports.cloudRoles = cloudRoles;
 
 function editRole(appOrEnv, userOrGroup, name, role) {
-  console.log("editRole", appOrEnv, userOrGroup, name, role);
   var editRolesBtn = element(by.id(userOrGroup + '_' + name)).element(by.id('edit-' + appOrEnv + '-' + userOrGroup + '-role-button'));
   editRolesBtn.click();
   var roleLink = element(by.id(name + '_' + role));
@@ -61,14 +60,23 @@ function assertGroupChecked(appOrEnv, username, groupName, checked) {
   editGroupsBtn.click();
 }
 
-module.exports.editUserRole = function(appOrEnv, username, role) {
-  editRole(appOrEnv, 'user', username, role);
+module.exports.editUserRole = function(username, role) {
+  editRole("app", 'user', username, role);
 };
 
-module.exports.editGroupRole = function(appOrEnv, username, role) {
-  editRole(appOrEnv, 'group', username, role);
+module.exports.editUserRoleForAnEnv = function(username, role) {
+  editRole("env", 'user', username, role);
 };
 
+var editGroupRole = function(username, role) {
+  editRole("app", 'group', username, role);
+};
+module.exports.editGroupRole = editGroupRole;
+module.exports.editGroupRoleForAnApp = editGroupRole;
+
+module.exports.editGroupRoleForAnEnv = function(username, role) {
+  editRole("env", 'group', username, role);
+};
 
 var toggleUserGroup = function(appOrEnv, username, groupName) {
   var editGroupsBtn = element(by.id('user_' + username)).element(by.id('edit-' + appOrEnv +'-group-role-button'));
@@ -77,9 +85,13 @@ var toggleUserGroup = function(appOrEnv, username, groupName) {
   roleLink.click();
   editGroupsBtn.click();
 };
-module.exports.addUserToGroup = toggleUserGroup;
-module.exports.removeUserFromGroup = toggleUserGroup;
+module.exports.addUserToGroup = function(username, groupName) {
+  toggleUserGroup('app', username, groupName);
+}
 
+module.exports.removeUserFromGroup = function(username, groupName) {
+  toggleUserGroup('app', username, groupName);
+}
 // This method test specific roles assigned to user without taken into account roles given to user's group
 var assertUserHasRoles = function(appOrEnv, username, roles) {
   if (!Array.isArray(roles)) {
@@ -89,20 +101,25 @@ var assertUserHasRoles = function(appOrEnv, username, roles) {
     assertRoleChecked(appOrEnv, 'user', username, role, true);
   });
 };
-module.exports.assertUserHasRoles = assertUserHasRoles;
+module.exports.assertUserHasRoles = function(username, groups) {
+  assertUserHasRoles('app', username, groups);
+};
+module.exports.assertUserHasRolesForAnEnv = function(username, groups) {
+  assertUserHasRoles('env', username, groups);
+};
 
 // This method test specific roles assigned to user without taken into account roles given to user's group
-var assertUserDoesNotHaveRoles = function(appOrEnv, username, roles) {
+var assertUserDoesNotHaveRoles = function(username, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
-    assertRoleChecked(appOrEnv, 'user', username, role, false);
+    assertRoleChecked('app', 'user', username, role, false);
   });
 };
 module.exports.assertUserDoesNotHaveRoles = assertUserDoesNotHaveRoles;
 
-var assertUserHasGroups = function(appOrEnv, username, groups) {
+module.exports.assertUserHasGroups = function(appOrEnv, username, groups) {
   if (!Array.isArray(groups)) {
     groups = [groups];
   }
@@ -111,10 +128,8 @@ var assertUserHasGroups = function(appOrEnv, username, groups) {
     expect(element(by.id('user_' + username)).element(by.name('groups')).getText()).toContain(group);
   });
 };
-module.exports.assertUserHasGroups = assertUserHasGroups;
 
 var assertGroupHasRoles = function(appOrEnv, groupName, roles) {
-  console.log("assertGroupHasRoles", appOrEnv, groupName, roles);
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
