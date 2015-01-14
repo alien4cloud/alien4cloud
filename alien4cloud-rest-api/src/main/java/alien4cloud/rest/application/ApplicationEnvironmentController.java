@@ -48,7 +48,6 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
-import alien4cloud.security.User;
 import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -109,10 +108,8 @@ public class ApplicationEnvironmentController {
     }
 
     private FilterBuilder getEnvrionmentAuthorizationFilters(String applicationId) {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
         Application application = applicationService.checkAndGetApplication(applicationId);
-        if (application.getUserRoles().get(user.getUsername()).contains(ApplicationRole.APPLICATION_MANAGER.toString())) {
+        if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
             return null;
         }
         return AuthorizationUtil.getResourceAuthorizationFilters();

@@ -14,14 +14,8 @@ var toggleRole = function(appOrEnv, app, user, role) {
   navigation.go('applications', 'users');
   rolesCommon.editUserRole(appOrEnv, user, role);
 };
-
-var addRole = function(appOrEnv, app, user, role) {
-  toggleRole(appOrEnv, app, user, role);
-};
-
-var removeRole = function(appOrEnv, app, user, role) {
-  toggleRole(appOrEnv, app, user, role);
-};
+var addRole = toggleRole;
+var removeRole = toggleRole;
 
 var goToApplicationRoleManagementTab = function() {
   navigation.go('applications', 'users');
@@ -37,10 +31,7 @@ var toggleGroupRole = function(appOrEnv, app, group, role) {
   goToApplicationGroupRoleManagementTab();
   rolesCommon.editGroupRole(appOrEnv, group, role);
 };
-
-var addGroupRole = function(appOrEnv, app, group, role) {
-  toggleGroupRole(appOrEnv, app, group, role);
-};
+var addGroupRole = toggleGroupRole;
 
 describe('Security management on applications', function() {
 
@@ -61,7 +52,7 @@ describe('Security management on applications', function() {
     common.after();
   });
 
-  xit('Authenticated users should only view applications they are authorized to (with specific rights given to user)', function() {
+  it('Authenticated users should only view applications they are authorized to (with specific rights given to user)', function() {
     console.log('################# Authenticated users should only view applications they are authorized to - user');
 
     authentication.reLogin('applicationManager');
@@ -116,8 +107,8 @@ describe('Security management on applications', function() {
     expect(element.all(by.repeater('application in searchResult.data.data')).count()).toEqual(2);
     expect(browser.isElementPresent(by.id('app_Alien'))).toBe(true);
     expect(browser.isElementPresent(by.id('app_Alien_2'))).toBe(true);
-    // applications.goToApplicationDetailPage('Alien');
-    // applications.goToApplicationDetailPage('Alien_2');
+    applications.goToApplicationDetailPage('Alien');
+    applications.goToApplicationDetailPage('Alien_2');
 
     // Remove the user from the group
     authentication.reLogin('admin');
@@ -172,7 +163,7 @@ describe('Security management on applications', function() {
     rolesCommon.assertGroupHasRoles('app', 'mordor', rolesCommon.appRoles.appDevops);
   });
 
-  it('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
+  xit('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
     console.log('################# Authenticated users even without any roles should see applications with ALL_USERS group rights on it');
 
     // create 4 applications

@@ -4,15 +4,26 @@
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'applicationEnvironmentServices', 'appEnvironments',
   function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, applicationEnvironmentServices, appEnvironments) {
-
     var pageStateId = 'application.side.bar';
     $scope.application = applicationResult.data;
+
+    var refreshAppStatus = function refreshAppStatus() {
+      applicationEventServices.refreshApplicationStatus($scope.selectedEnvironment.id, function(newStatus) {
+        applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
+          $scope.deploymentStatus = event.deploymentStatus;
+          setRuntimeDisabled();
+          $scope.$apply();
+        });
+        $scope.deploymentStatus = newStatus;
+        setRuntimeDisabled();
+      });
+    }
 
     // default get all environments
     applicationEnvironmentServices.getAllEnvironments($scope.application.id).then(function(result) {
       $scope.envs = result.data.data;
       $scope.selectedEnvironment = result.data.data[0];
-      $scope.refreshAppStatus();
+      refreshAppStatus();
     });
 
     // Application rights
@@ -58,19 +69,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         }
       });
     };
-
-    $scope.refreshAppStatus = function refreshAppStatus() {
-      applicationEventServices.refreshApplicationStatus($scope.selectedEnvironment.id, function(newStatus) {
-        applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
-          $scope.deploymentStatus = event.deploymentStatus;
-          setRuntimeDisabled();
-          $scope.$apply();
-        });
-        $scope.deploymentStatus = newStatus;
-        setRuntimeDisabled();
-      });
-    }
-
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {
