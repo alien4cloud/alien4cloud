@@ -15,18 +15,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.RequirementDefinition;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -58,6 +58,15 @@ public class SearchDefinitionSteps {
     @Given("^There is (\\d+) \"([^\"]*)\" indexed in ALIEN$")
     public void There_is_indexed_in_ALIEN(int count, String type) throws Throwable {
         createAndIndexComponent(count, type, 0, null, null);
+    }
+
+    @When("^I search for \"([^\"]*)\" using query \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")
+    public void I_search_for_with_query_from_with_result_size_of(String searchedComponentType, String query, int from, int size) throws Throwable {
+        SearchRequest req = new SearchRequest(QUERY_TYPES.get(searchedComponentType), query, from, size, null);
+        req.setType(req.getType());
+
+        String jSon = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/components/search", jSon));
     }
 
     @When("^I search for \"([^\"]*)\" from (\\d+) with result size of (\\d+)$")

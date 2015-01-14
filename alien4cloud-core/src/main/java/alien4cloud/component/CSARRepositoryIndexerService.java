@@ -158,7 +158,7 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         } else {
             // deleted element was not the highest version so maybe it was referenced as an older version
             for (IndexedToscaElement remainingElement : remainingElements) {
-                if (remainingElement.getOlderVersions().contains(elementVersion)) {
+                if (remainingElement.getOlderVersions() != null && remainingElement.getOlderVersions().contains(elementVersion)) {
                     // just remove the deleted element version from the olderVersions of the current element
                     remainingElement.getOlderVersions().remove(elementVersion);
                     alienDAO.save(remainingElement);
