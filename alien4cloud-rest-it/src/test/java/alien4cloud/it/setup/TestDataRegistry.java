@@ -1,12 +1,10 @@
 package alien4cloud.it.setup;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import alien4cloud.utils.FileUtil;
 
 import com.google.common.collect.Maps;
 
@@ -39,6 +37,9 @@ public class TestDataRegistry {
         addConditionFolder("snapshot", "src/test/resources/data/csars/snapshot");
         addConditionFolder("relationship test types", "src/test/resources/data/csars/relationship-test-types");
         addConditionFolder("valid-csar-with-test", "src/test/resources/data/csars/snapshot-test/snapshot-test-valid");
+        addConditionFolder("valid-csar-with-update1", "src/test/resources/data/csars/snapshot-test/snapshot-test-update1");
+        addConditionFolder("valid-csar-with-update2", "src/test/resources/data/csars/snapshot-test/snapshot-test-update2");
+        addConditionFolder("valid-csar-with-update3", "src/test/resources/data/csars/snapshot-test/snapshot-test-update3");
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
 
         // test uploading an unzipped file (do not zip it)

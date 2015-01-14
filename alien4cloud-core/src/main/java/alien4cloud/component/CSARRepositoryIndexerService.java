@@ -1,8 +1,11 @@
 package alien4cloud.component;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -152,13 +155,27 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             if (hightestVersionElement != null) {
                 // the highest version has been identified, we'll update it's property
                 hightestVersionElement.setHighestVersion(true);
-                // FIXME something to do with the older versions ?
+                // this component has been promoted as highest version, we may set it's older versions ?
+                Collections.sort(remainingElements, new Comparator<IndexedToscaElement>() {
+                    @Override
+                    public int compare(IndexedToscaElement o1, IndexedToscaElement o2) {
+                        return VersionUtil.compare(o1.getArchiveVersion(), o2.getArchiveVersion());
+                    }
+                });
+                Set<String> olderVersions = new LinkedHashSet<String>();
+                for (IndexedToscaElement remainingElement : remainingElements) {
+                    if (VersionUtil.compare(remainingElement.getArchiveVersion(), hightestVersionElement.getArchiveVersion()) < 0) {
+                        // this is an older version
+                        olderVersions.add(remainingElement.getArchiveVersion());
+                    }
+                }
+                hightestVersionElement.setOlderVersions(olderVersions);
                 alienDAO.save(hightestVersionElement);
             }
         } else {
             // deleted element was not the highest version so maybe it was referenced as an older version
             for (IndexedToscaElement remainingElement : remainingElements) {
-                if (remainingElement.getOlderVersions().contains(elementVersion)) {
+                if (remainingElement.getOlderVersions() != null && remainingElement.getOlderVersions().contains(elementVersion)) {
                     // just remove the deleted element version from the olderVersions of the current element
                     remainingElement.getOlderVersions().remove(elementVersion);
                     alienDAO.save(remainingElement);
