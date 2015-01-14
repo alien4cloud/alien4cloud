@@ -113,7 +113,7 @@ describe('Security management on applications for application manager', function
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
-    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.appRoles.deploymentManager);
+    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.envRoles.deploymentManager);
     checkApplicationDeploymentManagerAccess();
   });
 
@@ -123,7 +123,7 @@ describe('Security management on applications for application manager', function
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
-    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.appRoles.deploymentManager);
+    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.envRoles.deploymentManager);
     checkApplicationDeploymentManagerAccess();
   });
 
@@ -151,7 +151,7 @@ describe('Security management on applications for application manager', function
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
-    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.appRoles.appUser);
+    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.envRoles.envUser);
     checkApplicationUserAccess();
   });
 
@@ -161,7 +161,7 @@ describe('Security management on applications for application manager', function
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
-    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.appRoles.appUser);
+    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.envRoles.envUser);
     checkApplicationUserAccess();
   });
 });
