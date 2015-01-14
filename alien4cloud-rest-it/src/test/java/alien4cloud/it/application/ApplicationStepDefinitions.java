@@ -130,11 +130,11 @@ public class ApplicationStepDefinitions {
         RestResponse<String> reponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         String applicationJson = Context.getRestClientInstance().get("/rest/applications/" + reponse.getData());
         Application application = JsonUtil.read(applicationJson, Application.class).getData();
-
         assertNotNull(application);
         CURRENT_APPLICATION = application;
         Context.getInstance().registerApplication(application);
         Context.getInstance().registerApplicationId(name, application.getId());
+        setAppEnvironmentIdToContext(application.getId());
 
         assertNotNull(getTopologyIdFromApplication(application.getId()));
 
@@ -223,7 +223,7 @@ public class ApplicationStepDefinitions {
         for (List<String> rows : tags.raw()) {
             addTag(applicationId, rows.get(0), rows.get(1));
         }
-
+        setAppEnvironmentIdToContext(applicationId);
         Context.getInstance().registerRestResponse(responseAsJson);
     }
 
@@ -413,6 +413,7 @@ public class ApplicationStepDefinitions {
             String applicationJson = Context.getRestClientInstance().get("/rest/applications/" + reponse.getData());
             RestResponse<Application> application = JsonUtil.read(applicationJson, Application.class);
             CURRENT_APPLICATIONS.put(app.get(0), application.getData());
+            setAppEnvironmentIdToContext(application.getData().getId());
         }
 
         assertEquals(CURRENT_APPLICATIONS.size(), applicationNames.raw().size());

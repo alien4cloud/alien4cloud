@@ -178,8 +178,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/statuses", JsonUtil.toString(applicationIds)));
         RestResponse<?> reponse = JsonUtil.read(Context.getInstance().getRestResponse());
-        applicationStatuses = JsonUtil.toMap(JsonUtil.toString(reponse.getData()), String.class, EnvironmentStatusDTO.class);
-
+        Map<String, Object> applicationStatuses = JsonUtil.toMap(JsonUtil.toString(reponse.getData()));
         assertEquals(ApplicationStepDefinitions.CURRENT_APPLICATIONS.size(), applicationStatuses.size());
     }
 
@@ -191,8 +190,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon(
                         "/rest/applications/" + Context.getInstance().getApplication().getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(),
-                        JsonUtil.toString(updateApplicationCloudRequest)));
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(), JsonUtil.toString(updateApplicationCloudRequest)));
         Context.getInstance().registerCloudForTopology(cloudId);
     }
 
@@ -244,8 +242,10 @@ public class ApplicationsDeploymentStepDefinitions {
             deploymentPropertyValue = app.get(1).trim();
             checkDeploymentPropertyRequest.setDeploymentPropertyName(deploymentPropertyName);
             checkDeploymentPropertyRequest.setDeploymentPropertyValue(deploymentPropertyValue);
-            Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property", JsonUtil.toString(checkDeploymentPropertyRequest)));
+            Context.getInstance()
+                    .registerRestResponse(
+                            Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property",
+                                    JsonUtil.toString(checkDeploymentPropertyRequest)));
             finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         // register deployment application properties to use it
@@ -359,9 +359,10 @@ public class ApplicationsDeploymentStepDefinitions {
     private Map<String, IStompDataFuture> stompDataFutures = Maps.newHashMap();
 
     private String getActiveDeploymentId(String applicationId) throws IOException {
-        Deployment deployment = JsonUtil.read(Context.getRestClientInstance().get("/rest/applications/" + applicationId + "/environments/"
-                + Context.getInstance().getDefaultApplicationEnvironmentId() + "/active-deployment"),
-                Deployment.class).getData();
+        Deployment deployment = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + applicationId + "/environments/" + Context.getInstance().getDefaultApplicationEnvironmentId()
+                                + "/active-deployment"), Deployment.class).getData();
         return deployment.getId();
     }
 
@@ -459,8 +460,7 @@ public class ApplicationsDeploymentStepDefinitions {
         DeploymentSetup deploymentSetup = JsonUtil.read(
                 Context.getRestClientInstance().get(
                         "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+                                + Context.getInstance().getDefaultApplicationEnvironmentId() + "/deployment-setup"), DeploymentSetup.class).getData();
         Assert.assertNotNull(deploymentSetup.getProviderDeploymentProperties());
         Assert.assertEquals(expectedDeploymentProperties, deploymentSetup.getProviderDeploymentProperties());
     }
