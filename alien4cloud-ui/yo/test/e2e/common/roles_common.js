@@ -14,11 +14,15 @@ module.exports.alienRoles = alienRoles;
 //application Roles
 var appRoles = {
   appManager: 'APPLICATION_MANAGER',
-  appDevops: 'APPLICATION_DEVOPS',
-  deploymentManager: 'DEPLOYMENT_MANAGER',
-  appUser: 'APPLICATION_USER'
+  appDevops: 'APPLICATION_DEVOPS'
 };
 module.exports.appRoles = appRoles;
+
+var envRoles = {
+  deploymentManager: 'DEPLOYMENT_MANAGER',
+  envUser: 'APPLICATION_USER'
+}
+module.exports.envRoles = envRoles;
 
 // Cloud Roles
 var cloudRoles = {
@@ -26,16 +30,17 @@ var cloudRoles = {
 };
 module.exports.cloudRoles = cloudRoles;
 
-function editRole(userOrGroup, name, role) {
-  var editRolesBtn = element(by.id(userOrGroup + '_' + name)).element(by.id('edit-' + userOrGroup + '-role-button'));
+function editRole(appOrEnv, userOrGroup, name, role) {
+  console.log("editRole", appOrEnv, userOrGroup, name, role);
+  var editRolesBtn = element(by.id(userOrGroup + '_' + name)).element(by.id('edit-' + appOrEnv + '-' + userOrGroup + '-role-button'));
   editRolesBtn.click();
   var roleLink = element(by.id(name + '_' + role));
   roleLink.click();
   editRolesBtn.click();
 }
 
-function assertRoleChecked(userOrGroup, name, role, checked) {
-  var editRolesBtn = element(by.id(userOrGroup + '_' + name)).element(by.id('edit-' + userOrGroup + '-role-button'));
+function assertRoleChecked(appOrEnv, userOrGroup, name, role, checked) {
+  var editRolesBtn = element(by.id(userOrGroup + '_' + name)).element(by.id('edit-' + appOrEnv + '-' + userOrGroup + '-role-button'));
   editRolesBtn.click();
   if (checked) {
     expect(element(by.id(name + '_' + role)).getAttribute('class')).toContain('checked_role');
@@ -45,8 +50,8 @@ function assertRoleChecked(userOrGroup, name, role, checked) {
   editRolesBtn.click();
 }
 
-function assertGroupChecked(username, groupName, checked) {
-  var editGroupsBtn = element(by.id('user_' + username)).element(by.id('edit-group-role-button'));
+function assertGroupChecked(appOrEnv, username, groupName, checked) {
+  var editGroupsBtn = element(by.id('user_' + username)).element(by.id('edit-' + appOrEnv + '-group-role-button'));
   editGroupsBtn.click();
   if (checked) {
     expect(element(by.id(username + '_' + groupName)).getAttribute('class')).toContain('checked_role');
@@ -56,18 +61,17 @@ function assertGroupChecked(username, groupName, checked) {
   editGroupsBtn.click();
 }
 
-module.exports.editUserRole = function(username, role) {
-  editRole('user', username, role);
+module.exports.editUserRole = function(appOrEnv, username, role) {
+  editRole(appOrEnv, 'user', username, role);
 };
 
-module.exports.editGroupRole = function(username, role) {
-  editRole('group', username, role);
+module.exports.editGroupRole = function(appOrEnv, username, role) {
+  editRole(appOrEnv, 'group', username, role);
 };
 
 
-
-var toggleUserGroup = function(username, groupName) {
-  var editGroupsBtn = element(by.id('user_' + username)).element(by.id('edit-group-role-button'));
+var toggleUserGroup = function(appOrEnv, username, groupName) {
+  var editGroupsBtn = element(by.id('user_' + username)).element(by.id('edit-' + appOrEnv +'-group-role-button'));
   editGroupsBtn.click();
   var roleLink = element(by.id(username + '_' + groupName));
   roleLink.click();
@@ -77,54 +81,55 @@ module.exports.addUserToGroup = toggleUserGroup;
 module.exports.removeUserFromGroup = toggleUserGroup;
 
 // This method test specific roles assigned to user without taken into account roles given to user's group
-var assertUserHasRoles = function(username, roles) {
+var assertUserHasRoles = function(appOrEnv, username, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
-    assertRoleChecked('user', username, role, true);
+    assertRoleChecked(appOrEnv, 'user', username, role, true);
   });
 };
 module.exports.assertUserHasRoles = assertUserHasRoles;
 
 // This method test specific roles assigned to user without taken into account roles given to user's group
-var assertUserDoesNotHaveRoles = function(username, roles) {
+var assertUserDoesNotHaveRoles = function(appOrEnv, username, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
-    assertRoleChecked('user', username, role, false);
+    assertRoleChecked(appOrEnv, 'user', username, role, false);
   });
 };
 module.exports.assertUserDoesNotHaveRoles = assertUserDoesNotHaveRoles;
 
-var assertUserHasGroups = function(username, groups) {
+var assertUserHasGroups = function(appOrEnv, username, groups) {
   if (!Array.isArray(groups)) {
     groups = [groups];
   }
   groups.forEach(function(group) {
-    assertGroupChecked(username, group, true);
+    assertGroupChecked(appOrEnv, username, group, true);
     expect(element(by.id('user_' + username)).element(by.name('groups')).getText()).toContain(group);
   });
 };
 module.exports.assertUserHasGroups = assertUserHasGroups;
 
-var assertGroupHasRoles = function(groupName, roles) {
+var assertGroupHasRoles = function(appOrEnv, groupName, roles) {
+  console.log("assertGroupHasRoles", appOrEnv, groupName, roles);
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   for (var i = 0; i < roles.length; i++) {
-    assertRoleChecked('group', groupName, roles[i], true);
+    assertRoleChecked(appOrEnv, 'group', groupName, roles[i], true);
   }
 };
 module.exports.assertGroupHasRoles = assertGroupHasRoles;
 
-var assertGroupDoesNotHaveRoles = function(groupName, roles) {
+var assertGroupDoesNotHaveRoles = function(appOrEnv, groupName, roles) {
   if (!Array.isArray(roles)) {
     roles = [roles];
   }
   roles.forEach(function(role) {
-    assertRoleChecked('group', groupName, role, false);
+    assertRoleChecked(appOrEnv, 'group', groupName, role, false);
   });
 };
 module.exports.assertGroupDoesNotHaveRoles = assertGroupDoesNotHaveRoles;
