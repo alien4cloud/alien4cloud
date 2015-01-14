@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
@@ -24,55 +25,57 @@ import alien4cloud.model.deployment.IDeploymentSource;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Csar implements IDeploymentSource {
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
-    private String name;
+	@FetchContext(contexts = { DEPLOYMENT }, include = { true })
+	private String name;
 
-    @TermFilter
-    private String version;
+	@TermFilter
+	private String version;
 
-    private String toscaDefinitionsVersion;
+	private String toscaDefinitionsVersion;
 
-    private String toscaDefaultNamespace;
+	private String toscaDefaultNamespace;
 
-    private String templateAuthor;
+	private String templateAuthor;
 
-    private String description;
+	private String description;
 
+    @TermFilter(paths = { "name", "version" })
+    @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies;
 
-    private String topologyId;
-    private String cloudId;
+	private String topologyId;
+	private String cloudId;
 
-    private String license;
+	private String license;
 
-    /** Default constructor */
-    public Csar() {
-    }
+	/** Default constructor */
+	public Csar() {
+	}
 
-    /** Argument constructor */
-    public Csar(String name, String version) {
-        this.name = name;
-        this.version = version;
-    }
+	/** Argument constructor */
+	public Csar(String name, String version) {
+		this.name = name;
+		this.version = version;
+	}
 
-    @Id
-    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
-    @FetchContext(contexts = { DEPLOYMENT }, include = { true })
-    public String getId() {
-        if (name == null) {
-            throw new IndexingServiceException("Csar name is mandatory");
-        }
-        if (version == null) {
-            throw new IndexingServiceException("Csar version is mandatory");
-        }
-        return name + ":" + version;
-    }
+	@Id
+	@StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+	@FetchContext(contexts = { DEPLOYMENT }, include = { true })
+	public String getId() {
+		if (name == null) {
+			throw new IndexingServiceException("Csar name is mandatory");
+		}
+		if (version == null) {
+			throw new IndexingServiceException("Csar version is mandatory");
+		}
+		return name + ":" + version;
+	}
 
-    public void setId(String id) {
-        // Not authorized to set id as it's auto-generated from name and version
-    }
+	public void setId(String id) {
+		// Not authorized to set id as it's auto-generated from name and version
+	}
 
-    public void setDependencies(Set<CSARDependency> dependencies) {
-        this.dependencies = dependencies;
-    }
+	public void setDependencies(Set<CSARDependency> dependencies) {
+		this.dependencies = dependencies;
+	}
 }

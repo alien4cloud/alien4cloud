@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -153,4 +154,13 @@ public class CsarFileRepository implements ICsarRepositry {
         this.rootPath = Paths.get(path).toAbsolutePath();
         checkCSARRepository(rootPath);
     }
+
+    @Override
+    public void removeCSAR(String name, String version) {
+        Path csarDirectoryPath = rootPath.resolve(name).resolve(version);
+        if (Files.isDirectory(csarDirectoryPath)) {
+            FileSystemUtils.deleteRecursively(csarDirectoryPath.toFile());
+        }
+    }
+    
 }

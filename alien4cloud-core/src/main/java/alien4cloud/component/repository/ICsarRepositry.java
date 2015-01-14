@@ -44,4 +44,7 @@ public interface ICsarRepositry {
      * @throws CSARVersionNotFoundException
      */
     Path getCSAR(String name, String version) throws CSARVersionNotFoundException;
+
+    void removeCSAR(String name, String version);
+    
 }

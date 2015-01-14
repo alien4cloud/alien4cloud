@@ -29,7 +29,15 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.ScalingPolicy;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
@@ -45,15 +53,7 @@ import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
@@ -422,9 +422,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                             }
                         } else {
                             for (int i = currentSize + instances + 1; i < currentSize + 1; i++) {
-                                if (nodeInformations.containsKey(new Integer(i))) {
-                                    nodeInformations.get(new Integer(i)).setState("stopping");
-                                    nodeInformations.get(new Integer(i)).setInstanceStatus(InstanceStatus.PROCESSING);
+                                if (nodeInformations.containsKey(String.valueOf(i))) {
+                                    nodeInformations.get(String.valueOf(i)).setState("stopping");
+                                    nodeInformations.get(String.valueOf(i)).setInstanceStatus(InstanceStatus.PROCESSING);
                                 }
                             }
                         }
@@ -534,6 +534,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        return new String[] { "Life", "Is", "Wonderful" };
+        return null;
     }
 }

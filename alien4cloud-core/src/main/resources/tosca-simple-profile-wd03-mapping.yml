@@ -119,7 +119,6 @@
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
-    key: artifactName
     value: artifactRef
   description: description
   type:
