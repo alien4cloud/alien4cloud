@@ -48,7 +48,6 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
-import alien4cloud.security.User;
 import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -109,10 +108,8 @@ public class ApplicationEnvironmentController {
     }
 
     private FilterBuilder getEnvrionmentAuthorizationFilters(String applicationId) {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
         Application application = applicationService.checkAndGetApplication(applicationId);
-        if (application.getUserRoles().get(user.getUsername()).contains(ApplicationRole.APPLICATION_MANAGER.toString())) {
+        if (AuthorizationUtil.hasAuthorizationForApplication(application)) {
             return null;
         }
         return AuthorizationUtil.getResourceAuthorizationFilters();
@@ -129,7 +126,7 @@ public class ApplicationEnvironmentController {
         applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationEnvironmentRole.values());
+        AuthorizationUtil.checkAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.values());
         return RestResponseBuilder.<ApplicationEnvironment> builder().data(applicationEnvironment).build();
     }
 
@@ -144,9 +141,13 @@ public class ApplicationEnvironmentController {
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) {
+
+        // User should be APPLICATIONS_MANAGER to create an application
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
+        // User should be APPLICATION_MANAGER to create an application
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(),
                 request.getName(), request.getDescription(), request.getEnvironmentType(), request.getVersionId());
@@ -162,7 +163,6 @@ public class ApplicationEnvironmentController {
             }
             alienDAO.save(appEnvironment);
         }
-
         return RestResponseBuilder.<String> builder().data(appEnvironment.getId()).build();
     }
 
@@ -177,11 +177,12 @@ public class ApplicationEnvironmentController {
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateApplicationEnvironmentRequest request) {
-        applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment appEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+
+        // Only APPLICATION_MANAGER on the underlying application can update an application environment
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
 
-        if (appEnvironment == null) {
+        if (applicationEnvironment == null) {
             return RestResponseBuilder
                     .<Void> builder()
                     .data(null)
@@ -189,13 +190,12 @@ public class ApplicationEnvironmentController {
                             .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
         }
 
-        Application application = applicationService.getOrFail(appEnvironment.getApplicationId());
-        applicationEnvironmentService.ensureNameUnicity(application.getId(), request.getName());
-        ReflectionUtil.mergeObject(request, appEnvironment);
-        if (appEnvironment.getName() == null || appEnvironment.getName().isEmpty()) {
+        applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());
+        ReflectionUtil.mergeObject(request, applicationEnvironment);
+        if (applicationEnvironment.getName() == null || applicationEnvironment.getName().isEmpty()) {
             throw new InvalidArgumentException("Application environment name cannot be set to null or empty");
         }
-        alienDAO.save(appEnvironment);
+        alienDAO.save(applicationEnvironment);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -208,7 +208,10 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Delete an application environment from its id", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
+
+        // Only APPLICATION_MANAGER on the underlying application can delete an application environment
+        applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
+
         int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
         boolean deleted = false;
         if (countEnvironment == 1) {
@@ -327,9 +330,9 @@ public class ApplicationEnvironmentController {
      */
     private void handleRemoveUserRoleOnApplication(String applicationId, String username) {
         Application application = applicationService.getOrFail(applicationId);
-        boolean isApplicationUserOnly = AuthorizationUtil.hasOnlyOneRoleOnResource(userService.retrieveUser(username), application,
+        boolean isApplicationUserOnly = AuthorizationUtil.hasUniqueUserRoleOnResource(userService.retrieveUser(username), application,
                 ApplicationRole.APPLICATION_USER);
-        // TODO : check this condition > remove the role only if it is not the only role
+        // check this condition > remove the role only if it is not the only role
         if (!isApplicationUserOnly) {
             resourceRoleService.removeUserRole(application, username, ApplicationRole.APPLICATION_USER.toString());
         }
@@ -355,8 +358,10 @@ public class ApplicationEnvironmentController {
      */
     private void handleRemoveGrpRoleOnApplication(String applicationId, String groupId) {
         Application application = applicationService.getOrFail(applicationId);
-        // TODO : donc remove if the user has other role on this env
-        resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
+        boolean isApplicationGroupOnly = AuthorizationUtil.hasUniqueGroupRoleOnResource(groupId, application, ApplicationRole.APPLICATION_USER);
+        if (!isApplicationGroupOnly) {
+            resourceRoleService.removeGroupRole(application, groupId, ApplicationRole.APPLICATION_USER.toString());
+        }
     }
 
     /**

@@ -82,6 +82,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         ],
         appEnvironments: ['application', 'applicationEnvironmentServices',
           function(application, applicationEnvironmentServices) {
+            console.log('FIRST LOAD applications.detail application environments');
             return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
               // we've at least one environment per application
               return result.data.data;
@@ -91,7 +92,8 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'appEnvironments',
           function(applicationEventServicesFactory, $stateParams, appEnvironments) {
             // this supposes you have at least one environment
-            console.log('APP ENVS', appEnvironments);
+
+            console.log('ENV name', appEnvironments[0].name);
             return applicationEventServicesFactory($stateParams.id, appEnvironments[0].id);
           }
         ],
@@ -147,6 +149,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       resolve: {
         appEnvironments: ['application', 'applicationEnvironmentServices',
           function(application, applicationEnvironmentServices) {
+            console.log('DEPLOYMENT > APP ENVIRONMENTS');
             return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
               // we've at least one environment per application
               return result.data.data;
@@ -192,6 +195,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       resolve: {
         appEnvironments: ['application', 'applicationEnvironmentServices',
           function(application, applicationEnvironmentServices) {
+            console.log('ENVIRONMENTS > APP ENVIRONMENTS');
             return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
               // we've at least one environment per application
               return result.data.data;

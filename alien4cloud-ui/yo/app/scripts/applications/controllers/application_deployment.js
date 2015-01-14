@@ -39,10 +39,18 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     // console.log('TOPOLOGY ID DEPLOYMENT >', topologyId);
+    // $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
+    // $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
+    // $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
+    // $scope.isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // Application rights
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-    $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-    $scope.isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
+
+    // Application environment rights
+    $scope.isDeployer = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER');
+    $scope.isUser = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER');
 
     $scope.outputAttributesValue = {};
     $scope.outputPropertiesValue = {};

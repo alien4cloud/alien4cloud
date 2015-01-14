@@ -65,12 +65,29 @@ public final class AuthorizationUtil {
         }
     }
 
+    /**
+     * Check that the user has one of the requested rights for the given application environment
+     * 
+     * @param resource
+     * @param expectedRoles
+     */
+    public static void checkAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
+        if (!hasAuthorizationForCloud(resource, expectedRoles)) {
+            throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
+                    + "> has no authorization to perform the requested operation on this cloud.");
+        }
+    }
+
     public static boolean hasAuthorizationForApplication(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
     }
 
     public static boolean hasAuthorizationForCloud(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, CloudRole.CLOUD_DEPLOYER, expectedRoles);
+    }
+
+    public static boolean hasAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
+        return hasAuthorization(getCurrentUser(), resource, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER, expectedRoles);
     }
 
     /**
@@ -322,15 +339,30 @@ public final class AuthorizationUtil {
     }
 
     /**
-     * Check when a user has only a specific role on a resource
+     * Check if a group has only one specific role on a resource
+     * 
+     * @param groupId
+     * @param resource
+     * @param role
+     * @return true when the role is found and it is unique
+     */
+    public static boolean hasUniqueGroupRoleOnResource(String groupId, ISecuredResource resource, IResourceRoles role) {
+        Map<String, Set<String>> allResourceGroupRoles = resource.getGroupRoles();
+        Set<String> groupRoles = allResourceGroupRoles.get(groupId);
+        return groupRoles.size() == 1 && groupRoles.contains(role.toString());
+    }
+
+    /**
+     * Check if a user has only a specific role on a resource
      * 
      * @param user
      * @param resource
      * @param role
-     * @return true when the role is found and it's the only one
+     * @return true when the role is found and it is unique
      */
-    public static boolean hasOnlyOneRoleOnResource(User user, ISecuredResource resource, IResourceRoles role) {
-        Set<String> roles = AuthorizationUtil.getRolesForResource(user, resource);
-        return roles.size() == 1 && roles.contains(role.toString());
+    public static boolean hasUniqueUserRoleOnResource(User user, ISecuredResource resource, IResourceRoles role) {
+        Map<String, Set<String>> allResourceUserRoles = resource.getUserRoles();
+        Set<String> userRoles = allResourceUserRoles.get(user.getUsername());
+        return userRoles.size() == 1 && userRoles.contains(role.toString());
     }
 }
