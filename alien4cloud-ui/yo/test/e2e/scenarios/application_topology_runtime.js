@@ -129,9 +129,7 @@ describe('Topology runtime view', function() {
 
 
   it('should be able to trigger the execution of an operation (custom command) on an instance of a node', function() {
-
     console.log('################# should be able to trigger the execution of an operation (custom command) on an instance of a node');
-
     // jump to Apache LB operations tab
     goToAlienAppAndSelectApachelbOperations();
 
@@ -172,7 +170,6 @@ describe('Topology runtime view', function() {
   });
 
   it('should have and error message when excuting addNode operation without required parameters', function() {
-
     console.log('################# should have and error message when excuting addNode operation without required parameters');
 
     // jump to Apache LB operations tab
@@ -196,7 +193,6 @@ describe('Topology runtime view', function() {
   });
 
   it('should have and error message when excuting removeNode with <operation failed> message', function() {
-
     console.log('################# should have and error message when excuting removeNode with <operation failed> message');
 
     // jump to Apache LB operations tab

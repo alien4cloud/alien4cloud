@@ -131,9 +131,9 @@ describe('Group management', function() {
     assertGroupHasNoRoles(users.groups.managers.name);
 
     //add roles to managers
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
 
     //refresh the page and check again
@@ -142,7 +142,7 @@ describe('Group management', function() {
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
 
     //remove roles from managers
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
     assertGroupDoesNotHaveRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
     users.navigationGroups();
     assertGroupDoesNotHaveRoles(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
@@ -211,7 +211,7 @@ describe('Group management', function() {
     assertGroupExists(users.groups.managers.name, true);
 
     // add roles to managers
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
     assertGroupHasRoles(users.groups.managers.name, rolesCommon.alienRoles.applicationsManager);
 
     // create and check a user
@@ -219,15 +219,15 @@ describe('Group management', function() {
     users.createUser(authentication.users.sauron);
 
     // add sauron to Managers group
-    rolesCommon.addUserToGroup('app', authentication.users.sauron.username, users.groups.managers.name);
+    rolesCommon.addUserToGroup(authentication.users.sauron.username, users.groups.managers.name);
     rolesCommon.assertUserHasGroups('app', authentication.users.sauron.username, users.groups.managers.name);
     assertUserHasRoles(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager);
     assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'g', true);
 
     // add a role to managers group and check users roles
     jumpToTab('groups');
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
-    rolesCommon.editGroupRole('app', users.groups.managers.name, rolesCommon.alienRoles.admin);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.componentsManager);
+    rolesCommon.editGroupRole(users.groups.managers.name, rolesCommon.alienRoles.admin);
     assertGroupHasRoles(users.groups.managers.name, [rolesCommon.alienRoles.componentsManager, rolesCommon.alienRoles.applicationsManager]);
 
     jumpToTab('users');
@@ -241,7 +241,7 @@ describe('Group management', function() {
     assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager, 'u', false);
 
     //add a role to the user, delete the group and check user's roles
-    rolesCommon.editUserRole('app', authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager);
+    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager);
 
     // the user has the role COMPONENTS_MANAGER from the group and by himself now
     assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'g', true);

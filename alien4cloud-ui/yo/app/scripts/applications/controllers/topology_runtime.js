@@ -411,8 +411,7 @@ angular.module('alienUiApp').controller(
         }
         // generate the request object
         var operationExecRequest = {
-          topologyId: $scope.topologyId,
-          cloudId: cloudId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
           instanceId: instanceId,
           interfaceName: CUSTOM_INTERFACE_NAME,
