@@ -18,7 +18,7 @@ Scenario: Create 1 application, deploy it, check statuses, undeploy it and check
    And I deploy all applications with cloud "mock cloud"
    And I have expected applications statuses for "deployment" operation
     | The great eye | DEPLOYED |
-   And I undeploy all applications
+   And I undeploy all environments for applications
    And I should receive a RestResponse with no error
    And I have expected applications statuses for "undeployment" operation
     | The great eye | UNDEPLOYED |

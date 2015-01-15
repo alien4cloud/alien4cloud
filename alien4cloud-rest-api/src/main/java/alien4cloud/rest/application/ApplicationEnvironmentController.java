@@ -123,11 +123,14 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ApplicationEnvironment> getApplicationEnvironment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
-        applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        AuthorizationUtil.checkAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.values());
-        return RestResponseBuilder.<ApplicationEnvironment> builder().data(applicationEnvironment).build();
+        AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
+        }
+        return RestResponseBuilder.<ApplicationEnvironment> builder().data(environment).build();
     }
 
     /**
@@ -188,6 +191,19 @@ public class ApplicationEnvironmentController {
                     .data(null)
                     .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
                             .message("Application environment with id <" + applicationEnvironmentId + "> does not exist").build()).build();
+        }
+
+        // prevent cloud id update when the environment is deployed
+        if (request.getCloudId() != null && applicationEnvironmentService.isDeployed(applicationEnvironmentId)) {
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .data(null)
+                    .error(RestErrorBuilder
+                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                            .message(
+                                    "Application environment with id <" + applicationEnvironmentId + "> is currently deployed on cloud <"
+                                            + request.getCloudId() + ">. Cloud update is not possible.").build()).build();
+
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());
@@ -407,9 +423,11 @@ public class ApplicationEnvironmentController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationEnvironmentRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
         return RestResponseBuilder.<String> builder().data(topologyId).build();
     }

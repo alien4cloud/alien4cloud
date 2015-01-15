@@ -36,6 +36,7 @@ import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
@@ -48,7 +49,6 @@ import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -350,14 +350,15 @@ public class ApplicationController {
         return RestResponseBuilder.<ConstraintInformation> builder().error(updateApplicationPropertyError).build();
     }
 
-    @Deprecated
-    @ApiOperation(value = "Get the id of the topology associated with this application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-        // TODO : update this with ApplicationVersion implementation
-        return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
-    }
+    // @Deprecated
+    // @ApiOperation(value = "Get the id of the topology associated with this application.", notes =
+    // "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    // @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
+    // Application application = applicationService.getOrFail(applicationId);
+    // AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+    // ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
+    // // TODO : update this with ApplicationVersion implementation
+    // return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
+    // }
 }

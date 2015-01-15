@@ -33,6 +33,7 @@ import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import cucumber.runtime.io.ClasspathResourceLoader;
 
@@ -125,7 +126,7 @@ public class Context {
 
     private ThreadLocal<Map<String, String>> applicationVersionNameToApplicationVersionIdMapping;
 
-    private ThreadLocal<Map<String, String>> environmentInfos;
+    private ThreadLocal<Map<String, Map<String, String>>> environmentInfos;
 
     private Context() {
         restResponseLocal = new ThreadLocal<String>();
@@ -146,7 +147,7 @@ public class Context {
         cloudImageNameToCloudImageIdMapping.set(new HashMap<String, String>());
         applicationVersionNameToApplicationVersionIdMapping = new ThreadLocal<>();
         applicationVersionNameToApplicationVersionIdMapping.set(new HashMap<String, String>());
-        environmentInfos = new ThreadLocal<Map<String, String>>();
+        environmentInfos = new ThreadLocal<Map<String, Map<String, String>>>();
         applicationInfos = new ThreadLocal<Map<String, String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
@@ -465,20 +466,34 @@ public class Context {
         return topologyDeploymentId.get();
     }
 
-    public void registerApplicationEnvironmentId(String applicationEnvironmentName, String applicationEnvironmentId) {
-        if (this.environmentInfos.get() != null) {
-            this.environmentInfos.get().put(applicationEnvironmentName, applicationEnvironmentId);
+    public void registerApplicationEnvironmentId(String applicationName, String applicationEnvironmentName, String applicationEnvironmentId) {
+        Map<String, Map<String, String>> envsInfoMap = this.environmentInfos.get();
+        if (envsInfoMap != null) {
+            Map<String, String> envs = envsInfoMap.get(applicationName);
+            if (envs == null) {
+                envs = Maps.newHashMap();
+            }
+            envs.put(applicationEnvironmentName, applicationEnvironmentId);
+            envsInfoMap.put(applicationName, envs);
+            this.environmentInfos.set(envsInfoMap);
             return;
+
         }
-        this.environmentInfos.set(MapUtil.newHashMap(new String[] { applicationEnvironmentName }, new String[] { applicationEnvironmentId }));
+        envsInfoMap = Maps.newHashMap();
+        envsInfoMap.put(applicationName, MapUtil.newHashMap(new String[] { applicationEnvironmentName }, new String[] { applicationEnvironmentId }));
+        this.environmentInfos.set(envsInfoMap);
     }
 
-    public String getApplicationEnvironmentId(String applicationEnvironmentName) {
-        return this.environmentInfos.get().get(applicationEnvironmentName);
+    public String getApplicationEnvironmentId(String applicationName, String applicationEnvironmentName) {
+        return this.environmentInfos.get().get(applicationName).get(applicationEnvironmentName);
     }
 
-    public String getDefaultApplicationEnvironmentId() {
-        return getApplicationEnvironmentId("Environment");
+    public Map<String, String> getAllEnvironmentForApplication(String applicationName) {
+        return this.environmentInfos.get().get(applicationName);
+    }
+
+    public String getDefaultApplicationEnvironmentId(String applicationName) {
+        return getApplicationEnvironmentId(applicationName, "Environment");
     }
 
     public void registerApplicationId(String applicationName, String applicationId) {

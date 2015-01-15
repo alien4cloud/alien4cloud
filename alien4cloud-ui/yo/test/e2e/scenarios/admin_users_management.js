@@ -72,9 +72,9 @@ describe('User management', function() {
     assertUserHasNoRoles(authentication.users.bilbo.username);
 
     //add roles to bilbo
-    rolesCommon.editUserRole('app', authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
+    rolesCommon.editUserRole(authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
     rolesCommon.assertUserHasRoles(authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
-    rolesCommon.editUserRole('app', authentication.users.bilbo.username, rolesCommon.alienRoles.componentsBrowser);
+    rolesCommon.editUserRole(authentication.users.bilbo.username, rolesCommon.alienRoles.componentsBrowser);
     rolesCommon.assertUserHasRoles(authentication.users.bilbo.username, rolesCommon.alienRoles.componentsBrowser);
 
     //refresh the page and check again
@@ -84,7 +84,7 @@ describe('User management', function() {
     rolesCommon.assertUserHasRoles(authentication.users.bilbo.username, rolesCommon.alienRoles.componentsBrowser);
 
     //remove roles from bilbo
-    rolesCommon.editUserRole('app', authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
+    rolesCommon.editUserRole(authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
     rolesCommon.assertUserDoesNotHaveRoles(authentication.users.bilbo.username, rolesCommon.alienRoles.admin);
     navigation.go('main', 'admin');
     navigation.go('admin', 'users');

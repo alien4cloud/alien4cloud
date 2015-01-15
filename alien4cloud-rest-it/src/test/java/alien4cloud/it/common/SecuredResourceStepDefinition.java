@@ -1,6 +1,8 @@
 package alien4cloud.it.common;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.application.ApplicationStepDefinitions;
+import alien4cloud.model.application.Application;
 import cucumber.api.java.en.When;
 
 public class SecuredResourceStepDefinition {
@@ -57,8 +59,9 @@ public class SecuredResourceStepDefinition {
             request = "/rest/clouds/" + Context.getInstance().getCloudId(resourceName);
             break;
         case ENVIRONMENT:
+            Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
             request = "/rest/applications/" + Context.getInstance().getApplicationId(resourceName) + "/environments/"
-                    + Context.getInstance().getApplicationEnvironmentId(resourceName);
+                    + Context.getInstance().getApplicationEnvironmentId(application.getName(), resourceName);
             break;
         default:
         }
