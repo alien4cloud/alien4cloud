@@ -111,7 +111,7 @@ public class ApplicationsDeploymentStepDefinitions {
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
             throws IOException, InterruptedException {
         String statusRequest = null;
-        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
         if (deploymentId != null) {
             statusRequest = "/rest/deployments/" + deploymentId + "/status";
         } else if (applicationId != null) {
