@@ -15,7 +15,7 @@ var toggleRole = function(appOrEnv, app, user, role) {
   if (appOrEnv === 'app') {
     rolesCommon.editUserRole(user, role);
   } else {
-    rolesCommon.editUserRoleForEnv(user, role);  
+    rolesCommon.editUserRoleForAnEnv(user, role);
   }
 };
 var addRole = toggleRole;

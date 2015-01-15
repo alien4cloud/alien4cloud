@@ -36,6 +36,7 @@ describe('Security management on applications for application manager', function
     navigation.isNavigable('applications', menu);
     navigation.go('applications', menu);
     common.expectNoErrors();
+    common.dismissAlertIfPresent();
   };
 
   var checkDisplayedButDisabled = function(menu) {
