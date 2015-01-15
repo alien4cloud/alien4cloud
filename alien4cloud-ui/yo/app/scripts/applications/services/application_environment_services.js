@@ -118,7 +118,6 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
     });
 
     return {
-      'get': null,
       'create': applicationEnvironmentResource.create,
       'delete': applicationEnvironmentMiscResource.delete,
       'update': applicationEnvironmentMiscResource.update,
@@ -129,6 +128,5 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       'getAllEnvironments': getAllEnvironmentsForApplication,
       'getTopologyId': applicationEnvironmentTopology.get
     };
-
   }
 ]);

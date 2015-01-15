@@ -1,6 +1,7 @@
 package alien4cloud.rest.deployment;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,17 +18,16 @@ import org.springframework.stereotype.Component;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaasEventListener;
 import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
-import alien4cloud.security.ApplicationRole;
-import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
-import alien4cloud.security.User;
+import alien4cloud.security.*;
 import alien4cloud.topology.TopologyServiceCore;
 
 @Slf4j
@@ -35,8 +35,10 @@ import alien4cloud.topology.TopologyServiceCore;
 public class DeploymentEventHandler implements IPaasEventListener<AbstractMonitorEvent>, ISecuredHandler, InitializingBean {
 
     private static final String TOPIC_PREFIX = "/topic/deployment-events";
+    private static final String ENV_TOPIC_PREFIX = "/topic/environment-events";
 
     private static final Pattern DESTINATION_PATTERN = Pattern.compile(TOPIC_PREFIX + "/(.*?)(:?/.*)?");
+    private static final Pattern ENV_DESTINATION_PATTERN = Pattern.compile(ENV_TOPIC_PREFIX + "/(.*?)(:?/.*)?");
 
     @Resource
     private IPaasEventService paasEventService;
@@ -62,6 +64,23 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
             log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]");
         }
         template.convertAndSend(topicName, event);
+
+        if (event instanceof PaaSDeploymentStatusMonitorEvent) {
+            Deployment deployment = alienDAO.findById(Deployment.class, event.getDeploymentId());
+
+            if (deployment != null) {
+                if (DeploymentStatus.UNDEPLOYED.equals(((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus()) && deployment.getEndDate() == null) {
+                    deployment.setEndDate(new Date());
+                    alienDAO.save(deployment);
+                }
+
+                if (deployment.getDeploymentSetup() != null && deployment.getDeploymentSetup().getEnvironmentId() != null) {
+                    // dispatch an event on the environment topic
+                    topicName = ENV_TOPIC_PREFIX + "/" + deployment.getDeploymentSetup().getEnvironmentId();
+                    template.convertAndSend(topicName, event);
+                }
+            }
+        }
     }
 
     /**
@@ -88,23 +107,44 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         User a4cUser = (User) authentication.getPrincipal();
         if (matcher.matches()) {
             String deploymentId = matcher.group(1);
-            Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-            switch (deployment.getSourceType()) {
-            case APPLICATION:
-                Application application = alienDAO.findById(Application.class, deployment.getSourceId());
-                if (application == null) {
-                    log.error("Application with id [{}] do not exist any more for deployment [{}]", deployment.getSourceId(), deployment.getId());
-                    throw new NotFoundException("Application with id [" + deployment.getSourceId() + "] do not exist any more for deployment ["
-                            + deployment.getId() + "]");
-                }
-                AuthorizationUtil.checkAuthorization(a4cUser, application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.values());
-                break;
-            case CSAR:
-                AuthorizationUtil.checkHasOneRoleIn(authentication, Role.COMPONENTS_MANAGER);
-            }
+            checkDeploymentAuthorization(authentication, a4cUser, deploymentId);
         } else {
-            throw new IllegalArgumentException("Cannot handle this destination [" + destination + "]");
+            matcher = ENV_DESTINATION_PATTERN.matcher(destination);
+            if (matcher.matches()) {
+                String environmentId = matcher.group(1);
+                checkEnvironmentAuthorization(a4cUser, environmentId);
+            } else {
+                throw new IllegalArgumentException("Cannot handle this destination [" + destination + "]");
+            }
         }
+    }
+
+    private void checkDeploymentAuthorization(Authentication authentication, User a4cUser, String deploymentId) {
+        Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
+        switch (deployment.getSourceType()) {
+        case APPLICATION:
+            // check if the user has right for the environment associated with the deployment.
+            ApplicationEnvironment environment = alienDAO.findById(ApplicationEnvironment.class, deployment.getDeploymentSetup().getEnvironmentId());
+            if (environment == null) {
+                log.error("Environment with id [{}] do not exist any more for deployment [{}]", deployment.getDeploymentSetup().getEnvironmentId(),
+                        deployment.getId());
+                throw new NotFoundException("Environment with id [" + deployment.getDeploymentSetup().getEnvironmentId()
+                        + "] do not exist any more for deployment [" + deployment.getId() + "]");
+            }
+            AuthorizationUtil.checkAuthorization(a4cUser, environment, ApplicationRole.APPLICATION_MANAGER, ApplicationEnvironmentRole.values());
+            break;
+        case CSAR:
+            AuthorizationUtil.checkHasOneRoleIn(authentication, Role.COMPONENTS_MANAGER);
+        }
+    }
+
+    private void checkEnvironmentAuthorization(User a4cUser, String environmentId) {
+        ApplicationEnvironment environment = alienDAO.findById(ApplicationEnvironment.class, environmentId);
+        if (environment == null) {
+            log.error("Environment with id [{}] do not exist any more", environmentId);
+            throw new NotFoundException("Environment with id [" + environmentId + "] do not exist any more");
+        }
+        AuthorizationUtil.checkAuthorization(a4cUser, environment, ApplicationRole.APPLICATION_MANAGER, ApplicationEnvironmentRole.values());
     }
 
     @Override

@@ -23,11 +23,10 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments) {
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory) {
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    $scope.searchAppEnvResult = appEnvironments;
     $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function(successResponse) {});
 
     // Application versions search

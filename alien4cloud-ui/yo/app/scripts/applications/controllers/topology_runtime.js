@@ -1,54 +1,30 @@
-/** TODO Update Topology runtime to make it independant from the application. */
-/* global UTILS */
-/* global CONSTANTS */
+/* global UTILS, CONSTANTS */
 
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyRuntimeCtrl', [
-    '$scope',
-    'applicationServices',
-    '$translate',
-    'resizeServices',
-    'deploymentServices',
-    'applicationEventServices',
-    '$state',
-    'propertiesServices',
-    'toaster',
-    'cloudServices',
-    'applicationEnvironmentServices',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServices, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices) {
-
+  'TopologyRuntimeCtrl', [ '$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
-      // Handle environment list selection + activate only running environments
-      var envs = applicationEnvironmentServices.getAllEnvironments($scope.application.id);
-      envs.then(function handleEnvironmentRuntimeList(newestEnvironments) {
-        var newest = newestEnvironments.data.data;
-        $scope.runtimeEnvironments = [];
-        var runtimeEnvs = [];
-        // keep only deployed environment
-        for (var i = 0; i < newest.length; i++) {
-          if (newest[i].status == 'DEPLOYED') {
-            runtimeEnvs.push(newest[i]);
+      $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
+      // select current environment
+      if(UTILS.isDefinedAndNotNull(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
+        $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
+      } else {
+        $scope.selectedEnvironment = null;
+        for(var i=0; i < appEnvironments.deployEnvironments.length && $scope.selectedEnvironment === null; i++) {
+          if(appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
+            $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
           }
+          appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
         }
-        $scope.runtimeEnvironments = runtimeEnvs;
-        $scope.selectedEnvironment = runtimeEnvs[0];
-        return runtimeEnvs[0].cloudId;
+      }
 
-      }).then(function getLinkedCloud(cloudId) {
-        // get the related cloud
-        $scope.cloudId = cloudId;
-        cloudServices.get({
-          id: cloudId
-        }, function(response) {
-          $scope.cloud = response.data.cloud;
-        });
-
-        // first topology load
-        $scope.loadTopologyRuntime();
+      // get the related cloud to display informations.
+      cloudServices.get({ id: $scope.selectedEnvironment.cloudId }, function(response) {
+        $scope.cloud = response.data.cloud;
       });
 
       var CUSTOM_INTERFACE_NAME = 'custom';
@@ -60,23 +36,18 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [{
-        'value': 'ALL'
-      }, {
-        'value': 'paasdeploymentstatusmonitorevent'
-      }, {
-        'value': 'paasinstancestatemonitorevent'
-      }, {
-        'value': 'paasinstancestoragemonitorevent'
-      }, {
-        'value': 'paasmessagemonitorevent'
-      }];
+      $scope.eventTypeFilters = [ { 'value': 'ALL' },
+        { 'value': 'paasdeploymentstatusmonitorevent' },
+        { 'value': 'paasinstancestatemonitorevent' },
+        { 'value': 'paasinstancestoragemonitorevent' },
+        { 'value': 'paasmessagemonitorevent' }];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
         $scope.selectedEventTypeFilter = filter;
       };
 
+      // Layout resize
       var borderSpacing = 10;
       var border = 2;
       var detailDivWidth = 450;
@@ -98,9 +69,11 @@ angular.module('alienUiApp').controller(
         width: resizeServices.getWidth(widthOffset)
       };
       $scope.eventsDivHeight = resizeServices.getHeight(236);
+      // End Layout resize
 
-      var getPAASEvents = function() {
+      var applicationEventServices = null;
 
+      function getPAASEvents() {
         deploymentServices.getEvents({
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(result) {
@@ -116,11 +89,23 @@ angular.module('alienUiApp').controller(
             }
             $scope.events = result.data;
           }
+          // if we already have a listener then stop it
+          if(applicationEventServices !== null) {
+            applicationEventServices.stop();
+          }
+          applicationEventServices = applicationEventServicesFactory(applicationId, $scope.selectedEnvironment.id);
+          applicationEventServices.start();
           applicationEventServices.subscribe(pageStateId, onStatusChange);
         });
-      };
+      }
 
-      var enrichPAASEvent = function(event) {
+      $scope.$on('$destroy', function() {
+        if(applicationEventServices!==null) {
+          applicationEventServices.stop();
+        }
+      });
+
+      function enrichPAASEvent(event) {
         event.type = $scope.eventTypeLabels[event.rawType];
         switch (event.rawType) {
           case 'paasdeploymentstatusmonitorevent':
@@ -178,9 +163,9 @@ angular.module('alienUiApp').controller(
             };
             break;
         }
-      };
+      }
 
-      var refreshSelectedNodeInstancesCount = function() {
+      function refreshSelectedNodeInstancesCount() {
         if (UTILS.isDefinedAndNotNull($scope.selectedNodeTemplate)) {
           if (UTILS.isDefinedAndNotNull($scope.topology.instances) && UTILS.isDefinedAndNotNull($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
             $scope.selectedNodeTemplate.instancesCount = Object.keys($scope.topology.instances[$scope.selectedNodeTemplate.name]).length;
@@ -191,9 +176,9 @@ angular.module('alienUiApp').controller(
             $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
           }
         }
-      };
+      }
 
-      var refreshInstancesStatuses = function() {
+      function refreshInstancesStatuses() {
         applicationServices.runtime.get({
           applicationId: applicationId,
           applicationEnvironmentId: $scope.selectedEnvironment.id
@@ -204,8 +189,7 @@ angular.module('alienUiApp').controller(
             refreshSelectedNodeInstancesCount();
           }
         });
-      };
-
+      }
 
       /////////////////////////////////////////////////////////////
       // Initialize the view (we have to get the runtime topology)
@@ -267,9 +251,9 @@ angular.module('alienUiApp').controller(
           var propteryDefinitionModel = {};
           var inputParameter = {};
           Object.keys(interfaces.operations).forEach(function(operation) {
-            if (UTILS.isDefinedAndNotNull(interfaces.operations[operation]['inputParameters'])) {
-              Object.keys(interfaces.operations[operation]['inputParameters']).forEach(function(paramName) {
-                inputParameter = interfaces.operations[operation]['inputParameters'][paramName];
+            if (UTILS.isDefinedAndNotNull(interfaces.operations[operation].inputParameters)) {
+              Object.keys(interfaces.operations[operation].inputParameters).forEach(function(paramName) {
+                inputParameter = interfaces.operations[operation].inputParameters[paramName];
                 if (inputParameter.definition) {
                   propteryDefinitionModel = {};
                   propteryDefinitionModel.type = inputParameter.type;
@@ -279,16 +263,16 @@ angular.module('alienUiApp').controller(
                   propteryDefinitionModel.password = false;
                   propteryDefinitionModel.constraints = null;
                   propteryDefinitionModel.from = operation;
-                  if (inputParameter.type == 'boolean') {
+                  if (inputParameter.type === 'boolean') {
                     inputParameter.paramValue = false;
                   }
-                  if (inputParameter.type == 'timestamp') {
+                  if (inputParameter.type === 'timestamp') {
                     inputParameter.paramValue = Date.now();
                   }
                   inputParameter.definitionModel = propteryDefinitionModel;
                 } else {
                   //we don't want function type params in the ui
-                  delete interfaces.operations[operation]['inputParameters'][paramName];
+                  delete interfaces.operations[operation].inputParameters[paramName];
                 }
               });
             }
@@ -298,7 +282,7 @@ angular.module('alienUiApp').controller(
 
       };
 
-      $scope.checkProperty = function(definition, value, operation) {
+      $scope.checkProperty = function(definition, value) {
 
         var checkPropertyRequest = {
           'propertyId': definition.name,
@@ -314,7 +298,7 @@ angular.module('alienUiApp').controller(
             // Constraint error display + translation
             var constraintInfo = successResult.data;
             var errorMessage = null;
-            if (successResult.error.code == 804) {
+            if (successResult.error.code === 804) {
               errorMessage = $translate('ERRORS.' + successResult.error.code, constraintInfo);
             } else { // 800
               errorMessage = $translate('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
@@ -325,7 +309,7 @@ angular.module('alienUiApp').controller(
           }
         }).$promise;
 
-      }
+      };
 
       $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
         if (oldSelectedName) {
@@ -403,8 +387,7 @@ angular.module('alienUiApp').controller(
 
         // prepare parameters and operationParamDefinitions
         var preparedParams = {};
-        var preparedPramsDef = {};
-        if (params != null) {
+        if (params !== null) {
           Object.keys(params).forEach(function(param) {
             preparedParams[params[param].definitionModel.name] = params[param].paramValue;
           });
@@ -439,11 +422,11 @@ angular.module('alienUiApp').controller(
             // 804 : type constraint for a property definition
             // 805 : required constraint for a property definition
             // 371 : Operation exception
-            if (successResult.error.code == 804 || successResult.error.code == 805) { // Type matching error
+            if (successResult.error.code === 804 || successResult.error.code === 805) { // Type matching error
               message = $translate('ERRORS.' + successResult.error.code + '.MESSAGE', successResult.data);
-            } else if (successResult.error.code == 800) { // Constraint error
+            } else if (successResult.error.code === 800) { // Constraint error
               var constraintInfo = successResult.data;
-              message = $translate('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo)
+              message = $translate('ERRORS.' + successResult.error.code + '.' + constraintInfo.name, constraintInfo);
             } else { // code 371, execution error
               message = successResult.error.message;
             }
@@ -468,8 +451,7 @@ angular.module('alienUiApp').controller(
           }
 
         }, function(errorResult) {
-          // error
-          console.error('executeOperation ERROR');
+          console.error('executeOperation ERROR', errorResult);
           $scope.operationLoading[$scope.selectedNodeTemplate.name][operationName] = false;
         });
 
@@ -486,5 +468,7 @@ angular.module('alienUiApp').controller(
         return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
       };
 
+      // first topology load
+      $scope.loadTopologyRuntime();
     }
   ]);

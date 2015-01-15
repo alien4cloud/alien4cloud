@@ -225,8 +225,6 @@ public class DeploymentService {
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
         paaSProvider.undeploy(deploymentContext, null);
-        deployment.setEndDate(new Date());
-        alienDao.save(deployment);
         log.info("Un-deployed deployment [{}] on cloud [{}]", deploymentId, cloudId);
     }
 

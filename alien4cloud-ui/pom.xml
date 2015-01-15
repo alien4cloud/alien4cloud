@@ -34,6 +34,8 @@
     </dependency>
   </dependencies>
 
+  
+  
   <build>
     <sourceDirectory>yo/app/scripts</sourceDirectory>
     <resources>

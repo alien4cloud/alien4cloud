@@ -245,16 +245,7 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     };
 
     //get the icon
-    $scope.getIcon = function(tags) {
-      for (var i in tags) {
-        if (tags.hasOwnProperty(i)) {
-          var tag = tags[i];
-          if (tag.name === 'icon') {
-            return tag.value;
-          }
-        }
-      }
-    };
+    $scope.getIcon = UTILS.getIcon;
 
     /**
      *
