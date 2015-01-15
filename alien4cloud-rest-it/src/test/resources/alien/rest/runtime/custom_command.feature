@@ -26,21 +26,21 @@ Background:
   And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
 
 Scenario: Trigger a custom command other than [updateWar,updateWarFile, addNode] on apache LB node and throw an operation failed error
-  When I trigger on the node template "apacheLBGroovy" the custom command "removeNode" of the interface "custom" on the cloud "Mount doom cloud"
+  When I trigger on the node template "apacheLBGroovy" the custom command "removeNode" of the interface "custom" on the cloud "Mount doom cloud" for "ALIEN"
   Then I should receive a RestResponse with an error code 371
 
 Scenario: Trigger a custom command updateWarFile on an deployed application with success
-  When I trigger on the node template "apacheLBGroovy" the custom command "updateWarFile" of the interface "custom" on the cloud "Mount doom cloud"
+  When I trigger on the node template "apacheLBGroovy" the custom command "updateWarFile" of the interface "custom" on the cloud "Mount doom cloud" for "ALIEN"
   Then The operation response should contain the result "OK" for instance "1"
 
 Scenario: Trigger a custom command updateWar on an deployed application with missing parameters error
-  When I trigger on the node template "apacheLBGroovy" the custom command "updateWar" of the interface "custom" on the cloud "Mount doom cloud"
+  When I trigger on the node template "apacheLBGroovy" the custom command "updateWar" of the interface "custom" on the cloud "Mount doom cloud" for "ALIEN"
   Then I should receive a RestResponse with an error code 805
 
 Scenario: Trigger a custom command failure: interface not existing
-  When I trigger on the node template "apacheLBGroovy" the custom command "addNode" of the interface "IDoNotSeeYou" on the cloud "Mount doom cloud"
+  When I trigger on the node template "apacheLBGroovy" the custom command "addNode" of the interface "IDoNotSeeYou" on the cloud "Mount doom cloud" for "ALIEN"
   Then I should receive a RestResponse with an error code 504 and a message containing "Interface [IDoNotSeeYou] not found in the node template [apacheLBGroovy]"
 
 Scenario: Trigger a custom command failure: operation not defined in interface
-  When I trigger on the node template "apacheLBGroovy" the custom command "virtualCommand" of the interface "custom" on the cloud "Mount doom cloud"
+  When I trigger on the node template "apacheLBGroovy" the custom command "virtualCommand" of the interface "custom" on the cloud "Mount doom cloud" for "ALIEN"
   Then I should receive a RestResponse with an error code 504 and a message containing "Operation [virtualCommand] is not defined in the interface [custom] of the node [apacheLBGroovy]"
