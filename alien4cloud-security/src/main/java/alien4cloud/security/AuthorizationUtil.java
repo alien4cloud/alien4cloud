@@ -72,7 +72,7 @@ public final class AuthorizationUtil {
      * @param expectedRoles
      */
     public static void checkAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
-        if (!hasAuthorizationForCloud(resource, expectedRoles)) {
+        if (!hasAuthorizationForEnvironment(resource, expectedRoles)) {
             throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
                     + "> has no authorization to perform the requested operation on this cloud.");
         }

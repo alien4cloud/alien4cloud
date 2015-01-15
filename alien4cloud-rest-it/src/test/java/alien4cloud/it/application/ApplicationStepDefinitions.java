@@ -68,16 +68,17 @@ public class ApplicationStepDefinitions {
     }
 
     @SuppressWarnings("rawtypes")
-    private void setAppEnvironmentIdToContext(String appId) throws JsonProcessingException, IOException {
+    private void setAppEnvironmentIdToContext(String applicationName) throws JsonProcessingException, IOException {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
         SearchRequest request = new SearchRequest();
         request.setFrom(0);
         request.setSize(10);
-        String applicationEnvironmentsJson = Context.getRestClientInstance().postJSon("/rest/applications/" + appId + "/environments/search",
+        String applicationEnvironmentsJson = Context.getRestClientInstance().postJSon("/rest/applications/" + applicationId + "/environments/search",
                 JsonUtil.toString(request));
         RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(applicationEnvironmentsJson, GetMultipleDataResult.class);
         GetMultipleDataResult searchResp = restResponse.getData();
         ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
-        Context.getInstance().registerApplicationEnvironmentId(appEnvDTO.getName(), appEnvDTO.getId());
+        Context.getInstance().registerApplicationEnvironmentId(applicationName, appEnvDTO.getName(), appEnvDTO.getId());
     }
 
     @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\"$")
@@ -90,10 +91,11 @@ public class ApplicationStepDefinitions {
         CURRENT_APPLICATION = (application.getData() == null) ? new Application() : application.getData();
 
         Context.getInstance().registerApplication(CURRENT_APPLICATION);
+        Context.getInstance().registerApplicationId(CURRENT_APPLICATION.getName(), CURRENT_APPLICATION.getId());
         if (application.getData() != null) {
             String appId = application.getData().getId();
             setAppVersionIdToContext(appId);
-            setAppEnvironmentIdToContext(appId);
+            setAppEnvironmentIdToContext(application.getData().getName());
             String topologyId = getTopologyIdFromApplication(appId);
             Context.getInstance().registerTopologyId(topologyId);
             Context.getInstance().registerApplicationId(name, appId);
@@ -134,7 +136,7 @@ public class ApplicationStepDefinitions {
         CURRENT_APPLICATION = application;
         Context.getInstance().registerApplication(application);
         Context.getInstance().registerApplicationId(name, application.getId());
-        setAppEnvironmentIdToContext(application.getId());
+        setAppEnvironmentIdToContext(application.getName());
 
         assertNotNull(getTopologyIdFromApplication(application.getId()));
 
@@ -218,12 +220,12 @@ public class ApplicationStepDefinitions {
         CreateApplicationRequest request = new CreateApplicationRequest(applicationName, "", null);
         String responseAsJson = Context.getRestClientInstance().postJSon("/rest/applications/", JsonUtil.toString(request));
         String applicationId = JsonUtil.read(responseAsJson, String.class).getData();
-
+        Context.getInstance().registerApplicationId(applicationName, applicationId);
         // Add tags to the application
         for (List<String> rows : tags.raw()) {
             addTag(applicationId, rows.get(0), rows.get(1));
         }
-        setAppEnvironmentIdToContext(applicationId);
+        setAppEnvironmentIdToContext(applicationName);
         Context.getInstance().registerRestResponse(responseAsJson);
     }
 
@@ -413,7 +415,8 @@ public class ApplicationStepDefinitions {
             String applicationJson = Context.getRestClientInstance().get("/rest/applications/" + reponse.getData());
             RestResponse<Application> application = JsonUtil.read(applicationJson, Application.class);
             CURRENT_APPLICATIONS.put(app.get(0), application.getData());
-            setAppEnvironmentIdToContext(application.getData().getId());
+            Context.getInstance().registerApplicationId(application.getData().getName(), application.getData().getId());
+            setAppEnvironmentIdToContext(application.getData().getName());
         }
 
         assertEquals(CURRENT_APPLICATIONS.size(), applicationNames.raw().size());
@@ -530,14 +533,14 @@ public class ApplicationStepDefinitions {
                         JsonUtil.toString(appEnvRequest)));
         RestResponse<String> appEnvId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
         if (appEnvId.getData() != null) {
-            Context.getInstance().registerApplicationEnvironmentId(appEnvName, appEnvId.getData());
+            Context.getInstance().registerApplicationEnvironmentId(CURRENT_APPLICATION.getName(), appEnvName, appEnvId.getData());
         }
     }
 
     @When("^I get the application environment named \"([^\"]*)\"$")
     public void I_get_the_application_environment_named(String applicationEnvironmentName) throws Throwable {
         Assert.assertNotNull(CURRENT_APPLICATION);
-        String applicationEnvId = Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName);
+        String applicationEnvId = Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get("/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/" + applicationEnvId));
         RestResponse<ApplicationEnvironment> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), ApplicationEnvironment.class);
@@ -574,7 +577,8 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon(
                         "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
-                                + Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName), JsonUtil.toString(appEnvRequest)));
+                                + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName),
+                        JsonUtil.toString(appEnvRequest)));
     }
 
     @When("^I delete the registered application environment named \"([^\"]*)\" from its id$")
@@ -582,7 +586,7 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete(
                         "/rest/applications/" + CURRENT_APPLICATION.getId() + "/environments/"
-                                + Context.getInstance().getApplicationEnvironmentId(applicationEnvironmentName)));
+                                + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName)));
         RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
         Assert.assertNotNull(appEnvironment.getData());
     }
