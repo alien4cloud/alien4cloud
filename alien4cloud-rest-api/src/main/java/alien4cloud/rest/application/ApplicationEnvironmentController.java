@@ -423,9 +423,11 @@ public class ApplicationEnvironmentController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
                 ApplicationRole.APPLICATION_MANAGER);
-        AuthorizationUtil.checkAuthorizationForApplication(applicationEnvironment, ApplicationEnvironmentRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
         return RestResponseBuilder.<String> builder().data(topologyId).build();
     }

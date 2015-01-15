@@ -217,7 +217,9 @@ public class ApplicationDeploymentController {
 
     private ListenableFuture<DeploymentStatus> getApplicationDeploymentStatus(Application application, String applicationEnvironmentId) {
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
+        }
 
         final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
         Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
