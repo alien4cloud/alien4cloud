@@ -88,7 +88,7 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
             List<T> hits = Lists.newArrayList();
             for (int i = 0; i < response.getHits().getHits().length; i++) {
                 String hit = response.getHits().getAt(i).sourceAsString();
-                hits.add(getJsonMapper().readValue(hit, clazz));
+                hits.add((T) getJsonMapper().readValue(hit, getClassFromType(response.getHits().getAt(i).getType())));
             }
             return hits;
         }

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -47,6 +48,7 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
@@ -220,10 +222,24 @@ public class CloudServiceArchiveController {
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
 
-        // TODO check if some of the nodes are used in topologies.
+        // a csar that is a dependency of another csar can not be deleted
+        Csar[] result = csarService.getDependantCsars(csar.getName(), csar.getVersion());
+        if (result != null && result.length > 0) {
+            throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+        }
+
+        // check if some of the nodes are used in topologies.
+        Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
+        if (topologies != null && topologies.length > 0) {
+            throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+        }
+        // latest version indicator will be recomputed to match this new reality
         indexerService.deleteElements(csar.getName(), csar.getVersion());
 
         csarDAO.delete(Csar.class, csarId);
+
+        // physically delete files
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
         return RestResponseBuilder.<Void> builder().build();
     }
 

@@ -34,15 +34,14 @@ public class LdapAuthenticationProviderTest extends AbstractLdapTest {
     public void testLdapUserImport() throws NamingException {
         Mockito.when(ldapTemplate.getContextSource()).thenReturn(Mockito.mock(ContextSource.class));
         int userCount = 10;
-        List<User> users = prepareGetAllUserMock(userCount, true);
+        List<User> users = prepareGetAllUserMock(userCount);
 
         // for each user we should check if it exists in the user repository and only if not then we add it.
-        int saveCount = 0;
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             if (i % 2 == 0) {
-                Mockito.when(alienUserDao.find(user.getUsername())).thenReturn(null);
-                saveCount++;
+                user.setLastName("test");
+                Mockito.when(alienUserDao.find(user.getUsername())).thenReturn(user);
             } else {
                 Mockito.when(alienUserDao.find(user.getUsername())).thenReturn(user);
             }
@@ -50,7 +49,7 @@ public class LdapAuthenticationProviderTest extends AbstractLdapTest {
 
         ldapAuthenticationProvider.importLdapUsers();
 
-        Mockito.verify(alienUserDao, Mockito.times(saveCount)).save(Mockito.any(User.class));
+        Mockito.verify(alienUserDao, Mockito.times(users.size())).save(Mockito.any(User.class));
     }
 
     @Test

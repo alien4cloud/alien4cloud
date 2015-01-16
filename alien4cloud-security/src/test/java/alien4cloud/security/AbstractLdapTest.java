@@ -22,17 +22,17 @@ import alien4cloud.security.User;
  * @author luc boutier
  */
 public class AbstractLdapTest {
-    @Value("${ldap.userIdKey}")
+    @Value("${ldap.mapping.id}")
     private String userIdKey;
-    @Value("${ldap.userFirstNameKey}")
+    @Value("${ldap.mapping.firstname}")
     private String userFirstNameKey;
-    @Value("${ldap.userLastNameKey}")
+    @Value("${ldap.mapping.lastname}")
     private String userLastNameKey;
-    @Value("${ldap.userEmailKey}")
+    @Value("${ldap.mapping.email}")
     private String userEmailKey;
-    @Value("${ldap.userActiveKey}")
+    @Value("${ldap.mapping.active.key}")
     private String userActiveKey;
-    @Value("${ldap.userActiveValue}")
+    @Value("${ldap.mapping.active.value}")
     private String userActiveValue;
 
     @Resource
@@ -74,11 +74,9 @@ public class AbstractLdapTest {
      * @return The list of users that the ldap template will return.
      * @throws NamingException
      */
-    public List<User> prepareGetAllUserMock(int userCount, boolean onlyActive) throws NamingException {
+    public List<User> prepareGetAllUserMock(int userCount) throws NamingException {
         List<User> userList = createUserList(userCount);
-        String filter = onlyActive ? "(&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource))(accountStatus=active))"
-                : "(&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource)))";
-        System.out.println("filter: " + filter);
+        String filter = "(&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource))(accountStatus=active))";
         Mockito.when(ldapTemplate.search("", filter, attributeMapper)).thenReturn(userList);
         return userList;
     }

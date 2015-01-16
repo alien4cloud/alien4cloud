@@ -26,9 +26,9 @@ public class LdapUserDaoTest extends AbstractLdapTest {
     @Test
     public void getAllUsers() throws NamingException {
         int userCount = 10;
-        prepareGetAllUserMock(userCount, false);
+        prepareGetAllUserMock(userCount);
 
-        List<User> users = ldapUserDao.getUsers(false);
+        List<User> users = ldapUserDao.getUsers();
         Assert.assertEquals(userCount, users.size());
     }
 
@@ -38,7 +38,7 @@ public class LdapUserDaoTest extends AbstractLdapTest {
         List<User> userList = createUserList(userCount);
 
         String userName = userList.get(0).getUsername();
-        String filter = "(&(objectClass=person)(objectClass=hordePerson)(!(objectClass=CalendarResource))(uid=" + userName + "))";
+        String filter = "(uid=" + userName + ")";
 
         Mockito.when(ldapTemplate.search("", filter, attributeMapper)).thenReturn(Lists.newArrayList(userList.get(0)));
 

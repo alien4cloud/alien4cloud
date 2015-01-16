@@ -10,10 +10,11 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.Id;
+import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.query.TermFilter;
 
-import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.utils.JSonMapEntryArrayDeSerializer;
 import alien4cloud.utils.JSonMapEntryArraySerializer;
 
@@ -42,6 +43,8 @@ public class Topology implements IManagedSecuredResource {
     private String delegateType;
 
     /** The list of dependencies of this topology. */
+    @TermFilter(paths = { "name", "version" })
+    @NestedObject(nestedClass = CSARDependency.class)
     private Set<CSARDependency> dependencies = Sets.newHashSet();
 
     @TermFilter(paths = "value.type")

@@ -20,7 +20,7 @@ public class MixingComponentVersionsDefinitionsSteps {
     @Then("^The response should contains (\\d+) elements from various types of version \"([^\"]*)\" and older versions are$")
     public void The_response_should_contains_elements_from_various_types_of_version_and_older_versions_are(int expectedElementSize, String expectedVersion,
             List<String> expectedOlderVersions) throws Throwable {
-        Set<String> expectedOlderVersionsSet = Sets.newHashSet(expectedOlderVersions);
+        Set<String> expectedOlderVersionsSet = (expectedOlderVersions == null) ? null : Sets.newHashSet(expectedOlderVersions);
         SearchDefinitionSteps searchDefinitionSteps = new SearchDefinitionSteps();
         searchDefinitionSteps.The_response_should_contains_elements_from_various_types(expectedElementSize);
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), FacetedSearchResult.class);
@@ -36,6 +36,11 @@ public class MixingComponentVersionsDefinitionsSteps {
                 Assert.assertEquals(expectedOlderVersionsSet, Sets.newHashSet(actualOlderVersions));
             }
         }
+    }
+
+    @Then("^The response should contains (\\d+) elements from various types of version \"([^\"]*)\"$")
+    public void The_response_should_contains_elements_from_various_types_of_version(int expectedElementSize, String expectedVersion) throws Throwable {
+        The_response_should_contains_elements_from_various_types_of_version_and_older_versions_are(expectedElementSize, expectedVersion, null);
     }
 
 }
