@@ -24,14 +24,14 @@ public class RuntimeStepDefinitions {
     private ApplicationStepDefinitions appSteps = new ApplicationStepDefinitions();
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
 
-    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\" for \"([^\"]*)\"$")
+    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\"$")
     public void I_have_an_application_with_a_topology_containing_a_nodeTemplate_related_to(String applicationName, String nodeTemplateName, String nodeTypeId)
             throws Throwable {
         appSteps.I_have_an_application_with_name(applicationName);
         topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeTemplateName, nodeTypeId);
     }
 
-    @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" on the cloud \"([^\"]*)\"$")
+    @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" on the cloud \"([^\"]*)\" for \"([^\"]*)\"$")
     public void I_trigger_on_the_node_template_the_custom_command_of_the_interface_on_the_cloud(String nodeTemplateName, String commandName,
             String interfaceName, String cloudName, String appName) throws Throwable {
         OperationExecRequest commandRequest = new OperationExecRequest();
@@ -57,7 +57,9 @@ public class RuntimeStepDefinitions {
         Context context = Context.getInstance();
         NameValuePair nvp = new BasicNameValuePair("cloudId", Context.getInstance().getCloudId(cloudName));
         String applicationId = Context.getInstance().getApplication().getId();
-        context.registerRestResponse(Context.getRestClientInstance().getUrlEncoded("/rest/runtime/" + applicationId + "/topology", Lists.newArrayList(nvp)));
+        context.registerRestResponse(Context.getRestClientInstance().getUrlEncoded(
+                "/rest/runtime/" + applicationId + "/environment/" + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/topology",
+                Lists.newArrayList(nvp)));
 
     }
 
