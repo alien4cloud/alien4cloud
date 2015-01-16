@@ -141,11 +141,6 @@ var giveRightsOnCloudToGroup = function(cloudName, group, cloudRole) {
 };
 module.exports.giveRightsOnCloudToGroup = giveRightsOnCloudToGroup;
 
-var goToCloudDetailDetails = function() {
-  element(by.id('tab-clouds-details')).element(by.tagName('a')).click();
-};
-module.exports.goToCloudDetailDetails = goToCloudDetailDetails;
-
 var goToCloudDetailImage = function() {
   element(by.id('tab-clouds-image')).element(by.tagName('a')).click();
 };

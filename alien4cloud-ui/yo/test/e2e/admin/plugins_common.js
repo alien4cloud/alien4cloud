@@ -26,6 +26,7 @@ module.exports.goToPluginsPage = goToPluginsPage;
 var pluginsUploadInit = function() {
   goToPluginsPage();
   uploadTestMockPaasPlugin();
+  common.dismissAlertIfPresent();
 };
 module.exports.pluginsUploadInit = pluginsUploadInit;
 
