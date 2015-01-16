@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var alienApp = angular.module('alienUiApp');

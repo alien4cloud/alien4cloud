@@ -91,12 +91,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             });
           }
         ],
-        // applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'appEnvironments',
-        //   function(applicationEventServicesFactory, $stateParams, appEnvironments) {
-        //     // this supposes you have at least one environment
-        //     return applicationEventServicesFactory($stateParams.id, appEnvironments[0].id);
-        //   }
-        // ],
         appVersions: ['$http', 'application', 'applicationVersionServices',
           function($http, application, applicationVersionServices) {
             var searchAppVersionRequestObject = {

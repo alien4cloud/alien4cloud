@@ -119,6 +119,7 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
 
     return {
       'create': applicationEnvironmentResource.create,
+      'get': applicationEnvironmentMiscResource.get,
       'delete': applicationEnvironmentMiscResource.delete,
       'update': applicationEnvironmentMiscResource.update,
       'environmentTypeList': envEnumTypes.get,

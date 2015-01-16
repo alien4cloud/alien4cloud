@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthService', '$scope', '$resource', '$stateParams', 'componentTagUpdate', 'componentTagDelete', '$modal', 'suggestionServices',
@@ -284,7 +286,7 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     };
 
     $scope.openSimpleModal = function (content) {
-      var modalInstance = $modal.open({
+      $modal.open({
         templateUrl: 'views/fragments/simple_modal.html',
         controller: ModalInstanceCtrl,
         resolve: {

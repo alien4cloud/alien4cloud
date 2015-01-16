@@ -107,7 +107,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public DeploymentStatus doGetStatus(String deploymentId) {
+    public DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed) {
         if (deploymentsMap.containsKey(deploymentId)) {
             return deploymentsMap.get(deploymentId);
         } else {
@@ -121,7 +121,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                 return DeploymentStatus.UNKNOWN;
             } else {
                 // application is not deployed and but there is a deployment in alien so trigger the undeployed event to update status.
-                doChangeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
+                if(triggerEventIfUndeployed) {
+                    doChangeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
+                }
                 return DeploymentStatus.UNDEPLOYED;
             }
         }

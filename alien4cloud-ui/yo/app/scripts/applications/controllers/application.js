@@ -3,8 +3,6 @@
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
     environmentEventServicesFactory) {
-    var environments = appEnvironments.environments;
-    appEnvironments.deployEnvironments = [];
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -19,19 +17,20 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       state: 'applications.detail.runtime',
       key: 'NAVAPPLICATIONS.MENU_RUNTIME',
       icon: 'fa fa-cogs',
-      show: (isManager || isDeployer)
+      show: false
     };
-    var updateRuntimeDisabled = function() {
+
+    function updateRuntimeDisabled() {
       // get newest environments statuses
       var disabled = true;
-      for(var i=0; i < environments.length && disabled; i++) {
-        if ( !(environments[i].status === 'UNDEPLOYED' || environments[i].status === 'UNKNOWN') ) {
+      for(var i=0; i < appEnvironments.environments.length && disabled; i++) {
+        if ( !(appEnvironments.environments[i].status === 'UNDEPLOYED' || appEnvironments.environments[i].status === 'UNKNOWN') ) {
           disabled = false;
         }
       }
       runtimeMenuItem.show = (isManager || isDeployer);
       runtimeMenuItem.disabled = disabled;
-    };
+    }
 
     var callback = function (environment, event) {
       environment.status = event.deploymentStatus;
@@ -40,13 +39,76 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.$digest();
     };
 
-    var eventRegistrations = [];
-    // for every environement register for deployment status update for enrichment.
-    for(var i=0; i<environments.length; i++) {
-      var environment = environments[i];
+    function registerEnvironment(environment) {
       var registration = environmentEventServicesFactory(application.id, environment, callback);
-      eventRegistrations.push(registration);
-      var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER')
+      appEnvironments.eventRegistrations.push(registration);
+      var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
+      if(isManager || isEnvDeployer) {
+        appEnvironments.deployEnvironments.push(environment);
+      }
+      isDeployer = isDeployer || isEnvDeployer;
+    }
+
+    appEnvironments.deployEnvironments = [];
+    appEnvironments.eventRegistrations = [];
+    appEnvironments.removeEnvironment = function (environmentId) {
+      var envIndex = null, i;
+      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if(appEnvironments.environments[i].id === environmentId) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.environments.splice(envIndex, 1);
+        appEnvironments.eventRegistrations.splice(envIndex, 1);
+      }
+      // eventually remove the environment from deployable environments
+      envIndex = null;
+      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if(appEnvironments.deployEnvironments[i].id === environmentId) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.deployEnvironments.splice(envIndex, 1);
+      }
+    };
+    appEnvironments.addEnvironment = function (environment) {
+      appEnvironments.environments.push(environment);
+      registerEnvironment(environment);
+      updateRuntimeDisabled();
+    };
+    appEnvironments.updateEnvironment = function (environment) {
+      // replace the environment with the one given as a parameter.
+      var envIndex = null;
+      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if(appEnvironments.environments[i].id === environment.id) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.environments.splice(envIndex, 1, environment);
+      }
+      envIndex = null;
+      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if(appEnvironments.deployEnvironments[i].id === environment.id) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        console.log('update deploy environment');
+        console.log('was ', appEnvironments.deployEnvironments[envIndex]);
+        appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
+        console.log('is  ', appEnvironments.deployEnvironments[envIndex]);
+      }
+    };
+
+    // for every environement register for deployment status update for enrichment.
+    for(var i=0; i< appEnvironments.environments.length; i++) {
+      var environment = appEnvironments.environments[i];
+      var registration = environmentEventServicesFactory(application.id, environment, callback);
+      appEnvironments.eventRegistrations.push(registration);
+      var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
       if(isManager || isEnvDeployer) {
         appEnvironments.deployEnvironments.push(environment);
       }
@@ -54,12 +116,12 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     }
     updateRuntimeDisabled();
     // get environments
-    $scope.envs = environments;
+    $scope.envs = appEnvironments.environments;
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {
-      for(var i=0; i < eventRegistrations.length; i++) {
-        eventRegistrations[i].close();
+      for(var i=0; i < appEnvironments.eventRegistrations.length; i++) {
+        appEnvironments.eventRegistrations[i].close();
       }
     });
 

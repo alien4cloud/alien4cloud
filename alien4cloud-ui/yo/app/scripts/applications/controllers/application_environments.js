@@ -1,4 +1,3 @@
-/* global UTILS */
 'use strict';
 
 var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
@@ -23,11 +22,11 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory) {
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments) {
 
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function(successResponse) {});
+    $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 
     // Application versions search
     var searchVersions = function() {
@@ -66,7 +65,16 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         applicationEnvironmentServices.create({
           applicationId: $scope.application.id
         }, angular.toJson(environment), function(successResponse) {
-          $scope.search();
+          $scope.search().then(function(searchResult){
+            var environments = searchResult.data.data;
+            var pushed = false;
+            for(var i=0; i < environments.length && !pushed; i++) {
+              if(environments[i].id === successResponse.data) {
+                appEnvironments.addEnvironment(environments[i]);
+                pushed = true;
+              }
+            }
+          });
         });
       });
     };
@@ -94,6 +102,9 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
           applicationId: $scope.application.id,
           applicationEnvironmentId: appEnvId
         }, null, function deleteAppEnvironment(result) {
+          if(result.data) {
+            appEnvironments.removeEnvironment(appEnvId);
+          }
           $scope.search();
         });
       }
@@ -105,12 +116,25 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
           return $scope.versions[i].id;
         }
       }
-    }
+    };
 
     var getCloudIdByName = function(name) {
       for (var i = 0; i < $scope.clouds.length; i++) {
         if ($scope.clouds[i].name === name) {
           return $scope.clouds[i].id;
+        }
+      }
+    };
+
+    function updateEnvironment(environmentId, fieldName, fieldValue) {
+      // update the environments
+      var done = false;
+      for(var i=0; i < $scope.searchAppEnvResult.length && !done; i++) {
+        var environment = $scope.searchAppEnvResult[i];
+        if(environment.id === environmentId) {
+          environment[fieldName] = fieldValue;
+          appEnvironments.updateEnvironment(environment);
+          done = true;
         }
       }
     }
@@ -119,24 +143,24 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
       if (fieldName !== 'name' || fieldValue !== oldValue) {
         var updateApplicationEnvironmentRequest = {};
 
+        var realFieldValue = fieldValue;
         if (fieldName === 'currentVersionId') {
-          updateApplicationEnvironmentRequest[fieldName] = getVersionIdByName(fieldValue);
+          realFieldValue = getVersionIdByName(fieldValue);
         } else if (fieldName === 'cloudId') {
-          updateApplicationEnvironmentRequest[fieldName] = getCloudIdByName(fieldValue);
-        } else {
-          updateApplicationEnvironmentRequest[fieldName] = fieldValue;
+          realFieldValue = getCloudIdByName(fieldValue);
         }
+        updateApplicationEnvironmentRequest[fieldName] = realFieldValue;
 
         return applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
           applicationEnvironmentId: environmentId,
-        }, angular.toJson(updateApplicationEnvironmentRequest), undefined).$promise.then({},
-          function(errorResponse) {
+        }, angular.toJson(updateApplicationEnvironmentRequest), function() {
+          updateEnvironment(environmentId, fieldName, realFieldValue);
+        }, function(errorResponse) {
             return $translate('ERRORS.' + errorResponse.data.error.code);
           }
         );
       }
     };
-
   }
 ]);

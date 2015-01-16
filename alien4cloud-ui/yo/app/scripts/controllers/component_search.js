@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter', 'facetedSearch', '$location', 'searchContext', 'alienAuthService', '$resource', function($scope, $filter, facetedSearch, $location, searchContext, alienAuthService, $resource) {
