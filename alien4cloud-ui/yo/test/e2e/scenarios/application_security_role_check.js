@@ -55,15 +55,19 @@ describe('Security management on applications for application manager', function
   };
 
   var checkApplicationDeploymentManagerAccess = function() {
+    console.log('----------------------- DEPLOYMENT MANAGER');
     authentication.reLogin(authentication.users.sauron.username);
     applications.goToApplicationDetailPage(applicationName);
+
     // It must has access to every tab of the application
-    navigation.isNotNavigable('applications', 'topology');
-    navigation.isNotNavigable('applications', 'plan');
+    checkAccess('info');
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
+
+    navigation.isNotNavigable('applications', 'topology');
+    navigation.isNotNavigable('applications', 'plan');
     navigation.isNotNavigable('applications', 'users');
-    checkAccess('info');
+
   };
 
   var checkApplicationDevOpsAccess = function() {
@@ -90,7 +94,7 @@ describe('Security management on applications for application manager', function
     checkAccess('info');
   };
 
-  it('should be able to navigate as an application manager in the application if user has this right', function() {
+  xit('should be able to navigate as an application manager in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application manager in the application if user has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -109,12 +113,12 @@ describe('Security management on applications for application manager', function
     checkApplicationManagerAccess();
   });
 
-  xit('should be able to navigate as an application deployment manager in the application if user has this right', function() {
+  it('should be able to navigate as an application deployment manager in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application deployment manager in the application if user has this right');
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
-    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.envRoles.deploymentManager);
+    rolesCommon.editUserRoleForAnEnv(authentication.users.sauron.username, rolesCommon.envRoles.deploymentManager);
     checkApplicationDeploymentManagerAccess();
   });
 
@@ -124,7 +128,7 @@ describe('Security management on applications for application manager', function
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
-    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.envRoles.deploymentManager);
+    rolesCommon.editGroupRoleForAnEnv(users.groups.mordor.name, rolesCommon.envRoles.deploymentManager);
     checkApplicationDeploymentManagerAccess();
   });
 

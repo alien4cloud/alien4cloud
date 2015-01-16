@@ -423,9 +423,9 @@ public class ApplicationEnvironmentController {
     public RestResponse<String> getTopologyId(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationEnvironment environment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+        ApplicationEnvironment environment = applicationEnvironmentService
+                .checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.values())) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);

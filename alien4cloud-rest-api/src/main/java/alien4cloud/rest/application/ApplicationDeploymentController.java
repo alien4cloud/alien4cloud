@@ -383,11 +383,18 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<DeploymentSetup> builder().data(getDeploymentSetup(application, applicationEnvironmentId)).build();
     }
 
+    /**
+     * Get the deployment setup
+     * (environment right check done before method call)
+     * 
+     * @param application
+     * @param applicationEnvironmentId
+     * @return
+     */
     private DeploymentSetup getDeploymentSetup(Application application, String applicationEnvironmentId) {
 
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        AuthorizationUtil.checkAuthorizationForApplication(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
 
         DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
