@@ -105,6 +105,18 @@ public class ApplicationEnvironmentService {
     }
 
     /**
+     * Get all environments for a given application
+     *
+     * @param versionId The id of the application for which to get environments.
+     * @return An array of the environments for the requested application id.
+     */
+    public ApplicationEnvironment[] getByVersionId(String versionId) {
+        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
+                MapUtil.newHashMap(new String[] { "currentVersionId" }, new String[][] { new String[] { versionId } }), Integer.MAX_VALUE);
+        return result.getData();
+    }
+
+    /**
      * Delete a version and the related topologies.
      *
      * @param id The id of the version to delete.

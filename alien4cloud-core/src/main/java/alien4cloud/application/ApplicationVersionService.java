@@ -85,6 +85,18 @@ public class ApplicationVersionService {
     }
 
     /**
+     * Get the version from a topology id
+     *
+     * @param topologyId The id of the application for which to get environments.
+     * @return An array of the applications versions for the requested application id.
+     */
+    public ApplicationVersion getByTopologyId(String topologyId) {
+        GetMultipleDataResult<ApplicationVersion> result = alienDAO.find(ApplicationVersion.class,
+                MapUtil.newHashMap(new String[] { "topologyId" }, new String[][] { new String[] { topologyId } }), Integer.MAX_VALUE);
+        return (result.getData() == null || result.getData().length != 1) ? null : result.getData()[0];
+    }
+
+    /**
      * Get all application versions snapshot for a given application
      *
      * @param applicationId The id of the application for which to get environments.
