@@ -154,12 +154,11 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         return applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
           applicationEnvironmentId: environmentId,
-        }, angular.toJson(updateApplicationEnvironmentRequest), function() {
+        }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function() {
           updateEnvironment(environmentId, fieldName, realFieldValue);
         }, function(errorResponse) {
-            return $translate('ERRORS.' + errorResponse.data.error.code);
-          }
-        );
+          return $translate('ERRORS.' + errorResponse.data.error.code);
+        });
       }
     };
   }
