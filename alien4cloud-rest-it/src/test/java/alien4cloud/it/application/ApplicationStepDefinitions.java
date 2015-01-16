@@ -140,7 +140,7 @@ public class ApplicationStepDefinitions {
         Context.getInstance().registerApplicationId(name, application.getId());
         setAppEnvironmentIdToContext(application.getName());
 
-        assertNotNull(getTopologyIdFromApplication(application.getId()));
+        assertNotNull(getTopologyIdFromApplication(application.getName()));
 
     }
 
@@ -149,7 +149,7 @@ public class ApplicationStepDefinitions {
         // created topology
         TopologyTemplate template = Context.getInstance().getTopologyTemplate();
 
-        String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getId());
+        String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getName());
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
         TopologyDTO createdTopology = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
 
