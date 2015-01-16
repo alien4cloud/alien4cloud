@@ -1,3 +1,5 @@
+/* global d3, d3pie */
+
 'use strict';
 
 var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
@@ -65,13 +67,6 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       });
     };
 
-    var countStatus = function(app, statuses) {
-      app.sumByStatus = {'DEPLOYED' :0, 'UNDEPLOYED' :0, 'DEPLOYMENT_IN_PROGRESS' :0, 'UNDEPLOYMENT_IN_PROGRESS' :0, 'WARNING' :0, 'FAILURE' :0, 'DEPLOY' :0, 'UNDEPLOY' :0};
-      for (var key in statuses) {
-        app.sumByStatus[statuses[key]] ++;
-      }
-    }
-
     var getApplicationStatuses = function(applications) {
       var requestAppStatuses = [];
       Object.keys(applications).forEach(function(key) {
@@ -84,39 +79,40 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
     var colors = {'DEPLOYED': '#398439', 'UNDEPLOYED': '#D8D8D8'};
     var drawPieChart = function(appName, data) {
       var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
+        console.log(node);
         return node.data.name;
       });
 
-      var pie = new d3pie("pieChart-" + appName, {
-        "size": {
-          "canvasWidth": 100,
-          "canvasHeight": 100
+      var pie = new d3pie('pieChart-' + appName, {
+        'size': {
+          'canvasWidth': 100,
+          'canvasHeight': 100
         },
-        "data": {
-          "sortOrder": "label-asc",
-          "content": data
+        'data': {
+          'sortOrder': 'label-asc',
+          'content': data
         },
-        "labels": {
-          "outer": {
-            "format": "none"
+        'labels': {
+          'outer': {
+            'format': 'none'
           },
-          "inner": {
-            "format": "none"
+          'inner': {
+            'format': 'none'
           },
         },
-        "effects": {
-          "load": {
-            "effect": "none"
+        'effects': {
+          'load': {
+            'effect': 'none'
           },
-          "pullOutSegmentOnClick": {
-            "effect": "none"
+          'pullOutSegmentOnClick': {
+            'effect': 'none'
           },
-          "highlightSegmentOnMouseover": true,
-          "highlightLuminosity": 0.10
+          'highlightSegmentOnMouseover': true,
+          'highlightLuminosity': 0.10
         },
-        "callbacks": {
-          "onMouseoverSegment": tip.show,
-          "onMouseoutSegment": tip.hide
+        'callbacks': {
+          'onMouseoverSegment': function(data) { console.log(data);  tip.show(data); },
+          'onMouseoutSegment': tip.hide
         }
       });
 
@@ -133,10 +129,10 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
             var tmpArray = statuses.data[app.id];
             for (var key in tmpArray) {
               var segment = {};
-              segment['label'] = tmpArray[key].environmentStatus;
-              segment['color'] = colors[tmpArray[key].environmentStatus];
-              segment['value'] = 1;
-              segment['name'] = tmpArray[key].environmentName;
+              segment.label = tmpArray[key].environmentStatus;
+              segment.color = colors[tmpArray[key].environmentStatus];
+              segment.value = 1;
+              segment.name = tmpArray[key].environmentName;
               data.push(segment);
             }
             drawPieChart(app.name, data);

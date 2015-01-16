@@ -4,13 +4,12 @@
 
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId',
   function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId) {
-
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
       // default version loading
       $scope.appVersions = appVersions;
-      $scope.selectedVersion = appVersions[0];
-      $scope.topologyId = appVersions[0].topologyId;
+      $scope.selectedVersion = $scope.appVersions[0];
+      $scope.topologyId = $scope.selectedVersion.topologyId;
     } else {
       // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
       $scope.appVersions = appVersions;
@@ -587,9 +586,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.doUpload(file, artifactId);
     };
 
-    /**
-     * REPLACE A NODE TEMPLATE
-     */
+    /** REPLACE A NODE TEMPLATE */
     $scope.getIcon = UTILS.getIcon;
 
     $scope.getPossibleReplacements = function(selectedNodeTemplate) {

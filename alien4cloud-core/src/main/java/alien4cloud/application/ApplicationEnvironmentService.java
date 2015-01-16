@@ -22,6 +22,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.security.ApplicationEnvironmentRole;
@@ -223,7 +224,31 @@ public class ApplicationEnvironmentService {
      * @throws CloudDisabledException
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws CloudDisabledException {
-        return isDeployed(environment.getId()) ? DeploymentStatus.DEPLOYED : DeploymentStatus.UNDEPLOYED;
+        final Deployment deployment = getActiveDeployment(environment.getId());
+        if(deployment == null) {
+            return DeploymentStatus.UNDEPLOYED;
+        }
+        if(deployment.getDeploymentStatus() == null) {
+            if(deployment.getEndDate() == null) {
+                return DeploymentStatus.UNDEPLOYED;
+            }
+            // update the deployment status from PaaS if it cannot be found.
+            deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                @Override
+                public void onSuccess(DeploymentStatus data) {
+                    deployment.setDeploymentStatus(data);
+                    alienDAO.save(deployment);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    log.error("Failed to request deployment status from PaaS for deployment <"+deployment.getId()+">", throwable);
+                }
+            });
+            // and return unknown for now...
+            return DeploymentStatus.UNKNOWN;
+        }
+        return deployment.getDeploymentStatus();
     }
 
     /**

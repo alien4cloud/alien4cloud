@@ -1,3 +1,5 @@
+/* global UTILS, SockJS, Stomp */
+
 'use strict';
 
 angular.module('alienUiApp').factory('webSocketServices', [ '$interval', '$log', '$window', function($interval, $log, $window) {

@@ -129,7 +129,7 @@ public class ApplicationDeploymentController {
                     + "] because it contains unmatchable resources");
         }
         try {
-            deploymentService.deployTopology(topology, application, deploymentSetup, null);
+            deploymentService.deployTopology(topology, application, deploymentSetup, environment.getCloudId());
         } catch (CloudDisabledException e) {
             return RestResponseBuilder
                     .<Void> builder()

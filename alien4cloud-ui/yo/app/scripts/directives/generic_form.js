@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var FORMS = {};
@@ -995,7 +997,6 @@ FORMS.initComplexFormScope = function(scope) {
 
 FORMS.initFormSuggest = function(scope, suggest) {
   scope.suggest = function(searchConfiguration, text) {
-    console.log("Scope ", scope);
     return suggest({
       searchConfiguration: searchConfiguration,
       text: text

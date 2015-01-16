@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'ngSanitize', 'ui.router', 'alienAuth', 'searchServices',
@@ -82,19 +84,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         ],
         appEnvironments: ['application', 'applicationEnvironmentServices',
           function(application, applicationEnvironmentServices) {
-            console.log('FIRST LOAD applications.detail application environments');
             return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
-              // we've at least one environment per application
-              return result.data.data;
+              return {
+                environments: result.data.data
+              };
             });
-          }
-        ],
-        applicationEventServices: ['applicationEventServicesFactory', '$stateParams', 'appEnvironments',
-          function(applicationEventServicesFactory, $stateParams, appEnvironments) {
-            // this supposes you have at least one environment
-
-            console.log('ENV name', appEnvironments[0].name);
-            return applicationEventServicesFactory($stateParams.id, appEnvironments[0].id);
           }
         ],
         appVersions: ['$http', 'application', 'applicationVersionServices',
@@ -105,9 +99,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             };
             return applicationVersionServices.searchVersion({
               applicationId: application.data.id
-            }, angular.toJson(searchAppVersionRequestObject), function updateAppVersionSearchResult(result) {
-              return result.data.data;
-            });
+            }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result){return result.data.data;}) ;
           }
         ]
       },
@@ -122,41 +114,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/topology/topology_editor.html',
       controller: 'TopologyCtrl',
       resolve: {
-        appVersions: function(appVersions) {
-          return appVersions.data.data;
-        },
-        topologyId: function() {
-          // TODO : remove this when topology template will use version aswell
-          // Then we won't ned to give topologyId as param
-          return null;
-        }
+        topologyId: function() { return null; }
       }
     }).state('applications.detail.plans', {
       url: '/workflow',
       templateUrl: 'views/topology/plan_graph.html',
       controller: 'TopologyPlanGraphCtrl',
       resolve: {
-        topologyId: function() {
-          // TODO : remove this when topology template will use version aswell
-          // Then we won't ned to give topologyId as param
-          return null;
-        }
+        topologyId: function() { return null; }
       }
     }).state('applications.detail.deployment', {
       url: '/deployment',
       templateUrl: 'views/applications/application_deployment.html',
-      controller: 'ApplicationDeploymentCtrl',
-      resolve: {
-        appEnvironments: ['application', 'applicationEnvironmentServices',
-          function(application, applicationEnvironmentServices) {
-            console.log('DEPLOYMENT > APP ENVIRONMENTS');
-            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
-              // we've at least one environment per application
-              return result.data.data;
-            });
-          }
-        ]
-      }
+      controller: 'ApplicationDeploymentCtrl'
     }).state('applications.detail.runtime', {
       url: '/runtime',
       templateUrl: 'views/applications/topology_runtime.html',
@@ -191,27 +161,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.environments', {
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
-      controller: 'ApplicationEnvironmentsCtrl',
-      resolve: {
-        appEnvironments: ['application', 'applicationEnvironmentServices',
-          function(application, applicationEnvironmentServices) {
-            console.log('ENVIRONMENTS > APP ENVIRONMENTS');
-            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
-              // we've at least one environment per application
-              return result.data.data;
-            });
-          }
-        ]
-      }
+      controller: 'ApplicationEnvironmentsCtrl'
     }).state('applications.detail.versions', {
       url: '/versions',
       templateUrl: 'views/applications/application_versions.html',
-      controller: 'ApplicationVersionsCtrl',
-      resolve: {
-        appVersions: function(appVersions) {
-          return appVersions.data.data;
-        }
-      }
+      controller: 'ApplicationVersionsCtrl'
     })
 
     // topology templates
@@ -349,7 +303,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
 
     // check when the state is about to change
     $rootScope.$on('$stateChangeStart', function(event, toState) {
-      alienAuthService.getStatus().$promise.then(function(result) {
+      alienAuthService.getStatus().$promise.then(function() {
         if (toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
           $state.go('user_home_admin');
         }

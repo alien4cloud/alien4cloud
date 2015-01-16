@@ -9,8 +9,8 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
     $scope.appRoles = applicationRolesResult.data;
     $scope.environmentRoles = environmentRolesResult.data;
 
-    // set default seelcted environments
-    $scope.selectedEnvironment = appEnvironments[0];
+    // set default selected environment
+    $scope.selectedEnvironment = appEnvironments.environments[0];
 
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -21,7 +21,7 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
     $scope.changeUserEnvironment = function(switchToEnvironment) {
       var currentEnvironment = $scope.selectedEnvironment;
       var newEnvironment = switchToEnvironment;
-      if (currentEnvironment.id != newEnvironment.id) {
+      if (currentEnvironment.id !== newEnvironment.id) {
         $scope.selectedEnvironment = switchToEnvironment;
       }
     };

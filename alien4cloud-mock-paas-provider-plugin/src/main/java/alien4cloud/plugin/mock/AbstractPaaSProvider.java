@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
@@ -13,7 +14,6 @@ import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
 import alien4cloud.paas.exception.PaaSNotYetDeployedException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
@@ -44,7 +44,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
                 }
             }
 
-            DeploymentStatus deploymentStatus = getStatus(deploymentId);
+            DeploymentStatus deploymentStatus = getStatus(deploymentId, false);
             switch (deploymentStatus) {
             case DEPLOYED:
             case DEPLOYMENT_IN_PROGRESS:
@@ -71,7 +71,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
         String deploymentId = deploymentContext.getDeploymentId();
         try {
             providerLock.writeLock().lock();
-            DeploymentStatus deploymentStatus = getStatus(deploymentId);
+            DeploymentStatus deploymentStatus = getStatus(deploymentId, true);
             switch (deploymentStatus) {
             case UNDEPLOYMENT_IN_PROGRESS:
             case UNDEPLOYED:
@@ -93,10 +93,10 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
         }
     }
 
-    public DeploymentStatus getStatus(String deploymentId) {
+    public DeploymentStatus getStatus(String deploymentId, boolean triggerEventIfUndeployed) {
         try {
             providerLock.readLock().lock();
-            return doGetStatus(deploymentId);
+            return doGetStatus(deploymentId, triggerEventIfUndeployed);
         } finally {
             providerLock.readLock().unlock();
         }
@@ -107,7 +107,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
             providerLock.readLock().lock();
             DeploymentStatus[] status = new DeploymentStatus[deploymentIds.length];
             for (int i = 0; i < deploymentIds.length; i++) {
-                status[i] = getStatus(deploymentIds[i]);
+                status[i] = getStatus(deploymentIds[i], true);
             }
             callback.onSuccess(status);
         } finally {
@@ -147,7 +147,7 @@ public abstract class AbstractPaaSProvider implements IPaaSProvider {
 
     protected abstract DeploymentStatus doChangeStatus(String deploymentId, DeploymentStatus status);
 
-    protected abstract DeploymentStatus doGetStatus(String deploymentId);
+    protected abstract DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed);
 
     protected abstract void doDeploy(String deploymentId);
 

@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var alienApp = angular.module('alienUiApp');
@@ -20,6 +22,5 @@ alienApp.filter('replaceAll', function() {
 
     var re = new RegExp(toReplaceString, 'g');
     return String(text).replace(re, replacementString);
-
   };
 });

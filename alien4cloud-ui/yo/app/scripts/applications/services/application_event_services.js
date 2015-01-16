@@ -2,7 +2,6 @@
 
 angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices',
   function(deploymentEventServicesFactory, applicationServices) {
-
     return function(applicationId, selectedEnvironmentId) {
 
       var deploymentEventServices = null;

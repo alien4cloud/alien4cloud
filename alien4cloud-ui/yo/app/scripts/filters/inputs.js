@@ -9,7 +9,7 @@ alienApp.filter('password', function() {
   return function(password, car) {
     car = car || '*';
     var staredPassword = '';
-    if (password != null) {
+    if (password !== null) {
       for (var i = 0; i < password.length; i++) {
         staredPassword += car;
       }

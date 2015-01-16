@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$q',
@@ -21,7 +23,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
             // Constraint error display + translation
             var constraintInfo = saveResult.data;
             // Error message handled by x-editable
-            if (saveResult.error.code == 800) {
+            if (saveResult.error.code === 800) {
               saveDefer.resolve($translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo));
             } else {
               saveDefer.resolve($translate('ERRORS.' + saveResult.error.code, constraintInfo));

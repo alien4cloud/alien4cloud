@@ -15,6 +15,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
+import alien4cloud.paas.model.DeploymentStatus;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
@@ -38,7 +39,8 @@ public class ApplicationVersionServiceTest {
         deploymentSetup.setId(UUID.randomUUID().toString());
         deploymentSetup.setVersionId(UUID.randomUUID().toString());
         Deployment deployment = new Deployment(UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION, UUID.randomUUID().toString(), UUID.randomUUID()
-                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), null, deploymentSetup);
+                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), null, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                deploymentSetup);
         dao.save(deployment);
         // this is supposed to find if a matching deployment object exists in ES.
         Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
@@ -51,7 +53,8 @@ public class ApplicationVersionServiceTest {
         deploymentSetup.setId(UUID.randomUUID().toString());
         deploymentSetup.setVersionId(versionId);
         Deployment deployment = new Deployment(UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION, UUID.randomUUID().toString(), UUID.randomUUID()
-                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), new Date(), deploymentSetup);
+                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), new Date(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                deploymentSetup);
         dao.save(deployment);
         // this is supposed to find if a matching deployment object exists in ES.
         Assert.assertFalse(appVersionSrv.isApplicationVersionDeployed(versionId));
@@ -64,7 +67,8 @@ public class ApplicationVersionServiceTest {
         deploymentSetup.setId(UUID.randomUUID().toString());
         deploymentSetup.setVersionId(versionId);
         Deployment deployment = new Deployment(UUID.randomUUID().toString(), DeploymentSourceType.APPLICATION, UUID.randomUUID().toString(), UUID.randomUUID()
-                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), null, deploymentSetup);
+                .toString(), UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Date(), null, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                deploymentSetup);
         dao.save(deployment);
         // this is supposed to find if a matching deployment object exists in ES.
         Assert.assertTrue(appVersionSrv.isApplicationVersionDeployed(versionId));

@@ -2,6 +2,7 @@ package alien4cloud.model.deployment;
 
 import java.util.Date;
 
+import alien4cloud.paas.model.DeploymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,6 +68,9 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
+
+    /** The current status of the deployment. */
+    private DeploymentStatus deploymentStatus;
 
     /** Linked deployment setup */
     @NestedObject

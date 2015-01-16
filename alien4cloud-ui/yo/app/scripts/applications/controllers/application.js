@@ -1,77 +1,128 @@
-/* global UTILS */
-
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', 'applicationEventServices', '$state', 'applicationEnvironmentServices', 'appEnvironments',
-  function($rootScope, $scope, alienAuthService, applicationResult, applicationEventServices, $state, applicationEnvironmentServices, appEnvironments) {
-
-    var pageStateId = 'application.side.bar';
-    $scope.application = applicationResult.data;
-
-    $scope.refreshAppStatus = function refreshAppStatus() {
-      applicationEventServices.refreshApplicationStatus($scope.selectedEnvironment.id, function(newStatus) {
-        applicationEventServices.subscribeToStatusChange(pageStateId, function(type, event) {
-          $scope.deploymentStatus = event.deploymentStatus;
-          setRuntimeDisabled();
-          $scope.$apply();
-        });
-        $scope.deploymentStatus = newStatus;
-        setRuntimeDisabled();
-      });
-    }
-
-    // get environments
-    $scope.envs = appEnvironments;
-    // First selectedEnvironment set -> other pages will affect this value
-    $scope.selectedEnvironment = $scope.selectedEnvironment || appEnvironments[0];
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory',
+  function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
+    environmentEventServicesFactory) {
+    var application = applicationResult.data;
+    $scope.application = application;
 
     // Application rights
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     var isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
+    // Application environment rights. Manager has right anyway, for other users we check all environments (see below)
+    var isDeployer = isManager;
 
-    // Application environment rights
-    var isDeployer = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER');
-    var isUser = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER');
-
-    console.log('---- Application page loading');
-    console.log('Application userRoles        : ', $scope.application.userRoles);
-    console.log('Application groupRoles       : ', $scope.application.groupRoles);
-    console.log('Application page IS MANAGER  : ', isManager);
-    console.log('Application page IS DEVOPS   : ', isDevops);
-    console.log('-----------------------------');
-    console.log('---- Environment page loading');
-    console.log('Environment                  : ', $scope.selectedEnvironment);
-    console.log('Environment page IS DEPLOYER : ', isDeployer);
-    console.log('Environment page IS USER     : ', isUser);
-    console.log('-----------------------------');
-
-    // start listening immediately if deployment active exists
-    applicationEventServices.start();
-
-    var setRuntimeDisabled = function() {
-      // get newest environments statuses
-      var envs = applicationEnvironmentServices.getAllEnvironments($scope.application.id);
-      envs.then(function updateRuntimeButton(result) {
-        for (var i = 0; i < $scope.menu.length; i++) {
-          if ($scope.menu[i].id === 'am.applications.detail.runtime') {
-            $scope.menu[i].disabled = true;
-            var countRunningEnv = 0;
-            var newEnvs = result.data.data;
-            for (var j = 0; j < newEnvs.length; j++) {
-              if (newEnvs[j].status == 'DEPLOYED') {
-                countRunningEnv++;
-              }
-            }
-            $scope.menu[i].disabled = countRunningEnv == 0;
-            return;
-          }
-        }
-      });
+    var runtimeMenuItem = {
+      id: 'am.applications.detail.runtime',
+      state: 'applications.detail.runtime',
+      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
+      icon: 'fa fa-cogs',
+      show: false
     };
+
+    function updateRuntimeDisabled() {
+      // get newest environments statuses
+      var disabled = true;
+      for(var i=0; i < appEnvironments.environments.length && disabled; i++) {
+        if ( !(appEnvironments.environments[i].status === 'UNDEPLOYED' || appEnvironments.environments[i].status === 'UNKNOWN') ) {
+          disabled = false;
+        }
+      }
+      runtimeMenuItem.show = (isManager || isDeployer);
+      runtimeMenuItem.disabled = disabled;
+    }
+
+    var callback = function (environment, event) {
+      environment.status = event.deploymentStatus;
+      updateRuntimeDisabled();
+      // update the current scope and it's child scopes.
+      $scope.$digest();
+    };
+
+    function registerEnvironment(environment) {
+      var registration = environmentEventServicesFactory(application.id, environment, callback);
+      appEnvironments.eventRegistrations.push(registration);
+      var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
+      if(isManager || isEnvDeployer) {
+        appEnvironments.deployEnvironments.push(environment);
+      }
+      isDeployer = isDeployer || isEnvDeployer;
+    }
+
+    appEnvironments.deployEnvironments = [];
+    appEnvironments.eventRegistrations = [];
+    appEnvironments.removeEnvironment = function (environmentId) {
+      var envIndex = null, i;
+      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if(appEnvironments.environments[i].id === environmentId) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.environments.splice(envIndex, 1);
+        appEnvironments.eventRegistrations.splice(envIndex, 1);
+      }
+      // eventually remove the environment from deployable environments
+      envIndex = null;
+      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if(appEnvironments.deployEnvironments[i].id === environmentId) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.deployEnvironments.splice(envIndex, 1);
+      }
+    };
+    appEnvironments.addEnvironment = function (environment) {
+      appEnvironments.environments.push(environment);
+      registerEnvironment(environment);
+      updateRuntimeDisabled();
+    };
+    appEnvironments.updateEnvironment = function (environment) {
+      // replace the environment with the one given as a parameter.
+      var envIndex = null;
+      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if(appEnvironments.environments[i].id === environment.id) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        appEnvironments.environments.splice(envIndex, 1, environment);
+      }
+      envIndex = null;
+      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if(appEnvironments.deployEnvironments[i].id === environment.id) {
+          envIndex = i;
+        }
+      }
+      if(envIndex!==null) {
+        console.log('update deploy environment');
+        console.log('was ', appEnvironments.deployEnvironments[envIndex]);
+        appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
+        console.log('is  ', appEnvironments.deployEnvironments[envIndex]);
+      }
+    };
+
+    // for every environement register for deployment status update for enrichment.
+    for(var i=0; i< appEnvironments.environments.length; i++) {
+      var environment = appEnvironments.environments[i];
+      var registration = environmentEventServicesFactory(application.id, environment, callback);
+      appEnvironments.eventRegistrations.push(registration);
+      var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
+      if(isManager || isEnvDeployer) {
+        appEnvironments.deployEnvironments.push(environment);
+      }
+      isDeployer = isDeployer || isEnvDeployer;
+    }
+    updateRuntimeDisabled();
+    // get environments
+    $scope.envs = appEnvironments.environments;
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {
-      applicationEventServices.stop();
+      for(var i=0; i < appEnvironments.eventRegistrations.length; i++) {
+        appEnvironments.eventRegistrations[i].close();
+      }
     });
 
     $scope.onItemClick = function($event, menuItem) {
@@ -86,7 +137,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       state: 'applications.detail.info',
       key: 'NAVAPPLICATIONS.MENU_INFO',
       icon: 'fa fa-info',
-      show: (isManager || isDeployer || isDevops || isUser)
+      show: (isManager || isDeployer || isDevops)
     }, {
       id: 'am.applications.detail.topology',
       state: 'applications.detail.topology',
@@ -105,19 +156,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',
       icon: 'fa fa-cloud-upload',
       show: (isManager || isDeployer)
-    }, {
-      id: 'am.applications.detail.runtime',
-      state: 'applications.detail.runtime',
-      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
-      icon: 'fa fa-cogs',
-      show: (isManager || isDeployer)
-    }, {
-      id: 'am.applications.detail.users',
-      state: 'applications.detail.users',
-      key: 'NAVAPPLICATIONS.MENU_USERS',
-      icon: 'fa fa-users',
-      show: isManager
-    }, {
+    }, runtimeMenuItem, {
       id: 'am.applications.detail.versions',
       state: 'applications.detail.versions',
       key: 'NAVAPPLICATIONS.MENU_VERSIONS',
@@ -128,6 +167,12 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       state: 'applications.detail.environments',
       key: 'NAVAPPLICATIONS.MENU_ENVIRONMENT',
       icon: 'fa fa-share-alt',
+      show: isManager
+    }, {
+      id: 'am.applications.detail.users',
+      state: 'applications.detail.users',
+      key: 'NAVAPPLICATIONS.MENU_USERS',
+      icon: 'fa fa-users',
       show: isManager
     }];
   }

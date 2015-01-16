@@ -29,18 +29,7 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.OperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSTopology;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.utils.MapUtil;
 
@@ -127,20 +116,12 @@ public class DeploymentService {
      * @param topology The topology to be deployed.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @param deploymentSetup DeploymentSetup used to deploy
-     * @param noEnvCloudID cloud id in the case we deploy a topology test (without environment)
+     * @param cloudId If of the cloud on which to deploy.
      * @return The id of the generated deployment.
      * @throws CloudDisabledException In case the cloud is actually disabled and no deployments can be performed on this cloud.
      */
-    public synchronized String deployTopology(Topology topology, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup, String noEnvCloudID)
+    public synchronized String deployTopology(Topology topology, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup, String cloudId)
             throws CloudDisabledException {
-
-        // get the cloud ID from the deploymentmentSetup or a given cloud id
-        String cloudId = noEnvCloudID;
-        if (deploymentSetup.getEnvironmentId() != null && noEnvCloudID == null) {
-            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
-            cloudId = applicationEnvironment.getCloudId();
-        }
-
         log.info("Deploying topology [{}] on cloud [{}]", topology.getId(), cloudId);
         String topologyId = topology.getId();
 
@@ -161,8 +142,9 @@ public class DeploymentService {
         deployment.setSourceName(sourceName);
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
         deployment.setStartDate(new Date());
+        deployment.setDeploymentStatus(DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
         deployment.setDeploymentSetup(deploymentSetup);
-        // mendatory for the moment since we could have deployment with no environment (csar test)
+        // mandatory for the moment since we could have deployment with no environment (csar test)
         deployment.setTopologyId(topologyId);
 
         alienDao.save(deployment);
@@ -212,7 +194,7 @@ public class DeploymentService {
         ApplicationEnvironment environment = deploymentSetupService.getApplicationEnvironment(deploymentSetup.getId());
         log.info("Un-deploying topology [{}] on cloud [{}]", topologyId, environment.getCloudId());
         Deployment activeDeployment = getActiveDeploymentFailIfNotExists(environment.getId());
-        this.undeploy(activeDeployment.getId());
+        this.undeploy(activeDeployment);
     }
 
     /**
@@ -223,14 +205,18 @@ public class DeploymentService {
      */
     public synchronized void undeploy(String deploymentId) throws CloudDisabledException {
         Deployment deployment = getMandatoryDeployment(deploymentId);
+        undeploy(deployment);
+    }
+    
+    private void undeploy(Deployment deployment) throws CloudDisabledException {
         String cloudId = deployment.getCloudId();
-        log.info("Un-deploying deployment [{}] on cloud [{}]", deploymentId, cloudId);
+        log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), cloudId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
         paaSProvider.undeploy(deploymentContext, null);
-        deployment.setEndDate(new Date());
+        deployment.setDeploymentStatus(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
         alienDao.save(deployment);
-        log.info("Un-deployed deployment [{}] on cloud [{}]", deploymentId, cloudId);
+        log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), cloudId);
     }
 
     private Deployment getMandatoryDeployment(String deploymentId) {
