@@ -362,7 +362,7 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
   expect(divError.isDisplayed()).toBe(true);
   expect(divError.getText()).not.toEqual('');
   expect(divError.getText()).toContain(containedInErrorText);
-
+  common.dismissAlertIfPresent();
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 

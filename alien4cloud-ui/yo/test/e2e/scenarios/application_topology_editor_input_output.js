@@ -81,10 +81,10 @@ describe('Topology input/output properties', function() {
 
     var undeployButton = browser.element(by.binding('APPLICATIONS.UNDEPLOY'));
     browser.actions().click(undeployButton).perform();
-    browser.sleep(7000);
+    browser.sleep(7000); // DO NOT REMOVE, wait for UNDEPLOY
     outputTableText = outputTable.getText();
-    expect(outputTableText).toContain('disk_size');
-    expect(outputTableText).toContain('1024');
+    expect(outputTableText).not.toContain('disk_size');
+    expect(outputTableText).not.toContain('1024');
     expect(outputTableText).not.toContain('public_ip_address');
     expect(outputTableText).not.toContain('10.52.0.');
     expect(outputTableText).not.toContain('private_ip_address');
