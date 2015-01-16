@@ -380,7 +380,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // if the status or the environment changes we must update the event registration.
     $scope.$watch(function(scope) {
       if(UTILS.isDefinedAndNotNull(scope.selectedEnvironment)) {
-        return scope.selectedEnvironment.id + "__" + scope.selectedEnvironment.status;
+        return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
       }
       return 'UNDEPLOYED';
     } , function(newValue) {
