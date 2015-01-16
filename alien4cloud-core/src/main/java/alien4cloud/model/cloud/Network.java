@@ -22,10 +22,8 @@ public class Network implements ICloudResource {
     @NotNull
     private Integer ipVersion;
 
-    @NotNull
     private String cidr;
 
-    @NotNull
     private String gatewayIp;
 
     @NotNull
