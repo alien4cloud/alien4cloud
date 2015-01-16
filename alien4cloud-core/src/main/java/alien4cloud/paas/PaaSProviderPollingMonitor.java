@@ -4,11 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -37,7 +35,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private PaaSEventsCallback paaSEventsCallback;
     private String cloudId;
     private boolean hasDeployments;
-    private AtomicBoolean getEventsInProgress = new AtomicBoolean(false);
+    private boolean getEventsInProgress = false;
 
     /**
      * Create a new instance of the {@link PaaSProviderPollingMonitor} to monitor the given paas provider.
@@ -82,53 +80,57 @@ public class PaaSProviderPollingMonitor implements Runnable {
 
         @Override
         public void onSuccess(AbstractMonitorEvent[] auditEvents) {
-            getEventsInProgress.set(false);
-            if (log.isTraceEnabled()) {
-                log.trace("Polled from date {}", lastPollingDate);
-            }
-            if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
-                log.debug("Saving events for cloud {}", cloudId);
-                for (AbstractMonitorEvent event : auditEvents) {
-                    log.debug(event.toString());
+            synchronized (PaaSProviderPollingMonitor.this) {
+                if (log.isTraceEnabled()) {
+                    log.trace("Polled from date {}", lastPollingDate);
                 }
-            }
-            if (auditEvents != null && auditEvents.length > 0) {
-                for (AbstractMonitorEvent event : auditEvents) {
-                    // Enrich event with cloud id before saving them
-                    event.setCloudId(cloudId);
-                }
-                monitorDAO.save(auditEvents);
-                for (IPaasEventListener listener : listeners) {
+                if (log.isDebugEnabled() && auditEvents != null && auditEvents.length > 0) {
+                    log.debug("Saving events for cloud {}", cloudId);
                     for (AbstractMonitorEvent event : auditEvents) {
-                        if (listener.canHandle(event)) {
-                            listener.eventHappened(event);
-                        }
-                        Date eventDate = new Date(event.getDate());
-                        lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
+                        log.debug(event.toString());
                     }
                 }
+                if (auditEvents != null && auditEvents.length > 0) {
+                    for (AbstractMonitorEvent event : auditEvents) {
+                        // Enrich event with cloud id before saving them
+                        event.setCloudId(cloudId);
+                    }
+                    monitorDAO.save(auditEvents);
+                    for (IPaasEventListener listener : listeners) {
+                        for (AbstractMonitorEvent event : auditEvents) {
+                            if (listener.canHandle(event)) {
+                                listener.eventHappened(event);
+                            }
+                            Date eventDate = new Date(event.getDate());
+                            lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
+                        }
+                    }
+                }
+                getEventsInProgress = false;
             }
         }
 
         @Override
         public void onFailure(Throwable throwable) {
-            getEventsInProgress.set(false);
-            log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
+            synchronized (PaaSProviderPollingMonitor.this) {
+                getEventsInProgress = false;
+                log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
+            }
         }
     }
 
     @Override
     @SuppressWarnings("rawtypes")
-    public void run() {
-        if (getEventsInProgress.get()) {
+    public synchronized void run() {
+        if (getEventsInProgress) {
             // Get events since is running
             return;
         }
-        getEventsInProgress.set(true);
+        getEventsInProgress = true;
         if (hasDeployments) {
             paaSProvider.getEventsSince(lastPollingDate, MAX_POLLED_EVENTS, paaSEventsCallback);
         } else {
-            getEventsInProgress.set(false);
+            getEventsInProgress = false;
             hasDeployments = getActiveDeployment() != null;
         }
     }

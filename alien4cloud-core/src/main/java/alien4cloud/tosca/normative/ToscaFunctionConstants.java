@@ -1,9 +1,10 @@
 package alien4cloud.tosca.normative;
 
-public class ToscaFunctionConstants {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-    private ToscaFunctionConstants() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ToscaFunctionConstants {
 
     /* possible functions */
     public static final String GET_PROPERTY = "get_property";
@@ -12,11 +13,6 @@ public class ToscaFunctionConstants {
     /* reserved keywords */
     public static final String SELF = "SELF";
     public static final String TARGET = "TARGET";
-    public static final String TARGETS = "TARGETS";
     public static final String SOURCE = "SOURCE";
-    public static final String SOURCES = "SOURCES";
     public static final String HOST = "HOST";
-    public static final String SOURCE_HOST = "SOURCE_HOST";
-    public static final String TARGET_HOST = "TARGET_HOST";
-    public static final String PARENT = "PARENT";
 }

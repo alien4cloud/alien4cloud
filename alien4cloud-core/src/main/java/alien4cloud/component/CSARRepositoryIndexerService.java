@@ -1,27 +1,36 @@
 package alien4cloud.component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedModelUtils;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.images.IImageDAO;
-import alien4cloud.tosca.ArchiveImageLoader;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.CSARDependency;
-import alien4cloud.component.ICSARRepositoryIndexerService;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.tosca.ArchiveImageLoader;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
@@ -61,10 +70,17 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
 
     @Override
     public void deleteElements(String archiveName, String archiveVersion) {
-        QueryBuilder archiveNameMatch = QueryBuilders.termQuery("archiveName", archiveName);
-        QueryBuilder archiveVersionMatch = QueryBuilders.matchQuery("archiveVersion", archiveVersion);
-        QueryBuilder query = QueryBuilders.boolQuery().must(archiveNameMatch).must(archiveVersionMatch);
-        alienDAO.delete(IndexedToscaElement.class, query);
+
+        FilterBuilder filter = FilterBuilders.boolFilter().must(FilterBuilders.termFilter("archiveName", archiveName))
+                .must(FilterBuilders.termFilter("archiveVersion", archiveVersion));
+        GetMultipleDataResult<IndexedToscaElement> result = alienDAO.search(IndexedToscaElement.class, null, null, filter, null, 0, Integer.MAX_VALUE);
+        IndexedToscaElement[] elements = result.getData();
+
+        // we need to delete each element and find the new highest version element
+        for (IndexedToscaElement element : elements) {
+            deleteElement(element);
+        }
+
     }
 
     @Override
@@ -82,7 +98,6 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
     @Override
     public void indexInheritableElement(String archiveName, String archiveVersion, IndexedInheritableToscaElement element,
             Collection<CSARDependency> dependencies) {
-        IndexedToscaElement indexedNodeType = alienDAO.findById(IndexedToscaElement.class, element.getId());
         element.setLastUpdateDate(new Date());
         Date creationDate = element.getCreationDate() == null ? element.getLastUpdateDate() : element.getCreationDate();
         element.setCreationDate(creationDate);
@@ -105,6 +120,68 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
             IndexedModelUtils.mergeInheritableIndex(superElement, element);
         }
         saveAndUpdateHighestVersion(element);
+    }
+    
+    /**
+     * Delete this indexed element and ensure that the <code>highestVersion<code> and <code>olderVersions</code> properties
+     * are up to date for the remaining ones.
+     */
+    private void deleteAndUpdateHighestVersion(IndexedToscaElement element) {
+        boolean elementWasHihestVersion = element.isHighestVersion();
+        String elementVersion = element.getArchiveVersion();
+        alienDAO.delete(element.getClass(), element.getId());
+
+        BoolQueryBuilder remainingElementQueryBuilder = QueryBuilders.boolQuery();
+        QueryBuilder archiveNameMatch = QueryBuilders.termQuery("archiveName", element.getArchiveName());
+        QueryBuilder elementIdMatch = QueryBuilders.matchQuery("elementId", element.getElementId());
+        remainingElementQueryBuilder.must(archiveNameMatch).must(elementIdMatch);
+        List<? extends IndexedToscaElement> remainingElements = alienDAO.customFindAll(element.getClass(), remainingElementQueryBuilder);
+
+        if (remainingElements == null) {
+            return;
+        }
+
+        if (elementWasHihestVersion) {
+            // we have to search for the new highest version element candidate
+            IndexedToscaElement hightestVersionElement = null;
+            for (IndexedToscaElement remainingElement : remainingElements) {
+                if (hightestVersionElement == null) {
+                    // the first one is obviously the highest, at least currently
+                    hightestVersionElement = remainingElement;
+                } else if (VersionUtil.compare(remainingElement.getArchiveVersion(), hightestVersionElement.getArchiveVersion()) > 0) {
+                    hightestVersionElement = remainingElement;
+                }
+            }
+            if (hightestVersionElement != null) {
+                // the highest version has been identified, we'll update it's property
+                hightestVersionElement.setHighestVersion(true);
+                // this component has been promoted as highest version, we may set it's older versions ?
+                Collections.sort(remainingElements, new Comparator<IndexedToscaElement>() {
+                    @Override
+                    public int compare(IndexedToscaElement o1, IndexedToscaElement o2) {
+                        return VersionUtil.compare(o1.getArchiveVersion(), o2.getArchiveVersion());
+                    }
+                });
+                Set<String> olderVersions = new LinkedHashSet<String>();
+                for (IndexedToscaElement remainingElement : remainingElements) {
+                    if (VersionUtil.compare(remainingElement.getArchiveVersion(), hightestVersionElement.getArchiveVersion()) < 0) {
+                        // this is an older version
+                        olderVersions.add(remainingElement.getArchiveVersion());
+                    }
+                }
+                hightestVersionElement.setOlderVersions(olderVersions);
+                alienDAO.save(hightestVersionElement);
+            }
+        } else {
+            // deleted element was not the highest version so maybe it was referenced as an older version
+            for (IndexedToscaElement remainingElement : remainingElements) {
+                if (remainingElement.getOlderVersions() != null && remainingElement.getOlderVersions().contains(elementVersion)) {
+                    // just remove the deleted element version from the olderVersions of the current element
+                    remainingElement.getOlderVersions().remove(elementVersion);
+                    alienDAO.save(remainingElement);
+                }
+            }
+        }
     }
 
     private void saveAndUpdateHighestVersion(IndexedToscaElement element) {
@@ -157,14 +234,18 @@ public class CSARRepositoryIndexerService implements ICSARRepositoryIndexerServi
         boolQueryBuilder.should(QueryBuilders.boolQuery().must(matchIdQueryBuilder).must(matchArchiveNameQueryBuilder));
     }
 
+    private void deleteElement(IndexedToscaElement element) {
+        Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
+        if (iconTag != null) {
+            imageDAO.delete(iconTag.getValue());
+        }
+        deleteAndUpdateHighestVersion(element);
+    }
+
     @Override
     public void deleteElements(Collection<IndexedToscaElement> elements) {
         for (IndexedToscaElement element : elements) {
-            Tag iconTag = ArchiveImageLoader.getIconTag(element.getTags());
-            if (iconTag != null) {
-                imageDAO.delete(iconTag.getValue());
-            }
-            alienDAO.delete(element.getClass(), element.getId());
+            deleteElement(element);
         }
     }
 }
