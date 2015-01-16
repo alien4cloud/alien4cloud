@@ -96,14 +96,16 @@ public class ApplicationStepDefinitions {
             String appId = application.getData().getId();
             setAppVersionIdToContext(appId);
             setAppEnvironmentIdToContext(application.getData().getName());
-            String topologyId = getTopologyIdFromApplication(appId);
+            String topologyId = getTopologyIdFromApplication(application.getData().getName());
             Context.getInstance().registerTopologyId(topologyId);
             Context.getInstance().registerApplicationId(name, appId);
         }
     }
 
-    private String getTopologyIdFromApplication(String applicationId) throws IOException {
-        String response = Context.getRestClientInstance().get("/rest/applications/" + applicationId + "/topology");
+    private String getTopologyIdFromApplication(String name) throws IOException {
+        String response = Context.getRestClientInstance().get(
+                "/rest/applications/" + Context.getInstance().getApplicationId(name) + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(name) + "/topology");
         return JsonUtil.read(response, String.class).getData();
     }
 

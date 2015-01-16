@@ -20,7 +20,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
@@ -36,7 +35,6 @@ import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 
 /**
  * Manage deployment operations on a cloud.
@@ -118,15 +116,12 @@ public class DeploymentService {
      * @param topology The topology to be deployed.
      * @param deploymentSource Application to be deployed or the Csar that contains test toplogy to be deployed
      * @param deploymentSetup DeploymentSetup used to deploy
+     * @param cloudId If of the cloud on which to deploy.
      * @return The id of the generated deployment.
      * @throws CloudDisabledException In case the cloud is actually disabled and no deployments can be performed on this cloud.
      */
-    public synchronized String deployTopology(Topology topology, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup)
+    public synchronized String deployTopology(Topology topology, IDeploymentSource deploymentSource, DeploymentSetup deploymentSetup, String cloudId)
             throws CloudDisabledException {
-
-        // get the cloud ID from the deployment setup
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
-        String cloudId = applicationEnvironment.getCloudId();
         log.info("Deploying topology [{}] on cloud [{}]", topology.getId(), cloudId);
         String topologyId = topology.getId();
 
@@ -173,8 +168,8 @@ public class DeploymentService {
 
     private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
         deploymentContext.setDeploymentId(deployment.getId());
-        deploymentContext.setRecipeId((deployment.getSourceName() + "_" + deployment.getDeploymentSetup().getEnvironmentId() + "_" + deployment.getDeploymentSetup().getVersionId()).replaceAll(
-                "[^\\p{Alnum}]", "_"));
+        deploymentContext.setRecipeId((deployment.getSourceName() + "_" + deployment.getDeploymentSetup().getEnvironmentId() + "_" + deployment
+                .getDeploymentSetup().getVersionId()).replaceAll("[^\\p{Alnum}]", "_"));
     }
 
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
@@ -313,7 +308,8 @@ public class DeploymentService {
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      * @throws OperationExecutionException runtime exception during an operation
      */
-    public void triggerOperationExecution(OperationExecRequest request, IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException, OperationExecutionException {
+    public void triggerOperationExecution(OperationExecRequest request, IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException,
+            OperationExecutionException {
         Deployment activeDeployment = this.getActiveDeploymentFailIfNotExists(request.getApplicationEnvironmentId());
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(activeDeployment.getCloudId());
         paaSProvider.executeOperation(buildDeploymentContext(activeDeployment), request, callback);
@@ -465,10 +461,9 @@ public class DeploymentService {
      */
     public String getTopologyIdByDeployment(String deploymentId) {
         Deployment deployment = getMandatoryDeployment(deploymentId);
+        // WARNING : topologyId may disappear from deployment object and would be accessible only through environment linked to the deployment
         if (deployment != null) {
-            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
-            ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
-            return applicationVersion.getTopologyId();
+            return deployment.getTopologyId();
         }
         return null;
     }

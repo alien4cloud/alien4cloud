@@ -24,7 +24,7 @@ public class RuntimeStepDefinitions {
     private ApplicationStepDefinitions appSteps = new ApplicationStepDefinitions();
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
 
-    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\"$")
+    @Given("^I have an application \"([^\"]*)\" with a topology containing a nodeTemplate \"([^\"]*)\" related to \"([^\"]*)\" for \"([^\"]*)\"$")
     public void I_have_an_application_with_a_topology_containing_a_nodeTemplate_related_to(String applicationName, String nodeTemplateName, String nodeTypeId)
             throws Throwable {
         appSteps.I_have_an_application_with_name(applicationName);
@@ -33,13 +33,12 @@ public class RuntimeStepDefinitions {
 
     @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" on the cloud \"([^\"]*)\"$")
     public void I_trigger_on_the_node_template_the_custom_command_of_the_interface_on_the_cloud(String nodeTemplateName, String commandName,
-            String interfaceName, String cloudName) throws Throwable {
+            String interfaceName, String cloudName, String appName) throws Throwable {
         OperationExecRequest commandRequest = new OperationExecRequest();
         commandRequest.setNodeTemplateName(nodeTemplateName);
         commandRequest.setInterfaceName(interfaceName);
         commandRequest.setOperationName(commandName);
-        // TODO : take the default env of a specific on
-        commandRequest.setApplicationEnvironmentId(null);
+        commandRequest.setApplicationEnvironmentId(Context.getInstance().getDefaultApplicationEnvironmentId(appName));
         String jSon = JsonUtil.toString(commandRequest);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));

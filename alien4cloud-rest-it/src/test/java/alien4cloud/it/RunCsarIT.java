@@ -10,7 +10,7 @@ import cucumber.api.junit.Cucumber;
 //
 "classpath:alien/rest/csars",
 // "classpath:alien/rest/csars/csar_crud.feature",
-// "classpath:alien/rest/csars/csar_snapshot_test.feature",
+// "classpath:alien/rest/csars/csar_snapshot_test.feature"
 // "classpath:alien/rest/csars/upload.feature"
 //
 }, format = { "pretty", "html:target/cucumber/csars", "json:target/cucumber/cucumber-csars.json" })
