@@ -9,6 +9,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     // Application rights
     var isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     var isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
+    var isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
     // Application environment rights. Manager has right anyway, for other users we check all environments (see below)
     var isDeployer = isManager;
 
@@ -137,7 +138,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       state: 'applications.detail.info',
       key: 'NAVAPPLICATIONS.MENU_INFO',
       icon: 'fa fa-info',
-      show: (isManager || isDeployer || isDevops)
+      show: (isManager || isDeployer || isDevops || isUser)
     }, {
       id: 'am.applications.detail.topology',
       state: 'applications.detail.topology',

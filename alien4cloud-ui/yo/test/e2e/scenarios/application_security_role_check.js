@@ -55,7 +55,6 @@ describe('Security management on applications for application manager', function
   };
 
   var checkApplicationDeploymentManagerAccess = function() {
-    console.log('----------------------- DEPLOYMENT MANAGER');
     authentication.reLogin(authentication.users.sauron.username);
     applications.goToApplicationDetailPage(applicationName);
 
@@ -63,7 +62,6 @@ describe('Security management on applications for application manager', function
     checkAccess('info');
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
-
     navigation.isNotNavigable('applications', 'topology');
     navigation.isNotNavigable('applications', 'plan');
     navigation.isNotNavigable('applications', 'users');
@@ -94,7 +92,7 @@ describe('Security management on applications for application manager', function
     checkAccess('info');
   };
 
-  xit('should be able to navigate as an application manager in the application if user has this right', function() {
+  it('should be able to navigate as an application manager in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application manager in the application if user has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -103,7 +101,7 @@ describe('Security management on applications for application manager', function
     checkApplicationManagerAccess();
   });
 
-  xit('should be able to navigate as an application manager in the application if user is in a group which has this right', function() {
+  it('should be able to navigate as an application manager in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application manager in the application if user is in a group which has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -122,7 +120,7 @@ describe('Security management on applications for application manager', function
     checkApplicationDeploymentManagerAccess();
   });
 
-  xit('should be able to navigate as an application deployment manager in the application if user is in a group which has this right', function() {
+  it('should be able to navigate as an application deployment manager in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application deployment manager in the application if user is in a group which has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -132,7 +130,7 @@ describe('Security management on applications for application manager', function
     checkApplicationDeploymentManagerAccess();
   });
 
-  xit('should be able to navigate as an application dev ops in the application if user has this right', function() {
+  it('should be able to navigate as an application dev ops in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application dev ops in the application if user has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -141,7 +139,7 @@ describe('Security management on applications for application manager', function
     checkApplicationDevOpsAccess();
   });
 
-  xit('should be able to navigate as an application dev ops in the application if user is in a group which has this right', function() {
+  it('should be able to navigate as an application dev ops in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application dev ops in the application if user is in a group which has this right');
 
     applications.goToApplicationDetailPage(applicationName);
@@ -151,22 +149,22 @@ describe('Security management on applications for application manager', function
     checkApplicationDevOpsAccess();
   });
 
-  xit('should be able to navigate as an application user in the application if user has this right', function() {
+  it('should be able to navigate as an application user in the application if user has this right', function() {
     console.log('################# should be able to navigate as an application user in the application if user has this right');
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
-    rolesCommon.editUserRole(authentication.users.sauron.username, rolesCommon.envRoles.envUser);
+    rolesCommon.editUserRoleForAnEnv(authentication.users.sauron.username, rolesCommon.envRoles.envUser);
     checkApplicationUserAccess();
   });
 
-  xit('should be able to navigate as an application user in the application if user is in a group which has this right', function() {
+  it('should be able to navigate as an application user in the application if user is in a group which has this right', function() {
     console.log('################# should be able to navigate as an application user in the application if user is in a group which has this right');
 
     applications.goToApplicationDetailPage(applicationName);
     navigation.go('applications', 'users');
     element(by.id('groups-tab')).element(by.tagName('a')).click();
-    rolesCommon.editGroupRole(users.groups.mordor.name, rolesCommon.envRoles.envUser);
+    rolesCommon.editGroupRoleForAnEnv(users.groups.mordor.name, rolesCommon.envRoles.envUser);
     checkApplicationUserAccess();
   });
 });

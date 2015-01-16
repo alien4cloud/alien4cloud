@@ -9,7 +9,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.security.ApplicationEnvironmentRole;
 import lombok.SneakyThrows;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,10 +33,30 @@ import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.*;
-import alien4cloud.rest.topology.task.*;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.topology.task.PropertiesTask;
+import alien4cloud.rest.topology.task.RequirementToSatify;
+import alien4cloud.rest.topology.task.RequirementsTask;
+import alien4cloud.rest.topology.task.SuggestionsTask;
+import alien4cloud.rest.topology.task.TaskCode;
+import alien4cloud.rest.topology.task.TopologyTask;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
@@ -67,6 +86,12 @@ public class TopologyService {
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
+
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     private void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
         if (attributes2 == null || attributes == null) {
@@ -626,10 +651,6 @@ public class TopologyService {
         }
         return count;
     }
-
-    @Resource
-    private ApplicationVersionService applicationVersionService;
-    private ApplicationEnvironmentService applicationEnvironmentService;
 
     /**
      * Check that the user has enough rights for a given topology.
