@@ -38,7 +38,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           break;
         }
       }
-    }
+    };
 
     var updateSelectedVersionName = function(applicationVersion) {
       if (UTILS.isDefinedAndNotNull(applicationVersion)) {
@@ -180,13 +180,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     var nodeTemplateNameFromType = function(type) {
-      var baseName;
-      var tokens = type.split('.');
-      if (tokens.length === 3) {
-        baseName = tokens[2];
-      } else {
-        baseName = type;
-      }
+      var baseName = UTILS.getShortName(type);
 
       var i = 1;
       var tempName = baseName;
@@ -796,10 +790,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
-    $scope.getShortName = function(longName) {
-      var tokens = longName.split('.');
-      return tokens[tokens.length - 1];
-    };
+    $scope.getShortName = UTILS.getShotName;
 
 
     /**
