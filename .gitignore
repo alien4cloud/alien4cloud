@@ -43,3 +43,4 @@ alien4cloud-mock-paas-provider-plugin/.gitignore
 *.iml
 alien4cloud-rest-api/data/
 alien4cloud-security/.gitignore
+alien4cloud-ui/data/

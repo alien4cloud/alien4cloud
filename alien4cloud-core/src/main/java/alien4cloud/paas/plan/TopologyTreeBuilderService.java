@@ -12,26 +12,27 @@ import lombok.SneakyThrows;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.topology.AbstractTemplate;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
-import alien4cloud.tosca.container.model.NormativeComputeConstants;
-import alien4cloud.tosca.container.model.NormativeNetworkConstants;
-import alien4cloud.tosca.container.model.NormativeRelationshipConstants;
-import alien4cloud.tosca.container.model.topology.AbstractTemplate;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.tosca.normative.NormativeNetworkConstants;
+import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;
@@ -89,66 +90,82 @@ public class TopologyTreeBuilderService {
     }
 
     /**
-     * Build a tree of the topology nodes based on hosted on relationships.
+     * Build the topology for deployment on the PaaS.
+     *
+     * @param topology The topology.
+     * @return The parsed topology for the PaaS with.
+     */
+    public PaaSTopology buildPaaSTopology(Topology topology) {
+        return buildPaaSTopology(buildPaaSNodeTemplate(topology));
+    }
+
+    /**
+     * Build the topology for deployment on the PaaS.
      *
      * @param nodeTemplates The node templates that are part of the topology.
-     * @return A list of root nodes on the topology hosted on tree.
+     * @return The parsed topology for the PaaS with.
      */
-    public List<PaaSNodeTemplate> getHostedOnTree(Map<String, PaaSNodeTemplate> nodeTemplates) {
+    public PaaSTopology buildPaaSTopology(Map<String, PaaSNodeTemplate> nodeTemplates) {
         // Build hosted_on tree
-        List<PaaSNodeTemplate> roots = new ArrayList<PaaSNodeTemplate>();
+        List<PaaSNodeTemplate> computes = new ArrayList<PaaSNodeTemplate>();
+        List<PaaSNodeTemplate> networks = new ArrayList<PaaSNodeTemplate>();
+        List<PaaSNodeTemplate> volumes = new ArrayList<PaaSNodeTemplate>();
+        List<PaaSNodeTemplate> nonNatives = new ArrayList<PaaSNodeTemplate>();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
             boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
             boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
-
-            // manage block storage
-            if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType())) {
+            boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType());
+            if (isVolume) {
+                // manage block storage
                 processBlockStorage(paaSNodeTemplate, nodeTemplates);
-                continue;
-            }
-
-            // manage network
-            if (isCompute) {
+                volumes.add(paaSNodeTemplate);
+            } else if (isCompute) {
+                // manage compute
                 processNetwork(paaSNodeTemplate, nodeTemplates);
-            }
-
-            // do nothing special for network nodes. We should manage them in the workflow later on.
-            if (!isNetwork) {
-                PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
-                if (hostedOnRelationship == null) {
-                    roots.add(paaSNodeTemplate);
-                } else {
-                    String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
-                    PaaSNodeTemplate parent = nodeTemplates.get(target);
-                    parent.getChildren().add(paaSNodeTemplate);
-                    paaSNodeTemplate.setParent(parent);
-                    if (hostedOnRelationship.instanceOf(NormativeRelationshipConstants.SEQUENCE_HOSTED_ON)) {
-                        parent.setCreateChildrenSequence(true);
-                    }
-                }
-            }
-
-            // Relationships are defined from sources to target. We have to make sure that target node also has the relationship injected.
-            List<PaaSRelationshipTemplate> allRelationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ROOT);
-            for (PaaSRelationshipTemplate relationship : allRelationships) {
-                // inject the relationship in it's target.
-                String target = relationship.getRelationshipTemplate().getTarget();
-                nodeTemplates.get(target).getRelationshipTemplates().add(relationship);
+                processRelationship(paaSNodeTemplate, nodeTemplates);
+                computes.add(paaSNodeTemplate);
+            } else if (isNetwork) {
+                // manage network
+                networks.add(paaSNodeTemplate);
+            } else {
+                // manage non native
+                nonNatives.add(paaSNodeTemplate);
+                processRelationship(paaSNodeTemplate, nodeTemplates);
             }
         }
+        return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates);
+    }
 
-        return roots;
+    private void processRelationship(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
+        PaaSRelationshipTemplate hostedOnRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.HOSTED_ON);
+        if (hostedOnRelationship != null) {
+            String target = hostedOnRelationship.getRelationshipTemplate().getTarget();
+            PaaSNodeTemplate parent = nodeTemplates.get(target);
+            parent.getChildren().add(paaSNodeTemplate);
+            paaSNodeTemplate.setParent(parent);
+        }
+        // Relationships are defined from sources to target. We have to make sure that target node also has the relationship injected.
+        List<PaaSRelationshipTemplate> allRelationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.ROOT);
+        for (PaaSRelationshipTemplate relationship : allRelationships) {
+            // inject the relationship in it's target.
+            String target = relationship.getRelationshipTemplate().getTarget();
+            nodeTemplates.get(target).getRelationshipTemplates().add(relationship);
+        }
     }
 
     private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
-        PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
-        if (networkRelationship != null) {
-            String target = networkRelationship.getRelationshipTemplate().getTarget();
-            PaaSNodeTemplate network = nodeTemplates.get(target);
-            paaSNodeTemplate.setNetworkNode(network);
-            network.setParent(paaSNodeTemplate);
+        List<PaaSRelationshipTemplate> networkRelationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
+        List<PaaSNodeTemplate> networks = Lists.newArrayList();
+        if (networkRelationships != null && !networkRelationships.isEmpty()) {
+            for (PaaSRelationshipTemplate networkRelationship : networkRelationships) {
+                String target = networkRelationship.getRelationshipTemplate().getTarget();
+                PaaSNodeTemplate network = nodeTemplates.get(target);
+                networks.add(network);
+                network.setParent(paaSNodeTemplate);
+            }
         }
+        paaSNodeTemplate.setNetworkNodes(networks);
     }
 
     private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
@@ -212,5 +229,4 @@ public class TopologyTreeBuilderService {
         Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
         paaSTemplate.setCsarPath(csarPath);
     }
-
 }

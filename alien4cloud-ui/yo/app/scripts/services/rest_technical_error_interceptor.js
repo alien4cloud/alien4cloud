@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootScope', '$q', '$window', 'toaster', '$translate',

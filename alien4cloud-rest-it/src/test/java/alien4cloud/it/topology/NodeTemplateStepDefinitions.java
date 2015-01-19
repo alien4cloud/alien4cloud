@@ -10,14 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import alien4cloud.component.model.IndexedNodeType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

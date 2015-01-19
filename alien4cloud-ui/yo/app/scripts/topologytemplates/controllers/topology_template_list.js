@@ -80,7 +80,9 @@ angular.module('alienUiApp').controller('TopologyTemplateListCtrl', ['$scope', '
     $scope.search();
 
     $scope.openTopologyTemplate = function(topologyTemplateId) {
-      $state.go('topologytemplates.detail.topology', { id: topologyTemplateId });
+      $state.go('topologytemplates.detail.topology', {
+        id: topologyTemplateId
+      });
     };
 
     $scope.deleteTopologyTemplate = function(topologyTemplateId) {
@@ -93,7 +95,6 @@ angular.module('alienUiApp').controller('TopologyTemplateListCtrl', ['$scope', '
         }
       });
     };
-
 
     $scope.isArchitect = alienAuthService.hasRole('ARCHITECT');
   }

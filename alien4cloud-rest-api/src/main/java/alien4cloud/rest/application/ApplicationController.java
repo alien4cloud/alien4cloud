@@ -14,7 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -30,15 +36,19 @@ import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.tosca.model.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -93,8 +103,8 @@ public class ApplicationController {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
         ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
-        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(applicationId);
-        deploymentSetupService.create(version, environment);
+        ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
+        deploymentSetupService.createOrFail(version, environment);
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }
 
@@ -246,7 +256,7 @@ public class ApplicationController {
     }
 
     @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })
-    @RequestMapping(value = "/checkDeploymentProperty", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/check-deployment-property", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> checkPluginDeploymentProperties(
             @RequestBody CloudDeploymentPropertyValidationRequest deploymentPropertyValidationRequest) {
         Map<String, PropertyDefinition> deploymentPropertyDefinitions = cloudService.getDeploymentPropertyDefinitions(deploymentPropertyValidationRequest
@@ -340,12 +350,15 @@ public class ApplicationController {
         return RestResponseBuilder.<ConstraintInformation> builder().error(updateApplicationPropertyError).build();
     }
 
-    @ApiOperation(value = "Get the id of the topology associated with this application.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-        return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
-    }
+    // @Deprecated
+    // @ApiOperation(value = "Get the id of the topology associated with this application.", notes =
+    // "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    // @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
+    // Application application = applicationService.getOrFail(applicationId);
+    // AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
+    // ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
+    // // TODO : update this with ApplicationVersion implementation
+    // return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
+    // }
 }

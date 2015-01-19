@@ -128,7 +128,6 @@ describe('Upload and handle paas plugins', function() {
 
   it('should be able to cancel the plugin deletion', function() {
     console.log('################# should be able to cancel the plugin deletion');
-    // upload mock paas plugin
     pluginsCommon.goToPluginsPage();
     pluginsCommon.pluginsUploadInit();
     var mockPluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
@@ -140,40 +139,28 @@ describe('Upload and handle paas plugins', function() {
 
   it('should have an error when trying to activate a cloud without a good configuration', function() {
     console.log('################# should have an error when trying to activate a cloud without a good configuration');
-
-    // upload mock paas plugin
     pluginsCommon.pluginsUploadInit();
-
-    // goToCloudConfiguration
-    // go on cloud details to enable
     cloudsCommon.goToCloudList();
     cloudsCommon.createNewCloud('testcloud');
     cloudsCommon.goToCloudDetail('testcloud');
 
-    // select cloud configuration
+    // set bad config to true, deploy it and recive error
     cloudsCommon.goToCloudConfiguration();
-    // set bad config to true
     var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratontrue'));
     browser.actions().click(badConfigurationSwitch).perform();
     genericForm.saveForm();
-    cloudsCommon.goToCloudDetailDetails();
-
-    // enabling cloud should fail
+    cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.enableCloud();
     common.expectErrors();
 
-    // set this configuration switch to false
+    // set bad config to false, deploy whit success
     cloudsCommon.goToCloudConfiguration();
-    // set bad config to false
     badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratonfalse'));
     browser.actions().click(badConfigurationSwitch).perform();
     genericForm.saveForm();
-    cloudsCommon.goToCloudDetailDetails();
-
-    // enabling cloud should not fail
+    cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.enableCloud();
     common.expectNoErrors();
-
   });
 
 });

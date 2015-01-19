@@ -2,109 +2,102 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', 'topologyId', 'environment', 'applicationEventServices', '$state', '$rootScope',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, topologyId, environment, applicationEventServices, $state, $rootScope) {
+  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'applicationEventServicesFactory',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, applicationEventServicesFactory) {
     var pageStateId = $state.current.name;
-    $scope.application = applicationResult.data;
-    $scope.environment = environment;
-    $scope.topologyId = topologyId;
-    $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-    $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
-    $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-    $scope.isUser = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_USER');
 
-    $scope.outputAttributesValue = {};
-    $scope.outputPropertiesValue = {};
-    $scope.validTopologyDTO = false;
+    // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
+    var Cloud = $resource('rest/clouds/search', {}, {});
+    function initializeCloudList() {
+      Cloud.get({
+        enabledOnly: true
+      }, function(result) {
+        var clouds = result.data.data;
+        $scope.clouds = clouds;
+      });
+    }
+    initializeCloudList();
 
-    var refreshSetupData = function() {
-      $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
-      $scope.selectedNetworks = $scope.setup.networkMapping;
-      $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
-    };
+    // update the configuration for the cloud
+    function refreshDeploymentPropertyDefinitions() {
+      $http.get('rest/clouds/' + $scope.selectedCloud.id + '/deploymentpropertydefinitions').success(function(result) {
+        if (result.data) {
+          $scope.deploymentPropertyDefinitions = result.data;
+          for (var propertyName in $scope.deploymentPropertyDefinitions) {
+            if ($scope.deploymentPropertyDefinitions.hasOwnProperty(propertyName)) {
+              $scope.deploymentPropertyDefinitions[propertyName].name = propertyName;
+            }
+          }
+        }
+      });
+    }
 
-    $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
-      $scope.currentComputeNodeTemplateId = name;
-      $scope.currentMatchedComputeTemplates = currentMatchedComputeTemplates;
-    };
+    // refresh the actual selected cloud.
+    function refreshSelectedCloud() {
+      if(UTILS.isDefinedAndNotNull($scope.selectedCloud) && $scope.selectedCloud.id === $scope.selectedEnvironment.cloudId) {
+        return;
+      }
 
-    $scope.setCurrentMatchedNetworks = function(name, currentMatchedNetworks) {
-      $scope.currentNetworkNodeTemplateId = name;
-      $scope.currentMatchedNetworks = currentMatchedNetworks;
-    };
+      delete $scope.selectedCloud;
+      delete $scope.deploymentPropertyDefinitions;
 
-    $scope.changeSelectedNetwork = function(template) {
-      $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
-      // Update deployment setup when matching change
-      applicationServices.updateDeploymentSetup({
-        applicationId: $scope.application.id
-      }, angular.toJson({
-        networkMapping: $scope.selectedNetworks
-      }));
-    };
+      var clouds = $scope.clouds;
+      if (UTILS.isDefinedAndNotNull(clouds)) {
+        // select the cloud that is currently associated with the environment
+        var found = false,
+        i = 0;
+        while (!found && i < clouds.length) {
+          if (clouds[i].id === $scope.selectedEnvironment.cloudId) {
+            $scope.selectedCloud = clouds[i];
+            found = true;
+          }
+          i++;
+        }
 
-    $scope.changeSelectedImage = function(template) {
-      $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId] = template;
-      // Update deployment setup when matching change
-      applicationServices.updateDeploymentSetup({
-        applicationId: $scope.application.id
-      }, angular.toJson({
-        cloudResourcesMapping: $scope.selectedComputeTemplates
-      }));
-    };
+        if(found) {
+          refreshDeploymentPropertyDefinitions();
+        }
+        // TODO else is a rare situation but should be managed by refreshing the cloud list.
+      }
+    }
 
-    $scope.showProperty = function() {
-      return !$scope.showTodoList() && $scope.deploymentPropertyDefinitions != null && $scope.deploymentPropertyDefinitions != {};
-    };
+    // link output properties based on values that exists in the topology's node templates.
+    function refreshOutputProperties() {
+      for (var nodeId in $scope.outputProperties) {
+        if ($scope.outputProperties.hasOwnProperty(nodeId)) {
+          $scope.outputPropertiesValue[nodeId] = {};
+          for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
+            var outputPropertyName = $scope.outputProperties[nodeId][i];
+            $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].properties[outputPropertyName];
+          }
+        }
+      }
+    }
 
-    $scope.showTodoList = function() {
-      return !$scope.validTopologyDTO.valid && $scope.isManager;
-    };
+    // Retrieval and validation of the topology associated with the deployment.
+    function checkTopology() {
+      // validate
+      topologyServices.isValid({
+        topologyId: $scope.topologyId
+      }, function(result) {
+        $scope.validTopologyDTO = result.data;
+      });
 
-    $scope.isSelectedCompute = function(template) {
-      var selected = $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId];
-      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId;
-    };
-
-    $scope.isSelectedComputeTemplate = function(key) {
-      return key === $scope.currentComputeNodeTemplateId;
-    };
-
-    $scope.isSelectedNetwork = function(template) {
-      var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
-      return template.networkName === selected.networkName;
-    };
-
-    $scope.isSelectedNetworkName = function(key) {
-      return key === $scope.currentNetworkNodeTemplateId;
-    };
-
-    $scope.isAllowedModify = function() {
-      return UTILS.isDefinedAndNotNull($scope.topologyId) && ($scope.isManager || $scope.isDevops);
-    };
-
-    $scope.isAllowedInputDeployment = function() {
-      return $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager);
-    };
-
-    $scope.isAllowedDeployment = function() {
-      return $scope.isDeployer || $scope.isManager;
-    };
-
-    // get the topology and it validity status
-    if ($scope.topologyId) {
+      // fetch the topology to display intput/output properties and matching data
       topologyServices.dao.get({
         topologyId: $scope.topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
+        // initialize compute and network icons from the actual tosca types (to match topology representation).
         if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
           UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-          $scope.computeImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags[0].value;
+          $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
         }
         if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
           UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-          $scope.networkImage = $scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags[0].value;
+          $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
         }
+        // process topology data
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
@@ -134,70 +127,177 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.inputArtifactsSize = 0;
         }
 
-        refreshCloudList();
-        // Get the status
-        refreshDeploymentStatus(false);
-      });
+        // TODO if the environment is deployed I should refresh output properties
 
-      topologyServices.isValid({
-        topologyId: $scope.topologyId
-      }, function(result) {
-        $scope.validTopologyDTO = result.data;
+      });
+    }
+    // set the topology id linked to the selected environment
+    function setTopologyId() {
+      applicationEnvironmentServices.getTopologyId({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, undefined, function(response) {
+        $scope.topologyId = response.data;
+        if (UTILS.isDefinedAndNotNull($scope.topologyId)) {
+          checkTopology();
+        }
       });
     }
 
-    var refreshOutputProperties = function() {
-      for (var nodeId in $scope.outputProperties) {
-        if ($scope.outputProperties.hasOwnProperty(nodeId)) {
-          $scope.outputPropertiesValue[nodeId] = {};
-          for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
-            var outputPropertyName = $scope.outputProperties[nodeId][i];
-            $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].properties[outputPropertyName];
-          }
-        }
+    // update the deployment configuration for the given environment.
+    function refreshDeploymentSetup() {
+      applicationServices.getDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, undefined, function(response) {
+        $scope.setup = response.data;
+
+        // update resource matching data.
+        $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
+        $scope.selectedNetworks = $scope.setup.networkMapping;
+
+        // update configuration of the PaaSProvider associated with the deployment setup.
+        $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
+
+        refreshSelectedCloud();
+        refreshCloudResources();
+      });
+    }
+
+    // set the environment to the given one and update the related data on screen.
+    function setEnvironment(environment) {
+      $scope.selectedEnvironment = environment;
+      setTopologyId();
+      refreshDeploymentSetup();
+    }
+
+    // Change the selected environment (set only if required).
+    var changeEnvironment = function(switchToEnvironment) {
+      var currentEnvironment = $scope.selectedEnvironment;
+      var newEnvironment = switchToEnvironment;
+      if (currentEnvironment.id !== newEnvironment.id) {
+        setEnvironment(switchToEnvironment);
       }
     };
 
-    var refreshOutputAttributes = function(appRuntimeInformation) {
-      $scope.outputAttributesValue = {};
-      applicationEventServices.subscribeToInstanceStateChange(pageStateId, onInstanceStateChange);
-      if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
-        for (var nodeId in appRuntimeInformation) {
-          if (appRuntimeInformation.hasOwnProperty(nodeId)) {
-            $scope.outputAttributesValue[nodeId] = {};
-            var nodeInformation = appRuntimeInformation[nodeId];
-            for (var instanceId in nodeInformation) {
-              if (nodeInformation.hasOwnProperty(instanceId)) {
-                $scope.outputAttributesValue[nodeId][instanceId] = {};
-                var allAttributes = nodeInformation[instanceId].attributes;
-                for (var attribute in allAttributes) {
-                  if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
-                    $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
-                  }
-                }
-                if (Object.keys($scope.outputAttributesValue[nodeId][instanceId]).length === 0) {
-                  delete $scope.outputAttributesValue[nodeId][instanceId];
-                }
-              }
-            }
-            var nbOfInstances = Object.keys($scope.outputAttributesValue[nodeId]).length;
-            if (nbOfInstances === 0) {
-              delete $scope.outputAttributesValue[nodeId];
-            }
-          }
-        }
-      }
-    };
-
-    var refreshInstancesStatuses = function() {
-      if ($scope.outputAttributesSize > 0) {
-        applicationServices.runtime.get({
-          applicationId: $scope.application.id
-        }, function(successResult) {
-          refreshOutputAttributes(successResult.data);
+    var changeCloud = function(selectedCloud) {
+      if (UTILS.isDefinedAndNotNull(selectedCloud)) {
+        $scope.selectedComputeTemplates = {};
+        $scope.selectedNetworks = {};
+        var updateAppEnvRequest = {};
+        updateAppEnvRequest.cloudId = selectedCloud.id;
+        // update for the current environment
+        applicationEnvironmentServices.update({
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
+        }, angular.toJson(updateAppEnvRequest), function success() {
+          $scope.selectedCloud = selectedCloud;
+          $scope.selectedEnvironment.cloudId = selectedCloud.id;
+          refreshDeploymentSetup();
         });
       }
     };
+
+    // Map functions that should be available from scope.
+    $scope.changeEnvironment = changeEnvironment;
+    // update the targeted cloud for the environment
+    $scope.changeCloud = changeCloud;
+
+    // Initialization
+    $scope.application = applicationResult.data;
+    $scope.envs = appEnvironments.deployEnvironments;
+    setEnvironment($scope.envs[0]);
+
+    // Application rights
+    $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
+    $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
+    // Application environment rights
+    $scope.isDeployer = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER');
+    $scope.isUser = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER');
+
+    $scope.outputAttributesValue = {};
+    $scope.outputPropertiesValue = {};
+    $scope.validTopologyDTO = false;
+
+
+    $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
+      $scope.currentComputeNodeTemplateId = name;
+      $scope.currentMatchedComputeTemplates = currentMatchedComputeTemplates;
+    };
+
+    $scope.setCurrentMatchedNetworks = function(name, currentMatchedNetworks) {
+      $scope.currentNetworkNodeTemplateId = name;
+      $scope.currentMatchedNetworks = currentMatchedNetworks;
+    };
+
+    $scope.changeSelectedNetwork = function(template) {
+      $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        networkMapping: $scope.selectedNetworks
+      }));
+    };
+
+    $scope.changeSelectedImage = function(template) {
+      $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        cloudResourcesMapping: $scope.selectedComputeTemplates
+      }));
+    };
+
+    $scope.showProperty = function() {
+      return !$scope.showTodoList() && UTILS.isDefinedAndNotNull($scope.deploymentPropertyDefinitions);
+    };
+
+    $scope.showTodoList = function() {
+      return !$scope.validTopologyDTO.valid && $scope.isManager;
+    };
+
+    $scope.isSelectedCompute = function(template) {
+      var selected = $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId];
+      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId;
+    };
+
+    $scope.isSelectedComputeTemplate = function(key) {
+      return key === $scope.currentComputeNodeTemplateId;
+    };
+
+    $scope.isSelectedNetwork = function(template) {
+      var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
+      return template.networkName === selected.networkName;
+    };
+
+    $scope.isSelectedNetworkName = function(key) {
+      return key === $scope.currentNetworkNodeTemplateId;
+    };
+
+    $scope.isAllowedInputDeployment = function() {
+      return $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager);
+    };
+
+    $scope.isAllowedDeployment = function() {
+      return $scope.isDeployer || $scope.isManager;
+    };
+
+
+    var applicationEventServices = null;
+    var environementEventId = null;
+
+    function stopEvent() {
+      $scope.outputAttributesValue = {};
+      if(applicationEventServices!==null) {
+        applicationEventServices.stop();
+        applicationEventServices = null;
+        environementEventId = null;
+      }
+    }
 
     var isOutput = function(nodeId, propertyName, type) {
       if (UTILS.isUndefinedOrNull($scope[type])) {
@@ -207,20 +307,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         return false;
       }
       return $scope[type][nodeId].indexOf(propertyName) >= 0;
-    };
-
-    /**
-     * Application status
-     */
-    var refreshDeploymentStatus = function(restart) {
-      if (restart) {
-        applicationEventServices.restart();
-      }
-      applicationEventServices.refreshApplicationStatus(function(newStatus) {
-        $scope.deploymentStatus = newStatus;
-        applicationEventServices.subscribeToStatusChange(pageStateId, onStatusChange);
-        refreshInstancesStatuses();
-      });
     };
 
     var onInstanceStateChange = function(type, event) {
@@ -250,46 +336,99 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.$apply();
     };
 
-    var onStatusChange = function(type, event) {
-      $scope.deploymentStatus = event.deploymentStatus;
-      $scope.$apply();
-    };
+    function doSubscribe(appRuntimeInformation) {
+      applicationEventServices.subscribeToInstanceStateChange(pageStateId, onInstanceStateChange);
+      if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
+        for (var nodeId in appRuntimeInformation) {
+          if (appRuntimeInformation.hasOwnProperty(nodeId)) {
+            $scope.outputAttributesValue[nodeId] = {};
+            var nodeInformation = appRuntimeInformation[nodeId];
+            for (var instanceId in nodeInformation) {
+              if (nodeInformation.hasOwnProperty(instanceId)) {
+                $scope.outputAttributesValue[nodeId][instanceId] = {};
+                var allAttributes = nodeInformation[instanceId].attributes;
+                for (var attribute in allAttributes) {
+                  if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
+                    $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
+                  }
+                }
+                if (Object.keys($scope.outputAttributesValue[nodeId][instanceId]).length === 0) {
+                  delete $scope.outputAttributesValue[nodeId][instanceId];
+                }
+              }
+            }
+            var nbOfInstances = Object.keys($scope.outputAttributesValue[nodeId]).length;
+            if (nbOfInstances === 0) {
+              delete $scope.outputAttributesValue[nodeId];
+            }
+          }
+        }
+      }
+    }
+
+    function refreshInstancesStatuses () {
+      if ($scope.outputAttributesSize > 0) {
+        applicationServices.runtime.get({
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
+        }, function(successResult) {
+          doSubscribe(successResult.data);
+        });
+      }
+    }
+
+    // if the status or the environment changes we must update the event registration.
+    $scope.$watch(function(scope) {
+      if(UTILS.isDefinedAndNotNull(scope.selectedEnvironment)) {
+        return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
+      }
+      return 'UNDEPLOYED';
+    } , function(newValue) {
+      var undeployedValue = $scope.selectedEnvironment.id + "__UNDEPLOYED";
+      // no registration for this environement -> register if not undeployed!
+      if(newValue === undeployedValue) {
+        // if status the application is not undeployed we should register for events.
+        stopEvent();
+      } else {
+        stopEvent();
+        applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+        environementEventId = $scope.selectedEnvironment.id;
+        applicationEventServices.start();
+        refreshInstancesStatuses();
+      }
+    });
 
     $scope.$on('$destroy', function() {
-      applicationEventServices.unsubscribeToStatusChange(pageStateId);
+      stopEvent();
     });
 
     // Deployment handler
     $scope.deploy = function() {
       // Application details with deployment properties
       var deployApplicationRequest = {
-        applicationId: $scope.application.id
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
       };
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
-        $scope.deploymentStatus = 'DEPLOYMENT_IN_PROGRESS';
-        //workaround
-        //emit 'DEPLOYMENT_IN_PROGRESS' event, to change the runtime button status
-        $rootScope.$emit('DEPLOYMENT_IN_PROGRESS');
+        $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
         $scope.isDeploying = false;
-        refreshDeploymentStatus(true);
       });
     };
 
     $scope.undeploy = function() {
       $scope.isUnDeploying = true;
       applicationServices.deployment.undeploy({
-        applicationId: $scope.application.id
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
       }, function() {
-        $scope.deploymentStatus = 'UNDEPLOYMENT_IN_PROGRESS';
+        $scope.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
         $scope.isUnDeploying = false;
       });
     };
 
-
     /* Handle properties inputs */
     $scope.updateProperty = function(nodeTemplateName, propertyName, propertyValue) {
-
       // No update if it's the same value
       if (propertyValue === $scope.nodeTemplates[nodeTemplateName].properties[propertyName]) {
         return;
@@ -351,32 +490,19 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     // DEPLOYMENT AND CLOUD MANAGEMENT
 
-    var refreshDeploymentPropertyDefinitions = function() {
-      if ($scope.selectedCloud) {
-        $http.get('rest/clouds/' + $scope.selectedCloud.id + '/deploymentpropertydefinitions').success(function(result) {
-          if (result.data) {
-            $scope.deploymentPropertyDefinitions = result.data;
-            for (var propertyName in $scope.deploymentPropertyDefinitions) {
-              if ($scope.deploymentPropertyDefinitions.hasOwnProperty(propertyName)) {
-                $scope.deploymentPropertyDefinitions[propertyName].name = propertyName;
-              }
-            }
-          }
-        });
-      }
-    };
-
     var refreshCloudResources = function() {
-      if ($scope.selectedCloud) {
+      if ($scope.selectedCloud && $scope.selectedEnvironment.hasOwnProperty('cloudId')) {
         delete $scope.currentMatchedComputeTemplates;
         applicationServices.matchResources({
-          applicationId: $scope.application.id
+          applicationId: $scope.application.id,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
         }, undefined, function(response) {
           $scope.matchedComputeResources = response.data.computeMatchResult;
           $scope.matchedNetworkResources = response.data.networkMatchResult;
           $scope.images = response.data.images;
           $scope.flavors = response.data.flavors;
-          for (var key in $scope.matchedComputeResources) {
+          var key;
+          for (key in $scope.matchedComputeResources) {
             if ($scope.matchedComputeResources.hasOwnProperty(key)) {
               if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
                 $scope.hasUnmatchedCompute = true;
@@ -384,7 +510,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
               }
             }
           }
-          for (var key in $scope.matchedNetworkResources) {
+          for (key in $scope.matchedNetworkResources) {
             if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
               if (!$scope.selectedNetworks.hasOwnProperty(key)) {
                 $scope.hasUnmatchedNetwork = true;
@@ -394,57 +520,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           }
         });
       }
-    };
-
-    var refreshDeploymentSetup = function() {
-      applicationServices.getDeploymentSetup({
-        applicationId: $scope.application.id
-      }, undefined, function(response) {
-        $scope.setup = response.data;
-        refreshSetupData();
-        refreshDeploymentPropertyDefinitions();
-        refreshCloudResources();
-      });
-    };
-
-    // search for clouds
-    var Cloud = $resource('rest/clouds/search', {}, {});
-    var refreshCloudList = function() {
-      Cloud.get({
-        enabledOnly: true
-      }, function(result) {
-        var clouds = result.data.data;
-        $scope.clouds = clouds;
-        if (clouds) {
-          // select the cloud that is currently associated with the topology
-          var found = false,
-            i = 0;
-          while (!found && i < clouds.length) {
-            if (clouds[i].id === $scope.environment.cloudId) {
-              $scope.selectedCloud = clouds[i];
-              refreshDeploymentSetup();
-              found = true;
-            }
-            i++;
-          }
-        }
-      });
-    };
-
-    /** change the cloud for the topology */
-    $scope.changeCloud = function(selectedCloud) {
-      $scope.selectedComputeTemplates = {};
-      $scope.selectedNetworks = {};
-      topologyServices.cloud.set({
-        applicationId: $scope.application.id
-      }, selectedCloud.id, function(result) {
-        if (result.error === null) {
-          $scope.selectedCloud = selectedCloud;
-          $scope.environment.cloudId = selectedCloud.id;
-          refreshDeploymentStatus(true);
-          refreshDeploymentSetup();
-        }
-      });
     };
 
     /** Properties definition */
@@ -464,7 +539,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.deploymentProperties[propertyName] = propertyValue;
           // Update deployment setup when properties change
           applicationServices.updateDeploymentSetup({
-            applicationId: $scope.application.id
+            applicationId: $scope.application.id,
+            applicationEnvironmentId: $scope.selectedEnvironment.id
           }, angular.toJson({
             providerDeploymentProperties: $scope.deploymentProperties
           }));

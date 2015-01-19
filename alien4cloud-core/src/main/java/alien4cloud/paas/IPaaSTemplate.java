@@ -2,7 +2,7 @@ package alien4cloud.paas;
 
 import java.nio.file.Path;
 
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 
@@ -33,4 +33,6 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
      *            path of the CSAR that contains the related tosca element
      */
     void setCsarPath(Path csarPath);
+
+    Path getCsarPath();
 }

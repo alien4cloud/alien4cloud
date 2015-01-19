@@ -15,7 +15,7 @@ import alien4cloud.rest.template.CreateTopologyTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.container.model.topology.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.utils.ReflectionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;

@@ -9,7 +9,7 @@ public class ResourceMatchingFailedException extends PaaSDeploymentException {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      * @param message
      */
     public ResourceMatchingFailedException(String message) {

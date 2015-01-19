@@ -201,8 +201,6 @@
     "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
     "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Editer les roles",
-    "EDIT_ROLE_HEADER": "Ajouter ou retirer des roles",
     "OPERATIONS": "Opérations",
     "DELETE": "Supprimer"
   },
@@ -217,19 +215,23 @@
     "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
     "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Editer les roles",
-    "EDIT_ROLE_HEADER": "Ajouter ou retirer des roles",
     "DELETE": "Supprimer",
     "OPERATIONS": "Opérations"
+  },
+  "EDIT_RIGHTS": {
+    "EDIT_ROLE_RESOURCE": "Editer les roles sur la ressource",
+    "EDIT_ROLE_HEADER_RESOURCE": "Ajouter ou retirer des roles à la ressource",
+    "EDIT_ROLE_ENV": "Editer les roles sur l'environnement",
+    "EDIT_ROLE_HEADER_ENV": "Ajouter ou retirer des roles à l'environnement"
   },
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
     "MENU_TOPOLOGY": "Topologie",
-    "MENU_PLAN": "Workflows de la topologie",
     "MENU_DEPLOYMENT": "Déploiement",
     "MENU_RUNTIME": "Runtime",
     "MENU_USERS": "Utilisateurs et Groupes",
-    "MENU_ENVIRONMENT": "Environnements"
+    "MENU_ENVIRONMENT": "Environnements",
+    "MENU_VERSIONS": "Version"
   },
   "ROLE_TABS": {
     "USERS": "Utilisateurs",
@@ -237,6 +239,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "APPLICATION_ROLES": "Rôles d'application",
     "NEW": "Nouvelle Application",
     "NAME": "Nom",
     "DESC": "Description",
@@ -312,13 +315,15 @@
       "TITLE_NETWORK": "Nom du réseau",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
-      "NETWORK_RESOURCES": "Réseau"
+      "NETWORK_RESOURCES": "Réseau",
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
       "VISUAL_DETAILED": "vue détaillée",
       "VISUAL_SIMPLE": "vue condensée",
       "YAML": "yaml",
+      "PLAN": "Workflow",
       "MODIFY_TOPOLOGY": "Modifier",
       "ADD_NODETEMPLATE": "Ajouter un Noeud",
       "DEPENDENCY": "Dépendances",
@@ -379,19 +384,36 @@
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
     },
     "ENVIRONMENT": {
+      "ENV": "Environnement",
+      "ENV_ROLES": "Rôles d'environment",
       "NEW": "Nouvel environnement",
       "STATUS": "Etat",
       "NAME": "Nom",
       "TYPE": "Type",
       "DESCRIPTION": "Description",
       "CLOUD": "Cloud",
-      "FORM" : {
-        "NAME" : "Nom",
+      "VERSION": "Version",
+      "FORM": {
+        "NAME": "Nom",
         "DESCRIPTION": "Description",
         "CLOUD": "Cloud actif",
         "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
         "ENV_TYPE": "Type d'environnement",
-        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --"
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --",
+        "ENV_VERSION": "Version de l'application",
+        "ENV_VERSION_SELECT": "-- Sélectionner la version de l'application --"
+      }
+    },
+    "VERSION": {
+      "NEW": "Créer une nouvelle version",
+      "VERSION": "Numéro de version",
+      "DESCRIPTION": "Description",
+      "ID": "ID de la version",
+      "TITLE": "Nouvelle version",
+      "MODAL": {
+        "SELECT-TITLE": "Topologie",
+        "DESC": "Sélectionnez une ancienne version pour dupliquer sa topologie",
+        "PATTERN": "Le format du numéro de version est invalide."
       }
     },
     "ERRORS": {
@@ -448,6 +470,7 @@
     "NAME": "Nom",
     "STATE": "État",
     "PAAS_PROVIDER": "Fournisseur PaaS",
+    "PAAS_PROVIDER_SELECT": "-- Sélectionner un PaaS Provider --",
     "DEPLOYMENTS": "Déploiements",
     "DEPLOYMENT_SOURCE": "Source",
     "DEPLOYMENT_TYPE": "Type",
@@ -598,6 +621,8 @@
     "507": "La suppression de cet objet n'est pas autorisée parce qu'il est encore utilisé par d'autres objets",
     "601": "Le déploiement de l'application a échoué",
     "602": "L'Arrêt de l'application a échoué",
+    "604": "Une application doit nécéssairement avoir au moins un environnement",
+    "605": "Le format de version saisie est invalide",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
@@ -698,7 +723,8 @@
     "uninstalling": "Désinstallation",
     "uninstalled": "Désinstallé",
     "initial": "Initial",
-    "available": "Disponible"
+    "available": "Disponible",
+    "uninitialized": "Non initialisé"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",

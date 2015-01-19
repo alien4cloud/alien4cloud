@@ -12,8 +12,8 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.model.Operation;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.tosca.parser.*;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
 

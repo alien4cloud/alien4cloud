@@ -9,31 +9,21 @@ Feature: Create an application an testing application roles on it
     And I retrieve the newly created application
     Then I should receive a RestResponse with an error code 102
 
-  Scenario: I can read an application with at least one application role on it (APPLICATION_USER)
-    Given I add a role "APPLICATION_USER" to user "appManager" on the application "mordor"
+  Scenario: I can read an application with at least one application role on it - APPLICATION_MANAGER
+    #Given I add a role "APPLICATION_MANAGER" to user "appManager" on the application "mordor"
+    Given I add a role "APPLICATION_MANAGER" to user "appManager" on the resource type "APPLICATION" named "mordor"
     And I am authenticated with "APP_MANAGER" role
     And I retrieve the newly created application
     Then I should receive a RestResponse with no error
 
-  Scenario: I can read an application with at least one application role on it (APPLICATION_MANAGER)
-    Given I add a role "APPLICATION_MANAGER" to user "appManager" on the application "mordor"
+  Scenario: I can read an application with at least one application role on it - APPLICATION_DEVOPS
+    #Given I add a role "APPLICATION_DEVOPS" to user "appManager" on the application "mordor"
+    Given I add a role "APPLICATION_DEVOPS" to user "appManager" on the resource type "APPLICATION" named "mordor"
     And I am authenticated with "APP_MANAGER" role
     And I retrieve the newly created application
     Then I should receive a RestResponse with no error
 
-  Scenario: I can read an application with at least one application role on it (APPLICATION_DEVOPS)
-    Given I add a role "APPLICATION_DEVOPS" to user "appManager" on the application "mordor"
-    And I am authenticated with "APP_MANAGER" role
-    And I retrieve the newly created application
-    Then I should receive a RestResponse with no error
-
-  Scenario: I can read an application with at least one application role on it (DEPLOYMENT_MANAGER)
-    Given I add a role "DEPLOYMENT_MANAGER" to user "appManager" on the application "mordor"
-    And I am authenticated with "APP_MANAGER" role
-    And I retrieve the newly created application
-    Then I should receive a RestResponse with no error
-
-  Scenario: I can read an application as application creator (default roles APPLICATION_MANAGER, DEPLOYMENT_MANAGER)
+  Scenario: I can read an application as application creator - default role APPLICATION_MANAGER
     Given I retrieve the newly created application
     Then I should receive a RestResponse with no error
 

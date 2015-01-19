@@ -3,12 +3,9 @@ package alien4cloud.tosca.model;
 import java.util.List;
 import java.util.Map;
 
+import alien4cloud.model.components.*;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.component.model.IndexedArtifactType;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
 
 import com.google.common.collect.Maps;
 

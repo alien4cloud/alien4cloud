@@ -11,6 +11,7 @@ import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
 import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -33,13 +34,17 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @When("^I match for resources for my application on the cloud$")
     public void I_match_for_resources_for_my_application_on_the_cloud() throws Throwable {
-        String applicationId = Context.getInstance().getApplication().getId();
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/applications/" + applicationId + "/cloud-resources"));
+        Application application = Context.getInstance().getApplication();
+        String applicationId = application.getId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + applicationId + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/cloud-resources"));
     }
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-                                                                                    DataTable expectedTemplatesTable) throws Throwable {
+            DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
                 CloudResourceTopologyMatchResult.class);
         Assert.assertNull(matchResultResponse.getError());
@@ -78,8 +83,10 @@ public class ApplicationResourceMatcherStepDefinitions {
         Map<String, ComputeTemplate> cloudResourcesMatching = Maps.newHashMap();
         cloudResourcesMatching.put(nodeName, new ComputeTemplate(Context.getInstance().getCloudImageId(cloudImageName), flavorId));
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching, null);
-        String response = Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup",
-                JsonUtil.toString(request));
+        Application application = Context.getInstance().getApplication();
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
 
@@ -92,18 +99,24 @@ public class ApplicationResourceMatcherStepDefinitions {
             String nodeTemplate = resourceMatching.get(0);
             expectedCloudResourcesMatching.put(nodeTemplate, new ComputeTemplate(cloudImageId, cloudImageFlavorId));
         }
-        DeploymentSetup deploymentSetup = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetup deploymentSetup = JsonUtil
+                .read(Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
+                .getData();
         Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
         Assert.assertEquals(expectedCloudResourcesMatching, deploymentSetup.getCloudResourcesMapping());
     }
 
     @Then("^The deployment setup of the application should contain no resources mapping$")
     public void The_deployment_setup_of_the_application_should_contain_no_resources_mapping() throws Throwable {
-        DeploymentSetup deploymentSetup = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetup deploymentSetup = JsonUtil
+                .read(Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
+                .getData();
         Assert.assertTrue(deploymentSetup.getCloudResourcesMapping() == null || deploymentSetup.getCloudResourcesMapping().isEmpty());
     }
 
@@ -136,8 +149,10 @@ public class ApplicationResourceMatcherStepDefinitions {
         Map<String, Network> networkMatching = Maps.newHashMap();
         networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
-        String response = Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/deployment-setup",
-                JsonUtil.toString(request));
+        Application application = Context.getInstance().getApplication();
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
     }
 
@@ -156,18 +171,24 @@ public class ApplicationResourceMatcherStepDefinitions {
             network.setGatewayIp(gateWay);
             expectedNetworksMatching.put(rows.get(0), network);
         }
-        DeploymentSetup deploymentSetup = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetup deploymentSetup = JsonUtil
+                .read(Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
+                .getData();
         Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
         Assert.assertEquals(expectedNetworksMatching, deploymentSetup.getNetworkMapping());
     }
 
     @Then("^The deployment setup of the application should contain an empty network mapping$")
     public void The_deployment_setup_of_the_application_should_contain_an_empty_network_mapping() throws Throwable {
-        DeploymentSetup deploymentSetup = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetup deploymentSetup = JsonUtil
+                .read(Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
+                .getData();
         Assert.assertTrue(deploymentSetup.getNetworkMapping() == null || deploymentSetup.getNetworkMapping().isEmpty());
     }
 }

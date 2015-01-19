@@ -17,20 +17,38 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.component.model.IndexedCapabilityType;
-import alien4cloud.component.model.IndexedInheritableToscaElement;
-import alien4cloud.component.model.IndexedNodeType;
-import alien4cloud.component.model.IndexedRelationshipType;
-import alien4cloud.component.model.IndexedToscaElement;
+import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.topology.task.PropertiesTask;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.topology.task.RequirementsTask;
@@ -38,23 +56,12 @@ import alien4cloud.rest.topology.task.SuggestionsTask;
 import alien4cloud.rest.topology.task.TaskCode;
 import alien4cloud.rest.topology.task.TopologyTask;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.ToscaTypeLoader;
-import alien4cloud.tosca.container.model.CSARDependency;
-import alien4cloud.tosca.container.model.template.Capability;
-import alien4cloud.tosca.container.model.template.DeploymentArtifact;
-import alien4cloud.tosca.container.model.template.Requirement;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.RelationshipTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
-import alien4cloud.tosca.container.services.csar.impl.CSARRepositorySearchService;
-import alien4cloud.tosca.model.AttributeDefinition;
-import alien4cloud.tosca.model.CapabilityDefinition;
-import alien4cloud.tosca.model.PropertyDefinition;
-import alien4cloud.tosca.model.RequirementDefinition;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.VersionUtil;
@@ -79,6 +86,12 @@ public class TopologyService {
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
+
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     private void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
         if (attributes2 == null || attributes == null) {
@@ -649,8 +662,23 @@ public class TopologyService {
         if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
             String applicationId = topology.getDelegateId();
             Application application = appService.getOrFail(applicationId);
-            // check authorizations on the app
-            AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
+            try {
+                AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
+            } catch (AccessDeniedException e) {
+                ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
+                if (version == null) {
+                    throw new NotFoundException("Unable to check user rights for topology as no version associated with the topology can be found.");
+                }
+                ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
+                boolean isDenied = true;
+                for (int i = 0; i < environments.length && isDenied; i++) {
+                    isDenied = !AuthorizationUtil.hasAuthorizationForEnvironment(environments[i], ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+                }
+                if (isDenied) {
+                    throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
+                            + "> has no authorization to perform the requested operation on this cloud.");
+                }
+            }
         } else {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         }

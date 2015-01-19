@@ -3,7 +3,7 @@ package alien4cloud.tosca.container.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import alien4cloud.tosca.model.ToscaType;
+import alien4cloud.tosca.normative.ToscaType;
 
 public class ToscaPropertyTypeValidator implements ConstraintValidator<ToscaPropertyType, String> {
 

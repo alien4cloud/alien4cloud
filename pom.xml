@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.0.0-SM18</version>
+  <version>1.0.0-SM19</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -59,8 +59,10 @@
 
     <aspectj.version>1.7.4</aspectj.version>
 
-    <!-- Elastic Search -->
-    <es-mapping.version>1.1.17</es-mapping.version>
+    <!-- Elastic Search mapper (reference the elastic search version actually). -->
+    <es-mapping.version>1.2.0</es-mapping.version>
+    <!-- Groovy is required for ElasticSearch to run as server in order to process scripts -->
+    <groovy.version>2.3.5</groovy.version>
 
     <!-- Logging -->
     <log4j.version>1.2.16</log4j.version>
@@ -343,6 +345,11 @@
         <version>${es-mapping.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient</artifactId>
         <version>${httpclient.version}</version>
@@ -356,6 +363,12 @@
         <groupId>commons-cli</groupId>
         <artifactId>commons-cli</artifactId>
         <version>${commons-cli.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${log4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

@@ -12,6 +12,7 @@ import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Setter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 public class Plugin {

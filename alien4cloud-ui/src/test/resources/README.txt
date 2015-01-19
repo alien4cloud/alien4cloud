@@ -20,11 +20,17 @@ curl -X POST "http://localhost:9200/group/_search?pretty=true" -d '
 }
 '
 
-curl -X POST "http://localhost:9200/deploymentmonitorevents/_search?pretty=true" -d '
+curl -X POST "http://localhost:9200/deployment/_search?pretty=true" -d '
 {
     "query" : {
-        "match_all" : {}
-    }
+          "bool" : {
+            "must" : [ {
+              "term" : {
+                "cloudId" : "9b6fd043-7b1f-469e-998f-f647ef0e584d"
+              }
+            }]
+          }
+        }
 }
 '
 

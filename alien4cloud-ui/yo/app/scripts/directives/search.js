@@ -14,6 +14,7 @@ angular.module('alienUiApp').directive('alienSearchComponent', ['$interval', fun
     },
     link: function(scope, element) {
       scope.queryComponentType = 'NODE_TYPE';
+
       function resize() {
         var listHeight = scope.heightInfo.height - element.offset().top - 74;
         scope.listHeight = scope.globalContext ? 'height: ' + listHeight + 'px' : '';
@@ -48,17 +49,24 @@ angular.module('alienUiApp').directive('alienSearchUser', function() {
     restrict: 'E',
     scope: {
       'crudSupport': '=',
-      'managedRoleList': '=',
-      'checkRoleSelectedCallback': '&',
-      'onSelectRoleCallback': '&',
-      'onSelectGroupCallback': '&',
+      'managedAppRoleList': '=',
+      'managedEnvRoleList': '=',
+      'checkAppRoleSelectedCallback': '&',
+      'checkEnvRoleSelectedCallback': '&',
+      'onSelectAppRoleCallback': '&',
+      'onSelectEnvRoleCallback': '&',
+      'onSelectAppGroupCallback': '&',
+      'onSelectEnvGroupCallback': '&',
       'displayAll': '=',
       'displayEmail': '=',
       'displayRoles': '='
     },
     link: function postLink(scope, element, attrs) {
-      if (!attrs.checkRoleSelectedCallback) {
-        scope.checkRoleSelectedCallback = null;
+      if (!attrs.checkAppRoleSelectedCallback) {
+        scope.checkAppRoleSelectedCallback = null;
+      }
+      if (!attrs.checkEnvRoleSelectedCallback) {
+        scope.checkEnvRoleSelectedCallback = null;
       }
     }
   };
@@ -70,18 +78,25 @@ angular.module('alienUiApp').directive('alienSearchGroup', function() {
     restrict: 'E',
     scope: {
       'crudSupport': '=',
-      'managedRoleList': '=',
-      'checkRoleSelectedCallback': '&',
-      'onSelectRoleCallback': '&',
-      'onSelectGroupCallback': '&',
+      'managedAppRoleList': '=',
+      'managedEnvRoleList': '=',
+      'checkAppRoleSelectedCallback': '&',
+      'checkEnvRoleSelectedCallback': '&',
+      'onSelectAppRoleCallback': '&',
+      'onSelectEnvRoleCallback': '&',
+      'onSelectAppGroupCallback': '&',
+      'onSelectEnvGroupCallback': '&',
       'displayAll': '=',
       'displayEmail': '=',
       'displayRoles': '=',
       'displayDescription': '='
     },
     link: function postLink(scope, element, attrs) {
-      if (!attrs.checkRoleSelectedCallback) {
-        scope.checkRoleSelectedCallback = null;
+      if (!attrs.checkAppRoleSelectedCallback) {
+        scope.checkAppRoleSelectedCallback = null;
+      }
+      if (!attrs.checkEnvRoleSelectedCallback) {
+        scope.checkEnvRoleSelectedCallback = null;
       }
     }
   };

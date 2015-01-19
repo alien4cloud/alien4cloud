@@ -1,7 +1,5 @@
 package alien4cloud.model.application;
 
-import java.util.Map;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,11 +19,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @ESObject
 @Getter
 @Setter
-@SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
 public class ApplicationVersion implements IManagedSecuredResource {
     @Id
     private String id;
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String version;
     private String description;
     @TermFilter
@@ -34,11 +33,12 @@ public class ApplicationVersion implements IManagedSecuredResource {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     private String topologyId;
-    private Map<String, String> properties;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean released;
     @BooleanField(index = IndexType.not_analyzed)
     private boolean latest;
+    @BooleanField(index = IndexType.not_analyzed)
+    private boolean isSnapshot;
 
     @JsonIgnore
     @Override

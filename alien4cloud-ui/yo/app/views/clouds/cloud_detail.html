@@ -258,13 +258,18 @@
                           <td>{{cloudImage.name}}</td>
                           <td>{{flavor.id}}</td>
                           <td ng-if="manualMatchResource" ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
-                            <span editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
+                            <span ng-if="!manualMatchComputeIds" editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
                               {{template.paaSResourceId}}
                               <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
                               </em>
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
+                            <select ng-if="manualMatchComputeIds" ng-model="template.paaSResourceId" ng-change="saveComputeTemplateResource(template)">
+                              <option value="" ng-selected="!template.paaSResourceId">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
+                              <option ng-repeat="value in manualMatchComputeIds" value="{{value}}" ng-selected="value == template.paaSResourceId">{{value}}
+                              </option>
+                            </select>
                           </td>
                         </tr>
                       </tbody>
@@ -500,11 +505,21 @@
           <div class="col-md-12">
             <tabset>
               <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
-                <alien-search-user crud-support="false" managed-role-list="cloudRoles" check-role-selected-callback="checkCloudRoleSelectedForUser(user, role)" on-select-role-callback="handleRoleSelectionForUser(user, role)">
+                <alien-search-user
+                  crud-support="false"
+                  managed-app-role-list="cloudRoles"
+                  managed-env-role-list="null"
+                  check-app-role-selected-callback="checkCloudRoleSelectedForUser(user, role)"
+                  on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
                 </alien-search-user>
               </tab>
               <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
-                <alien-search-group crud-support="false" managed-role-list="cloudRoles" check-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)" on-select-role-callback="handleRoleSelectionForGroup(group, role)">
+                <alien-search-group
+                  crud-support="false"
+                  managed-app-role-list="cloudRoles"
+                  managed-env-role-list="null"
+                  check-app-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)"
+                  on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
                 </alien-search-group>
               </tab>
             </tabset>

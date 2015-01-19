@@ -2,7 +2,9 @@ package alien4cloud.dao;
 
 import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -29,11 +31,12 @@ import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
  * Manages one or multiple indexes and the related java and elastic search types.
- * 
+ *
  * @author luc boutier
  */
 @Slf4j
@@ -74,7 +77,7 @@ public abstract class ESIndexMapper {
 
     /**
      * Create if not exist indices.
-     * 
+     *
      * @param indexName The index to initialize
      * @param classes An array of classes to map to this index.
      */
@@ -139,7 +142,7 @@ public abstract class ESIndexMapper {
 
     /**
      * Get the index in which the given type lies.
-     * 
+     *
      * @param clazz The type for which to get the index.
      * @return The index in which the given type lies.
      */
@@ -155,7 +158,7 @@ public abstract class ESIndexMapper {
 
     /**
      * Return a class from the given elastic search type.
-     * 
+     *
      * @param type The elastic search type.
      * @return The class matching the given type if any, null if no class is matching the type.
      */
@@ -165,7 +168,7 @@ public abstract class ESIndexMapper {
 
     /**
      * Get the class from the class name.
-     * 
+     *
      * @param className The name of the class to get.
      * @param allowNull If a null class name is allowed. If className is null and allowNull is true then null is returned, if className is null and allowNull is
      *            false then an {@link IndexingServiceException} is thrown.
@@ -187,9 +190,20 @@ public abstract class ESIndexMapper {
         }
     }
 
+    public String[] getTypesFromClass(Class<?> clazz) {
+        List<String> types = Lists.newArrayList();
+        Collection<Class<?>> allManagedClasses = typesToClasses.values();
+        for (Class<?> managedClass : allManagedClasses) {
+            if (clazz.isAssignableFrom(managedClass)) {
+                types.add(MappingBuilder.indexTypeFromClass(managedClass));
+            }
+        }
+        return types.toArray(new String[types.size()]);
+    }
+
     /**
      * Get the elastic search client linked to the index mapper.
-     * 
+     *
      * @return The elastic search client linked to the index mapper.
      */
     public Client getClient() {

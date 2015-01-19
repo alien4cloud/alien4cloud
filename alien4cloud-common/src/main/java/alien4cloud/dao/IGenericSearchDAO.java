@@ -8,6 +8,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.mapping.FilterValuesStrategy;
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -69,9 +70,29 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      *
      * @param clazz The type of data to query.
      * @param query The query to execute.
+     * @param sortBuilder the sort configuration
+     * @return A single result.
+     */
+    <T> T customFind(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder);
+
+    /**
+     * Run a custom query on elastic search for the given class.
+     *
+     * @param clazz The type of data to query.
+     * @param query The query to execute.
      * @return All result.
      */
     <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query);
+
+    /**
+     * Run a custom query on elastic search for the given class.
+     *
+     * @param clazz The type of data to query.
+     * @param query The query to execute.
+     * @param sortBuilder the sort configuration
+     * @return All result.
+     */
+    <T> List<T> customFindAll(Class<T> clazz, QueryBuilder query, SortBuilder sortBuilder);
 
     /**
      * Run a query build from a {@link SearchQueryHelperBuilder}.

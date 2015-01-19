@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 
 /**
  * Contains meta-data on the archive.

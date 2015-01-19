@@ -40,11 +40,16 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.application.DeployApplicationRequest;
+import alien4cloud.rest.application.EnvironmentStatusDTO;
+import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -53,7 +58,7 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class ApplicationsDeploymentStepDefinitions {
-    private Map<String, DeploymentStatus> applicationStatuses = Maps.newHashMap();
+    private Map<String, EnvironmentStatusDTO> applicationStatuses = Maps.newHashMap();
     private TopologyStepDefinitions topologyStepDefinitions = new TopologyStepDefinitions();
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
     private static Map<String, DeploymentStatus> pendingStatuses;
@@ -66,41 +71,52 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @When("^I deploy it$")
     public void I_deploy_it() throws Throwable {
-        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(null);
+        // deploys the current application on default "Environment"
+        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
         Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
     }
 
-    private DeployApplicationRequest getDeploymentAppRequest(String applicationId) throws IOException {
+    private DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
         DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
-        deployApplicationRequest.setApplicationId(applicationId == null ? ApplicationStepDefinitions.CURRENT_APPLICATION.getId() : applicationId);
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+
+        // set application id and environment id for the request
+        String applicationId = (applicationName == null) ? application.getId() : Context.getInstance().getApplicationId(applicationName);
+        deployApplicationRequest.setApplicationId(applicationId);
+        String environmentId = (environmentName == null) ? Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) : Context.getInstance()
+                .getApplicationEnvironmentId(applicationName, environmentName);
+        deployApplicationRequest.setApplicationEnvironmentId(environmentId);
 
         Map<String, String> deploymentProperties = Context.getInstance().getDeployApplicationProperties();
         if (deploymentProperties != null) {
             UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest();
             request.setProviderDeploymentProperties(deploymentProperties);
             String response = Context.getRestClientInstance().putJSon(
-                    "/rest/applications/" + deployApplicationRequest.getApplicationId() + "/deployment-setup", JsonUtil.toString(request));
+                    "/rest/applications/" + applicationId + "/environments/" + environmentId + "/deployment-setup", JsonUtil.toString(request));
             RestResponse<?> marshaledResponse = JsonUtil.read(response);
             Assert.assertNull(marshaledResponse.getError());
         }
         return deployApplicationRequest;
     }
 
-    private void assertStatus(String applicationId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout) throws Throwable {
-        checkStatus(applicationId, null, expectedStatus, pendingStatus, timeout);
+    private void assertStatus(String applicationName, String environmentName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
+            throws Throwable {
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout);
     }
 
     private void assertDeploymentStatus(String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout) throws Throwable {
         checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout);
     }
 
-    private void checkStatus(String applicationId, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
+    private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
             throws IOException, InterruptedException {
         String statusRequest = null;
+        String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
         if (deploymentId != null) {
             statusRequest = "/rest/deployments/" + deploymentId + "/status";
         } else if (applicationId != null) {
-            statusRequest = "/rest/applications/" + applicationId + "/deployment";
+            statusRequest = "/rest/applications/" + applicationId + "/environments/"
+                    + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/deployment";
         } else {
             throw new ITException("Expected at least application ID OR deployment ID to check the status.");
         }
@@ -117,7 +133,9 @@ public class ApplicationsDeploymentStepDefinitions {
             DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
             if (deploymentStatus.equals(expectedStatus)) {
                 if (applicationId != null) {
-                    String restInfoResponseText = Context.getRestClientInstance().get("/rest/applications/" + applicationId + "/deployment/informations");
+                    String restInfoResponseText = Context.getRestClientInstance().get(
+                            "/rest/applications/" + applicationId + "/environments/"
+                                    + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/deployment/informations");
                     RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
                     assertNull(infoResponse.getError());
                 }
@@ -136,12 +154,13 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @Then("^The application's deployment must succeed$")
     public void The_application_s_deployment_must_succeed() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getId(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L);
+        // null value for environmentName => use default environment
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L);
     }
 
     @Then("^The application's deployment must fail$")
     public void The_application_s_deployment_must_fail() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getId(), DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
     }
 
     @Then("^The deployment must succeed$")
@@ -158,12 +177,11 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @Then("^The application's deployment must finish with warning$")
     public void The_application_s_deployment_must_finish_with_warning() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getId(), DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
     }
 
     @When("^I can get applications statuses$")
     public void I_get_applications_statuses() throws Throwable {
-
         List<String> applicationIds = Lists.newArrayList();
         Iterator<String> appNames = ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet().iterator();
         while (appNames.hasNext()) {
@@ -172,19 +190,21 @@ public class ApplicationsDeploymentStepDefinitions {
 
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/statuses", JsonUtil.toString(applicationIds)));
         RestResponse<?> reponse = JsonUtil.read(Context.getInstance().getRestResponse());
-        applicationStatuses = JsonUtil.toMap(JsonUtil.toString(reponse.getData()), String.class, DeploymentStatus.class);
-
+        Map<String, Object> applicationStatuses = JsonUtil.toMap(JsonUtil.toString(reponse.getData()));
         assertEquals(ApplicationStepDefinitions.CURRENT_APPLICATIONS.size(), applicationStatuses.size());
     }
 
     @When("^I assign the cloud with name \"([^\"]*)\" for the application$")
     public void I_assign_the_cloud_with_name_for_the_application(String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
-
+        UpdateApplicationEnvironmentRequest updateApplicationCloudRequest = new UpdateApplicationEnvironmentRequest();
+        updateApplicationCloudRequest.setCloudId(cloudId);
+        Application application = Context.getInstance().getApplication();
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().putJSon("/rest/applications/" + Context.getInstance().getApplication().getId() + "/cloud/", cloudId));
-
-        // Register paas provider details
+                Context.getRestClientInstance().putJSon(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()),
+                        JsonUtil.toString(updateApplicationCloudRequest)));
         Context.getInstance().registerCloudForTopology(cloudId);
     }
 
@@ -193,26 +213,30 @@ public class ApplicationsDeploymentStepDefinitions {
         assertNotNull(ApplicationStepDefinitions.CURRENT_APPLICATIONS);
         for (String key : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
             Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(key);
-
             Context.getInstance().registerApplication(app);
             I_assign_the_cloud_with_name_for_the_application(cloudName);
-            DeployApplicationRequest deployApplicationRequest = new DeployApplicationRequest();
-            deployApplicationRequest.setApplicationId(app.getId());
-
-            Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+            String appName = app.getName();
+            Map<String, String> environments = Context.getInstance().getAllEnvironmentForApplication(appName);
+            DeployApplicationRequest deployApplicationRequest = null;
+            for (Map.Entry<String, String> env : environments.entrySet()) {
+                String envName = env.getKey();
+                deployApplicationRequest = getDeploymentAppRequest(appName, envName);
+                Context.getInstance().registerRestResponse(deploy(deployApplicationRequest));
+            }
             commonSteps.I_should_receive_a_RestResponse_with_no_error();
         }
     }
 
+    private String deploy(DeployApplicationRequest deployApplicationRequest) throws JsonProcessingException, IOException {
+        return Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
+    }
+
     @When("^I have expected applications statuses for \"([^\"]*)\" operation$")
     public void I_have_expected_applications_statuses(String operation, DataTable appsStatuses) throws Throwable {
-
         for (List<String> app : appsStatuses.raw()) {
             String name = app.get(0).trim();
             String expectedStatus = app.get(1).trim();
-            assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(name).getId(), DeploymentStatus.valueOf(expectedStatus),
-                    pendingStatuses.get(operation), 15000L);
+            assertStatus(name, null, DeploymentStatus.valueOf(expectedStatus), pendingStatuses.get(operation), 15000L);
         }
     }
 
@@ -224,7 +248,6 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @Given("^I give deployment properties$")
     public void I_give_deployment_properties(DataTable deploymentProperties) throws Throwable {
-
         String deploymentPropertyName = null;
         String deploymentPropertyValue = null;
 
@@ -238,22 +261,30 @@ public class ApplicationsDeploymentStepDefinitions {
             deploymentPropertyValue = app.get(1).trim();
             checkDeploymentPropertyRequest.setDeploymentPropertyName(deploymentPropertyName);
             checkDeploymentPropertyRequest.setDeploymentPropertyValue(deploymentPropertyValue);
-            Context.getInstance().registerRestResponse(
-                    Context.getRestClientInstance().postJSon("/rest/applications/checkDeploymentProperty", JsonUtil.toString(checkDeploymentPropertyRequest)));
+            Context.getInstance()
+                    .registerRestResponse(
+                            Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property",
+                                    JsonUtil.toString(checkDeploymentPropertyRequest)));
             finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         // register deployment application properties to use it
         Context.getInstance().registerDeployApplicationProperties(finalDeploymentProperties);
     }
 
-    @Given("^I undeploy all applications$")
+    @Given("^I undeploy all environments for applications$")
     public void I_undeploy_all_applications() throws Throwable {
         assertNotNull(ApplicationStepDefinitions.CURRENT_APPLICATIONS);
+        for (String applicationName : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
+            Application application = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(applicationName);
+            log.info("APPLICATION : {} - {}", application.getName(), application.getId());
+            // for each application undeploy all environment
+            Map<String, String> environments = Context.getInstance().getAllEnvironmentForApplication(applicationName);
+            for (Map.Entry<String, String> env : environments.entrySet()) {
+                log.info(env.getKey() + "/" + env.getValue());
+                log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
+                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
+            }
 
-        for (String key : ApplicationStepDefinitions.CURRENT_APPLICATIONS.keySet()) {
-            Application application = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(key);
-
-            Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/deployment");
         }
     }
 
@@ -264,7 +295,7 @@ public class ApplicationsDeploymentStepDefinitions {
         Application app = ApplicationStepDefinitions.CURRENT_APPLICATIONS.get(applicationName);
         NameValuePair nvp = new BasicNameValuePair("applicationId", app.getId());
         NameValuePair nvp1 = new BasicNameValuePair("cloudId", cloudId);
-        String responseStr = Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
+        Context.getRestClientInstance().getUrlEncoded("/rest/deployments", Lists.newArrayList(nvp, nvp1));
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
         assertNull(response.getError());
         assertNull(response.getData());
@@ -352,9 +383,12 @@ public class ApplicationsDeploymentStepDefinitions {
 
     private Map<String, IStompDataFuture> stompDataFutures = Maps.newHashMap();
 
-    private String getActiveDeploymentId(String applicationId) throws IOException {
-        Deployment deployment = JsonUtil.read(Context.getRestClientInstance().get("/rest/applications/" + applicationId + "/active-deployment"),
-                Deployment.class).getData();
+    private String getActiveDeploymentId(String applicationName) throws IOException {
+        Deployment deployment = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + Context.getInstance().getApplicationId(applicationName) + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/active-deployment"), Deployment.class)
+                .getData();
         return deployment.getId();
     }
 
@@ -369,17 +403,17 @@ public class ApplicationsDeploymentStepDefinitions {
         }
         switch (eventTopic) {
         case "deployment-status":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
                     + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
             break;
         case "instance-state":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
                     + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
             break;
         case "storage":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getId()) + "/"
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
                     + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
             this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
             break;
@@ -429,7 +463,7 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_deploy_the_application_with_cloud_for_the_topology_without_waiting_for_the_end_of_deployment(String appName, String cloudName)
             throws Throwable {
         I_assign_the_cloud_with_name_for_the_application(cloudName);
-        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(null);
+        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, null);
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplication().getId());
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
@@ -450,8 +484,10 @@ public class ApplicationsDeploymentStepDefinitions {
             expectedDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         DeploymentSetup deploymentSetup = JsonUtil.read(
-                Context.getRestClientInstance().get("/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/deployment-setup"),
-                DeploymentSetup.class).getData();
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+                                + "/deployment-setup"), DeploymentSetup.class).getData();
         Assert.assertNotNull(deploymentSetup.getProviderDeploymentProperties());
         Assert.assertEquals(expectedDeploymentProperties, deploymentSetup.getProviderDeploymentProperties());
     }

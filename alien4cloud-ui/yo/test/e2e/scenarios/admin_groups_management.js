@@ -63,7 +63,7 @@ function assertGroupHasRoles(groupname, roles) {
   roles.forEach(function(role) {
     expect(element(by.id('group_' + groupname)).element(by.name('roles')).getText()).toContain(role);
   });
-  rolesCommon.assertGroupHasRoles(groupname, roles);
+  rolesCommon.assertGroupHasRoles('app', groupname, roles);
 }
 
 
@@ -74,7 +74,7 @@ function assertGroupDoesNotHaveRoles(groupname, roles) {
   roles.forEach(function(role) {
     expect(element(by.id('group_' + groupname)).element(by.name('roles')).getText()).not.toContain(role);
   });
-  rolesCommon.assertGroupDoesNotHaveRoles(groupname, roles);
+  rolesCommon.assertGroupDoesNotHaveRoles('app', groupname, roles);
 }
 
 function jumpToTab(tabName) {
@@ -220,7 +220,7 @@ describe('Group management', function() {
 
     // add sauron to Managers group
     rolesCommon.addUserToGroup(authentication.users.sauron.username, users.groups.managers.name);
-    rolesCommon.assertUserHasGroups(authentication.users.sauron.username, users.groups.managers.name);
+    rolesCommon.assertUserHasGroups('app', authentication.users.sauron.username, users.groups.managers.name);
     assertUserHasRoles(authentication.users.sauron.username, rolesCommon.alienRoles.applicationsManager);
     assertUserHasRolesFrom(authentication.users.sauron.username, rolesCommon.alienRoles.componentsManager, 'g', true);
 

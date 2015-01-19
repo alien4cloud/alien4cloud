@@ -10,7 +10,12 @@ import javax.validation.Valid;
 import org.elasticsearch.common.collect.Lists;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.DeploymentService;
@@ -21,6 +26,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.rest.model.RestError;
@@ -36,14 +42,15 @@ import com.wordnik.swagger.annotations.Authorization;
 @RestController
 @RequestMapping("/rest/deployments")
 public class DeploymentController {
+
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Resource
     private DeploymentService deploymentService;
     @Resource
     private ApplicationService applicationService;
     @Resource
     private CsarService csarService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -105,7 +112,7 @@ public class DeploymentController {
             for (Object object : deployments) {
                 Deployment deployment = (Deployment) object;
                 IDeploymentSource source = sources.get(deployment.getSourceId());
-                if(source == null) {
+                if (source == null) {
                     source = new DeploymentSourceDTO(deployment.getSourceId(), deployment.getSourceName());
                 }
                 DeploymentDTO dto = new DeploymentDTO(deployment, source);
@@ -126,35 +133,45 @@ public class DeploymentController {
         return sourceIds.toArray(new String[sourceIds.size()]);
     }
 
-    @RequestMapping(value = "/{topologyId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationEnvironmentId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> getEvents(
-            @ApiParam(value = "Id of the topology for which to get events.", required = true) @Valid @NotBlank @PathVariable String topologyId,
-            @ApiParam(value = "Id of the cloud on which the topology is deployed.") @RequestParam(required = true) String cloudId,
+            @ApiParam(value = "Id of the environment for which to get events.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "50") int size) {
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(topologyId, cloudId, from, size)).build();
+        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(applicationEnvironmentId, from, size)).build();
     }
 
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/{deploymentId}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentStatus> getDeploymentStatus(
+    public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
 
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        DeploymentStatus status = null;
+        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
         if (deployment != null) {
             try {
-                status = deploymentService.getDeploymentStatus(deployment.getTopologyId(), deployment.getCloudId());
+                deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+                    @Override
+                    public void onSuccess(DeploymentStatus result) {
+                        statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        statusResult.setErrorResult(t);
+                    }
+                });
+                return statusResult;
             } catch (CloudDisabledException e) {
-                return RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+                statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                        .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build());
             }
         } else {
-            return RestResponseBuilder.<DeploymentStatus> builder().data(null)
-                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build();
+            statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(null)
+                    .error(new RestError(RestErrorCode.NOT_FOUND_ERROR.getCode(), "Deployment with id <" + deploymentId + "> was not found.")).build());
         }
 
-        return RestResponseBuilder.<DeploymentStatus> builder().data(status).build();
+        return statusResult;
     }
 
     @ApiOperation(value = "Undeploy deployment from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
@@ -167,7 +184,7 @@ public class DeploymentController {
         if (deployment != null) {
             try {
                 // Undeploy the topology linked to this deployment
-                deploymentService.undeploy(deploymentId, deployment.getCloudId());
+                deploymentService.undeploy(deploymentId);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<Void> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

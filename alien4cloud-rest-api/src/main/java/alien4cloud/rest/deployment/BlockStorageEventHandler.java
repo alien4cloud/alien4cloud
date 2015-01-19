@@ -7,18 +7,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.container.model.AlienCustomTypes;
-import alien4cloud.tosca.container.model.NormativeBlockStorageConstants;
-import alien4cloud.tosca.container.model.topology.NodeTemplate;
-import alien4cloud.tosca.container.model.topology.Topology;
+import alien4cloud.tosca.normative.AlienCustomTypes;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.AlienUtils;
 
 @Slf4j
@@ -27,12 +31,14 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
     @Resource
     private TopologyServiceCore topoServiceCore;
-
     @Resource
     private DeploymentService deploymentService;
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
@@ -40,8 +46,10 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     }
 
     private void checkAndProcessBlockStorageEvent(PaaSInstanceStorageMonitorEvent storageEvent) {
-        Deployment depoyment = deploymentService.getDeployment(storageEvent.getDeploymentId());
-        Topology topology = topoServiceCore.getMandatoryTopology(depoyment.getTopologyId());
+        Deployment deployment = deploymentService.getDeployment(storageEvent.getDeploymentId());
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
+        ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
+        Topology topology = topoServiceCore.getMandatoryTopology(applicationVersion.getTopologyId());
         NodeTemplate nodeTemplate;
         try {
             nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
@@ -50,8 +58,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             return;
         }
 
-        if (ToscaUtils
-                .isFromType(AlienCustomTypes.DELETABLE_BLOCKSTORAGE_TYPE, topoServiceCore.getRelatedIndexedNodeType(nodeTemplate, topology))) {
+        if (ToscaUtils.isFromType(AlienCustomTypes.DELETABLE_BLOCKSTORAGE_TYPE, topoServiceCore.getRelatedIndexedNodeType(nodeTemplate, topology))) {
             log.info("Blockstorage <{}.{}> is a deletable type. Skipping topology volumeId update...", topology.getId(), nodeTemplate.getName());
             return;
         }

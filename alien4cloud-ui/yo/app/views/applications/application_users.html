@@ -1,44 +1,108 @@
-<div class="row" id="app-user-role">
-  <div class="col-md-3 resource-user-roles" ng-repeat="appRole in appRoles">
-    <div class="thumbnail">
-      <h5>{{appRole}}</h5>
-      <ul class="td_list liste-no-style">
-        <li ng-repeat="(username, userAppRoles) in application.userRoles | orderBy:'username.toString()' " ng-show="userAppRoles.indexOf(appRole) >=0">
-          <i class="fa fa-user"></i>
-          <span>
-                {{ relatedUsers[username].firstName }}
-              </span>
-          <span>
-                {{ relatedUsers[username].lastName}}
-              </span>
-          <span>
-                ({{username}})
-          </span>
-        </li>
-        <li ng-repeat="(groupId, groupAppRoles) in application.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupAppRoles.indexOf(appRole) >=0">
-          <i class="fa fa-users"></i>
-          <span>
-                {{ relatedGroups[groupId].name }}
-              </span>
-        </li>
-      </ul>
+<div id="app-user-role">
+  <div class="row">
+    <div class="col-md-6 resource-user-roles">
+      <h5>{{'APPLICATIONS.APPLICATION_ROLES' | translate}}</h5>
+    </div>
+    <div class="col-md-6 resource-user-roles">
+      <h5>
+        {{'APPLICATIONS.ENVIRONMENT.ENV_ROLES' | translate}}
+        <div class="btn-group btn-group-xs">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="environment_{{selectedEnvironment.name}}">
+            {{selectedEnvironment.name}}
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+            <li ng-repeat="env in envs" ng-class="{'option-selected' : env.id == selectedEnvironment.id}">
+              <a id="environment_{{env.name}}" ng-click="changeUserEnvironment(env)">
+                <i class="fa fa-angle-right" ng-if="env.id == selectedEnvironment.id"></i> {{env.name}}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </h5>
     </div>
   </div>
 
-  <div class="col-md-12">
-    <hr class="separator-h">
+  <div class="row">
+    <div class="col-md-3 resource-user-roles" ng-repeat="appRole in appRoles">
+      <div class="thumbnail">
+        <h5>
+          {{appRole}}
+        </h5>
+        <ul class="td_list liste-no-style">
+          <li ng-repeat="(username, userAppRoles) in application.userRoles | orderBy:'username.toString()' " ng-show="userAppRoles.indexOf(appRole) >=0">
+            <i class="fa fa-user"></i>
+            <span>
+              {{relatedUsers[username].firstName}}
+            </span>
+            <span>
+              {{relatedUsers[username].lastName}}
+            </span>
+            <span>
+              ({{username}})
+            </span>
+          </li>
+          <li ng-repeat="(groupId, groupAppRoles) in application.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupAppRoles.indexOf(appRole) >=0">
+            <i class="fa fa-users"></i>
+            <span>
+              {{ relatedGroups[groupId].name }}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-3 resource-user-roles" ng-repeat="envRole in environmentRoles">
+      <div class="thumbnail">
+        <h5>
+          {{envRole}}
+        </h5>
+        <ul class="td_list liste-no-style">
+          <li ng-repeat="(username, userEnvRoles) in selectedEnvironment.userRoles | orderBy:'username.toString()' " ng-show="userEnvRoles.indexOf(envRole) >=0">
+            <i class="fa fa-user"></i>
+            <span>
+              {{ relatedUsers[username].firstName }}
+            </span>
+            <span>
+              {{ relatedUsers[username].lastName}}
+            </span>
+            <span>
+              ({{username}})
+            </span>
+          </li>
+
+          <li ng-repeat="(groupId, groupEnvRoles) in selectedEnvironment.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupEnvRoles.indexOf(envRole) >=0">
+            <i class="fa fa-users"></i>
+            <span>
+              {{ relatedGroups[groupId].name }}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <div class="col-md-12">
-    <tabset>
-      <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
-        <alien-search-user crud-support="false" managed-role-list="appRoles" check-role-selected-callback="checkAppRoleSelectedForUser(user, role)" on-select-role-callback="handleRoleSelectionForUser(user, role)">
-        </alien-search-user>
-      </tab>
-      <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
-        <alien-search-group crud-support="false" managed-role-list="appRoles" check-role-selected-callback="checkAppRoleSelectedForGroup(group, role)" on-select-role-callback="handleRoleSelectionForGroup(group, role)">
-        </alien-search-group>
-      </tab>
-    </tabset>
+  <div class="row">
+    <div class="col-md-12">
+      <hr class="separator-h">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <tabset>
+        <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+          <alien-search-user crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForUser(user, role)" check-env-role-selected-callback="checkEnvRoleSelectedForUser(user, role)"
+          on-select-app-role-callback="handleAppRoleSelectionForUser(user, role)" on-select-env-role-callback="handleEnvRoleSelectionForUser(user, role)">
+          </alien-search-user>
+        </tab>
+        <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
+          <alien-search-group crud-support="false" managed-app-role-list="appRoles" managed-env-role-list="environmentRoles" check-app-role-selected-callback="checkAppRoleSelectedForGroup(group, role)" check-env-role-selected-callback="checkEnvRoleSelectedForGroup(group, role)"
+          on-select-app-role-callback="handleAppRoleSelectionForGroup(group, role)" on-select-env-role-callback="handleEnvRoleSelectionForGroup(group, role)">
+          </alien-search-group>
+        </tab>
+      </tabset>
+    </div>
   </div>
 </div>

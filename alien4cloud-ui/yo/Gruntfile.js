@@ -301,7 +301,7 @@ module.exports = function(grunt) {
           dest: '<%= yeoman.dist %>',
           src: ['*.{ico,png,txt}', '.htaccess', '*.html',
             // 'views/{,*/}*.html',
-            'views/**/*.html', 'bower_components/**/*', 'js-lib/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*',
+            'views/**/*.html', 'bower_components/**/*', 'js-lib/**/*', 'images/**/*', 'data/**/*', 'api-doc/**/*', 'version.json',
             // 'images/{,*/}*.{webp}',
             // 'images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
             'fonts/*'
@@ -417,18 +417,19 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            //            baseUrl: 'http://localhost:9999',
+            // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
-              // 'test/e2e/scenarios/admin_cloud.js',
-              // 'test/e2e/scenarios/admin_cloud_image.js',
+              //              'test/e2e/scenarios/admin_cloud.js',
+              //              'test/e2e/scenarios/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin_groups_management.js',
               //              'test/e2e/scenarios/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin_users_management.js',
-              // 'test/e2e/scenarios/application.js',
-              'test/e2e/scenarios/application_environments.js',
+              //              'test/e2e/scenarios/application.js',
               //              'test/e2e/scenarios/application_metaprops.js',
+              //              'test/e2e/scenarios/application_environments.js',
+              //              'test/e2e/scenarios/application_versions.js',
               //              'test/e2e/scenarios/application_security.js',
               //              'test/e2e/scenarios/application_security_role_check.js',
               //              'test/e2e/scenarios/application_tags.js',
@@ -440,22 +441,23 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology_editor_plan.js',
               //              'test/e2e/scenarios/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology_editor_replacenode.js',
-                          //  'test/e2e/scenarios/application_topology_runtime.js',
+              //              'test/e2e/scenarios/application_topology_runtime.js',
               //              'test/e2e/scenarios/authentication.js',
-                          //  'test/e2e/scenarios/component_details.js',
+              //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
-                          //  'test/e2e/scenarios/csar.js',
+              //              'test/e2e/scenarios/csar.js',
               //              'test/e2e/scenarios/deployment.js',
               //              'test/e2e/scenarios/deployment_matcher.js',
+              //              'test/e2e/scenarios/deployment_manual_match_resources.js',
               //              'test/e2e/scenarios/homepage.js',
               //              'test/e2e/scenarios/language_test.js',
               //              'test/e2e/scenarios/plugins.js',
               //              'test/e2e/scenarios/quick_search.js',
               //              'test/e2e/scenarios/security_cloud.js',
-              // 'test/e2e/scenarios/security_groups.js',
-              // 'test/e2e/scenarios/security_users.js',
+              //              'test/e2e/scenarios/security_groups.js',
+              //              'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
-              //              'test/e2e/scenarios/*'
+                            'test/e2e/scenarios/*'
             ]
           }
         }

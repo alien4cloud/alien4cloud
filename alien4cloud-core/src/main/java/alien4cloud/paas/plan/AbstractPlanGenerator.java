@@ -11,8 +11,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
-import alien4cloud.tosca.model.Interface;
-import alien4cloud.tosca.model.Operation;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Sets;

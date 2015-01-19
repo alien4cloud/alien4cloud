@@ -134,7 +134,7 @@ function goToApplicationEnvironmentPageForApp(applicationName) {
 module.exports.goToApplicationEnvironmentPageForApp = goToApplicationEnvironmentPageForApp;
 
 // create application environment
-var createApplicationEnvironment = function(envName, envDescription, cloudSelectName, envTypeSelectName) {
+var createApplicationEnvironment = function(envName, envDescription, cloudSelectName, envTypeSelectName, appVersionName) {
 
   navigation.go('applications', 'environments');
 
@@ -144,7 +144,6 @@ var createApplicationEnvironment = function(envName, envDescription, cloudSelect
   element(by.model('environment.name')).sendKeys(envName);
   element(by.model('environment.description')).sendKeys(envDescription);
 
-  // Cloud to select
   if (typeof cloudSelectName !== 'undefined') {
     // cloudSelectNumber should start at 2 since the one at 1 is (no cloud) first ins the list
     var selectCloud = element(by.id('cloudid'));
@@ -153,13 +152,19 @@ var createApplicationEnvironment = function(envName, envDescription, cloudSelect
     console.error('You should have at least one cloud defined');
   }
 
-  // Env type to select
   if (typeof envTypeSelectName !== 'undefined') {
     // envTypeSelectNumber should start at 2 since the one at 1 is (no envTypeSelectNumber) first ins the list
     var selectType = element(by.id('envtypelistid'));
     common.selectDropdownByText(selectType, envTypeSelectName, 100);
   } else {
     console.error('You should have at least one environment type defined');
+  }
+
+  if (typeof envTypeSelectName !== 'undefined') {
+    var selectType = element(by.id('versionslistid'));
+    common.selectDropdownByText(selectType, appVersionName, 100);
+  } else {
+    console.error('You should have at least one application version type defined');
   }
 
   // Create an App env
@@ -169,3 +174,33 @@ var createApplicationEnvironment = function(envName, envDescription, cloudSelect
 
 };
 module.exports.createApplicationEnvironment = createApplicationEnvironment;
+
+function goToApplicationVersionPageForApp(applicationName) {
+  goToApplicationDetailPage(applicationName, false);
+  navigation.go('applications', 'versions');
+}
+module.exports.goToApplicationVersionPageForApp = goToApplicationVersionPageForApp;
+
+var createApplicationVersion = function(version, description, selectTopology) {
+  navigation.go('applications', 'versions');
+
+  var btnNewApplicationVersion = browser.element(by.id('app-version-new-btn'));
+  browser.actions().click(btnNewApplicationVersion).perform();
+
+  element(by.model('versionId')).sendKeys(version);
+  element(by.model('descId')).sendKeys(description);
+
+  if (typeof selectTopology !== 'undefined') {
+    var selectCloud = element(by.id('topologyId'));
+    common.selectDropdownByText(selectCloud, selectTopology, 100);
+  } else {
+    console.error('Create an application version with an empty topology');
+  }
+
+  // Create an App env
+  var btnCreate = browser.element(by.id('btn-create'));
+  browser.actions().click(btnCreate).perform();
+  browser.waitForAngular();
+
+};
+module.exports.createApplicationVersion = createApplicationVersion;

@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'ngSanitize', 'ui.router', 'alienAuth', 'searchServices',
@@ -80,16 +82,24 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             }).$promise;
           }
         ],
-        topologyId: ['$http', '$stateParams',
-          function($http, $stateParams) {
-            return $http.get('rest/applications/' + $stateParams.id + '/topology').then(function(result) {
-              return result.data.data;
+        appEnvironments: ['application', 'applicationEnvironmentServices',
+          function(application, applicationEnvironmentServices) {
+            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+              return {
+                environments: result.data.data
+              };
             });
           }
         ],
-        applicationEventServices: ['applicationEventServicesFactory', '$stateParams',
-          function(applicationEventServicesFactory, $stateParams) {
-            return applicationEventServicesFactory($stateParams.id);
+        appVersions: ['$http', 'application', 'applicationVersionServices',
+          function($http, application, applicationVersionServices) {
+            var searchAppVersionRequestObject = {
+              'from': 0,
+              'size': 20
+            };
+            return applicationVersionServices.searchVersion({
+              applicationId: application.data.id
+            }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result){return result.data.data;}) ;
           }
         ]
       },
@@ -102,37 +112,32 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
     }).state('applications.detail.topology', {
       url: '/topology',
       templateUrl: 'views/topology/topology_editor.html',
-      controller: 'TopologyCtrl'
+      controller: 'TopologyCtrl',
+      resolve: {
+        topologyId: function() { return null; }
+      }
     }).state('applications.detail.plans', {
       url: '/workflow',
       templateUrl: 'views/topology/plan_graph.html',
-      controller: 'TopologyPlanGraphCtrl'
+      controller: 'TopologyPlanGraphCtrl',
+      resolve: {
+        topologyId: function() { return null; }
+      }
     }).state('applications.detail.deployment', {
       url: '/deployment',
-      resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
-      },
       templateUrl: 'views/applications/application_deployment.html',
       controller: 'ApplicationDeploymentCtrl'
     }).state('applications.detail.runtime', {
       url: '/runtime',
       templateUrl: 'views/applications/topology_runtime.html',
-      resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
-      },
       controller: 'TopologyRuntimeCtrl'
+        // resolve: {
+        //   topologyId: function() {
+        //     // TODO : remove this when topology template will use version aswell
+        //     // Then we won't ned to give topologyId as param
+        //     return null;
+        //   }
+        // }
     }).state('applications.detail.users', {
       url: '/users',
       templateUrl: 'views/applications/application_users.html',
@@ -143,22 +148,24 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               method: 'GET'
             }).get().$promise;
           }
+        ],
+        environmentRoles: ['$resource',
+          function($resource) {
+            return $resource('rest/auth/roles/environment', {}, {
+              method: 'GET'
+            }).get().$promise;
+          }
         ]
       },
       controller: 'ApplicationUsersCtrl'
     }).state('applications.detail.environments', {
       url: '/environment',
       templateUrl: 'views/applications/application_environments.html',
-      resolve: {
-        environment: ['$http', 'application',
-          function($http, application) {
-            return $http.get('rest/applications/' + application.data.id + '/environments').then(function(result) {
-              return result.data.data;
-            });
-          }
-        ]
-      },
       controller: 'ApplicationEnvironmentsCtrl'
+    }).state('applications.detail.versions', {
+      url: '/versions',
+      templateUrl: 'views/applications/application_versions.html',
+      controller: 'ApplicationVersionsCtrl'
     })
 
     // topology templates
@@ -190,7 +197,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           function(topologyTemplate) {
             return topologyTemplate.data.topologyId;
           }
-        ]
+        ],
+        appVersions: function() {
+          // TODO : handle versions for topology templates
+          return null;
+        }
       },
       controller: 'TopologyCtrl'
     })
@@ -292,7 +303,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
 
     // check when the state is about to change
     $rootScope.$on('$stateChangeStart', function(event, toState) {
-      alienAuthService.getStatus().$promise.then(function(result) {
+      alienAuthService.getStatus().$promise.then(function() {
         if (toState.name.indexOf('home') === 0 && alienAuthService.hasRole('ADMIN')) {
           $state.go('user_home_admin');
         }

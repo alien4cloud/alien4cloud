@@ -1,3 +1,4 @@
+'use strict';
 
 angular.module('alienUiApp').directive('paginationDirective', function() {
   return {

@@ -4,7 +4,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.tosca.container.model.CSARDependency;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.tosca.model.ToscaMeta;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.impl.base.ListParser;

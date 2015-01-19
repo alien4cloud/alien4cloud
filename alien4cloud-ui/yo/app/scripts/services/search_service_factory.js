@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').factory('searchServiceFactory', ['$resource', function($resource) {

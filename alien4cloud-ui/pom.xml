@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM18</version>
+    <version>1.0.0-SM19</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -34,19 +34,21 @@
     </dependency>
   </dependencies>
 
+  
+  
   <build>
     <sourceDirectory>yo/app/scripts</sourceDirectory>
     <resources>
+      <resource>
+        <directory>version</directory>
+        <filtering>true</filtering>
+      </resource>
       <resource>
         <directory>src/main/resources</directory>
       </resource>
       <resource>
         <directory>yo/dist</directory>
         <targetPath>static</targetPath>
-      </resource>
-      <resource>
-        <directory>version</directory>
-        <filtering>true</filtering>
       </resource>
     </resources>
     <plugins>
@@ -74,11 +76,11 @@
           <webResources>
             <!-- Add the yeoman dist directory to the war file -->
             <resource>
-              <directory>yo/dist</directory>
-            </resource>
-            <resource>
               <directory>version</directory>
               <filtering>true</filtering>
+            </resource>
+            <resource>
+              <directory>yo/dist</directory>
             </resource>
             <!-- Add default types archives folder to the war file -->
              <resource>
@@ -159,6 +161,27 @@
   </build>
 
   <profiles>
+      <profile>
+          <id>intellij</id>
+          <dependencies>
+              <dependency>
+                  <groupId>alien4cloud</groupId>
+                  <artifactId>alien4cloud-rest-api</artifactId>
+                  <scope>compile</scope>
+                  <version>${project.version}</version>
+              </dependency>
+              <dependency>
+                  <groupId>org.eclipse.jetty</groupId>
+                  <artifactId>jetty-webapp</artifactId>
+                  <scope>compile</scope>
+              </dependency>
+              <dependency>
+                  <groupId>org.eclipse.jetty.websocket</groupId>
+                  <artifactId>websocket-server</artifactId>
+                  <scope>compile</scope>
+              </dependency>
+          </dependencies>
+      </profile>
     <profile>
       <id>default</id>
       <activation>
@@ -179,6 +202,34 @@
         </plugins>
       </build>
     </profile>
+
+
+    <profile>
+      <id>idea</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-webapp</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-util</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.eclipse.jetty.websocket</groupId>
+          <artifactId>websocket-server</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>javax.servlet-api</artifactId>
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+
     <profile>
       <id>jenkins</id>
       <activation>

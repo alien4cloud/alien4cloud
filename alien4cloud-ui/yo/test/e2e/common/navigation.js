@@ -23,6 +23,7 @@ var navigationIds = {
     deployment: 'am.applications.detail.deployment',
     runtime: 'am.applications.detail.runtime',
     users: 'am.applications.detail.users',
+    versions: 'am.applications.detail.versions',
     environments: 'am.applications.detail.environments'
   },
   components: {
