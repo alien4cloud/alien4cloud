@@ -15,7 +15,7 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
           } else {
             return {
               status: rejection.status,
-              data: 'ERRORS.' + error.code
+              data: UTILS.isDefinedAndNotNull(error.code)?'ERRORS.' + error.code : 'ERRORS.UNKNOWN'
             };
           }
         } else {
