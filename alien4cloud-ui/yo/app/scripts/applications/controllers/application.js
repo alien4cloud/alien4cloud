@@ -146,12 +146,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       icon: 'fa fa-sitemap',
       show: (isManager || isDevops)
     }, {
-      id: 'am.applications.detail.plans',
-      state: 'applications.detail.plans',
-      key: 'NAVAPPLICATIONS.MENU_PLAN',
-      icon: 'fa fa-sitemap fa-rotate-270',
-      show: (isManager || isDevops)
-    }, {
       id: 'am.applications.detail.deployment',
       state: 'applications.detail.deployment',
       key: 'NAVAPPLICATIONS.MENU_DEPLOYMENT',

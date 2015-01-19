@@ -220,7 +220,6 @@
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
     "MENU_TOPOLOGY": "Topology",
-    "MENU_PLAN": "Topology's workflows",
     "MENU_DEPLOYMENT": "Deployments",
     "MENU_RUNTIME": "Runtime",
     "MENU_USERS": "Users and Groups",
@@ -317,6 +316,7 @@
       "VISUAL_DETAILED": "Detailed view",
       "VISUAL_SIMPLE": "Condensed view",
       "YAML": "yaml",
+      "PLAN": "Workflow",
       "MODIFY_TOPOLOGY": "Modify",
       "ADD_NODETEMPLATE": "Add Node Template",
       "DEPENDENCY": "Dependencies",
