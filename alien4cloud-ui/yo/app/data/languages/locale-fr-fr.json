@@ -227,7 +227,6 @@
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
     "MENU_TOPOLOGY": "Topologie",
-    "MENU_PLAN": "Workflows de la topologie",
     "MENU_DEPLOYMENT": "Déploiement",
     "MENU_RUNTIME": "Runtime",
     "MENU_USERS": "Utilisateurs et Groupes",
@@ -324,6 +323,7 @@
       "VISUAL_DETAILED": "vue détaillée",
       "VISUAL_SIMPLE": "vue condensée",
       "YAML": "yaml",
+      "PLAN": "Workflow",
       "MODIFY_TOPOLOGY": "Modifier",
       "ADD_NODETEMPLATE": "Ajouter un Noeud",
       "DEPENDENCY": "Dépendances",

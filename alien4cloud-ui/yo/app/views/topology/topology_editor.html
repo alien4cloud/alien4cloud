@@ -2,22 +2,22 @@
   <!-- TOPOLOGY display -->
   <div id="topology" class="topology-columns" >
     <div class="well topology" alien-droppable drag-data="" drag-on-drop="onComponentDragged(data)" ng-init="visual = true; simple = false">
-      <div class="btn-toolbar pull-left">
+      <div class="btn-toolbar">
         <div class="btn-group">
-          <a class="btn btn-default btn-xs" ng-click="visual = true; simple = false">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-          <a class="btn btn-default btn-xs" ng-click="visual = true; simple = true">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
-          <a class="btn btn-default btn-xs" ng-click="visual = false">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
+          <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+          <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+          <a class="btn btn-default btn-xs" ng-click="view = 'YAML'">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
+          <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
         </div>
       </div>
-      <div ng-if="!visual" ng-model="editorContent" ui-ace="{mode: 'yaml'}" style="height: {{dimensions.height}}px;"></div>
-
-      <topology-rendering ng-if="visual && topology" dimensions="dimensions" topology="topology" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" simple="simple" runtime="false" />
+      <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{mode: 'yaml'}" style="height: {{dimensions.height}}px;"></div>
+      <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="dimensions" topology="topology" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" simple="simple" runtime="false"></topology-rendering>
+      <topology-plan ng-if="view === 'PLAN' && topology" dimensions="dimensions" topology="topology" id="plan-graph-container"></topology-plan>
     </div>
   </div>
 
     <!-- NodeTemplate details -->
   <div class="topology-columns topology-details">
-
     <select ng-if="appVersions != null" id="app-version-select" ng-model="selectedVersion" class="form-control " ng-options="appVersion.version for appVersion in appVersions"
       ng-change="changeVersion(selectedVersion)">
     </select>

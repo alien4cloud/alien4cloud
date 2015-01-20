@@ -4,6 +4,8 @@
 
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId',
   function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId) {
+    $scope.view = 'RENDERED';
+
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
       // default version loading
@@ -33,7 +35,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     var setSelectedVersionByName = function(name) {
       $scope.selectedVersionName = name;
       for (var i = 0; i < $scope.appVersions.length; i++) {
-        if ($scope.appVersions[i].version == $scope.selectedVersionName) {
+        if ($scope.appVersions[i].version === $scope.selectedVersionName) {
           $scope.selectedVersion = $scope.appVersions[i];
           break;
         }
@@ -74,7 +76,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.dimensions = {
       height: resizeServices.getHeight(120),
-      width: resizeServices.getWidth(widthOffset),
+      width: resizeServices.getWidth(widthOffset)
     };
 
     var refreshTopology = function(topologyDTO, selectedNodeTemplate) {

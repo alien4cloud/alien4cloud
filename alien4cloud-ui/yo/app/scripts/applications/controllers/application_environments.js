@@ -153,7 +153,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
 
         return applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
-          applicationEnvironmentId: environmentId,
+          applicationEnvironmentId: environmentId
         }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function() {
           updateEnvironment(environmentId, fieldName, realFieldValue);
         }, function(errorResponse) {
