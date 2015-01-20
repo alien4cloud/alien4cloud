@@ -15,7 +15,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalExc
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.InvalidVersionException;
+import alien4cloud.utils.version.ApplicationVersionException;
 
 /**
  * Common property constraint utils
@@ -62,7 +62,7 @@ public class ConstraintPropertyService {
                 // check any property definition without constraints (type/value)
                 try {
                     checkBasicType(propertyDefinition, propertyName, propertyValue);
-                } catch (NumberFormatException | InvalidVersionException e) {
+                } catch (NumberFormatException | ApplicationVersionException e) {
                     log.error("Basic type check failed", e);
                     consInformation = new ConstraintInformation(propertyName, null, propertyValue, propertyDefinition.getType());
                     throw new ConstraintValueDoNotMatchPropertyTypeException(e.getMessage(), e, consInformation);
@@ -102,8 +102,8 @@ public class ConstraintPropertyService {
             }
         } catch (NumberFormatException e) {
             throw new NumberFormatException("Float or Integer type invalid check for property [ " + propertyName + " ] and value [ " + propertyValue + " ]");
-        } catch (InvalidVersionException e) {
-            throw new InvalidVersionException("Version type invalid check for property [ " + propertyName + " ] and value [ " + propertyValue + " ]");
+        } catch (ApplicationVersionException e) {
+            throw new ApplicationVersionException("Version type invalid check for property [ " + propertyName + " ] and value [ " + propertyValue + " ]");
         }
     }
 

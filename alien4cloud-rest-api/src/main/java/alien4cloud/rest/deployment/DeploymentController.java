@@ -42,14 +42,15 @@ import com.wordnik.swagger.annotations.Authorization;
 @RestController
 @RequestMapping("/rest/deployments")
 public class DeploymentController {
+
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
     @Resource
     private DeploymentService deploymentService;
     @Resource
     private ApplicationService applicationService;
     @Resource
     private CsarService csarService;
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
 
     /**
      * Get all deployments for a cloud, including if asked some details of the related applications.
@@ -132,13 +133,12 @@ public class DeploymentController {
         return sourceIds.toArray(new String[sourceIds.size()]);
     }
 
-    @RequestMapping(value = "/{topologyId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{applicationEnvironmentId}/events", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult> getEvents(
-            @ApiParam(value = "Id of the topology for which to get events.", required = true) @Valid @NotBlank @PathVariable String topologyId,
-            @ApiParam(value = "Id of the cloud on which the topology is deployed.") @RequestParam(required = true) String cloudId,
+            @ApiParam(value = "Id of the environment for which to get events.", required = true) @Valid @NotBlank @PathVariable String applicationEnvironmentId,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "50") int size) {
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(topologyId, cloudId, from, size)).build();
+        return RestResponseBuilder.<GetMultipleDataResult> builder().data(deploymentService.getDeploymentEvents(applicationEnvironmentId, from, size)).build();
     }
 
     @ApiOperation(value = "Get deployment status from its id.", authorizations = { @Authorization("ADMIN"), @Authorization("APPLICATION_MANAGER") })
@@ -150,7 +150,7 @@ public class DeploymentController {
         final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
         if (deployment != null) {
             try {
-                deploymentService.getDeploymentStatus(deployment.getTopologyId(), deployment.getCloudId(), new IPaaSCallback<DeploymentStatus>() {
+                deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
                     @Override
                     public void onSuccess(DeploymentStatus result) {
                         statusResult.setResult(RestResponseBuilder.<DeploymentStatus> builder().data(result).build());
@@ -184,7 +184,7 @@ public class DeploymentController {
         if (deployment != null) {
             try {
                 // Undeploy the topology linked to this deployment
-                deploymentService.undeploy(deploymentId, deployment.getCloudId());
+                deploymentService.undeploy(deploymentId);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<Void> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

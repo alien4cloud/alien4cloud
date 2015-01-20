@@ -12,7 +12,6 @@ import org.elasticsearch.annotation.ESObject;
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSDeploymentContext {
-
     /**
      * Id of an deployment (install/uninstall operation)
      * For the same recipe, we might have multiple deployment ids.
@@ -21,8 +20,7 @@ public class PaaSDeploymentContext {
 
     /**
      * A recipe's id represents in general the topology + setup in alien's term.
-     * For ex : cloudify 3 will use this information to name the blueprint and
-     * deployment.
+     * For ex : cloudify 3 will use this information to name the blueprint and deployment.
      */
     private String recipeId;
 }

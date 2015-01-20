@@ -12,12 +12,17 @@ import lombok.SneakyThrows;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.topology.AbstractTemplate;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
@@ -28,11 +33,6 @@ import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
-import alien4cloud.model.topology.AbstractTemplate;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;
@@ -155,13 +155,17 @@ public class TopologyTreeBuilderService {
     }
 
     private void processNetwork(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {
-        PaaSRelationshipTemplate networkRelationship = getPaaSRelationshipTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
-        if (networkRelationship != null) {
-            String target = networkRelationship.getRelationshipTemplate().getTarget();
-            PaaSNodeTemplate network = nodeTemplates.get(target);
-            paaSNodeTemplate.setNetworkNode(network);
-            network.setParent(paaSNodeTemplate);
+        List<PaaSRelationshipTemplate> networkRelationships = getPaaSRelationshipsTemplateFromType(paaSNodeTemplate, NormativeRelationshipConstants.NETWORK);
+        List<PaaSNodeTemplate> networks = Lists.newArrayList();
+        if (networkRelationships != null && !networkRelationships.isEmpty()) {
+            for (PaaSRelationshipTemplate networkRelationship : networkRelationships) {
+                String target = networkRelationship.getRelationshipTemplate().getTarget();
+                PaaSNodeTemplate network = nodeTemplates.get(target);
+                networks.add(network);
+                network.setParent(paaSNodeTemplate);
+            }
         }
+        paaSNodeTemplate.setNetworkNodes(networks);
     }
 
     private void processBlockStorage(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {

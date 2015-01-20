@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
@@ -33,6 +34,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
+import alien4cloud.utils.version.ApplicationVersionException;
 
 import com.google.common.collect.Lists;
 
@@ -190,5 +192,25 @@ public class RestTechnicalExceptionHandler {
         log.error("Uncategorized error", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = ApplicationVersionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> applicationVersionErrorHandler(ApplicationVersionException e) {
+        log.error("Application version error", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = DeleteLastApplicationEnvironmentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> deleteLastApplicationEnvironmentErrorHandler(DeleteLastApplicationEnvironmentException e) {
+        log.error("Delete last application environment error", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application version error : " + e.getMessage()).build())
+                .build();
     }
 }

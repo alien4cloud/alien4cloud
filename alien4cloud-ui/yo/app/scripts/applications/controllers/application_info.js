@@ -3,12 +3,13 @@
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
   'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application',
-
   function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult) {
+
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
     $scope.application = applicationResult.data;
     $scope.applicationId = $scope.application.id;
+
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
@@ -31,7 +32,6 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
       var file = $files[0];
       $scope.doUpload(file);
     };
-
 
     $scope.updateProperties = function(propertyDefinition, propertyValue) {
       var updateApplicationPropertyObject = {

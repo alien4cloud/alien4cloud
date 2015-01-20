@@ -2,12 +2,11 @@
 
 angular.module('alienUiApp').factory('deploymentServices', ['$resource',
   function($resource) {
-    var deploymentEventResource = $resource('rest/deployments/:topologyId/events', {}, {
+    var deploymentEventResource = $resource('rest/deployments/:applicationEnvironmentId/events', {}, {
       'get': {
         method: 'GET',
         params: {
-          topologyId: '@topologyId',
-          cloudId: '@cloudId',
+          applicationEnvironmentId: '@applicationEnvironmentId',
           from: '@from',
           size: '@size'
         },
@@ -34,12 +33,12 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
     var undeploymentResource = $resource('rest/deployments/:deploymentId/undeploy');
 
     /*runtime controller*/
-    var runtimeTopologyResource = $resource('rest/runtime/:applicationId/topology', {}, {
+    var runtimeTopologyResource = $resource('rest/runtime/:applicationId/environment/:applicationEnvironmentId/topology', {}, {
       'get': {
         method: 'GET',
         params: {
           applicationId: '@applicationId',
-          cloudId: '@cloudId'
+          cloudId: '@applicationEnvironmentId'
         },
         isArray: false
       }
@@ -64,4 +63,5 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
         'executeOperation': runtimeResource.executeOperation
       }
     };
-  }]);
+  }
+]);

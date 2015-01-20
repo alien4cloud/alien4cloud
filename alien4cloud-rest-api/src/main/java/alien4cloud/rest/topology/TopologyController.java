@@ -88,12 +88,11 @@ public class TopologyController {
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the {@link alien4cloud.tosca.container.model.type.NodeType} related
      *         to his {@link alien4cloud.model.topology.NodeTemplate}s
      */
-    @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> get(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                ApplicationRole.DEPLOYMENT_MANAGER);
+        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -514,9 +513,7 @@ public class TopologyController {
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS,
-                ApplicationRole.DEPLOYMENT_MANAGER);
-
+        topologyService.checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
         ValidTopologyDTO dto = topologyService.validateTopology(topology);
         return RestResponseBuilder.<ValidTopologyDTO> builder().data(dto).build();
     }

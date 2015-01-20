@@ -135,6 +135,7 @@ describe('Component Details :', function() {
     // case cancel
     // trigger for recommendation
     recommendButton.click();
+    browser.sleep(1000); // DO NOT REMOVE
     expect(element(by.className('modal-body')).getText()).toContain(blockStorageComponent.id);
     expect(element(by.className('modal-body')).getText()).toContain(rootCapabilityType);
     element(by.binding('CANCEL')).click();

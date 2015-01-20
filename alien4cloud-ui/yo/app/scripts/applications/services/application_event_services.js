@@ -2,16 +2,17 @@
 
 angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices',
   function(deploymentEventServicesFactory, applicationServices) {
-
-    return function(applicationId) {
+    return function(applicationId, selectedEnvironmentId) {
 
       var deploymentEventServices = null;
       var applicationEventServices = {};
       var subscribeQueue = [];
 
-      applicationEventServices.refreshApplicationStatus = function(onSuccess) {
+      applicationEventServices.refreshApplicationStatus = function(environmentId, onSuccess) {
+        environmentId = environmentId || selectedEnvironmentId;
         applicationServices.deployment.status({
-          applicationId: applicationId
+          applicationId: applicationId,
+          applicationEnvironmentId: environmentId
         }, function(successResult) {
           if (UTILS.isDefinedAndNotNull(onSuccess)) {
             onSuccess(successResult.data);
@@ -25,7 +26,8 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
 
       applicationEventServices.doStart = function(existingListeners) {
         applicationServices.getActiveDeployment.get({
-          applicationId: applicationId
+          applicationId: applicationId,
+          applicationEnvironmentId: selectedEnvironmentId
         }, undefined, function(success) {
           if (UTILS.isDefinedAndNotNull(success.data)) {
             deploymentEventServices = deploymentEventServicesFactory(success.data.id, existingListeners);
@@ -121,4 +123,5 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
 
       return applicationEventServices;
     };
-  }]);
+  }
+]);

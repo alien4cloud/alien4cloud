@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthService', '$scope', '$resource', '$stateParams', 'componentTagUpdate', 'componentTagDelete', '$modal', 'suggestionServices',
@@ -245,16 +247,7 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     };
 
     //get the icon
-    $scope.getIcon = function(tags) {
-      for (var i in tags) {
-        if (tags.hasOwnProperty(i)) {
-          var tag = tags[i];
-          if (tag.name === 'icon') {
-            return tag.value;
-          }
-        }
-      }
-    };
+    $scope.getIcon = UTILS.getIcon;
 
     /**
      *
@@ -293,7 +286,7 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
     };
 
     $scope.openSimpleModal = function (content) {
-      var modalInstance = $modal.open({
+      $modal.open({
         templateUrl: 'views/fragments/simple_modal.html',
         controller: ModalInstanceCtrl,
         resolve: {

@@ -22,7 +22,7 @@ import com.mangofactory.swagger.annotations.ApiIgnore;
 public class MiscEnumResourcesController {
     @ApiIgnore
     @RequestMapping(value = "/environmenttype", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<EnvironmentType[]> getCloudRoles() {
+    public RestResponse<EnvironmentType[]> getEnvironmentTypes() {
         return RestResponseBuilder.<EnvironmentType[]> builder().data(EnvironmentType.values()).build();
     }
 }

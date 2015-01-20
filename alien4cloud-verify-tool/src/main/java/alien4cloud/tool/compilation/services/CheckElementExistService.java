@@ -13,16 +13,16 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.InitializingBean;
 
-import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.rest.component.ElementFromArchiveRequest;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.tool.compilation.exception.CompilationToolRuntimeException;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.component.ICSARRepositorySearchService;
 
 @Slf4j
 public class CheckElementExistService implements ICSARRepositorySearchService, InitializingBean {
@@ -84,6 +84,11 @@ public class CheckElementExistService implements ICSARRepositorySearchService, I
     @Override
     public <T extends IndexedToscaElement> T getRequiredElementInDependencies(Class<T> elementClass, String elementId, Collection<CSARDependency> dependencies)
             throws NotFoundException {
+        throw new NotImplementedException("This method is not used in the compilation tool.");
+    }
+
+    @Override
+    public <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId) {
         throw new NotImplementedException("This method is not used in the compilation tool.");
     }
 }

@@ -35,13 +35,6 @@
     "MENU_METRICS": "Alien 4 Cloud's Metrics",
     "MENU_CLOUD_IMAGES": "Cloud Images"
   },
-  "MODAL": {
-    "TITLE": {
-      "PROPERTY": "Property description",
-      "REQUIREMENT": "Requirement description",
-      "CAPABILITY": "Capability description"
-    }
-  },
   "MAIN": {
     "WELCOME": "Welcome on",
     "BUTTON_LOGIN": "Log in",
@@ -117,7 +110,7 @@
     },
     "CAPABILITIES": {
       "TYPE": "Capabilities",
-      "CARDINALITIES_TOOLTIP" : "upperBound"
+      "CARDINALITIES_TOOLTIP": "upperBound"
     },
     "ABSTRACT": "Abstract component",
     "DEFAULTCAPABILITIES": "Default Capabilities",
@@ -201,8 +194,6 @@
     "NEW_GROUP_HEADER": "Add new group",
     "EDIT_GROUP_HEADER": "Add or remove groups",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Edit roles",
-    "EDIT_ROLE_HEADER": "Add or remove roles",
     "OPERATIONS": "Operations",
     "DELETE": "Delete"
   },
@@ -217,19 +208,23 @@
     "NEW_GROUP_HEADER": "Add new group",
     "EDIT_GROUP_HEADER": "Add or remove groups",
     "ROLES": "Roles",
-    "EDIT_ROLE": "Edit roles",
-    "EDIT_ROLE_HEADER": "Add or remove roles",
     "DELETE": "Delete",
     "OPERATIONS": "Operations"
+  },
+  "EDIT_RIGHTS": {
+    "EDIT_ROLE_RESOURCE": "Edit roles for resource",
+    "EDIT_ROLE_HEADER_RESOURCE": "Add or remove roles to the resource",
+    "EDIT_ROLE_ENV": "Edit roles for environement",
+    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environement"
   },
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
     "MENU_TOPOLOGY": "Topology",
-    "MENU_PLAN": "Topology's workflows",
     "MENU_DEPLOYMENT": "Deployments",
     "MENU_RUNTIME": "Runtime",
     "MENU_USERS": "Users and Groups",
-    "MENU_ENVIRONMENT": "Environments"
+    "MENU_ENVIRONMENT": "Environments",
+    "MENU_VERSIONS": "Version"
   },
   "ROLE_TABS": {
     "USERS": "Users",
@@ -237,6 +232,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "APPLICATION_ROLES": "Application roles",
     "NEW": "New Application",
     "NAME": "Name",
     "DESC": "Description",
@@ -312,13 +308,15 @@
       "TITLE_NETWORK": "Network's name",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
-      "NETWORK_RESOURCES": "Network"
+      "NETWORK_RESOURCES": "Network",
+      "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy."
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
       "VISUAL_DETAILED": "Detailed view",
       "VISUAL_SIMPLE": "Condensed view",
       "YAML": "yaml",
+      "PLAN": "Workflow",
       "MODIFY_TOPOLOGY": "Modify",
       "ADD_NODETEMPLATE": "Add Node Template",
       "DEPENDENCY": "Dependencies",
@@ -379,19 +377,36 @@
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
     },
     "ENVIRONMENT": {
+      "ENV": "Environment",
+      "ENV_ROLES": "Environment roles",
       "NEW": "New environment",
       "STATUS": "Status",
       "NAME": "Name",
       "TYPE": "Type",
       "DESCRIPTION": "Description",
       "CLOUD": "Cloud",
-      "FORM" : {
-        "NAME" : "Name",
+      "VERSION": "Version",
+      "FORM": {
+        "NAME": "Name",
         "DESCRIPTION": "Description",
         "CLOUD": "Active cloud",
         "CLOUD_SELECT": "-- Select the targeted cloud --",
         "ENV_TYPE": "Environment type",
-        "ENV_TYPE_SELECT": "-- Select the environment type --"
+        "ENV_TYPE_SELECT": "-- Select the environment type --",
+        "ENV_VERSION": "Application version",
+        "ENV_VERSION_SELECT": "-- Select the application version --"
+      }
+    },
+    "VERSION": {
+      "NEW": "Create a new version",
+      "VERSION": "Version number",
+      "DESCRIPTION": "Description",
+      "ID": "Version ID",
+      "TITLE": "New version",
+      "MODAL": {
+        "SELECT-TITLE": "Topology",
+        "DESC": "Select an older verison to duplicate its topology",
+        "PATTERN": "Invalid format version."
       }
     },
     "ERRORS": {
@@ -448,6 +463,7 @@
     "NAME": "Name",
     "STATE": "State",
     "PAAS_PROVIDER": "PaaS provider",
+    "PAAS_PROVIDER_SELECT": "-- Select a PaaS Provider --",
     "DEPLOYMENTS": "Deployments",
     "DEPLOYMENT_SOURCE": "Source",
     "DEPLOYMENT_TYPE": "Type",
@@ -597,6 +613,8 @@
     "507": "Cannot delete this object as it's still being used by other objects",
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
+    "604": "An application must necessarily have at least one environment",
+    "605": "Invalid format version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",

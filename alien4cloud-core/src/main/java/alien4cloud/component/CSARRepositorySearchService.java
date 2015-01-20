@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -14,12 +15,15 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
-import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
+
+import com.google.common.collect.Sets;
 
 @Component
 public class CSARRepositorySearchService implements ICSARRepositorySearchService {
@@ -74,8 +78,17 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
             throws NotFoundException {
         T element = getElementInDependencies(elementClass, elementId, dependencies);
         if (element == null) {
-            throw new NotFoundException("Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName() + "> cannot be found");
+            throw new NotFoundException("Element elementId: <" + elementId + "> of type <" + elementClass.getSimpleName()
+                    + "> cannot be found in dependencies " + dependencies);
         }
         return element;
+    }
+
+    @Override
+    public <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId) {
+        Csar csar = searchDAO.findById(Csar.class, indexedToscaElement.getArchiveName() + ":" + indexedToscaElement.getArchiveVersion());
+        Set<CSARDependency> dependencies = Sets.newHashSet(new CSARDependency(csar.getName(), csar.getVersion()));
+        dependencies = CollectionUtils.merge(csar.getDependencies(), dependencies);
+        return getRequiredElementInDependencies(elementClass, parentElementId, CollectionUtils.merge(csar.getDependencies(), dependencies));
     }
 }

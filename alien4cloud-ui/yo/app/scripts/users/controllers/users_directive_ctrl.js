@@ -57,10 +57,10 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
         event.stopPropagation();
       };
 
-      //check if a role is selected for a user
-      $scope.checkIfRoleSelected = function(user, role) {
-        if ($scope.checkRoleSelectedCallback) {
-          return $scope.checkRoleSelectedCallback({
+      //check if a app role is selected for a user
+      $scope.checkIfAppRoleSelected = function(user, role) {
+        if ($scope.checkAppRoleSelectedCallback) {
+          return $scope.checkAppRoleSelectedCallback({
             user: user,
             role: role
           });
@@ -70,16 +70,36 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
             return user.roles.indexOf(role) > -1;
           }
         }
-
         //return false either
         return false;
       };
 
-      $scope.checkIfGroupSelected = function(user, group) {
+      $scope.checkIfAppGroupSelected = function(user, group) {
         return UTILS.arrayContains(user.groups, group);
       };
 
-      $scope.$watch('managedRoleList', function(newVal) {
+      //check if a env role is selected for a user
+      $scope.checkIfEnvRoleSelected = function(user, role) {
+        if ($scope.checkEnvRoleSelectedCallback) {
+          return $scope.checkEnvRoleSelectedCallback({
+            user: user,
+            role: role
+          });
+        } else {
+          //default checker
+          if (user.roles) {
+            return user.roles.indexOf(role) > -1;
+          }
+        }
+        //return false either
+        return false;
+      };
+
+      $scope.checkIfEnvGroupSelected = function(user, group) {
+        return UTILS.arrayContains(user.groups, group);
+      };
+
+      $scope.$watch('managedAppRoleList', function(newVal) {
         if (!newVal) {
           return;
         }

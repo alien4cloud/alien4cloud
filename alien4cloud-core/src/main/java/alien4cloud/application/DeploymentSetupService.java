@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -24,9 +25,10 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.Network;
-import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.TopologyServiceCore;
 
 import com.google.common.collect.Maps;
 
@@ -38,18 +40,23 @@ public class DeploymentSetupService {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-
     @Resource
     private CloudResourceMatcherService cloudResourceMatcherService;
-
     @Resource
     private TopologyServiceCore topologyServiceCore;
-
     @Resource
     private CloudService cloudService;
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
-        return alienDAO.findById(DeploymentSetup.class, generateId(version.getId(), environment.getId()));
+        return getById(generateId(version.getId(), environment.getId()));
+    }
+
+    private DeploymentSetup getById(String deploymentSetupId) {
+        return alienDAO.findById(DeploymentSetup.class, deploymentSetupId);
     }
 
     public DeploymentSetup getOrFail(ApplicationVersion version, ApplicationEnvironment environment) {
@@ -61,12 +68,26 @@ public class DeploymentSetupService {
         }
     }
 
-    public DeploymentSetup create(ApplicationVersion version, ApplicationEnvironment environment) {
-        DeploymentSetup deploymentSetup = new DeploymentSetup();
-        deploymentSetup.setId(generateId(version.getId(), environment.getId()));
-        deploymentSetup.setEnvironmentId(environment.getId());
-        deploymentSetup.setVersionId(version.getId());
-        alienDAO.save(deploymentSetup);
+    /**
+     * Create a deployment setup with a failure when the composed key (version.id, environment.id) already exists
+     * 
+     * @param version
+     * @param environment
+     * @return the created deployment setup
+     */
+    public DeploymentSetup createOrFail(ApplicationVersion version, ApplicationEnvironment environment) {
+        // check if deploymentSetup already exists
+        DeploymentSetup deploymentSetup = get(version, environment);
+        if (deploymentSetup == null) {
+            deploymentSetup = new DeploymentSetup();
+            deploymentSetup.setId(generateId(version.getId(), environment.getId()));
+            deploymentSetup.setEnvironmentId(environment.getId());
+            deploymentSetup.setVersionId(version.getId());
+            alienDAO.save(deploymentSetup);
+        } else {
+            throw new AlreadyExistException("A deployment setup for application <" + environment.getApplicationId() + "> for version [" + version.getId()
+                    + "] / environment [" + environment.getId() + "] already exists");
+        }
         return deploymentSetup;
     }
 
@@ -176,9 +197,68 @@ public class DeploymentSetupService {
     /**
      * Delete a deployment setup based on the id of the related version.
      *
-     * @param environmentId The id of the version
+     * @param versionId The id of the version
      */
-    public void deleteByVersionId(String environmentId) {
-        alienDAO.delete(DeploymentSetup.class, QueryBuilders.termQuery("versionId", environmentId));
+    public void deleteByVersionId(String versionId) {
+        alienDAO.delete(DeploymentSetup.class, QueryBuilders.termQuery("versionId", versionId));
     }
+
+    /**
+     * Get all deployments setup based on the id of the related version.
+     *
+     * @param versionId The id of the version
+     */
+    public GetMultipleDataResult<DeploymentSetup> getByVersionId(String versionId) {
+        Map<String, String[]> filters = Maps.newHashMap();
+        filters.put("versionId", new String[] { versionId });
+        return alienDAO.search(DeploymentSetup.class, null, filters, 0, 20);
+    }
+
+    /**
+     * Get a topology Id for a deploymentSetup
+     * 
+     * @param deploymentId
+     * @return a topology id
+     */
+    public String getTopologyId(String deploymentSetupId) {
+        DeploymentSetup deploymentSetup = getById(deploymentSetupId);
+        if (deploymentSetup != null) {
+            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
+            ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
+            return applicationVersion.getTopologyId();
+        }
+        return null;
+    }
+
+    /**
+     * Get the linked application environment
+     * 
+     * @param deploymentSetupId
+     * @return an application environment
+     */
+    public ApplicationEnvironment getApplicationEnvironment(String deploymentSetupId) {
+        DeploymentSetup deploymentSetup = getById(deploymentSetupId);
+        if (deploymentSetup != null) {
+            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
+            return applicationEnvironment;
+        }
+        return null;
+    }
+
+    /**
+     * Get the linked application version
+     * 
+     * @param deploymentSetupId
+     * @return an application version
+     */
+    public ApplicationVersion getApplicationVersion(String deploymentSetupId) {
+        DeploymentSetup deploymentSetup = getById(deploymentSetupId);
+        if (deploymentSetup != null) {
+            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
+            ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
+            return applicationVersion;
+        }
+        return null;
+    }
+
 }

@@ -31,7 +31,7 @@ describe('Application Deployment :', function() {
       cloudsCommon.goToCloudDetailTemplate();
       cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'medium', 'MEDIUM_LINUX');
       cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'large', 'LARGE_LINUX');
-      cloudsCommon.goToCloudDetailDetails();
+      cloudsCommon.goToCloudDetail('testcloud');
       cloudsCommon.enableCloud();
     }
   });

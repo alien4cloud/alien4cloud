@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter', 'facetedSearch', '$location', 'searchContext', 'alienAuthService', '$resource', function($scope, $filter, facetedSearch, $location, searchContext, alienAuthService, $resource) {
@@ -219,14 +221,7 @@ angular.module('alienUiApp').controller('alienSearchCtrl', ['$scope', '$filter',
   };
 
   //get the icon
-  $scope.getIcon = function(tags) {
-    for (var i in tags) {
-      var tag = tags[i];
-      if (tag.name === 'icon') {
-        return tag.value;
-      }
-    }
-  };
+  $scope.getIcon = UTILS.getIcon;
 
   var ComponentResource = $resource('rest/components/:componentId', {}, {
     method: 'GET',

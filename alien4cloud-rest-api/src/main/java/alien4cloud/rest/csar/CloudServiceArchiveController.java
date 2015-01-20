@@ -40,7 +40,7 @@ import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
-import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.component.ICSARRepositoryIndexerService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
@@ -52,7 +52,11 @@ import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestError;
@@ -64,10 +68,6 @@ import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.tosca.ArchiveUploadService;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.component.ICSARRepositoryIndexerService;
-import alien4cloud.model.components.Csar;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
@@ -277,36 +277,6 @@ public class CloudServiceArchiveController {
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.CSAR_RELEASE_IMMUTABLE).build()).build();
     }
 
-    // @ApiOperation(value = "Get a node type defined in a cloud service archive.")
-    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<NodeType> getNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-    // Csar csar = csarService.getMandatoryCsar(csarId);
-    // return RestResponseBuilder.<NodeType> builder().data(getNodeType(csar, nodeTypeId)).build();
-    // }
-
-    // @ApiOperation(value = "Removes a node type from a cloud service archive.")
-    // @RequestMapping(value = "/{csarId:.+?}/nodetypes/{nodeTypeId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<Void> deleteNodeType(@PathVariable String csarId, @PathVariable String nodeTypeId) {
-    // Csar csar = csarService.getMandatoryCsar(csarId);
-    // if (csar.getNodeTypes() != null) {
-    // NodeType nodeType = csar.getNodeTypes().remove(nodeTypeId);
-    // if (nodeType != null) {
-    // indexerService.deleteElement(csar.getName(), csar.getVersion(), nodeType);
-    // csarDAO.save(csar);
-    // }
-    // }
-    // return RestResponseBuilder.<Void> builder().build();
-    // }
-
-    // private NodeType getNodeType(Csar csar, String nodeTypeId) {
-    // Map<String, NodeType> nodeTypes = csar.getNodeTypes();
-    // if (nodeTypes == null || !nodeTypes.containsKey(nodeTypeId)) {
-    // throw new NotFoundException("Node type with id [" + nodeTypeId + "] cannot be found");
-    // } else {
-    // return nodeTypes.get(nodeTypeId);
-    // }
-    // }
-
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")
     public void setTempDirPath(String tempDirPath) throws IOException {
@@ -333,14 +303,14 @@ public class CloudServiceArchiveController {
      * @param csarId id of the topology
      * @return the active deployment
      */
-    @ApiOperation(value = "Get active deployment for the given csar snapshot's test topology on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
+    @ApiOperation(value = "Get active deployment for the given csar snapshot's test topology on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{csarId:.+?}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
         if (csar.getTopologyId() == null || csar.getCloudId() == null) {
             return RestResponseBuilder.<Deployment> builder().build();
         }
-        Deployment deployment = deploymentService.getActiveDeployment(csar.getTopologyId(), csar.getCloudId());
+        Deployment deployment = deploymentService.getActiveDeployment(csar.getCloudId(), csar.getTopologyId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();
     }
 
@@ -401,7 +371,7 @@ public class CloudServiceArchiveController {
                             + "] because it contains unmatchable resources");
                 }
                 deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-                deploymentId = deploymentService.deployTopology(topology, cloudId, csar, "CSAR_TEST", csar.getVersion(), deploymentSetup);
+                deploymentId = deploymentService.deployTopology(topology, csar, deploymentSetup, cloudId);
             } catch (CloudDisabledException e) {
                 return RestResponseBuilder.<String> builder().data(null).error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
                         .build();

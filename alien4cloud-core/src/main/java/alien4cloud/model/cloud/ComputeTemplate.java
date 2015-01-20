@@ -13,7 +13,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ComputeTemplate {
+public class ComputeTemplate implements ICloudResource {
 
     private String cloudImageId;
 

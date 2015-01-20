@@ -21,7 +21,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
         "cidr": {
           "_label": "CLOUDS.NETWORKS.CIDR",
           "_type": "string",
-          "_notNull": true
+          "_notNull": false
         },
         "gatewayIp": {
           "_label": "CLOUDS.NETWORKS.GATEWAY_IP",

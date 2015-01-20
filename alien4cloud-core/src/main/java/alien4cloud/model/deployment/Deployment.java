@@ -2,6 +2,7 @@ package alien4cloud.model.deployment;
 
 import java.util.Date;
 
+import alien4cloud.paas.model.DeploymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,12 +43,12 @@ public class Deployment {
 
     /** Id of the cloud on which the deployment is performed. */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String cloudId;
 
     /** Id of the application that has been deployed */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String sourceId;
 
     /** Name of the application. This is used as backup if application is deleted. */
@@ -55,19 +56,9 @@ public class Deployment {
     @StringField(indexType = IndexType.not_analyzed)
     private String sourceName;
 
-    /**
-     * The environment on which deployment has been launched
-     */
-    private String environmentName;
-
-    /**
-     * The version of the application launched
-     */
-    private String version;
-
     /** Id of the topology that is deployed (runtime topology) */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String topologyId;
 
     /** Start date of the deployment */
@@ -77,6 +68,9 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
+
+    /** The current status of the deployment. */
+    private DeploymentStatus deploymentStatus;
 
     /** Linked deployment setup */
     @NestedObject

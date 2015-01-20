@@ -9,19 +9,17 @@ var rolesCommon = require('../common/roles_common.js');
 var applications = require('../applications/applications');
 var users = require('../admin/users');
 
-var toggleRole = function(app, user, role) {
+var toggleRole = function(appOrEnv, app, user, role) {
   applications.goToApplicationDetailPage(app);
   navigation.go('applications', 'users');
-  rolesCommon.editUserRole(user, role);
+  if (appOrEnv === 'app') {
+    rolesCommon.editUserRole(user, role);
+  } else {
+    rolesCommon.editUserRoleForAnEnv(user, role);
+  }
 };
-
-var addRole = function(app, user, role) {
-  toggleRole(app, user, role);
-};
-
-var removeRole = function(app, user, role) {
-  toggleRole(app, user, role);
-};
+var addRole = toggleRole;
+var removeRole = toggleRole;
 
 var goToApplicationRoleManagementTab = function() {
   navigation.go('applications', 'users');
@@ -31,15 +29,10 @@ var goToApplicationGroupRoleManagementTab = function() {
   element(by.id('groups-tab')).element(by.tagName('a')).click();
 };
 
-var toggleGroupRole = function(app, group, role) {
+var goToApplicationGroupRoleManagementTabForApp = function(app) {
   applications.goToApplicationDetailPage(app);
   navigation.go('applications', 'users');
   goToApplicationGroupRoleManagementTab();
-  rolesCommon.editGroupRole(group, role);
-};
-
-var addGroupRole = function(app, group, role) {
-  toggleGroupRole(app, group, role);
 };
 
 describe('Security management on applications', function() {
@@ -70,8 +63,8 @@ describe('Security management on applications', function() {
     applications.createApplication('Alien_2', 'Great Application 2');
     applications.createApplication('Alien_3', 'Great Application 3');
 
-    addRole('Alien', 'sauron', rolesCommon.appRoles.appManager);
-    addRole('Alien_2', 'sauron', rolesCommon.appRoles.deploymentManager);
+    addRole('app', 'Alien', 'sauron', rolesCommon.appRoles.appManager);
+    addRole('env', 'Alien_2', 'sauron', rolesCommon.envRoles.deploymentManager);
 
     authentication.reLogin('sauron');
     navigation.go('main', 'applications');
@@ -82,10 +75,10 @@ describe('Security management on applications', function() {
     applications.goToApplicationDetailPage('Alien_2');
 
     authentication.reLogin('applicationManager');
-    removeRole('Alien_2', 'sauron', rolesCommon.appRoles.deploymentManager);
+    removeRole('env', 'Alien_2', 'sauron', rolesCommon.envRoles.deploymentManager);
     authentication.reLogin('sauron');
     navigation.go('main', 'applications');
-    expect(element.all(by.repeater('application in searchResult.data.data')).count()).toEqual(1);
+    expect(element.all(by.repeater('application in searchResult.data.data')).count()).toEqual(2);
     expect(browser.isElementPresent(by.id('app_Alien'))).toBe(true);
   });
 
@@ -98,8 +91,10 @@ describe('Security management on applications', function() {
     applications.createApplication('Alien_2', 'Great Application 2');
     applications.createApplication('Alien_3', 'Great Application 3');
 
-    addGroupRole('Alien', users.groups.mordor.name, rolesCommon.appRoles.appManager);
-    addGroupRole('Alien_2', users.groups.mordor.name, rolesCommon.appRoles.deploymentManager);
+    goToApplicationGroupRoleManagementTabForApp('Alien');
+    rolesCommon.editGroupRoleForAnApp(users.groups.mordor.name, rolesCommon.appRoles.appManager);
+    goToApplicationGroupRoleManagementTabForApp('Alien_2');
+    rolesCommon.editGroupRoleForAnEnv(users.groups.mordor.name, rolesCommon.envRoles.deploymentManager);
     // Roles are given to the group not the user --> do not have rights
     authentication.reLogin('sauron');
     navigation.go('main', 'applications');
@@ -142,8 +137,8 @@ describe('Security management on applications', function() {
     navigation.go('applications', 'users');
 
     // give application_user role to 'user' user
-    rolesCommon.editUserRole('sauron', rolesCommon.appRoles.appUser);
-    rolesCommon.assertUserHasRoles('sauron', rolesCommon.appRoles.appUser);
+    rolesCommon.editUserRoleForAnEnv('sauron', rolesCommon.envRoles.envUser);
+    rolesCommon.assertUserHasRolesForAnEnv('sauron', rolesCommon.envRoles.envUser);
 
     // give application_devops role to applicationManager user
     rolesCommon.editUserRole('sauron', rolesCommon.appRoles.appDevops);
@@ -164,12 +159,12 @@ describe('Security management on applications', function() {
     goToApplicationGroupRoleManagementTab();
 
     // give application_user role to 'user' user
-    rolesCommon.editGroupRole('mordor', rolesCommon.appRoles.appUser);
-    rolesCommon.assertGroupHasRoles('mordor', rolesCommon.appRoles.appUser);
+    rolesCommon.editGroupRoleForAnEnv('mordor', rolesCommon.envRoles.envUser);
+    rolesCommon.assertGroupHasRoles('env', 'mordor', rolesCommon.envRoles.envUser);
 
     // give application_devops role to applicationManager user
     rolesCommon.editGroupRole('mordor', rolesCommon.appRoles.appDevops);
-    rolesCommon.assertGroupHasRoles('mordor', rolesCommon.appRoles.appDevops);
+    rolesCommon.assertGroupHasRoles('app', 'mordor', rolesCommon.appRoles.appDevops);
   });
 
   it('Authenticated users even without any roles should see applications with ALL_USERS group rights on it', function() {
@@ -187,8 +182,8 @@ describe('Security management on applications', function() {
     goToApplicationGroupRoleManagementTab();
 
     // give appUser role to group ALL_USERS
-    rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appUser);
-    rolesCommon.assertGroupHasRoles('ALL_USERS', rolesCommon.appRoles.appUser);
+    rolesCommon.editGroupRoleForAnEnv('ALL_USERS', rolesCommon.envRoles.envUser);
+    rolesCommon.assertGroupHasRoles('env', 'ALL_USERS', rolesCommon.envRoles.envUser);
 
     // Log as sauron who has no roles on application Alien_2
     authentication.reLogin('sauron');
@@ -206,7 +201,7 @@ describe('Security management on applications', function() {
 
     // give appDevops role to group ALL_USERS
     rolesCommon.editGroupRole('ALL_USERS', rolesCommon.appRoles.appManager);
-    rolesCommon.assertGroupHasRoles('ALL_USERS', rolesCommon.appRoles.appManager);
+    rolesCommon.assertGroupHasRoles('app', 'ALL_USERS', rolesCommon.appRoles.appManager);
 
     // now any user as sauron should have at least 2 applications in the list
     authentication.reLogin('sauron');

@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 var FORMS = {};
@@ -995,7 +997,6 @@ FORMS.initComplexFormScope = function(scope) {
 
 FORMS.initFormSuggest = function(scope, suggest) {
   scope.suggest = function(searchConfiguration, text) {
-    console.log("Scope ", scope);
     return suggest({
       searchConfiguration: searchConfiguration,
       text: text
@@ -1200,6 +1201,17 @@ FORMS.constraintFactory = function(name, $filter) {
       return function(value, reference) {
         if (value.toString().length < reference) {
           return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.minLength', {
+            reference: reference
+          });
+        } else {
+          return true;
+        }
+      };
+    case 'pattern':
+      return function(value, reference) {
+        var patt = new RegExp(reference);
+        if (!patt.test(value.toString())) {
+          return $filter('translate')('GENERIC_FORM.VALIDATION_ERROR.pattern', {
             reference: reference
           });
         } else {

@@ -14,7 +14,9 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
@@ -177,6 +179,8 @@ public class ResourceRoleService {
                 ApplicationRole.valueOf(goodRoleToAdd);
             } else if (resource.equals(Cloud.class)) {
                 CloudRole.valueOf(goodRoleToAdd);
+            } else if (resource.equals(ApplicationEnvironment.class)) {
+                ApplicationEnvironmentRole.valueOf(goodRoleToAdd);
             } else {
                 throw new NotFoundException("Resource type [" + resource + "] is not handled yet");
             }

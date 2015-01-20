@@ -22,11 +22,14 @@ package alien4cloud.utils.version;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import lombok.NoArgsConstructor;
+
 /**
  * Default implementation of artifact versioning.
  * 
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
+@NoArgsConstructor
 public class Version implements Comparable<Version> {
     private Integer majorVersion;
 

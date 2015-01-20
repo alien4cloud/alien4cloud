@@ -2,6 +2,7 @@
 
 angular.module('alienUiApp').controller('TopologyTemplateCtrl', ['$scope', '$resource', 'topologyTemplate', 'topologyTemplateService', '$translate',
   function($scope, $resource, topologyTemplateResult, topologyTemplateService, $translate) {
+
     $scope.topologyTemplate = topologyTemplateResult.data;
     $scope.topologyId = $scope.topologyTemplate.topologyId;
     $scope.topologyTemplateId = $scope.topologyTemplate.id;

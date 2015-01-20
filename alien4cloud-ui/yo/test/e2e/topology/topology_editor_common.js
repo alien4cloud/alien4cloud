@@ -353,7 +353,7 @@ module.exports.editNodeProperty = editNodeProperty;
 
 // check if a text is present in the error message while editing a property
 var checkPropertyEditionError = function(nodeTemplateName, propertyName, containedInErrorText) {
-
+  browser.waitForAngular();
   var propertyElement = element(by.id('p_' + propertyName));
   var formElement = propertyElement.element(by.tagName('form'));
 
@@ -362,7 +362,7 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
   expect(divError.isDisplayed()).toBe(true);
   expect(divError.getText()).not.toEqual('');
   expect(divError.getText()).toContain(containedInErrorText);
-
+  common.dismissAlertIfPresent();
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 

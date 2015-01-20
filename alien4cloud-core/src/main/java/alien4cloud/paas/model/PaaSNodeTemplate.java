@@ -36,7 +36,7 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     private PaaSNodeTemplate attachedNode;
 
     // TODO put it in ComputePaaSNodeTemplate + must manage multiple network
-    private PaaSNodeTemplate networkNode;
+    private List<PaaSNodeTemplate> networkNodes;
 
     /** List of relationships template with their types. */
     private List<PaaSRelationshipTemplate> relationshipTemplates = Lists.newArrayList();

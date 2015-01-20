@@ -33,7 +33,7 @@ public final class AuthorizationUtil {
 
     @Autowired
     public void setAlienGroupDao(IAlienGroupDao alienGroupDao) {
-        this.alienGroupDao = alienGroupDao;
+        AuthorizationUtil.alienGroupDao = alienGroupDao;
     }
 
     private AuthorizationUtil() {
@@ -65,12 +65,29 @@ public final class AuthorizationUtil {
         }
     }
 
+    /**
+     * Check that the user has one of the requested rights for the given application environment
+     * 
+     * @param resource
+     * @param expectedRoles
+     */
+    public static void checkAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
+        if (!hasAuthorizationForEnvironment(resource, expectedRoles)) {
+            throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
+                    + "> has no authorization to perform the requested operation on this cloud.");
+        }
+    }
+
     public static boolean hasAuthorizationForApplication(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, ApplicationRole.APPLICATION_MANAGER, expectedRoles);
     }
 
     public static boolean hasAuthorizationForCloud(ISecuredResource resource, IResourceRoles... expectedRoles) {
         return hasAuthorization(getCurrentUser(), resource, CloudRole.CLOUD_DEPLOYER, expectedRoles);
+    }
+
+    public static boolean hasAuthorizationForEnvironment(ISecuredResource resource, IResourceRoles... expectedRoles) {
+        return hasAuthorization(getCurrentUser(), resource, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER, expectedRoles);
     }
 
     /**
@@ -134,25 +151,26 @@ public final class AuthorizationUtil {
      */
     public static FilterBuilder getResourceAuthorizationFilters() {
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        FilterBuilder filterBuilder = null;
+
         if (auth.getAuthorities().contains(new SimpleGrantedAuthority(Role.ADMIN.toString()))) {
-            return filterBuilder;
+            return null;
+        }
+
+        FilterBuilder filterBuilder;
+        User user = (User) auth.getPrincipal();
+        if (user.getGroups() != null && !user.getGroups().isEmpty()) {
+            filterBuilder = FilterBuilders.boolFilter()
+                    .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
+                    .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
         } else {
-            User user = (User) auth.getPrincipal();
-            if (user.getGroups() != null && !user.getGroups().isEmpty()) {
-                filterBuilder = FilterBuilders.boolFilter()
-                        .should(FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName())))
-                        .should(FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", user.getGroups().toArray())));
-            } else {
-                filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
-            }
-            Group group = getAllUsersGroup();
-            if (group != null) {
-                String groupId = group.getId();
-                // add ALL_USERS group as OR filter
-                filterBuilder = FilterBuilders.orFilter(filterBuilder,
-                        FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
-            }
+            filterBuilder = FilterBuilders.nestedFilter("userRoles", FilterBuilders.termFilter("userRoles.key", auth.getName()));
+        }
+        Group group = getAllUsersGroup();
+        if (group != null) {
+            String groupId = group.getId();
+            // add ALL_USERS group as OR filter
+            filterBuilder = FilterBuilders.orFilter(filterBuilder,
+                    FilterBuilders.nestedFilter("groupRoles", FilterBuilders.inFilter("groupRoles.key", groupId)));
         }
         return filterBuilder;
     }
@@ -318,5 +336,33 @@ public final class AuthorizationUtil {
             }
         }
         return new UsernamePasswordAuthenticationToken(user, password, authorities);
+    }
+
+    /**
+     * Check if a group has only one specific role on a resource
+     * 
+     * @param groupId
+     * @param resource
+     * @param role
+     * @return true when the role is found and it is unique
+     */
+    public static boolean hasUniqueGroupRoleOnResource(String groupId, ISecuredResource resource, IResourceRoles role) {
+        Map<String, Set<String>> allResourceGroupRoles = resource.getGroupRoles();
+        Set<String> groupRoles = allResourceGroupRoles.get(groupId);
+        return groupRoles.size() == 1 && groupRoles.contains(role.toString());
+    }
+
+    /**
+     * Check if a user has only a specific role on a resource
+     * 
+     * @param user
+     * @param resource
+     * @param role
+     * @return true when the role is found and it is unique
+     */
+    public static boolean hasUniqueUserRoleOnResource(User user, ISecuredResource resource, IResourceRoles role) {
+        Map<String, Set<String>> allResourceUserRoles = resource.getUserRoles();
+        Set<String> userRoles = allResourceUserRoles.get(user.getUsername());
+        return userRoles.size() == 1 && userRoles.contains(role.toString());
     }
 }

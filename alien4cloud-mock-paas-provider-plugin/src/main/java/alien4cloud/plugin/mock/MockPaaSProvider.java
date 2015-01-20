@@ -1,14 +1,7 @@
 package alien4cloud.plugin.mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +18,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
@@ -42,16 +36,7 @@ import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.InstanceStatus;
-import alien4cloud.paas.model.NodeOperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.*;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.normative.ToscaType;
 
@@ -70,6 +55,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     private final Map<String, PropertyDefinition> deploymentProperties;
     private final Map<String, DeploymentStatus> deploymentsMap = Maps.newConcurrentMap();
+
+    @Resource
+    private DeploymentService deploymentService;
 
     /**
      * A little bit scary isn't it ? It's just a mock man.
@@ -119,7 +107,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     }
 
     @Override
-    public DeploymentStatus doGetStatus(String deploymentId) {
+    public DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed) {
         if (deploymentsMap.containsKey(deploymentId)) {
             return deploymentsMap.get(deploymentId);
         } else {
@@ -127,11 +115,15 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
             if (deployment == null) {
                 return DeploymentStatus.UNDEPLOYED;
             }
-            QueryBuilder matchTopologyIdQueryBuilder = QueryBuilders.termQuery("topologyId", deployment.getTopologyId());
+            QueryBuilder matchTopologyIdQueryBuilder = QueryBuilders.termQuery("topologyId", deploymentService.getTopologyIdByDeployment(deploymentId));
             final Application application = alienDAO.customFind(Application.class, matchTopologyIdQueryBuilder);
             if (application != null && UNKNOWN_APPLICATION_THAT_NEVER_WORKS.equals(application.getName())) {
                 return DeploymentStatus.UNKNOWN;
             } else {
+                // application is not deployed and but there is a deployment in alien so trigger the undeployed event to update status.
+                if(triggerEventIfUndeployed) {
+                    doChangeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
+                }
                 return DeploymentStatus.UNDEPLOYED;
             }
         }
@@ -167,7 +159,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         log.info("Deploying deployment [" + deploymentId + "]");
         changeStatus(deploymentId, DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
         if (deploymentId != null) {
-            Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
+            Topology topology = alienDAO.findById(Topology.class, deploymentService.getTopologyIdByDeployment(deploymentId));
             Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
             if (policies == null) {
                 policies = Maps.newHashMap();
@@ -437,7 +429,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
-        callback.onSuccess(deploymentsMap.get(deploymentContext.getDeploymentId()));
+        DeploymentStatus status = deploymentsMap.get(deploymentContext.getDeploymentId());
+        status = status == null ? DeploymentStatus.UNDEPLOYED : status;
+        callback.onSuccess(status);
     }
 
     @Override
