@@ -27,6 +27,7 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.Network;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -34,7 +35,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;
@@ -95,7 +95,7 @@ public class CloudController {
      *
      * @param id Id of the cloud to delete.
      */
-    @ApiOperation(value = "Get details of a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudDTO> get(@ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String id) {
         Cloud cloud = cloudService.getMandatoryCloud(id);
