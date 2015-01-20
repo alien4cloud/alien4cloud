@@ -34,6 +34,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.utils.services.ResourceRoleService;
 
@@ -98,7 +99,10 @@ public class CloudController {
     @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudDTO> get(@ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String id) {
+        // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         Map<String, CloudImageFlavor> flavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {

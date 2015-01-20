@@ -153,7 +153,7 @@ public class RuntimeController {
             @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
 
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS);
+        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
 
         // get the topology linked to the current environment
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);

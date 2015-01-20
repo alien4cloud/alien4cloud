@@ -181,9 +181,16 @@ public class ApplicationEnvironmentController {
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateApplicationEnvironmentRequest request) {
 
-        // Only APPLICATION_MANAGER on the underlying application can update an application environment
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-                ApplicationRole.APPLICATION_MANAGER);
+        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        // Deployment manager can update a environment
+        if (request.getCloudId() != null
+                && !AuthorizationUtil.hasAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER)) {
+            // Only APPLICATION_MANAGER on the underlying application can update an application environment
+            Application application = applicationService.getOrFail(applicationId);
+            AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        }
+        // ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
+        // ApplicationRole.APPLICATION_MANAGER);
 
         if (applicationEnvironment == null) {
             return RestResponseBuilder
