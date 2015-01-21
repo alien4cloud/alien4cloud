@@ -455,7 +455,8 @@
     "ICON_UPLOAD": "Drop icon here",
     "NUM_CPUS": "Required CPU cores",
     "DISK_SIZE": "Required disk size",
-    "MEM_SIZE": "Required memory size"
+    "MEM_SIZE": "Required memory size",
+    "LINKED_TO_CLOUDS": "This image is associated to more than one cloud so edition is limited to few fields. Modifications will impact the following clouds: {{cloudNames}}." 
   },
   "CLOUDS": {
     "CLOUDS": "Clouds",

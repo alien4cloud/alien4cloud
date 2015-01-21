@@ -27,14 +27,15 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.Network;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;
@@ -93,12 +94,15 @@ public class CloudController {
     /**
      * Get details for a cloud.
      *
-     * @param id Id of the cloud to delete.
+     * @param id Id of the cloud.
      */
-    @ApiOperation(value = "Get details of a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudDTO> get(@ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String id) {
+        // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         Map<String, CloudImageFlavor> flavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
@@ -203,11 +207,14 @@ public class CloudController {
      *
      * @param cloudName name of the cloud to get.
      */
-    @ApiOperation(value = "Get details of a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/getByName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Cloud> getByName(
             @ApiParam(value = "Name of the cloud for which to get details.") @Valid @NotBlank @RequestParam(required = true) String cloudName) {
-        return RestResponseBuilder.<Cloud> builder().data(cloudService.getByName(cloudName)).build();
+        // check roles on the requested cloud
+        Cloud cloud = cloudService.getByName(cloudName);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+        return RestResponseBuilder.<Cloud> builder().data(cloud).build();
     }
 
     /**

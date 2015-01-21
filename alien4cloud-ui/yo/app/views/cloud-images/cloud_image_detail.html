@@ -1,6 +1,10 @@
 <div class="row" style="margin-bottom: 20px">
   <div class="col-md-12">
     <div class="pull-right">
+			<a ng-if="!isEditModeActive" class="btn btn-primary btn-sm"
+			   ng-click="switchEditMode();">
+			  <i class="fa fa-edit"></i>
+			</a>    
       <delete-confirm id="btn-delete-cloud-image" func="delete()"
                       position="left" bssize="btn-sm" fastyle="fa-trash-o">
       </delete-confirm>
@@ -8,10 +12,10 @@
   </div>
 </div>
 <div class="row">
-  <div class="col-md-8">
+  <div class="col-md-12">
     <div class="row">
       <div class="col-md-3">
-        <div ng-if="!cloudImage.iconId"
+        <div ng-if="!cloudImage.iconId && isEditModeActive"
              class="drop-box drop-box-for-image"
              ng-file-drop="onIconSelected($files)">
           <div class="text-center">{{'CLOUD_IMAGES.ICON_UPLOAD' | translate}}</div>
@@ -20,12 +24,15 @@
              ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_128'):null}}"
              ng-file-drop="onIconSelected($files)" />
       </div>
-      <div class="col-md-9">
+      <div class="col-md-6">
         <update-form root-object="cloudImage"
                      type="cloudImageFormDescriptor"
                      label-size="30"
                      save="save(object)">
         </update-form>
+      </div>
+      <div ng-if="isEditModeActive && isLinkedToMoreThanOneCloud" class="col-md-3 alert alert-info">
+        {{'CLOUD_IMAGES.LINKED_TO_CLOUDS' | translate:translationData}}
       </div>
     </div>
   </div>

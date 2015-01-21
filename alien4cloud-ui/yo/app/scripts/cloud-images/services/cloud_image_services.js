@@ -96,13 +96,18 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
         }
       }
     });
+    
+    var cloudResource = $resource('rest/cloud-images/:id/clouds', {}, {
+      query: {method:'GET'}
+    });
 
     return {
       'create': crudCloudImage.save,
       'get': crudCloudImage.get,
       'getFormDescriptor': getFormDescriptor,
       'update': crudCloudImage.update,
-      'remove': crudCloudImage.remove
+      'remove': crudCloudImage.remove,
+      'getClouds' : cloudResource.query
     };
   }
 ]);

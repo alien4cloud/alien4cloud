@@ -93,6 +93,14 @@ public class CloudImageController {
             // Check uniqueness before updating
             cloudImageService.ensureCloudImageUniqueness(cloudImage);
         }
+        if (request.getDiskSize() != null || request.getMemSize() != null || request.getNumCPUs() != null) {
+            CloudImageRequirement oldCir = cloudImage.getRequirement();
+            if (oldCir == null) {
+                oldCir = new CloudImageRequirement();
+                cloudImage.setRequirement(oldCir);
+            }
+            ReflectionUtil.mergeObject(request, oldCir);
+        }
         cloudImageService.saveCloudImage(cloudImage);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -115,7 +123,7 @@ public class CloudImageController {
     }
 
     /**
-     * Get details for a cloud.
+     * Get details for a cloud image.
      *
      * @param id Id of the cloud to delete.
      */
@@ -126,7 +134,7 @@ public class CloudImageController {
     }
 
     /**
-     * Search for clouds.
+     * Search for cloud images.
      *
      * @param searchRequest Query to find the cloud images.
      * @return A {@link RestResponse} that contains a {@link alien4cloud.dao.model.GetMultipleDataResult} that contains the clouds.
@@ -160,4 +168,18 @@ public class CloudImageController {
         cloudImageService.saveCloudImage(cloudImage);
         return RestResponseBuilder.<String> builder().data(iconId).build();
     }
+
+    /**
+     * Search for cloud names linked to this image.
+     *
+     * @param id The cloud image id.
+     * @return A {@link RestResponse} that contains a <code>String</code> array (cloud names).
+     */
+    @ApiOperation(value = "Get the cloud names related to this image.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/clouds", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<String[]> getCloudImageClouds(@PathVariable String id) {
+        String[] cloudNames = cloudImageService.getCloudsNameUsingImage(id);
+        return RestResponseBuilder.<String[]> builder().data(cloudNames).build();
+    }
+
 }
