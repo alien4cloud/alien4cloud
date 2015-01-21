@@ -390,10 +390,63 @@ module.exports = function(grunt) {
           // Arguments passed to the command
         }
       },
-      runChrome: {
+      runChromeAdmin: {
         options: {
           args: {
-            browser: 'chrome'
+            browser: 'chrome',
+            baseUrl: 'http://localhost:8088',
+            specs: [
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/admin/**/*.js'
+            ]
+          }
+        }
+      },
+      runChromeApplication: {
+        options: {
+          args: {
+            browser: 'chrome',
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/application/**/*.js'
+            ]
+          }
+        }
+      },
+      runChromeApplicationTopology: {
+        options: {
+          args: {
+            browser: 'chrome',
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/application_topology/**/*.js'
+            ]
+          }
+        }
+      },
+      runChromeDeploymentAndSecurity: {
+        options: {
+          args: {
+            browser: 'chrome',
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/deployment/**/*.js',
+            'test/e2e/scenarios/security/**/*.js'
+            ]
+          }
+        }
+      },
+      runChromeOtherTests: {
+        options: {
+          args: {
+            browser: 'chrome',
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/*.js'            ]
           }
         }
       },
