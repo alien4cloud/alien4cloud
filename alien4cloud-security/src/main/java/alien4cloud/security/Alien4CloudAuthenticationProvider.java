@@ -72,8 +72,10 @@ public class Alien4CloudAuthenticationProvider implements AuthenticationProvider
 
     private Authentication delegateAuthenticate(Authentication authentication, User user, String password) {
         Authentication auth = wrappedProvider.authenticate(authentication);
+        // refresh the user in case the wrapped provider changed some roles
+        User updatedUser =  alienUserDao.find(user.getUsername());
         if (auth.isAuthenticated()) {
-            return AuthorizationUtil.createAuthenticationToken(user, password);
+            return AuthorizationUtil.createAuthenticationToken(updatedUser, password);
         } else {
             return auth;
         }
