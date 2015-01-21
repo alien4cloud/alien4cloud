@@ -86,7 +86,7 @@ public class CloudNetworkStepDefinitions {
 
     @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")
     public void The_cloud_should_have_network_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
+        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
@@ -119,7 +119,7 @@ public class CloudNetworkStepDefinitions {
 
     @Then("^The cloud \"([^\"]*)\" should have empty network mapping configuration$")
     public void The_cloud_should_have_empty_network_mapping_configuration(String cloudName) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
+        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Assert.assertTrue(cloudDTO.getCloudResourceMatcher() == null || cloudDTO.getCloudResourceMatcher().getMatcherConfig() == null
                 || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks() == null

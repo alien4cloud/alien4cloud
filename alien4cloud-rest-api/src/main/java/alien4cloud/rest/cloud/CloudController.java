@@ -207,11 +207,14 @@ public class CloudController {
      *
      * @param cloudName name of the cloud to get.
      */
-    @ApiOperation(value = "Get details of a cloud.", authorizations = { @Authorization("ADMIN") })
+    @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/getByName", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Cloud> getByName(
             @ApiParam(value = "Name of the cloud for which to get details.") @Valid @NotBlank @RequestParam(required = true) String cloudName) {
-        return RestResponseBuilder.<Cloud> builder().data(cloudService.getByName(cloudName)).build();
+        // check roles on the requested cloud
+        Cloud cloud = cloudService.getByName(cloudName);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+        return RestResponseBuilder.<Cloud> builder().data(cloud).build();
     }
 
     /**

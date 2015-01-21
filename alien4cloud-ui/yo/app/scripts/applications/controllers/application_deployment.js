@@ -384,7 +384,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }
       return 'UNDEPLOYED';
     } , function(newValue) {
-      var undeployedValue = $scope.selectedEnvironment.id + "__UNDEPLOYED";
+      var undeployedValue = $scope.selectedEnvironment.id + '__UNDEPLOYED';
       // no registration for this environement -> register if not undeployed!
       if(newValue === undeployedValue) {
         // if status the application is not undeployed we should register for events.
