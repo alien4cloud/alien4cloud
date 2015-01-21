@@ -164,7 +164,7 @@
     "TRUE": "Yes",
     "FALSE": "No",
     "REQUIRED": "Mandatory fields",
-    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved :",
+    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved:",
     "SAVE_IS_DONE": "Saved",
     "VALIDATION_ERROR": {
       "greaterOrEqual": "Value must be >= {{reference}}",

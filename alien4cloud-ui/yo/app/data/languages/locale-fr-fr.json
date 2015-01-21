@@ -170,7 +170,7 @@
     "TRUE": "Vrai",
     "FALSE": "Faux",
     "REQUIRED": "Obligatoire",
-    "FORM_INVALID_MESSAGE": "Attention! Le form est invalid et ne sera sauvegardé que quand les problèmes suivant soient résolus :",
+    "FORM_INVALID_MESSAGE": "Attention! Le formulaire est invalide et pourra être envoyé quand les problèmes suivant seront résolus :",
     "SAVE_IS_DONE": "Sauvegardé",
     "VALIDATION_ERROR": {
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
