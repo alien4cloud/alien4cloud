@@ -22,7 +22,8 @@ describe('NodeTemplate relationships edition', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
-
-    navigation.go('applications', 'plan');
+    navigation.go('applications', 'topology');
+    browser.element(by.id('btn-app-topology-plan')).click();
+    expect(element(by.id('plan-svg')).isDisplayed()).toBe(true);
   });
 });

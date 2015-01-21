@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
 
-    @Value("file://${directories.alien}/${directories.csar_repository}/")
+    @Value("file:///${directories.alien}/${directories.csar_repository}/")
     private String location;
 
     @Override

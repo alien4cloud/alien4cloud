@@ -47,7 +47,6 @@ describe('Security management on applications for application manager', function
     authentication.reLogin(authentication.users.sauron.username);
     applications.goToApplicationDetailPage(applicationName);
     checkAccess('topology');
-    checkAccess('plan');
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
     checkAccess('users');
@@ -63,7 +62,6 @@ describe('Security management on applications for application manager', function
     checkAccess('deployment');
     checkDisplayedButDisabled('runtime');
     navigation.isNotNavigable('applications', 'topology');
-    navigation.isNotNavigable('applications', 'plan');
     navigation.isNotNavigable('applications', 'users');
 
   };
@@ -73,7 +71,6 @@ describe('Security management on applications for application manager', function
     applications.goToApplicationDetailPage(applicationName);
     // It must has access to every tab of the application
     checkAccess('topology');
-    checkAccess('plan');
     navigation.isNotNavigable('applications', 'deployment');
     navigation.isNotNavigable('applications', 'runtime');
     navigation.isNotNavigable('applications', 'users');
@@ -85,7 +82,6 @@ describe('Security management on applications for application manager', function
     applications.goToApplicationDetailPage(applicationName);
     // It must has access to every tab of the application
     navigation.isNotNavigable('applications', 'topology');
-    navigation.isNotNavigable('applications', 'plan');
     navigation.isNotNavigable('applications', 'deployment');
     navigation.isNotNavigable('applications', 'runtime');
     navigation.isNotNavigable('applications', 'users');
