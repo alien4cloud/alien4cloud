@@ -29,10 +29,16 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
               "windows"
             ]
           },
+          // should be checked using regexp: 
           "osVersion": {
             "_label": "CLOUD_IMAGES.OS_VERSION",
             "_type": "string",
-            "_notNull": true
+            "_notNull": true,
+            "_constraints": [
+              {
+                "pattern": "^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$"
+              }
+            ]            
           },
           "osArch": {
             "_label": "CLOUD_IMAGES.OS_ARCH",
