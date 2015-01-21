@@ -44,6 +44,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.topology.TopologyService;
+import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyServiceCore;
@@ -146,17 +147,19 @@ public class RuntimeController {
      * @return {@link RestResponse}<{@link TopologyDTO}> containing the requested runtime {@link Topology} and the
      *         {@link alien4cloud.model.components.IndexedNodeType} related to his {@link NodeTemplate}s
      */
-    @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.", authorizations = { @Authorization("APPLICATION_MANAGER") })
+    @ApiOperation(value = "Get runtime (deployed) topology of an application on a specific cloud.")
     @RequestMapping(value = "/{applicationId:.+?}/environment/{applicationEnvironmentId:.+?}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> getDeployedTopology(
             @ApiParam(value = "Id of the application for which to get deployed topology.", required = true) @PathVariable String applicationId,
             @ApiParam(value = "Id of the environment for which to get deployed topology.", required = true) @PathVariable String applicationEnvironmentId) {
 
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-
         // get the topology linked to the current environment
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(applicationEnvironment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
+
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
         String cloudId = applicationEnvironment.getCloudId();
 

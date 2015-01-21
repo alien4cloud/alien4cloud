@@ -93,11 +93,11 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Deploys the application on the configured Cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
-        Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId());
 
         // Application environment : get an check right on the environment
         ApplicationEnvironment environment = getEnvironmentByIdOrDefault(deployApplicationRequest.getApplicationId(),
                 deployApplicationRequest.getApplicationEnvironmentId());
+        Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId());
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
@@ -149,10 +149,9 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
 
-        Application application = applicationService.checkAndGetApplication(applicationId, ApplicationRole.APPLICATION_MANAGER);
-
         // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        Application application = applicationService.checkAndGetApplication(applicationId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }

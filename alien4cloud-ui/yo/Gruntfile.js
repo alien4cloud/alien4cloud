@@ -257,7 +257,7 @@ module.exports = function(grunt) {
       dist: {
         options: {
           collapseWhitespace: true,
-          collapseBooleanAttributes: true,
+          collapseBooleanAttributes: false,
           removeCommentsFromCDATA: true,
           removeOptionalTags: false
         },
@@ -311,6 +311,12 @@ module.exports = function(grunt) {
           cwd: '.tmp/images',
           dest: '<%= yeoman.dist %>/images',
           src: ['generated/*']
+        }, {
+          expand: true,
+          flatten: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>/images',
+          src: ['bower_components/angular-tree-control/images/*']
         }]
       },
       styles: {

@@ -23,9 +23,12 @@ angular.module('alienUiApp').controller(
       }
 
       // get the related cloud to display informations.
-      cloudServices.get({ id: $scope.selectedEnvironment.cloudId }, function(response) {
-        $scope.cloud = response.data.cloud;
-      });
+      var refreshCloudInfo = function () {
+        cloudServices.get({ id: $scope.selectedEnvironment.cloudId }, function(response) {
+          $scope.cloud = response.data.cloud;
+        });
+      };
+      refreshCloudInfo();
 
       var CUSTOM_INTERFACE_NAME = 'custom';
       $scope.eventTypeLabels = {
@@ -202,6 +205,7 @@ angular.module('alienUiApp').controller(
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
           refreshInstancesStatuses(); // update instance states
+          refreshCloudInfo(); // cloud info for deployment view
         });
       };
 
