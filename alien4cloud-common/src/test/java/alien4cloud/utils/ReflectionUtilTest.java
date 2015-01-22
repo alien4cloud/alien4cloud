@@ -57,4 +57,18 @@ public class ReflectionUtilTest {
         Assert.assertEquals("an id", mergedObject.getId());
     }
 
+    public void mergeObjectTestWithUnknownField() throws JsonProcessingException {
+        MergedObject mergedObject = new MergedObject();
+        mergedObject.setId("an id");
+        mergedObject.setText("text");
+        mergedObject.setNumber(4);
+
+        MergeRequest mergeRequest = new MergeRequest();
+        mergeRequest.setText("another text");
+        mergeRequest.setNumber("5");
+        // this property will be ignored
+        mergeRequest.setBadField("bad");
+        ReflectionUtil.mergeObject(mergeRequest, mergedObject);
+    }
+
 }

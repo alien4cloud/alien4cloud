@@ -11,8 +11,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.topology.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -24,13 +22,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.ScalingPolicy;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
 import alien4cloud.paas.plan.StartEvent;
@@ -41,8 +46,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.component.CSARRepositorySearchService;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -110,6 +113,7 @@ public class TopologyController {
     public RestResponse<TopologyDTO> addNodeTemplate(@PathVariable String topologyId, @RequestBody @Valid NodeTemplateRequest nodeTemplateRequest) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplateRequest.getIndexedNodeTypeId());
         if (indexedNodeType == null) {
@@ -145,6 +149,7 @@ public class TopologyController {
     public RestResponse<Void> addScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId, @RequestBody @Valid ScalingPolicy policy) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
         if (policies == null) {
@@ -161,6 +166,7 @@ public class TopologyController {
     public RestResponse<Void> deleteScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
         if (policies == null) {
@@ -188,6 +194,7 @@ public class TopologyController {
             @PathVariable String newNodeTemplateName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -381,6 +388,7 @@ public class TopologyController {
     public RestResponse<TopologyDTO> deleteNodeTemplate(@PathVariable String topologyId, @PathVariable String nodeTemplateName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         log.debug("Removing the Node template <{}> from the topology <{}> .", nodeTemplateName, topology.getId());
 
@@ -463,6 +471,7 @@ public class TopologyController {
             @RequestBody UpdatePropertyRequest updatePropertyRequest) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemp = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -594,6 +603,7 @@ public class TopologyController {
         // Perform check that authorization's ok
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         // Get the node template's artifacts to update
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
@@ -672,6 +682,7 @@ public class TopologyController {
             @PathVariable String relationshipName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
 
@@ -825,6 +836,7 @@ public class TopologyController {
             @PathVariable String relationshipName, @RequestParam(value = "newName") String newRelationshipName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);

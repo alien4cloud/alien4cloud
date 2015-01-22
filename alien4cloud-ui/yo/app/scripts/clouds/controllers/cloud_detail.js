@@ -61,62 +61,64 @@ angular.module('alienUiApp').controller(
         }
       };
 
-      cloudServices.get({
-        id: cloudId
-      }, function(response) {
-        $scope.images = response.data.images;
-        $scope.flavors = response.data.flavors;
-        $scope.cloud = response.data.cloud;
-        $scope.networks = response.data.networks;
-        if (response.data.cloudResourceMatcher) {
-          $scope.manualMatchResource = true;
-          $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
-          $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
-          $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
-          updateComputeResourcesId();
-          updateNetworkResourcesId();
-        }
-        updateComputeResourcesStatistic();
-        updateNetworkResourcesStatistic();
-        $scope.relatedUsers = {};
-        if ($scope.cloud.userRoles) {
-          var usernames = [];
-          for (var username in $scope.cloud.userRoles) {
-            if ($scope.cloud.userRoles.hasOwnProperty(username)) {
-              usernames.push(username);
+      var refreshCloud = function() {
+        cloudServices.get({
+          id: cloudId
+        }, function(response) {
+          $scope.images = response.data.images;
+          $scope.flavors = response.data.flavors;
+          $scope.cloud = response.data.cloud;
+          $scope.networks = response.data.networks;
+          if (response.data.cloudResourceMatcher) {
+            $scope.manualMatchResource = true;
+            $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
+            $scope.manualMatchNetworkIds = response.data.cloudResourceMatcher.paaSNetworkTemplateIds;
+            $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
+            $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
+            updateComputeResourcesId();
+            updateNetworkResourcesId();
+          }
+          updateComputeResourcesStatistic();
+          updateNetworkResourcesStatistic();
+          $scope.relatedUsers = {};
+          if ($scope.cloud.userRoles) {
+            var usernames = [];
+            for (var username in $scope.cloud.userRoles) {
+              if ($scope.cloud.userRoles.hasOwnProperty(username)) {
+                usernames.push(username);
+              }
+            }
+            if (usernames.length > 0) {
+              userServices.get([], angular.toJson(usernames), function(usersResults) {
+                var data = usersResults.data;
+                for (var i = 0; i < data.length; i++) {
+                  $scope.relatedUsers[data[i].username] = data[i];
+                }
+              });
             }
           }
-          if (usernames.length > 0) {
-            userServices.get([], angular.toJson(usernames), function(usersResults) {
-              var data = usersResults.data;
-              for (var i = 0; i < data.length; i++) {
-                $scope.relatedUsers[data[i].username] = data[i];
-              }
-            });
-          }
-        }
 
-        $scope.relatedGroups = {};
-        if ($scope.cloud.groupRoles) {
-          var groupIds = [];
-          for (var groupId in $scope.cloud.groupRoles) {
-            if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
-              groupIds.push(groupId);
+          $scope.relatedGroups = {};
+          if ($scope.cloud.groupRoles) {
+            var groupIds = [];
+            for (var groupId in $scope.cloud.groupRoles) {
+              if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
+                groupIds.push(groupId);
+              }
+            }
+            if (groupIds.length > 0) {
+              groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
+                var data = groupsResults.data;
+                for (var i = 0; i < data.length; i++) {
+                  $scope.relatedGroups[data[i].id] = data[i];
+                }
+              });
             }
           }
-          if (groupIds.length > 0) {
-            groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
-              var data = groupsResults.data;
-              for (var i = 0; i < data.length; i++) {
-                $scope.relatedGroups[data[i].id] = data[i];
-              }
-            });
-          }
-        }
+        });
+      }
 
-
-      });
-
+      refreshCloud();
       // get all cloud assignable roles
       $resource('rest/auth/roles/cloud', {}, {
         method: 'GET'
@@ -154,6 +156,7 @@ angular.module('alienUiApp').controller(
               toaster.pop('error', $translate('CLOUDS.ERRORS.ENABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.ENABLING_FAILED'), 4000, 'trustedHtml', null);
               $scope.cloud.enabled = false;
             } else {
+              refreshCloud();
               $scope.cloud.enabled = true;
             }
             $scope.enablePending = false;
@@ -202,6 +205,8 @@ angular.module('alienUiApp').controller(
           if (UTILS.isDefinedAndNotNull(response.error)) {
             var errorsHandle = $q.defer();
             return errorsHandle.resolve(response.error);
+          } else {
+            refreshCloud();
           }
         }).$promise;
       };

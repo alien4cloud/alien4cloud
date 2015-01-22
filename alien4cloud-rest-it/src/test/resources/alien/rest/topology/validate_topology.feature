@@ -131,3 +131,13 @@ Scenario: adding nodetemplate with required properties not set and check if topo
   When I check for the deployable status of the topology
     Then I should receive a RestResponse with no error
     And the topology should be deployable
+
+Scenario: Update a topology when the application version is released should failed
+  Given I am authenticated with "APPLICATIONS_MANAGER" role
+    And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
+      |computeModifiedNodeType|
+      |javaNodeType|
+    And I have added a node template "ComputeModified" related to the "fastconnect.nodes.ComputeModified:1.0-SNAPSHOT" node type
+    And I update an application version with version "0.1.0-SNAPSHOT" to "0.2"
+    And I have added a node template "Java" related to the "fastconnect.nodes.Java:1.0-SNAPSHOT" node type without check
+  Then I should receive a RestResponse with an error code 807
