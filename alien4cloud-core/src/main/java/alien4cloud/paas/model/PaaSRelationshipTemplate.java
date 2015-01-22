@@ -2,11 +2,11 @@ package alien4cloud.paas.model;
 
 import java.nio.file.Path;
 
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.paas.IPaaSTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.paas.IPaaSTemplate;
 
 @Getter
 @Setter
@@ -15,7 +15,7 @@ public class PaaSRelationshipTemplate implements IPaaSTemplate<IndexedRelationsh
     private String id;
     private String source;
     private RelationshipTemplate relationshipTemplate;
-    private IndexedRelationshipType indexedRelationshipType;
+    private IndexedRelationshipType indexedToscaElement;
     private Path csarPath;
 
     public PaaSRelationshipTemplate(String id, RelationshipTemplate wrapped, String source) {
@@ -24,21 +24,16 @@ public class PaaSRelationshipTemplate implements IPaaSTemplate<IndexedRelationsh
         this.source = source;
     }
 
-    @Override
-    public void setIndexedToscaElement(IndexedRelationshipType indexedRelationshipType) {
-        this.indexedRelationshipType = indexedRelationshipType;
-    }
-
     /**
      * Check if the relationship is an instance of the given type.
-     * 
+     *
      * @param type The type we want to check.
      * @return True if the current relationship template is of the required type.
      */
     public boolean instanceOf(String type) {
-        if (indexedRelationshipType.getDerivedFrom() == null) {
-            return type.equals(indexedRelationshipType.getElementId());
+        if (indexedToscaElement.getDerivedFrom() == null) {
+            return type.equals(indexedToscaElement.getElementId());
         }
-        return type.equals(indexedRelationshipType.getElementId()) || indexedRelationshipType.getDerivedFrom().contains(type);
+        return type.equals(indexedToscaElement.getElementId()) || indexedToscaElement.getDerivedFrom().contains(type);
     }
 }
