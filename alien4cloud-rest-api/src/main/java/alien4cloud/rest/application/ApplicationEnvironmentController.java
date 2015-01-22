@@ -189,8 +189,6 @@ public class ApplicationEnvironmentController {
             Application application = applicationService.getOrFail(applicationId);
             AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         }
-        // ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId,
-        // ApplicationRole.APPLICATION_MANAGER);
 
         if (applicationEnvironment == null) {
             return RestResponseBuilder
@@ -211,6 +209,12 @@ public class ApplicationEnvironmentController {
                                     "Application environment with id <" + applicationEnvironmentId + "> is currently deployed on cloud <"
                                             + request.getCloudId() + ">. Cloud update is not possible.").build()).build();
 
+        }
+
+        if (request.getCloudId() != null) {
+            // Check Cloud rights
+            Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
+            AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());

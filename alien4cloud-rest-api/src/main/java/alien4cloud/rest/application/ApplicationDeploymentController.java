@@ -111,11 +111,18 @@ public class ApplicationDeploymentController {
         if (isEnvironmentDeployed) {
             return RestResponseBuilder
                     .<Void> builder()
-                    .error(new RestError(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR.getCode(), "The environment with id <" + environment.getCloudId()
+                    .error(new RestError(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR.getCode(), "The environment with id <" + environment.getId()
                             + "> is already deployed")).build();
         }
 
         // get the cloud from the environment and check rights
+        if (environment.getCloudId() == null) {
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(new RestError(RestErrorCode.INVALID_APPLICATION_ENVIRONMENT_ERROR.getCode(), "The environment with id <" + environment.getId()
+                            + "> has no declared cloud.")).build();
+        }
+
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 

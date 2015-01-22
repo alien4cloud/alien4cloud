@@ -8,13 +8,13 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.AsciiString;
 import io.netty.handler.codec.http.ClientCookieEncoder;
 import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -115,7 +115,7 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
             HttpResponse response = (HttpResponse) msg;
             CharSequence cookieData = response.headers().get(new AsciiString("set-cookie"));
             if (cookieData != null) {
-                this.cookies = CookieDecoder.decode(cookieData.toString());
+                this.cookies = ServerCookieDecoder.decode(cookieData.toString());
                 if (this.cookies == null || this.cookies.isEmpty()) {
                     throw new WebSocketAuthenticationFailureException("Could not authenticate");
                 }

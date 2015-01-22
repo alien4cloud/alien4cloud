@@ -1,4 +1,4 @@
-Feature: Manage Nodetemplates of a topology
+Feature: Manage Nodetemplates of a topology with constraint
 
 Background:
   Given I am authenticated with "ADMIN" role

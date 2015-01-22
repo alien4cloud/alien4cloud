@@ -406,8 +406,8 @@ public class ApplicationStepDefinitions {
         return response.getData();
     }
 
-    @Given("^I have an applications with names and descriptions$")
-    public void I_have_an_applications_with_names(DataTable applicationNames) throws Throwable {
+    @Given("^I have applications with names and descriptions$")
+    public void I_have_applications_with_names(DataTable applicationNames) throws Throwable {
         CURRENT_APPLICATIONS.clear();
         // Create each application and store in CURRENT_APPS
         for (List<String> app : applicationNames.raw()) {
@@ -561,8 +561,10 @@ public class ApplicationStepDefinitions {
             case "name":
                 appEnvRequest.setName(attributeValue);
                 break;
-            case "cloudId":
-                appEnvRequest.setCloudId(attributeValue);
+            case "cloudName":
+                // for attribute cloudName get the ID en set it
+                String cloudId = Context.getInstance().getCloudId(attributeValue);
+                appEnvRequest.setCloudId(cloudId);
                 break;
             case "description":
                 appEnvRequest.setDescription(attributeValue);
@@ -583,6 +585,18 @@ public class ApplicationStepDefinitions {
                         JsonUtil.toString(appEnvRequest)));
     }
 
+    @When("^I update the environment named \"([^\"]*)\" to use cloud \"([^\"]*)\" for application \"([^\"]*)\"$")
+    public void I_update_the_environment_named_to_use_cloud_for_application(String envName, String cloudName, String appName) throws Throwable {
+        UpdateApplicationEnvironmentRequest appEnvRequest = new UpdateApplicationEnvironmentRequest();
+        appEnvRequest.setCloudId(Context.getInstance().getCloudId(cloudName));
+        String applicationId = Context.getInstance().getApplicationId(appName);
+        String applicationEnvironmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
+        // send the update request
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId,
+                        JsonUtil.toString(appEnvRequest)));
+    }
+
     @When("^I delete the registered application environment named \"([^\"]*)\" from its id$")
     public void I_delete_the_registered_application_environment_named_from_its_id(String applicationEnvironmentName) throws Throwable {
         Context.getInstance().registerRestResponse(
@@ -591,6 +605,14 @@ public class ApplicationStepDefinitions {
                                 + Context.getInstance().getApplicationEnvironmentId(CURRENT_APPLICATION.getName(), applicationEnvironmentName)));
         RestResponse<Boolean> appEnvironment = JsonUtil.read(Context.getInstance().getRestResponse(), Boolean.class);
         Assert.assertNotNull(appEnvironment.getData());
+    }
+
+    @Given("^I must have an environment named \"([^\"]*)\" for application \"([^\"]*)\"$")
+    public void I_must_have_an_environment_named_for_application(String envName, String appName) throws Throwable {
+        Assert.assertNotNull(envName);
+        Assert.assertNotNull(appName);
+        String environmentId = Context.getInstance().getApplicationEnvironmentId(appName, envName);
+        Assert.assertNotNull(environmentId);
     }
 
 }
