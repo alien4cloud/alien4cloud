@@ -633,7 +633,8 @@
     "805": {
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "One or several parameters are required : {{value}}"
-    }
+    },
+    "807": "Only the topology of a SNAPSHOT version can be modified"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",
