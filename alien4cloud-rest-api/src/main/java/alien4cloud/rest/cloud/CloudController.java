@@ -113,7 +113,8 @@ public class CloudController {
             networks.put(network.getNetworkName(), network);
         }
         CloudDTO cloudDTO = new CloudDTO(cloud, new CloudResourceMatcherDTO(cloudService.findCloudResourceMatcherConfig(cloud),
-                cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE)), images, flavors, networks);
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE), cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK)),
+                images, flavors, networks);
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 
