@@ -51,9 +51,9 @@ public class ApplicationVersionService {
         appVersion.setId(UUID.randomUUID().toString());
         appVersion.setApplicationId(applicationId);
         appVersion.setVersion(version);
-        appVersion.setReleased(false);
         appVersion.setLatest(true);
         appVersion.setSnapshot(VersionUtil.isSnapshot(version));
+        appVersion.setReleased(!VersionUtil.isSnapshot(version));
         appVersion.setDescription(desc);
 
         Topology topology;

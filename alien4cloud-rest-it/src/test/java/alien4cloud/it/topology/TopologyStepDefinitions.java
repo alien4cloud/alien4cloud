@@ -26,14 +26,19 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
+import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.it.Context;
+import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.dao.ElasticSearchDAO;
-import alien4cloud.it.Context;
-import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
@@ -41,11 +46,6 @@ import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -139,6 +139,11 @@ public class TopologyStepDefinitions {
     public void I_have_added_a_node_template_related_to_the_node_type(String name, String indexedNodeTypeId) throws Throwable {
         I_add_a_node_template_related_to_the_node_type(name, indexedNodeTypeId);
         The_RestResponse_should_contain_a_node_type_with_id(indexedNodeTypeId);
+    }
+
+    @When("^I have added a node template \"([^\"]*)\" related to the \"([^\"]*)\" node type without check$")
+    public void I_have_added_a_node_template_related_to_the_node_type_without_check(String name, String indexedNodeTypeId) throws Throwable {
+        I_add_a_node_template_related_to_the_node_type(name, indexedNodeTypeId);
     }
 
     @When("^I delete a node template \"([^\"]*)\" from the topology$")
