@@ -27,6 +27,14 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
     void setIndexedToscaElement(V indexedToscaElement);
 
     /**
+     * Get the indexed tosca element (type) for the PaaSTemplate {@link PaaSNodeTemplate} or {@link PaaSRelationshipTemplate}.
+     *
+     * @return The indexed tosca element
+     *
+     */
+    V getIndexedToscaElement();
+
+    /**
      * Set the path of the CSAR that contains the related tosca element.
      *
      * @param csarPath
@@ -34,5 +42,10 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
      */
     void setCsarPath(Path csarPath);
 
+    /**
+     * Get the path of the CSAR that contains the related tosca element.
+     *
+     * @return The Path
+     */
     Path getCsarPath();
 }
