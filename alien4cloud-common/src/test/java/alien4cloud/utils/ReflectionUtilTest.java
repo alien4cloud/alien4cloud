@@ -57,6 +57,7 @@ public class ReflectionUtilTest {
         Assert.assertEquals("an id", mergedObject.getId());
     }
 
+    @Test
     public void mergeObjectTestWithUnknownField() throws JsonProcessingException {
         MergedObject mergedObject = new MergedObject();
         mergedObject.setId("an id");
