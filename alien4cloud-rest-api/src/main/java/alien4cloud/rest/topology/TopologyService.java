@@ -845,4 +845,48 @@ public class TopologyService {
         }
         topology.setDependencies(typeLoader.getLoadedDependencies());
     }
+
+    /**
+     * Throw an UpdateTopologyException if the topology is released
+     * 
+     * @param topology
+     */
+    public void throwsErrorIfReleased(Topology topology) {
+        if (isReleased(topology)) {
+            throw new UpdateTopologyException("The topology " + topology.getId() + " cannot be updated because it's released");
+        }
+    }
+
+    /**
+     * True when an topology is released
+     *
+     * @param topology
+     * @return true if the environment is currently deployed
+     */
+    public boolean isReleased(Topology topology) {
+        ApplicationVersion appVersion = getApplicationVersion(topology);
+        if (appVersion == null || !appVersion.isReleased()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Get the released application version of a topology
+     *
+     * @param applicationVersionId The id of the application version of a topology
+     * @return The application version associated with the environment.
+     */
+    private ApplicationVersion getApplicationVersion(Topology topology) {
+        GetMultipleDataResult<ApplicationVersion> dataResult = alienDAO.search(
+                ApplicationVersion.class,
+                null,
+                MapUtil.newHashMap(new String[] { "applicationId", "topologyId" }, new String[][] { new String[] { topology.getDelegateId() },
+                        new String[] { topology.getId() } }), 1);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return dataResult.getData()[0];
+        }
+        return null;
+    }
+
 }

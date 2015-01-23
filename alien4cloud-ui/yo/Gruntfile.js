@@ -421,14 +421,14 @@ module.exports = function(grunt) {
         options: {
           args: {
             capabilities: {
-              'browserName': 'chrome'
+              'browserName': 'firefox'
             },
             // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
-              'test/e2e/setup-scenario/before-all.js',
+//              'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin_cloud.js',
-              //              'test/e2e/scenarios/admin_cloud_image.js',
+                            'test/e2e/scenarios/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin_groups_management.js',
               //              'test/e2e/scenarios/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin_users_management.js',
@@ -463,7 +463,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security_groups.js',
               //              'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
-                            'test/e2e/scenarios/*'
+              //              'test/e2e/scenarios/*'
             ]
           }
         }

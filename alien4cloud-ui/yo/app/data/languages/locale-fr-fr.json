@@ -641,7 +641,8 @@
     "805": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
-    }
+    },
+    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

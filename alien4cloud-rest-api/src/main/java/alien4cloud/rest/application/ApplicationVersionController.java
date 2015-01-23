@@ -141,6 +141,7 @@ public class ApplicationVersionController {
         }
         if (request.getVersion() != null) {
             appVersion.setSnapshot(VersionUtil.isSnapshot(request.getVersion()));
+            appVersion.setReleased(!appVersion.isSnapshot());
         }
         ReflectionUtil.mergeObject(request, appVersion);
         alienDAO.save(appVersion);

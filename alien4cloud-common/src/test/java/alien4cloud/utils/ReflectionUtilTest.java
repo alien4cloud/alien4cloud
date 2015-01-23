@@ -6,9 +6,6 @@ import lombok.Setter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.utils.ReflectionUtil;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
@@ -60,7 +57,7 @@ public class ReflectionUtilTest {
         Assert.assertEquals("an id", mergedObject.getId());
     }
 
-    @Test(expected = InvalidArgumentException.class)
+    @Test
     public void mergeObjectTestWithUnknownField() throws JsonProcessingException {
         MergedObject mergedObject = new MergedObject();
         mergedObject.setId("an id");
@@ -70,7 +67,9 @@ public class ReflectionUtilTest {
         MergeRequest mergeRequest = new MergeRequest();
         mergeRequest.setText("another text");
         mergeRequest.setNumber("5");
+        // this property will be ignored
         mergeRequest.setBadField("bad");
         ReflectionUtil.mergeObject(mergeRequest, mergedObject);
     }
+
 }
