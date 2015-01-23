@@ -447,6 +447,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology_editor_plan.js',
               //              'test/e2e/scenarios/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology_editor_replacenode.js',
+              //              'test/e2e/scenarios/application_topology_scaling.js',
               //              'test/e2e/scenarios/application_topology_runtime.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
@@ -463,7 +464,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security_groups.js',
               //              'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
-                            'test/e2e/scenarios/*'
+              'test/e2e/scenarios/*'
             ]
           }
         }
