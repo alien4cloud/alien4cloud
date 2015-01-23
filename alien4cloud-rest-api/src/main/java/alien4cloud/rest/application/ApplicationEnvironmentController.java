@@ -29,11 +29,13 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -159,13 +161,17 @@ public class ApplicationEnvironmentController {
             Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
             AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
             appEnvironment.setCloudId(request.getCloudId());
+            alienDAO.save(appEnvironment);
             try {
-                deploymentSetupService.createOrFail(applicationVersionService.getOrFail(request.getVersionId()), appEnvironment);
+                DeploymentSetup deploymentSetup = deploymentSetupService.getDeploymentSetup(applicationId, appEnvironment.getId());
+                deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
+                alienDAO.save(deploymentSetup);
             } catch (AlreadyExistException e) {
                 log.error("DeploymentSetup already exists");
             }
-            alienDAO.save(appEnvironment);
         }
+
+        alienDAO.save(appEnvironment);
         return RestResponseBuilder.<String> builder().data(appEnvironment.getId()).build();
     }
 
@@ -215,6 +221,11 @@ public class ApplicationEnvironmentController {
             // Check Cloud rights
             Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
             AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
+
+            // Update the linked deployment setup
+            DeploymentSetup deploymentSetup = deploymentSetupService.getDeploymentSetup(applicationId, applicationEnvironmentId);
+            deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
+            alienDAO.save(deploymentSetup);
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());
@@ -240,10 +251,14 @@ public class ApplicationEnvironmentController {
         applicationEnvironmentService.checkAndGetApplicationEnvironment(applicationEnvironmentId, ApplicationRole.APPLICATION_MANAGER);
 
         int countEnvironment = applicationEnvironmentService.getByApplicationId(applicationId).length;
+        boolean isDeployed = applicationEnvironmentService.isDeployed(applicationEnvironmentId);
+        if (isDeployed) {
+            throw new DeleteDeployedException("Application environment with id <" + applicationEnvironmentId + "> cannot be deleted since it is deployed");
+        }
         boolean deleted = false;
-        if (countEnvironment == 1) {
+        if (countEnvironment == 1 || isDeployed) {
             throw new DeleteLastApplicationEnvironmentException("Application environment with id <" + applicationEnvironmentId
-                    + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">.");
+                    + "> cannot be deleted as it's the last one for the application id <" + applicationId + ">");
         }
         deleted = applicationEnvironmentService.delete(applicationEnvironmentId);
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();

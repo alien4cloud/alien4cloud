@@ -24,7 +24,7 @@
           <option value="selectedEnvironment"></option>
         </select>
 
-        <select id="cloud-select" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="c.name for c in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 

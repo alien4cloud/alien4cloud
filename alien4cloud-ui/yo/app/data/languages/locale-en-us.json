@@ -614,6 +614,7 @@
     "601": "Application failed to deploy",
     "602": "Application failed to undeploy",
     "604": "An application must necessarily have at least one environment",
+    "607": "A deployed environment can not be deleted",
     "605": "Invalid format version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",

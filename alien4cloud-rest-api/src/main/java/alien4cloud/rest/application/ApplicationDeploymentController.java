@@ -95,7 +95,7 @@ public class ApplicationDeploymentController {
     public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
 
         // Application environment : get an check right on the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(deployApplicationRequest.getApplicationId(),
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(deployApplicationRequest.getApplicationId(),
                 deployApplicationRequest.getApplicationEnvironmentId());
         Application application = applicationService.checkAndGetApplication(deployApplicationRequest.getApplicationId());
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
@@ -103,7 +103,7 @@ public class ApplicationDeploymentController {
         }
 
         // Application version : check right on the version
-        ApplicationVersion version = getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // check that the environment is not already deployed
         // One environment => One deployment deployed at a time
@@ -157,12 +157,12 @@ public class ApplicationDeploymentController {
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
 
         // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         Application application = applicationService.checkAndGetApplication(applicationId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
         try {
             boolean isEnvironmentDeployed = applicationEnvironmentService.isDeployed(environment.getId());
             if (isEnvironmentDeployed) {
@@ -186,7 +186,7 @@ public class ApplicationDeploymentController {
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         // when a user is application manager, he can manipulate environment
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
@@ -222,7 +222,7 @@ public class ApplicationDeploymentController {
     }
 
     private ListenableFuture<DeploymentStatus> getApplicationDeploymentStatus(Application application, String applicationEnvironmentId) {
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
         }
@@ -292,7 +292,7 @@ public class ApplicationDeploymentController {
     public DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> getInstanceInformation(@PathVariable String applicationId,
             @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
         }
@@ -339,7 +339,7 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(applicationId);
 
         // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
@@ -359,11 +359,11 @@ public class ApplicationDeploymentController {
         Application application = applicationService.checkAndGetApplication(applicationId);
 
         // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
 
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         if (environment.getCloudId() == null) {
@@ -380,39 +380,14 @@ public class ApplicationDeploymentController {
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentSetup> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        return RestResponseBuilder.<DeploymentSetup> builder().data(getDeploymentSetup(application, applicationEnvironmentId)).build();
-    }
-
-    /**
-     * Get the deployment setup
-     * (environment right check done before method call)
-     * 
-     * @param application
-     * @param applicationEnvironmentId
-     * @return
-     */
-    private DeploymentSetup getDeploymentSetup(Application application, String applicationEnvironmentId) {
-
-        // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        ApplicationVersion version = getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-
-        DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
-        if (deploymentSetup == null) {
-            deploymentSetup = deploymentSetupService.createOrFail(version, environment);
-        }
-        if (environment.getCloudId() != null) {
-            Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-            deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud,
-                    true);
-        }
-        return deploymentSetup;
+        return RestResponseBuilder.<DeploymentSetup> builder().data(deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId))
+                .build();
     }
 
     /**
@@ -428,36 +403,15 @@ public class ApplicationDeploymentController {
 
         Application application = applicationService.checkAndGetApplication(applicationId);
         // check rights on related environment
-        ApplicationEnvironment environment = getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        DeploymentSetup setup = getDeploymentSetup(application, applicationEnvironmentId);
+        DeploymentSetup setup = deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId);
         ReflectionUtil.mergeObject(updateRequest, setup);
         alienDAO.save(setup);
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
-        ApplicationVersion version = null;
-        if (applicationVersionId == null) {
-            ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-            version = versions[0];
-        } else {
-            version = applicationVersionService.getOrFail(applicationVersionId);
-        }
-        return version;
-    }
-
-    private ApplicationEnvironment getEnvironmentByIdOrDefault(String applicationId, String applicationEnvironmentId) {
-        ApplicationEnvironment environment = null;
-        if (applicationEnvironmentId == null) {
-            ApplicationEnvironment[] applicationEnvironments = applicationEnvironmentService.getByApplicationId(applicationId);
-            environment = applicationEnvironments[0];
-        } else {
-            environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
-        }
-        return environment;
-    }
 }

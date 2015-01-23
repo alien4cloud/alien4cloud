@@ -15,7 +15,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
   beforeEach(function() {
     topologyEditorCommon.beforeTopologyTest();
     //deploy an applicaton
-    applications.deploy('Alien', { compute: componentData.toscaBaseTypes.compute() });
+    applications.deploy('Alien', { compute: componentData.toscaBaseTypes.compute() }, null, null, null);
   });
 
   /* After each spec in the tests suite(s) */
@@ -24,7 +24,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     common.after();
   });
 
-  it('should not be able to disable or delete a cloud when used for a deployment', function() {
+  xit('should not be able to disable or delete a cloud when used for a deployment', function() {
     console.log('################# should not be able to disable or delete a cloud when used for a deployment');
     authentication.reLogin('admin');
     cloudsCommon.goToCloudList();
@@ -35,7 +35,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     cloudsCommon.checkCloudError(true);
   });
 
-  it('should not be able to delete an application when deployed', function() {
+  xit('should not be able to delete an application when deployed', function() {
     console.log('################# should not be able to delete an application when deployed');
     navigation.go('main', 'applications');
 
@@ -54,7 +54,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     common.dismissAlert();
   });
 
-  it('should be able to see deployments on a cloud', function() {
+  xit('should be able to see deployments on a cloud', function() {
     console.log('################# should be able to see deployments on a cloud');
     authentication.reLogin('admin');
     cloudsCommon.goToCloudList();
@@ -63,4 +63,10 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     expect(deploymentsDiv.all(by.repeater('deploymentDTO in deployments')).count()).toEqual(1);
     cloudsCommon.checkDeploymentsDisplayed(['Alien'], true);
   });
+
+  it('should not be able to update a cloud for an deployed environment', function() {
+    console.log('################# should not be able to update a cloud for an deployed environment');
+    browser.sleep(20000);
+  });
+
 });

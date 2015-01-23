@@ -3,15 +3,13 @@
 
 var authentication = require('../authentication/authentication');
 var common = require('../common/common');
-var tagConfigCommon = require('../admin/metaprops_configuration_common');
 var applications = require('../applications/applications');
 var cloudsCommon = require('../admin/clouds_common');
-var rolesCommon = require('../common/roles_common');
 
 function assertCountEnvironment(expectedCount) {
   var environments = element.all(by.repeater('environment in searchAppEnvResult'));
   expect(environments.count()).toEqual(expectedCount);
-};
+}
 
 describe('Application environments', function() {
   var reset = true;
@@ -50,7 +48,7 @@ describe('Application environments', function() {
 
   it('should create an application environment for a new application.', function() {
     console.log('################# should create an application environment for a new application.');
-    applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environments_type.dev, '0.1.0-SNAPSHOT');
+    applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
     common.expectNoErrors();
     assertCountEnvironment(2);
   });
@@ -65,7 +63,7 @@ describe('Application environments', function() {
 
   it('should reject a new application environment if an application environment with the same name already exist.', function() {
     console.log('################# should reject a new application environment if an application environment with the same name already exist.');
-    applications.createApplicationEnvironment('Environment', 'A new environment whith an existing name', 'testcloud', applications.environments_type.dev, '0.1.0-SNAPSHOT');
+    applications.createApplicationEnvironment('Environment', 'A new environment whith an existing name', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
     common.expectErrors();
     common.dismissAlert();
     assertCountEnvironment(1);
@@ -82,7 +80,7 @@ describe('Application environments', function() {
   it('should failed to rename if an application environment with the same name already exist.', function() {
     after = true;
     console.log('################# should failed to rename if an application environment with the same name already exist.');
-    applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environments_type.dev, '0.1.0-SNAPSHOT');
+    applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
     common.expectNoErrors();
     assertCountEnvironment(2);
     common.sendValueToXEditable('ENV-name-td', 'Environment', false);

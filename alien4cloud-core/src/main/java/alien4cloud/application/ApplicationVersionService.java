@@ -197,4 +197,23 @@ public class ApplicationVersionService {
         ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, id);
         return appVersion;
     }
+
+    /**
+     * Get a version for an application
+     * (returns the default if not found)
+     * 
+     * @param applicationId
+     * @param applicationVersionId
+     * @return
+     */
+    public ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
+        ApplicationVersion version = null;
+        if (applicationVersionId == null) {
+            ApplicationVersion[] versions = getByApplicationId(applicationId);
+            version = versions[0];
+        } else {
+            version = getOrFail(applicationVersionId);
+        }
+        return version;
+    }
 }

@@ -9,7 +9,7 @@ var topologyEditorCommon = require('../topology/topology_editor_common');
 var cloudsCommon = require('../admin/clouds_common');
 var rolesCommon = require('../common/roles_common');
 
-var environments_type = {
+var environmentTypes = {
   other: 'OTHER',
   dev: 'DEVELOPMENT',
   it: 'INTEGRATION_TESTS',
@@ -17,8 +17,15 @@ var environments_type = {
   pprod: 'PRE_PRODUCTION',
   prod: 'PRODUCTION'
 };
-module.exports.environments_type = environments_type;
+module.exports.environmentTypes = environmentTypes;
 
+var mockPaaSDeploymentProperties = {
+  // enter deployment topology properties : mock paas provider
+  managementUrl: 'http://passmanager:8099',
+  managerEmail: 'admin@alien.fr',
+  numberBackup: 1
+};
+module.exports.mockPaaSDeploymentProperties = mockPaaSDeploymentProperties;
 
 module.exports.checkApplicationManager = function(isManager) {
   navigation.go('main', 'applications');
@@ -81,24 +88,48 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
 module.exports.createApplication = createApplication;
 
 
-module.exports.deploy = function(applicationName, nodeTemplates) {
-  cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-  goToApplicationDetailPage(applicationName, true);
-  topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
-  if (nodeTemplates.compute) {
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+module.exports.deploy = function(applicationName, nodeTemplates, cloudName, environmentName, deploymentProperties) {
+
+  // handle cloud / environment to use
+  cloudName = cloudName === null ? 'testcloud' : cloudName;
+  environmentName = environmentName === null ? 'Environment' : environmentName;
+  cloudsCommon.giveRightsOnCloudToUser(cloudName, 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
+
+  // complete the topology : one compue
+  if (nodeTemplates !== null) {
+    goToApplicationDetailPage(applicationName, true);
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
+    if (nodeTemplates.compute) {
+      topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
+      topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    }
   }
+
+  // go on application page to perform the deploy
   goToApplicationDetailPage(applicationName, false);
   navigation.go('applications', 'deployment');
-  var selected = cloudsCommon.selectApplicationCloud('testcloud');
-  expect(selected).toBe(true); // testcloud is in the select
-  navigation.go('applications', 'info');
-  navigation.go('applications', 'deployment');
+  var selectedEnvironment = selectApplicationEnvironment(environmentName);
+  var selectedCloud = cloudsCommon.selectApplicationCloud(cloudName);
+  expect(selectedEnvironment).toBe(true); // one cloud selected
+  expect(selectedCloud).toBe(true); // one cloud selected
+
+  // cloud selected => enter properties when cloud selected
+  if (deploymentProperties !== null) {
+    // enter deployment properties : mock paas provider
+    navigation.go('applications', 'info');
+    navigation.go('applications', 'deployment');
+    console.log('Deployment properties ', deploymentProperties);
+    browser.sleep(10000);
+    setDeploymentProperty('managementUrl', deploymentProperties.managementUrl);
+    setDeploymentProperty('managerEmail', deploymentProperties.managerEmail);
+    setDeploymentProperty('numberBackup', deploymentProperties.numberBackup);
+  }
+
+  // DEPLOY
   browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
   browser.actions().click(deployButton).perform();
-  browser.sleep(5000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
+  browser.sleep(4000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
 };
 
 var setDeploymentProperty = function(propertyName, propertyValue) {
@@ -111,8 +142,6 @@ module.exports.deployExistingApplication = function(applicationName) {
   navigation.go('applications', 'deployment');
   var selected = cloudsCommon.selectApplicationCloud('testcloud');
   expect(selected).toBe(true); // testcloud is in the select
-  navigation.go('applications', 'info');
-  navigation.go('applications', 'deployment');
   browser.sleep(1000);
 
   // enter deployment topology properties : mock paas provider
@@ -204,3 +233,11 @@ var createApplicationVersion = function(version, description, selectTopology) {
 
 };
 module.exports.createApplicationVersion = createApplicationVersion;
+
+// select the environment
+var selectApplicationEnvironment = function(envName) {
+  var selectElement = element(by.id('environment-select'));
+  var selectResult = common.selectDropdownByText(selectElement, envName, 1);
+  return selectResult; // promise
+};
+module.exports.selectApplicationEnvironment = selectApplicationEnvironment;
