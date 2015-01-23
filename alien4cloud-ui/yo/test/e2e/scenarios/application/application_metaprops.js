@@ -1,10 +1,10 @@
 /* global by, element */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var tagConfigCommon = require('../admin/metaprops_configuration_common');
-var applications = require('../applications/applications');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var tagConfigCommon = require('../../admin/metaprops_configuration_common');
+var applications = require('../../applications/applications');
 
 describe('Application meta properties edition check', function() {
 

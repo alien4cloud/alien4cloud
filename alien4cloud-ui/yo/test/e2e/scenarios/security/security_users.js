@@ -1,12 +1,12 @@
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var users = require('../admin/users');
-var navigation = require('../common/navigation');
-var common = require('../common/common');
-var rolesCommon = require('../common/roles_common.js');
-var applications = require('../applications/applications');
-var components = require('../components/components');
+var authentication = require('../../authentication/authentication');
+var users = require('../../admin/users');
+var navigation = require('../../common/navigation');
+var common = require('../../common/common');
+var rolesCommon = require('../../common/roles_common.js');
+var applications = require('../../applications/applications');
+var components = require('../../components/components');
 
 describe('Check that users with an updated role has indeed access to the new role functions/pages', function() {
 

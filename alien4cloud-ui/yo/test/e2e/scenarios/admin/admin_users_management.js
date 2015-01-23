@@ -2,11 +2,11 @@
 
 'use strict';
 
-var common = require('../common/common');
-var authentication = require('../authentication/authentication');
-var navigation = require('../common/navigation');
-var rolesCommon = require('../common/roles_common');
-var users = require('../admin/users');
+var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
+var navigation = require('../../common/navigation');
+var rolesCommon = require('../../common/roles_common');
+var users = require('../../admin/users');
 
 var assertUserExists = function(username, exists) {
   expect(element(by.id('user_' + username)).isPresent()).toBe(exists);

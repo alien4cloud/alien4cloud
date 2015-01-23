@@ -1,13 +1,13 @@
 /* global by, element */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var applications = require('../applications/applications');
-var cloudImagesCommon = require('../admin/cloud_image');
-var cloudsCommon = require('../admin/clouds_common');
-var componentData = require('../topology/component_data');
-var topologyEditorCommon = require('../topology/topology_editor_common');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var applications = require('../../applications/applications');
+var cloudImagesCommon = require('../../admin/cloud_image');
+var cloudsCommon = require('../../admin/clouds_common');
+var componentData = require('../../topology/component_data');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
 
 
 describe('Application Deployment :', function() {

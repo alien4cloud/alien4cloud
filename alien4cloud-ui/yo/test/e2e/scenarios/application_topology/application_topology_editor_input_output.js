@@ -2,12 +2,12 @@
 
 'use strict';
 
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var cloudsCommon = require('../admin/clouds_common');
-var rolesCommon = require('../common/roles_common');
-var componentData = require('../topology/component_data');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var cloudsCommon = require('../../admin/clouds_common');
+var rolesCommon = require('../../common/roles_common');
+var componentData = require('../../topology/component_data');
 
 describe('Topology input/output properties', function() {
 

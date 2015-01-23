@@ -1,10 +1,10 @@
 /* global by */
 'use strict';
 
-var common = require('../common/common');
-var authentication = require('../authentication/authentication');
-var cloudsCommon = require('../admin/clouds_common');
-var cloudImageCommon = require('../admin/cloud_image');
+var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
+var cloudsCommon = require('../../admin/clouds_common');
+var cloudImageCommon = require('../../admin/cloud_image');
 
 
 describe('Test the cloud management: ', function() {

@@ -2,9 +2,9 @@
 
 'use strict';
 
-var common = require('../common/common');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var componentData = require('../topology/component_data');
+var common = require('../../common/common');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var componentData = require('../../topology/component_data');
 
 describe('NodeTemplate relationships edition', function() {
 
@@ -25,7 +25,7 @@ describe('NodeTemplate relationships edition', function() {
 
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
-    
+
     // check on relationships count
     var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
     expect(relationships.count()).toBe(2);

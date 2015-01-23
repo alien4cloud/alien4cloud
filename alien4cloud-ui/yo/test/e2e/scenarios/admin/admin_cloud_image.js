@@ -1,10 +1,10 @@
 /* global by*/
 'use strict';
-var common = require('../common/common');
-var authentication = require('../authentication/authentication');
-var cloudImagesCommon = require('../admin/cloud_image');
-var genericForm = require('../generic_form/generic_form');
-var cloudsCommon = require('../admin/clouds_common');
+var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
+var cloudImagesCommon = require('../../admin/cloud_image');
+var genericForm = require('../../generic_form/generic_form');
+var cloudsCommon = require('../../admin/clouds_common');
 
 describe('List and creation of cloud image', function() {
   var reset = true;
@@ -61,7 +61,7 @@ describe('List and creation of cloud image', function() {
     genericForm.cancelForm();
     expect(cloudImagesCommon.countCloudImages()).toBe(1);
   });
-  
+
   it('should be able to edit details of a cloud image.', function() {
     console.log('################# should be able to edit details of a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(1);
@@ -73,7 +73,7 @@ describe('List and creation of cloud image', function() {
     genericForm.sendValueToPrimitive('osVersion', '14.04', false, 'xeditable');
     genericForm.sendValueToPrimitive('numCPUs', '4', false, 'xeditable');
     genericForm.sendValueToPrimitive('diskSize', '640', false, 'xeditable');
-    genericForm.sendValueToPrimitive('memSize', '1024', false, 'xeditable');    
+    genericForm.sendValueToPrimitive('memSize', '1024', false, 'xeditable');
     cloudImagesCommon.goToCloudImageList();
     element.all(by.repeater('cloudImage in data.data')).first().click();
     genericForm.expectValueFromPrimitive('osType', 'windows', 'xeditable');
@@ -83,8 +83,8 @@ describe('List and creation of cloud image', function() {
     genericForm.expectValueFromPrimitive('numCPUs', '4', 'xeditable');
     genericForm.expectValueFromPrimitive('diskSize', '640', 'xeditable');
     genericForm.expectValueFromPrimitive('memSize', '1024', 'xeditable');
-  });  
-  
+  });
+
   it('should be able to edit few details of a cloud image linked to more than 1 clouds', function() {
     after = true;
     console.log('################# should be able to edit few details of a cloud image linked to more than 1 clouds.');
@@ -99,7 +99,7 @@ describe('List and creation of cloud image', function() {
     cloudsCommon.goToCloudDetail('cloud2');
     cloudsCommon.selectFirstImageOfCloud();
     cloudsCommon.goToCloudList();
-    
+
     cloudImagesCommon.goToCloudImageList();
     element.all(by.repeater('cloudImage in data.data')).first().click();
     element(by.id('btn-edit-cloud-image')).click();
@@ -111,7 +111,7 @@ describe('List and creation of cloud image', function() {
     // these fields are editable
     genericForm.sendValueToPrimitive('numCPUs', '16', false, 'xeditable');
     genericForm.sendValueToPrimitive('diskSize', '720', false, 'xeditable');
-    genericForm.sendValueToPrimitive('memSize', '4096', false, 'xeditable');    
+    genericForm.sendValueToPrimitive('memSize', '4096', false, 'xeditable');
     cloudImagesCommon.goToCloudImageList();
     element.all(by.repeater('cloudImage in data.data')).first().click();
     genericForm.expectValueFromPrimitive('osType', 'windows', 'xeditable');
@@ -122,5 +122,5 @@ describe('List and creation of cloud image', function() {
     genericForm.expectValueFromPrimitive('diskSize', '720', 'xeditable');
     genericForm.expectValueFromPrimitive('memSize', '4096', 'xeditable');
   });
-  
+
 });

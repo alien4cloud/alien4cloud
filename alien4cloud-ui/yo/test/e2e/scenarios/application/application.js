@@ -2,11 +2,11 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var topologyTemplates = require('../topology/topology_templates_common');
-var applications = require('../applications/applications');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var topologyTemplates = require('../../topology/topology_templates_common');
+var applications = require('../../applications/applications');
 
 describe('Applications management :', function() {
   /* Before each spec in the tests suite */

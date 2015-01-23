@@ -2,12 +2,12 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var rolesCommon = require('../common/roles_common.js');
-var applications = require('../applications/applications');
-var users = require('../admin/users');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var rolesCommon = require('../../common/roles_common.js');
+var applications = require('../../applications/applications');
+var users = require('../../admin/users');
 
 var toggleRole = function(appOrEnv, app, user, role) {
   applications.goToApplicationDetailPage(app);

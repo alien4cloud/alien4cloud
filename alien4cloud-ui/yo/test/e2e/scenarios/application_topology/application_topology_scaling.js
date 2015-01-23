@@ -1,11 +1,11 @@
 /* global element, by */
 
 'use strict';
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var applications = require('../applications/applications');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var componentData = require('../topology/component_data');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var applications = require('../../applications/applications');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var componentData = require('../../topology/component_data');
 
 var computesNodeTemplates = {
     compute: componentData.toscaBaseTypes.compute(),
@@ -58,7 +58,7 @@ describe('Topology scaling feature', function() {
   it('should be able to add scaling policy, deploy and scale a compute, and every node derived from it', function() {
     console.log('################# should be able to add scaling policy, deploy and scale a compute, and every node derived from it');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
-    
+
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.removeScalingPolicy('rect_Compute');
@@ -67,7 +67,7 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('maxInstances')).isPresent()).toBe(false);
     expect(element(by.id('minInstances')).isPresent()).toBe(false);
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
-    
+
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
     common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.removeScalingPolicy('rect_Ubuntu');
@@ -76,13 +76,13 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('maxInstances')).isPresent()).toBe(false);
     expect(element(by.id('minInstances')).isPresent()).toBe(false);
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
-    
+
     //deploying and scaling
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
-    
+
     applications.deployExistingApplication('Alien');
 
     // Wait for mock deployment to finish
@@ -91,10 +91,10 @@ describe('Topology scaling feature', function() {
     checkAndScale('rect_Compute',2 , 1);
     browser.sleep(10000);
     checkAndScale('rect_Compute',1);
-    
+
     checkAndScale('rect_Ubuntu', 3, 1);
     browser.sleep(10000);
     checkAndScale('rect_Ubuntu', 1);
   });
-  
+
 });

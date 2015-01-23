@@ -1,11 +1,11 @@
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var rolesCommon = require('../common/roles_common.js');
-var users = require('../admin/users');
-var applications = require('../applications/applications');
-var components = require('../components/components');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var rolesCommon = require('../../common/roles_common.js');
+var users = require('../../admin/users');
+var applications = require('../../applications/applications');
+var components = require('../../components/components');
 
 describe('Security management for group in action', function() {
 

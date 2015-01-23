@@ -1,11 +1,11 @@
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var rolesCommon = require('../common/roles_common.js');
-var applications = require('../applications/applications');
-var users = require('../admin/users');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var rolesCommon = require('../../common/roles_common.js');
+var applications = require('../../applications/applications');
+var users = require('../../admin/users');
 
 describe('Security management on applications for application manager', function() {
 

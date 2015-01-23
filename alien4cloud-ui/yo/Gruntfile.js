@@ -575,6 +575,26 @@ module.exports = function(grunt) {
     'protractor:runLocalserver'
   ]);
 
+  grunt.registerTask('chrome-admin', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runChromeAdmin'
+  ]);
+
+  grunt.registerTask('chrome-application', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runChromeApplication'
+  ]);
+
+  grunt.registerTask('chrome-applicationTopology', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runChromeApplicationTopology'
+  ]);
+
+  grunt.registerTask('chrome-deploymentAndSecurity', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runChromeDeploymentAndSecurity'
+  ]);
+
+  grunt.registerTask('chrome-otherTests', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runChromeOtherTests'
+  ]);
+
   grunt.registerTask('continuoustest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:jenkins']);
 
   grunt.registerTask('build', ['clean:dist', 'bower-install', 'useminPrepare', 'concurrent:dist', 'autoprefixer', 'concat', 'ngAnnotate', 'copy:dist', 'cdnify',

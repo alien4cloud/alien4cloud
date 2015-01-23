@@ -1,9 +1,9 @@
 /* global by, element */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var applications = require('../applications/applications');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var applications = require('../../applications/applications');
 
 // Tags definition
 var goodTag = {

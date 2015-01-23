@@ -2,10 +2,10 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var rolesCommon = require('../common/roles_common.js');
-var users = require('../admin/users');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var rolesCommon = require('../../common/roles_common.js');
+var users = require('../../admin/users');
 
 function assertGroupExists(groupName, exists) {
   expect(element(by.id('group_' + groupName)).isPresent()).toBe(exists);

@@ -1,17 +1,17 @@
 /* global by, element */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var authentication = require('../authentication/authentication');
-var applications = require('../applications/applications');
-var cloudsCommon = require('../admin/clouds_common');
-var rolesCommon = require('../common/roles_common.js');
-var topologyTemplates = require('../topology/topology_templates_common');
-var navigation = require('../common/navigation');
-var users = require('../admin/users');
-var componentData = require('../topology/component_data');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var authentication = require('../../authentication/authentication');
+var applications = require('../../applications/applications');
+var cloudsCommon = require('../../admin/clouds_common');
+var rolesCommon = require('../../common/roles_common.js');
+var topologyTemplates = require('../../topology/topology_templates_common');
+var navigation = require('../../common/navigation');
+var users = require('../../admin/users');
+var componentData = require('../../topology/component_data');
 
 function assertUserOrGroupHasCloudRole(roleRepeater, targetedRole, userOrGroupName) {
   roleRepeater.each(function(cloudRole) {

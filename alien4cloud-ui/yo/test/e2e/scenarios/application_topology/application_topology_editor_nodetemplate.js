@@ -4,11 +4,11 @@
 
 var path = require('path');
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var componentData = require('../topology/component_data');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var componentData = require('../../topology/component_data');
 
 describe('Topology node template edition', function() {
   // this tests is processed as a suite and thus are dependent one from each others.

@@ -2,13 +2,13 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var applications = require('../applications/applications');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var cloudsCommon = require('../admin/clouds_common');
-var componentData = require('../topology/component_data');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var applications = require('../../applications/applications');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var cloudsCommon = require('../../admin/clouds_common');
+var componentData = require('../../topology/component_data');
 
 describe('Disabling / Enabling cloud and application when deployed: ', function() {
 

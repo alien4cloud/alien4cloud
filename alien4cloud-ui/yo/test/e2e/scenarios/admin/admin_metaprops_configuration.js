@@ -1,10 +1,10 @@
 /* global element, by */
 'use strict';
 
-var common = require('../common/common');
-var authentication = require('../authentication/authentication');
-var genericForm = require('../generic_form/generic_form');
-var tagConfigCommon = require('../admin/metaprops_configuration_common');
+var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
+var genericForm = require('../../generic_form/generic_form');
+var tagConfigCommon = require('../../admin/metaprops_configuration_common');
 
 describe('Tag configuration CRUD', function() {
   beforeEach(function() {
