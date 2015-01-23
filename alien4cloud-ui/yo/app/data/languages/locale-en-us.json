@@ -164,7 +164,7 @@
     "TRUE": "Yes",
     "FALSE": "No",
     "REQUIRED": "Mandatory fields",
-    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved :",
+    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved:",
     "SAVE_IS_DONE": "Saved",
     "VALIDATION_ERROR": {
       "greaterOrEqual": "Value must be >= {{reference}}",
@@ -455,7 +455,8 @@
     "ICON_UPLOAD": "Drop icon here",
     "NUM_CPUS": "Required CPU cores",
     "DISK_SIZE": "Required disk size",
-    "MEM_SIZE": "Required memory size"
+    "MEM_SIZE": "Required memory size",
+    "LINKED_TO_CLOUDS": "This image is associated to more than one cloud so edition is limited to few fields. Modifications will impact the following clouds: {{cloudNames}}." 
   },
   "CLOUDS": {
     "CLOUDS": "Clouds",
@@ -632,7 +633,8 @@
     "805": {
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "One or several parameters are required : {{value}}"
-    }
+    },
+    "807": "Only the topology of a SNAPSHOT version can be modified"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

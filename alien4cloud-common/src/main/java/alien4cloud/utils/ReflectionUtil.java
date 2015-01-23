@@ -5,7 +5,12 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -178,7 +183,7 @@ public final class ReflectionUtil {
     }
 
     /**
-     * Merge object from an object to another
+     * Merge object from an object to another. Failsafe : resist to invalid property.
      * 
      * @param from source of the update
      * @param to target of the update
@@ -228,7 +233,9 @@ public final class ReflectionUtil {
      */
     public static void setPropertyValue(Object object, String property, Object value) {
         BeanWrapper wrapper = new BeanWrapperImpl(object);
-        wrapper.setPropertyValue(property, value);
+        if (wrapper.isWritableProperty(property)) {
+            wrapper.setPropertyValue(property, value);
+        }
     }
 
     /**

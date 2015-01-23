@@ -180,7 +180,7 @@
         </option>
       </select>
     </div>
-    <div class="form-editable" ng-if="propertyType._isReadOnly">
+    <div class="form-editable" ng-if="propertyType._isReadOnly" id="{{idPrefix + 'input'}}">
       <span>
       {{input.value}}
           <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'

@@ -435,13 +435,18 @@
                           <td>{{network.gatewayIp || '---'}}</td>
                           <td>{{network.ipVersion}}</td>
                           <td ng-if="manualMatchResource" ng-class="{'has-error': !network.paaSResourceId}">
-                            <span editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
-                                {{network.paaSResourceId}}
+                            <span ng-if="!manualMatchNetworkIds" editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
+                              {{template.paaSResourceId}}
                               <em ng-if="network.paaSResourceId === null || network.paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
                               </em>
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
+                            <select ng-if="manualMatchNetworkIds" ng-model="network.paaSResourceId" ng-change="saveNetworkResource(network)">
+                              <option value="" ng-selected="!network.paaSResourceId">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
+                              <option ng-repeat="value in manualMatchNetworkIds" value="{{value}}" ng-selected="value == network.paaSResourceId">{{value}}
+                              </option>
+                            </select>
                           </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.networkName)"><i class="fa fa-trash-o"></i>

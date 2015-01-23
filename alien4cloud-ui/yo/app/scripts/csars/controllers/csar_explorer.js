@@ -1,3 +1,5 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienUiApp').controller(
@@ -5,6 +7,17 @@ angular.module('alienUiApp').controller(
 
   $scope.archiveName = archiveName;
   $scope.archiveVersion = archiveVersion;
+
+  var extToMode = {
+    yaml: 'yaml',
+    yml:  'yaml',
+    groovy: 'groovy',
+    sh: 'sh',
+    properties: 'properties',
+    bat: 'batchfile',
+    cmd: 'batchfile',
+    default_mode: 'yaml'
+  };
 
   $scope.treedata = {
     children: [],
@@ -16,6 +29,8 @@ angular.module('alienUiApp').controller(
     selected = {fullPath: '/expanded/'+openOnFile};
     $scope.selected = selected;
   }
+
+  $scope.mode = extToMode['default_mode'];
 
   $scope.expandedNodes = [];
 
@@ -49,12 +64,23 @@ angular.module('alienUiApp').controller(
     }
   };
 
+  var updateMode = function(node){
+    var fileName = node.fullPath;
+    var tokens = fileName.trim().split('/');
+    if (tokens.length > 0) {
+      fileName = tokens[tokens.length - 1];
+    }
+    var fileExt = fileName.substr((fileName.lastIndexOf(".") -1 >>> 0) + 2).toLowerCase();
+    $scope.mode = UTILS.isDefinedAndNotNull(extToMode[fileExt]) ? extToMode[fileExt] :extToMode['default_mode'];
+  };
+
   $scope.showSelected = function(node) {
     $http({method: 'GET',
       transformResponse: function(data) { return data; },
       url: '/csarrepository/'+archiveName+'/'+archiveVersion+node.fullPath})
       .success(function(data) {
         $scope.editorContent = data;
+        updateMode(node);
       });
   };
 

@@ -257,7 +257,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/cloud-images/cloud_image_list.html',
       controller: 'CloudImageListController'
     }).state('admin.cloud-images.detail', {
-      url: '/:id',
+      url: '/:id?mode',
       resolve: {
         cloudImage: ['cloudImageServices', '$stateParams',
           function(cloudImageServices, $stateParams) {
