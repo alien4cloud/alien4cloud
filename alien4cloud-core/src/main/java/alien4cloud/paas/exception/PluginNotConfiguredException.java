@@ -1,7 +1,12 @@
 package alien4cloud.paas.exception;
 
-/**
- * @author Minh Khang VU
- */
-public class PluginNotConfiguredException {
+public class PluginNotConfiguredException extends PaaSTechnicalException {
+
+    public PluginNotConfiguredException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public PluginNotConfiguredException(String message) {
+        super(message);
+    }
 }
