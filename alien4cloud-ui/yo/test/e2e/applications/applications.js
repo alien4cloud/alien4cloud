@@ -27,6 +27,13 @@ var mockPaaSDeploymentProperties = {
 };
 module.exports.mockPaaSDeploymentProperties = mockPaaSDeploymentProperties;
 
+var mockDeploymentPropertiesMordor = {
+  managementUrl: 'http://mordor:666',
+  managerEmail: 'mordor@alien.fr',
+  numberBackup: 666
+};
+module.exports.mockDeploymentPropertiesMordor = mockDeploymentPropertiesMordor;
+
 module.exports.checkApplicationManager = function(isManager) {
   navigation.go('main', 'applications');
   var message = isManager ? 'A user that is application manager or admin should have access to the create application button on the applications list page.' : 'A user that is not application manager or admin should not have access to the create application button on the applications list page.';
@@ -87,6 +94,45 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
 };
 module.exports.createApplication = createApplication;
 
+// DEPLOYMENT HANDLING
+
+var setDeploymentProperty = function(propertyName, propertyValue) {
+  common.sendValueToXEditable('p_' + propertyName, propertyValue);
+};
+
+var setMockPaasProperties = function(propertiesObj) {
+  setDeploymentProperty('managementUrl', propertiesObj.managementUrl);
+  setDeploymentProperty('managerEmail', propertiesObj.managerEmail);
+  setDeploymentProperty('numberBackup', propertiesObj.numberBackup);
+};
+
+var switchEnvironmentAndCloud = function(envName, cloudName) {
+  // default values for select env / cloud
+  cloudName = cloudName === null ? 'testcloud' : cloudName;
+  envName = envName === null ? 'Environment' : envName;
+  var selectedEnvironment = selectApplicationEnvironment(envName);
+  var selectedCloud = cloudsCommon.selectApplicationCloud(cloudName);
+  expect(selectedEnvironment).toBe(true); // one cloud selected
+  expect(selectedCloud).toBe(true); // one cloud selected
+};
+module.exports.switchEnvironmentAndCloud = switchEnvironmentAndCloud;
+
+module.exports.setupDeploymentProperties = function(appName, envName, cloudName, propertiesObject) {
+
+  // go on this, deployment sub-menu
+  goToApplicationDetailPage(appName, false);
+  navigation.go('applications', 'deployment');
+
+  // select an env / cloud
+  switchEnvironmentAndCloud(envName, cloudName);
+  setMockPaasProperties(propertiesObject);
+};
+
+var simpleDeploy = function justADeployClick() {
+  var deployButton = browser.element(by.id('btn-deploy'));
+  browser.actions().click(deployButton).perform();
+};
+module.exports.simpleDeploy = simpleDeploy;
 
 module.exports.deploy = function(applicationName, nodeTemplates, cloudName, environmentName, deploymentProperties) {
 
@@ -108,33 +154,20 @@ module.exports.deploy = function(applicationName, nodeTemplates, cloudName, envi
   // go on application page to perform the deploy
   goToApplicationDetailPage(applicationName, false);
   navigation.go('applications', 'deployment');
-  var selectedEnvironment = selectApplicationEnvironment(environmentName);
-  var selectedCloud = cloudsCommon.selectApplicationCloud(cloudName);
-  expect(selectedEnvironment).toBe(true); // one cloud selected
-  expect(selectedCloud).toBe(true); // one cloud selected
+  switchEnvironmentAndCloud(environmentName, cloudName);
 
   // cloud selected => enter properties when cloud selected
   if (deploymentProperties !== null) {
     // enter deployment properties : mock paas provider
-    navigation.go('applications', 'info');
-    navigation.go('applications', 'deployment');
-    console.log('Deployment properties ', deploymentProperties);
-    browser.sleep(10000);
-    setDeploymentProperty('managementUrl', deploymentProperties.managementUrl);
-    setDeploymentProperty('managerEmail', deploymentProperties.managerEmail);
-    setDeploymentProperty('numberBackup', deploymentProperties.numberBackup);
+    setMockPaasProperties(deploymentProperties);
   }
 
   // DEPLOY
   browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
-  var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
-  browser.actions().click(deployButton).perform();
+  simpleDeploy();
   browser.sleep(4000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
 };
 
-var setDeploymentProperty = function(propertyName, propertyValue) {
-  common.sendValueToXEditable('p_' + propertyName, propertyValue);
-};
 
 module.exports.deployExistingApplication = function(applicationName) {
   cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
@@ -145,15 +178,21 @@ module.exports.deployExistingApplication = function(applicationName) {
   browser.sleep(1000);
 
   // enter deployment topology properties : mock paas provider
-  setDeploymentProperty('managementUrl', 'http://passmanager:8099');
-  setDeploymentProperty('managerEmail', 'admin@alien.fr');
-  setDeploymentProperty('numberBackup', 1);
+  setMockPaasProperties(mockPaaSDeploymentProperties);
 
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
   browser.actions().click(deployButton).perform();
   browser.sleep(2000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
 
   navigation.go('applications', 'runtime');
+};
+
+module.exports.undeploy = function() {
+  // we assume that we're on application details
+  navigation.go('applications', 'deployment');
+  var undeployButton = browser.element(by.id('btn-undeploy'));
+  browser.actions().click(undeployButton).perform();
+  browser.sleep(7000); // DO NOT REMOVE, wait for UNDEPLOY
 };
 
 function goToApplicationEnvironmentPageForApp(applicationName) {

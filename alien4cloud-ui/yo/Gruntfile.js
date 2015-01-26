@@ -350,7 +350,7 @@ module.exports = function(grunt) {
     // }
     // }
     // },
-    // uglify:{
+    // uglify:{    console.log('Deployment properties ', deploymentProperties);
     // dist:{
     // files:{
     // '<%= yeoman.dist %>/scripts/scripts.js':[
@@ -447,13 +447,13 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology_editor_plan.js',
               //              'test/e2e/scenarios/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology_editor_replacenode.js',
-              //              'test/e2e/scenarios/application_topology_scaling.js',
-              //              'test/e2e/scenarios/application_topology_runtime.js',
+                          //  'test/e2e/scenarios/application_topology_scaling.js',
+                          //  'test/e2e/scenarios/application_topology_runtime.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
               //              'test/e2e/scenarios/csar.js',
-              //              'test/e2e/scenarios/deployment.js',
+                          //  'test/e2e/scenarios/deployment.js',
               //              'test/e2e/scenarios/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment_manual_match_resources.js',
               //              'test/e2e/scenarios/homepage.js',
