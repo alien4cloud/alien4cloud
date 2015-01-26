@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.servlet.MultipartConfigElement;
 
-import alien4cloud.documentation.DynamicRequestMappingHandlerMapping;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -74,9 +73,4 @@ public class Application {
         registration.addUrlMappings("/img/*");
         return registration;
     }
-
-//    @Bean
-//    public DynamicRequestMappingHandlerMapping mapper() {
-//        return new DynamicRequestMappingHandlerMapping();
-//    }
 }
