@@ -8,8 +8,6 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.HandlerMapping;
@@ -27,7 +25,7 @@ import com.google.common.collect.Maps;
  */
 @Slf4j
 @Component
-public class PluginRestMapper implements IPluginLoadingCallback, ApplicationListener<EmbeddedServletContainerInitializedEvent> {
+public class PluginRestMapper implements IPluginLoadingCallback {
     private boolean dispatchedReady = false;
     private List<HandlerMapping> handlerMappings;
     @Resource
@@ -38,30 +36,36 @@ public class PluginRestMapper implements IPluginLoadingCallback, ApplicationList
 
     @Override
     public synchronized void onPluginLoaded(ManagedPlugin managedPlugin) {
-        if (dispatchedReady) {
+        if (initialize()) {
             mapContext(managedPlugin);
         }
     }
 
     @Override
     public synchronized void onPluginClosed(ManagedPlugin managedPlugin) {
-        RequestMappingHandlerMapping mapping = this.pluginMappings.remove(managedPlugin.getDescriptor().getId());
-        for (int i = 0; i < this.handlerMappings.size(); i++) {
-            // identity check and remove if this is the mapping associated with the plugin to close.
-            if (this.handlerMappings.get(i) == mapping) {
-                this.handlerMappings.remove(i);
-                return;
+        if (initialize()) {
+            RequestMappingHandlerMapping mapping = this.pluginMappings.remove(managedPlugin.getDescriptor().getId());
+            for (int i = 0; i < this.handlerMappings.size(); i++) {
+                // identity check and remove if this is the mapping associated with the plugin to close.
+                if (this.handlerMappings.get(i) == mapping) {
+                    this.handlerMappings.remove(i);
+                    return;
+                }
             }
         }
     }
 
-    @Override
-    public synchronized void onApplicationEvent(EmbeddedServletContainerInitializedEvent event) {
+    private boolean initialize() {
+        if (dispatchedReady) {
+            return true;
+        }
         try {
             Field field = DispatcherServlet.class.getDeclaredField("handlerMappings");
             field.setAccessible(true);
             this.handlerMappings = (List<HandlerMapping>) field.get(dispatcher);
-            this.dispatchedReady = true;
+            if (this.handlerMappings == null) {
+                return false;
+            }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new InitializationException("Unable to initialize plugins rest mapping.", e);
         }
@@ -70,7 +74,10 @@ public class PluginRestMapper implements IPluginLoadingCallback, ApplicationList
         for (ManagedPlugin managedPlugin : pluginManager.getPluginContexts().values()) {
             mapContext(managedPlugin);
         }
+        this.dispatchedReady = true;
         log.info("Plugin rest mappings initialized.");
+        
+        return dispatchedReady;
     }
 
     private void mapContext(ManagedPlugin managedPlugin) {
@@ -78,7 +85,7 @@ public class PluginRestMapper implements IPluginLoadingCallback, ApplicationList
         RequestMappingHandlerMapping mapper = new RequestMappingHandlerMapping();
         mapper.setApplicationContext(managedPlugin.getPluginContext());
         mapper.afterPropertiesSet();
-        this.handlerMappings.add(this.handlerMappings.size()-2, mapper);
+        this.handlerMappings.add(mapper);
         this.pluginMappings.put(managedPlugin.getDescriptor().getId(), mapper);
     }
 }
