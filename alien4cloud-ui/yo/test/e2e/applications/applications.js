@@ -280,3 +280,24 @@ var selectApplicationEnvironment = function(envName) {
   return selectResult; // promise
 };
 module.exports.selectApplicationEnvironment = selectApplicationEnvironment;
+
+var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
+  // editableBoolean => true > field is editable, false it's not
+  var container = element(by.id(id));
+  expect(container.isPresent()).toBe(true);
+  expect(container.isDisplayed()).toBe(true);
+  var span = container.element(by.tagName('span'));
+  var editable = editableBoolean || true; // if editableBoolean not defined, true
+  var subSpanElement = span.element(by.tagName('span'));
+  if (editable) {
+    expect(subSpanElement.getAttribute('class')).toContain('editable');
+  } else {
+    expect(subSpanElement.getAttribute('class')).not.toContain('editable');
+  }
+  expect(span.isDisplayed()).toBe(true);
+  span.getText().then(function(spanText) {
+    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
+  });
+};
+
+module.exports.expectDeploymentPropertyValue = expectDeploymentPropertyValue;

@@ -26,7 +26,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     common.after();
   });
 
-  xit('should not be able to disable or delete a cloud when used for a deployment', function() {
+  it('should not be able to disable or delete a cloud when used for a deployment', function() {
     console.log('################# should not be able to disable or delete a cloud when used for a deployment');
     authentication.reLogin('admin');
     cloudsCommon.goToCloudList();
@@ -37,7 +37,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     cloudsCommon.checkCloudError(true);
   });
 
-  xit('should not be able to delete an application when deployed', function() {
+  it('should not be able to delete an application when deployed', function() {
     console.log('################# should not be able to delete an application when deployed');
     navigation.go('main', 'applications');
 
@@ -81,18 +81,18 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     // 'Alien' application is deployed check cloud list disabled
 
     // check properties before undeploy
-    common.expectValueFromXEditable('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
 
     // change submenu
     navigation.go('applications', 'info');
 
     // undeploy the app an check properties
     applications.undeploy(); // will jump to deployment state
-    common.expectValueFromXEditable('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
 
     // switch environment en check differents property definitions
     // 1 ENV =>  1 Deployment Setup => 1 deployment property list
@@ -102,33 +102,31 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     navigation.go('applications', 'info');
     navigation.go('applications', 'deployment');
     applications.switchEnvironmentAndCloud('ENV-MORDOR', null);
-    common.expectValueFromXEditable('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, true);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, true);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, true);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, true);
 
     applications.simpleDeploy();
     // after deployment, properties are no longer editable
-    common.expectValueFromXEditable('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, false);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, false);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, false);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, false);
 
-
-    // change back to default 'Environment', which is undeployed, and check properties
+    // change back to default 'Environment', which is undeployed, and check that properties are editable
     applications.switchEnvironmentAndCloud('Environment', null);
-    common.expectValueFromXEditable('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
 
   });
-
 
   it('should have deployment properties edition disabled for a deployed environment', function() {
     console.log('################# should have deployment properties edition disabled for a deployed environment');
     // Alien application is deployed
     // we're on deployment page > check deployment properties disabled
-    common.expectValueFromXEditable('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
-    common.expectValueFromXEditable('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
-    common.expectValueFromXEditable('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
   });
 
 });

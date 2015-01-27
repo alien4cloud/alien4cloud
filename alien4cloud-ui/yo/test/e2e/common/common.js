@@ -150,19 +150,11 @@ var sendValueToToscaProperty = function(id, value) {
 
 module.exports.sendValueToToscaProperty = sendValueToToscaProperty;
 
-var expectValueFromXEditable = function(id, value, editableBoolean) {
-  // editableBoolean => true > field is editable, false it's not
+var expectValueFromXEditable = function(id, value) {
   var container = element(by.id(id));
   expect(container.isPresent()).toBe(true);
   expect(container.isDisplayed()).toBe(true);
   var span = container.element(by.tagName('span'));
-  var editable = editableBoolean || true; // if editableBoolean not defined, true
-  var subSpanElement = span.element(by.tagName('span'));
-  if (editable) {
-    expect(subSpanElement.getAttribute('class')).toContain('editable');
-  } else {
-    expect(subSpanElement.getAttribute('class')).not.toContain('editable');
-  }
   expect(span.isDisplayed()).toBe(true);
   span.getText().then(function(spanText) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
@@ -172,10 +164,9 @@ var expectValueFromXEditable = function(id, value, editableBoolean) {
 module.exports.expectValueFromXEditable = expectValueFromXEditable;
 
 var expectValueFromToscaProperty = function(id, value) {
-  // For the moment only consider x-editable
+  // For the moment only consider x-editable.log
   expectValueFromXEditable('p_' + id, value);
 };
-
 module.exports.expectValueFromToscaProperty = expectValueFromToscaProperty;
 
 /* Handeling error assert */
