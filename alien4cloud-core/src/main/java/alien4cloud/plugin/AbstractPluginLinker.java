@@ -35,7 +35,7 @@ public abstract class AbstractPluginLinker<T> implements IPluginLinker<T> {
      * Get the bean of a plugin based on it's id and plugin bean name
      * 
      * @param pluginId The id of the plugin that should contains the bean.
-     * @param pluginBean The id of the bean to actually get.
+     * @param pluginBeanName The name of the bean to actually get.
      * @return The bean.
      */
     public T getPluginBean(String pluginId, String pluginBeanName) {

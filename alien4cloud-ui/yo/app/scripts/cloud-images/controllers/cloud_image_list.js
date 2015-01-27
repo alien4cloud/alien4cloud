@@ -31,7 +31,7 @@ angular.module('alienUiApp').controller(
         });
 
         modalInstance.result.then(function(cloudImageId) {
-          $scope.goToCloudImage(cloudImageId);
+          $state.go('admin.cloud-images.detail', {id: cloudImageId, mode: 'edit'});
         });
       };
 

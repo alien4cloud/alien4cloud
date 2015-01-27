@@ -208,3 +208,14 @@ UTILS.findByFieldValues = function(array, nameValueEntries) {
   }
   return -1;
 };
+
+UTILS.array2csv = function(array) {
+  var result = '';
+  for (var i = 0; i < array.length; i++) {
+    if (i > 0) {
+      result = result + ', ';
+    }
+    result = result + array[i];
+  }
+  return result;
+}

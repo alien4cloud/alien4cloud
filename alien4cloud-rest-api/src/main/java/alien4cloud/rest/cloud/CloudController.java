@@ -94,7 +94,7 @@ public class CloudController {
     /**
      * Get details for a cloud.
      *
-     * @param id Id of the cloud to delete.
+     * @param id Id of the cloud.
      */
     @ApiOperation(value = "Get details of a cloud.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -113,7 +113,8 @@ public class CloudController {
             networks.put(network.getNetworkName(), network);
         }
         CloudDTO cloudDTO = new CloudDTO(cloud, new CloudResourceMatcherDTO(cloudService.findCloudResourceMatcherConfig(cloud),
-                cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE)), images, flavors, networks);
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE), cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK)),
+                images, flavors, networks);
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 

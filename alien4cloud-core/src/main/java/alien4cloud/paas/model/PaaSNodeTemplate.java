@@ -6,9 +6,9 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
+import alien4cloud.paas.IPaaSTemplate;
 
 import com.google.common.collect.Lists;
 
@@ -21,7 +21,7 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     /** The node template that contains user's settings. */
     private NodeTemplate nodeTemplate;
     /** Node type for the wrapped node template. */
-    private IndexedNodeType indexedNodeType;
+    private IndexedNodeType indexedToscaElement;
     /** The path to the archive that contains the node type. **/
     private Path csarPath;
     /** The node tempalte that actually is the parent from the current node. */
@@ -45,7 +45,7 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
 
     /**
      * Create a PaaS node template from a given node template (out of a topology).
-     * 
+     *
      * @param wrapped
      *            The node template wrapped by this {@link PaaSNodeTemplate}.
      */
@@ -54,14 +54,9 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
         this.nodeTemplate = wrapped;
     }
 
-    @Override
-    public void setIndexedToscaElement(IndexedNodeType indexedNodeType) {
-        this.indexedNodeType = indexedNodeType;
-    }
-
     /**
      * Get a relationship template from it's id.
-     * 
+     *
      * @param id The id of the relationship template to get.
      * @return The {@link PaaSRelationshipTemplate} that matches the id or null if not found.
      */

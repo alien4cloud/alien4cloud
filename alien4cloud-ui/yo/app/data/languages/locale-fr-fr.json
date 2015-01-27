@@ -70,7 +70,7 @@
       "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
       "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
       "TYPE_NOT_FOUND": "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
-      "INVALID_ICON_FORMAT": "L'Icône n'est pas un fichier d'image supporté",
+      "INVALID_ICON_FORMAT": "L'icône n'est pas un fichier d'image supporté",
       "ALIEN_MAPPING_ERROR": "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
       "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
       "MISSING_DEPENDENCY": "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
@@ -170,7 +170,7 @@
     "TRUE": "Vrai",
     "FALSE": "Faux",
     "REQUIRED": "Obligatoire",
-    "FORM_INVALID_MESSAGE": "Attention! Le form est invalid et ne sera sauvegardé que quand les problèmes suivant soient résolus :",
+    "FORM_INVALID_MESSAGE": "Attention! Le formulaire est invalide et pourra être envoyé quand les problèmes suivant seront résolus :",
     "SAVE_IS_DONE": "Sauvegardé",
     "VALIDATION_ERROR": {
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
@@ -300,11 +300,11 @@
     },
     "DEPLOYMENT": {
       "NAME_MATCHER": "Association des ressources du cloud",
-      "TITLE_NODE_ICON": "Icone du noeud",
+      "TITLE_NODE_ICON": "Icône du noeud",
       "TITLE_COMPONENT": "Nom du composant",
       "TITLE_IMAGE": "Nom de l'image",
       "TITLE_FLAVOR": "Nom du gabarit",
-      "TITLE_IMAGE_ICON": "Icone de l'image",
+      "TITLE_IMAGE_ICON": "Icône de l'image",
       "TITLE_DISTRIBUTION": "Distribution",
       "TITLE_TYPE": "Type",
       "TITLE_VERSION": "Version",
@@ -459,10 +459,11 @@
     "OS_TYPE": "Type",
     "OS_VERSION": "Version",
     "OS_ARCH": "Architecture",
-    "ICON_UPLOAD": "Déposer l'icon",
+    "ICON_UPLOAD": "Déposer l'icône",
     "NUM_CPUS": "Nombre de CPUs requis",
     "DISK_SIZE": "Taille du disque requise",
-    "MEM_SIZE": "Taille de la mémoire requise"
+    "MEM_SIZE": "Taille de la mémoire requise",
+    "LINKED_TO_CLOUDS": "Cette image est associée à plus d'un cloud, les possibilités d'édition sont donc limitées. Attention, les modifications vont impacter les clouds suivants : {{cloudNames}}." 
   },
   "CLOUDS": {
     "CLOUDS": "Clouds",
@@ -641,7 +642,8 @@
     "805": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
-    }
+    },
+    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",
