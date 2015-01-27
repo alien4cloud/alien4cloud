@@ -300,12 +300,16 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     }
 
     var isOutput = function(nodeId, propertyName, type) {
+      console.log('IS OUTPUT >>>>>>>>>>>>>>', nodeId, propertyName, type, $scope);
       if (UTILS.isUndefinedOrNull($scope[type])) {
+        console.log('IS OUTPUT 1 >>>>>>>>>>>>>>', nodeId, propertyName, type);
         return false;
       }
       if (!$scope[type].hasOwnProperty(nodeId)) {
+        console.log('IS OUTPUT 2 >>>>>>>>>>>>>>', nodeId, propertyName, type);
         return false;
       }
+      console.log('IS OUTPUT 3 >>>>>>>>>>>>>>', nodeId, propertyName, type);
       return $scope[type][nodeId].indexOf(propertyName) >= 0;
     };
 
@@ -349,6 +353,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
                 var allAttributes = nodeInformation[instanceId].attributes;
                 for (var attribute in allAttributes) {
                   if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
+                    console.log('DO SUSCRIBE HAS PROPERTY >', attribute);
                     $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
                   }
                 }
@@ -367,6 +372,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     }
 
     function refreshInstancesStatuses() {
+      console.log('REFRESH INSTANCES >', $scope.outputAttributesSize, $scope.application, $scope.selectedEnvironment);
       if ($scope.outputAttributesSize > 0) {
         applicationServices.runtime.get({
           applicationId: $scope.application.id,
@@ -376,6 +382,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         });
       }
     }
+
+    (function() {
+      console.log('Hello World!');
+      refreshInstancesStatuses();
+    })();
 
     // if the status or the environment changes we must update the event registration.
     $scope.$watch(function(scope) {

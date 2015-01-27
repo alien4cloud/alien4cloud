@@ -1,7 +1,14 @@
 package alien4cloud.plugin.mock;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +43,16 @@ import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.InstanceStatus;
+import alien4cloud.paas.model.NodeOperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.normative.ToscaType;
 
@@ -48,8 +64,9 @@ import com.google.common.collect.Lists;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig>, IManualResourceMatcherPaaSProvider {
 
-    public static final String PRIVATE_IP = "private_ip_address";
-    public static final String PUBLIC_IP = "public_ip_address";
+    public static final String PUBLIC_IP = "ip_address";
+    public static final String TOSCA_ID = "tosca_id";
+    public static final String TOSCA_NAME = "tosca_name";
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
@@ -121,7 +138,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                 return DeploymentStatus.UNKNOWN;
             } else {
                 // application is not deployed and but there is a deployment in alien so trigger the undeployed event to update status.
-                if(triggerEventIfUndeployed) {
+                if (triggerEventIfUndeployed) {
                     doChangeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
                 }
                 return DeploymentStatus.UNDEPLOYED;
@@ -132,10 +149,10 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     private InstanceInformation newInstance(int i) {
         Map<String, String> properties = Maps.newHashMap();
         Map<String, String> attributes = Maps.newHashMap();
-        attributes.put(PRIVATE_IP, "192.168.0." + i);
         attributes.put(PUBLIC_IP, "10.52.0." + i);
+        attributes.put(TOSCA_ID, "1.0-wd03");
+        attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
-        runtimeProperties.put(PRIVATE_IP, "192.168.0." + i);
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
         return new InstanceInformation("init", InstanceStatus.PROCESSING, properties, attributes, runtimeProperties);
     }
