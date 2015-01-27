@@ -12,7 +12,7 @@ Background:
   And I am authenticated with user named "sangoku"
 
 Scenario: Create 1 application, deploy it, check statuses, undeploy it and check statuses
-  Given I have an applications with names and descriptions
+  Given I have applications with names and descriptions
     | The great eye | This application should be in DEPLOYED status...  |
   When I can get applications statuses
    And I deploy all applications with cloud "mock cloud"

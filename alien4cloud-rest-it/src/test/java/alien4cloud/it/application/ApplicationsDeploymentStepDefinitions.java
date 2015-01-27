@@ -99,24 +99,26 @@ public class ApplicationsDeploymentStepDefinitions {
         return deployApplicationRequest;
     }
 
-    private void assertStatus(String applicationName, String environmentName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
-            throws Throwable {
-        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout);
+    private void assertStatus(String applicationName, String environmentName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
+            String applicationEnvironmentName) throws Throwable {
+        checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
     }
 
     private void assertDeploymentStatus(String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout) throws Throwable {
-        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout);
+        checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null);
     }
 
-    private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout)
-            throws IOException, InterruptedException {
+    private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
+            String applicationEnvironmentName) throws IOException, InterruptedException {
         String statusRequest = null;
+        String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
         if (deploymentId != null) {
             statusRequest = "/rest/deployments/" + deploymentId + "/status";
         } else if (applicationId != null) {
-            statusRequest = "/rest/applications/" + applicationId + "/environments/"
-                    + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/deployment";
+            applicationEnvironmentId = applicationEnvironmentName != null ? Context.getInstance().getApplicationEnvironmentId(applicationName,
+                    applicationEnvironmentName) : Context.getInstance().getDefaultApplicationEnvironmentId(applicationName);
+            statusRequest = "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment";
         } else {
             throw new ITException("Expected at least application ID OR deployment ID to check the status.");
         }
@@ -134,8 +136,7 @@ public class ApplicationsDeploymentStepDefinitions {
             if (deploymentStatus.equals(expectedStatus)) {
                 if (applicationId != null) {
                     String restInfoResponseText = Context.getRestClientInstance().get(
-                            "/rest/applications/" + applicationId + "/environments/"
-                                    + Context.getInstance().getDefaultApplicationEnvironmentId(applicationName) + "/deployment/informations");
+                            "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment/informations");
                     RestResponse<?> infoResponse = JsonUtil.read(restInfoResponseText);
                     assertNull(infoResponse.getError());
                 }
@@ -155,12 +156,14 @@ public class ApplicationsDeploymentStepDefinitions {
     @Then("^The application's deployment must succeed$")
     public void The_application_s_deployment_must_succeed() throws Throwable {
         // null value for environmentName => use default environment
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                15000L, null);
     }
 
     @Then("^The application's deployment must fail$")
     public void The_application_s_deployment_must_fail() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L,
+                null);
     }
 
     @Then("^The deployment must succeed$")
@@ -177,7 +180,8 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @Then("^The application's deployment must finish with warning$")
     public void The_application_s_deployment_must_finish_with_warning() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L,
+                null);
     }
 
     @When("^I can get applications statuses$")
@@ -236,7 +240,7 @@ public class ApplicationsDeploymentStepDefinitions {
         for (List<String> app : appsStatuses.raw()) {
             String name = app.get(0).trim();
             String expectedStatus = app.get(1).trim();
-            assertStatus(name, null, DeploymentStatus.valueOf(expectedStatus), pendingStatuses.get(operation), 15000L);
+            assertStatus(name, null, DeploymentStatus.valueOf(expectedStatus), pendingStatuses.get(operation), 15000L, null);
         }
     }
 
@@ -490,5 +494,18 @@ public class ApplicationsDeploymentStepDefinitions {
                                 + "/deployment-setup"), DeploymentSetup.class).getData();
         Assert.assertNotNull(deploymentSetup.getProviderDeploymentProperties());
         Assert.assertEquals(expectedDeploymentProperties, deploymentSetup.getProviderDeploymentProperties());
+    }
+
+    @Given("^I deploy an application environment \"([^\"]*)\" for application \"([^\"]*)\"$")
+    public void I_deploy_an_application_environment_for_application(String envName, String appName) throws Throwable {
+        DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(appName, envName);
+        deployApplicationRequest.setApplicationId(Context.getInstance().getApplicationId(appName));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+    }
+
+    @When("^I have the environment \"([^\"]*)\" with status \"([^\"]*)\" for the application \"([^\"]*)\"$")
+    public void I_have_the_environment_with_status_for_the_application(String envName, String expectedStatus, String appName) throws Throwable {
+        assertStatus(appName, null, DeploymentStatus.valueOf(expectedStatus), DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L, envName);
     }
 }

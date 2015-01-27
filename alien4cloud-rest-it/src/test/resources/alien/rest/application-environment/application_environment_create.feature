@@ -1,4 +1,4 @@
-Feature: CRUD operations on application environment
+Feature: Create / Delete operations on application environment
 
 Background:
   Given I am authenticated with "ADMIN" role
@@ -47,25 +47,6 @@ Scenario: Get an application environment from its id
   And I add a role "DEPLOYMENT_MANAGER" to user "frodon" on the resource type "ENVIRONMENT" named "watchmiddleearth-env-mock-get"
   When I get the application environment named "watchmiddleearth-env-mock-get"
   Then I should receive a RestResponse with no error
-
-Scenario: Update an application environment from its id
-  Given I create a new application with name "watchmiddleearth-2" and description "Use my great eye to find frodo and the ring."
-  Then I should receive a RestResponse with no error
-  And The application should have a user "frodon" having "APPLICATION_MANAGER" role
-  And The RestResponse should contain an id string
-  Given I create an application environment of type "DEVELOPMENT" on cloud "mock-paas-cloud" with name "watchmiddleearth-env-mock-2" and description "Mock App Env 2" for the newly created application
-  Then I should receive a RestResponse with no error
-  When I update the application environment named "watchmiddleearth-env-mock-2" with values
-    | name         | watchmiddleearth-env-update name   |
-    | description     | My description after update     |
-    | environmentType   | INTEGRATION_TESTS           |
-  Then I should receive a RestResponse with no error
-
-Scenario: Update an non existing/bad application environment must fail
-  When I update the application environment named "bad-environment-name" with values
-    | name       | watchmiddleearth-env-update name   |
-    | description   | My description after update     |
-  Then I should receive a RestResponse with an error code 504
 
 Scenario: Delete an application environment from its id
   Given I create a new application with name "watchmiddleearth-3" and description "Use my great eye to find frodo and the ring."

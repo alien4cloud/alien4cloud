@@ -83,7 +83,9 @@ describe('Topology scaling feature', function() {
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
 
-    applications.deployExistingApplication('Alien');
+    // applications.deployExistingApplication('Alien');
+    applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
+    navigation.go('applications', 'runtime');
 
     // Wait for mock deployment to finish
     browser.sleep(10000);

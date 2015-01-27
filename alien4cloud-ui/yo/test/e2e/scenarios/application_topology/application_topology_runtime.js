@@ -44,7 +44,9 @@ var goToAlienAppAndSelectApachelbOperations = function() {
     topologyEditorCommon.addRelationshipToNode('apacheLBGroovy', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
   });
 
-  applications.deployExistingApplication('Alien');
+  // applications.deployExistingApplication('Alien');
+  applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
+  navigation.go('applications', 'runtime');
 
   // go to operations tab on apacheLBGroovy node
   var apacheNode = element(by.id('rect_apacheLBGroovy'));
@@ -88,7 +90,9 @@ describe('Topology runtime view', function() {
       topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
     });
 
-    applications.deployExistingApplication('Alien');
+    // applications.deployExistingApplication('Alien');
+    applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
+    navigation.go('applications', 'runtime');
 
     // Wait for mock deployment to finish
     browser.sleep(10000);

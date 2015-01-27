@@ -623,6 +623,7 @@
     "601": "Le déploiement de l'application a échoué",
     "602": "L'Arrêt de l'application a échoué",
     "604": "Une application doit nécéssairement avoir au moins un environnement",
+    "607": "Un environnement déployé ne peut être supprimé",
     "605": "Le format de version saisie est invalide",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",

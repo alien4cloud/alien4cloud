@@ -155,21 +155,35 @@ public class PluginManager {
         }
 
         if (usages.isEmpty()) {
+            Path pluginPath;
             if (managedPlugin != null) {
-                managedPlugin.pluginContext.destroy();
+                // send events to plugin loading callbacks
+                Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
+                for (IPluginLoadingCallback callback : beans.values()) {
+                    callback.onPluginClosed(managedPlugin);
+                }
+
+                // destroy the plugin context
+                managedPlugin.getPluginContext().destroy();
+                pluginPath = managedPlugin.getPluginPath();
+            } else {
+                Plugin plugin = alienDAO.findById(Plugin.class, pluginId);
+                pluginPath = getPluginPath(plugin.getPluginPathId());
             }
 
+            // unlink the plugin
             for (PluginLinker linker : linkers) {
                 linker.linker.unlink(pluginId);
             }
 
+            // eventually remove it from elastic search and disk.
             if (remove) {
                 alienDAO.delete(Plugin.class, pluginId);
                 // remove also the configuration
                 alienDAO.delete(PluginConfiguration.class, pluginId);
                 // try to delete the plugin dir in the repo
                 try {
-                    FileUtil.delete(managedPlugin.pluginPath);
+                    FileUtil.delete(pluginPath);
                     FileUtil.delete(getPluginZipFilePath(pluginId));
                 } catch (IOException e) {
                     log.error("Failed to delete the plugin <" + pluginId + "> in the repository. You'll have to do it manually", e);
@@ -277,6 +291,14 @@ public class PluginManager {
         pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
         pluginContext.refresh();
 
+        ManagedPlugin managedPlugin = new ManagedPlugin(pluginContext, plugin.getDescriptor(), pluginPath);
+
+        // send events to plugin loading callbacks
+        Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
+        for (IPluginLoadingCallback callback : beans.values()) {
+            callback.onPluginLoaded(managedPlugin);
+        }
+
         Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
 
         // register plugin elements in Alien
@@ -297,7 +319,7 @@ public class PluginManager {
         // TODO get configurable elements from the plugin and get configuration from elastic-search
 
         // install static resources to be available for the application.
-        pluginContexts.put(plugin.getId(), new ManagedPlugin(pluginContext, plugin.getDescriptor(), pluginPath));
+        pluginContexts.put(plugin.getId(), managedPlugin);
     }
 
     private Map<String, PluginComponentDescriptor> getPluginComponentDescriptorAsMap(Plugin plugin) {
@@ -318,7 +340,7 @@ public class PluginManager {
      * @return The plugin descriptor for the given plugin.
      */
     public PluginDescriptor getPluginDescriptor(String pluginId) {
-        return pluginContexts.get(pluginId).descriptor;
+        return pluginContexts.get(pluginId).getDescriptor();
     }
 
     private Class<?> getConfigurationType(IPluginConfigurator<?> configurator) {
@@ -333,7 +355,7 @@ public class PluginManager {
      * @return True if the plugin can be configured, false if not.
      */
     public boolean isPluginConfigurable(String pluginId) {
-        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).pluginContext;
+        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
         Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
         return MapUtils.isNotEmpty(configurators);
     }
@@ -345,7 +367,7 @@ public class PluginManager {
      * @return The class of the plugin configuration object.
      */
     public Class<?> getConfigurationType(String pluginId) {
-        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).pluginContext;
+        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
         Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
         if (MapUtils.isNotEmpty(configurators)) {
             // TODO: manage case multiple configuration beans
@@ -361,7 +383,7 @@ public class PluginManager {
      * @return Null if no {@link IPluginConfigurator} is defined within the plugin's spring context or the first instance of {@link IPluginConfigurator}.
      */
     public <T> IPluginConfigurator<T> getConfiguratorFor(String pluginId) {
-        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).pluginContext;
+        AnnotationConfigApplicationContext pluginContext = pluginContexts.get(pluginId).getPluginContext();
         Map<String, IPluginConfigurator> configurators = pluginContext.getBeansOfType(IPluginConfigurator.class);
         if (MapUtils.isNotEmpty(configurators)) {
             // TODO: manage case multiple configuration beans
@@ -370,21 +392,8 @@ public class PluginManager {
         return null;
     }
 
-    /**
-     * Get the ClassLoader for a given plugin.
-     * 
-     * @param pluginId The id of the plugin for which to get a classloader.
-     * @return The classloader used for the plugin.
-     */
-    public ClassLoader getPluginClassLoader(String pluginId) {
-        return pluginContexts.get(pluginId).pluginContext.getClassLoader();
-    }
-
-    @AllArgsConstructor
-    private final class ManagedPlugin {
-        private AnnotationConfigApplicationContext pluginContext;
-        private PluginDescriptor descriptor;
-        private Path pluginPath;
+    public Map<String, ManagedPlugin> getPluginContexts() {
+        return pluginContexts;
     }
 
     @AllArgsConstructor

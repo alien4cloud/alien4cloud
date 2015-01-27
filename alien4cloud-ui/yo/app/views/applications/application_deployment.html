@@ -24,7 +24,7 @@
           <option value="selectedEnvironment"></option>
         </select>
 
-        <select id="cloud-select" class="form-control " ng-model="selectedCloud" ng-options="p.name for p in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="c.name for c in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
@@ -38,10 +38,10 @@
 
       <div class="col-md-4" style="padding-top: 25px;">
         <!-- DEPLOY BUTTON -->
-        <button type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
+        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
           <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
         </button>
-        <button type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
+        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
           selectedEnvironment.status === 'DEPLOYED' ||
           selectedEnvironment.status === 'WARNING' ||
           selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
@@ -208,7 +208,7 @@
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
               <td id="p_{{propertyKey}}">
-                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="true" condensed="condensed">
+                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="condensed">
                 </property-display>
               </td>
             </tr>

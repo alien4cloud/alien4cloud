@@ -15,7 +15,9 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
   beforeEach(function() {
     topologyEditorCommon.beforeTopologyTest();
     //deploy an applicaton
-    applications.deploy('Alien', { compute: componentData.toscaBaseTypes.compute() });
+    applications.deploy('Alien', {
+      compute: componentData.toscaBaseTypes.compute()
+    }, null, null, applications.mockPaaSDeploymentProperties);
   });
 
   /* After each spec in the tests suite(s) */
@@ -63,4 +65,68 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     expect(deploymentsDiv.all(by.repeater('deploymentDTO in deployments')).count()).toEqual(1);
     cloudsCommon.checkDeploymentsDisplayed(['Alien'], true);
   });
+
+  it('should not be able to update a cloud for an deployed environment', function() {
+    console.log('################# should not be able to update a cloud for an deployed environment');
+    // 'Alien' application is deployed check cloud list disabled
+    var selectCloud = element(by.id('cloud-select'));
+    browser.sleep(8000); // Technical sleep (deployment in progress)
+    expect(selectCloud.isDisplayed()).toBe(true);
+    expect(selectCloud.isEnabled()).not.toBe(true); // cloud list disabled
+  });
+
+
+  it('should be able to set deployment properties for 2 environments and check them for each environment', function() {
+    console.log('################# should be able to set deployment properties for 2 environments and check them for each environment');
+    // 'Alien' application is deployed check cloud list disabled
+
+    // check properties before undeploy
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
+
+    // change submenu
+    navigation.go('applications', 'info');
+
+    // undeploy the app an check properties
+    applications.undeploy(); // will jump to deployment state
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
+
+    // switch environment en check differents property definitions
+    // 1 ENV =>  1 Deployment Setup => 1 deployment property list
+    applications.createApplicationEnvironment('ENV-MORDOR', 'A new environment for the mordor...', 'testcloud', applications.environmentTypes.other, '0.1.0-SNAPSHOT');
+    applications.setupDeploymentProperties('Alien', 'ENV-MORDOR', 'testcloud', applications.mockDeploymentPropertiesMordor);
+
+    navigation.go('applications', 'info');
+    navigation.go('applications', 'deployment');
+    applications.switchEnvironmentAndCloud('ENV-MORDOR', null);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, true);
+
+    applications.simpleDeploy();
+    // after deployment, properties are no longer editable
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockDeploymentPropertiesMordor.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockDeploymentPropertiesMordor.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockDeploymentPropertiesMordor.numberBackup, false);
+
+    // change back to default 'Environment', which is undeployed, and check that properties are editable
+    applications.switchEnvironmentAndCloud('Environment', null);
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, true);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, true);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, true);
+
+  });
+
+  it('should have deployment properties edition disabled for a deployed environment', function() {
+    console.log('################# should have deployment properties edition disabled for a deployed environment');
+    // Alien application is deployed
+    // we're on deployment page > check deployment properties disabled
+    applications.expectDeploymentPropertyValue('p_managementUrl', applications.mockPaaSDeploymentProperties.managementUrl, false);
+    applications.expectDeploymentPropertyValue('p_managerEmail', applications.mockPaaSDeploymentProperties.managerEmail, false);
+    applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
+  });
+
 });

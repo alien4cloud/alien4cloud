@@ -113,9 +113,9 @@ public class TopologyTreeBuilderService {
         List<PaaSNodeTemplate> nonNatives = new ArrayList<PaaSNodeTemplate>();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
-            boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedNodeType());
-            boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedNodeType());
-            boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedNodeType());
+            boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isNetwork = ToscaUtils.isFromType(NormativeNetworkConstants.NETWORK_TYPE, paaSNodeTemplate.getIndexedToscaElement());
+            boolean isVolume = ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
             if (isVolume) {
                 // manage block storage
                 processBlockStorage(paaSNodeTemplate, nodeTemplates);
@@ -198,7 +198,7 @@ public class TopologyTreeBuilderService {
 
     /**
      * Get all relationships from a given type (only if the node is the source of the relationship).
-     * 
+     *
      * @param paaSNodeTemplate The node.
      * @param type The type of relationships to get.
      * @return The relationship template

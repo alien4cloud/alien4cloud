@@ -164,10 +164,9 @@ var expectValueFromXEditable = function(id, value) {
 module.exports.expectValueFromXEditable = expectValueFromXEditable;
 
 var expectValueFromToscaProperty = function(id, value) {
-  // For the moment only consider x-editable
+  // For the moment only consider x-editable.log
   expectValueFromXEditable('p_' + id, value);
 };
-
 module.exports.expectValueFromToscaProperty = expectValueFromToscaProperty;
 
 /* Handeling error assert */

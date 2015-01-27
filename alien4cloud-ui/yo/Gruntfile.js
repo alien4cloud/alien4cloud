@@ -474,7 +474,7 @@ module.exports = function(grunt) {
         options: {
           args: {
             capabilities: {
-              'browserName': 'firefox'
+              'browserName': 'chrome'
             },
             // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
@@ -511,10 +511,16 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
               //              'test/e2e/scenarios/csar.js',
+              //              'test/e2e/scenarios/deployment.js',
+              //              'test/e2e/scenarios/deployment_matcher.js',
+              //              'test/e2e/scenarios/deployment_manual_match_resources.js',
               //              'test/e2e/scenarios/homepage.js',
               //              'test/e2e/scenarios/language_test.js',
               //              'test/e2e/scenarios/plugins.js',
               //              'test/e2e/scenarios/quick_search.js',
+              //              'test/e2e/scenarios/security_cloud.js',
+              //              'test/e2e/scenarios/security_groups.js',
+              //              'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
               //              'test/e2e/scenarios/*'
             ]
