@@ -354,6 +354,17 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     /* angular-xeditable config */
     editableThemes.bs3.inputClass = 'input-sm';
     editableThemes.bs3.buttonsClass = 'btn-sm';
+    editableThemes.bs3.submitTpl= '<button type="button" class="btn btn-primary"'+
+                                  ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"'+
+                                  ' confirm-title="{{\'CONFIRM\' | translate }}"'+
+                                  ' confirm-placement="left"'+
+                                  ' cancel-handler="$form.$cancel()"'+
+                                  ' ng-click="$event.stopPropagation();">'+
+                                    '<span class="fa fa-check"></span>'+
+                                  '</button>';
+    editableThemes.bs3.cancelTpl= '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">'+
+                                    '<span class="fa fa-times"></span>'+
+                                  '</button>';
     editableOptions.theme = 'bs3';
   }
 ]);
