@@ -456,6 +456,13 @@ module.exports = function(grunt) {
           }
         }
       },
+      runChrome: {
+        options: {
+          args: {
+            browser: 'chrome'
+          }
+        }
+      },
       runFirefox: {
         options: {
           args: {
@@ -556,7 +563,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:unit']);
 
-
   grunt.registerTask('chrome-ittest', '', function() {
     var tasks = ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
       'protractor:runChrome'
@@ -564,10 +570,6 @@ module.exports = function(grunt) {
     grunt.option('force', true);
     grunt.task.run(tasks);
   });
-
-  //  grunt.registerTask('chrome-ittest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  //    'protractor:runChrome'
-  //  ]);
 
   grunt.registerTask('firefox-ittest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
     'protractor:runFirefox'
