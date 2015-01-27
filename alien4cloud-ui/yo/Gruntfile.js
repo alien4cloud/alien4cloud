@@ -396,10 +396,63 @@ module.exports = function(grunt) {
           // Arguments passed to the command
         }
       },
-      runChrome: {
+      runAdmin: {
         options: {
           args: {
-            browser: 'chrome'
+            browser: grunt.option('browser'),
+            baseUrl: 'http://localhost:8088',
+            specs: [
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/admin/**/*.js'
+            ]
+          }
+        }
+      },
+      runApplication: {
+        options: {
+          args: {
+            browser: grunt.option('browser'),
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/application/**/*.js'
+            ]
+          }
+        }
+      },
+      runApplicationTopology: {
+        options: {
+          args: {
+            browser: grunt.option('browser'),
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/application_topology/**/*.js'
+            ]
+          }
+        }
+      },
+      runDeploymentAndSecurity: {
+        options: {
+          args: {
+            browser: grunt.option('browser'),
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/deployment/**/*.js',
+            'test/e2e/scenarios/security/**/*.js'
+            ]
+          }
+        }
+      },
+      runOtherTests: {
+        options: {
+          args: {
+            browser: grunt.option('browser'),
+            baseUrl: 'http://localhost:8088',
+            specs: [
+            'test/e2e/setup-scenario/before-all.js',
+            'test/e2e/scenarios/*.js'            ]
           }
         }
       },
@@ -421,33 +474,39 @@ module.exports = function(grunt) {
         options: {
           args: {
             capabilities: {
-              'browserName': 'firefox'
+              'browserName': 'chrome'
             },
             // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
 //              'test/e2e/setup-scenario/before-all.js',
-              //              'test/e2e/scenarios/admin_cloud.js',
-                            'test/e2e/scenarios/admin_cloud_image.js',
-              //              'test/e2e/scenarios/admin_groups_management.js',
-              //              'test/e2e/scenarios/admin_metaprops_configuration.js',
-              //              'test/e2e/scenarios/admin_users_management.js',
-              //              'test/e2e/scenarios/application.js',
-              //              'test/e2e/scenarios/application_metaprops.js',
-              //              'test/e2e/scenarios/application_environments.js',
-              //              'test/e2e/scenarios/application_versions.js',
-              //              'test/e2e/scenarios/application_security.js',
-              //              'test/e2e/scenarios/application_security_role_check.js',
-              //              'test/e2e/scenarios/application_tags.js',
-              //              'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
-              //              'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
-              //              'test/e2e/scenarios/application_topology_editor_input_output.js',
-              //              'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
-              //              'test/e2e/scenarios/application_topology_editor_nodetemplate.js',
-              //              'test/e2e/scenarios/application_topology_editor_plan.js',
-              //              'test/e2e/scenarios/application_topology_editor_relationships.js',
-              //              'test/e2e/scenarios/application_topology_editor_replacenode.js',
-              //              'test/e2e/scenarios/application_topology_runtime.js',
+              //              'test/e2e/scenarios/admin/admin_cloud.js',
+                            'test/e2e/scenarios/admin/admin_cloud_image.js',
+              //              'test/e2e/scenarios/admin/admin_groups_management.js',
+              //              'test/e2e/scenarios/admin/admin_metaprops_configuration.js',
+              //              'test/e2e/scenarios/admin/admin_users_management.js',
+              //              'test/e2e/scenarios/application/application.js',
+              //              'test/e2e/scenarios/application/application_metaprops.js',
+              //              'test/e2e/scenarios/application/application_environments.js',
+              //              'test/e2e/scenarios/application/application_versions.js',
+              //              'test/e2e/scenarios/application/application_security.js',
+              //              'test/e2e/scenarios/application/application_security_role_check.js',
+              //              'test/e2e/scenarios/application/application_tags.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationshipname.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_multiplenodeversions.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_plan.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_relationships.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
+              //              'test/e2e/scenarios/deployment/deployment.js',
+              //              'test/e2e/scenarios/deployment/deployment_matcher.js',
+              //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
+              //              'test/e2e/scenarios/security/security_cloud.js',
+              //              'test/e2e/scenarios/security/security_groups.js',
+              //              'test/e2e/scenarios/security/security_users.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
@@ -520,6 +579,26 @@ module.exports = function(grunt) {
 
   grunt.registerTask('local-ittest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
     'protractor:runLocalserver'
+  ]);
+
+  grunt.registerTask('ittest-admin', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runAdmin'
+  ]);
+
+  grunt.registerTask('ittest-application', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runApplication'
+  ]);
+
+  grunt.registerTask('ittest-applicationTopology', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runApplicationTopology'
+  ]);
+
+  grunt.registerTask('ittest-deploymentAndSecurity', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runDeploymentAndSecurity'
+  ]);
+
+  grunt.registerTask('ittest-otherTests', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
+  'protractor:runOtherTests'
   ]);
 
   grunt.registerTask('continuoustest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:jenkins']);

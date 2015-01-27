@@ -237,11 +237,11 @@ public class ApplicationEnvironmentService {
      */
     public DeploymentStatus getStatus(ApplicationEnvironment environment) throws CloudDisabledException {
         final Deployment deployment = getActiveDeployment(environment.getId());
-        if(deployment == null) {
+        if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
-        if(deployment.getDeploymentStatus() == null) {
-            if(deployment.getEndDate() == null) {
+        if (deployment.getDeploymentStatus() == null) {
+            if (deployment.getEndDate() == null) {
                 return DeploymentStatus.UNDEPLOYED;
             }
             // update the deployment status from PaaS if it cannot be found.
@@ -254,7 +254,7 @@ public class ApplicationEnvironmentService {
 
                 @Override
                 public void onFailure(Throwable throwable) {
-                    log.error("Failed to request deployment status from PaaS for deployment <"+deployment.getId()+">", throwable);
+                    log.error("Failed to request deployment status from PaaS for deployment <" + deployment.getId() + ">", throwable);
                 }
             });
             // and return unknown for now...
@@ -273,5 +273,23 @@ public class ApplicationEnvironmentService {
         ApplicationEnvironment applicationEnvironment = getOrFail(applicationEnvironmentId);
         ApplicationVersion applicationVersion = applicationVersionService.get(applicationEnvironment.getCurrentVersionId());
         return applicationVersion == null ? null : applicationVersion.getTopologyId();
+    }
+
+    /**
+     * Get a environment for and application
+     * 
+     * @param applicationId
+     * @param applicationEnvironmentId
+     * @return
+     */
+    public ApplicationEnvironment getEnvironmentByIdOrDefault(String applicationId, String applicationEnvironmentId) {
+        ApplicationEnvironment environment = null;
+        if (applicationEnvironmentId == null) {
+            ApplicationEnvironment[] applicationEnvironments = applicationEnvironmentService.getByApplicationId(applicationId);
+            environment = applicationEnvironments[0];
+        } else {
+            environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        }
+        return environment;
     }
 }

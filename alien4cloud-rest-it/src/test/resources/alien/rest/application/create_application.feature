@@ -29,7 +29,7 @@ Feature: Creating a new application
     And I should be able to view the 10 other applications.
 
   Scenario: deleting an application
-    And I have an applications with names and descriptions
+    And I have applications with names and descriptions
       | watchmiddleearth | Use my great eye to find frodo and the ring. |
     When I delete the application "watchmiddleearth"
     Then I should receive a RestResponse with no error

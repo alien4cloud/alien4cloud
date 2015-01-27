@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class Plugin {
     private PluginDescriptor descriptor;
     private String pluginPathId;
+    @TermFilter
     private boolean enabled;
     private boolean configurable;
 

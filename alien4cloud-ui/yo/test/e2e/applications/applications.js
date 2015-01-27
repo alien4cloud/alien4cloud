@@ -9,7 +9,7 @@ var topologyEditorCommon = require('../topology/topology_editor_common');
 var cloudsCommon = require('../admin/clouds_common');
 var rolesCommon = require('../common/roles_common');
 
-var environments_type = {
+var environmentTypes = {
   other: 'OTHER',
   dev: 'DEVELOPMENT',
   it: 'INTEGRATION_TESTS',
@@ -17,8 +17,22 @@ var environments_type = {
   pprod: 'PRE_PRODUCTION',
   prod: 'PRODUCTION'
 };
-module.exports.environments_type = environments_type;
+module.exports.environmentTypes = environmentTypes;
 
+var mockPaaSDeploymentProperties = {
+  // enter deployment topology properties : mock paas provider
+  managementUrl: 'http://passmanager:8099',
+  managerEmail: 'admin@alien.fr',
+  numberBackup: 1
+};
+module.exports.mockPaaSDeploymentProperties = mockPaaSDeploymentProperties;
+
+var mockDeploymentPropertiesMordor = {
+  managementUrl: 'http://mordor:666',
+  managerEmail: 'mordor@alien.fr',
+  numberBackup: 666
+};
+module.exports.mockDeploymentPropertiesMordor = mockDeploymentPropertiesMordor;
 
 module.exports.checkApplicationManager = function(isManager) {
   navigation.go('main', 'applications');
@@ -80,30 +94,80 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
 };
 module.exports.createApplication = createApplication;
 
-
-module.exports.deploy = function(applicationName, nodeTemplates) {
-  cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-  goToApplicationDetailPage(applicationName, true);
-  topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
-  if (nodeTemplates.compute) {
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
-  }
-  goToApplicationDetailPage(applicationName, false);
-  navigation.go('applications', 'deployment');
-  var selected = cloudsCommon.selectApplicationCloud('testcloud');
-  expect(selected).toBe(true); // testcloud is in the select
-  navigation.go('applications', 'info');
-  navigation.go('applications', 'deployment');
-  browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
-  var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
-  browser.actions().click(deployButton).perform();
-  browser.sleep(5000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
-};
+// DEPLOYMENT HANDLING
 
 var setDeploymentProperty = function(propertyName, propertyValue) {
   common.sendValueToXEditable('p_' + propertyName, propertyValue);
 };
+
+var setMockPaasProperties = function(propertiesObj) {
+  setDeploymentProperty('managementUrl', propertiesObj.managementUrl);
+  setDeploymentProperty('managerEmail', propertiesObj.managerEmail);
+  setDeploymentProperty('numberBackup', propertiesObj.numberBackup);
+};
+
+var switchEnvironmentAndCloud = function(envName, cloudName) {
+  // default values for select env / cloud
+  cloudName = cloudName === null ? 'testcloud' : cloudName;
+  envName = envName === null ? 'Environment' : envName;
+  var selectedEnvironment = selectApplicationEnvironment(envName);
+  var selectedCloud = cloudsCommon.selectApplicationCloud(cloudName);
+  expect(selectedEnvironment).toBe(true); // one cloud selected
+  expect(selectedCloud).toBe(true); // one cloud selected
+};
+module.exports.switchEnvironmentAndCloud = switchEnvironmentAndCloud;
+
+module.exports.setupDeploymentProperties = function(appName, envName, cloudName, propertiesObject) {
+
+  // go on this, deployment sub-menu
+  goToApplicationDetailPage(appName, false);
+  navigation.go('applications', 'deployment');
+
+  // select an env / cloud
+  switchEnvironmentAndCloud(envName, cloudName);
+  setMockPaasProperties(propertiesObject);
+};
+
+var simpleDeploy = function justADeployClick() {
+  var deployButton = browser.element(by.id('btn-deploy'));
+  browser.actions().click(deployButton).perform();
+};
+module.exports.simpleDeploy = simpleDeploy;
+
+module.exports.deploy = function(applicationName, nodeTemplates, cloudName, environmentName, deploymentProperties) {
+
+  // handle cloud / environment to use
+  cloudName = cloudName === null ? 'testcloud' : cloudName;
+  environmentName = environmentName === null ? 'Environment' : environmentName;
+  cloudsCommon.giveRightsOnCloudToUser(cloudName, 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
+
+  // complete the topology : one compue
+  if (nodeTemplates !== null) {
+    goToApplicationDetailPage(applicationName, true);
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
+    if (nodeTemplates.compute) {
+      topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
+      topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    }
+  }
+
+  // go on application page to perform the deploy
+  goToApplicationDetailPage(applicationName, false);
+  navigation.go('applications', 'deployment');
+  switchEnvironmentAndCloud(environmentName, cloudName);
+
+  // cloud selected => enter properties when cloud selected
+  if (deploymentProperties !== null) {
+    // enter deployment properties : mock paas provider
+    setMockPaasProperties(deploymentProperties);
+  }
+
+  // DEPLOY
+  browser.sleep(1000); // DO NOT REMOVE, wait few seconds for the ui to be ready
+  simpleDeploy();
+  browser.sleep(4000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
+};
+
 
 module.exports.deployExistingApplication = function(applicationName) {
   cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
@@ -111,20 +175,24 @@ module.exports.deployExistingApplication = function(applicationName) {
   navigation.go('applications', 'deployment');
   var selected = cloudsCommon.selectApplicationCloud('testcloud');
   expect(selected).toBe(true); // testcloud is in the select
-  navigation.go('applications', 'info');
-  navigation.go('applications', 'deployment');
   browser.sleep(1000);
 
   // enter deployment topology properties : mock paas provider
-  setDeploymentProperty('managementUrl', 'http://passmanager:8099');
-  setDeploymentProperty('managerEmail', 'admin@alien.fr');
-  setDeploymentProperty('numberBackup', 1);
+  setMockPaasProperties(mockPaaSDeploymentProperties);
 
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
   browser.actions().click(deployButton).perform();
   browser.sleep(2000); // DO NOT REMOVE, button clickable few seconds after DEPLOY click
 
   navigation.go('applications', 'runtime');
+};
+
+module.exports.undeploy = function() {
+  // we assume that we're on application details
+  navigation.go('applications', 'deployment');
+  var undeployButton = browser.element(by.id('btn-undeploy'));
+  browser.actions().click(undeployButton).perform();
+  browser.sleep(7000); // DO NOT REMOVE, wait for UNDEPLOY
 };
 
 function goToApplicationEnvironmentPageForApp(applicationName) {
@@ -204,3 +272,32 @@ var createApplicationVersion = function(version, description, selectTopology) {
 
 };
 module.exports.createApplicationVersion = createApplicationVersion;
+
+// select the environment
+var selectApplicationEnvironment = function(envName) {
+  var selectElement = element(by.id('environment-select'));
+  var selectResult = common.selectDropdownByText(selectElement, envName, 1);
+  return selectResult; // promise
+};
+module.exports.selectApplicationEnvironment = selectApplicationEnvironment;
+
+var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
+  // editableBoolean => true > field is editable, false it's not
+  var container = element(by.id(id));
+  expect(container.isPresent()).toBe(true);
+  expect(container.isDisplayed()).toBe(true);
+  var span = container.element(by.tagName('span'));
+  var editable = editableBoolean || true; // if editableBoolean not defined, true
+  var subSpanElement = span.element(by.tagName('span'));
+  if (editable) {
+    expect(subSpanElement.getAttribute('class')).toContain('editable');
+  } else {
+    expect(subSpanElement.getAttribute('class')).not.toContain('editable');
+  }
+  expect(span.isDisplayed()).toBe(true);
+  span.getText().then(function(spanText) {
+    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
+  });
+};
+
+module.exports.expectDeploymentPropertyValue = expectDeploymentPropertyValue;
