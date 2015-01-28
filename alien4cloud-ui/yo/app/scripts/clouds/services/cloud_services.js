@@ -81,6 +81,15 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     };
 
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
+    
+    var crudRemoveImages = $resource('rest/clouds/:id/removeImages', {}, {
+      'removeMultiple': {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
@@ -196,6 +205,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeFlavor': crudFlavor.remove,
       'addImage': crudImage.save,
       'removeImage': crudImage.remove,
+      'removeImages': crudRemoveImages.removeMultiple,
       'networkFormDescriptor': networkFormDescriptor,
       'addNetwork': crudNetwork.save,
       'removeNetwork': crudNetwork.remove,

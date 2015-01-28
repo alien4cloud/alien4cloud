@@ -32,6 +32,16 @@
     "target": "am.applications.detail.runtime",
     "placement": "right"
   }, {
+    "title": "Gérer les différentes versions de votre application",
+    "content": "Cette page permet de gérer l'ensemble des versions de votre application.",
+    "target": "am.applications.detail.versions",
+    "placement": "right"
+  }, {
+    "title": "Gérer les différents environnements de votre application",
+    "content": "Cette page permet de gérer l'ensemble des environnements de votre application.",
+    "target": "am.applications.detail.environment",
+    "placement": "right"
+  }, {
     "title": "Gestion des droits sur l'application",
     "content": "Cette patie permet de gérer les différents droits que peuvent avoir un untilisateur ou un groupe sur l'application.",
     "target": "am.applications.detail.users",

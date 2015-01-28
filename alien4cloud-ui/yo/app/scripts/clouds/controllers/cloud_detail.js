@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -379,43 +379,6 @@ angular.module('alienUiApp').controller(
         });
       };
 
-      $scope.openAddCloudImageModal = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'views/clouds/new_image.html',
-          controller: 'AddCloudImageController',
-          windowClass: 'clouds-add-image',
-          scope: $scope
-        });
-
-        modalInstance.result.then(function(images) {
-          var imageIds = [];
-          for (var i = 0; i < images.length; i++) {
-            imageIds.push(images[i].id);
-          }
-          cloudServices.addImage({
-            id: $scope.cloud.id
-          }, angular.toJson(imageIds), function(success) {
-            for (var i = 0; i < images.length; i++) {
-              $scope.images[images[i].id] = images[i];
-            }
-            $scope.cloud.images = UTILS.concat($scope.cloud.images, imageIds);
-            updateComputeResources(success.data);
-          });
-        });
-      };
-
-      $scope.deleteCloudImage = function(imageId) {
-        cloudServices.removeImage({
-          id: $scope.cloud.id,
-          imageId: imageId
-        }, undefined, function(success) {
-          delete $scope.images[imageId];
-          var indexOfImage = $scope.cloud.images.indexOf(imageId);
-          $scope.cloud.images.splice(indexOfImage, 1);
-          updateComputeResources(success.data);
-        });
-      };
-
       /** handle Modal form for cloud image creation */
       $scope.openNetworkCreationModal = function() {
         var modalInstance = $modal.open({
@@ -504,5 +467,98 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
         });
       };
+      
+      // id of images candidat to be removed
+      $scope.imageRemoveSelection = [];
+      // id of images candidat to be added
+      $scope.imageAddSelection = [];
+      
+      $scope.switchCloudImageRemoveSelection = function(imageId) {
+        if (UTILS.arrayContains($scope.imageRemoveSelection, imageId)) {
+          UTILS.arrayRemove($scope.imageRemoveSelection, imageId);
+        } else {
+          $scope.imageRemoveSelection.push(imageId);
+        }
+      }
+      $scope.isInCloudImageRemoveSelection = function(imageId) {
+        return UTILS.arrayContains($scope.imageRemoveSelection, imageId);
+      }
+      $scope.performRemoveCloudImageSelection = function() {
+        cloudServices.removeImages({
+            id: $scope.cloud.id
+          }, angular.toJson($scope.imageRemoveSelection), function(success) {
+            angular.forEach($scope.imageRemoveSelection, function(value, key) {
+              UTILS.arrayRemove($scope.cloud.images, value);
+            });
+            $scope.imageRemoveSelection = [];
+            updateComputeResources(success.data);
+            $scope.initSearchImageService();
+        });
+      }
+      
+      $scope.imageQueryProvider = {
+        query: '',
+        onSearchCompleted: function(searchResult) {
+          $scope.searchImageData = searchResult.data;
+          angular.forEach($scope.searchImageData.data, function(value, key) {
+            // we store the result images in a global map
+            $scope.images[value.id] = value;
+          });
+        }
+      }
+      $scope.initSearchImageService = function() {
+        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 3, undefined, undefined, undefined, {
+          exclude: $scope.cloud.images
+        });
+        $scope.searchImage();      
+      };
+      $scope.searchImage = function() {
+        $scope.imageAddSelection = [];
+        $scope.searchImageService.search();
+      };      
+      $scope.imageQueryChanged = function(query) {
+        $scope.imageQueryProvider.query = query;
+      };      
+      
+      $scope.switchCloudImageAddSelection = function(imageId) {
+        if (UTILS.arrayContains($scope.imageAddSelection, imageId)) {
+          UTILS.arrayRemove($scope.imageAddSelection, imageId);
+        } else {
+          $scope.imageAddSelection.push(imageId);
+        }
+      }      
+      $scope.isInCloudImageAddSelection = function(imageId) {
+        return UTILS.arrayContains($scope.imageAddSelection, imageId);
+      }
+      $scope.performAddCloudImageSelection = function() {
+        cloudServices.addImage({
+          id: $scope.cloud.id
+        }, angular.toJson($scope.imageAddSelection), function(success) {
+          $scope.cloud.images = UTILS.concat($scope.cloud.images, $scope.imageAddSelection);
+          updateComputeResources(success.data);
+          $scope.imageAddSelection = [];
+          $scope.initSearchImageService();
+        });          
+      }      
+      $scope.createCloudImage = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/cloud-images/new_cloud_image.html',
+          controller: 'NewCloudImageController',
+          windowClass: 'newImageModal'
+        });
+
+        modalInstance.result.then(function(cloudImageId) {
+          
+          cloudImageServices.get({id : cloudImageId}, function(success) {
+            $scope.images[success.data.id] = success.data;
+            cloudServices.addImage({
+              id: $scope.cloud.id
+            }, angular.toJson([cloudImageId]), function(success) {
+              $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
+              updateComputeResources(success.data);
+            });             
+          });
+        });        
+      }
     }
   ]);

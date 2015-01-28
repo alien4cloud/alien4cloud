@@ -514,10 +514,9 @@
       "NEW_MODAL_TITLE": "Ajouter nouveau gabarit"
     },
     "IMAGES": {
-      "NEW": "Ajouter",
-      "TO_BE_ADDED_TITLE": "Images sélectionnées",
-      "NEW_MODAL_TITLE": "Ajouter des images",
-      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'ajouter"
+      "NEW": "Nouvelle",
+      "TO_BE_ADDED_TITLE": "Images associées",
+      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'associer"
     },
     "NETWORK": "Réseaux",
     "NETWORKS": {
