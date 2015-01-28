@@ -16,7 +16,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
@@ -146,7 +146,7 @@ public class ApplicationResourceMatcherStepDefinitions {
         Context.getInstance().getCloudForTopology();
         String cloudId = Context.getInstance().getCloudForTopology();
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
-        Map<String, Network> networkMatching = Maps.newHashMap();
+        Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
         networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
         Application application = Context.getInstance().getApplication();
@@ -158,14 +158,14 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @And("^The deployment setup of the application should contain following network mapping:$")
     public void The_deployment_setup_of_the_application_should_contain_following_network_mapping(DataTable networksMatching) throws Throwable {
-        Map<String, Network> expectedNetworksMatching = Maps.newHashMap();
+        Map<String, NetworkTemplate> expectedNetworksMatching = Maps.newHashMap();
         for (List<String> rows : networksMatching.raw()) {
             String name = rows.get(1);
             String cidr = rows.get(2);
             int ipVersion = Integer.parseInt(rows.get(3));
             String gateWay = rows.get(4);
-            Network network = new Network();
-            network.setNetworkName(name);
+            NetworkTemplate network = new NetworkTemplate();
+            network.setId(name);
             network.setIpVersion(ipVersion);
             network.setCidr(cidr);
             network.setGatewayIp(gateWay);

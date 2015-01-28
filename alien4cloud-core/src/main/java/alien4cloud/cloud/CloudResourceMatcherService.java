@@ -19,7 +19,7 @@ import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
@@ -80,7 +80,7 @@ public class CloudResourceMatcherService {
             }
             computeMatchResult.put(computeTemplateEntry.getKey(), computeTemplates);
         }
-        Map<String, List<Network>> networkMatchResult = Maps.newHashMap();
+        Map<String, List<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> networkEntry : matchableNodes.networkTemplates.entrySet()) {
             networkMatchResult.put(networkEntry.getKey(), getAvailableNetworks(cloud, networkEntry.getValue()));
         }
@@ -88,11 +88,11 @@ public class CloudResourceMatcherService {
         return new CloudResourceTopologyMatchResult(imageMap, flavorMap, computeMatchResult, networkMatchResult);
     }
 
-    private List<Network> getAvailableNetworks(Cloud cloud, NodeTemplate nodeTemplate) {
+    private List<NetworkTemplate> getAvailableNetworks(Cloud cloud, NodeTemplate nodeTemplate) {
         Map<String, String> networkProperties = nodeTemplate.getProperties();
-        Set<Network> existingNetworks = cloud.getNetworks();
-        List<Network> eligibleNetworks = Lists.newArrayList();
-        for (Network network : existingNetworks) {
+        Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
+        List<NetworkTemplate> eligibleNetworks = Lists.newArrayList();
+        for (NetworkTemplate network : existingNetworks) {
             if (!match(networkProperties, NormativeNetworkConstants.CIDR, network.getCidr(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
@@ -102,7 +102,7 @@ public class CloudResourceMatcherService {
             if (!match(networkProperties, NormativeNetworkConstants.GATEWAY_IP, network.getGatewayIp(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
-            if (!match(networkProperties, NormativeNetworkConstants.NETWORK_NAME, network.getNetworkName(), new TextValueParser(), new EqualMatcher<String>())) {
+            if (!match(networkProperties, NormativeNetworkConstants.NETWORK_NAME, network.getId(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
             eligibleNetworks.add(network);

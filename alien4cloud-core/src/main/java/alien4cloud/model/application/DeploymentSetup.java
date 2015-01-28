@@ -12,7 +12,7 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -38,5 +38,5 @@ public class DeploymentSetup {
 
     private Map<String, ComputeTemplate> cloudResourcesMapping;
 
-    private Map<String, Network> networkMapping;
+    private Map<String, NetworkTemplate> networkMapping;
 }

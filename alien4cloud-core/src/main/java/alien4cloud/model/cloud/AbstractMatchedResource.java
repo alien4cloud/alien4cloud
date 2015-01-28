@@ -5,17 +5,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class ComputeTemplate implements ICloudResource {
+@EqualsAndHashCode
+@SuppressWarnings("PMD.UnusedPrivateField")
+public class AbstractMatchedResource<T> {
 
-    private String cloudImageId;
+    private T resource;
 
-    private String cloudImageFlavorId;
+    private String paaSResourceId;
 }

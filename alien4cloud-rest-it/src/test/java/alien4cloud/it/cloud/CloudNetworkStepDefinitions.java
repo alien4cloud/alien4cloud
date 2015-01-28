@@ -8,8 +8,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
-import alien4cloud.model.cloud.MatchedNetwork;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -27,8 +27,8 @@ public class CloudNetworkStepDefinitions {
     public void I_add_the_network_with_name_and_CIDR_and_IP_version_and_gateway_to_the_cloud(String name, String cidr, int ipVersion, String gateWay,
             String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
-        Network network = new Network();
-        network.setNetworkName(name);
+        NetworkTemplate network = new NetworkTemplate();
+        network.setId(name);
         network.setIpVersion(ipVersion);
         network.setCidr(cidr);
         network.setGatewayIp(gateWay);
@@ -43,17 +43,17 @@ public class CloudNetworkStepDefinitions {
         assertNetworks(numberOfNetworks, cloudDTO.getCloud().getNetworks(), expectedNetworksTable);
     }
 
-    public static void assertNetworks(int numberOfNetworks, Set<Network> networks, DataTable expectedNetworksTable) {
+    public static void assertNetworks(int numberOfNetworks, Set<NetworkTemplate> networks, DataTable expectedNetworksTable) {
         Assert.assertEquals(numberOfNetworks, networks.size());
-        Set<Network> expectedNetworks = Sets.newHashSet();
+        Set<NetworkTemplate> expectedNetworks = Sets.newHashSet();
         if (expectedNetworksTable != null) {
             for (List<String> rows : expectedNetworksTable.raw()) {
                 String name = rows.get(0);
                 String cidr = rows.get(1);
                 int ipVersion = Integer.parseInt(rows.get(2));
                 String gateWay = rows.get(3);
-                Network network = new Network();
-                network.setNetworkName(name);
+                NetworkTemplate network = new NetworkTemplate();
+                network.setId(name);
                 network.setIpVersion(ipVersion);
                 network.setCidr(cidr);
                 network.setGatewayIp(gateWay);
@@ -91,12 +91,12 @@ public class CloudNetworkStepDefinitions {
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getNetworkMapping());
-        Set<MatchedNetwork> actualNetworks = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks());
-        Set<MatchedNetwork> expectedNetworks = Sets.newHashSet();
+        Set<MatchedNetworkTemplate> actualNetworks = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks());
+        Set<MatchedNetworkTemplate> expectedNetworks = Sets.newHashSet();
         for (List<String> rows : expectedMappings.raw()) {
-            Network network = new Network();
+            NetworkTemplate network = new NetworkTemplate();
             String networkName = rows.get(0);
-            network.setNetworkName(networkName);
+            network.setId(networkName);
             String cidr = rows.get(1);
             network.setCidr(cidr);
             int ipVersion = Integer.parseInt(rows.get(2));
@@ -104,7 +104,7 @@ public class CloudNetworkStepDefinitions {
             String gatewayIp = rows.get(3);
             network.setGatewayIp(gatewayIp);
             String pasSResourceId = rows.get(4);
-            expectedNetworks.add(new MatchedNetwork(network, pasSResourceId));
+            expectedNetworks.add(new MatchedNetworkTemplate(network, pasSResourceId));
         }
         Assert.assertEquals(expectedNetworks, actualNetworks);
     }

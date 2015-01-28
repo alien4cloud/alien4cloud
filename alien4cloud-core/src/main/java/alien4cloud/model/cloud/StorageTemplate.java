@@ -17,15 +17,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @EqualsAndHashCode
 @JsonIgnoreProperties(ignoreUnknown = true)
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class Network implements ICloudResource {
+public class StorageTemplate implements ICloudResourceTemplate {
 
     @NotNull
-    private Integer ipVersion;
+    private String name;
 
-    private String cidr;
+    private long size;
 
-    private String gatewayIp;
-
-    @NotNull
-    private String networkName;
+    public String getId() {
+        return getName();
+    }
 }

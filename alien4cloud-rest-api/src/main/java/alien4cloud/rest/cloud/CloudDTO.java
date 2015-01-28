@@ -9,7 +9,7 @@ import lombok.Setter;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -29,5 +29,5 @@ public class CloudDTO {
 
     private Map<String, CloudImageFlavor> flavors;
 
-    private Map<String, Network> networks;
+    private Map<String, NetworkTemplate> networks;
 }

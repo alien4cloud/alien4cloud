@@ -23,27 +23,39 @@ public class CloudResourceMatcherConfig {
     @Id
     private String id;
 
-    private List<MatchedComputeTemplate> matchedComputeTemplates = Lists.newArrayList();
+    private List<MatchedNetworkTemplate> matchedNetworks = Lists.newArrayList();
 
-    private List<MatchedNetwork> matchedNetworks = Lists.newArrayList();
+    private List<MatchedCloudImage> matchedImages = Lists.newArrayList();
+
+    private List<MatchedCloudImageFlavor> matchedFlavors = Lists.newArrayList();
+
+    private List<MatchedCloudImageFlavor> matchedBlockStorages = Lists.newArrayList();
 
     @JsonIgnore
-    public Map<ComputeTemplate, String> getComputeTemplateMapping() {
-        Map<ComputeTemplate, String> config = Maps.newHashMap();
-        if (matchedComputeTemplates != null && !matchedComputeTemplates.isEmpty()) {
-            for (MatchedComputeTemplate template : matchedComputeTemplates) {
-                config.put(template.getComputeTemplate(), template.getPaaSResourceId());
-            }
-        }
-        return config;
+    public Map<NetworkTemplate, String> getNetworkMapping() {
+        return getMapping(matchedNetworks);
     }
 
     @JsonIgnore
-    public Map<Network, String> getNetworkMapping() {
-        Map<Network, String> config = Maps.newHashMap();
-        if (matchedNetworks != null && !matchedNetworks.isEmpty()) {
-            for (MatchedNetwork network : matchedNetworks) {
-                config.put(network.getNetwork(), network.getPaaSResourceId());
+    public Map<CloudImage, String> getCloudImageMapping() {
+        return getMapping(matchedImages);
+    }
+
+    @JsonIgnore
+    public Map<CloudImageFlavor, String> getCloudImageFlavorMapping() {
+        return getMapping(matchedFlavors);
+    }
+
+    @JsonIgnore
+    public Map<CloudImageFlavor, String> getBlockStoragesMapping() {
+        return getMapping(matchedBlockStorages);
+    }
+
+    private <T extends AbstractMatchedResource<U>, U extends ICloudResourceTemplate> Map<U, String> getMapping(List<T> matchedResources) {
+        Map<U, String> config = Maps.newHashMap();
+        if (matchedResources != null && !matchedResources.isEmpty()) {
+            for (T network : matchedResources) {
+                config.put(network.getResource(), network.getPaaSResourceId());
             }
         }
         return config;

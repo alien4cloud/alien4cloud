@@ -494,7 +494,7 @@
                       </thead>
                       <tbody>
                         <tr ng-repeat="network in cloud.networks" id='cloud_network_{{network.networkName}}'>
-                          <td>{{network.networkName}}</td>
+                          <td>{{network.id}}</td>
                           <td>{{network.cidr}}</td>
                           <td>{{network.gatewayIp || '---'}}</td>
                           <td>{{network.ipVersion}}</td>
@@ -513,7 +513,7 @@
                             </select>
                           </td>
                           <td>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.networkName)"><i class="fa fa-trash-o"></i>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.id)"><i class="fa fa-trash-o"></i>
                             </button>
                           </td>
                         </tr>

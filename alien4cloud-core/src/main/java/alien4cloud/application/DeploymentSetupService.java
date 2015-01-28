@@ -24,7 +24,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
@@ -137,7 +137,7 @@ public class DeploymentSetupService {
                 matchResult.getComputeMatchResult(), topology);
 
         // Generate default matching for network
-        MappingGenerationResult<Network> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(), matchResult.getNetworkMatchResult(),
+        MappingGenerationResult<NetworkTemplate> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(), matchResult.getNetworkMatchResult(),
                 topology);
 
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);

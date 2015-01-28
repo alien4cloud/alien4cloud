@@ -26,7 +26,7 @@ import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -108,9 +108,9 @@ public class CloudController {
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             flavors.put(flavor.getId(), flavor);
         }
-        Map<String, Network> networks = Maps.newHashMap();
-        for (Network network : cloud.getNetworks()) {
-            networks.put(network.getNetworkName(), network);
+        Map<String, NetworkTemplate> networks = Maps.newHashMap();
+        for (NetworkTemplate network : cloud.getNetworks()) {
+            networks.put(network.getId(), network);
         }
         CloudDTO cloudDTO = new CloudDTO(cloud, new CloudResourceMatcherDTO(cloudService.findCloudResourceMatcherConfig(cloud),
                 cloudService.getCloudResourceIds(cloud, CloudResourceType.COMPUTE), cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK)),
@@ -370,7 +370,7 @@ public class CloudController {
 
     @ApiOperation(value = "Add a network to the given cloud", notes = "Only user with ADMIN role can add a network.")
     @RequestMapping(value = "/{cloudId}/networks", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addNetwork(@PathVariable String cloudId, @RequestBody Network network) {
+    public RestResponse<Void> addNetwork(@PathVariable String cloudId, @RequestBody NetworkTemplate network) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.addNetwork(cloud, network);

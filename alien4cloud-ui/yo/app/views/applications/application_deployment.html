@@ -461,7 +461,7 @@
                         <img ng-if="networkImage" ng-src="{{networkImage?('img?id=' + networkImage + '&quality=QUALITY_64'):null}}" />
                       </td>
                       <td>{{key}}</td>
-                      <td>{{selectedNetworks[key].networkName}}</td>
+                      <td>{{selectedNetworks[key].id}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -480,7 +480,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="network in currentMatchedNetworks" class="clickable-media" ng-class="{'info' : isSelectedNetwork(network)}" ng-click="changeSelectedNetwork(network)">
-                      <td>{{network.networkName}}</td>
+                      <td>{{network.id}}</td>
                       <td>{{network.cidr}}</td>
                       <td>{{network.gatewayIp || '---'}}</td>
                       <td>{{network.ipVersion}}</td>

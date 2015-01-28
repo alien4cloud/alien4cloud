@@ -30,9 +30,8 @@ public final class MapUtil {
                 } else {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> nested = (Map<String, Object>) value;
-                    if (nested.containsKey(token)) {
-                        value = nested.get(token);
-                    } else {
+                    value = nested.get(token);
+                    if (value == null) {
                         return null;
                     }
                 }

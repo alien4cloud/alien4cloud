@@ -9,6 +9,9 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.model.cloud.AbstractMatchedResource;
+import alien4cloud.model.cloud.ICloudResourceTemplate;
+import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -22,17 +25,17 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.MatchedComputeTemplate;
-import alien4cloud.model.cloud.MatchedNetwork;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.MatchedCloudImage;
+import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
@@ -44,8 +47,6 @@ import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -521,6 +522,16 @@ public class CloudService {
         }
         alienDAO.save(cloud);
     }
+    
+    private <T extends AbstractMatchedResource<ICloudResourceTemplate>> void removeMatchedCloudResource(List<T> matchedResources) {
+        Iterator<T> matchedTemplateIterator = matchedResources.iterator();
+        while (matchedTemplateIterator.hasNext()) {
+            AbstractMatchedResource matchedTemplate = matchedTemplateIterator.next();
+            if (matchedTemplate.getResource().getId().equals(cloudImageId)) {
+                matchedTemplateIterator.remove();
+            }
+        }
+    }
 
     /**
      * Remove an image from the cloud consists of removing available compute template and push update to our persistence layer
@@ -530,19 +541,12 @@ public class CloudService {
      */
     public void removeCloudImage(Cloud cloud, CloudResourceMatcherConfig config, String cloudImageId) {
         cloud.getImages().remove(cloudImageId);
-        Iterator<ActivableComputeTemplate> iterator = cloud.getComputeTemplates().iterator();
-        while (iterator.hasNext()) {
-            ActivableComputeTemplate computeTemplate = iterator.next();
-            if (computeTemplate.getCloudImageId().equals(cloudImageId)) {
-                iterator.remove();
-            }
-        }
         if (config != null) {
-            List<MatchedComputeTemplate> matchedTemplates = config.getMatchedComputeTemplates();
-            Iterator<MatchedComputeTemplate> matchedTemplateIterator = matchedTemplates.iterator();
+            List<MatchedCloudImage> matchedTemplates = config.getMatchedImages();
+            Iterator<MatchedCloudImage> matchedTemplateIterator = matchedTemplates.iterator();
             while (matchedTemplateIterator.hasNext()) {
-                MatchedComputeTemplate matchedTemplate = matchedTemplateIterator.next();
-                if (matchedTemplate.getComputeTemplate().getCloudImageId().equals(cloudImageId)) {
+                MatchedCloudImage matchedTemplate = matchedTemplateIterator.next();
+                if (matchedTemplate.getResource().getId().equals(cloudImageId)) {
                     matchedTemplateIterator.remove();
                 }
             }
@@ -565,18 +569,11 @@ public class CloudService {
                 flavorIterator.remove();
             }
         }
-        Iterator<ActivableComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
-        while (templateIterator.hasNext()) {
-            ActivableComputeTemplate computeTemplate = templateIterator.next();
-            if (computeTemplate.getCloudImageFlavorId().equals(flavorId)) {
-                templateIterator.remove();
-            }
-        }
         if (config != null) {
-            List<MatchedComputeTemplate> matchedTemplates = config.getMatchedComputeTemplates();
-            Iterator<MatchedComputeTemplate> matchedTemplateIterator = matchedTemplates.iterator();
+            List<MatchedCloudImageFlavor> matchedTemplates = config.getMatchedFlavors();
+            Iterator<MatchedCloudImageFlavor> matchedTemplateIterator = matchedTemplates.iterator();
             while (matchedTemplateIterator.hasNext()) {
-                MatchedComputeTemplate matchedTemplate = matchedTemplateIterator.next();
+                MatchedCloudImageFlavor matchedTemplate = matchedTemplateIterator.next();
                 if (matchedTemplate.getComputeTemplate().getCloudImageFlavorId().equals(flavorId)) {
                     matchedTemplateIterator.remove();
                 }
@@ -679,8 +676,8 @@ public class CloudService {
         return null;
     }
 
-    public void addNetwork(Cloud cloud, Network network) {
-        Set<Network> existingNetworks = cloud.getNetworks();
+    public void addNetwork(Cloud cloud, NetworkTemplate network) {
+        Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
         if (existingNetworks == null) {
             existingNetworks = Sets.newHashSet();
             cloud.setNetworks(existingNetworks);
@@ -690,19 +687,19 @@ public class CloudService {
     }
 
     public void removeNetwork(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
-        Set<Network> existingNetworks = cloud.getNetworks();
-        Iterator<Network> networkIterator = existingNetworks.iterator();
+        Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
+        Iterator<NetworkTemplate> networkIterator = existingNetworks.iterator();
         while (networkIterator.hasNext()) {
-            Network network = networkIterator.next();
-            if (network.getNetworkName().equals(networkName)) {
+            NetworkTemplate network = networkIterator.next();
+            if (network.getId().equals(networkName)) {
                 networkIterator.remove();
             }
         }
         if (config != null) {
-            List<MatchedNetwork> matchedNetworks = config.getMatchedNetworks();
-            Iterator<MatchedNetwork> matchedNetworkIterator = matchedNetworks.iterator();
+            List<MatchedNetworkTemplate> matchedNetworks = config.getMatchedNetworks();
+            Iterator<MatchedNetworkTemplate> matchedNetworkIterator = matchedNetworks.iterator();
             while (matchedNetworkIterator.hasNext()) {
-                MatchedNetwork matchedNetwork = matchedNetworkIterator.next();
+                MatchedNetworkTemplate matchedNetwork = matchedNetworkIterator.next();
                 if (matchedNetwork.getNetwork().getNetworkName().equals(networkName)) {
                     matchedNetworkIterator.remove();
                 }
@@ -712,10 +709,10 @@ public class CloudService {
         alienDAO.save(cloud);
     }
 
-    private MatchedNetwork getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
-        Iterator<MatchedNetwork> networkIterator = matcherConfig.getMatchedNetworks().iterator();
+    private MatchedNetworkTemplate getMatchedNetwork(CloudResourceMatcherConfig matcherConfig, String networkName, boolean take) {
+        Iterator<MatchedNetworkTemplate> networkIterator = matcherConfig.getMatchedNetworks().iterator();
         while (networkIterator.hasNext()) {
-            MatchedNetwork network = networkIterator.next();
+            MatchedNetworkTemplate network = networkIterator.next();
             if (network.getNetwork().getNetworkName().equals(networkName)) {
                 if (take) {
                     networkIterator.remove();
@@ -734,10 +731,10 @@ public class CloudService {
      * @param paaSResourceId paaS resource id
      */
     public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) {
-        Set<Network> networks = cloud.getNetworks();
-        Network foundNetwork = null;
-        for (Network network : networks) {
-            if (network.getNetworkName().equals(networkName)) {
+        Set<NetworkTemplate> networks = cloud.getNetworks();
+        NetworkTemplate foundNetwork = null;
+        for (NetworkTemplate network : networks) {
+            if (network.getId().equals(networkName)) {
                 foundNetwork = network;
             }
         }
@@ -748,11 +745,11 @@ public class CloudService {
         if (paaSResourceId == null) {
             getMatchedNetwork(matcherConfig, networkName, true);
         } else {
-            MatchedNetwork existing = getMatchedNetwork(matcherConfig, networkName, false);
+            MatchedNetworkTemplate existing = getMatchedNetwork(matcherConfig, networkName, false);
             if (existing != null) {
                 existing.setPaaSResourceId(paaSResourceId);
             } else {
-                matcherConfig.getMatchedNetworks().add(new MatchedNetwork(foundNetwork, paaSResourceId));
+                matcherConfig.getMatchedNetworks().add(new MatchedNetworkTemplate(foundNetwork, paaSResourceId));
             }
         }
         IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());

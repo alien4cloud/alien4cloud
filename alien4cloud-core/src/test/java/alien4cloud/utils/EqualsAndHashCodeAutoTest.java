@@ -24,14 +24,11 @@ public class EqualsAndHashCodeAutoTest {
     public void testEqualsAndHashCode() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
         doTest(IndexedNodeType.class, "elementId", "archiveName", "archiveVersion");
         doTest(Tag.class, "name");
-        doTest(ActivableComputeTemplate.class, "cloudImageId", "cloudImageFlavorId");
-        doTest(ComputeTemplate.class, "cloudImageId", "cloudImageFlavorId");
         // TODO is it really what we want to check on CloudImageFlavor ?
         doTest(CloudImageFlavor.class, "id", "numCPUs", "diskSize", "memSize");
         doTest(CloudImageRequirement.class, "numCPUs", "diskSize", "memSize");
-        doTest(MatchedComputeTemplate.class, "computeTemplate", "paaSResourceId");
-        doTest(MatchedNetwork.class, "network", "paaSResourceId");
-        doTest(Network.class, "ipVersion", "cidr", "gatewayIp", "networkName");
+        doTest(MatchedNetworkTemplate.class, "network", "paaSResourceId");
+        doTest(NetworkTemplate.class, "ipVersion", "cidr", "gatewayIp", "id");
         doTest(CSARDependency.class, "name", "version");
         doTest(CapabilityDefinition.class, "id");
         doTest(Csar.class, "name", "version");

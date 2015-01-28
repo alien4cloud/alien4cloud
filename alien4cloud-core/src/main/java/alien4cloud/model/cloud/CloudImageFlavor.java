@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @EqualsAndHashCode
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class CloudImageFlavor implements Comparable<CloudImageFlavor> {
+public class CloudImageFlavor implements Comparable<CloudImageFlavor>, ICloudResourceTemplate {
 
     @NotBlank
     private String id;

@@ -93,13 +93,13 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
-    var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
+    var crudNetwork = $resource('rest/clouds/:id/networks/:id');
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
 
-    var setNetworkResource = $resource('rest/clouds/:id/networks/:networkName/resource');
+    var setNetworkResource = $resource('rest/clouds/:id/networks/:id/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {

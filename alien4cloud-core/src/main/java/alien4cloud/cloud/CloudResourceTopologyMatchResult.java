@@ -10,7 +10,7 @@ import lombok.Setter;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -28,5 +28,5 @@ public class CloudResourceTopologyMatchResult {
 
     private Map<String, List<ComputeTemplate>> computeMatchResult;
 
-    private Map<String, List<Network>> networkMatchResult;
+    private Map<String, List<NetworkTemplate>> networkMatchResult;
 }

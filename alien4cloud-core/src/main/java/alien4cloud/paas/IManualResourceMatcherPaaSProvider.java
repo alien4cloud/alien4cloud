@@ -25,4 +25,14 @@ public interface IManualResourceMatcherPaaSProvider {
      * @return ids for the given resource type
      */
     String[] getAvailableResourceIds(CloudResourceType resourceType);
+
+    /**
+     * Call to determine available ids for the given resource type restricted to the given image.
+     * Many resources are available only on a certain type of image.
+     *
+     * @param resourceType the type of the resource
+     * @param imageId id for the image
+     * @return ids for the given resource type
+     */
+    String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId);
 }
