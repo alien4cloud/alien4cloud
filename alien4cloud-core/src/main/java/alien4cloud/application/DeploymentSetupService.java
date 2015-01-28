@@ -23,7 +23,6 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
@@ -95,7 +94,7 @@ public class DeploymentSetupService {
      * Get the deployment setup
      * (environment right check done before method call)
      * 
-     * @param application
+     * @param applicationId
      * @param applicationEnvironmentId
      * @return
      */

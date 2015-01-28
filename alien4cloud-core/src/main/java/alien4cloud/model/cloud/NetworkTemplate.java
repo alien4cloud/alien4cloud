@@ -20,12 +20,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class NetworkTemplate implements ICloudResourceTemplate {
 
     @NotNull
+    private String id;
+
+    @NotNull
     private Integer ipVersion;
 
     private String cidr;
 
     private String gatewayIp;
-
-    @NotNull
-    private String id;
 }

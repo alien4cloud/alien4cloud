@@ -3,6 +3,9 @@ package alien4cloud.paas;
 import java.util.Date;
 import java.util.Map;
 
+import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -10,8 +13,6 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.model.components.PropertyDefinition;
 
 /**
  * Interface of a Platform as a Service provider.
@@ -86,4 +87,22 @@ public interface IPaaSProvider {
      * @return A map containing property definitions
      */
     Map<String, PropertyDefinition> getDeploymentPropertyMap();
+
+    /**
+     * Call to determine available ids for the given resource type
+     *
+     * @param resourceType the type of the resource
+     * @return ids for the given resource type
+     */
+    String[] getAvailableResourceIds(CloudResourceType resourceType);
+
+    /**
+     * Call to determine available ids for the given resource type restricted to the given image.
+     * Many resources are available only on a certain type of image.
+     *
+     * @param resourceType the type of the resource
+     * @param imageId id for the image
+     * @return ids for the given resource type
+     */
+    String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId);
 }

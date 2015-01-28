@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -22,11 +22,23 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class CloudResourceTopologyMatchResult {
 
-    private Map<String, CloudImage> images;
+    /**
+     * Image match result contains couple of node template id --> eligible images
+     */
+    private Map<String, List<CloudImage>> imageMatchResult;
 
-    private Map<String, CloudImageFlavor> flavors;
+    /**
+     * Flavor match result contains couple of node template id --> image id --> eligible flavors for image and node
+     */
+    private Map<String, Map<String, List<CloudImageFlavor>>> flavorMatchResult;
 
-    private Map<String, List<ComputeTemplate>> computeMatchResult;
+    /**
+     * Image match result contains couple of node template id --> eligible storage templates
+     */
+    private Map<String, List<StorageTemplate>> storageMatchResult;
 
+    /**
+     * Image match result contains couple of node template id --> eligible network templates
+     */
     private Map<String, List<NetworkTemplate>> networkMatchResult;
 }

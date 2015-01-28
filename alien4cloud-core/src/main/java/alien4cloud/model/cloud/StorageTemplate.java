@@ -20,11 +20,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class StorageTemplate implements ICloudResourceTemplate {
 
     @NotNull
-    private String name;
+    private String id;
 
     private long size;
-
-    public String getId() {
-        return getName();
-    }
+    
+    private String device;
+    
+    private String location;
 }

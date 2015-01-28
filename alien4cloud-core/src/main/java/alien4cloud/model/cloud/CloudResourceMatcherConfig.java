@@ -37,18 +37,33 @@ public class CloudResourceMatcherConfig {
     }
 
     @JsonIgnore
-    public Map<CloudImage, String> getCloudImageMapping() {
+    public Map<CloudImage, String> getImageMapping() {
         return getMapping(matchedImages);
     }
 
     @JsonIgnore
-    public Map<CloudImageFlavor, String> getCloudImageFlavorMapping() {
+    public Map<CloudImageFlavor, String> getFlavorMapping() {
         return getMapping(matchedFlavors);
     }
 
     @JsonIgnore
-    public Map<CloudImageFlavor, String> getBlockStoragesMapping() {
-        return getMapping(matchedBlockStorages);
+    public Map<NetworkTemplate, String> getReverseNetworkMapping() {
+        return getMapping(matchedNetworks);
+    }
+
+    @JsonIgnore
+    public Map<String, CloudImage> getReverseImageMapping() {
+        return getReverseMapping(matchedImages);
+    }
+
+    @JsonIgnore
+    public Map<String, CloudImageFlavor> getReverseFlavorMapping() {
+        return getReverseMapping(matchedFlavors);
+    }
+
+    @JsonIgnore
+    public Map<String, CloudImageFlavor> getBlockStoragesMapping() {
+        return getReverseMapping(matchedBlockStorages);
     }
 
     private <T extends AbstractMatchedResource<U>, U extends ICloudResourceTemplate> Map<U, String> getMapping(List<T> matchedResources) {
@@ -56,6 +71,16 @@ public class CloudResourceMatcherConfig {
         if (matchedResources != null && !matchedResources.isEmpty()) {
             for (T network : matchedResources) {
                 config.put(network.getResource(), network.getPaaSResourceId());
+            }
+        }
+        return config;
+    }
+
+    private <T extends AbstractMatchedResource<U>, U extends ICloudResourceTemplate> Map<String, U> getReverseMapping(List<T> matchedResources) {
+        Map<String, U> config = Maps.newHashMap();
+        if (matchedResources != null && !matchedResources.isEmpty()) {
+            for (T network : matchedResources) {
+                config.put(network.getPaaSResourceId(), network.getResource());
             }
         }
         return config;
