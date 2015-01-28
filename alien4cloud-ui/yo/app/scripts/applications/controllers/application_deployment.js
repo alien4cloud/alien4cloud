@@ -77,7 +77,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     // Retrieval and validation of the topology associated with the deployment.
     function checkTopology() {
-        // validate
+
+        // validate the topology
         topologyServices.isValid({
           topologyId: $scope.topologyId
         }, function(result) {
@@ -128,7 +129,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             $scope.inputArtifactsSize = 0;
           }
 
-          // TODO if the environment is deployed I should refresh output properties
+          // when the selected environment is deployed => refresh output properties
+          if ($scope.selectedEnvironment.status === 'DEPLOYED') {
+            refreshInstancesStatuses();
+          }
 
         });
       }
@@ -157,7 +161,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
         $scope.selectedNetworks = $scope.setup.networkMapping;
 
-        // update configuration of the PaaSProvider associated with the deployment setup.
+        // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
         refreshSelectedCloud();
         refreshCloudResources();
@@ -300,16 +304,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     }
 
     var isOutput = function(nodeId, propertyName, type) {
-      console.log('IS OUTPUT >>>>>>>>>>>>>>', nodeId, propertyName, type, $scope);
       if (UTILS.isUndefinedOrNull($scope[type])) {
-        console.log('IS OUTPUT 1 >>>>>>>>>>>>>>', nodeId, propertyName, type);
         return false;
       }
       if (!$scope[type].hasOwnProperty(nodeId)) {
-        console.log('IS OUTPUT 2 >>>>>>>>>>>>>>', nodeId, propertyName, type);
         return false;
       }
-      console.log('IS OUTPUT 3 >>>>>>>>>>>>>>', nodeId, propertyName, type);
       return $scope[type][nodeId].indexOf(propertyName) >= 0;
     };
 
@@ -353,7 +353,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
                 var allAttributes = nodeInformation[instanceId].attributes;
                 for (var attribute in allAttributes) {
                   if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
-                    console.log('DO SUSCRIBE HAS PROPERTY >', attribute);
                     $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
                   }
                 }
@@ -372,7 +371,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     }
 
     function refreshInstancesStatuses() {
-      console.log('REFRESH INSTANCES >', $scope.outputAttributesSize, $scope.application, $scope.selectedEnvironment);
       if ($scope.outputAttributesSize > 0) {
         applicationServices.runtime.get({
           applicationId: $scope.application.id,
@@ -382,11 +380,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         });
       }
     }
-
-    (function() {
-      console.log('Hello World!');
-      refreshInstancesStatuses();
-    })();
 
     // if the status or the environment changes we must update the event registration.
     $scope.$watch(function(scope) {
@@ -409,6 +402,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }
     });
 
+    // when scope change, stop current event listener
     $scope.$on('$destroy', function() {
       stopEvent();
     });

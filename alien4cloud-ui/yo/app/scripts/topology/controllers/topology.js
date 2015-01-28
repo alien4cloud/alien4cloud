@@ -62,6 +62,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(successResult) {
         refreshTopology(successResult.data);
       });
+      selectTab('components-search');
     };
 
     function onResize(width, height) {
@@ -303,18 +304,16 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(result) {
         // for refreshing the ui
         refreshTopology(result.data);
-
-        // select the "Add node" <TAB> to see selected node details
-        // $timeout(callback) will wait until the current digest cycle (if any) is done, then execute your code, then run at the end a full $apply
-        // without $timeout => ALREADY IN DIGEST CYCLE error
-        $timeout(function() {
-          selectTab('components-search');
-        });
+        selectTab('components-search');
       });
     };
 
     function selectTab(tabId) {
-      document.getElementById(tabId).click();
+      // $timeout(callback) will wait until the current digest cycle (if any) is done, then execute your code, then run at the end a full $apply
+      // without $timeout => ALREADY IN DIGEST CYCLE error
+      $timeout(function() {
+        document.getElementById(tabId).click();
+      });
     }
 
     /**
