@@ -125,7 +125,6 @@ describe('Topology node template edition', function() {
 
   it('should be able to edit deployment artifact', function() {
     console.log('################# should be able to edit deployment artifact');
-
     var nodeToEdit = element(by.id('rect_War'));
     nodeToEdit.click();
     element.all(by.repeater('(artifactId, artifactDefinition) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
@@ -135,7 +134,7 @@ describe('Topology node template edition', function() {
       expect(myWar.element(by.binding('artifactDefinition.artifactType')).getText()).toEqual('tosca.artifacts.WarFile');
       expect(myWar.element(by.binding('artifactDefinition.artifactName')).getText()).toEqual('');
       var myWarUpdateButton = browser.element(by.css('input[type="file"]'));
-      myWarUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
+      myWarUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
       browser.waitForAngular();
       myWar.element(by.binding('artifactDefinition.artifactName')).getText().then(function(text) {
         expect(text.length).toBeGreaterThan(0);
