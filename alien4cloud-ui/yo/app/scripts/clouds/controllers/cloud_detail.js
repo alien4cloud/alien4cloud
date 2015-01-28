@@ -509,7 +509,7 @@ angular.module('alienUiApp').controller(
         }
       }
       $scope.initSearchImageService = function() {
-        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 3, undefined, undefined, undefined, {
+        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
           exclude: $scope.cloud.images
         });
         $scope.searchImage();      
