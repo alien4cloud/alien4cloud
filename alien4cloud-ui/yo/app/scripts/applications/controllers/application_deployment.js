@@ -78,65 +78,70 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Retrieval and validation of the topology associated with the deployment.
     function checkTopology() {
 
-        // validate the topology
-        topologyServices.isValid({
-          topologyId: $scope.topologyId
-        }, function(result) {
-          $scope.validTopologyDTO = result.data;
-        });
+      // validate the topology
+      // topologyServices.isValid({
+      //   topologyId: $scope.topologyId
+      // }, function(result) {
+      //   $scope.validTopologyDTO = $scope.isTopologyValid(); = result.data;
+      // });
 
-        // fetch the topology to display intput/output properties and matching data
-        topologyServices.dao.get({
-          topologyId: $scope.topologyId
-        }, function(result) {
-          $scope.topologyDTO = result.data;
-          // initialize compute and network icons from the actual tosca types (to match topology representation).
-          if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
-            UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-            $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
-          }
-          if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
-            UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-            $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
-          }
-          // process topology data
-          $scope.inputProperties = result.data.topology.inputProperties;
-          $scope.outputProperties = result.data.topology.outputProperties;
-          $scope.outputAttributes = result.data.topology.outputAttributes;
-          $scope.inputArtifacts = result.data.topology.inputArtifacts;
-          $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+      $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
+        $scope.validTopologyDTO = validTopologyResult.data;
+      });
 
-          if (angular.isDefined(result.data.topology.inputProperties)) {
-            $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
-          } else {
-            $scope.inputPropertiesSize = 0;
-          }
+      // fetch the topology to display intput/output properties and matching data
+      topologyServices.dao.get({
+        topologyId: $scope.topologyId
+      }, function(result) {
+        $scope.topologyDTO = result.data;
+        // initialize compute and network icons from the actual tosca types (to match topology representation).
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
+          $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
+        }
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
+          $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
+        }
+        // process topology data
+        $scope.inputProperties = result.data.topology.inputProperties;
+        $scope.outputProperties = result.data.topology.outputProperties;
+        $scope.outputAttributes = result.data.topology.outputAttributes;
+        $scope.inputArtifacts = result.data.topology.inputArtifacts;
+        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
 
-          if (angular.isDefined($scope.outputProperties)) {
-            $scope.outputNodes = Object.keys($scope.outputProperties);
-            $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-            refreshOutputProperties();
-          }
+        if (angular.isDefined(result.data.topology.inputProperties)) {
+          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
+        } else {
+          $scope.inputPropertiesSize = 0;
+        }
 
-          if (angular.isDefined($scope.outputAttributes)) {
-            $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
-            $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
-          }
+        if (angular.isDefined($scope.outputProperties)) {
+          $scope.outputNodes = Object.keys($scope.outputProperties);
+          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+          refreshOutputProperties();
+        }
 
-          if (angular.isDefined(result.data.topology.inputArtifacts)) {
-            $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
-          } else {
-            $scope.inputArtifactsSize = 0;
-          }
+        if (angular.isDefined($scope.outputAttributes)) {
+          $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
+          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
+        }
 
-          // when the selected environment is deployed => refresh output properties
-          if ($scope.selectedEnvironment.status === 'DEPLOYED') {
-            refreshInstancesStatuses();
-          }
+        if (angular.isDefined(result.data.topology.inputArtifacts)) {
+          $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
+        } else {
+          $scope.inputArtifactsSize = 0;
+        }
 
-        });
-      }
-      // set the topology id linked to the selected environment
+        // when the selected environment is deployed => refresh output properties
+        if ($scope.selectedEnvironment.status === 'DEPLOYED') {
+          refreshInstancesStatuses();
+        }
+
+      });
+    }
+
+    // set the topology id linked to the selected environment
     function setTopologyId() {
       applicationEnvironmentServices.getTopologyId({
         applicationId: $scope.application.id,
@@ -177,26 +182,27 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     // Change the selected environment (set only if required).
     var changeEnvironment = function(switchToEnvironment) {
-      var currentEnvironment = $scope.selectedEnvironment;
-      var newEnvironment = switchToEnvironment;
-      if (currentEnvironment.id !== newEnvironment.id) {
+      if (UTILS.isDefinedAndNotNull(switchToEnvironment) && switchToEnvironment.id !== $scope.selectedEnvironment.id) {
         setEnvironment(switchToEnvironment);
       }
     };
 
-    var changeCloud = function(selectedCloud) {
-      if (UTILS.isDefinedAndNotNull(selectedCloud)) {
+    var changeCloud = function(switchToCloud) {
+      if (UTILS.isDefinedAndNotNull(switchToCloud)) {
+        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id !== $scope.selectedCloud.id) {
+          return;
+        }
         $scope.selectedComputeTemplates = {};
         $scope.selectedNetworks = {};
         var updateAppEnvRequest = {};
-        updateAppEnvRequest.cloudId = selectedCloud.id;
+        updateAppEnvRequest.cloudId = switchToCloud.id;
         // update for the current environment
         applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, angular.toJson(updateAppEnvRequest), function success() {
-          $scope.selectedCloud = selectedCloud;
-          $scope.selectedEnvironment.cloudId = selectedCloud.id;
+          $scope.selectedCloud = switchToCloud;
+          $scope.selectedEnvironment.cloudId = switchToCloud.id;
           refreshDeploymentSetup();
         });
       }

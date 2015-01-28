@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory',
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory) {
+    environmentEventServicesFactory, topologyServices) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -24,8 +24,8 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     function updateRuntimeDisabled() {
       // get newest environments statuses
       var disabled = true;
-      for(var i=0; i < appEnvironments.environments.length && disabled; i++) {
-        if ( !(appEnvironments.environments[i].status === 'UNDEPLOYED' || appEnvironments.environments[i].status === 'UNKNOWN') ) {
+      for (var i = 0; i < appEnvironments.environments.length && disabled; i++) {
+        if (!(appEnvironments.environments[i].status === 'UNDEPLOYED' || appEnvironments.environments[i].status === 'UNKNOWN')) {
           disabled = false;
         }
       }
@@ -33,7 +33,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       runtimeMenuItem.disabled = disabled;
     }
 
-    var callback = function (environment, event) {
+    var callback = function(environment, event) {
       environment.status = event.deploymentStatus;
       updateRuntimeDisabled();
       // update the current scope and it's child scopes.
@@ -44,7 +44,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       var registration = environmentEventServicesFactory(application.id, environment, callback);
       appEnvironments.eventRegistrations.push(registration);
       var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
-      if(isManager || isEnvDeployer) {
+      if (isManager || isEnvDeployer) {
         appEnvironments.deployEnvironments.push(environment);
       }
       isDeployer = isDeployer || isEnvDeployer;
@@ -52,51 +52,53 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     appEnvironments.deployEnvironments = [];
     appEnvironments.eventRegistrations = [];
-    appEnvironments.removeEnvironment = function (environmentId) {
-      var envIndex = null, i;
-      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
-        if(appEnvironments.environments[i].id === environmentId) {
+    appEnvironments.removeEnvironment = function(environmentId) {
+      var envIndex = null,
+        i;
+      for (i = 0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if (appEnvironments.environments[i].id === environmentId) {
           envIndex = i;
         }
       }
-      if(envIndex!==null) {
+      if (envIndex !== null) {
         appEnvironments.environments.splice(envIndex, 1);
         appEnvironments.eventRegistrations.splice(envIndex, 1);
       }
       // eventually remove the environment from deployable environments
       envIndex = null;
-      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
-        if(appEnvironments.deployEnvironments[i].id === environmentId) {
+      for (i = 0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if (appEnvironments.deployEnvironments[i].id === environmentId) {
           envIndex = i;
         }
       }
-      if(envIndex!==null) {
+      if (envIndex !== null) {
         appEnvironments.deployEnvironments.splice(envIndex, 1);
       }
     };
-    appEnvironments.addEnvironment = function (environment) {
+    appEnvironments.addEnvironment = function(environment) {
       appEnvironments.environments.push(environment);
       registerEnvironment(environment);
       updateRuntimeDisabled();
     };
-    appEnvironments.updateEnvironment = function (environment) {
+
+    appEnvironments.updateEnvironment = function(environment) {
       // replace the environment with the one given as a parameter.
       var envIndex = null;
-      for(i=0; i < appEnvironments.environments.length && envIndex === null; i++) {
-        if(appEnvironments.environments[i].id === environment.id) {
+      for (i = 0; i < appEnvironments.environments.length && envIndex === null; i++) {
+        if (appEnvironments.environments[i].id === environment.id) {
           envIndex = i;
         }
       }
-      if(envIndex!==null) {
+      if (envIndex !== null) {
         appEnvironments.environments.splice(envIndex, 1, environment);
       }
       envIndex = null;
-      for(i=0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
-        if(appEnvironments.deployEnvironments[i].id === environment.id) {
+      for (i = 0; i < appEnvironments.deployEnvironments.length && envIndex === null; i++) {
+        if (appEnvironments.deployEnvironments[i].id === environment.id) {
           envIndex = i;
         }
       }
-      if(envIndex!==null) {
+      if (envIndex !== null) {
         console.log('update deploy environment');
         console.log('was ', appEnvironments.deployEnvironments[envIndex]);
         appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
@@ -105,12 +107,12 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     };
 
     // for every environement register for deployment status update for enrichment.
-    for(var i=0; i< appEnvironments.environments.length; i++) {
+    for (var i = 0; i < appEnvironments.environments.length; i++) {
       var environment = appEnvironments.environments[i];
       var registration = environmentEventServicesFactory(application.id, environment, callback);
       appEnvironments.eventRegistrations.push(registration);
       var isEnvDeployer = alienAuthService.hasResourceRole(environment, 'DEPLOYMENT_MANAGER');
-      if(isManager || isEnvDeployer) {
+      if (isManager || isEnvDeployer) {
         appEnvironments.deployEnvironments.push(environment);
       }
       isDeployer = isDeployer || isEnvDeployer;
@@ -121,7 +123,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     // Stop listening if deployment active exists
     $scope.$on('$destroy', function() {
-      for(var i=0; i < appEnvironments.eventRegistrations.length; i++) {
+      for (var i = 0; i < appEnvironments.eventRegistrations.length; i++) {
         appEnvironments.eventRegistrations[i].close();
       }
     });
@@ -131,6 +133,16 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $event.preventDefault();
         $event.stopPropagation();
       }
+    };
+
+    // verify the topology validity
+    $scope.isTopologyValid = function isTopologyValid(topologyId) {
+      // validate the topology
+      return topologyServices.isValid({
+        topologyId: topologyId
+      }, function(result) {
+        return result.data;
+      });
     };
 
     $scope.menu = [{

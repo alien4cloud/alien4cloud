@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
-  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application',
-  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult) {
+  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments',
+  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments) {
 
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
@@ -17,6 +17,10 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
     $scope.newAppName = $scope.application.name;
 
     $scope.isAllowedModify = UTILS.isDefinedAndNotNull($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
+
+    console.log('APP INFO > APPLICATIONS ENV DEPLOY >', appEnvironments.deployEnvironments);
+    console.log('APP INFO > APPLICATIONS ENV >', appEnvironments.environments);
+    $scope.envs = appEnvironments.deployEnvironments;
 
     // Upload handler
     $scope.doUpload = function(file) {
@@ -145,7 +149,8 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
       }, angular.toJson(applicationUpdateRequest), undefined).$promise.then(
         function() {
           // Success
-        }, function(errorResponse) {
+        },
+        function(errorResponse) {
           // Error
           return $translate('ERRORS.' + errorResponse.data.error.code);
         }

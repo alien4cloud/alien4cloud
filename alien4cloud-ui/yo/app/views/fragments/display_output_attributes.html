@@ -1,0 +1,22 @@
+<div class="row">
+
+  <tabset>
+    <!-- events -->
+    <tab ng-repeat="e in environments" id="env-tab-{{e.name}}" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'">
+      <tab-heading >
+        <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+          'fa-circle text-success' : e.status == 'DEPLOYED',
+          'fa-circle text-muted' : e.status == 'UNDEPLOYED',
+          'fa-warning text-warning' : e.status == 'WARNING',
+          'fa-circle text-danger' : e.status == 'FAILURE',
+          'fa-question-circle text-muted' : e.status == 'UNKNOWN',
+          'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
+        }"></i> {{e.name}}
+      </tab-heading>
+      <div>
+        Content :) {{e.id}}
+      </div>
+    </tab>
+  </tabset>
+
+</div>
