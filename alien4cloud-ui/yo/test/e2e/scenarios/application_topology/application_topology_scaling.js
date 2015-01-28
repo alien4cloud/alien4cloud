@@ -12,21 +12,41 @@ var computesNodeTemplates = {
     ubuntu: componentData.ubuntuTypes.ubuntu()
 };
 
-var scale = function(newValue) {
+
+var confirmAction = function(confirmPopup){
+  var confirmBtn = confirmPopup.element(by.css('.btn-success'));
+  confirmBtn.click();
+};
+
+var cancelAction = function(confirmPopup){
+  var cancelBtn = confirmPopup.element(by.css('.btn-danger'));
+  cancelBtn.click();
+};
+
+var scale = function(oldValue, newValue, cancel) {
   var scaleEditableInput = element(by.id('scaleEditableInput'));
   var scaleEditableButton = element(by.id('scaleEditableButton'));
   scaleEditableButton.click();
   var editForm = scaleEditableInput.element(by.tagName('form'));
   var editInput = editForm.element(by.tagName('input'));
+  var submitBtn = editForm.element(by.css('button.btn-primary'));
   editInput.clear();
   editInput.sendKeys(newValue);
   browser.waitForAngular();
-  editForm.submit();
+  submitBtn.click();
+  var valueToCheck ;
+  if(cancel){
+    valueToCheck = oldValue;
+    cancelAction(element(by.css('.popover')));
+  }else{
+    valueToCheck = newValue;
+    confirmAction(element(by.css('.popover')));
+  }
   browser.waitForAngular();
-  expect(scaleEditableInput.getText()).toContain(newValue);
+  expect(scaleEditableInput.getText()).toContain(valueToCheck);
 };
 
-var checkAndScale = function(nodeId, valueToCheck, newValue){
+var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
   var nodeToView = element(by.id(nodeId));
   nodeToView.click();
   element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
@@ -38,7 +58,7 @@ var checkAndScale = function(nodeId, valueToCheck, newValue){
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
       expect(states.length).toEqual(valueToCheck);
       if(newValue) {
-        scale(newValue);
+        scale(valueToCheck, newValue, cancel);
       }
     });
   });
@@ -55,8 +75,8 @@ describe('Topology scaling feature', function() {
     common.after();
   });
 
-  it('should be able to add scaling policy, deploy and scale a compute, and every node derived from it', function() {
-    console.log('################# should be able to add scaling policy, deploy and scale a compute, and every node derived from it');
+  it('should be able to add scaling policy, deploy and scale (with confirmation)  a compute, and every node derived from it', function() {
+    console.log('################# should be able to add scaling policy, deploy and scale (with confirmation) a compute, and every node derived from it');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
 
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
@@ -93,8 +113,14 @@ describe('Topology scaling feature', function() {
     checkAndScale('rect_Compute',2 , 1);
     browser.sleep(10000);
     checkAndScale('rect_Compute',1);
+    checkAndScale('rect_Compute',1, 2, true);
+    browser.sleep(10000);
+    checkAndScale('rect_Compute',1);
 
     checkAndScale('rect_Ubuntu', 3, 1);
+    browser.sleep(10000);
+    checkAndScale('rect_Ubuntu', 1);
+    checkAndScale('rect_Ubuntu', 1, 2, true);
     browser.sleep(10000);
     checkAndScale('rect_Ubuntu', 1);
   });

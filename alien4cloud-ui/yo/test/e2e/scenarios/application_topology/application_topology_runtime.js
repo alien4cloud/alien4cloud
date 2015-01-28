@@ -18,20 +18,6 @@ var operationNodeTemplates = {
   compute: componentData.toscaBaseTypes.compute()
 };
 
-var scale = function(newValue) {
-  var scaleEditableInput = element(by.id('scaleEditableInput'));
-  var scaleEditableButton = element(by.id('scaleEditableButton'));
-  scaleEditableButton.click();
-  var editForm = scaleEditableInput.element(by.tagName('form'));
-  var editInput = editForm.element(by.tagName('input'));
-  editInput.clear();
-  editInput.sendKeys(newValue);
-  browser.waitForAngular();
-  editForm.submit();
-  browser.waitForAngular();
-  expect(scaleEditableInput.getText()).toContain(newValue);
-};
-
 var goToAlienAppAndSelectApachelbOperations = function() {
 
   applications.goToApplicationDetailPage('Alien');
@@ -126,7 +112,6 @@ describe('Topology runtime view', function() {
       browser.actions().click(backButton).perform();
       element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
         expect(states.length).toEqual(2);
-        scale(1);
       });
     });
   });
