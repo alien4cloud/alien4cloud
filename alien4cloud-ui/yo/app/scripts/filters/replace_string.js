@@ -24,3 +24,27 @@ alienApp.filter('replaceAll', function() {
     return String(text).replace(re, replacementString);
   };
 });
+
+/**
+ * Filter that eventually add a prefix if the text is not blank.
+ */
+alienApp.filter('prefix', function() {
+  return function(text, prefixString) {
+    if (UTILS.isUndefinedOrNull(text) || text.length == 0) {
+      return '';
+    }
+    return prefixString + text;
+  };
+});
+
+/**
+ * Filter that eventually add a suffix if the text is not blank.
+ */
+alienApp.filter('suffix', function() {
+  return function(text, suffixString) {
+    if (UTILS.isUndefinedOrNull(text) || text.length == 0) {
+      return '';
+    }
+    return text + suffixString;
+  };
+});

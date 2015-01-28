@@ -32,6 +32,16 @@
     "target": "am.applications.detail.runtime",
     "placement": "right"
   }, {
+    "title": "Manage the different versions of your application",
+    "content": "This page allows you to manage all versions of your application.",
+    "target": "am.applications.detail.versions",
+    "placement": "right"
+  }, {
+    "title": "Manage the different environments of your application",
+    "content": "This page allows you to manage all environments of your application.",
+    "target": "am.applications.detail.environment",
+    "placement": "right"
+  }, {
     "title": "Manage application's rights",
     "content": "You will manage permissions for users and groups on your application.",
     "target": "am.applications.detail.users",

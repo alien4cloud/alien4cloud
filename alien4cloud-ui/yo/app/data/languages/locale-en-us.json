@@ -489,9 +489,8 @@
     "TEMPLATE": "Template",
     "TEMPLATE_DETAILS": "Details",
     "IMAGES": {
-      "NEW": "Add image",
+      "NEW": "New",
       "NEW_MODAL_TITLE": "Add image",
-      "TO_BE_ADDED_TITLE": "Selected images",
       "NO_SELECTED_IMAGES": "Click on an image to add"
     },
     "FLAVORS": {
