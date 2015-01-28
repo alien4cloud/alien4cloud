@@ -96,62 +96,136 @@
           </div>
         </div>
       </tab>
-      <tab heading="{{'CLOUDS.IMAGE' | translate}}" id="tab-clouds-image">
+      <tab heading="{{'CLOUDS.IMAGE' | translate}}" id="tab-clouds-image" select="initSearchImageService()" >
         <div class="row">
           <div class="col-md-12">
             <fieldset>
+              <!-- 
               <legend class="text-center">
                 <h4>
                   <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
                 </h4>
               </legend>
-              <div class="row" style="margin-top: 10px;">
-                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
-                  <div class="table-responsive large-data-container" id="cloud-images-table">
-                    <table class="table table-hover">
-                      <thead>
-                        <tr>
-                          <th></th>
-                          <th>{{ 'CLOUD_IMAGES.NAME' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</th>
-                          <th>{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr ng-repeat="cloudImageId in cloud.images" id='cloudImage_{{images[cloudImageId].id}}' style="height: 81px;">
-                          <td>
-                            <i ng-if="!images[cloudImageId].iconId" class="fa fa-image fa-3x"></i>
-                            <img ng-if="images[cloudImageId].iconId" ng-src="{{images[cloudImageId].iconId?('img?id=' + images[cloudImageId].iconId + '&quality=QUALITY_64'):null}}" />
-                          </td>
-                          <td>{{images[cloudImageId].name}}</td>
-                          <td>{{images[cloudImageId].osDistribution}}</td>
-                          <td>{{images[cloudImageId].osType}}</td>
-                          <td>{{images[cloudImageId].osVersion}}</td>
-                          <td>{{images[cloudImageId].osArch}}</td>
-                          <td>{{images[cloudImageId].requirement.numCPUs || '---'}}</td>
-                          <td>{{(images[cloudImageId].requirement.diskSize | bytes) || '---'}}</td>
-                          <td>{{(images[cloudImageId].requirement.memSize | bytes) || '---'}}</td>
-                          <td>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteCloudImage(images[cloudImageId].id)"><i class="fa fa-trash-o"></i>
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+              -->
+              
+              <div class="row">
+                <div class="col-md-6" id="imagesAdded">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      {{'CLOUDS.IMAGES.TO_BE_ADDED_TITLE' | translate}}
+                    </div>
+                    <div class="panel-body">
+                      <div>
+                        <ul ng-if="cloud.images.length > 0" class="list-group">
+                          <li class="list-group-item clickable-media {{isInCloudImageRemoveSelection(cloudImageId) ? 'application-deployment-flavor-selected' : ''}}" ng-repeat="cloudImageId in cloud.images" id='cloudImage_{{images[cloudImageId].id}}'>
+                            <div class="media" id="li_{{images[cloudImageId].name}}" ng-click="switchCloudImageRemoveSelection(images[cloudImageId].id)">
+                              <div class="media-body">
+                                <h4 class="media-heading">
+                                  <div class="row">
+                                    <div class="col-md-2">
+                                      <i ng-if="!images[cloudImageId].iconId" class="fa fa-image fa-3x"></i>
+                                      <img ng-if="images[cloudImageId].iconId" ng-src="{{images[cloudImageId].iconId?('img?id=' + images[cloudImageId].iconId + '&quality=QUALITY_64'):null}}" />
+                                    </div>
+                                    <div class="col-md-7">
+                                      <span>{{images[cloudImageId].name}}</span>
+                                      <span class="small">{{images[cloudImageId].osArch}}</span>
+                                      <p class="small" style="margin-top: 10px;">{{images[cloudImageId].requirement.numCPUs | prefix:' cpu:' | suffix:' / '}}
+                                      {{images[cloudImageId].requirement.diskSize | bytes | prefix:' disk:' | suffix:' / '}}
+                                      {{images[cloudImageId].requirement.memSize | bytes | prefix:' mem:'}}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                      <div ng-switch="images[cloudImageId].osType" class="text-right">
+                                        <i ng-switch-when="linux" class="fa fa-linux" />
+                                        <i ng-switch-when="windows" class="fa fa-windows" /> 
+                                        <i ng-switch-when="mac os" class="fa fa-apple" /> 
+                                        <i ng-switch-default >{{images[cloudImageId].osType}}</i>  
+                                      </div>
+                                      <p class="small text-right" style="margin-top: 10px;">{{images[cloudImageId].osDistribution}} {{images[cloudImageId].osVersion}}</p>
+                                    </div>
+                                  </div>
+                                </h4>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                        <span class="images-not-selected" ng-if="cloud.images.length === 0">{{'CLOUDS.IMAGES.NO_SELECTED_IMAGES' | translate}}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-2">
-                  <button id="clouds-image-add-button" class="btn btn-success btn-sm pull-right" ng-click="openAddCloudImageModal()">
+                <div class="col-md-1">
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block" 
+                     ng-click="performAddCloudImageSelection();">
+                    <i class="fa fa-angle-double-left"></i>
+                  </a>                        
+                  <br/>
+                  <a id="btn-remove-cloud-image" class="btn {{(imageRemoveSelection.length > 0) ? 'btn-success' : 'btn-default'}}  btn-sm center-block" 
+                     ng-click="performRemoveCloudImageSelection();">
+                    <i class="fa fa-angle-double-right"></i>
+                  </a>
+                  <br/>
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block" 
+                     ng-click="createCloudImage();">
                     <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-                  </button>
+                  </a>                     
                 </div>
-              </div>
+                <div class="col-md-5" id="imagesToAdd">
+                  <div class="well">
+                    <div class="row" style="margin-bottom: 10px;">
+                      <div class="col-md-12">
+                        <form role="search" ng-submit="searchImage()">
+                          <div class="input-group">
+                            <input type="text" class="form-control" placeholder="..." ng-model="searchImageQuery" ng-change="imageQueryChanged(searchImageQuery)">
+                            <span class="input-group-btn">
+                              <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+                                <i class="fa fa-search"></i>
+                              </button>
+                            </span>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <ul class="list-group">
+                          <li class="list-group-item clickable-media {{isInCloudImageAddSelection(cloudImage.id) ? 'application-deployment-flavor-selected' : ''}}" ng-repeat="cloudImage in searchImageData.data">
+                            <div class="media" id="li_{{cloudImage.name}}" ng-click="switchCloudImageAddSelection(cloudImage.id)">
+                              <div class="media-body">
+                                <h4 class="media-heading">
+                                  <div class="row">
+                                    <div class="col-md-2">
+                                      <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                                      <img ng-if="cloudImage.iconId" ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+                                    </div>
+                                    <div class="col-md-7">
+                                      <span>{{cloudImage.name}}</span>
+                                      <span class="small">{{cloudImage.osArch}}</span>
+                                      <p class="small" style="margin-top: 10px;">{{cloudImage.requirement.numCPUs | prefix:' cpu:' | suffix:' / '}}
+                                      {{cloudImage.requirement.diskSize | bytes | prefix:' disk:' | suffix:' / '}}
+                                      {{cloudImage.requirement.memSize | bytes | prefix:' mem:'}}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                      <div ng-switch="cloudImage.osType" class="text-right">
+                                        <i ng-switch-when="linux" class="fa fa-linux" />
+                                        <i ng-switch-when="windows" class="fa fa-windows" /> 
+                                        <i ng-switch-when="mac os" class="fa fa-apple" /> 
+                                        <i ng-switch-default >{{cloudImage.osType}}</i>  
+                                      </div>
+                                      <p class="small text-right" style="margin-top: 10px;">{{cloudImage.osDistribution}} {{cloudImage.osVersion}}</p>
+                                    </div>
+                                  </div>
+                                </h4>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                        <!-- pagination bar -->
+                        <pagination-directive pagination-info="searchImageService.pagination" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>              
             </fieldset>
           </div>
         </div>

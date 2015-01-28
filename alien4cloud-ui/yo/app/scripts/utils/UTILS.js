@@ -45,6 +45,10 @@ UTILS.arrayContains = function(array, val) {
   return (UTILS.isDefinedAndNotNull(array) && array.indexOf(val) >= 0);
 };
 
+UTILS.arrayRemove = function(array, val) {
+  array.splice(array.indexOf(val), 1);
+};
+
 UTILS.isNotEmpty = function(array) {
   return (UTILS.isDefinedAndNotNull(array) && array.length > 0);
 };
