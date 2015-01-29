@@ -14,7 +14,7 @@
       multiple>
   </div>
   <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
-    <alert type="{{uploadInfo.infoType}}" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
+    <alert type="uploadInfo.infoType" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
       <div class="col-md-5 upload-file-infos">
         <div class=" show-error-link col-md-2"
            ng-click="uploadInfo.isErrorBlocCollapsed = !uploadInfo.isErrorBlocCollapsed"
