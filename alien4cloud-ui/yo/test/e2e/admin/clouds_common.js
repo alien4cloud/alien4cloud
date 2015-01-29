@@ -232,9 +232,9 @@ var selectAllImageOfCloud = function() {
     for (var int = 0; int < nb; int++) {
       browser.actions().click(element.all(by.repeater('cloudImage in searchImageData.data')).first().element(by.css('div[ng-click^="switchCloudImageAddSelection"]'))).perform();
       browser.element(by.id('btn-add-cloud-image')).click();
+      browser.waitForAngular();
     }
   });
-  browser.waitForAngular();
 };
 module.exports.selectAllImageOfCloud = selectAllImageOfCloud;
 
