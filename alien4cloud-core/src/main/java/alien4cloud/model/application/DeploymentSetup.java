@@ -2,6 +2,7 @@ package alien4cloud.model.application;
 
 import java.util.Map;
 
+import alien4cloud.model.cloud.NetworkTemplate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,8 @@ import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
+
+import alien4cloud.model.cloud.ComputeTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -33,9 +36,7 @@ public class DeploymentSetup {
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;
 
-    private Map<String, String> imageMapping;
+    private Map<String, ComputeTemplate> cloudResourcesMapping;
 
-    private Map<String, String> flavorMapping;
-
-    private Map<String, String> networkMapping;
+    private Map<String, NetworkTemplate> networkMapping;
 }

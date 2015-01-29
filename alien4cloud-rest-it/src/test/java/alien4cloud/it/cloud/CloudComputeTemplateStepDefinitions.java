@@ -13,7 +13,6 @@ import alien4cloud.it.Context;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.MatchedComputeTemplate;
 import alien4cloud.rest.cloud.CloudComputeResourcesDTO;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.utils.JsonUtil;
@@ -159,24 +158,24 @@ public class CloudComputeTemplateStepDefinitions {
                         Lists.<NameValuePair> newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
     }
 
-    @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
-    public void The_cloud_should_have_resources_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
-        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedComputeTemplates());
-        Set<MatchedComputeTemplate> actualMatchedComputeTemplates = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig()
-                .getMatchedComputeTemplates());
-        Set<MatchedComputeTemplate> expectedMatchedComputeTemplates = Sets.newHashSet();
-        for (List<String> rows : expectedMappings.raw()) {
-            String cloudImageId = Context.getInstance().getCloudImageId(rows.get(0));
-            String cloudImageFlavorId = rows.get(1);
-            String pasSResourceId = rows.get(2);
-            expectedMatchedComputeTemplates.add(new MatchedComputeTemplate(new ComputeTemplate(cloudImageId, cloudImageFlavorId), pasSResourceId));
-        }
-        Assert.assertEquals(expectedMatchedComputeTemplates, actualMatchedComputeTemplates);
-    }
+//    @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
+//    public void The_cloud_should_have_resources_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
+//        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedComputeTemplates());
+//        Set<MatchedComputeTemplate> actualMatchedComputeTemplates = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig()
+//                .getMatchedComputeTemplates());
+//        Set<MatchedComputeTemplate> expectedMatchedComputeTemplates = Sets.newHashSet();
+//        for (List<String> rows : expectedMappings.raw()) {
+//            String cloudImageId = Context.getInstance().getCloudImageId(rows.get(0));
+//            String cloudImageFlavorId = rows.get(1);
+//            String pasSResourceId = rows.get(2);
+//            expectedMatchedComputeTemplates.add(new MatchedComputeTemplate(new ComputeTemplate(cloudImageId, cloudImageFlavorId), pasSResourceId));
+//        }
+//        Assert.assertEquals(expectedMatchedComputeTemplates, actualMatchedComputeTemplates);
+//    }
 
     @When("^I delete the mapping for the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
     public void I_delete_the_mapping_for_the_template_composed_of_image_and_flavor_of_the_cloud(String cloudImageName, String flavorId, String cloudName)

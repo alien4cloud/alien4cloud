@@ -7,7 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
-import alien4cloud.model.cloud.MatchedComputeTemplate;
+import alien4cloud.model.cloud.MatchedCloudImage;
+import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -25,7 +26,9 @@ public class CloudComputeResourcesDTO {
     private Collection<ActivableComputeTemplate> computeTemplates;
 
     /**
-     * The matching configuration
+     * The matching configuration for image and flavor
      */
-    private Collection<MatchedComputeTemplate> matchedComputeTemplates;
+    private Collection<MatchedCloudImage> matchedCloudImages;
+
+    private Collection<MatchedCloudImageFlavor> matchedCloudImageFlavors;
 }

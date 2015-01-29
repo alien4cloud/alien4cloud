@@ -102,4 +102,6 @@ public class Cloud implements ISecuredResource {
     private Set<NetworkTemplate> networks = Sets.newLinkedHashSet();
 
     private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
+
+    private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
 }

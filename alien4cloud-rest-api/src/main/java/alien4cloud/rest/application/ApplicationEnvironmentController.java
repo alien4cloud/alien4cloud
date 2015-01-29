@@ -145,7 +145,7 @@ public class ApplicationEnvironmentController {
             + "By default the application environment creator will have application roles [ APPLICATION_MANAGER, DEPLOYMENT_MANAGER ]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) {
+    public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) throws CloudDisabledException {
 
         // User should be APPLICATIONS_MANAGER to create an application
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
@@ -185,7 +185,7 @@ public class ApplicationEnvironmentController {
     @ApiOperation(value = "Updates by merging the given request into the given application environment", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> update(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-            @RequestBody UpdateApplicationEnvironmentRequest request) {
+            @RequestBody UpdateApplicationEnvironmentRequest request) throws CloudDisabledException {
 
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
         // Deployment manager can update a environment

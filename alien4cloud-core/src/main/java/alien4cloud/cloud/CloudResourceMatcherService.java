@@ -14,11 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
+import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.IndexedNodeType;
@@ -42,6 +44,9 @@ public class CloudResourceMatcherService {
 
     @Resource
     private CloudImageService cloudImageService;
+
+    @Resource
+    private CloudService cloudService;
 
     @Getter
     @Setter
@@ -92,19 +97,19 @@ public class CloudResourceMatcherService {
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud, IPaaSProvider paaSProvider,
             CloudResourceMatcherConfig cloudResourceMatcherConfig, Map<String, IndexedNodeType> types) {
         MatchableTemplates matchableNodes = getMatchableTemplates(topology, types);
-        Map<String, List<CloudImage>> imageMatchResult = Maps.newHashMap();
-        Map<String, Map<String, List<CloudImageFlavor>>> flavorMatchResult = Maps.newHashMap();
+        Map<String, List<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
         Map<String, List<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
         Map<String, List<StorageTemplate>> storageMatchResult = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> computeTemplateEntry : matchableNodes.computeTemplates.entrySet()) {
             List<CloudImage> eligibleImages = matchImages(cloud, cloudResourceMatcherConfig, computeTemplateEntry.getValue());
-            imageMatchResult.put(computeTemplateEntry.getKey(), eligibleImages);
-            Map<String, List<CloudImageFlavor>> eligibleFlavors = Maps.newHashMap();
             for (CloudImage eligibleImage : eligibleImages) {
                 List<CloudImageFlavor> flavors = matchFlavors(cloud, cloudResourceMatcherConfig, paaSProvider, computeTemplateEntry.getValue(), eligibleImage);
-                eligibleFlavors.put(eligibleImage.getId(), flavors);
+                List<ComputeTemplate> eligibleTemplates = Lists.newArrayList();
+                for (CloudImageFlavor flavor : flavors) {
+                    eligibleTemplates.add(new ComputeTemplate(eligibleImage.getId(), flavor.getId()));
+                }
+                templateMatchResult.put(computeTemplateEntry.getKey(), eligibleTemplates);
             }
-            flavorMatchResult.put(computeTemplateEntry.getKey(), eligibleFlavors);
         }
         for (Map.Entry<String, NodeTemplate> networkTemplateEntry : matchableNodes.networkTemplates.entrySet()) {
             networkMatchResult.put(networkTemplateEntry.getKey(), matchNetworks(cloud, cloudResourceMatcherConfig, networkTemplateEntry.getValue()));
@@ -112,7 +117,7 @@ public class CloudResourceMatcherService {
         for (Map.Entry<String, NodeTemplate> storageTemplateEntry : matchableNodes.storageTemplates.entrySet()) {
             storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, cloudResourceMatcherConfig, storageTemplateEntry.getValue()));
         }
-        return new CloudResourceTopologyMatchResult(imageMatchResult, flavorMatchResult, storageMatchResult, networkMatchResult);
+        return new CloudResourceTopologyMatchResult(templateMatchResult, storageMatchResult, networkMatchResult);
     }
 
     public List<NetworkTemplate> matchNetworks(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
@@ -192,7 +197,15 @@ public class CloudResourceMatcherService {
                     new VersionValueParser(), new GreaterOrEqualValueMatcher())) {
                 continue;
             }
-            matchedImages.add(cloudImage);
+            List<ActivableComputeTemplate> computeTemplates = cloudService.findComputeTemplates(cloud, cloudImage.getId(), null);
+            if (!computeTemplates.isEmpty()) {
+                for (ActivableComputeTemplate computeTemplate : computeTemplates) {
+                    if (computeTemplate.isEnabled()) {
+                        matchedImages.add(cloudImage);
+                        break;
+                    }
+                }
+            }
         }
 
         Collections.sort(matchedImages, new Comparator<CloudImage>() {
@@ -246,7 +259,10 @@ public class CloudResourceMatcherService {
                     new GreaterOrEqualValueMatcher<Long>())) {
                 continue;
             }
-            matchedFlavors.add(flavor);
+            List<ActivableComputeTemplate> computeTemplates = cloudService.findComputeTemplates(cloud, cloudImage.getId(), flavor.getId());
+            if (!computeTemplates.isEmpty() && computeTemplates.iterator().next().isEnabled()) {
+                matchedFlavors.add(flavor);
+            }
         }
         Collections.sort(matchedFlavors);
         return matchedFlavors;
