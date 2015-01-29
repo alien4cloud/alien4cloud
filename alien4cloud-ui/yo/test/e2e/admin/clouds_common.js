@@ -234,7 +234,6 @@ var selectAllImageOfCloud = function() {
       browser.element(by.id('btn-add-cloud-image')).click();
     }
   });
-  browser.element(by.id('btn-add-cloud-image')).click();
   browser.waitForAngular();
 };
 module.exports.selectAllImageOfCloud = selectAllImageOfCloud;
