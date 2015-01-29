@@ -70,16 +70,17 @@ node_types:
           - greater_than: 0
       os_arch:
         type: string
-        required: true
       os_type:
         type: string
-        required: true
       os_distribution:
         type: string
+        required: false
       os_version:
         type: string
+        required: false
       ip_address:
         type: string
+        required: false
     attributes:
       public_ip_address:
         type: string
