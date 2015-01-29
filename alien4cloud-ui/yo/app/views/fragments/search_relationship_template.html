@@ -73,7 +73,7 @@
                       <i class="fa fa-archive"></i> {{component.archiveName}}
                     </span>
                     <div class="btn-group btn-group-xs">
-                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id = "{{component.id}}_versions">
+                      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
                         {{component.selectedVersion || component.archiveVersion}}
                         <span class="caret"></span>
                       </button>
@@ -101,10 +101,11 @@
     <!-- pagination bar -->
     <div class="pagination-div" ng-show="searchResult.data.data">
       <pagination class="pagination-sm" total-items="pagination.totalItems"
-                  ng-model="currentPage" max-size="pagination.maxSize"
+                  page="currentPage" max-size="pagination.maxSize"
                   items-per-page="pagination.maxItemsPerPage" boundary-links="true"
                   rotate="false" num-pages="numPages"
-                  ng-change="pagination.onSelectPage(page)"> </pagination>
+                  on-select-page="pagination.onSelectPage(page)">
+      </pagination>
     </div>
   </div>
 </div>

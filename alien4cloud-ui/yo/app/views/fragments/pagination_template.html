@@ -2,10 +2,10 @@
 <div ng-show="paginationInfo.totalItems > paginationInfo.maxSearchSize" class="pagination-div">
   <pagination class="pagination-sm"
     total-items="paginationInfo.totalItems"
-    ng-model="paginationInfo.currentPage"
+    page="paginationInfo.currentPage"
     max-size="paginationInfo.maxPageNumbers"
     items-per-page="paginationInfo.maxSearchSize"
     boundary-links="true" rotate="false" num-pages="numPages"
-    ng-change="paginationInfo.selectPage(paginationInfo.currentPage)" >
+    on-select-page="paginationInfo.selectPage(page)">
   </pagination>
 </div>
