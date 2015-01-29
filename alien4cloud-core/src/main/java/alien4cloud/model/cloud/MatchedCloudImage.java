@@ -1,9 +1,9 @@
 package alien4cloud.model.cloud;
 
-public class MatchedCloudImage extends AbstractMatchedResource<CloudImage> {
+public class MatchedCloudImage extends AbstractMatchedResource<String> {
 
-    public MatchedCloudImage(CloudImage resource, String paaSResourceId) {
-        super(resource, paaSResourceId);
+    public MatchedCloudImage(String imageId, String paaSResourceId) {
+        super(imageId, paaSResourceId);
     }
 
     public MatchedCloudImage() {

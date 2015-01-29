@@ -21,6 +21,6 @@ public class ComputeTemplate implements ICloudResourceTemplate {
 
     @Override
     public String getId() {
-        return cloudImageId + cloudImageFlavorId;
+        return cloudImageId + "_" + cloudImageFlavorId;
     }
 }
