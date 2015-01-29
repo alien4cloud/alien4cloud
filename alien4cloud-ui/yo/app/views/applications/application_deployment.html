@@ -331,7 +331,7 @@
                 <li ng-if="outputAttributesSize > 0">
                   <strong>{{ 'attributes' | translate }}</strong>
                   <ul>
-                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
+                    <li ng-repeat="(instanceId, instanceProperties) in finalOutputAttributesValue[nodeId]">
                       {{'INSTANCE' | translate}} {{instanceId}}
                       <ul>
                         <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">

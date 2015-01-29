@@ -2,13 +2,14 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
-  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments',
-  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments) {
+  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments', 'applicationEventServicesFactory',
+  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments, applicationEventServicesFactory) {
 
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
     $scope.application = applicationResult.data;
     $scope.applicationId = $scope.application.id;
+    var pageStateId = $state.current.name;
 
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -18,9 +19,55 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     $scope.isAllowedModify = UTILS.isDefinedAndNotNull($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
 
-    console.log('APP INFO > APPLICATIONS ENV DEPLOY >', appEnvironments.deployEnvironments);
-    console.log('APP INFO > APPLICATIONS ENV >', appEnvironments.environments);
+    // console.log('APP INFO > APPLICATIONS ENV DEPLOY >', appEnvironments.deployEnvironments);
+    // console.log('APP INFO > APPLICATIONS ENV >', appEnvironments.environments);
     $scope.envs = appEnvironments.deployEnvironments;
+
+    $scope.finalOutputAttributesValue = $scope.outputAttributesValue;
+    $scope.selectTab = function selectTab(applicationId, environmentId) {
+      // get the topology id
+      $scope.setTopologyId(applicationId, environmentId, null).$promise.then(function(result) {
+        console.log('SET TOPO >', result);
+        // get informations from this topology
+        console.log('SELECT TAB TOPOLOGY ID >', result, applicationId, environmentId);
+        // $scope.processTopologyInformations(result.data, null);
+        // $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
+        // $scope.applicationEventServices.start();
+        $scope.refreshInstancesStatuses(applicationId, environmentId, pageStateId);
+
+        // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+        // environementEventId = $scope.selectedEnvironment.id;
+        // $scope.applicationEventServices.start();
+        // $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
+
+      });
+    };
+
+
+    $scope.$watch(function(scope) {
+      console.log('INFO WATCH', scope);
+      // if (UTILS.isDefinedAndNotNull(scope.selectedEnvironment)) {
+      //   return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
+      // }
+      return 'UNDEPLOYED';
+    }, function(newValue, oldValue) {
+      console.log('Watch triggered > New Value > ', newValue, 'oldValue >', oldValue);
+      // var undeployedValue = $scope.selectedEnvironment.id + '__UNDEPLOYED';
+      // // no registration for this environement -> register if not undeployed!
+      // if (newValue === undeployedValue) {
+      //   // if status the application is not undeployed we should register for events.
+      //   stopEvent();
+      // } else {
+      //   stopEvent();
+      //   // applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+      //   environementEventId = $scope.selectedEnvironment.id;
+      //   // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+      //   // $scope.applicationEventServices.start();
+      //   $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
+      // }
+    });
+
+
 
     // Upload handler
     $scope.doUpload = function(file) {

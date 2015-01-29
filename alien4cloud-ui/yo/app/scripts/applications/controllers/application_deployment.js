@@ -9,6 +9,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
     var Cloud = $resource('rest/clouds/search', {}, {});
 
+    // Initialization
+    $scope.application = applicationResult.data;
+    $scope.envs = appEnvironments.deployEnvironments;
+    setEnvironment($scope.envs[0]);
+
     function initializeCloudList() {
       Cloud.get({
         enabledOnly: true
@@ -78,81 +83,36 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Retrieval and validation of the topology associated with the deployment.
     function checkTopology() {
 
-      // validate the topology
-      // topologyServices.isValid({
-      //   topologyId: $scope.topologyId
-      // }, function(result) {
-      //   $scope.validTopologyDTO = $scope.isTopologyValid(); = result.data;
-      // });
-
       $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
         $scope.validTopologyDTO = validTopologyResult.data;
       });
 
-      // fetch the topology to display intput/output properties and matching data
-      topologyServices.dao.get({
-        topologyId: $scope.topologyId
-      }, function(result) {
-        $scope.topologyDTO = result.data;
-        // initialize compute and network icons from the actual tosca types (to match topology representation).
-        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
-          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-          $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
-        }
-        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
-          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-          $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
-        }
-        // process topology data
-        $scope.inputProperties = result.data.topology.inputProperties;
-        $scope.outputProperties = result.data.topology.outputProperties;
-        $scope.outputAttributes = result.data.topology.outputAttributes;
-        $scope.inputArtifacts = result.data.topology.inputArtifacts;
-        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+      var processTopologyInfoResult = $scope.processTopologyInformations($scope.topologyId, refreshOutputProperties);
 
-        if (angular.isDefined(result.data.topology.inputProperties)) {
-          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
-        } else {
-          $scope.inputPropertiesSize = 0;
-        }
-
-        if (angular.isDefined($scope.outputProperties)) {
-          $scope.outputNodes = Object.keys($scope.outputProperties);
-          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-          refreshOutputProperties();
-        }
-
-        if (angular.isDefined($scope.outputAttributes)) {
-          $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
-          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
-        }
-
-        if (angular.isDefined(result.data.topology.inputArtifacts)) {
-          $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
-        } else {
-          $scope.inputArtifactsSize = 0;
-        }
-
-        // when the selected environment is deployed => refresh output properties
+      // when the selected environment is deployed => refresh output properties
+      processTopologyInfoResult.$promise.then(function() {
         if ($scope.selectedEnvironment.status === 'DEPLOYED') {
-          refreshInstancesStatuses();
-        }
-
-      });
-    }
-
-    // set the topology id linked to the selected environment
-    function setTopologyId() {
-      applicationEnvironmentServices.getTopologyId({
-        applicationId: $scope.application.id,
-        applicationEnvironmentId: $scope.selectedEnvironment.id
-      }, undefined, function(response) {
-        $scope.topologyId = response.data;
-        if (UTILS.isDefinedAndNotNull($scope.topologyId)) {
-          checkTopology();
+          $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
         }
       });
+
     }
+
+    // // set the topology id linked to the selected environment
+    // function setTopologyId() {
+    //   applicationEnvironmentServices.getTopologyId({
+    //     applicationId: $scope.application.id,
+    //     applicationEnvironmentId: $scope.selectedEnvironment.id
+    //   }, undefined, function(response) {
+    //     $scope.topologyId = response.data;
+    //     if (UTILS.isDefinedAndNotNull($scope.topologyId)) {
+    //       checkTopology();
+    //     }
+    //   });
+    // }
+
+    // $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology);
+
 
     // update the deployment configuration for the given environment.
     function refreshDeploymentSetup() {
@@ -176,7 +136,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
       $scope.selectedEnvironment = environment;
-      setTopologyId();
+      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology);
       refreshDeploymentSetup();
     }
 
@@ -213,11 +173,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // update the targeted cloud for the environment
     $scope.changeCloud = changeCloud;
 
-    // Initialization
-    $scope.application = applicationResult.data;
-    $scope.envs = appEnvironments.deployEnvironments;
-    setEnvironment($scope.envs[0]);
-
     // Application rights
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDevops = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
@@ -225,10 +180,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'DEPLOYMENT_MANAGER');
     $scope.isUser = alienAuthService.hasResourceRole($scope.selectedEnvironment, 'APPLICATION_USER');
 
-    $scope.outputAttributesValue = {};
-    $scope.outputPropertiesValue = {};
+    $scope.finalOutputAttributesValue = $scope.outputAttributesValue;
     $scope.validTopologyDTO = false;
-
 
     $scope.setCurrentMatchedComputeTemplates = function(name, currentMatchedComputeTemplates) {
       $scope.currentComputeNodeTemplateId = name;
@@ -297,95 +250,97 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
 
-    var applicationEventServices = null;
+    // var applicationEventServices = null;
     var environementEventId = null;
 
     function stopEvent() {
       $scope.outputAttributesValue = {};
-      if (applicationEventServices !== null) {
-        applicationEventServices.stop();
-        applicationEventServices = null;
+      if ($scope.applicationEventServices !== null) {
+        $scope.applicationEventServices.stop();
+        $scope.applicationEventServices = null;
         environementEventId = null;
       }
     }
 
-    var isOutput = function(nodeId, propertyName, type) {
-      if (UTILS.isUndefinedOrNull($scope[type])) {
-        return false;
-      }
-      if (!$scope[type].hasOwnProperty(nodeId)) {
-        return false;
-      }
-      return $scope[type][nodeId].indexOf(propertyName) >= 0;
-    };
+    // var isOutput = function(nodeId, propertyName, type) {
+    //   if (UTILS.isUndefinedOrNull($scope[type])) {
+    //     return false;
+    //   }
+    //   if (!$scope[type].hasOwnProperty(nodeId)) {
+    //     return false;
+    //   }
+    //   return $scope[type][nodeId].indexOf(propertyName) >= 0;
+    // };
+    //
+    // var onInstanceStateChange = function(type, event) {
+    //   if (UTILS.isUndefinedOrNull(event.instanceState)) {
+    //     // Delete event
+    //     if (UTILS.isDefinedAndNotNull($scope.outputAttributesValue[event.nodeTemplateId])) {
+    //       delete $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId];
+    //       if (Object.keys($scope.outputAttributesValue[event.nodeTemplateId]).length === 0) {
+    //         delete $scope.outputAttributesValue[event.nodeTemplateId];
+    //       }
+    //     }
+    //   } else {
+    //     // Add modify event
+    //     var allAttributes = event.attributes;
+    //     for (var attribute in allAttributes) {
+    //       if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
+    //         if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
+    //           $scope.outputAttributesValue[event.nodeTemplateId] = {};
+    //         }
+    //         if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId][event.instanceId])) {
+    //           $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId] = {};
+    //         }
+    //         $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId][attribute] = allAttributes[attribute];
+    //       }
+    //     }
+    //   }
+    //   $scope.$apply();
+    // };
 
-    var onInstanceStateChange = function(type, event) {
-      if (UTILS.isUndefinedOrNull(event.instanceState)) {
-        // Delete event
-        if (UTILS.isDefinedAndNotNull($scope.outputAttributesValue[event.nodeTemplateId])) {
-          delete $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId];
-          if (Object.keys($scope.outputAttributesValue[event.nodeTemplateId]).length === 0) {
-            delete $scope.outputAttributesValue[event.nodeTemplateId];
-          }
-        }
-      } else {
-        // Add modify event
-        var allAttributes = event.attributes;
-        for (var attribute in allAttributes) {
-          if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
-            if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
-              $scope.outputAttributesValue[event.nodeTemplateId] = {};
-            }
-            if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId][event.instanceId])) {
-              $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId] = {};
-            }
-            $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId][attribute] = allAttributes[attribute];
-          }
-        }
-      }
-      $scope.$apply();
-    };
+    // function doSubscribe(appRuntimeInformation)  {
+    //   console.log('DO SUBSCRIBE');
+    //   applicationEventServices.subscribeToInstanceStateChange(pageStateId, onInstanceStateChange);
+    //   if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
+    //     for (var nodeId in appRuntimeInformation) {
+    //       if (appRuntimeInformation.hasOwnProperty(nodeId)) {
+    //         $scope.outputAttributesValue[nodeId] = {};
+    //         var nodeInformation = appRuntimeInformation[nodeId];
+    //         for (var instanceId in nodeInformation) {
+    //           if (nodeInformation.hasOwnProperty(instanceId)) {
+    //             $scope.outputAttributesValue[nodeId][instanceId] = {};
+    //             var allAttributes = nodeInformation[instanceId].attributes;
+    //             for (var attribute in allAttributes) {
+    //               if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
+    //                 $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
+    //               }
+    //             }
+    //             if (Object.keys($scope.outputAttributesValue[nodeId][instanceId]).length === 0) {
+    //               delete $scope.outputAttributesValue[nodeId][instanceId];
+    //             }
+    //           }
+    //         }
+    //         var nbOfInstances = Object.keys($scope.outputAttributesValue[nodeId]).length;
+    //         if (nbOfInstances === 0) {
+    //           delete $scope.outputAttributesValue[nodeId];
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-    function doSubscribe(appRuntimeInformation)  {
-      applicationEventServices.subscribeToInstanceStateChange(pageStateId, onInstanceStateChange);
-      if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
-        for (var nodeId in appRuntimeInformation) {
-          if (appRuntimeInformation.hasOwnProperty(nodeId)) {
-            $scope.outputAttributesValue[nodeId] = {};
-            var nodeInformation = appRuntimeInformation[nodeId];
-            for (var instanceId in nodeInformation) {
-              if (nodeInformation.hasOwnProperty(instanceId)) {
-                $scope.outputAttributesValue[nodeId][instanceId] = {};
-                var allAttributes = nodeInformation[instanceId].attributes;
-                for (var attribute in allAttributes) {
-                  if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
-                    $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
-                  }
-                }
-                if (Object.keys($scope.outputAttributesValue[nodeId][instanceId]).length === 0) {
-                  delete $scope.outputAttributesValue[nodeId][instanceId];
-                }
-              }
-            }
-            var nbOfInstances = Object.keys($scope.outputAttributesValue[nodeId]).length;
-            if (nbOfInstances === 0) {
-              delete $scope.outputAttributesValue[nodeId];
-            }
-          }
-        }
-      }
-    }
-
-    function refreshInstancesStatuses() {
-      if ($scope.outputAttributesSize > 0) {
-        applicationServices.runtime.get({
-          applicationId: $scope.application.id,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, function(successResult) {
-          doSubscribe(successResult.data);
-        });
-      }
-    }
+    // function refreshInstancesStatuses() {
+    //   console.log('refreshInstancesStatuses >', $scope.outputAttributesSize);
+    //   if ($scope.outputAttributesSize > 0) {
+    //     applicationServices.runtime.get({
+    //       applicationId: $scope.application.id,
+    //       applicationEnvironmentId: $scope.selectedEnvironment.id
+    //     }, function(successResult) {
+    //       doSubscribe(successResult.data);
+    //     });
+    //   }
+    // }
 
     // if the status or the environment changes we must update the event registration.
     $scope.$watch(function(scope) {
@@ -393,7 +348,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
       }
       return 'UNDEPLOYED';
-    }, function(newValue) {
+    }, function(newValue, oldValue) {
+      console.log('Watch triggered > New Value > ', newValue, 'oldValue >', oldValue);
       var undeployedValue = $scope.selectedEnvironment.id + '__UNDEPLOYED';
       // no registration for this environement -> register if not undeployed!
       if (newValue === undeployedValue) {
@@ -401,10 +357,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         stopEvent();
       } else {
         stopEvent();
-        applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+        // applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
         environementEventId = $scope.selectedEnvironment.id;
-        applicationEventServices.start();
-        refreshInstancesStatuses();
+        // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
+        // $scope.applicationEventServices.start();
+        $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
       }
     });
 

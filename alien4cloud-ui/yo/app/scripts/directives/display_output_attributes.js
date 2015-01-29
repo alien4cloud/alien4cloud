@@ -5,7 +5,8 @@ angular.module('alienUiApp').directive('displayOutputAttributes', function() {
     restrict: 'E',
     templateUrl: 'views/fragments/display_output_attributes.html',
     scope: {
-      environments: '='
+      applicationId: '@',
+      environmentId: '@'
     }
   };
 });

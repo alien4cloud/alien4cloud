@@ -153,7 +153,25 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <display-output-attributes environments="envs"></display-output-attributes>
+
+      <tabset>
+        <!-- events -->
+        <tab ng-repeat="e in envs" id="env-tab-{{e.name}}" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
+          <tab-heading >
+            <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+              'fa-circle text-success' : e.status == 'DEPLOYED',
+              'fa-circle text-muted' : e.status == 'UNDEPLOYED',
+              'fa-warning text-warning' : e.status == 'WARNING',
+              'fa-circle text-danger' : e.status == 'FAILURE',
+              'fa-question-circle text-muted' : e.status == 'UNKNOWN',
+              'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
+            }"></i> {{e.name}}
+          </tab-heading>
+          <div>
+            <display-output-attributes application-id="{{application.id}}" environment-id="{{e.id}}"></display-output-attributes>
+          </div>
+        </tab>
+      </tabset>
     </div>
   </div>
 </div>

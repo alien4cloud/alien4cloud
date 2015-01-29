@@ -1,8 +1,9 @@
+/* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices',
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices) {
+    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -135,6 +136,8 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
     };
 
+    // TOPOLOGY CONCERNS
+
     // verify the topology validity
     $scope.isTopologyValid = function isTopologyValid(topologyId) {
       // validate the topology
@@ -144,6 +147,165 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         return result.data;
       });
     };
+
+    // fetch the topology to display intput/output properties and matching data
+    $scope.processTopologyInformations = function processTopologyInformations(topologyId, refreshOutputPropertiesCallback) {
+
+      console.log('processTopologyInformations > topologyId >', topologyId);
+      return topologyServices.dao.get({
+        topologyId: topologyId
+      }, function(result) {
+        $scope.topologyDTO = result.data;
+        // initialize compute and network icons from the actual tosca types (to match topology representation).
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
+          $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
+        }
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
+          $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
+        }
+        // process topology data
+        $scope.inputProperties = result.data.topology.inputProperties;
+        $scope.outputProperties = result.data.topology.outputProperties;
+        $scope.outputAttributes = result.data.topology.outputAttributes;
+        $scope.inputArtifacts = result.data.topology.inputArtifacts;
+        $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+
+        if (angular.isDefined(result.data.topology.inputProperties)) {
+          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
+        } else {
+          $scope.inputPropertiesSize = 0;
+        }
+
+        if (angular.isDefined($scope.outputProperties)) {
+          $scope.outputNodes = Object.keys($scope.outputProperties);
+          $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+          if (refreshOutputPropertiesCallback) {
+            refreshOutputPropertiesCallback();
+          }
+        }
+        if (angular.isDefined($scope.outputAttributes)) {
+          $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
+          $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
+        }
+
+        if (angular.isDefined(result.data.topology.inputArtifacts)) {
+          $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
+        } else {
+          $scope.inputArtifactsSize = 0;
+        }
+
+      });
+
+    };
+
+    // get a topologyId
+    $scope.setTopologyId = function setTopologyId(applicationId, environmentId, successTopologyIdCallBack) {
+      console.log('setTopologyId >', applicationId, environmentId);
+      return applicationEnvironmentServices.getTopologyId({
+        applicationId: applicationId,
+        applicationEnvironmentId: environmentId
+      }, undefined, function(response) {
+        $scope.topologyId = response.data;
+        if (successTopologyIdCallBack) {
+          if (UTILS.isDefinedAndNotNull($scope.topologyId)) {
+            successTopologyIdCallBack();
+          }
+        }
+      });
+    };
+
+    $scope.applicationEventServices = null;
+    $scope.outputAttributesValue = {};
+    $scope.outputPropertiesValue = {};
+
+    $scope.refreshInstancesStatuses = function refreshInstancesStatuses(applicationId, environmentId, pageStateId) {
+      console.log('refreshInstancesStatuses >', $scope.outputAttributesSize);
+      $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
+      $scope.applicationEventServices.start();
+      if ($scope.outputAttributesSize > 0) {
+        applicationServices.runtime.get({
+          applicationId: applicationId,
+          applicationEnvironmentId: environmentId
+        }, function(successResult) {
+          doSubscribe(successResult.data, pageStateId);
+        });
+      }
+    };
+
+    var isOutput = function(nodeId, propertyName, type) {
+      if (UTILS.isUndefinedOrNull($scope[type])) {
+        return false;
+      }
+      if (!$scope[type].hasOwnProperty(nodeId)) {
+        return false;
+      }
+      return $scope[type][nodeId].indexOf(propertyName) >= 0;
+    };
+
+    var onInstanceStateChange = function(type, event) {
+      console.log('ON INSTANCE CHANGE', type, event, event.instanceState);
+      if (UTILS.isUndefinedOrNull(event.instanceState)) {
+        // Delete event
+        if (UTILS.isDefinedAndNotNull($scope.outputAttributesValue[event.nodeTemplateId])) {
+          delete $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId];
+          if (Object.keys($scope.outputAttributesValue[event.nodeTemplateId]).length === 0) {
+            delete $scope.outputAttributesValue[event.nodeTemplateId];
+          }
+        }
+      } else {
+        // Add modify event
+        var allAttributes = event.attributes;
+        for (var attribute in allAttributes) {
+          if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
+            if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
+              $scope.outputAttributesValue[event.nodeTemplateId] = {};
+            }
+            if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId][event.instanceId])) {
+              $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId] = {};
+            }
+            $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId][attribute] = allAttributes[attribute];
+          }
+        }
+      }
+      $scope.$apply();
+    };
+
+
+    var doSubscribe = function doSubscribe(appRuntimeInformation, stateId)  {
+      console.log('DO SUBSCRIBE >', appRuntimeInformation, stateId);
+      $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
+      if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
+        console.log('APP RUNTIME OK');
+        for (var nodeId in appRuntimeInformation) {
+          if (appRuntimeInformation.hasOwnProperty(nodeId)) {
+            $scope.outputAttributesValue[nodeId] = {};
+            var nodeInformation = appRuntimeInformation[nodeId];
+            for (var instanceId in nodeInformation) {
+              if (nodeInformation.hasOwnProperty(instanceId)) {
+                $scope.outputAttributesValue[nodeId][instanceId] = {};
+                var allAttributes = nodeInformation[instanceId].attributes;
+                for (var attribute in allAttributes) {
+                  console.log('ATTRIBUTE', attribute);
+                  if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
+                    $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
+                  }
+                }
+                if (Object.keys($scope.outputAttributesValue[nodeId][instanceId]).length === 0) {
+                  delete $scope.outputAttributesValue[nodeId][instanceId];
+                }
+              }
+            }
+            var nbOfInstances = Object.keys($scope.outputAttributesValue[nodeId]).length;
+            if (nbOfInstances === 0) {
+              delete $scope.outputAttributesValue[nodeId];
+            }
+          }
+        }
+      }
+    };
+    $scope.doSubscribe = doSubscribe;
 
     $scope.menu = [{
       id: 'am.applications.info',
