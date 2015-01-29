@@ -4,16 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,15 +32,25 @@ public final class FileUtil {
 
     static void putZipEntry(ZipOutputStream zipOutputStream, ZipEntry zipEntry, Path file) throws IOException {
         zipOutputStream.putNextEntry(zipEntry);
-        ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), zipOutputStream);
-        zipOutputStream.closeEntry();
+        InputStream input = new BufferedInputStream(Files.newInputStream(file));
+        try {
+            ByteStreams.copy(input, zipOutputStream);
+            zipOutputStream.closeEntry();
+        } finally {
+            input.close();
+        }
     }
 
     static void putTarEntry(TarArchiveOutputStream tarOutputStream, TarArchiveEntry tarEntry, Path file) throws IOException {
         tarEntry.setSize(Files.size(file));
         tarOutputStream.putArchiveEntry(tarEntry);
-        ByteStreams.copy(new BufferedInputStream(Files.newInputStream(file)), tarOutputStream);
-        tarOutputStream.closeArchiveEntry();
+        InputStream input = new BufferedInputStream(Files.newInputStream(file));
+        try {
+            ByteStreams.copy(input, tarOutputStream);
+            tarOutputStream.closeArchiveEntry();
+        } finally {
+            input.close();
+        }
     }
 
     static String getChildEntryRelativePath(Path base, Path child) {
