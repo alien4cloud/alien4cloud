@@ -32,7 +32,6 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
           applicationEnvironmentId: selectedEnvironmentId
         }, undefined, function(success) {
           if (UTILS.isDefinedAndNotNull(success.data)) {
-            console.log('doStart success >', success.data);
             deploymentEventServices = deploymentEventServicesFactory(success.data.id, existingListeners);
             for (var i = 0; i < subscribeQueue.length; i++) {
               doSubscribe(subscribeQueue[i].listenerId, subscribeQueue[i].type, subscribeQueue[i].callback);

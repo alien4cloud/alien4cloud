@@ -305,7 +305,7 @@
       selectedEnvironment.status == 'WARNING' ||
       selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' ||
       selectedEnvironment.status == 'FAILURE'">
-      <div class="col-md-12">
+      <!-- <div class="col-md-12">
         <span>
           <i class="fa fa-eye"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
         </span>
@@ -331,7 +331,7 @@
                 <li ng-if="outputAttributesSize > 0">
                   <strong>{{ 'attributes' | translate }}</strong>
                   <ul>
-                    <li ng-repeat="(instanceId, instanceProperties) in finalOutputAttributesValue[nodeId]">
+                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
                       {{'INSTANCE' | translate}} {{instanceId}}
                       <ul>
                         <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
@@ -345,7 +345,8 @@
             </td>
           </tr>
         </table>
-      </div>
+      </div> -->
+      <display-output-attributes application-id="{{application.id}}" environment-id="{{selectedEnvironment.id}}"></display-output-attributes>
     </div>
   </div>
 </div>

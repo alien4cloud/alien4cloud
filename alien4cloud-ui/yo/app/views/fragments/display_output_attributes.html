@@ -1,12 +1,56 @@
 <div class="row">
 
-  <div>
-    -- {{outputAttributes}} -- {{finalOutputAttributesValues}} **
-    <div class="row">
-      <div class="col-md-8"> {{applicationId}} </div>
-      <div class="col-md-4"> {{environmentId}} </div>
-    </div>
+  <div class="row">
+    <div class="col-md-12">outputPropertiesValue : {{outputPropertiesValue}}</div>
+    <div class="col-md-12">Size : {{outputPropertiesSize}}</div>
+    <div class="col-md-12">OutputAttributesValue : {{outputAttributesValue}}</div>
+    <div class="col-md-12">Size : {{outputAttributesSize}}</div>
+    <div class="col-md-12">outputProperties : {{outputProperties}}</div>
+    <div class="col-md-12">outputAttributes : {{outputAttributes}}</div>
+  </div>
 
+  <div class="col-md-12">
+    <span>
+      <i class="fa fa-eye"></i>
+      <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
+    </span>
+    <table class="table table-condensed" id="outputPropertiesTable">
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr ng-repeat="nodeId in outputNodes">
+        <td>
+          <span>{{nodeId}}</span>
+        </td>
+        <td>
+          <ul>
+            <li ng-if="outputPropertiesSize > 0">
+              <strong>{{ 'properties' | translate }}</strong>
+              <ul>
+                <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
+                  {{outputPropertyKey}} :
+                  <span class="text-primary">{{outputPropertyValue}}</span>
+                </li>
+              </ul>
+            </li>
+            <li ng-if="outputAttributesSize > 0">
+              <strong>{{ 'attributes' | translate }}</strong>
+              <ul>
+                <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
+                  {{'INSTANCE' | translate}} {{instanceId}}
+                  <ul>
+                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
+                      {{outputPropertyKey}} :
+                      <span class="text-primary">{{outputPropertyValue}}</span>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </table>
   </div>
 
 </div>

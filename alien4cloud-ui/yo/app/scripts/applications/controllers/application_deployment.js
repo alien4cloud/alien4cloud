@@ -92,7 +92,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       // when the selected environment is deployed => refresh output properties
       processTopologyInfoResult.$promise.then(function() {
         if ($scope.selectedEnvironment.status === 'DEPLOYED') {
-          $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
+          $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
         }
       });
 
@@ -251,14 +251,15 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
 
     // var applicationEventServices = null;
-    var environementEventId = null;
+    // var environementEventId = null;
 
     function stopEvent() {
       $scope.outputAttributesValue = {};
       if ($scope.applicationEventServices !== null) {
+        console.log('STOP EVENT');
         $scope.applicationEventServices.stop();
         $scope.applicationEventServices = null;
-        environementEventId = null;
+        // environementEventId = null;
       }
     }
 
@@ -354,20 +355,16 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       // no registration for this environement -> register if not undeployed!
       if (newValue === undeployedValue) {
         // if status the application is not undeployed we should register for events.
-        stopEvent();
+        $scope.stopEvent();
       } else {
-        stopEvent();
-        // applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
-        environementEventId = $scope.selectedEnvironment.id;
-        // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
-        // $scope.applicationEventServices.start();
-        $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
+        $scope.stopEvent();
+        $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
       }
     });
 
     // when scope change, stop current event listener
     $scope.$on('$destroy', function() {
-      stopEvent();
+      $scope.stopEvent();
     });
 
     // Deployment handler

@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
-  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments', 'applicationEventServicesFactory',
-  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments, applicationEventServicesFactory) {
+  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments',
+  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments) {
 
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
@@ -18,56 +18,38 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
     $scope.newAppName = $scope.application.name;
 
     $scope.isAllowedModify = UTILS.isDefinedAndNotNull($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
-
-    // console.log('APP INFO > APPLICATIONS ENV DEPLOY >', appEnvironments.deployEnvironments);
-    // console.log('APP INFO > APPLICATIONS ENV >', appEnvironments.environments);
     $scope.envs = appEnvironments.deployEnvironments;
 
-    $scope.finalOutputAttributesValue = $scope.outputAttributesValue;
+    $scope.selectedTab = null;
     $scope.selectTab = function selectTab(applicationId, environmentId) {
-      // get the topology id
-      $scope.setTopologyId(applicationId, environmentId, null).$promise.then(function(result) {
-        console.log('SET TOPO >', result);
-        // get informations from this topology
-        console.log('SELECT TAB TOPOLOGY ID >', result, applicationId, environmentId);
-        // $scope.processTopologyInformations(result.data, null);
-        // $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
-        // $scope.applicationEventServices.start();
-        $scope.refreshInstancesStatuses(applicationId, environmentId, pageStateId);
-
-        // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
-        // environementEventId = $scope.selectedEnvironment.id;
-        // $scope.applicationEventServices.start();
-        // $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
-
-      });
+      $scope.selectedTab = {
+        appId: applicationId,
+        envId: environmentId
+      };
     };
 
-
-    $scope.$watch(function(scope) {
-      console.log('INFO WATCH', scope);
-      // if (UTILS.isDefinedAndNotNull(scope.selectedEnvironment)) {
-      //   return scope.selectedEnvironment.id + '__' + scope.selectedEnvironment.status;
-      // }
-      return 'UNDEPLOYED';
-    }, function(newValue, oldValue) {
-      console.log('Watch triggered > New Value > ', newValue, 'oldValue >', oldValue);
-      // var undeployedValue = $scope.selectedEnvironment.id + '__UNDEPLOYED';
-      // // no registration for this environement -> register if not undeployed!
-      // if (newValue === undeployedValue) {
-      //   // if status the application is not undeployed we should register for events.
-      //   stopEvent();
-      // } else {
-      //   stopEvent();
-      //   // applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
-      //   environementEventId = $scope.selectedEnvironment.id;
-      //   // $scope.applicationEventServices = applicationEventServicesFactory($scope.application.id, $scope.selectedEnvironment.id);
-      //   // $scope.applicationEventServices.start();
-      //   $scope.refreshInstancesStatuses($scope.application.id,$scope.selectedEnvironment.id, pageStateId);
-      // }
+    // when scope change, stop current event listener
+    $scope.$on('$destroy', function() {
+      $scope.stopEvent();
     });
 
+    $scope.$watch(function(scope) {
+      if (UTILS.isDefinedAndNotNull(scope.selectedTab)) {
+        return scope.selectedTab;
+      }
+      return 'SAME_TAB_ENV';
+    }, function(newValue, oldValue) {
+      $scope.stopEvent();
+      if (newValue !== 'SAME_TAB_ENV') {
+        $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
+          // get informations from this topology
+          console.log('SELECT TAB TOPOLOGY ID >', result.data, newValue.appId, newValue.envId);
+          $scope.processTopologyInformations(result.data, null);
+          $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
+        });
+      }
 
+    });
 
     // Upload handler
     $scope.doUpload = function(file) {
