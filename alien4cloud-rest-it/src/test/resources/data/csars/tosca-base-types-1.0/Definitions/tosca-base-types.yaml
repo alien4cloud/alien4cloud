@@ -58,10 +58,12 @@ node_types:
     properties:
       disk_size:
         type: integer
+        required: false
         constraints:
           - greater_than: 0
       num_cpus:
         type: integer
+        required: false
         constraints:
           -  greater_than: 0
       mem_size:
@@ -70,16 +72,17 @@ node_types:
           - greater_than: 0
       os_arch:
         type: string
-        required: true
       os_type:
         type: string
-        required: true
       os_distribution:
         type: string
+        required: false
       os_version:
         type: string
+        required: false
       ip_address:
         type: string
+        required: false
     attributes:
       public_ip_address:
         type: string
@@ -239,6 +242,7 @@ capability_types:
         default: http
       port:
         type: integer
+        required: false
         constraints:
           - greater_or_equal: 1
           - less_or_equal: 65535
