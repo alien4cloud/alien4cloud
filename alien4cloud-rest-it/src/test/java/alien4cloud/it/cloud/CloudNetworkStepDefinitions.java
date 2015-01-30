@@ -84,30 +84,30 @@ public class CloudNetworkStepDefinitions {
                         Lists.<NameValuePair> newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
     }
 
-    @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")
-    public void The_cloud_should_have_network_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
-        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
-        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getNetworkMapping());
-        Set<MatchedNetworkTemplate> actualNetworks = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks());
-        Set<MatchedNetworkTemplate> expectedNetworks = Sets.newHashSet();
-        for (List<String> rows : expectedMappings.raw()) {
-            NetworkTemplate network = new NetworkTemplate();
-            String networkName = rows.get(0);
-            network.setId(networkName);
-            String cidr = rows.get(1);
-            network.setCidr(cidr);
-            int ipVersion = Integer.parseInt(rows.get(2));
-            network.setIpVersion(ipVersion);
-            String gatewayIp = rows.get(3);
-            network.setGatewayIp(gatewayIp);
-            String pasSResourceId = rows.get(4);
-            expectedNetworks.add(new MatchedNetworkTemplate(network, pasSResourceId));
-        }
-        Assert.assertEquals(expectedNetworks, actualNetworks);
-    }
+//    @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")
+//    public void The_cloud_should_have_network_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
+//        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());
+//        Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getNetworkMapping());
+//        Set<MatchedNetworkTemplate> actualNetworks = Sets.newHashSet(cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks());
+//        Set<MatchedNetworkTemplate> expectedNetworks = Sets.newHashSet();
+//        for (List<String> rows : expectedMappings.raw()) {
+//            NetworkTemplate network = new NetworkTemplate();
+//            String networkName = rows.get(0);
+//            network.setId(networkName);
+//            String cidr = rows.get(1);
+//            network.setCidr(cidr);
+//            int ipVersion = Integer.parseInt(rows.get(2));
+//            network.setIpVersion(ipVersion);
+//            String gatewayIp = rows.get(3);
+//            network.setGatewayIp(gatewayIp);
+//            String pasSResourceId = rows.get(4);
+//            expectedNetworks.add(new MatchedNetworkTemplate(network, pasSResourceId));
+//        }
+//        Assert.assertEquals(expectedNetworks, actualNetworks);
+//    }
 
     @When("^I delete the mapping for the network \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
     public void I_delete_the_mapping_for_the_network_of_the_cloud(String networkName, String cloudName) throws Throwable {
@@ -117,12 +117,12 @@ public class CloudNetworkStepDefinitions {
                         Lists.<NameValuePair> newArrayList()));
     }
 
-    @Then("^The cloud \"([^\"]*)\" should have empty network mapping configuration$")
-    public void The_cloud_should_have_empty_network_mapping_configuration(String cloudName) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
-        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
-        Assert.assertTrue(cloudDTO.getCloudResourceMatcher() == null || cloudDTO.getCloudResourceMatcher().getMatcherConfig() == null
-                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks() == null
-                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks().isEmpty());
-    }
+//    @Then("^The cloud \"([^\"]*)\" should have empty network mapping configuration$")
+//    public void The_cloud_should_have_empty_network_mapping_configuration(String cloudName) throws Throwable {
+//        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
+//        Assert.assertTrue(cloudDTO.getCloudResourceMatcher() == null || cloudDTO.getCloudResourceMatcher().getMatcherConfig() == null
+//                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks() == null
+//                || cloudDTO.getCloudResourceMatcher().getMatcherConfig().getMatchedNetworks().isEmpty());
+//    }
 }

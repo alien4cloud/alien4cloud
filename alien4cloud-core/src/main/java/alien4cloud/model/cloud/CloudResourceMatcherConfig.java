@@ -29,7 +29,7 @@ public class CloudResourceMatcherConfig {
 
     private List<MatchedCloudImageFlavor> matchedFlavors = Lists.newArrayList();
 
-    private List<MatchedCloudImageFlavor> matchedBlockStorages = Lists.newArrayList();
+    private List<MatchedStorageTemplate> matchedBlockStorages = Lists.newArrayList();
 
     @JsonIgnore
     public Map<NetworkTemplate, String> getNetworkMapping() {
@@ -37,7 +37,7 @@ public class CloudResourceMatcherConfig {
     }
 
     @JsonIgnore
-    public Map<CloudImage, String> getImageMapping() {
+    public Map<MatchedCloudImage.CloudImageId, String> getImageMapping() {
         return getMapping(matchedImages);
     }
 
@@ -47,12 +47,17 @@ public class CloudResourceMatcherConfig {
     }
 
     @JsonIgnore
+    public Map<StorageTemplate, String> getBlockStorageMapping() {
+        return getMapping(matchedBlockStorages);
+    }
+
+    @JsonIgnore
     public Map<NetworkTemplate, String> getReverseNetworkMapping() {
         return getMapping(matchedNetworks);
     }
 
     @JsonIgnore
-    public Map<String, CloudImage> getReverseImageMapping() {
+    public Map<String, MatchedCloudImage.CloudImageId> getReverseImageMapping() {
         return getReverseMapping(matchedImages);
     }
 
@@ -62,7 +67,7 @@ public class CloudResourceMatcherConfig {
     }
 
     @JsonIgnore
-    public Map<String, CloudImageFlavor> getBlockStoragesMapping() {
+    public Map<String, StorageTemplate> getReverseBlockStorageMapping() {
         return getReverseMapping(matchedBlockStorages);
     }
 

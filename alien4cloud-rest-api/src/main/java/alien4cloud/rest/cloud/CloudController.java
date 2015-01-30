@@ -26,7 +26,13 @@ import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.cloud.MatchedCloudImage;
+import alien4cloud.model.cloud.MatchedCloudImageDTO;
+import alien4cloud.model.cloud.MatchedCloudImageFlavor;
+import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -102,19 +108,36 @@ public class CloudController {
         // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+        CloudResourceMatcherConfig matcherConfig = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
 
+        Map<MatchedCloudImage.CloudImageId, String> imageMapping = matcherConfig.getImageMapping();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
-        Map<String, CloudImageFlavor> flavors = Maps.newHashMap();
+        Map<String, MatchedCloudImageDTO> matchedImages = Maps.newHashMap();
+        for (Map.Entry<String, CloudImage> imageEntry : images.entrySet()) {
+            matchedImages.put(imageEntry.getKey(),
+                    new MatchedCloudImageDTO(imageEntry.getValue(), imageMapping.get(new MatchedCloudImage.CloudImageId(imageEntry.getKey()))));
+        }
+
+        Map<CloudImageFlavor, String> flavorMapping = matcherConfig.getFlavorMapping();
+        Map<String, MatchedCloudImageFlavor> matchedFlavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
-            flavors.put(flavor.getId(), flavor);
+            matchedFlavors.put(flavor.getId(), new MatchedCloudImageFlavor(flavor, flavorMapping.get(flavor.getId())));
         }
-        Map<String, NetworkTemplate> networks = Maps.newHashMap();
+
+        Map<NetworkTemplate, String> networkMapping = matcherConfig.getNetworkMapping();
+        Map<String, MatchedNetworkTemplate> matchedNetworks = Maps.newHashMap();
         for (NetworkTemplate network : cloud.getNetworks()) {
-            networks.put(network.getId(), network);
+            matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, networkMapping.get(network)));
         }
-        CloudDTO cloudDTO = new CloudDTO(cloud, new CloudResourceMatcherDTO(cloudService.findCloudResourceMatcherConfig(cloud),
-                cloudService.getCloudResourceIds(cloud, CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR),
-                cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK)), images, flavors, networks);
+
+        Map<StorageTemplate, String> storageMapping = matcherConfig.getBlockStorageMapping();
+        Map<String, MatchedStorageTemplate> matchedStorages = Maps.newHashMap();
+        for (StorageTemplate storage : cloud.getStorages()) {
+            matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, storageMapping.get(storage)));
+        }
+        CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, cloudService.getCloudResourceIds(cloud,
+                CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR), cloudService.getCloudResourceIds(cloud,
+                CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 
@@ -371,7 +394,7 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/flavors/{flavorId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setCloudImageFlavorResourceId(@PathVariable String cloudId, @PathVariable String flavorId,
-                                                      @RequestParam(required = false) String resourceId) {
+            @RequestParam(required = false) String resourceId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setCloudImageFlavorResourceId(cloud, flavorId, resourceId);

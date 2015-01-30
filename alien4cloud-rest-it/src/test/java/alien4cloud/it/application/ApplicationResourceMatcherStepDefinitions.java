@@ -137,20 +137,20 @@ public class ApplicationResourceMatcherStepDefinitions {
                 || matchResultResponse.getData().getNetworkMatchResult().get(networkNodeName).isEmpty());
     }
 
-    @When("^I select the network with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
-    public void I_select_the_the_network_with_name_for_my_node(String networkName, String nodeName) throws Throwable {
-        Context.getInstance().getCloudForTopology();
-        String cloudId = Context.getInstance().getCloudForTopology();
-        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
-        Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
-        networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
-        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
-        Application application = Context.getInstance().getApplication();
-        String response = Context.getRestClientInstance().putJSon(
-                "/rest/applications/" + application.getId() + "/environments/"
-                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
-        Context.getInstance().registerRestResponse(response);
-    }
+//    @When("^I select the network with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
+//    public void I_select_the_the_network_with_name_for_my_node(String networkName, String nodeName) throws Throwable {
+//        Context.getInstance().getCloudForTopology();
+//        String cloudId = Context.getInstance().getCloudForTopology();
+//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+//        Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
+//        networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
+//        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
+//        Application application = Context.getInstance().getApplication();
+//        String response = Context.getRestClientInstance().putJSon(
+//                "/rest/applications/" + application.getId() + "/environments/"
+//                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+//        Context.getInstance().registerRestResponse(response);
+//    }
 
     @And("^The deployment setup of the application should contain following network mapping:$")
     public void The_deployment_setup_of_the_application_should_contain_following_network_mapping(DataTable networksMatching) throws Throwable {

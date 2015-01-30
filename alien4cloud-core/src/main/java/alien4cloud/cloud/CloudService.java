@@ -637,7 +637,7 @@ public class CloudService {
             if (existing != null) {
                 existing.setPaaSResourceId(paaSResourceId);
             } else {
-                matcherConfig.getMatchedImages().add(new MatchedCloudImage(cloudImageService.getCloudImageFailIfNotExist(cloudImageId), paaSResourceId));
+                matcherConfig.getMatchedImages().add(new MatchedCloudImage(new MatchedCloudImage.CloudImageId(cloudImageId), paaSResourceId));
             }
         }
         IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
