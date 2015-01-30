@@ -38,13 +38,12 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
         return scope.selectedTab;
       }
       return 'SAME_TAB_ENV';
-    }, function(newValue, oldValue) {
+    }, function(newValue) {
       $scope.stopEvent();
       if (newValue !== 'SAME_TAB_ENV') {
         $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
           // get informations from this topology
-          console.log('SELECT TAB TOPOLOGY ID >', result.data, newValue.appId, newValue.envId);
-          $scope.processTopologyInformations(result.data, null);
+          $scope.processTopologyInformations(result.data);
           $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
         });
       }

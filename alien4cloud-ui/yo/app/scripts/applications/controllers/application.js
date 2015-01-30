@@ -138,6 +138,17 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     // TOPOLOGY CONCERNS
 
+    // very if a node has outputs
+    $scope.nodeHasOutputs = function nodeHasOutputs() {
+      console.log('NODE HAS OUTPUTS', Object.keys($scope.outputProperties));
+      return $scope.outputPropertiesSize > 0 || $scope.outputAttributesSize > 0;
+      // var hasOutputProperties = Object.keys($scope.outputProperties).length > 0 && Object.keys($scope.outputProperties).indexOf(nodeId) >= 0;
+      // var hasOutputAttributes = Object.keys($scope.outputAttributes).length > 0 && Object.keys($scope.outputAttributes).indexOf(nodeId) >= 0;
+      // console.log('NODE HAS OUTPUTS', hasOutputProperties, hasOutputAttributes);
+      // return hasOutputProperties || hasOutputAttributes;
+      // return true;
+    };
+
     // verify the topology validity
     $scope.isTopologyValid = function isTopologyValid(topologyId) {
       // validate the topology
@@ -149,7 +160,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     };
 
     // fetch the topology to display intput/output properties and matching data
-    $scope.processTopologyInformations = function processTopologyInformations(topologyId, refreshOutputPropertiesCallback) {
+    $scope.processTopologyInformations = function processTopologyInformations(topologyId) {
 
       return topologyServices.dao.get({
         topologyId: topologyId
@@ -171,29 +182,25 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
 
+        $scope.inputPropertiesSize = 0;
+        $scope.outputPropertiesSize = 0;
+        $scope.outputAttributesSize = 0;
+        $scope.inputArtifactsSize = 0;
+
         if (angular.isDefined(result.data.topology.inputProperties)) {
           $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
-        } else {
-          $scope.inputPropertiesSize = 0;
         }
-
         if (angular.isDefined($scope.outputProperties)) {
           $scope.outputNodes = Object.keys($scope.outputProperties);
-          console.log('SIZE DE ', $scope.outputProperties, Object.keys($scope.outputProperties).length);
           $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
-          if (refreshOutputPropertiesCallback) {
-            refreshOutputPropertiesCallback();
-          }
+          refreshOutputProperties();
         }
         if (angular.isDefined($scope.outputAttributes)) {
           $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputAttributes)));
           $scope.outputAttributesSize = Object.keys($scope.outputAttributes).length;
         }
-
         if (angular.isDefined(result.data.topology.inputArtifacts)) {
           $scope.inputArtifactsSize = Object.keys(result.data.topology.inputArtifacts).length;
-        } else {
-          $scope.inputArtifactsSize = 0;
         }
 
       });
@@ -215,12 +222,10 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       });
     };
 
-
     $scope.stopEvent = function stopEvent() {
       $scope.outputAttributesValue = {};
       $scope.outputPropertiesValue = {};
       if ($scope.applicationEventServices !== null) {
-        console.log('STOP EVENT IN APPLICATION');
         $scope.applicationEventServices.stop();
         $scope.applicationEventServices = null;
       }
@@ -228,6 +233,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     $scope.applicationEventServices = null;
     $scope.outputAttributesValue = {};
+    $scope.outputAttributesValueFinal = {};
     $scope.outputPropertiesValue = {};
 
     $scope.refreshInstancesStatuses = function refreshInstancesStatuses(applicationId, environmentId, pageStateId) {
@@ -253,6 +259,19 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       return $scope[type][nodeId].indexOf(propertyName) >= 0;
     };
 
+    // link output properties based on values that exists in the topology's node templates.
+    function refreshOutputProperties() {
+      for (var nodeId in $scope.outputProperties) {
+        if ($scope.outputProperties.hasOwnProperty(nodeId)) {
+          $scope.outputPropertiesValue[nodeId] = {};
+          for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
+            var outputPropertyName = $scope.outputProperties[nodeId][i];
+            $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].properties[outputPropertyName];
+          }
+        }
+      }
+    }
+
     var onInstanceStateChange = function(type, event) {
       if (UTILS.isUndefinedOrNull(event.instanceState)) {
         // Delete event
@@ -273,6 +292,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
             if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId][event.instanceId])) {
               $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId] = {};
             }
+            // fill up OUTPUT ATTRIBUTES
             $scope.outputAttributesValue[event.nodeTemplateId][event.instanceId][attribute] = allAttributes[attribute];
           }
         }
@@ -281,7 +301,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     };
 
     var doSubscribe = function doSubscribe(appRuntimeInformation, stateId)  {
-      console.log('DO SUBSCRIBE >', stateId);
       $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {
@@ -294,7 +313,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
                 var allAttributes = nodeInformation[instanceId].attributes;
                 for (var attribute in allAttributes) {
                   if (allAttributes.hasOwnProperty(attribute) && isOutput(nodeId, attribute, 'outputAttributes')) {
-                    // console.log('ATTRIBUTE BIS', allAttributes[attribute]);
                     $scope.outputAttributesValue[nodeId][instanceId][attribute] = allAttributes[attribute];
                   }
                 }

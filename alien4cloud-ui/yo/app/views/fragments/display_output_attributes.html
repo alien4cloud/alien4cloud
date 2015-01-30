@@ -1,16 +1,7 @@
 <div class="row">
 
-  <div class="row">
-    <div class="col-md-12">outputPropertiesValue : {{outputPropertiesValue}}</div>
-    <div class="col-md-12">Size : {{outputPropertiesSize}}</div>
-    <div class="col-md-12">OutputAttributesValue : {{outputAttributesValue}}</div>
-    <div class="col-md-12">Size : {{outputAttributesSize}}</div>
-    <div class="col-md-12">outputProperties : {{outputProperties}}</div>
-    <div class="col-md-12">outputAttributes : {{outputAttributes}}</div>
-  </div>
-
   <div class="col-md-12">
-    <span>
+    <span ng-if="outputPropertiesSize > 0 || outputAttributesSize > 0">
       <i class="fa fa-eye"></i>
       <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
     </span>
@@ -18,13 +9,14 @@
       <tr>
         <td colspan="2"></td>
       </tr>
-      <tr ng-repeat="nodeId in outputNodes">
+      <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId]">
         <td>
           <span>{{nodeId}}</span>
         </td>
         <td>
           <ul>
-            <li ng-if="outputPropertiesSize > 0">
+            <!-- Output properties list -->
+            <li ng-if="outputPropertiesSize > 0 && outputPropertiesValue[nodeId]">
               <strong>{{ 'properties' | translate }}</strong>
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
@@ -33,7 +25,9 @@
                 </li>
               </ul>
             </li>
-            <li ng-if="outputAttributesSize > 0">
+
+            <!-- Output attributes list -->
+            <li ng-if="outputAttributesSize > 0 && outputAttributesValue[nodeId]">
               <strong>{{ 'attributes' | translate }}</strong>
               <ul>
                 <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
@@ -47,6 +41,7 @@
                 </li>
               </ul>
             </li>
+
           </ul>
         </td>
       </tr>

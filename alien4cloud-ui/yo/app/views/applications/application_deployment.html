@@ -305,48 +305,11 @@
       selectedEnvironment.status == 'WARNING' ||
       selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' ||
       selectedEnvironment.status == 'FAILURE'">
-      <!-- <div class="col-md-12">
-        <span>
-          <i class="fa fa-eye"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
-        </span>
-        <table class="table table-condensed" id="outputPropertiesTable">
-          <tr>
-            <td colspan="2">
-            </td>
-          </tr>
-          <tr ng-repeat="nodeId in outputNodes">
-            <td>
-              <span>{{nodeId}}</span>
-            </td>
-            <td>
-              <ul>
-                <li ng-if="outputPropertiesSize > 0">
-                  <strong>{{ 'properties' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
-                      {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                    </li>
-                  </ul>
-                </li>
-                <li ng-if="outputAttributesSize > 0">
-                  <strong>{{ 'attributes' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
-                      {{'INSTANCE' | translate}} {{instanceId}}
-                      <ul>
-                        <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
-                          {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </table>
-      </div> -->
-      <display-output-attributes application-id="{{application.id}}" environment-id="{{selectedEnvironment.id}}"></display-output-attributes>
+
+      <div class="col-md-12">
+        <display-outputs application-id="{{application.id}}" environment-id="{{selectedEnvironment.id}}"></display-outputs>
+      </div>
+
     </div>
   </div>
 </div>
