@@ -68,6 +68,7 @@ node_types:
           -  greater_than: 0
       mem_size:
         type: integer
+        required: false
         constraints:
           - greater_than: 0
       os_arch:
