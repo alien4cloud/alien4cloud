@@ -35,7 +35,9 @@ import alien4cloud.model.cloud.ICloudResourceTemplate;
 import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
@@ -546,8 +548,12 @@ public class CloudService {
     }
 
     public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        return paaSProvider.getAvailableResourceIds(type);
+        if (cloud.isEnabled()) {
+            IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+            return paaSProvider.getAvailableResourceIds(type);
+        } else {
+            return null;
+        }
     }
 
     public CloudResourceMatcherConfig getMandatoryCloudResourceMatcherConfig(Cloud cloud) {
@@ -569,6 +575,7 @@ public class CloudService {
         CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
             getMatchedResource(matcherConfig.getMatchedImages(), cloudImageId, true);
+            getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
             MatchedCloudImage existing = getMatchedResource(matcherConfig.getMatchedImages(), cloudImageId, false);
             if (existing != null) {
@@ -612,6 +619,7 @@ public class CloudService {
         }
         if (paaSResourceId == null) {
             getMatchedResource(matcherConfig.getMatchedFlavors(), flavorId, true);
+            getComputeTemplates(cloud, null, flavorId, true);
         } else {
             MatchedCloudImageFlavor existing = getMatchedResource(matcherConfig.getMatchedFlavors(), flavorId, false);
             if (existing != null) {
@@ -736,6 +744,58 @@ public class CloudService {
                 existing.setPaaSResourceId(paaSResourceId);
             } else {
                 matcherConfig.getMatchedNetworks().add(new MatchedNetworkTemplate(foundNetwork, paaSResourceId));
+            }
+        }
+        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        if (paaSProvider != null) {
+            // Cloud may not be initialized yet
+            initializeMatcherConfig(paaSProvider, cloud);
+        }
+        alienDAO.save(matcherConfig);
+    }
+
+    public void addStorageTemplate(Cloud cloud, StorageTemplate storageTemplate) {
+        Set<StorageTemplate> storageTemplates = cloud.getStorages();
+        if (storageTemplates == null) {
+            storageTemplates = Sets.newHashSet();
+            cloud.setStorages(storageTemplates);
+        }
+        storageTemplates.add(storageTemplate);
+        alienDAO.save(cloud);
+    }
+
+    public void removeStorageTemplate(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+        Set<StorageTemplate> storageTemplates = cloud.getStorages();
+        // Remove network
+        getResource(storageTemplates, networkName, true);
+        // Remove matched network
+        getMatchedResource(config.getMatchedNetworks(), networkName, true);
+        // Save
+        alienDAO.save(config);
+        alienDAO.save(cloud);
+    }
+
+    /**
+     * Set the network resource id
+     *
+     * @param cloud the cloud to update
+     * @param storageId the network's name
+     * @param paaSResourceId paaS resource id
+     */
+    public void setStorageResourceId(Cloud cloud, String storageId, String paaSResourceId) {
+        StorageTemplate foundStorage = getResource(cloud.getStorages(), storageId, false);
+        if (foundStorage == null) {
+            throw new NotFoundException("Storage [" + storageId + "] not found");
+        }
+        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+        if (paaSResourceId == null) {
+            getMatchedResource(matcherConfig.getMatchedBlockStorages(), storageId, true);
+        } else {
+            MatchedStorageTemplate existing = getMatchedResource(matcherConfig.getMatchedBlockStorages(), storageId, false);
+            if (existing != null) {
+                existing.setPaaSResourceId(paaSResourceId);
+            } else {
+                matcherConfig.getMatchedBlockStorages().add(new MatchedStorageTemplate(foundStorage, paaSResourceId));
             }
         }
         IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
