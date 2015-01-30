@@ -22,7 +22,6 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       };
 
       applicationEventServices.start = function() {
-        console.log('Start listening eventys for app >', applicationId, 'environment >', selectedEnvironmentId);
         applicationEventServices.doStart();
       };
 
@@ -82,7 +81,6 @@ angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploy
       };
 
       applicationEventServices.subscribeToInstanceStateChange = function(listenerId, callback) {
-        console.log('+++++++++++++++++++++++++ CALLBACK >', listenerId);
         doSubscribe(listenerId, 'paasinstancestatemonitorevent', callback);
       };
       applicationEventServices.subscribeToStorageInstanceStateChange = function(listenerId, callback) {

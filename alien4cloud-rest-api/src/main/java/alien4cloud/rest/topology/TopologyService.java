@@ -17,8 +17,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -31,7 +29,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.CSARDependency;
@@ -56,7 +53,6 @@ import alien4cloud.rest.topology.task.SuggestionsTask;
 import alien4cloud.rest.topology.task.TaskCode;
 import alien4cloud.rest.topology.task.TopologyTask;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
@@ -662,23 +658,7 @@ public class TopologyService {
         if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
             String applicationId = topology.getDelegateId();
             Application application = appService.getOrFail(applicationId);
-            try {
-                AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
-            } catch (AccessDeniedException e) {
-                ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
-                if (version == null) {
-                    throw new NotFoundException("Unable to check user rights for topology as no version associated with the topology can be found.");
-                }
-                ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
-                boolean isDenied = true;
-                for (int i = 0; i < environments.length && isDenied; i++) {
-                    isDenied = !AuthorizationUtil.hasAuthorizationForEnvironment(environments[i], ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-                }
-                if (isDenied) {
-                    throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
-                            + "> has no authorization to perform the requested operation on this cloud.");
-                }
-            }
+            AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
         } else {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         }

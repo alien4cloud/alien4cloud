@@ -136,18 +136,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
     };
 
-    // TOPOLOGY CONCERNS
-
-    // very if a node has outputs
-    $scope.nodeHasOutputs = function nodeHasOutputs() {
-      console.log('NODE HAS OUTPUTS', Object.keys($scope.outputProperties));
-      return $scope.outputPropertiesSize > 0 || $scope.outputAttributesSize > 0;
-      // var hasOutputProperties = Object.keys($scope.outputProperties).length > 0 && Object.keys($scope.outputProperties).indexOf(nodeId) >= 0;
-      // var hasOutputAttributes = Object.keys($scope.outputAttributes).length > 0 && Object.keys($scope.outputAttributes).indexOf(nodeId) >= 0;
-      // console.log('NODE HAS OUTPUTS', hasOutputProperties, hasOutputAttributes);
-      // return hasOutputProperties || hasOutputAttributes;
-      // return true;
-    };
+    // TOPOLOGY INFO CONCERNS
 
     // verify the topology validity
     $scope.isTopologyValid = function isTopologyValid(topologyId) {

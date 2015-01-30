@@ -189,7 +189,8 @@ public class ApplicationDeploymentController {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         // when a user is application manager, he can manipulate environment
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER,
+                    ApplicationEnvironmentRole.APPLICATION_USER);
         }
         Deployment deployment = deploymentService.getActiveDeployment(environment.getId());
         return RestResponseBuilder.<Deployment> builder().data(deployment).build();

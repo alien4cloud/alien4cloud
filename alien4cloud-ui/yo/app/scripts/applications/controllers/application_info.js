@@ -18,7 +18,7 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
     $scope.newAppName = $scope.application.name;
 
     $scope.isAllowedModify = UTILS.isDefinedAndNotNull($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
-    $scope.envs = appEnvironments.deployEnvironments;
+    $scope.envs = appEnvironments.environments;
 
     $scope.selectedTab = null;
     $scope.selectTab = function selectTab(applicationId, environmentId) {
