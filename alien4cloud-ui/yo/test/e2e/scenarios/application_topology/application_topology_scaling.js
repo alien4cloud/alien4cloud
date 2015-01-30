@@ -12,10 +12,10 @@ var computesNodeTemplates = {
     ubuntu: componentData.ubuntuTypes.ubuntu()
 };
 
-
 var confirmAction = function(confirmPopup){
   var confirmBtn = confirmPopup.element(by.css('.btn-success'));
   confirmBtn.click();
+  browser.sleep(8000); // Time needed to complete the scaling
 };
 
 var cancelAction = function(cancelPopup){
@@ -34,7 +34,7 @@ var scale = function(oldValue, newValue, cancel) {
   editInput.sendKeys(newValue);
   browser.waitForAngular();
   submitBtn.click();
-  var valueToCheck ;
+  var valueToCheck;
   if (cancel) {
     valueToCheck = oldValue;
     cancelAction(element(by.css('.popover')));
@@ -42,7 +42,6 @@ var scale = function(oldValue, newValue, cancel) {
     valueToCheck = newValue;
     confirmAction(element(by.css('.popover')));
   }
-  browser.waitForAngular();
   expect(scaleEditableInput.getText()).toContain(valueToCheck);
 };
 
@@ -57,7 +56,7 @@ var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
     browser.actions().click(backButton).perform();
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
       expect(states.length).toEqual(valueToCheck);
-      if(newValue) {
+      if (newValue) {
         scale(valueToCheck, newValue, cancel);
       }
     });
@@ -104,7 +103,7 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('minInstances')).isPresent()).toBe(false);
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
-    // change scaling policy
+    // Change scaling policy
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
@@ -119,10 +118,10 @@ describe('Topology scaling feature', function() {
 
     browser.sleep(10000); // Wait for mock deployment to finish
 
-    checkAndScale('rect_Compute',2 , 1);
-    checkAndScale('rect_Compute',1);
-    checkAndScale('rect_Compute',1, 2, true);
-    checkAndScale('rect_Compute',1);
+    checkAndScale('rect_Compute', 2 , 1);
+    checkAndScale('rect_Compute', 1);
+    checkAndScale('rect_Compute', 1, 2, true);
+    checkAndScale('rect_Compute', 1);
 
     checkAndScale('rect_Ubuntu', 3, 1);
     checkAndScale('rect_Ubuntu', 1);
