@@ -90,6 +90,7 @@ public class CloudResourceMatcherService {
      *
      * @param topology the topology to check
      * @param cloud the cloud
+     * @param paaSProvider the paaS provider
      * @param cloudResourceMatcherConfig the matcher configuration
      * @param types the tosca types of all node of the topology
      * @return match result which contains the images that can be used, the flavors that can be used and their possible association
@@ -197,7 +198,7 @@ public class CloudResourceMatcherService {
                     new VersionValueParser(), new GreaterOrEqualValueMatcher())) {
                 continue;
             }
-            List<ActivableComputeTemplate> computeTemplates = cloudService.findComputeTemplates(cloud, cloudImage.getId(), null);
+            List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), null, false);
             if (!computeTemplates.isEmpty()) {
                 for (ActivableComputeTemplate computeTemplate : computeTemplates) {
                     if (computeTemplate.isEnabled()) {
@@ -259,7 +260,7 @@ public class CloudResourceMatcherService {
                     new GreaterOrEqualValueMatcher<Long>())) {
                 continue;
             }
-            List<ActivableComputeTemplate> computeTemplates = cloudService.findComputeTemplates(cloud, cloudImage.getId(), flavor.getId());
+            List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), flavor.getId(), false);
             if (!computeTemplates.isEmpty() && computeTemplates.iterator().next().isEnabled()) {
                 matchedFlavors.add(flavor);
             }

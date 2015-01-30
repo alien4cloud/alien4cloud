@@ -13,14 +13,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ComputeTemplate implements ICloudResourceTemplate {
+public class ComputeTemplate {
 
     private String cloudImageId;
 
     private String cloudImageFlavorId;
 
-    @Override
-    public String getId() {
-        return cloudImageId + "_" + cloudImageFlavorId;
-    }
 }

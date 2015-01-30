@@ -40,7 +40,6 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -62,7 +61,7 @@ import com.google.common.collect.Lists;
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig>, IManualResourceMatcherPaaSProvider {
+public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
 
     public static final String PRIVATE_IP = "private_ip_address";
     public static final String PUBLIC_IP = "public_ip_address";
@@ -549,6 +548,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
-        return new String[0];
+        return null;
     }
 }

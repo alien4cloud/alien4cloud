@@ -2,7 +2,6 @@ package alien4cloud.model.application;
 
 import java.util.Map;
 
-import alien4cloud.model.cloud.NetworkTemplate;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +12,8 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.cloud.ComputeTemplate;
+import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -39,4 +40,6 @@ public class DeploymentSetup {
     private Map<String, ComputeTemplate> cloudResourcesMapping;
 
     private Map<String, NetworkTemplate> networkMapping;
+
+    private Map<String, StorageTemplate> storageMapping;
 }

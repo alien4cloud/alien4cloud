@@ -330,7 +330,7 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
         cloudService.removeCloudImage(cloud, config, cloudImageId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
                 .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedImages(), config.getMatchedFlavors())).build();
@@ -341,7 +341,7 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImages(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
         for (String cloudImageId : cloudImageIds) {
             cloudService.removeCloudImage(cloud, config, cloudImageId);
         }
@@ -365,7 +365,7 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
         cloudService.removeCloudImageFlavor(cloud, config, flavorId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
                 .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedImages(), config.getMatchedFlavors())).build();
@@ -415,7 +415,7 @@ public class CloudController {
     public RestResponse<Void> removeNetwork(@PathVariable String cloudId, @PathVariable String networkName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
         cloudService.removeNetwork(cloud, config, networkName);
         return RestResponseBuilder.<Void> builder().build();
     }

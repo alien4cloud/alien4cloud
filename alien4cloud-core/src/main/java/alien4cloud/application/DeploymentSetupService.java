@@ -25,6 +25,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
@@ -130,7 +131,7 @@ public class DeploymentSetupService {
      */
     public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave)
             throws CloudDisabledException {
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
         CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()),
                 cloudResourceMatcherConfig, types);
@@ -143,12 +144,17 @@ public class DeploymentSetupService {
         MappingGenerationResult<NetworkTemplate> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(),
                 matchResult.getNetworkMatchResult(), topology);
 
+        // Generate default matching for storage
+        MappingGenerationResult<StorageTemplate> storageMapping = generateDefaultMapping(deploymentSetup.getStorageMapping(),
+                matchResult.getStorageMatchResult(), topology);
+
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
         deploymentSetup.setNetworkMapping(networkMapping.mapping);
-        if ((computeMapping.changed || networkMapping.changed) && automaticSave) {
+        deploymentSetup.setStorageMapping(storageMapping.mapping);
+        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed) && automaticSave) {
             alienDAO.save(deploymentSetup);
         }
-        return computeMapping.valid && networkMapping.valid;
+        return computeMapping.valid && networkMapping.valid && storageMapping.valid;
     }
 
     @AllArgsConstructor

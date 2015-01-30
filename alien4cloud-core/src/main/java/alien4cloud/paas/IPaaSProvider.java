@@ -3,6 +3,7 @@ package alien4cloud.paas;
 import java.util.Date;
 import java.util.Map;
 
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
@@ -105,4 +106,11 @@ public interface IPaaSProvider {
      * @return ids for the given resource type
      */
     String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId);
+
+    /**
+     * Call to initialize or notify the paaS provider about matcher configuration change
+     *
+     * @param config the config to take into account
+     */
+    void updateMatcherConfig(CloudResourceMatcherConfig config);
 }
