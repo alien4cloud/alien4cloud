@@ -484,16 +484,18 @@ angular.module('alienUiApp').controller(
         return UTILS.arrayContains($scope.imageRemoveSelection, imageId);
       }
       $scope.performRemoveCloudImageSelection = function() {
-        cloudServices.removeImages({
-            id: $scope.cloud.id
-          }, angular.toJson($scope.imageRemoveSelection), function(success) {
-            angular.forEach($scope.imageRemoveSelection, function(value, key) {
-              UTILS.arrayRemove($scope.cloud.images, value);
-            });
-            $scope.imageRemoveSelection = [];
-            updateComputeResources(success.data);
-            $scope.initSearchImageService();
-        });
+        if ($scope.imageRemoveSelection.length > 0) {
+          cloudServices.removeImages({
+              id: $scope.cloud.id
+            }, angular.toJson($scope.imageRemoveSelection), function(success) {
+              angular.forEach($scope.imageRemoveSelection, function(value, key) {
+                UTILS.arrayRemove($scope.cloud.images, value);
+              });
+              $scope.imageRemoveSelection = [];
+              updateComputeResources(success.data);
+              $scope.initSearchImageService();
+          });
+        }
       }
       
       $scope.imageQueryProvider = {
@@ -507,7 +509,7 @@ angular.module('alienUiApp').controller(
         }
       }
       $scope.initSearchImageService = function() {
-        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 3, undefined, undefined, undefined, {
+        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
           exclude: $scope.cloud.images
         });
         $scope.searchImage();      

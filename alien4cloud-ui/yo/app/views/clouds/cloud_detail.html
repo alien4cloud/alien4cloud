@@ -134,12 +134,7 @@
                                       {{images[cloudImageId].requirement.memSize | bytes | prefix:' mem:'}}</p>
                                     </div>
                                     <div class="col-md-3">
-                                      <div ng-switch="images[cloudImageId].osType" class="text-right">
-                                        <i ng-switch-when="linux" class="fa fa-linux" />
-                                        <i ng-switch-when="windows" class="fa fa-windows" /> 
-                                        <i ng-switch-when="mac os" class="fa fa-apple" /> 
-                                        <i ng-switch-default >{{images[cloudImageId].osType}}</i>  
-                                      </div>
+                                      <os-icon os-type="images[cloudImageId].osType" class="text-right" ></os-icon>
                                       <p class="small text-right" style="margin-top: 10px;">{{images[cloudImageId].osDistribution}} {{images[cloudImageId].osVersion}}</p>
                                     </div>
                                   </div>
@@ -205,12 +200,7 @@
                                       {{cloudImage.requirement.memSize | bytes | prefix:' mem:'}}</p>
                                     </div>
                                     <div class="col-md-3">
-                                      <div ng-switch="cloudImage.osType" class="text-right">
-                                        <i ng-switch-when="linux" class="fa fa-linux" />
-                                        <i ng-switch-when="windows" class="fa fa-windows" /> 
-                                        <i ng-switch-when="mac os" class="fa fa-apple" /> 
-                                        <i ng-switch-default >{{cloudImage.osType}}</i>  
-                                      </div>
+                                      <os-icon os-type="cloudImage.osType" class="text-right"></os-icon>
                                       <p class="small text-right" style="margin-top: 10px;">{{cloudImage.osDistribution}} {{cloudImage.osVersion}}</p>
                                     </div>
                                   </div>
@@ -220,7 +210,7 @@
                           </li>
                         </ul>
                         <!-- pagination bar -->
-                        <pagination-directive pagination-info="searchImageService.pagination" />
+                        <pagination-directive pagination-info="searchImageService.pagination"></pagination-directive>
                       </div>
                     </div>
                   </div>
