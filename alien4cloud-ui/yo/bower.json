@@ -30,7 +30,7 @@
     "d3-tip": "0.6.4",
     "angularjs-toaster": "git://github.com/fastconnect/AngularJS-Toaster.git#master",
     "angular-animate": "~1.2.8",
-    "fc-angular-utils": "0.0.2",
+    "fc-angular-utils": "0.0.3",
     "angular-tree-control": "0.2.2",
     "hopscotch": "git://github.com/alien4cloud/hopscotch.git#master",
     "roboto-fontface": "~0.2.5",

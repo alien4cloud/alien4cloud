@@ -18,8 +18,8 @@ var confirmAction = function(confirmPopup){
   confirmBtn.click();
 };
 
-var cancelAction = function(confirmPopup){
-  var cancelBtn = confirmPopup.element(by.css('.btn-danger'));
+var cancelAction = function(cancelPopup){
+  var cancelBtn = cancelPopup.element(by.css('.btn-danger'));
   cancelBtn.click();
 };
 
@@ -35,10 +35,10 @@ var scale = function(oldValue, newValue, cancel) {
   browser.waitForAngular();
   submitBtn.click();
   var valueToCheck ;
-  if(cancel){
+  if (cancel) {
     valueToCheck = oldValue;
     cancelAction(element(by.css('.popover')));
-  }else{
+  } else {
     valueToCheck = newValue;
     confirmAction(element(by.css('.popover')));
   }
@@ -66,17 +66,24 @@ var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
 
 
 describe('Topology scaling feature', function() {
+  var reset = true;
+  var after = false;
 
   beforeEach(function() {
-    topologyEditorCommon.beforeTopologyTest();
+    if (reset) {
+      reset = false;
+      topologyEditorCommon.beforeTopologyTest();
+    }
   });
 
   afterEach(function() {
-    common.after();
+    if (after) {
+      common.after();
+    }
   });
 
-  it('should be able to add scaling policy, deploy and scale (with confirmation)  a compute, and every node derived from it', function() {
-    console.log('################# should be able to add scaling policy, deploy and scale (with confirmation) a compute, and every node derived from it');
+  it('should be able to add scaling policy', function() {
+    console.log('################# should be able to add scaling policy.');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
 
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
@@ -97,31 +104,29 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('minInstances')).isPresent()).toBe(false);
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
-    //deploying and scaling
+    // change scaling policy
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
+  });
 
-    // applications.deployExistingApplication('Alien');
+  it('should be able to deploy and scale (with confirmation) a compute, and every node derived from it', function() {
+    after = true;
+    console.log('################# should be able to deploy and scale (with confirmation) a compute, and every node derived from it.');
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
     navigation.go('applications', 'runtime');
 
-    // Wait for mock deployment to finish
-    browser.sleep(10000);
+    browser.sleep(10000); // Wait for mock deployment to finish
 
     checkAndScale('rect_Compute',2 , 1);
-    browser.sleep(10000);
     checkAndScale('rect_Compute',1);
     checkAndScale('rect_Compute',1, 2, true);
-    browser.sleep(10000);
     checkAndScale('rect_Compute',1);
 
     checkAndScale('rect_Ubuntu', 3, 1);
-    browser.sleep(10000);
     checkAndScale('rect_Ubuntu', 1);
     checkAndScale('rect_Ubuntu', 1, 2, true);
-    browser.sleep(10000);
     checkAndScale('rect_Ubuntu', 1);
   });
 
