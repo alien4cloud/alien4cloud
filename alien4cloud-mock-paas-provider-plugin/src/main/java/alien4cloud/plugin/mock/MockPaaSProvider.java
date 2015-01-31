@@ -74,6 +74,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     @Resource
     private DeploymentService deploymentService;
 
+    private ProviderConfig providerConfiguration;
+
     /**
      * A little bit scary isn't it ? It's just a mock man.
      */
@@ -536,6 +538,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                 log.info("Throwing error for bad configuration");
                 throw new PluginConfigurationException("Failed to configure Mock PaaS Provider Plugin error.");
             }
+            this.providerConfiguration = configuration;
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }
@@ -543,7 +546,15 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public String[] getAvailableResourceIds(CloudResourceType resourceType) {
-        return null;
+        if (providerConfiguration != null && providerConfiguration.isProvideResourceIds()) {
+            String[] ids = new String[10];
+            for (int i = 0; i < 10; i++) {
+                ids[i] = "yetAnotherResourceId-" + resourceType.name() + "-" + i;
+            }
+            return ids;
+        } else {
+            return null;
+        }
     }
 
     @Override

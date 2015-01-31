@@ -82,15 +82,6 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
     
-    var crudRemoveImages = $resource('rest/clouds/:id/removeImages', {}, {
-      'removeMultiple': {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
     var crudNetwork = $resource('rest/clouds/:id/networks/:id');
@@ -98,6 +89,10 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
+    
+    var cloudImageResource = $resource('rest/clouds/:id/images/:imageId/resource');
+    
+    var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:flavorId/resource');
 
     var setNetworkResource = $resource('rest/clouds/:id/networks/:id/resource');
 
@@ -205,13 +200,14 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeFlavor': crudFlavor.remove,
       'addImage': crudImage.save,
       'removeImage': crudImage.remove,
-      'removeImages': crudRemoveImages.removeMultiple,
       'networkFormDescriptor': networkFormDescriptor,
       'addNetwork': crudNetwork.save,
       'removeNetwork': crudNetwork.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
-      'setNetworkResource': setNetworkResource.save
+      'setNetworkResource': setNetworkResource.save,
+      'setCloudImageResource' : cloudImageResource.save,
+      'setCloudFlavorResource' : cloudFlavorResource.save
     };
   }
 ]);
