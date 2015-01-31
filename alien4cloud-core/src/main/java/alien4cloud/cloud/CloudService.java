@@ -566,13 +566,12 @@ public class CloudService {
      */
     public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) throws CloudDisabledException {
         IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
-        CloudResourceMatcherConfig matcherConfig = getCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
             cloud.getImageMapping().remove(cloudImageId);
             getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
             cloud.getImageMapping().put(cloudImageId, paaSResourceId);
-            addComputeTemplatesForImage(cloud, paaSProvider, matcherConfig, cloudImageId);
+            addComputeTemplatesForImage(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageId);
         }
         initializeMatcherConfig(paaSProvider, cloud);
         alienDAO.save(cloud);
@@ -610,13 +609,12 @@ public class CloudService {
         if (cloudImageFlavor == null) {
             throw new NotFoundException("Cloud image flavor [" + flavorId + "] do not exist");
         }
-        CloudResourceMatcherConfig matcherConfig = getCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
             cloud.getFlavorMapping().remove(flavorId);
             getComputeTemplates(cloud, null, flavorId, true);
         } else {
             cloud.getFlavorMapping().put(flavorId, paaSResourceId);
-            addComputeTemplatesForFlavor(cloud, paaSProvider, matcherConfig, cloudImageFlavor);
+            addComputeTemplatesForFlavor(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageFlavor);
         }
         initializeMatcherConfig(paaSProvider, cloud);
         alienDAO.save(cloud);
