@@ -84,17 +84,17 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
-    var crudNetwork = $resource('rest/clouds/:id/networks/:id');
+    var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
     
-    var cloudImageResource = $resource('rest/clouds/:id/images/:imageId/resource');
+    var cloudImageResource = $resource('rest/clouds/:id/images/:resourceId/resource');
     
-    var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:flavorId/resource');
+    var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:resourceId/resource');
 
-    var setNetworkResource = $resource('rest/clouds/:id/networks/:id/resource');
+    var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
@@ -205,7 +205,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeNetwork': crudNetwork.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
-      'setNetworkResource': setNetworkResource.save,
+      'setCloudNetworkResource': cloudNetworkResource.save,
       'setCloudImageResource' : cloudImageResource.save,
       'setCloudFlavorResource' : cloudFlavorResource.save
     };

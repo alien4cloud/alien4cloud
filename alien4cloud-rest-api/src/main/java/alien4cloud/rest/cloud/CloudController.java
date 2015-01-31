@@ -97,44 +97,6 @@ public class CloudController {
         return RestResponseBuilder.<Boolean> builder().data(deleted).build();
     }
 
-    // /**
-    // * Get details for a cloud.
-    // *
-    // * @param id Id of the cloud.
-    // */
-    // @ApiOperation(value = "Get details of a cloud.")
-    // @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<CloudDTO> get(@ApiParam(value = "Id of the cloud for which to get details.", required = true) @Valid @NotBlank @PathVariable String
-    // id) {
-    // Cloud cloud = cloudService.getMandatoryCloud(id);
-    // CloudDTO cloudDTO = new CloudDTO();
-    // cloudDTO.setCloud(cloud);
-    // if (!cloud.getName().contains("manual")) {
-    // cloudDTO.setPaaSImageIds(new String[] { "img1sdkfhksdjfhsdkfhksjhdfk", "aaaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbb" });
-    // }
-    // Map<String, MatchedCloudImageDTO> images = new HashMap<String, MatchedCloudImageDTO>();
-    // for (String imgId : cloud.getImages()) {
-    // MatchedCloudImageDTO imageDto = new MatchedCloudImageDTO();
-    // CloudImage image = new CloudImage();
-    // image.setId(imgId);
-    // image.setName("Fake");
-    // image.setOsType("linux");
-    // image.setOsArch("X86");
-    // image.setOsDistribution("osDistribution");
-    // image.setOsVersion("34.34");
-    // image.setRequirement(new CloudImageRequirement());
-    // image.getRequirement().setDiskSize(1024l);
-    // image.getRequirement().setMemSize(2048l);
-    // image.getRequirement().setNumCPUs(4);
-    // imageDto.setResource(image);
-    // cloudDTO.setImages(images);
-    //
-    // images.put(imgId, imageDto);
-    // }
-    //
-    // return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
-    // }
-
     /**
      * Get details for a cloud.
      *

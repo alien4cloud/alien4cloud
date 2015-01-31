@@ -488,6 +488,8 @@
     "FLAVOR": "Flavor",
     "TEMPLATE": "Template",
     "TEMPLATE_DETAILS": "Details",
+    "PAAS_RESOURCE_ID": "PaaS resource id",
+    "RESOURCE_NOT_CONFIGURED": "Not configured",
     "IMAGES": {
       "NEW": "New",
       "NEW_MODAL_TITLE": "Add image",
@@ -508,7 +510,6 @@
       "ENABLE": "Enabled",
       "IMAGE_NAME": "Image's name",
       "FLAVOR_NAME": "Flavor's name",
-      "RESOURCE_ID": "PaaS resource's id"
     },
     "NETWORK": "Network",
     "NETWORKS": {
@@ -517,9 +518,7 @@
       "CIDR": "CIDR",
       "GATEWAY_IP": "Gateway's IP",
       "IP_VERSION": "IP version",
-      "RESOURCE_ID": "Resource id",
-      "NEW_MODAL_TITLE": "Create a new network",
-      "NOT_CONFIGURED": "Not configured"
+      "NEW_MODAL_TITLE": "Create a new network"
     },
     "IAAS": {
       "OTHER": "Other",
