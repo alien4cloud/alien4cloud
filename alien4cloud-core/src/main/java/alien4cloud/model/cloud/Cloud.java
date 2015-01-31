@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
@@ -104,4 +105,12 @@ public class Cloud implements ISecuredResource {
     private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
 
     private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
+
+    private Map<String, String> imageMapping = Maps.newHashMap();
+
+    private Map<String, String> flavorMapping = Maps.newHashMap();
+
+    private Map<String, String> networkMapping = Maps.newHashMap();
+
+    private Map<String, String> storageMapping = Maps.newHashMap();
 }

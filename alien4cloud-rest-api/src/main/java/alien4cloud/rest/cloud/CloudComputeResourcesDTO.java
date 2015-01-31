@@ -1,14 +1,13 @@
 package alien4cloud.rest.cloud;
 
 import java.util.Collection;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
-import alien4cloud.model.cloud.MatchedCloudImage;
-import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -28,7 +27,13 @@ public class CloudComputeResourcesDTO {
     /**
      * The matching configuration for image and flavor
      */
-    private Collection<MatchedCloudImage> matchedCloudImages;
+    /**
+     * Map of alien image id -> paaS resource id
+     */
+    private Map<String, String> imageMapping;
 
-    private Collection<MatchedCloudImageFlavor> matchedCloudImageFlavors;
+    /**
+     * Map of alien flavor id -> paaS resource id
+     */
+    private Map<String, String> flavorMapping;
 }

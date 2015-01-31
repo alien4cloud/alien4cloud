@@ -27,13 +27,13 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.MatchedCloudImage;
-import alien4cloud.model.cloud.MatchedCloudImageDTO;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
 import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -108,14 +108,13 @@ public class CloudController {
         // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
-        CloudResourceMatcherConfig matcherConfig = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig matcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
 
-        Map<MatchedCloudImage.CloudImageId, String> imageMapping = matcherConfig.getImageMapping();
+        Map<CloudImage, String> imageMapping = matcherConfig.getImageMapping();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
-        Map<String, MatchedCloudImageDTO> matchedImages = Maps.newHashMap();
+        Map<String, MatchedCloudImage> matchedImages = Maps.newHashMap();
         for (Map.Entry<String, CloudImage> imageEntry : images.entrySet()) {
-            matchedImages.put(imageEntry.getKey(),
-                    new MatchedCloudImageDTO(imageEntry.getValue(), imageMapping.get(new MatchedCloudImage.CloudImageId(imageEntry.getKey()))));
+            matchedImages.put(imageEntry.getKey(), new MatchedCloudImage(imageEntry.getValue(), imageMapping.get(imageEntry.getValue())));
         }
 
         Map<CloudImageFlavor, String> flavorMapping = matcherConfig.getFlavorMapping();
@@ -130,7 +129,7 @@ public class CloudController {
             matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, networkMapping.get(network)));
         }
 
-        Map<StorageTemplate, String> storageMapping = matcherConfig.getBlockStorageMapping();
+        Map<StorageTemplate, String> storageMapping = matcherConfig.getStorageMapping();
         Map<String, MatchedStorageTemplate> matchedStorages = Maps.newHashMap();
         for (StorageTemplate storage : cloud.getStorages()) {
             matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, storageMapping.get(storage)));
@@ -328,10 +327,10 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
         cloudService.removeCloudImage(cloud, config, cloudImageId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
-                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedImages(), config.getMatchedFlavors())).build();
+                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), cloud.getImageMapping(), cloud.getFlavorMapping())).build();
     }
 
     @ApiOperation(value = "Remove some cloud images from the given cloud", notes = "Only user with ADMIN role can remove a cloud image.")
@@ -339,12 +338,12 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImages(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
         for (String cloudImageId : cloudImageIds) {
             cloudService.removeCloudImage(cloud, config, cloudImageId);
         }
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
-                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedImages(), config.getMatchedFlavors())).build();
+                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), cloud.getImageMapping(), cloud.getFlavorMapping())).build();
     }
 
     @ApiOperation(value = "Add a flavor to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
@@ -361,10 +360,10 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
         cloudService.removeCloudImageFlavor(cloud, config, flavorId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
-                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedImages(), config.getMatchedFlavors())).build();
+                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), cloud.getImageMapping(), cloud.getFlavorMapping())).build();
     }
 
     @ApiOperation(value = "Enable or disable a cloud template", notes = "Only user with ADMIN role can enable a cloud template.")
@@ -380,7 +379,7 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/images/{imageId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudComputeResourcesDTO> setCloudImageResourceId(@PathVariable String cloudId, @PathVariable String imageId,
-            @RequestParam(required = false) String resourceId) {
+            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setCloudImageResourceId(cloud, imageId, resourceId);
@@ -392,7 +391,7 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
     @RequestMapping(value = "/{cloudId}/flavors/{flavorId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudComputeResourcesDTO> setCloudImageFlavorResourceId(@PathVariable String cloudId, @PathVariable String flavorId,
-            @RequestParam(required = false) String resourceId) {
+            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setCloudImageFlavorResourceId(cloud, flavorId, resourceId);
@@ -415,7 +414,7 @@ public class CloudController {
     public RestResponse<Void> removeNetwork(@PathVariable String cloudId, @PathVariable String networkName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
         cloudService.removeNetwork(cloud, config, networkName);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -423,7 +422,7 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the network", notes = "Only user with ADMIN role can set the resource id for a network.")
     @RequestMapping(value = "/{cloudId}/networks/{networkName}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setNetworkResourceId(@PathVariable String cloudId, @PathVariable String networkName,
-            @RequestParam(required = false) String resourceId) {
+            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setNetworkResourceId(cloud, networkName, resourceId);
@@ -444,7 +443,7 @@ public class CloudController {
     public RestResponse<Void> removeStorageTemplate(@PathVariable String cloudId, @PathVariable String storageTemplateName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
         cloudService.removeStorageTemplate(cloud, config, storageTemplateName);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -452,7 +451,7 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the storage template", notes = "Only user with ADMIN role can set the resource id for a storage template.")
     @RequestMapping(value = "/{cloudId}/storages/{storageId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setStorageTemplateResourceId(@PathVariable String cloudId, @PathVariable String storageId,
-            @RequestParam(required = false) String resourceId) {
+            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setStorageResourceId(cloud, storageId, resourceId);

@@ -373,7 +373,7 @@ public class ApplicationDeploymentController {
                     + "] does not have any cloud assigned");
         }
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         return RestResponseBuilder
                 .<CloudResourceTopologyMatchResult> builder()
                 .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,

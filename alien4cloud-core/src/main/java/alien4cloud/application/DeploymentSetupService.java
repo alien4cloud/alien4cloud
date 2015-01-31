@@ -131,7 +131,7 @@ public class DeploymentSetupService {
      */
     public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave)
             throws CloudDisabledException {
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getMandatoryCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
         CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()),
                 cloudResourceMatcherConfig, types);

@@ -31,6 +31,7 @@ import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
+import alien4cloud.utils.MappingUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
 
@@ -151,7 +152,7 @@ public class CloudResourceMatcherService {
         Set<StorageTemplate> existingStorages = cloud.getStorages();
         List<StorageTemplate> eligibleStorages = Lists.newArrayList();
         for (StorageTemplate storage : existingStorages) {
-            if (!cloudResourceMatcherConfig.getBlockStorageMapping().containsKey(storage)) {
+            if (!cloudResourceMatcherConfig.getStorageMapping().containsKey(storage)) {
                 continue;
             }
             if (!match(storageProperties, NormativeBlockStorageConstants.DEVICE, storage.getDevice(), new TextValueParser(), new EqualMatcher<String>())) {
@@ -239,8 +240,9 @@ public class CloudResourceMatcherService {
         // From the image, try to get all flavors that are matched and compatible with the image
         String[] paaSFlavorIds = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
         Set<CloudImageFlavor> eligibleFlavors = Sets.newHashSet();
+        Map<String, CloudImageFlavor> flavorReverseMapping = MappingUtil.getReverseMapping(cloudResourceMatcherConfig.getFlavorMapping());
         for (String paaSFlavorId : paaSFlavorIds) {
-            CloudImageFlavor eligibleFlavor = cloudResourceMatcherConfig.getReverseFlavorMapping().get(paaSFlavorId);
+            CloudImageFlavor eligibleFlavor = flavorReverseMapping.get(paaSFlavorId);
             if (eligibleFlavor != null) {
                 eligibleFlavors.add(eligibleFlavor);
             }

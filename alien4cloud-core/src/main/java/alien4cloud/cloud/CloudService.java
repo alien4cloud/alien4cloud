@@ -23,7 +23,6 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.AbstractMatchedResource;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
@@ -32,10 +31,6 @@ import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.ICloudResourceTemplate;
-import alien4cloud.model.cloud.MatchedCloudImage;
-import alien4cloud.model.cloud.MatchedCloudImageFlavor;
-import alien4cloud.model.cloud.MatchedNetworkTemplate;
-import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
@@ -50,9 +45,11 @@ import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
+import alien4cloud.utils.MappingUtil;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Slf4j
@@ -126,13 +123,7 @@ public class CloudService {
     private void initializeMatcherConfig(IPaaSProvider provider, Cloud cloud) {
         // If the provider manually match resources, then we should update it with saved configuration from Alien
         log.info("Loading matching configuration for cloud <{}>.", cloud.getName());
-        CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
-        if (config == null) {
-            log.info("Publish new resource matcher configuration for cloud <{}>", cloud.getName());
-            config = new CloudResourceMatcherConfig();
-            config.setId(cloud.getId());
-            alienDAO.save(config);
-        }
+        CloudResourceMatcherConfig config = getCloudResourceMatcherConfig(cloud);
         provider.updateMatcherConfig(config);
     }
 
@@ -405,7 +396,6 @@ public class CloudService {
     private void disableCloud(Cloud cloud) {
         // un-register the IPaaSProvider for the cloud.
         paaSProviderService.unregister(cloud.getId());
-
         cloud.setEnabled(false);
         alienDAO.save(cloud);
     }
@@ -505,9 +495,8 @@ public class CloudService {
      */
     public void removeCloudImage(Cloud cloud, CloudResourceMatcherConfig config, String cloudImageId) {
         cloud.getImages().remove(cloudImageId);
-        getMatchedResource(config.getMatchedImages(), cloudImageId, true);
+        cloud.getImageMapping().remove(cloudImageId);
         getComputeTemplates(cloud, cloudImageId, null, true);
-        alienDAO.save(config);
         alienDAO.save(cloud);
     }
 
@@ -519,9 +508,8 @@ public class CloudService {
      */
     public void removeCloudImageFlavor(Cloud cloud, CloudResourceMatcherConfig config, String flavorId) {
         getResource(cloud.getFlavors(), flavorId, true);
-        getMatchedResource(config.getMatchedFlavors(), flavorId, true);
+        cloud.getFlavorMapping().remove(flavorId);
         getComputeTemplates(cloud, null, flavorId, true);
-        alienDAO.save(config);
         alienDAO.save(cloud);
     }
 
@@ -542,11 +530,6 @@ public class CloudService {
         alienDAO.save(cloud);
     }
 
-    public CloudResourceMatcherConfig findCloudResourceMatcherConfig(Cloud cloud) {
-        // A little bit tricky here, the resource matcher has the same id as the cloud
-        return alienDAO.findById(CloudResourceMatcherConfig.class, cloud.getId());
-    }
-
     public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
         if (cloud.isEnabled()) {
             IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
@@ -556,12 +539,22 @@ public class CloudService {
         }
     }
 
-    public CloudResourceMatcherConfig getMandatoryCloudResourceMatcherConfig(Cloud cloud) {
-        CloudResourceMatcherConfig config = findCloudResourceMatcherConfig(cloud);
-        if (config == null) {
-            throw new NotFoundException("Could not find resource matcher config for cloud " + cloud.getName() + ", perhaps it's not a manual matcher PaaS");
-        }
+    public CloudResourceMatcherConfig getCloudResourceMatcherConfig(Cloud cloud) {
+        CloudResourceMatcherConfig config = new CloudResourceMatcherConfig();
+        Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
+        config.setImageMapping(MappingUtil.getMapping(images, cloud.getImageMapping()));
+        config.setFlavorMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getFlavors()), cloud.getFlavorMapping()));
+        config.setNetworkMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getNetworks()), cloud.getNetworkMapping()));
+        config.setStorageMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getStorages()), cloud.getStorageMapping()));
         return config;
+    }
+
+    private <U extends ICloudResourceTemplate> Map<String, U> buildResourcesMap(Set<U> resources) {
+        Map<String, U> resourcesMap = Maps.newHashMap();
+        for (U resource : resources) {
+            resourcesMap.put(resource.getId(), resource);
+        }
+        return resourcesMap;
     }
 
     /**
@@ -571,34 +564,34 @@ public class CloudService {
      * @param cloudImageId the image id
      * @param paaSResourceId paaS resource id
      */
-    public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) {
-        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+    public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) throws CloudDisabledException {
+        IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
+        CloudResourceMatcherConfig matcherConfig = getCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
-            getMatchedResource(matcherConfig.getMatchedImages(), cloudImageId, true);
+            cloud.getImageMapping().remove(cloudImageId);
             getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
-            MatchedCloudImage existing = getMatchedResource(matcherConfig.getMatchedImages(), cloudImageId, false);
-            if (existing != null) {
-                existing.setPaaSResourceId(paaSResourceId);
-            } else {
-                matcherConfig.getMatchedImages().add(new MatchedCloudImage(new MatchedCloudImage.CloudImageId(cloudImageId), paaSResourceId));
-            }
-            addComputeTemplatesForImage(cloud, matcherConfig, cloudImageId);
+            cloud.getImageMapping().put(cloudImageId, paaSResourceId);
+            addComputeTemplatesForImage(cloud, paaSProvider, matcherConfig, cloudImageId);
         }
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        if (paaSProvider != null) {
-            // Cloud may not be initialized yet
-            initializeMatcherConfig(paaSProvider, cloud);
-        }
-        alienDAO.save(matcherConfig);
+        initializeMatcherConfig(paaSProvider, cloud);
+        alienDAO.save(cloud);
     }
 
-    private void addComputeTemplatesForImage(Cloud cloud, CloudResourceMatcherConfig matcherConfig, String cloudImageId) {
+    private void addComputeTemplatesForImage(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, String cloudImageId) {
         Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
+        String paaSImageId = matcherConfig.getImageMapping().get(cloudImage);
+        if (paaSImageId == null) {
+            throw new NotFoundException("Cannot add compute template as mapping not found for image [" + cloudImageId + "]");
+        }
+        String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
+        Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the flavor
-            if (isFlavorMatchImageRequirement(cloudImage, flavor) && matcherConfig.getReverseFlavorMapping().get(flavor) != null) {
+            String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
+            if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
+                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
                 computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId()));
             }
         }
@@ -611,39 +604,39 @@ public class CloudService {
      * @param flavorId the image id
      * @param paaSResourceId paaS resource id
      */
-    public void setCloudImageFlavorResourceId(Cloud cloud, String flavorId, String paaSResourceId) {
-        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
+    public void setCloudImageFlavorResourceId(Cloud cloud, String flavorId, String paaSResourceId) throws CloudDisabledException {
+        IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
         CloudImageFlavor cloudImageFlavor = getResource(cloud.getFlavors(), flavorId, false);
         if (cloudImageFlavor == null) {
             throw new NotFoundException("Cloud image flavor [" + flavorId + "] do not exist");
         }
+        CloudResourceMatcherConfig matcherConfig = getCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
-            getMatchedResource(matcherConfig.getMatchedFlavors(), flavorId, true);
+            cloud.getFlavorMapping().remove(flavorId);
             getComputeTemplates(cloud, null, flavorId, true);
         } else {
-            MatchedCloudImageFlavor existing = getMatchedResource(matcherConfig.getMatchedFlavors(), flavorId, false);
-            if (existing != null) {
-                existing.setPaaSResourceId(paaSResourceId);
-            } else {
-                matcherConfig.getMatchedFlavors().add(new MatchedCloudImageFlavor(cloudImageFlavor, paaSResourceId));
-            }
-            addComputeTemplatesForFlavor(cloud, matcherConfig, cloudImageFlavor);
+            cloud.getFlavorMapping().put(flavorId, paaSResourceId);
+            addComputeTemplatesForFlavor(cloud, paaSProvider, matcherConfig, cloudImageFlavor);
         }
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        if (paaSProvider != null) {
-            // Cloud may not be initialized yet
-            initializeMatcherConfig(paaSProvider, cloud);
-        }
-        alienDAO.save(matcherConfig);
+        initializeMatcherConfig(paaSProvider, cloud);
+        alienDAO.save(cloud);
     }
 
-    private void addComputeTemplatesForFlavor(Cloud cloud, CloudResourceMatcherConfig matcherConfig, CloudImageFlavor flavor) {
+    private void addComputeTemplatesForFlavor(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, CloudImageFlavor flavor) {
         Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
+        String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
+        if (paaSFlavorId == null) {
+            throw new NotFoundException("Cannot add compute template as mapping not found for flavor [" + flavor.getId() + "]");
+        }
         for (String imageId : cloud.getImages()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the image
-            if (isFlavorMatchImageRequirement(images.get(imageId), flavor)
-                    && matcherConfig.getReverseImageMapping().get(new MatchedCloudImage.CloudImageId(imageId)) != null) {
+            CloudImage image = images.get(imageId);
+            String paaSImageId = matcherConfig.getImageMapping().get(image);
+            String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
+            Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
+            if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
+                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
                 computes.add(new ActivableComputeTemplate(imageId, flavor.getId()));
             }
         }
@@ -674,20 +667,6 @@ public class CloudService {
         return foundTemplates;
     }
 
-    private <U extends ICloudResourceTemplate, T extends AbstractMatchedResource<U>> T getMatchedResource(Collection<T> resources, String id, boolean take) {
-        Iterator<T> templateIterator = resources.iterator();
-        while (templateIterator.hasNext()) {
-            T matchedTemplate = templateIterator.next();
-            if (matchedTemplate.getResource().getId().equals(id)) {
-                if (take) {
-                    templateIterator.remove();
-                }
-                return matchedTemplate;
-            }
-        }
-        return null;
-    }
-
     private <T extends ICloudResourceTemplate> T getResource(Collection<T> resources, String id, boolean take) {
         Iterator<T> templateIterator = resources.iterator();
         while (templateIterator.hasNext()) {
@@ -704,9 +683,8 @@ public class CloudService {
 
     public void addNetwork(Cloud cloud, NetworkTemplate network) {
         Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
-        if (existingNetworks == null) {
-            existingNetworks = Sets.newHashSet();
-            cloud.setNetworks(existingNetworks);
+        if (getResource(existingNetworks, network.getId(), false) != null) {
+            throw new AlreadyExistException("Network template " + network.getId() + " already exist");
         }
         existingNetworks.add(network);
         alienDAO.save(cloud);
@@ -717,9 +695,8 @@ public class CloudService {
         // Remove network
         getResource(existingNetworks, networkName, true);
         // Remove matched network
-        getMatchedResource(config.getMatchedNetworks(), networkName, true);
+        cloud.getNetworkMapping().remove(networkName);
         // Save
-        alienDAO.save(config);
         alienDAO.save(cloud);
     }
 
@@ -730,79 +707,57 @@ public class CloudService {
      * @param networkName the network's name
      * @param paaSResourceId paaS resource id
      */
-    public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) {
+    public void setNetworkResourceId(Cloud cloud, String networkName, String paaSResourceId) throws CloudDisabledException {
         NetworkTemplate foundNetwork = getResource(cloud.getNetworks(), networkName, false);
         if (foundNetwork == null) {
             throw new NotFoundException("Network [" + networkName + "] not found");
         }
-        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
-            getMatchedResource(matcherConfig.getMatchedNetworks(), networkName, true);
+            cloud.getNetworkMapping().remove(networkName);
         } else {
-            MatchedNetworkTemplate existing = getMatchedResource(matcherConfig.getMatchedNetworks(), networkName, false);
-            if (existing != null) {
-                existing.setPaaSResourceId(paaSResourceId);
-            } else {
-                matcherConfig.getMatchedNetworks().add(new MatchedNetworkTemplate(foundNetwork, paaSResourceId));
-            }
+            cloud.getNetworkMapping().put(networkName, paaSResourceId);
         }
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        if (paaSProvider != null) {
-            // Cloud may not be initialized yet
-            initializeMatcherConfig(paaSProvider, cloud);
-        }
-        alienDAO.save(matcherConfig);
+        initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
+        alienDAO.save(cloud);
     }
 
     public void addStorageTemplate(Cloud cloud, StorageTemplate storageTemplate) {
         Set<StorageTemplate> storageTemplates = cloud.getStorages();
-        if (storageTemplates == null) {
-            storageTemplates = Sets.newHashSet();
-            cloud.setStorages(storageTemplates);
+        if (getResource(storageTemplates, storageTemplate.getId(), false) != null) {
+            throw new AlreadyExistException("Network template " + storageTemplate.getId() + " already exist");
         }
         storageTemplates.add(storageTemplate);
         alienDAO.save(cloud);
     }
 
-    public void removeStorageTemplate(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+    public void removeStorageTemplate(Cloud cloud, CloudResourceMatcherConfig config, String storageId) {
         Set<StorageTemplate> storageTemplates = cloud.getStorages();
-        // Remove network
-        getResource(storageTemplates, networkName, true);
-        // Remove matched network
-        getMatchedResource(config.getMatchedNetworks(), networkName, true);
+        // Remove storage
+        getResource(storageTemplates, storageId, true);
+        // Remove matched storage
+        cloud.getStorageMapping().remove(storageId);
         // Save
-        alienDAO.save(config);
         alienDAO.save(cloud);
     }
 
     /**
-     * Set the network resource id
+     * Set the storage resource id
      *
      * @param cloud the cloud to update
-     * @param storageId the network's name
+     * @param storageId the storage's name
      * @param paaSResourceId paaS resource id
      */
-    public void setStorageResourceId(Cloud cloud, String storageId, String paaSResourceId) {
+    public void setStorageResourceId(Cloud cloud, String storageId, String paaSResourceId) throws CloudDisabledException {
         StorageTemplate foundStorage = getResource(cloud.getStorages(), storageId, false);
         if (foundStorage == null) {
             throw new NotFoundException("Storage [" + storageId + "] not found");
         }
-        CloudResourceMatcherConfig matcherConfig = getMandatoryCloudResourceMatcherConfig(cloud);
         if (paaSResourceId == null) {
-            getMatchedResource(matcherConfig.getMatchedBlockStorages(), storageId, true);
+            cloud.getStorageMapping().remove(storageId);
         } else {
-            MatchedStorageTemplate existing = getMatchedResource(matcherConfig.getMatchedBlockStorages(), storageId, false);
-            if (existing != null) {
-                existing.setPaaSResourceId(paaSResourceId);
-            } else {
-                matcherConfig.getMatchedBlockStorages().add(new MatchedStorageTemplate(foundStorage, paaSResourceId));
-            }
+            cloud.getStorageMapping().put(storageId, paaSResourceId);
         }
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        if (paaSProvider != null) {
-            // Cloud may not be initialized yet
-            initializeMatcherConfig(paaSProvider, cloud);
-        }
-        alienDAO.save(matcherConfig);
+        initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
+        alienDAO.save(cloud);
     }
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.MatchedCloudImageDTO;
+import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
 import alien4cloud.model.cloud.MatchedStorageTemplate;
@@ -24,7 +24,7 @@ public class CloudDTO {
 
     private Cloud cloud;
 
-    private Map<String, MatchedCloudImageDTO> images;
+    private Map<String, MatchedCloudImage> images;
 
     private Map<String, MatchedCloudImageFlavor> flavors;
 
