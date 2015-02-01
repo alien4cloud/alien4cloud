@@ -121,12 +121,12 @@ public class CloudController {
 
         Map<String, MatchedNetworkTemplate> matchedNetworks = Maps.newHashMap();
         for (NetworkTemplate network : cloud.getNetworks()) {
-            matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, cloud.getNetworkMapping().get(network)));
+            matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, cloud.getNetworkMapping().get(network.getId())));
         }
 
         Map<String, MatchedStorageTemplate> matchedStorages = Maps.newHashMap();
         for (StorageTemplate storage : cloud.getStorages()) {
-            matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, cloud.getNetworkMapping().get(storage)));
+            matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, cloud.getStorageMapping().get(storage.getId())));
         }
         CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, cloudService.getCloudResourceIds(cloud,
                 CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR), cloudService.getCloudResourceIds(cloud,

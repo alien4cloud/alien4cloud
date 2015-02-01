@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.QueryHelper;
@@ -566,7 +567,7 @@ public class CloudService {
      */
     public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) throws CloudDisabledException {
         IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
-        if (paaSResourceId == null) {
+        if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getImageMapping().remove(cloudImageId);
             getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
@@ -609,7 +610,7 @@ public class CloudService {
         if (cloudImageFlavor == null) {
             throw new NotFoundException("Cloud image flavor [" + flavorId + "] do not exist");
         }
-        if (paaSResourceId == null) {
+        if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getFlavorMapping().remove(flavorId);
             getComputeTemplates(cloud, null, flavorId, true);
         } else {
@@ -710,7 +711,7 @@ public class CloudService {
         if (foundNetwork == null) {
             throw new NotFoundException("Network [" + networkName + "] not found");
         }
-        if (paaSResourceId == null) {
+        if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getNetworkMapping().remove(networkName);
         } else {
             cloud.getNetworkMapping().put(networkName, paaSResourceId);
@@ -750,7 +751,7 @@ public class CloudService {
         if (foundStorage == null) {
             throw new NotFoundException("Storage [" + storageId + "] not found");
         }
-        if (paaSResourceId == null) {
+        if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getStorageMapping().remove(storageId);
         } else {
             cloud.getStorageMapping().put(storageId, paaSResourceId);
