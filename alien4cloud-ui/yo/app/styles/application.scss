@@ -63,6 +63,10 @@
 .margin-top-25 { margin-top: 2.5em; }
 .margin-top-30 { margin-top: 3.0em; }
 
+li.selected {
+   background-color: #dff0d8;
+}
+
 // FIXME: just a hack to make menu popup visible
 .dropdownAsSelect {
   position: relative !important;

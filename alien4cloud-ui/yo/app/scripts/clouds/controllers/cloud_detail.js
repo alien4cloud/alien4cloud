@@ -451,6 +451,9 @@ angular.module('alienUiApp').controller(
         });
       };
       
+        });
+      };
+      
       $scope.selectTemplate = function(template) {
         $scope.selectedTemplate = template;
       };
