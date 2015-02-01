@@ -224,7 +224,7 @@
                     <div class="row">
                       <div class="col-md-12">
                         <ul class="list-group">
-                          <li class="list-group-item clickable-media {{isInCloudImageAddSelection(cloudImage.id) ? 'application-deployment-flavor-selected' : ''}}" ng-repeat="cloudImage in searchImageData.data">
+                          <li class="list-group-item clickable-media {{isInCloudImageAddSelection(cloudImage.id) ? 'selected' : ''}}" ng-repeat="cloudImage in searchImageData.data">
                             <div class="media" id="li_{{cloudImage.name}}" ng-click="switchCloudImageAddSelection(cloudImage.id)">
                               <div class="media-body">
                                 <h4 class="media-heading">
