@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 
 @Getter
 @Setter
@@ -23,4 +24,6 @@ public class UpdateDeploymentSetupRequest {
     private Map<String, ComputeTemplate> cloudResourcesMapping;
 
     private Map<String, NetworkTemplate> networkMapping;
+
+    private Map<String, StorageTemplate> storageMapping;
 }

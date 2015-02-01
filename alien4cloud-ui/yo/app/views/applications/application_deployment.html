@@ -491,6 +491,61 @@
             </div>
           </div>
         </tab>
+        <tab id="tab-storage-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.STORAGE_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedStorage">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_STORAGE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedStorageResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedStorages(key, templates)" class="clickable-media" ng-class="{'info': isSelectedStorageName(key), 'danger': !selectedStorages[key]}">
+                      <td>
+                        <i ng-if="!storageImage" class="fa fa-image fa-3x"></i>
+                        <img ng-if="storageImage" ng-src="{{storageImage?('img?id=' + storageImage + '&quality=QUALITY_64'):null}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{selectedStorages[key].id}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedStorages">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="storage in currentMatchedStorages" class="clickable-media" ng-class="{'info' : isSelectedStorage(storage)}" ng-click="changeSelectedStorage(storage)">
+                      <td>{{storage.id}}</td>
+                      <td>{{storage.device || '---'}}</td>
+                      <td>{{storage.location || '---'}}</td>
+                      <td>{{storage.size | bytes}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>        
       </tabset>
     </div>
   </div>

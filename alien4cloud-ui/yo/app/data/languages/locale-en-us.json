@@ -310,9 +310,11 @@
       "TITLE_SIZE_DISK": "Disk",
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Network's name",
+      "TITLE_STORAGE": "Block storage's name",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Network",
+      "STORAGE_RESOURCES": "Block Storages",
       "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy."
     },
     "TOPOLOGY": {

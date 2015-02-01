@@ -92,12 +92,16 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           // initialize compute and network icons from the actual tosca types (to match topology representation).
           if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
             UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
-            $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
+              $scope.computeImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags);
           }
           if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Network']) &&
             UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
-            $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
+              $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
           }
+          if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage']) &&
+            UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags)) {
+              $scope.storageImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
+          }          
           // process topology data
           $scope.inputProperties = result.data.topology.inputProperties;
           $scope.outputProperties = result.data.topology.outputProperties;
@@ -156,6 +160,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         // update resource matching data.
         $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
         $scope.selectedNetworks = $scope.setup.networkMapping;
+        $scope.selectedStorages = $scope.setup.storageMapping;
 
         // update configuration of the PaaSProvider associated with the deployment setup.
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
@@ -184,6 +189,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       if (UTILS.isDefinedAndNotNull(selectedCloud)) {
         $scope.selectedComputeTemplates = {};
         $scope.selectedNetworks = {};
+        $scope.selectedStorages = {};
         var updateAppEnvRequest = {};
         updateAppEnvRequest.cloudId = selectedCloud.id;
         // update for the current environment
@@ -230,6 +236,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.currentMatchedNetworks = currentMatchedNetworks;
     };
 
+    $scope.setCurrentMatchedStorages = function(name, currentMatchedStorages) {
+      $scope.currentStorageNodeTemplateId = name;
+      $scope.currentMatchedStorages = currentMatchedStorages;
+    };
+    
     $scope.changeSelectedNetwork = function(template) {
       $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
       // Update deployment setup when matching change
@@ -240,6 +251,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         networkMapping: $scope.selectedNetworks
       }));
     };
+    
+    $scope.changeSelectedStorage = function(template) {
+      $scope.selectedNetworks[$scope.currentStorageNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        storageMapping: $scope.selectedStorages
+      }));
+    };    
 
     $scope.changeSelectedImage = function(template) {
       $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId] = template;
@@ -271,9 +293,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.isSelectedNetwork = function(template) {
       var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
-      return template.networkName === selected.networkName;
+      return template.id === selected.id;
     };
 
+    $scope.isSelectedStorage = function(template) {
+      var selected = $scope.selectedStorages[$scope.currentStorageNodeTemplateId];
+      return template.id === selected.id;
+    };
+    
     $scope.isSelectedNetworkName = function(key) {
       return key === $scope.currentNetworkNodeTemplateId;
     };
@@ -499,6 +526,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         }, undefined, function(response) {
           $scope.matchedComputeResources = response.data.computeMatchResult;
           $scope.matchedNetworkResources = response.data.networkMatchResult;
+          $scope.matchedStorageResources = response.data.storageMatchResult;
           $scope.images = response.data.images;
           $scope.flavors = response.data.flavors;
           var key;
@@ -518,6 +546,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
               }
             }
           }
+          for (key in $scope.matchedStorageResources) {
+            if ($scope.matchedStorageResources.hasOwnProperty(key)) {
+              if (!$scope.selectedStorages.hasOwnProperty(key)) {
+                $scope.hasUnmatchedStorage = true;
+                break;
+              }
+            }
+          }          
         });
       }
     };

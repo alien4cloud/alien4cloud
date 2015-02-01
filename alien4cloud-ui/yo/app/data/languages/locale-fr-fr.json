@@ -317,9 +317,11 @@
       "TITLE_SIZE_DISK": "Disque",
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Nom du réseau",
+      "TITLE_STORAGE": "Nom du volume",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
-      "COMPUTE_RESOURCES": "Machine",
-      "NETWORK_RESOURCES": "Réseau",
+      "COMPUTE_RESOURCES": "Machines",
+      "NETWORK_RESOURCES": "Réseaux",
+      "STORAGE_RESOURCES": "Volumes",
       "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
     },
     "TOPOLOGY": {
