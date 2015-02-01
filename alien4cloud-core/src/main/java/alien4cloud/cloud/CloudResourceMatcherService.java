@@ -80,7 +80,7 @@ public class CloudResourceMatcherService {
                 matchableNodeTemplates.networkTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
             if (ToscaUtils.isFromType(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, types.get(nodeTemplateEntry.getKey()))) {
-                matchableNodeTemplates.networkTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
+                matchableNodeTemplates.storageTemplates.put(nodeTemplateEntry.getKey(), nodeTemplateEntry.getValue());
             }
         }
         return matchableNodeTemplates;
