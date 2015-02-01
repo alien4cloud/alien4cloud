@@ -32,35 +32,6 @@ angular.module('alienUiApp').controller(
         }
       };
 
-//      var updateComputeResourcesId = function() {
-//        if ($scope.manualMatchResource) {
-//          var templateLength = $scope.matchedComputeTemplates.length;
-//          for (var i = 0; i < templateLength; i++) {
-//            var matched = $scope.matchedComputeTemplates[i].computeTemplate;
-//            var originalIndex = UTILS.findByFieldValues($scope.cloud.computeTemplates, {
-//              cloudImageId: matched.cloudImageId,
-//              cloudImageFlavorId: matched.cloudImageFlavorId
-//            });
-//            var original = $scope.cloud.computeTemplates[originalIndex];
-//            original.paaSResourceId = $scope.matchedComputeTemplates[i].paaSResourceId;
-//          }
-//        }
-//      };
-
-//      var updateNetworkResourcesId = function() {
-//        if ($scope.manualMatchResource) {
-//          var networksLength = $scope.matchedNetworks.length;
-//          for (var i = 0; i < networksLength; i++) {
-//            var matched = $scope.matchedNetworks[i].network;
-//            var originalIndex = UTILS.findByFieldValues($scope.cloud.networks, {
-//              networkName: matched.networkName
-//            });
-//            var original = $scope.cloud.networks[originalIndex];
-//            original.paaSResourceId = $scope.matchedNetworks[i].paaSResourceId;
-//          }
-//        }
-//      };
-
       var refreshCloud = function() {
         cloudServices.get({
           id: cloudId
@@ -336,16 +307,11 @@ angular.module('alienUiApp').controller(
 
       var updateComputeResourcesStatistic = function() {
         $scope.templateActiveCount = 0;
-//        $scope.templateNotConfiguredCount = 0;
         for (var i = 0; i < $scope.cloud.computeTemplates.length; i++) {
           if ($scope.cloud.computeTemplates[i].enabled === true) {
             $scope.templateActiveCount++;
-//            if (UTILS.isUndefinedOrNull($scope.cloud.computeTemplates[i].paaSResourceId)) {
-//              $scope.templateNotConfiguredCount++;
-//            }
           }
         }
-//        $scope.templateFilteredCount = $scope.cloud.images.length * $scope.cloud.flavors.length - $scope.cloud.computeTemplates.length;
       };
 
       // generic fn that count the number of un-associated stuffs and define available PaaS IDs array
@@ -391,17 +357,8 @@ angular.module('alienUiApp').controller(
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
         $scope.cloud.computeTemplates = newComputeTemplates;
-//        if (UTILS.isDefinedAndNotNull(cloudResources.matchedComputeTemplates)) {
-//          $scope.matchedComputeTemplates = cloudResources.matchedComputeTemplates;
-//        }
-//        updateComputeResourcesId();
         updateComputeResourcesStatistic();
       };
-
-//      var updateNetworkResources = function() {
-//        updateNetworkResourcesId();
-//        updateNetworkResourcesStatistic();
-//      };
 
       /** handle Modal form for cloud flavor creation */
       $scope.openFlavorCreationModal = function() {
@@ -417,7 +374,6 @@ angular.module('alienUiApp').controller(
             $scope.flavors[flavor.id] = {resource: flavor};
             $scope.cloud.flavors.push(flavor);
             updateFlavorResourcesStatistic();
-//            updateComputeResources(success.data);
           });
         });
       };
@@ -450,7 +406,6 @@ angular.module('alienUiApp').controller(
             $scope.networks[network.id] = {resource: network};
             $scope.cloud.networks.push(network);
             updateNetworkResourcesStatistic();
-//            updateNetworkResources();
           });
         });
       };
@@ -469,7 +424,6 @@ angular.module('alienUiApp').controller(
             $scope.storages[storage.id] = {resource: storage};
             $scope.cloud.storages.push(storage);
             updateStorageResourcesStatistic();
-//            updateNetworkResources();
           });
         });
       };
@@ -483,7 +437,6 @@ angular.module('alienUiApp').controller(
           var indexOfNetwork = $scope.cloud.networks.indexOf(networkName);
           $scope.cloud.networks.splice(indexOfNetwork, 1);
           updateNetworkResourcesStatistic();
-//          updateNetworkResources();
         });
       };
 
@@ -495,23 +448,9 @@ angular.module('alienUiApp').controller(
           delete $scope.storages[id];
           UTILS.arrayRemove($scope.cloud.storages, id);
           updateStorageResourcesStatistic();
-//          updateNetworkResources();
         });
       };
       
-//      $scope.saveNetworkResource = function(network) {
-//        if (network.paaSResourceId === null || network.paaSResourceId === '') {
-//          delete network.paaSResourceId;
-//        }
-//        cloudServices.setNetworkResource({
-//          id: $scope.cloud.id,
-//          networkName: network.networkName,
-//          resourceId: network.paaSResourceId
-//        }, undefined, function() {
-//          updateNetworkResourcesStatistic();
-//        });
-//      };
-
       $scope.selectTemplate = function(template) {
         $scope.selectedTemplate = template;
       };
@@ -544,20 +483,6 @@ angular.module('alienUiApp').controller(
         delete $scope.selectedTemplate;
       };
 
-//      $scope.saveComputeTemplateResource = function(template) {
-//        if (template.paaSResourceId === null || template.paaSResourceId === '') {
-//          delete template.paaSResourceId;
-//        }
-//        cloudServices.setCloudTemplateResource({
-//          id: $scope.cloud.id,
-//          imageId: template.cloudImageId,
-//          flavorId: template.cloudImageFlavorId,
-//          resourceId: template.paaSResourceId
-//        }, undefined, function() {
-//          updateComputeResourcesStatistic();
-//        });
-//      };
-      
       $scope.removeCloudImage = function(imageId) {
           cloudServices.removeImage({
               id: $scope.cloud.id, imageId: imageId
@@ -574,10 +499,6 @@ angular.module('alienUiApp').controller(
         query: '',
         onSearchCompleted: function(searchResult) {
           $scope.searchImageData = searchResult.data;
-//          angular.forEach($scope.searchImageData.data, function(value, key) {
-//            // we store the result images in a global map
-////            $scope.images[value.id] = {resource: value};
-//          });
         }
       }
       $scope.initSearchImageService = function() {
@@ -616,7 +537,6 @@ angular.module('alienUiApp').controller(
                 $scope.images[value.id] = {resource: value};
               }
           });          
-//          updateComputeResources(success.data);
           $scope.imageAddSelection = [];
           updateImageResourcesStatistic();
           $scope.initSearchImageService();
