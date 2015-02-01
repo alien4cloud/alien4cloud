@@ -253,7 +253,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
     
     $scope.changeSelectedStorage = function(template) {
-      $scope.selectedNetworks[$scope.currentStorageNodeTemplateId] = template;
+      $scope.selectedStorages[$scope.currentStorageNodeTemplateId] = template;
       // Update deployment setup when matching change
       applicationServices.updateDeploymentSetup({
         applicationId: $scope.application.id,
