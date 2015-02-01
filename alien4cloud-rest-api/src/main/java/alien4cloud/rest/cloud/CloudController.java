@@ -24,7 +24,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
@@ -108,31 +107,26 @@ public class CloudController {
         // check roles on the requested cloud
         Cloud cloud = cloudService.getMandatoryCloud(id);
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
-        CloudResourceMatcherConfig matcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
 
-        Map<CloudImage, String> imageMapping = matcherConfig.getImageMapping();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         Map<String, MatchedCloudImage> matchedImages = Maps.newHashMap();
         for (Map.Entry<String, CloudImage> imageEntry : images.entrySet()) {
-            matchedImages.put(imageEntry.getKey(), new MatchedCloudImage(imageEntry.getValue(), imageMapping.get(imageEntry.getValue())));
+            matchedImages.put(imageEntry.getKey(), new MatchedCloudImage(imageEntry.getValue(), cloud.getImageMapping().get(imageEntry.getKey())));
         }
 
-        Map<CloudImageFlavor, String> flavorMapping = matcherConfig.getFlavorMapping();
         Map<String, MatchedCloudImageFlavor> matchedFlavors = Maps.newHashMap();
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
-            matchedFlavors.put(flavor.getId(), new MatchedCloudImageFlavor(flavor, flavorMapping.get(flavor.getId())));
+            matchedFlavors.put(flavor.getId(), new MatchedCloudImageFlavor(flavor, cloud.getFlavorMapping().get(flavor.getId())));
         }
 
-        Map<NetworkTemplate, String> networkMapping = matcherConfig.getNetworkMapping();
         Map<String, MatchedNetworkTemplate> matchedNetworks = Maps.newHashMap();
         for (NetworkTemplate network : cloud.getNetworks()) {
-            matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, networkMapping.get(network)));
+            matchedNetworks.put(network.getId(), new MatchedNetworkTemplate(network, cloud.getNetworkMapping().get(network)));
         }
 
-        Map<StorageTemplate, String> storageMapping = matcherConfig.getStorageMapping();
         Map<String, MatchedStorageTemplate> matchedStorages = Maps.newHashMap();
         for (StorageTemplate storage : cloud.getStorages()) {
-            matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, storageMapping.get(storage)));
+            matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, cloud.getNetworkMapping().get(storage)));
         }
         CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, cloudService.getCloudResourceIds(cloud,
                 CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR), cloudService.getCloudResourceIds(cloud,
@@ -362,24 +356,24 @@ public class CloudController {
     }
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
-    @RequestMapping(value = "/{cloudId}/images/{imageId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudComputeResourcesDTO> setCloudImageResourceId(@PathVariable String cloudId, @PathVariable String imageId,
-            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
+    @RequestMapping(value = "/{cloudId}/images/{alienResourceId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<CloudComputeResourcesDTO> setCloudImageResourceId(@PathVariable String cloudId, @PathVariable String alienResourceId,
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setCloudImageResourceId(cloud, imageId, resourceId);
+        cloudService.setCloudImageResourceId(cloud, alienResourceId, pasSResourceId);
         CloudComputeResourcesDTO cloudResourcesDTO = new CloudComputeResourcesDTO();
         cloudResourcesDTO.setComputeTemplates(cloud.getComputeTemplates());
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder().data(cloudResourcesDTO).build();
     }
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the cloud compute template", notes = "Only user with ADMIN role can set the resource id to a cloud compute template.")
-    @RequestMapping(value = "/{cloudId}/flavors/{flavorId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudComputeResourcesDTO> setCloudImageFlavorResourceId(@PathVariable String cloudId, @PathVariable String flavorId,
-            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
+    @RequestMapping(value = "/{cloudId}/flavors/{alienResourceId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<CloudComputeResourcesDTO> setCloudImageFlavorResourceId(@PathVariable String cloudId, @PathVariable String alienResourceId,
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setCloudImageFlavorResourceId(cloud, flavorId, resourceId);
+        cloudService.setCloudImageFlavorResourceId(cloud, alienResourceId, pasSResourceId);
         CloudComputeResourcesDTO cloudResourcesDTO = new CloudComputeResourcesDTO();
         cloudResourcesDTO.setComputeTemplates(cloud.getComputeTemplates());
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder().data(cloudResourcesDTO).build();
@@ -406,10 +400,10 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the network", notes = "Only user with ADMIN role can set the resource id for a network.")
     @RequestMapping(value = "/{cloudId}/networks/{networkName}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setNetworkResourceId(@PathVariable String cloudId, @PathVariable String networkName,
-            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setNetworkResourceId(cloud, networkName, resourceId);
+        cloudService.setNetworkResourceId(cloud, networkName, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -434,10 +428,10 @@ public class CloudController {
     @ApiOperation(value = "Set the corresponding paaS resource id for the storage template", notes = "Only user with ADMIN role can set the resource id for a storage template.")
     @RequestMapping(value = "/{cloudId}/storages/{storageId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setStorageTemplateResourceId(@PathVariable String cloudId, @PathVariable String storageId,
-            @RequestParam(required = false) String resourceId) throws CloudDisabledException {
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setStorageResourceId(cloud, storageId, resourceId);
+        cloudService.setStorageResourceId(cloud, storageId, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
     }
 }

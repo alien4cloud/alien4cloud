@@ -81,7 +81,7 @@ public class CloudNetworkStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
-                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")

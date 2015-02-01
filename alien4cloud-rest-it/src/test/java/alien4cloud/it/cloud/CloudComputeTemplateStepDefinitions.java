@@ -156,7 +156,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
+                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @When("^I match the flavor \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
@@ -164,7 +164,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("resourceId", paaSResourceId))));
+                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")

@@ -102,13 +102,13 @@
           <span ng-if="imageNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>      
+        </tab-heading>
         <div class="row">
           <div class="col-md-12">
 				    <fieldset>
 							<legend class="text-center">
 								<h4>
-									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }} 
+									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
 									  <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
 										( <span> <i class="fa fa-warning text-danger"></i>
 											{{imageNotConfiguredCount}} {{
@@ -176,13 +176,13 @@
 																							</ul>
 																							</div>
 																					</div>
-							                          </div> 
+							                          </div>
 						                          </div>
-					                          </div> 
+					                          </div>
                                     <div class="col-md-2">
 					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)"><i class="fa fa-trash-o"></i>
-					                            </button>                                    
-                                    </div>                               
+					                            </button>
+                                    </div>
                                   </div>
                                 </h4>
                               </div>
@@ -195,15 +195,15 @@
                   </div>
                 </div>
                 <div class="col-md-1">
-                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block" 
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block"
                      ng-click="performAddCloudImageSelection();">
                     <i class="fa fa-angle-double-left"></i>
-                  </a>                        
+                  </a>
                   <br/>
-                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block" 
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block"
                      ng-click="createCloudImage();">
                     <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-                  </a>                     
+                  </a>
                 </div>
                 <div class="col-md-5" id="imagesToAdd">
                   <div class="well">
@@ -256,7 +256,7 @@
                     </div>
                   </div>
                 </div>
-              </div>              
+              </div>
             </fieldset>
           </div>
         </div>
@@ -267,7 +267,7 @@
           <span ng-if="flavorNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>        
+        </tab-heading>
         <div class="row">
           <div class="col-md-12">
             <fieldset>
@@ -282,7 +282,7 @@
                     )
                   </span>
                 </h4>
-              </legend>              
+              </legend>
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
                   <div class="table-responsive large-data-container" id="cloud-flavors-table">
@@ -304,7 +304,7 @@
                           <td>{{flavor.diskSize | bytes}}</td>
                           <td>{{flavor.memSize | bytes}}</td>
                           <td ng-class="{'has-error': !flavors[flavor.id].paaSResourceId}">
-                            <span ng-if="!paaSFlavorIds" editable-text="flavors[flavor.id].paaSResourceId" buttons="no" onaftersave="saveFlavorResourceId(flavor.id)" blur="submit">
+                            <span ng-if="!paaSFlavorIds" editable-text="flavors[flavor.id].paaSResourceId" buttons="no" onaftersave="saveFlavorResourceId(flavor.id, flavors[flavor.id].paaSResourceId)" blur="submit">
                               {{flavors[flavor.id].paaSResourceId}}
                               <em ng-if="flavors[flavor.id].paaSResourceId === null || flavors[flavor.id].paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
@@ -316,7 +316,7 @@
 															<button type="button"
 																class="btn btn-default dropdown-toggle"
 																id="{{flavor.id}}_resourceId">
-																{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+																{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
 																<span class="caret"></span>
 															</button>
 															<ul class="dropdown-menu dropdown-menu-left">
@@ -329,7 +329,7 @@
 															</ul>
 														</div>
 														</div>
-											    </td>                          
+											    </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i>
                             </button>
@@ -593,7 +593,7 @@
                               <button type="button"
                                 class="btn btn-default dropdown-toggle"
                                 id="{{network.id}}_resourceId">
-                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-left">
@@ -606,8 +606,8 @@
                               </ul>
                             </div>
                             </div>
-                          </td>    
-                          <!-- 
+                          </td>
+                          <!--
                           <td ng-class="{'has-error': !network.paaSResourceId}">
                             <span ng-if="!manualMatchNetworkIds" editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
                               {{template.paaSResourceId}}
@@ -622,7 +622,7 @@
                               </option>
                             </select>
                           </td>
-                           -->                       
+                           -->
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.id)"><i class="fa fa-trash-o"></i>
                             </button>
