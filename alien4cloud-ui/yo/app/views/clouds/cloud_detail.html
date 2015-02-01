@@ -102,13 +102,13 @@
           <span ng-if="imageNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>
+        </tab-heading>      
         <div class="row">
           <div class="col-md-12">
 				    <fieldset>
 							<legend class="text-center">
 								<h4>
-									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }} 
 									  <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
 										( <span> <i class="fa fa-warning text-danger"></i>
 											{{imageNotConfiguredCount}} {{
@@ -176,13 +176,13 @@
 																							</ul>
 																							</div>
 																					</div>
-							                          </div>
+							                          </div> 
 						                          </div>
-					                          </div>
+					                          </div> 
                                     <div class="col-md-2">
 					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)"><i class="fa fa-trash-o"></i>
-					                            </button>
-                                    </div>
+					                            </button>                                    
+                                    </div>                               
                                   </div>
                                 </h4>
                               </div>
@@ -195,15 +195,15 @@
                   </div>
                 </div>
                 <div class="col-md-1">
-                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block"
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block" 
                      ng-click="performAddCloudImageSelection();">
                     <i class="fa fa-angle-double-left"></i>
-                  </a>
+                  </a>                        
                   <br/>
-                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block"
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block" 
                      ng-click="createCloudImage();">
                     <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-                  </a>
+                  </a>                     
                 </div>
                 <div class="col-md-5" id="imagesToAdd">
                   <div class="well">
@@ -256,7 +256,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </div>              
             </fieldset>
           </div>
         </div>
@@ -267,7 +267,7 @@
           <span ng-if="flavorNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>
+        </tab-heading>        
         <div class="row">
           <div class="col-md-12">
             <fieldset>
@@ -282,7 +282,7 @@
                     )
                   </span>
                 </h4>
-              </legend>
+              </legend>              
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
                   <div class="table-responsive large-data-container" id="cloud-flavors-table">
@@ -316,7 +316,7 @@
 															<button type="button"
 																class="btn btn-default dropdown-toggle"
 																id="{{flavor.id}}_resourceId">
-																{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+																{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
 																<span class="caret"></span>
 															</button>
 															<ul class="dropdown-menu dropdown-menu-left">
@@ -329,7 +329,7 @@
 															</ul>
 														</div>
 														</div>
-											    </td>
+											    </td>                          
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i>
                             </button>
@@ -355,9 +355,6 @@
           <span ng-if="tabs.newTemplates != 0" class="badge">
             <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
           </span>
-          <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
-            <i class="fa fa-warning text-danger"></i>
-          </span>
         </tab-heading>
         <div class="row">
           <div class="col-md-6">
@@ -370,9 +367,6 @@
                       {{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}
                     <span ng-if="templateFilteredCount > 0">
                       , {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}
-                    </span>
-                    <span ng-if="templateNotConfiguredCount > 0 && manualMatchResource">
-                      , <i class="fa fa-warning text-danger"></i> {{templateNotConfiguredCount}} {{ 'CLOUDS.TEMPLATES.NOT_CONFIGURED' | translate }}
                     </span>
                     )
                   </span>
@@ -388,11 +382,10 @@
                           <th class="col-md-2"></th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
-                          <th class="col-md-3" ng-if="manualMatchResource">{{ 'CLOUDS.TEMPLATES.RESOURCE_ID' | translate}}</th>
                         </tr>
                       </thead>
                       <tbody ng-mouseleave="deleteTemplateSelection()">
-                        <tr ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'" ng-init="cloudImage = images[template.cloudImageId]; flavor = flavors[template.cloudImageFlavorId]" id='computeTemplate_{{cloudImage.name + "_" + template.cloudImageFlavorId}}'
+                        <tr ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'" ng-init="cloudImage = images[template.cloudImageId].resource; flavor = flavors[template.cloudImageFlavorId].resource" id='computeTemplate_{{cloudImage.name + "_" + template.cloudImageFlavorId}}'
                         ng-class="{'warning text-muted' : !template.enabled}" ng-mouseover="selectTemplate(template)" style="height: 81px;">
                           <td>
                             <input type="checkbox" ng-checked="template.enabled" ng-click="toggleEnableTemplate(template)">
@@ -403,20 +396,6 @@
                           </td>
                           <td>{{cloudImage.name}}</td>
                           <td>{{flavor.id}}</td>
-                          <td ng-if="manualMatchResource" ng-class="{'has-error': !template.paaSResourceId && template.enabled}">
-                            <span ng-if="!manualMatchComputeIds" editable-text="template.paaSResourceId" buttons="no" onaftersave="saveComputeTemplateResource(template)" blur="submit">
-                              {{template.paaSResourceId}}
-                              <em ng-if="template.paaSResourceId === null || template.paaSResourceId === undefined" class="text-muted">
-                                {{'GENERIC_FORM.UNDEFINED' | translate}}
-                              </em>
-                              <i class="fa fa-pencil-square-o"></i>
-                            </span>
-                            <select ng-if="manualMatchComputeIds" ng-model="template.paaSResourceId" ng-change="saveComputeTemplateResource(template)">
-                              <option value="" ng-selected="!template.paaSResourceId">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
-                              <option ng-repeat="value in manualMatchComputeIds" value="{{value}}" ng-selected="value == template.paaSResourceId">{{value}}
-                              </option>
-                            </select>
-                          </td>
                         </tr>
                       </tbody>
                     </table>
@@ -435,7 +414,7 @@
                   <div class="col-md-12">
                     <div class="panel panel-default">
                       <div class="panel-heading">
-                        {{images[selectedTemplate.cloudImageId].name}}
+                        {{images[selectedTemplate.cloudImageId].resource.name}}
                       </div>
                       <div class="panel-body">
                         <div class="row">
@@ -443,7 +422,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].osDistribution}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osDistribution}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px">
@@ -451,7 +430,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].osType}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osType}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px">
@@ -459,7 +438,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].osVersion}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osVersion}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px">
@@ -467,7 +446,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].osArch}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osArch}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.numCPUs">
@@ -475,7 +454,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.numCPUs}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.numCPUs}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.diskSize">
@@ -483,7 +462,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.diskSize | bytes}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.diskSize | bytes}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.memSize">
@@ -491,7 +470,7 @@
                             <span class="text-muted">{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].requirement.memSize | bytes}}</span>
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.memSize | bytes}}</span>
                           </div>
                         </div>
                       </div>
@@ -502,7 +481,7 @@
                   <div class="col-md-12">
                     <div class="panel panel-default">
                       <div class="panel-heading">
-                        {{flavors[selectedTemplate.cloudImageFlavorId].id}}
+                        {{flavors[selectedTemplate.cloudImageFlavorId].resource.id}}
                       </div>
                       <div class="panel-body">
                         <div class="row">
@@ -510,7 +489,7 @@
                             <span class="text-muted">{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].numCPUs}}</span>
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.numCPUs}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px">
@@ -518,7 +497,7 @@
                             <span class="text-muted">{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].diskSize | bytes}}</span>
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.diskSize | bytes}}</span>
                           </div>
                         </div>
                         <div class="row" style="margin-top: 5px">
@@ -526,7 +505,7 @@
                             <span class="text-muted">{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</span>
                           </div>
                           <div class="col-md-8">
-                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].memSize | bytes}}</span>
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.memSize | bytes}}</span>
                           </div>
                         </div>
                       </div>
@@ -581,7 +560,7 @@
                           <td>{{network.gatewayIp || '---'}}</td>
                           <td>{{network.ipVersion}}</td>
                           <td ng-class="{'has-error': !networks[network.id].paaSResourceId}">
-                            <span ng-if="!paaSNetworkIds" editable-text="networks[network.id].paaSResourceId" buttons="no" onaftersave="saveNetworkResourceId(network.id)" blur="submit">
+                            <span ng-if="!paaSNetworkIds" editable-text="networks[network.id].paaSResourceId" buttons="no" onaftersave="saveNetworkResourceId(network.id, networks[network.id].paaSResourceId)" blur="submit">
                               {{networks[network.id].paaSResourceId}}
                               <em ng-if="networks[network.id].paaSResourceId === null || networks[network.id].paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
@@ -593,7 +572,7 @@
                               <button type="button"
                                 class="btn btn-default dropdown-toggle"
                                 id="{{network.id}}_resourceId">
-                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-left">
@@ -606,23 +585,7 @@
                               </ul>
                             </div>
                             </div>
-                          </td>
-                          <!--
-                          <td ng-class="{'has-error': !network.paaSResourceId}">
-                            <span ng-if="!manualMatchNetworkIds" editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
-                              {{template.paaSResourceId}}
-                              <em ng-if="network.paaSResourceId === null || network.paaSResourceId === undefined" class="text-muted">
-                                {{'GENERIC_FORM.UNDEFINED' | translate}}
-                              </em>
-                              <i class="fa fa-pencil-square-o"></i>
-                            </span>
-                            <select ng-if="manualMatchNetworkIds" ng-model="network.paaSResourceId" ng-change="saveNetworkResource(network)">
-                              <option value="" ng-selected="!network.paaSResourceId">-- {{'GENERIC_FORM.UNDEFINED' | translate}} --</option>
-                              <option ng-repeat="value in manualMatchNetworkIds" value="{{value}}" ng-selected="value == network.paaSResourceId">{{value}}
-                              </option>
-                            </select>
-                          </td>
-                           -->
+                          </td>    
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.id)"><i class="fa fa-trash-o"></i>
                             </button>
@@ -642,6 +605,94 @@
           </div>
         </div>
       </tab>
+      <tab id="tab-clouds-storage">
+        <tab-heading>
+          {{'CLOUDS.STORAGE' | translate}}
+          <span ng-if="storageNotConfiguredCount > 0">
+            <i class="fa fa-warning text-danger"></i>
+          </span>
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-save"></i> {{'CLOUDS.STORAGE' | translate }}
+                  <span ng-if="storageNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-warning text-danger"></i> {{storageNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-storage-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
+                          <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
+                          <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="storage in cloud.storages" id='cloud_storages_{{storage.id}}'>
+                          <td>{{storage.id}}</td>
+                          <td>{{storage.device}}</td>
+                          <td>{{storage.location}}</td>
+                          <td>{{storage.size | bytes}}</td>
+                          <td ng-class="{'has-error': !storages[storage.id].paaSResourceId}">
+                            <span ng-if="!paaSStorageIds" editable-text="storages[storage.id].paaSResourceId" buttons="no" onaftersave="saveStorageResourceId(storage.id, storages[storage.id].paaSResourceId)" blur="submit">
+                              {{storages[storage.id].paaSResourceId}}
+                              <em ng-if="storages[storage.id].paaSResourceId === null || storages[storage.id].paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                            <div class="btn-group-vertical btn-group-sm">
+                            <div ng-if="paaSStorageIds" class="btn-group btn-group-sm">
+                              <button type="button"
+                                class="btn btn-default dropdown-toggle"
+                                id="{{storage.id}}_resourceId">
+                                {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+                                <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-left">
+                                <li ng-if="storages[storage.id].paaSResourceId"><a
+                                  id="{{cloudImageId}}_resourceId_empty"
+                                  ng-click="saveStorageResourceId(storage.id, '')">&nbsp;</a></li>
+                                <li ng-repeat="value in availaiblePaaSStorageIds"><a
+                                  id="{{storage.id}}_resourceId_{{value}}"
+                                  ng-click="saveStorageResourceId(storage.id, value)">{{value}}</a></li>
+                              </ul>
+                            </div>
+                            </div>
+                          </td>    
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage.id)"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-storage-add-button" class="btn btn-success btn-sm pull-right" ng-click="openStorageCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>      
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
         <div class="alert alert-info">
           {{'CLOUDS.CONFIGURATION_REQUIRES_DISABLE' | translate}}

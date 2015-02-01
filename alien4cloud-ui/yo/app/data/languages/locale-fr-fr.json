@@ -526,6 +526,14 @@
       "IP_VERSION": "Version d'IP",
       "NEW_MODAL_TITLE": "Créer un nouveau réseau"
     },
+    "STORAGE": "Volumes",
+    "STORAGES": {
+      "ID": "Id",
+      "DEVICE": "Volume",
+      "LOCATION": "Point de montage",
+      "SIZE": "Size",
+      "NEW_MODAL_TITLE": "Créer un nouveau volume"
+    },    
     "IAAS": {
       "OTHER": "Autre",
       "OPENSTACK": "OpenStack",
