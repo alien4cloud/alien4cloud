@@ -102,16 +102,20 @@ public class CloudResourceMatcherService {
         Map<String, List<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
         Map<String, List<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
         Map<String, List<StorageTemplate>> storageMatchResult = Maps.newHashMap();
+        Set<String> imageIds = Sets.newHashSet();
+        Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> computeTemplateEntry : matchableNodes.computeTemplates.entrySet()) {
             List<CloudImage> eligibleImages = matchImages(cloud, cloudResourceMatcherConfig, computeTemplateEntry.getValue());
+            List<ComputeTemplate> eligibleTemplates = Lists.newArrayList();
             for (CloudImage eligibleImage : eligibleImages) {
                 List<CloudImageFlavor> flavors = matchFlavors(cloud, cloudResourceMatcherConfig, paaSProvider, computeTemplateEntry.getValue(), eligibleImage);
-                List<ComputeTemplate> eligibleTemplates = Lists.newArrayList();
                 for (CloudImageFlavor flavor : flavors) {
+                    imageIds.add(eligibleImage.getId());
+                    flavorMap.put(flavor.getId(), flavor);
                     eligibleTemplates.add(new ComputeTemplate(eligibleImage.getId(), flavor.getId()));
                 }
-                templateMatchResult.put(computeTemplateEntry.getKey(), eligibleTemplates);
             }
+            templateMatchResult.put(computeTemplateEntry.getKey(), eligibleTemplates);
         }
         for (Map.Entry<String, NodeTemplate> networkTemplateEntry : matchableNodes.networkTemplates.entrySet()) {
             networkMatchResult.put(networkTemplateEntry.getKey(), matchNetworks(cloud, cloudResourceMatcherConfig, networkTemplateEntry.getValue()));
@@ -119,7 +123,8 @@ public class CloudResourceMatcherService {
         for (Map.Entry<String, NodeTemplate> storageTemplateEntry : matchableNodes.storageTemplates.entrySet()) {
             storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, cloudResourceMatcherConfig, storageTemplateEntry.getValue()));
         }
-        return new CloudResourceTopologyMatchResult(templateMatchResult, storageMatchResult, networkMatchResult);
+        return new CloudResourceTopologyMatchResult(cloudImageService.getMultiple(imageIds), flavorMap, templateMatchResult, storageMatchResult,
+                networkMatchResult);
     }
 
     public List<NetworkTemplate> matchNetworks(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
@@ -240,11 +245,25 @@ public class CloudResourceMatcherService {
         // From the image, try to get all flavors that are matched and compatible with the image
         String[] paaSFlavorIds = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
         Set<CloudImageFlavor> eligibleFlavors = Sets.newHashSet();
-        Map<String, CloudImageFlavor> flavorReverseMapping = MappingUtil.getReverseMapping(cloudResourceMatcherConfig.getFlavorMapping());
-        for (String paaSFlavorId : paaSFlavorIds) {
-            CloudImageFlavor eligibleFlavor = flavorReverseMapping.get(paaSFlavorId);
-            if (eligibleFlavor != null) {
-                eligibleFlavors.add(eligibleFlavor);
+        if (paaSFlavorIds != null) {
+            Map<String, CloudImageFlavor> flavorReverseMapping = MappingUtil.getReverseMapping(cloudResourceMatcherConfig.getFlavorMapping());
+            for (String paaSFlavorId : paaSFlavorIds) {
+                CloudImageFlavor eligibleFlavor = flavorReverseMapping.get(paaSFlavorId);
+                if (eligibleFlavor != null) {
+                    eligibleFlavors.add(eligibleFlavor);
+                }
+            }
+        } else {
+            Set<ActivableComputeTemplate> allTemplates = cloud.getComputeTemplates();
+            Map<String, CloudImageFlavor> allFlavors = Maps.newHashMap();
+            for (CloudImageFlavor flavor : cloud.getFlavors()) {
+                allFlavors.put(flavor.getId(), flavor);
+            }
+            for (ActivableComputeTemplate template : allTemplates) {
+                if (template.isEnabled() && template.getCloudImageId().equals(cloudImage.getId())) {
+                    // get flavors that correspond to the given cloud image from all active compute template
+                    eligibleFlavors.add(allFlavors.get(template.getCloudImageFlavorId()));
+                }
             }
         }
         List<CloudImageFlavor> matchedFlavors = Lists.newArrayList();

@@ -26,15 +26,15 @@ Feature: Match topology's node to cloud resources.
     When I match for resources for my application on the cloud
     Then I should receive an empty match result
     And I am authenticated with "ADMIN" role
-    And I match the template composed of image "Windows 7" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_WINDOWS"
+    And I match the image "Windows 7" of the cloud "Mount doom cloud" to the PaaS resource "WINDOWS"
+    And I match the flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "2"
     And I am authenticated with user named "sangoku"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 1 compute templates for the node "Compute":
       | Windows 7 | small |
     And I am authenticated with "ADMIN" role
-    And I match the template composed of image "Windows 7" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_WINDOWS"
-    And I match the template composed of image "Ubuntu Trusty" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_LINUX"
-    And I match the template composed of image "Ubuntu Trusty" and flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "MEDIUM_LINUX"
+    And I match the image "Ubuntu Trusty" of the cloud "Mount doom cloud" to the PaaS resource "UBUNTU"
+    And I match the flavor "medium" of the cloud "Mount doom cloud" to the PaaS resource "3"
     And I am authenticated with user named "sangoku"
     And I match for resources for my application on the cloud
     Then I should receive a match result with 4 compute templates for the node "Compute":

@@ -69,7 +69,7 @@ public class CloudService {
 
     public void initialize() {
         int from = 0;
-        long totalResult = 0;
+        long totalResult;
         do {
             GetMultipleDataResult<Cloud> enabledCloudResult = get(null, true, from, 20, null);
             if (enabledCloudResult.getData() == null) {
@@ -212,7 +212,7 @@ public class CloudService {
      * @param query The query to apply to filter clouds.
      * @param from The start index of the query.
      * @param size The maximum number of elements to return.
-     * @param authorizationFilter
+     * @param authorizationFilter authorization filter
      * @return A {@link GetMultipleDataResult} that contains cloud objects.
      */
     public GetMultipleDataResult<Cloud> get(String query, boolean enabledOnly, int from, int size, FilterBuilder authorizationFilter) {
@@ -493,7 +493,7 @@ public class CloudService {
      * @param cloud the cloud to update
      * @param cloudImageId the image to remove
      */
-    public void removeCloudImage(Cloud cloud, CloudResourceMatcherConfig config, String cloudImageId) {
+    public void removeCloudImage(Cloud cloud, String cloudImageId) {
         cloud.getImages().remove(cloudImageId);
         cloud.getImageMapping().remove(cloudImageId);
         getComputeTemplates(cloud, cloudImageId, null, true);
@@ -506,7 +506,7 @@ public class CloudService {
      * @param cloud the cloud to update
      * @param flavorId the flavor to remove
      */
-    public void removeCloudImageFlavor(Cloud cloud, CloudResourceMatcherConfig config, String flavorId) {
+    public void removeCloudImageFlavor(Cloud cloud, String flavorId) {
         getResource(cloud.getFlavors(), flavorId, true);
         cloud.getFlavorMapping().remove(flavorId);
         getComputeTemplates(cloud, null, flavorId, true);
@@ -688,7 +688,7 @@ public class CloudService {
         alienDAO.save(cloud);
     }
 
-    public void removeNetwork(Cloud cloud, CloudResourceMatcherConfig config, String networkName) {
+    public void removeNetwork(Cloud cloud, String networkName) {
         Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
         // Remove network
         getResource(existingNetworks, networkName, true);
@@ -728,7 +728,7 @@ public class CloudService {
         alienDAO.save(cloud);
     }
 
-    public void removeStorageTemplate(Cloud cloud, CloudResourceMatcherConfig config, String storageId) {
+    public void removeStorageTemplate(Cloud cloud, String storageId) {
         Set<StorageTemplate> storageTemplates = cloud.getStorages();
         // Remove storage
         getResource(storageTemplates, storageId, true);

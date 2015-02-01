@@ -2,6 +2,7 @@ package alien4cloud.it.application;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 
@@ -9,8 +10,11 @@ import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
 import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
+import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
@@ -49,30 +53,30 @@ public class ApplicationResourceMatcherStepDefinitions {
                 Sets.newHashSet(matchResultResponse.getData().getComputeMatchResult().get(nodeName)), expectedTemplatesTable);
     }
 
-    // @And("^The match result should contain (\\d+) cloud images:$")
-    // public void The_match_result_should_contain_cloud_images(int numberOfImages, DataTable expectedImagesTable) throws Throwable {
-    // Set<CloudImage> images = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourceTopologyMatchResult.class).getData()
-    // .getImages().values());
-    // CloudImageStepDefinitions.assertCloudImages(numberOfImages, images, expectedImagesTable);
-    // }
+    @And("^The match result should contain (\\d+) cloud images:$")
+    public void The_match_result_should_contain_cloud_images(int numberOfImages, DataTable expectedImagesTable) throws Throwable {
+        Set<CloudImage> images = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourceTopologyMatchResult.class).getData()
+                .getImages().values());
+        CloudImageStepDefinitions.assertCloudImages(numberOfImages, images, expectedImagesTable);
+    }
 
-    // @And("^The match result should contain (\\d+) flavors:$")
-    // public void The_match_result_should_contain_flavors(int numberOfFlavors, DataTable expectedFlavorsTable) throws Throwable {
-    // Set<CloudImageFlavor> flavors = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourceTopologyMatchResult.class)
-    // .getData().getFlavors().values());
-    // CloudComputeTemplateStepDefinitions.assertFlavors(numberOfFlavors, flavors, expectedFlavorsTable);
-    // }
+    @And("^The match result should contain (\\d+) flavors:$")
+    public void The_match_result_should_contain_flavors(int numberOfFlavors, DataTable expectedFlavorsTable) throws Throwable {
+        Set<CloudImageFlavor> flavors = Sets.newHashSet(JsonUtil.read(Context.getInstance().getRestResponse(), CloudResourceTopologyMatchResult.class)
+                .getData().getFlavors().values());
+        CloudComputeTemplateStepDefinitions.assertFlavors(numberOfFlavors, flavors, expectedFlavorsTable);
+    }
 
-    // @Then("^I should receive an empty match result$")
-    // public void I_should_receive_an_empty_match_result() throws Throwable {
-    // RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
-    // CloudResourceTopologyMatchResult.class);
-    // Assert.assertTrue(matchResultResponse.getData().getImages().isEmpty());
-    // Assert.assertTrue(matchResultResponse.getData().getFlavors().isEmpty());
-    // for (List<ComputeTemplate> templates : matchResultResponse.getData().getComputeMatchResult().values()) {
-    // Assert.assertTrue(templates.isEmpty());
-    // }
-    // }
+    @Then("^I should receive an empty match result$")
+    public void I_should_receive_an_empty_match_result() throws Throwable {
+        RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
+                CloudResourceTopologyMatchResult.class);
+        Assert.assertTrue(matchResultResponse.getData().getImages().isEmpty());
+        Assert.assertTrue(matchResultResponse.getData().getFlavors().isEmpty());
+        for (List<ComputeTemplate> templates : matchResultResponse.getData().getComputeMatchResult().values()) {
+            Assert.assertTrue(templates.isEmpty());
+        }
+    }
 
     @When("^I select the template composed of image \"([^\"]*)\" and flavor \"([^\"]*)\" for my node \"([^\"]*)\"$")
     public void I_select_the_template_composed_of_image_and_flavor_for_my_node(String cloudImageName, String flavorId, String nodeName) throws Throwable {
@@ -137,20 +141,20 @@ public class ApplicationResourceMatcherStepDefinitions {
                 || matchResultResponse.getData().getNetworkMatchResult().get(networkNodeName).isEmpty());
     }
 
-//    @When("^I select the network with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
-//    public void I_select_the_the_network_with_name_for_my_node(String networkName, String nodeName) throws Throwable {
-//        Context.getInstance().getCloudForTopology();
-//        String cloudId = Context.getInstance().getCloudForTopology();
-//        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
-//        Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
-//        networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName));
-//        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
-//        Application application = Context.getInstance().getApplication();
-//        String response = Context.getRestClientInstance().putJSon(
-//                "/rest/applications/" + application.getId() + "/environments/"
-//                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
-//        Context.getInstance().registerRestResponse(response);
-//    }
+    @When("^I select the network with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
+    public void I_select_the_the_network_with_name_for_my_node(String networkName, String nodeName) throws Throwable {
+        Context.getInstance().getCloudForTopology();
+        String cloudId = Context.getInstance().getCloudForTopology();
+        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+        Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
+        networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName).getResource());
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching);
+        Application application = Context.getInstance().getApplication();
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
+    }
 
     @And("^The deployment setup of the application should contain following network mapping:$")
     public void The_deployment_setup_of_the_application_should_contain_following_network_mapping(DataTable networksMatching) throws Throwable {

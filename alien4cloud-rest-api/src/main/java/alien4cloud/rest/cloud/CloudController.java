@@ -327,8 +327,7 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImage(@PathVariable String cloudId, @PathVariable String cloudImageId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
-        cloudService.removeCloudImage(cloud, config, cloudImageId);
+        cloudService.removeCloudImage(cloud, cloudImageId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
                 .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), cloud.getImageMapping(), cloud.getFlavorMapping())).build();
     }
@@ -347,8 +346,7 @@ public class CloudController {
     public RestResponse<CloudComputeResourcesDTO> removeCloudImageFlavor(@PathVariable String cloudId, @PathVariable String flavorId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
-        cloudService.removeCloudImageFlavor(cloud, config, flavorId);
+        cloudService.removeCloudImageFlavor(cloud, flavorId);
         return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
                 .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), cloud.getImageMapping(), cloud.getFlavorMapping())).build();
     }
@@ -401,8 +399,7 @@ public class CloudController {
     public RestResponse<Void> removeNetwork(@PathVariable String cloudId, @PathVariable String networkName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
-        cloudService.removeNetwork(cloud, config, networkName);
+        cloudService.removeNetwork(cloud, networkName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -430,8 +427,7 @@ public class CloudController {
     public RestResponse<Void> removeStorageTemplate(@PathVariable String cloudId, @PathVariable String storageTemplateName) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        CloudResourceMatcherConfig config = cloudService.getCloudResourceMatcherConfig(cloud);
-        cloudService.removeStorageTemplate(cloud, config, storageTemplateName);
+        cloudService.removeStorageTemplate(cloud, storageTemplateName);
         return RestResponseBuilder.<Void> builder().build();
     }
 
