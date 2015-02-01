@@ -570,8 +570,10 @@ public class CloudService {
             cloud.getImageMapping().remove(cloudImageId);
             getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
-            cloud.getImageMapping().put(cloudImageId, paaSResourceId);
-            addComputeTemplatesForImage(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageId);
+            String oldMapping = cloud.getImageMapping().put(cloudImageId, paaSResourceId);
+            if (oldMapping == null) {
+                addComputeTemplatesForImage(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageId);
+            }
         }
         initializeMatcherConfig(paaSProvider, cloud);
         alienDAO.save(cloud);
@@ -613,8 +615,10 @@ public class CloudService {
             cloud.getFlavorMapping().remove(flavorId);
             getComputeTemplates(cloud, null, flavorId, true);
         } else {
-            cloud.getFlavorMapping().put(flavorId, paaSResourceId);
-            addComputeTemplatesForFlavor(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageFlavor);
+            String oldMapping = cloud.getFlavorMapping().put(flavorId, paaSResourceId);
+            if (oldMapping == null) {
+                addComputeTemplatesForFlavor(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageFlavor);
+            }
         }
         initializeMatcherConfig(paaSProvider, cloud);
         alienDAO.save(cloud);
