@@ -30,6 +30,41 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
         }
       }
     };
+    
+    var storageFormDescriptor = {
+        "_type": "complex",
+        "_order": [ "id", "device", "location", "size"],
+        "_propertyType": {
+          "id": {
+            "_label": "CLOUDS.STORAGES.ID",
+            "_type": "string",
+            "_notNull": true
+          },
+          "device": {
+            "_label": "CLOUDS.STORAGES.DEVICE",
+            "_type": "string",
+            "_notNull": false
+          },
+          "location": {
+            "_label": "CLOUDS.STORAGES.LOCATION",
+            "_type": "string",
+            "_notNull": false
+          },
+          "size": {
+            "_label": "CLOUDS.STORAGES.SIZE",
+            "_type": "number",
+            "_notNull": true,
+            "_step": 0.5,
+            "_unit": "GB",
+            "_multiplier": 1024 * 1024 * 1024,
+            "_constraints": [
+              {
+                "greaterThan": 0
+              }
+            ]
+          }
+        }
+      };    
 
     var flavorFormDescriptor = {
       "_type": "complex",
@@ -85,6 +120,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
     var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
+    
+    var crudStorage = $resource('rest/clouds/:id/storages/:storageId');
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
@@ -95,6 +132,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:resourceId/resource');
 
     var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
+    
+    var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
@@ -203,11 +242,15 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'networkFormDescriptor': networkFormDescriptor,
       'addNetwork': crudNetwork.save,
       'removeNetwork': crudNetwork.remove,
+      'storageFormDescriptor': storageFormDescriptor,
+      'addStorage': crudStorage.save,
+      'removeStorage': crudStorage.remove,      
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
       'setCloudNetworkResource': cloudNetworkResource.save,
       'setCloudImageResource' : cloudImageResource.save,
-      'setCloudFlavorResource' : cloudFlavorResource.save
+      'setCloudFlavorResource' : cloudFlavorResource.save,
+      'setCloudStorageResource' : cloudStorageResource.save
     };
   }
 ]);

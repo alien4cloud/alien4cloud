@@ -520,6 +520,14 @@
       "IP_VERSION": "IP version",
       "NEW_MODAL_TITLE": "Create a new network"
     },
+    "STORAGE": "Block Storages",
+    "STORAGES": {
+      "ID": "Id",
+      "DEVICE": "Device",
+      "LOCATION": "Location",
+      "SIZE": "Size",
+      "NEW_MODAL_TITLE": "Create a new block storage"
+    },     
     "IAAS": {
       "OTHER": "Other",
       "OPENSTACK": "OpenStack",

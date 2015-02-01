@@ -83,28 +83,19 @@ angular.module('alienUiApp').controller(
           $scope.availaiblePaaSImageIds = [];
           $scope.availaiblePaaSFlavorIds = [];
           $scope.availaiblePaaSNetworkIds = [];
+          $scope.availaiblePaaSStorageIds = [];
           // counters for non mapped stuffs
           $scope.imageNotConfiguredCount = 0;
           $scope.flavorNotConfiguredCount = 0;
           $scope.networkNotConfiguredCount = 0;
+          $scope.storageNotConfiguredCount = 0;
           
-//          $scope.images = response.data.images;
-//          $scope.flavors = response.data.flavors;
-          
-//          $scope.networks = response.data.networks;
-//          if (response.data.cloudResourceMatcher) {
-//            $scope.manualMatchResource = true;
-//            $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
-//            $scope.manualMatchNetworkIds = response.data.cloudResourceMatcher.paaSNetworkTemplateIds;
-//            $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
-//            $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
-//            updateComputeResourcesId();
-//            updateNetworkResourcesId();
-//          }
           updateImageResourcesStatistic();
           updateFlavorResourcesStatistic();
           updateComputeResourcesStatistic();
           updateNetworkResourcesStatistic();
+          updateStorageResourcesStatistic();
+          
           $scope.relatedUsers = {};
           if ($scope.cloud.userRoles) {
             var usernames = [];
@@ -385,22 +376,14 @@ angular.module('alienUiApp').controller(
         var result = updateResourcesStatistic($scope.paaSFlavorIds, $scope.flavors);
         $scope.flavorNotConfiguredCount = result.counter;
         $scope.availaiblePaaSFlavorIds = result.arr;
-        
-//        $scope.flavorNotConfiguredCount = 0;
-//        if ($scope.paaSFlavorIds) {
-//          // clone the array
-//          $scope.availaiblePaaSFlavorIds = $scope.paaSFlavorIds.slice(0); 
-//        }        
-//        for (var i = 0; i < $scope.cloud.flavors.length; i++) {
-//          var cloudFlavorId = $scope.cloud.flavors[i].id;
-//          if (UTILS.isUndefinedOrNull($scope.flavors[cloudFlavorId].paaSResourceId)) {
-//            $scope.flavorNotConfiguredCount++;
-//          } else if ($scope.paaSFlavorIds) {
-//            // this resource id is mapped, not available for others
-//            UTILS.arrayRemove($scope.availaiblePaaSFlavorIds, $scope.flavors[cloudFlavorId].paaSResourceId);
-//          }
-//        }
-      };      
+      };   
+      
+      // count the number of storages that are not associated to a resource id
+      var updateStorageResourcesStatistic = function() {
+        var result = updateResourcesStatistic($scope.paaSStorageIds, $scope.storages);
+        $scope.storageNotConfiguredCount = result.counter;
+        $scope.availaiblePaaSStorageIds = result.arr;
+      };       
       
       var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
@@ -470,6 +453,25 @@ angular.module('alienUiApp').controller(
         });
       };
 
+      /** handle Modal form for cloud storage creation */
+      $scope.openStorageCreationModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/clouds/new_storage.html',
+          controller: 'NewStorageController'
+        });
+
+        modalInstance.result.then(function(storage) {
+          cloudServices.addStorage({
+            id: $scope.cloud.id
+          }, angular.toJson(storage), function() {
+            $scope.storages[storage.id] = {resource: storage};
+            $scope.cloud.storages.push(storage);
+            updateStorageResourcesStatistic();
+//            updateNetworkResources();
+          });
+        });
+      };
+      
       $scope.deleteNetwork = function(networkName) {
         cloudServices.removeNetwork({
           id: $scope.cloud.id,
@@ -483,6 +485,18 @@ angular.module('alienUiApp').controller(
         });
       };
 
+      $scope.deleteStorage = function(id) {
+        cloudServices.removeStorage({
+          id: $scope.cloud.id,
+          storageId: id
+        }, undefined, function(success) {
+          delete $scope.storages[id];
+          UTILS.arrayRemove($scope.cloud.storages, id);
+          updateStorageResourcesStatistic();
+//          updateNetworkResources();
+        });
+      };
+      
 //      $scope.saveNetworkResource = function(network) {
 //        if (network.paaSResourceId === null || network.paaSResourceId === '') {
 //          delete network.paaSResourceId;
@@ -659,7 +673,17 @@ angular.module('alienUiApp').controller(
             paaSResourceId, 
             cloudServices.setCloudNetworkResource, 
             updateNetworkResourcesStatistic);
-      };      
+      };   
+      
+      // associate a PaaS resource id to a cloud storage 
+      $scope.saveStorageResourceId = function(cloudStorageId, paaSResourceId) {
+        savePasSResourceId(
+            cloudStorageId, 
+            $scope.storages, 
+            paaSResourceId, 
+            cloudServices.setCloudStorageResource, 
+            updateStorageResourcesStatistic);
+      };        
       
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
