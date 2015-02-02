@@ -111,7 +111,7 @@ var sendValueToXEditable = function(id, value, withAutoCompletion, type) {
   expect(container.isPresent()).toBe(true);
   expect(container.isDisplayed()).toBe(true);
 
-  var span = container.element(by.tagName('span'));
+  var span = container.element(by.css('.editable-click'));
   expect(span.isDisplayed()).toBe(true);
   // click on the span of x-editable to trigger input
   span.element(by.tagName('i')).click();

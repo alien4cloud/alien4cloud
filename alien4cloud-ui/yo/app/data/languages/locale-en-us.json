@@ -511,7 +511,7 @@
       "FILTERED": "Filtered",
       "ENABLE": "Enabled",
       "IMAGE_NAME": "Image's name",
-      "FLAVOR_NAME": "Flavor's name",
+      "FLAVOR_NAME": "Flavor's name"
     },
     "NETWORK": "Network",
     "NETWORKS": {

@@ -47,11 +47,14 @@ var beforeTopologyTest = function() {
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
   cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
+  cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
 //  cloudsCommon.selectFirstImageOfCloud();
 //  cloudsCommon.selectFirstImageOfCloud();
   cloudsCommon.selectAllImageOfCloud();
-  cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
-  cloudsCommon.assignPaaSResourceToTemplate('Ubuntu', 'medium', 'MEDIUM_UBUNTU');
+  cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
+  cloudsCommon.assignPaaSResourceToImage("Ubuntu", "passIdImage2");
+  cloudsCommon.disableCloud();
+  cloudsCommon.enableCloud();
   authentication.logout();
 
   authentication.login('applicationManager');

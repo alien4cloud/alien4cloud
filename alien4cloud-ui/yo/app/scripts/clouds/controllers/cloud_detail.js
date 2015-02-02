@@ -428,25 +428,24 @@ angular.module('alienUiApp').controller(
         });
       };
       
-      $scope.deleteNetwork = function(networkName) {
+      $scope.deleteNetwork = function(network) {
         cloudServices.removeNetwork({
           id: $scope.cloud.id,
-          networkName: networkName
+          networkName: network.id
         }, undefined, function(success) {
-          delete $scope.networks[networkName];
-          var indexOfNetwork = $scope.cloud.networks.indexOf(networkName);
-          $scope.cloud.networks.splice(indexOfNetwork, 1);
+          delete $scope.networks[network.id];
+          UTILS.arrayRemove($scope.cloud.networks, network);
           updateNetworkResourcesStatistic();
         });
       };
 
-      $scope.deleteStorage = function(id) {
+      $scope.deleteStorage = function(storage) {
         cloudServices.removeStorage({
           id: $scope.cloud.id,
-          storageId: id
+          storageId: storage.id
         }, undefined, function(success) {
-          delete $scope.storages[id];
-          UTILS.arrayRemove($scope.cloud.storages, id);
+          delete $scope.storages[storage.id];
+          UTILS.arrayRemove($scope.cloud.storages, storage);
           updateStorageResourcesStatistic();
         });
       };
@@ -530,7 +529,10 @@ angular.module('alienUiApp').controller(
           id: $scope.cloud.id
         }, angular.toJson($scope.imageAddSelection), function(success) {
           // this is only ids
-          $scope.cloud.images = UTILS.concat($scope.cloud.images, $scope.imageAddSelection);
+          angular.forEach($scope.imageAddSelection, function(value, key) {
+            // we prefer add new images at the beginning
+            $scope.cloud.images.unshift(value);
+          });
           // add to the images details map
           angular.forEach($scope.searchImageData.data, function(value, key) {
               if (UTILS.arrayContains($scope.imageAddSelection, value.id)) {

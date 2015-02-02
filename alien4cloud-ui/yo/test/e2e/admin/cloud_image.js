@@ -11,10 +11,7 @@ var goToCloudImageList = function() {
 };
 module.exports.goToCloudImageList = goToCloudImageList;
 
-var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize) {
-  goToCloudImageList();
-  element(by.id('new-cloud-image-button')).click();
-  browser.waitForAngular();
+var fillCloudImageCreationForm = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize, formId) {
   genericForm.sendValueToPrimitive('name', name, false, 'input');
   genericForm.sendValueToPrimitive('osType', osType, false, 'select');
   genericForm.sendValueToPrimitive('osArch', osArch, false, 'select');
@@ -23,9 +20,21 @@ var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion,
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
-  browser.actions().click(element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  if (formId === null || formId === undefined) {
+    browser.actions().click(element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  } else {
+    browser.actions().click(element(by.id(formId)).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  }
   browser.waitForAngular();
   common.dismissAlertIfPresent();
+}
+module.exports.fillCloudImageCreationForm = fillCloudImageCreationForm;
+
+var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize) {
+  goToCloudImageList();
+  element(by.id('new-cloud-image-button')).click();
+  browser.waitForAngular();
+  fillCloudImageCreationForm(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize, null);
 };
 module.exports.addNewCloudImage = addNewCloudImage;
 

@@ -74,8 +74,10 @@ describe('Manually match resources for cloud', function() {
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
     cloudsCommon.selectFirstImageOfCloud();
-    cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
-
+    cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
+    cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
+    cloudsCommon.goToCloudDetail('testcloud');
+    
     // The deploy button must not be available
     expectDeploymentWork(true, false);
 

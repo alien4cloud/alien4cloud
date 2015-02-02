@@ -123,8 +123,8 @@
                     <div class="panel-body">
                       <div>
                         <ul ng-if="cloud.images.length > 0" class="list-group">
-                          <li class="list-group-item clickable-media" ng-repeat="cloudImageId in cloud.images" id='cloudImage_{{images[cloudImageId].resource.id}}'>
-                            <div class="media" id="li_{{images[cloudImageId].name}}">
+                          <li class="list-group-item clickable-media" ng-repeat="cloudImageId in cloud.images" id="cloudImage_{{images[cloudImageId].resource.name}}">
+                            <div class="media" id="li_{{images[cloudImageId].resource.name}}">
                               <div class="media-body">
                                 <h4 class="media-heading">
                                   <div class="row">
@@ -151,28 +151,29 @@
 	                                      <span class="small pull-left margin-top-05">{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}} : </span>
 							                          <div ng-class="{'has-error': !images[cloudImageId].paaSResourceId}" class="small pull-left margin-top-05">
 							                            <span ng-if="!cloud.enabled" >{{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
-							                            <div ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no" onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
-							                              {{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}
+							                            <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no" 
+							                            onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
+							                              {{images[cloudImageId].paaSResourceId}}
 							                              <em ng-if="images[cloudImageId].paaSResourceId === null || images[cloudImageId].paaSResourceId === undefined" class="text-muted">
 							                                {{'GENERIC_FORM.UNDEFINED' | translate}}
 							                              </em>
 							                              <i class="fa fa-pencil-square-o"></i>
-							                            </div>
+							                            </span>
 																				  <div ng-if="cloud.enabled && paaSImageIds" class="btn-group-vertical btn-group-xs">
 																						<div class="btn-group btn-group-xs">
 																					 	  <button type="button"
 																							   class="btn btn-default dropdown-toggle"
-																									id="{{cloudImageId}}_resourceId">
+																									id="{{images[cloudImageId].resource.name}}_resourceId">
 																									{{images[cloudImageId].paaSResourceId ||
 																									'GENERIC_FORM.UNDEFINED' | translate}} <span
 																										class="caret"></span>
 																							</button>
 																							<ul class="dropdown-menu dropdown-menu-left dropdownAsSelect">
 																							  <li ng-if="images[cloudImageId].paaSResourceId"><a
-                                                    id="{{cloudImageId}}_resourceId_empty"
+                                                    id="{{images[cloudImageId].resource.name}}_resourceId_empty"
                                                     ng-click="saveImageResourceId(cloudImageId, '')">&nbsp;</a></li>
 																								<li ng-repeat="value in availaiblePaaSImageIds"><a
-																										id="{{cloudImageId}}_resourceId_{{value}}"
+																										id="{{images[cloudImageId].resource.name}}_resourceId_{{value}}"
 																										ng-click="saveImageResourceId(cloudImageId, value)">{{value}}</a></li>
 																							</ul>
 																							</div>
@@ -181,7 +182,7 @@
 						                          </div>
 					                          </div> 
                                     <div class="col-md-2">
-					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)"><i class="fa fa-trash-o"></i>
+					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)" id="cloud_delete_cloud_image_{{images[cloudImageId].resource.name}}"><i class="fa fa-trash-o"></i>
 					                            </button>                                    
                                     </div>                               
                                   </div>
@@ -333,7 +334,7 @@
 														</div>
 											    </td>                          
                           <td>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)"><i class="fa fa-trash-o"></i>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)" id="cloud_delete_flavor_{{flavor.id}}"><i class="fa fa-trash-o"></i>
                             </button>
                           </td>
                         </tr>
@@ -590,7 +591,7 @@
                             </div>
                           </td>    
                           <td>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network.id)"><i class="fa fa-trash-o"></i>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network)" id="cloud_delete_network_{{network.id}}"><i class="fa fa-trash-o"></i>
                             </button>
                           </td>
                         </tr>
@@ -679,7 +680,7 @@
                             </div>
                           </td>    
                           <td>
-                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage.id)"><i class="fa fa-trash-o"></i>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage)" id="cloud_delete_storage_{{storage.id}}"><i class="fa fa-trash-o"></i>
                             </button>
                           </td>
                         </tr>

@@ -25,13 +25,17 @@ describe('Application Deployment :', function() {
       cloudsCommon.goToCloudList();
       cloudsCommon.createNewCloud('testcloud');
       cloudsCommon.goToCloudDetail('testcloud');
+      // we need to enable cloud to be able to assign PaaS resource IDs
+      cloudsCommon.enableCloud();
       cloudsCommon.selectFirstImageOfCloud();
+      cloudsCommon.assignPaaSResourceToImage("Compute-dev", "passIdImage1");
       cloudsCommon.addNewFlavor("large", "8", "320", "4096");
       cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
       cloudsCommon.goToCloudDetailTemplate();
-      cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'medium', 'MEDIUM_LINUX');
-      cloudsCommon.assignPaaSResourceToTemplate('Compute-dev', 'large', 'LARGE_LINUX');
+      cloudsCommon.assignPaaSResourceToFlavor("large", "passIdFlavor1");
+      cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor2");
       cloudsCommon.goToCloudDetail('testcloud');
+      cloudsCommon.disableCloud();
       cloudsCommon.enableCloud();
     }
   });
