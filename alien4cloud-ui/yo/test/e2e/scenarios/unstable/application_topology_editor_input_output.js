@@ -20,6 +20,7 @@ describe('Topology input/output properties', function() {
   });
 
   var checkPropertyState = function() {
+    browser.sleep(1000);
     topologyEditorCommon.expectPropertyInputState('Compute', 'ip_address', true);
     topologyEditorCommon.expectPropertyOutputState('Compute', 'ip_address', false);
     topologyEditorCommon.expectPropertyOutputState('Compute', 'disk_size', true);
@@ -63,7 +64,7 @@ describe('Topology input/output properties', function() {
     browser.sleep(1000);
     var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
     browser.actions().click(deployButton).perform();
-    browser.sleep(7000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
+    browser.sleep(9000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
 
     var outputTable = browser.element(by.id('outputPropertiesTable'));
     var outputTableText = outputTable.getText();
@@ -80,8 +81,9 @@ describe('Topology input/output properties', function() {
     expect(inputTableText).toContain('192.168.1.1');
 
     var undeployButton = browser.element(by.binding('APPLICATIONS.UNDEPLOY'));
+    browser.sleep(1000);
     browser.actions().click(undeployButton).perform();
-    browser.sleep(7000); // DO NOT REMOVE, wait for UNDEPLOY
+    browser.sleep(9000); // DO NOT REMOVE, wait for UNDEPLOY
     outputTableText = outputTable.getText();
     expect(outputTableText).not.toContain('disk_size');
     expect(outputTableText).not.toContain('1024');
