@@ -313,6 +313,19 @@ public class CloudController {
                 .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedComputeTemplates())).build();
     }
 
+    @ApiOperation(value = "Remove some cloud images from the given cloud", notes = "Only user with ADMIN role can remove a cloud image.")
+    @RequestMapping(value = "/{cloudId}/removeImages", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<CloudComputeResourcesDTO> removeCloudImages(@PathVariable String cloudId, @RequestBody String[] cloudImageIds) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        CloudResourceMatcherConfig config = cloudService.findCloudResourceMatcherConfig(cloud);
+        for (String cloudImageId : cloudImageIds) {
+            cloudService.removeCloudImage(cloud, config, cloudImageId);
+        }
+        return RestResponseBuilder.<CloudComputeResourcesDTO> builder()
+                .data(new CloudComputeResourcesDTO(cloud.getComputeTemplates(), config.getMatchedComputeTemplates())).build();
+    }
+
     @ApiOperation(value = "Add a flavor to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
     @RequestMapping(value = "/{cloudId}/flavors", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<CloudComputeResourcesDTO> addCloudImageFlavor(@PathVariable String cloudId, @RequestBody CloudImageFlavor flavor) {

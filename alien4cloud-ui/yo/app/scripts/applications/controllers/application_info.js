@@ -160,7 +160,7 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
         applicationId: applicationId
       }, function(response) {
         if (!response.error && response.data === true) {
-          $state.go('applications');
+          $state.go('applications.list');
         } else {
           // toaster message
           toaster.pop('error', $translate('APPLICATIONS.ERRORS.DELETE_TITLE'), $translate('APPLICATIONS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);

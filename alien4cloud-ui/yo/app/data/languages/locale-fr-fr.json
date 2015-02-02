@@ -8,10 +8,14 @@
   "CREATE": "Créer",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
+  "CONFIRM": "Confirmer",
   "APPLICATION": "Application",
   "CSAR": "Csar",
   "TRUE": "Vrai",
   "FALSE": "Faux",
+  "YES" : "Oui",
+  "NO": "Non",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -463,7 +467,7 @@
     "NUM_CPUS": "Nombre de CPUs requis",
     "DISK_SIZE": "Taille du disque requise",
     "MEM_SIZE": "Taille de la mémoire requise",
-    "LINKED_TO_CLOUDS": "Cette image est associée à plus d'un cloud, les possibilités d'édition sont donc limitées. Attention, les modifications vont impacter les clouds suivants : {{cloudNames}}." 
+    "LINKED_TO_CLOUDS": "Cette image est associée à plus d'un cloud, les possibilités d'édition sont donc limitées. Attention, les modifications vont impacter les clouds suivants : {{cloudNames}}."
   },
   "CLOUDS": {
     "CLOUDS": "Clouds",
@@ -510,10 +514,9 @@
       "NEW_MODAL_TITLE": "Ajouter nouveau gabarit"
     },
     "IMAGES": {
-      "NEW": "Ajouter",
-      "TO_BE_ADDED_TITLE": "Images sélectionnées",
-      "NEW_MODAL_TITLE": "Ajouter des images",
-      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'ajouter"
+      "NEW": "Nouvelle",
+      "TO_BE_ADDED_TITLE": "Images associées",
+      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'associer"
     },
     "NETWORK": "Réseaux",
     "NETWORKS": {

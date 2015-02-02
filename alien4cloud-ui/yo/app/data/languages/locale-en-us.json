@@ -8,6 +8,8 @@
   "CREATE": "Create",
   "DELETE": "Delete",
   "DELETE_CONFIRM": "Do you really want to remove this element ?",
+  "CONFIRM_MESSAGE": "Do you really want to perfom this action?",
+  "CONFIRM": "Confirm",
   "APPLICATION": "Application",
   "CSAR": "Csar",
   "TRUE": "True",
@@ -163,6 +165,8 @@
     "UNDEFINED_READ_ONLY": "Undefined",
     "TRUE": "Yes",
     "FALSE": "No",
+    "YES" : "Yes",
+    "NO": "No",
     "REQUIRED": "Mandatory fields",
     "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved:",
     "SAVE_IS_DONE": "Saved",
@@ -456,7 +460,7 @@
     "NUM_CPUS": "Required CPU cores",
     "DISK_SIZE": "Required disk size",
     "MEM_SIZE": "Required memory size",
-    "LINKED_TO_CLOUDS": "This image is associated to more than one cloud so edition is limited to few fields. Modifications will impact the following clouds: {{cloudNames}}." 
+    "LINKED_TO_CLOUDS": "This image is associated to more than one cloud so edition is limited to few fields. Modifications will impact the following clouds: {{cloudNames}}."
   },
   "CLOUDS": {
     "CLOUDS": "Clouds",
@@ -485,9 +489,8 @@
     "TEMPLATE": "Template",
     "TEMPLATE_DETAILS": "Details",
     "IMAGES": {
-      "NEW": "Add image",
+      "NEW": "New",
       "NEW_MODAL_TITLE": "Add image",
-      "TO_BE_ADDED_TITLE": "Selected images",
       "NO_SELECTED_IMAGES": "Click on an image to add"
     },
     "FLAVORS": {

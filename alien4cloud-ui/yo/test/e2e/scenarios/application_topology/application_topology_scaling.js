@@ -12,21 +12,40 @@ var computesNodeTemplates = {
     ubuntu: componentData.ubuntuTypes.ubuntu()
 };
 
-var scale = function(newValue) {
+var confirmAction = function(confirmPopup){
+  var confirmBtn = confirmPopup.element(by.css('.btn-success'));
+  confirmBtn.click();
+  browser.sleep(8000); // Time needed to complete the scaling
+};
+
+var cancelAction = function(cancelPopup){
+  var cancelBtn = cancelPopup.element(by.css('.btn-danger'));
+  cancelBtn.click();
+};
+
+var scale = function(oldValue, newValue, cancel) {
   var scaleEditableInput = element(by.id('scaleEditableInput'));
   var scaleEditableButton = element(by.id('scaleEditableButton'));
   scaleEditableButton.click();
   var editForm = scaleEditableInput.element(by.tagName('form'));
   var editInput = editForm.element(by.tagName('input'));
+  var submitBtn = editForm.element(by.css('button.btn-primary'));
   editInput.clear();
   editInput.sendKeys(newValue);
   browser.waitForAngular();
-  editForm.submit();
-  browser.waitForAngular();
-  expect(scaleEditableInput.getText()).toContain(newValue);
+  submitBtn.click();
+  var valueToCheck;
+  if (cancel) {
+    valueToCheck = oldValue;
+    cancelAction(element(by.css('.popover')));
+  } else {
+    valueToCheck = newValue;
+    confirmAction(element(by.css('.popover')));
+  }
+  expect(scaleEditableInput.getText()).toContain(valueToCheck);
 };
 
-var checkAndScale = function(nodeId, valueToCheck, newValue){
+var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
   var nodeToView = element(by.id(nodeId));
   nodeToView.click();
   element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
@@ -37,8 +56,8 @@ var checkAndScale = function(nodeId, valueToCheck, newValue){
     browser.actions().click(backButton).perform();
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
       expect(states.length).toEqual(valueToCheck);
-      if(newValue) {
-        scale(newValue);
+      if (newValue) {
+        scale(valueToCheck, newValue, cancel);
       }
     });
   });
@@ -46,17 +65,24 @@ var checkAndScale = function(nodeId, valueToCheck, newValue){
 
 
 describe('Topology scaling feature', function() {
+  var reset = true;
+  var after = false;
 
   beforeEach(function() {
-    topologyEditorCommon.beforeTopologyTest();
+    if (reset) {
+      reset = false;
+      topologyEditorCommon.beforeTopologyTest();
+    }
   });
 
   afterEach(function() {
-    common.after();
+    if (after) {
+      common.after();
+    }
   });
 
-  it('should be able to add scaling policy, deploy and scale a compute, and every node derived from it', function() {
-    console.log('################# should be able to add scaling policy, deploy and scale a compute, and every node derived from it');
+  it('should be able to add scaling policy', function() {
+    console.log('################# should be able to add scaling policy.');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
 
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
@@ -77,25 +103,29 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('minInstances')).isPresent()).toBe(false);
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
-    //deploying and scaling
+    // Change scaling policy
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
+  });
 
-    // applications.deployExistingApplication('Alien');
+  it('should be able to deploy and scale (with confirmation) a compute, and every node derived from it', function() {
+    after = true;
+    console.log('################# should be able to deploy and scale (with confirmation) a compute, and every node derived from it.');
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
     navigation.go('applications', 'runtime');
 
-    // Wait for mock deployment to finish
-    browser.sleep(10000);
+    browser.sleep(10000); // Wait for mock deployment to finish
 
-    checkAndScale('rect_Compute',2 , 1);
-    browser.sleep(10000);
-    checkAndScale('rect_Compute',1);
+    checkAndScale('rect_Compute', 2 , 1);
+    checkAndScale('rect_Compute', 1);
+    checkAndScale('rect_Compute', 1, 2, true);
+    checkAndScale('rect_Compute', 1);
 
     checkAndScale('rect_Ubuntu', 3, 1);
-    browser.sleep(10000);
+    checkAndScale('rect_Ubuntu', 1);
+    checkAndScale('rect_Ubuntu', 1, 2, true);
     checkAndScale('rect_Ubuntu', 1);
   });
 

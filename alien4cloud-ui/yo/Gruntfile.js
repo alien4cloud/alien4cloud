@@ -456,6 +456,13 @@ module.exports = function(grunt) {
           }
         }
       },
+      runChrome: {
+        options: {
+          args: {
+            browser: 'chrome'
+          }
+        }
+      },
       runFirefox: {
         options: {
           args: {
@@ -479,9 +486,9 @@ module.exports = function(grunt) {
             // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
-//              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
-                            'test/e2e/scenarios/admin/admin_cloud_image.js',
+              //              'test/e2e/scenarios/admin/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin/admin_groups_management.js',
               //              'test/e2e/scenarios/admin/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin/admin_users_management.js',
@@ -501,6 +508,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
               //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
+                            'test/e2e/scenarios/application_topology/application_topology_scaling.js',
               //              'test/e2e/scenarios/deployment/deployment.js',
               //              'test/e2e/scenarios/deployment/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
@@ -556,7 +564,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:unit']);
 
-
   grunt.registerTask('chrome-ittest', '', function() {
     var tasks = ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
       'protractor:runChrome'
@@ -564,10 +571,6 @@ module.exports = function(grunt) {
     grunt.option('force', true);
     grunt.task.run(tasks);
   });
-
-  //  grunt.registerTask('chrome-ittest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  //    'protractor:runChrome'
-  //  ]);
 
   grunt.registerTask('firefox-ittest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
     'protractor:runFirefox'

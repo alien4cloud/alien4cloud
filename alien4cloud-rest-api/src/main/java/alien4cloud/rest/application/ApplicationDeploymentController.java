@@ -267,15 +267,16 @@ public class ApplicationDeploymentController {
             // get all environments status for the current application
             ApplicationEnvironment[] environments = applicationEnvironmentService.getByApplicationId(application.getId());
             for (ApplicationEnvironment env : environments) {
-                DeploymentStatus status = DeploymentStatus.UNKNOWN;
-                try {
-                    status = applicationEnvironmentService.getStatus(env);
-                } catch (CloudDisabledException e) {
-                    log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
-                            + "> seems disabled. Returned status is UNKNOWN.", e);
+                if (AuthorizationUtil.hasAuthorizationForEnvironment(env, ApplicationEnvironmentRole.values())) {
+                    DeploymentStatus status = DeploymentStatus.UNKNOWN;
+                    try {
+                        status = applicationEnvironmentService.getStatus(env);
+                    } catch (CloudDisabledException e) {
+                        log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
+                                + "> seems disabled. Returned status is UNKNOWN.", e);
+                    }
+                    environmentStatuses.put(env.getId(), new EnvironmentStatusDTO(env.getName(), status));
                 }
-                environmentStatuses.put(env.getId(), new EnvironmentStatusDTO(env.getName(), status));
-
             }
             statuses.put(applicationId, environmentStatuses);
         }
