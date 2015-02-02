@@ -115,7 +115,6 @@ public class CloudService {
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         IPaaSProvider provider = passProviderFactory.newInstance();
         cloud.setConfigurable(saveDefaultConfiguration(cloud.getId(), provider));
-        initializeMatcherConfig(provider, cloud);
 
         alienDAO.save(cloud);
         return cloud.getId();

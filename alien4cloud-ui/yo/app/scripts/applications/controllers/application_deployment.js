@@ -101,7 +101,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage']) &&
             UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags)) {
               $scope.storageImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
-          }          
+          }
           // process topology data
           $scope.inputProperties = result.data.topology.inputProperties;
           $scope.outputProperties = result.data.topology.outputProperties;
@@ -240,7 +240,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.currentStorageNodeTemplateId = name;
       $scope.currentMatchedStorages = currentMatchedStorages;
     };
-    
+
     $scope.changeSelectedNetwork = function(template) {
       $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
       // Update deployment setup when matching change
@@ -251,7 +251,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         networkMapping: $scope.selectedNetworks
       }));
     };
-    
+
     $scope.changeSelectedStorage = function(template) {
       $scope.selectedStorages[$scope.currentStorageNodeTemplateId] = template;
       // Update deployment setup when matching change
@@ -261,7 +261,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }, angular.toJson({
         storageMapping: $scope.selectedStorages
       }));
-    };    
+    };
 
     $scope.changeSelectedImage = function(template) {
       $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId] = template;
@@ -300,9 +300,13 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       var selected = $scope.selectedStorages[$scope.currentStorageNodeTemplateId];
       return template.id === selected.id;
     };
-    
+
     $scope.isSelectedNetworkName = function(key) {
       return key === $scope.currentNetworkNodeTemplateId;
+    };
+
+    $scope.isSelectedStorageName = function(key) {
+      return key === $scope.currentStorageNodeTemplateId;
     };
 
     $scope.isAllowedInputDeployment = function() {
@@ -553,7 +557,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
                 break;
               }
             }
-          }          
+          }
         });
       }
     };
