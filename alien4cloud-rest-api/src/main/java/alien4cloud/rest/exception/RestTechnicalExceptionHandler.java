@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
@@ -33,6 +34,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.UpdateTopologyException;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
 import alien4cloud.utils.version.ApplicationVersionException;
 
@@ -130,6 +132,17 @@ public class RestTechnicalExceptionHandler {
                         .message("Repository service has encoutered unexpected error " + e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(value = UpdateTopologyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> updateTopologyErrorHandler(UpdateTopologyException e) {
+        log.error("A topology cannot be updated if it's released", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.UPDATE_AN_RELEASED_TOPOLOGY_ERROR)
+                        .message("A topology cannot be updated if it's released " + e.getMessage()).build()).build();
+    }
+
     @ExceptionHandler(value = ImageUploadException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -212,5 +225,16 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application version error : " + e.getMessage()).build())
                 .build();
+    }
+
+    @ExceptionHandler(value = DeleteDeployedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> deleteDeployedErrorHandler(DeleteDeployedException e) {
+        log.error("Delete deployed element error", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_DEPLOYED_ERROR)
+                        .message("Application environment delete error : " + e.getMessage()).build()).build();
     }
 }

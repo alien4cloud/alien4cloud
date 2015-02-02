@@ -114,8 +114,8 @@
               <div class="col-md-5">
                 <h4 class="text-primary">{{selectedNodeTemplate.name | split:39}}</h4>
               </div>
-                <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
-                <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="no" blur="submit" onbeforesave="scale($data)" e-required>
+              <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
+                <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)" e-required>
                   <h4>
                     {{selectedNodeTemplate.newInstancesCount
                     || selectedNodeTemplate.instancesCount}}

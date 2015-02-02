@@ -29,10 +29,16 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
               "windows"
             ]
           },
+          // should be checked using regexp: 
           "osVersion": {
             "_label": "CLOUD_IMAGES.OS_VERSION",
             "_type": "string",
-            "_notNull": true
+            "_notNull": true,
+            "_constraints": [
+              {
+                "pattern": "^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$"
+              }
+            ]            
           },
           "osArch": {
             "_label": "CLOUD_IMAGES.OS_ARCH",
@@ -96,13 +102,18 @@ angular.module('alienUiApp').factory('cloudImageServices', ['$resource',
         }
       }
     });
+    
+    var cloudResource = $resource('rest/cloud-images/:id/clouds', {}, {
+      query: {method:'GET'}
+    });
 
     return {
       'create': crudCloudImage.save,
       'get': crudCloudImage.get,
       'getFormDescriptor': getFormDescriptor,
       'update': crudCloudImage.update,
-      'remove': crudCloudImage.remove
+      'remove': crudCloudImage.remove,
+      'getClouds' : cloudResource.query
     };
   }
 ]);

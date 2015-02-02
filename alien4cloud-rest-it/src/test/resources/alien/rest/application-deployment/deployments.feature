@@ -13,12 +13,12 @@ Feature: get deployments
     And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "mock cloud"
     And I add a role "CLOUD_DEPLOYER" to user "sangoku" on the resource type "CLOUD" named "mock cloud 2"
     And I am authenticated with user named "sangoku"
-    And I have an applications with names and descriptions
+    And I have applications with names and descriptions
       | The great eye | This application should be in DEPLOYED status... |
     And I deploy all applications with cloud "mock cloud"
 
   Scenario: Ask for detailed deployment object of one cloud
-    Given I have an applications with names and descriptions
+    Given I have applications with names and descriptions
       | ALIEN_1 | ALIEN 1 |
       | ALIEN_2 | ALIEN 2 |
     And I deploy all applications with cloud "mock cloud 2"
@@ -33,7 +33,7 @@ Feature: get deployments
       | ALIEN_2 |
 
   Scenario: Ask for detailed deployment object of all cloud
-    Given I have an applications with names and descriptions
+    Given I have applications with names and descriptions
       | ALIEN_1 | ALIEN 1 |
       | ALIEN_2 | ALIEN 2 |
     And I deploy all applications with cloud "mock cloud 2"
@@ -41,5 +41,5 @@ Feature: get deployments
     Then I should receive a RestResponse with no error
     And the response should contains 3 deployments DTO and applications
       | The great eye |
-      | ALIEN_1        |
-      | ALIEN_2        |
+      | ALIEN_1       |
+      | ALIEN_2       |

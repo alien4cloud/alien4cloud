@@ -81,7 +81,6 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
 
     var drawPieChart = function(appName, data) {
       var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
-        console.log(node);
         return node.data.name;
       });
 
@@ -113,7 +112,7 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
           'highlightLuminosity': 0.10
         },
         'callbacks': {
-          'onMouseoverSegment': function(data) { console.log(data);  tip.show(data); },
+          'onMouseoverSegment': function(data) { tip.show(data); },
           'onMouseoutSegment': tip.hide
         }
       });

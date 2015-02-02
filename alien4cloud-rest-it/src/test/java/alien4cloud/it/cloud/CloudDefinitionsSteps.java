@@ -20,6 +20,7 @@ import alien4cloud.it.plugin.ProviderConfig;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.IaaSType;
+import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -134,11 +135,6 @@ public class CloudDefinitionsSteps {
                 Context.getRestClientInstance().putJSon("/rest/clouds", Context.getInstance().getJsonMapper().writeValueAsString(updatedCloud)));
     }
 
-    // @When("^I list enabled clouds$")
-    // public void I_list_enabled_clouds() throws IOException {
-    // Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds?enabledOnly=true"));
-    // }
-
     @When("^I delete a cloud with name \"([^\"]*)\"$")
     public void I_delete_a_cloud_with_name(String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
@@ -208,15 +204,17 @@ public class CloudDefinitionsSteps {
         assertNotNull(response.getData());
     }
 
-    @When("^I get the cloud \"([^\"]*)\"$")
-    public void I_get_the_cloud(String name) throws Throwable {
+    @When("^I get the cloud by name \"([^\"]*)\"$")
+    public void I_get_the_cloud_by_name(String name) throws Throwable {
         NameValuePair nvp = new BasicNameValuePair("cloudName", name);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp)));
     }
 
-    @When("^I get the cloud with id \"([^\"]*)\"$")
-    public void I_get_the_cloud_with_id(String id) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + id));
+    @When("^I get the cloud \"([^\"]*)\"$")
+    public void I_get_the_cloud_by_id(String name) throws Throwable {
+        // get the cloud by its ID
+        String cloudId = Context.getInstance().getCloudId(name);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId));
     }
 
     @Then("^I should receive a cloud with name \"([^\"]*)\"$")
@@ -226,14 +224,16 @@ public class CloudDefinitionsSteps {
         assertEquals(expectedName, cloud.getName());
     }
 
-    @Then("^the Response should contains cloud with name \"([^\"]*)\" and iass type \"([^\"]*)\" and environment type \"([^\"]*)\"$")
+    @Then("^The Response should contains cloud with name \"([^\"]*)\" and iass type \"([^\"]*)\" and environment type \"([^\"]*)\"$")
     public void the_Response_should_contains_cloud_with_name_and_iass_type_and_environment_type(String expectedName, String expectedIasSType,
             String expectedEnvType) throws Throwable {
-        Cloud cloud = JsonUtil.read(Context.getInstance().getRestResponse(), Cloud.class).getData();
+        // get cloud by id returns a CloudDTO whereas get cloud by name returns a Cloud object
+        // This assert will be used only after a get by ID
+        CloudDTO cloud = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         assertNotNull(cloud);
-        assertEquals(expectedName, cloud.getName());
-        assertEquals(IaaSType.valueOf(expectedIasSType.toUpperCase()), cloud.getIaaSType());
-        assertEquals(EnvironmentType.valueOf(expectedEnvType.toUpperCase()), cloud.getEnvironmentType());
+        assertEquals(expectedName, cloud.getCloud().getName());
+        assertEquals(IaaSType.valueOf(expectedIasSType.toUpperCase()), cloud.getCloud().getIaaSType());
+        assertEquals(EnvironmentType.valueOf(expectedEnvType.toUpperCase()), cloud.getCloud().getEnvironmentType());
     }
 
     @When("^I get deployment properties for cloud \"([^\"]*)\"$")

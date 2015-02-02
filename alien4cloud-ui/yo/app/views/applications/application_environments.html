@@ -51,14 +51,14 @@
               </td>
               <td id="{{environment.name}}-name-td"><span editable-text="environment.name" onbeforesave="updateApplicationEnvironment('name',$data, environment.id, environment.name)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.name}} <i class="fa fa-edit"></i></span></td>
               <td>
-                <select name="applicationVersionsList" id="{{environment.name}}-versionslistid" ng-model="environment.currentVersionName" ng-options="v.version as v.version for v in versions" ng-change="updateApplicationEnvironment('currentVersionId', environment.currentVersionName, environment.id)"></select>
+                <select class="form-control" name="applicationVersionsList" id="{{environment.name}}-versionslistid" ng-model="environment.currentVersionName" ng-options="v.version as v.version for v in versions" ng-change="updateApplicationEnvironment('currentVersionId', environment.currentVersionName, environment.id)"></select>
               </td>
               <td>
-                <select name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="e for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
+                <select class="form-control" name="envList" id="{{environment.name}}-envlistid" ng-model="environment.environmentType" ng-options="e for e in envTypeList.data" ng-change="updateApplicationEnvironment('environmentType', environment.environmentType, environment.id)"></select>
               </td>
               <td><span editable-text="environment.description" onbeforesave="updateApplicationEnvironment('description',$data, environment.id)" buttons="no" style="font-style:inherit;" blur="submit">{{environment.description}} <i class="fa fa-edit"></i></span></td>
               <td>
-                <select name="cloudsList"  id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)">
+                <select class="form-control" ng-disabled="environment.status == 'DEPLOYED'" name="cloudsList" id="cloudslistid" ng-model="environment.cloudName" ng-options="c.name as c.name for c in clouds" ng-change="updateApplicationEnvironment('cloudId', environment.cloudName, environment.id)">
                   <option value="">{{'APPLICATIONS.ENVIRONMENT.FORM.CLOUD_SELECT' | translate}}</option>
                 </select>
               </td>

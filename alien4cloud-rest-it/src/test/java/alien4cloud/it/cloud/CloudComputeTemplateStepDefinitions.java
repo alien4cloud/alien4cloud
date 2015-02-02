@@ -161,7 +161,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
     public void The_cloud_should_have_resources_mapping_configuration_as_below(String cloudName, DataTable expectedMappings) throws Throwable {
-        new CloudDefinitionsSteps().I_get_the_cloud_with_id(Context.getInstance().getCloudId(cloudName));
+        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher());
         Assert.assertNotNull(cloudDTO.getCloudResourceMatcher().getMatcherConfig());

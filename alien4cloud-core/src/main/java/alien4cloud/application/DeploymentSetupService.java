@@ -92,6 +92,31 @@ public class DeploymentSetupService {
     }
 
     /**
+     * Get the deployment setup
+     * (environment right check done before method call)
+     * 
+     * @param application
+     * @param applicationEnvironmentId
+     * @return
+     */
+    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) {
+
+        // get the topology from the version and the cloud from the environment
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
+
+        DeploymentSetup deploymentSetup = get(version, environment);
+        if (deploymentSetup == null) {
+            deploymentSetup = createOrFail(version, environment);
+        }
+        if (environment.getCloudId() != null) {
+            Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
+            generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
+        }
+        return deploymentSetup;
+    }
+
+    /**
      * Try to generate resources mapping for deployment setup from the topology and the cloud.
      * If no value has been chosen this method will generate default value.
      * If existing configuration is no longer valid for the topology and the cloud, this method will correct incompatibility
@@ -253,6 +278,7 @@ public class DeploymentSetupService {
      */
     public ApplicationVersion getApplicationVersion(String deploymentSetupId) {
         DeploymentSetup deploymentSetup = getById(deploymentSetupId);
+        deploymentSetup.setProviderDeploymentProperties(null);
         if (deploymentSetup != null) {
             ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
             ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());

@@ -25,7 +25,7 @@ public class ToscaUtils {
     public static PaaSNodeTemplate getHostTemplate(final PaaSNodeTemplate paaSNodeTemplate) {
         PaaSNodeTemplate parent = paaSNodeTemplate;
         while (parent != null) {
-            if (isFromType(NormativeComputeConstants.COMPUTE_TYPE, parent.getIndexedNodeType())) {
+            if (isFromType(NormativeComputeConstants.COMPUTE_TYPE, parent.getIndexedToscaElement())) {
                 return parent;
             }
             parent = parent.getParent();

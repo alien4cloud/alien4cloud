@@ -1,31 +1,22 @@
 package alien4cloud.it.utils.websocket;
 
+import java.nio.charset.Charset;
+import java.util.Set;
+
+import lombok.extern.slf4j.Slf4j;
+import alien4cloud.it.exception.ITException;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.AsciiString;
-import io.netty.handler.codec.http.ClientCookieEncoder;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.HttpPostRequestEncoder;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
-
-import java.nio.charset.Charset;
-import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.it.exception.ITException;
 
 @Slf4j
 public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Object> {
@@ -115,7 +106,7 @@ public class WebSocketClientHandler<T> extends SimpleChannelInboundHandler<Objec
             HttpResponse response = (HttpResponse) msg;
             CharSequence cookieData = response.headers().get(new AsciiString("set-cookie"));
             if (cookieData != null) {
-                this.cookies = CookieDecoder.decode(cookieData.toString());
+                this.cookies = ServerCookieDecoder.decode(cookieData.toString());
                 if (this.cookies == null || this.cookies.isEmpty()) {
                     throw new WebSocketAuthenticationFailureException("Could not authenticate");
                 }

@@ -51,9 +51,9 @@ public class ApplicationVersionService {
         appVersion.setId(UUID.randomUUID().toString());
         appVersion.setApplicationId(applicationId);
         appVersion.setVersion(version);
-        appVersion.setReleased(false);
         appVersion.setLatest(true);
         appVersion.setSnapshot(VersionUtil.isSnapshot(version));
+        appVersion.setReleased(!VersionUtil.isSnapshot(version));
         appVersion.setDescription(desc);
 
         Topology topology;
@@ -196,5 +196,24 @@ public class ApplicationVersionService {
     public ApplicationVersion get(String id) {
         ApplicationVersion appVersion = alienDAO.findById(ApplicationVersion.class, id);
         return appVersion;
+    }
+
+    /**
+     * Get a version for an application
+     * (returns the default if not found)
+     * 
+     * @param applicationId
+     * @param applicationVersionId
+     * @return
+     */
+    public ApplicationVersion getVersionByIdOrDefault(String applicationId, String applicationVersionId) {
+        ApplicationVersion version = null;
+        if (applicationVersionId == null) {
+            ApplicationVersion[] versions = getByApplicationId(applicationId);
+            version = versions[0];
+        } else {
+            version = getOrFail(applicationVersionId);
+        }
+        return version;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -106,6 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests().antMatchers("/rest/deployments/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/clouds/search/**").authenticated();
+        http.authorizeRequests().antMatchers(HttpMethod.GET, "/rest/clouds/{id}").authenticated();
         http.authorizeRequests().antMatchers("/rest/clouds/*/deploymentpropertydefinitions").authenticated();
         http.authorizeRequests().antMatchers("/rest/clouds/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/cloud-images/**").hasAuthority("ADMIN");

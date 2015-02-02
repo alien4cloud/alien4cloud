@@ -7,7 +7,7 @@
           <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
           <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
           <a class="btn btn-default btn-xs" ng-click="view = 'YAML'">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
-          <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
+          <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
         </div>
       </div>
       <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{mode: 'yaml'}" style="height: {{dimensions.height}}px;"></div>
@@ -442,7 +442,7 @@
 
                 <div class="topology-node-expand clickable editable-small"
                   ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
-                  id ="relationship_{{relationshipName}}">
+                  id="relationship_{{relationshipName}}">
                   <i class="pull-left fa"
                     ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
                   <span

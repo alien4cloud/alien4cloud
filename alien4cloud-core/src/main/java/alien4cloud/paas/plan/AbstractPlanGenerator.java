@@ -9,10 +9,10 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Sets;
@@ -57,7 +57,7 @@ public abstract class AbstractPlanGenerator {
      * @param nodes The nodes to generate.
      */
     protected void sequencial(List<PaaSNodeTemplate> nodes) {
-        for(PaaSNodeTemplate node : nodes) {
+        for (PaaSNodeTemplate node : nodes) {
             generateNodeWorkflow(node);
         }
     }
@@ -160,10 +160,10 @@ public abstract class AbstractPlanGenerator {
                     .getTarget().equals(nodeTemplate.getId());
             String dependencyTarget = waitTarget ? relationshipTemplate.getRelationshipTemplate().getTarget() : relationshipTemplate.getSource();
             boolean waitMySelf = dependencyTarget.equals(nodeTemplate.getId());
-            if(waitMySelf && !myselfOnly) {
+            if (waitMySelf && !myselfOnly) {
                 isCandidate = false;
             }
-            if(myselfOnly && !waitMySelf) {
+            if (myselfOnly && !waitMySelf) {
                 isCandidate = false;
             }
 
@@ -259,7 +259,7 @@ public abstract class AbstractPlanGenerator {
     }
 
     private static Interface getNodeInterface(PaaSNodeTemplate nodeTemplate, String interfaceName) {
-        Interface interfaz = getInterface(interfaceName, nodeTemplate.getIndexedNodeType().getInterfaces());
+        Interface interfaz = getInterface(interfaceName, nodeTemplate.getIndexedToscaElement().getInterfaces());
         if (interfaz == null) {
             throw new IllegalArgumentException("Plan cannot be generated as required interface <" + interfaceName + "> has not been found on node <"
                     + nodeTemplate.getNodeTemplate().getName() + "> from type <" + nodeTemplate.getNodeTemplate().getType() + ">.");
@@ -268,7 +268,7 @@ public abstract class AbstractPlanGenerator {
     }
 
     private static Interface getRelationshipInterface(PaaSRelationshipTemplate relationshipTemplate, String interfaceName) {
-        Interface interfaz = getInterface(interfaceName, relationshipTemplate.getIndexedRelationshipType().getInterfaces());
+        Interface interfaz = getInterface(interfaceName, relationshipTemplate.getIndexedToscaElement().getInterfaces());
         if (interfaz == null) {
             throw new IllegalArgumentException("Plan cannot be generated as required interface <" + interfaceName + "> has not been found on relationship <"
                     + relationshipTemplate.getId() + "> from type <" + relationshipTemplate.getRelationshipTemplate().getType() + "> from source node <"

@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -61,62 +61,64 @@ angular.module('alienUiApp').controller(
         }
       };
 
-      cloudServices.get({
-        id: cloudId
-      }, function(response) {
-        $scope.images = response.data.images;
-        $scope.flavors = response.data.flavors;
-        $scope.cloud = response.data.cloud;
-        $scope.networks = response.data.networks;
-        if (response.data.cloudResourceMatcher) {
-          $scope.manualMatchResource = true;
-          $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
-          $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
-          $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
-          updateComputeResourcesId();
-          updateNetworkResourcesId();
-        }
-        updateComputeResourcesStatistic();
-        updateNetworkResourcesStatistic();
-        $scope.relatedUsers = {};
-        if ($scope.cloud.userRoles) {
-          var usernames = [];
-          for (var username in $scope.cloud.userRoles) {
-            if ($scope.cloud.userRoles.hasOwnProperty(username)) {
-              usernames.push(username);
+      var refreshCloud = function() {
+        cloudServices.get({
+          id: cloudId
+        }, function(response) {
+          $scope.images = response.data.images;
+          $scope.flavors = response.data.flavors;
+          $scope.cloud = response.data.cloud;
+          $scope.networks = response.data.networks;
+          if (response.data.cloudResourceMatcher) {
+            $scope.manualMatchResource = true;
+            $scope.manualMatchComputeIds = response.data.cloudResourceMatcher.paaSComputeTemplateIds;
+            $scope.manualMatchNetworkIds = response.data.cloudResourceMatcher.paaSNetworkTemplateIds;
+            $scope.matchedComputeTemplates = response.data.cloudResourceMatcher.matcherConfig.matchedComputeTemplates;
+            $scope.matchedNetworks = response.data.cloudResourceMatcher.matcherConfig.matchedNetworks;
+            updateComputeResourcesId();
+            updateNetworkResourcesId();
+          }
+          updateComputeResourcesStatistic();
+          updateNetworkResourcesStatistic();
+          $scope.relatedUsers = {};
+          if ($scope.cloud.userRoles) {
+            var usernames = [];
+            for (var username in $scope.cloud.userRoles) {
+              if ($scope.cloud.userRoles.hasOwnProperty(username)) {
+                usernames.push(username);
+              }
+            }
+            if (usernames.length > 0) {
+              userServices.get([], angular.toJson(usernames), function(usersResults) {
+                var data = usersResults.data;
+                for (var i = 0; i < data.length; i++) {
+                  $scope.relatedUsers[data[i].username] = data[i];
+                }
+              });
             }
           }
-          if (usernames.length > 0) {
-            userServices.get([], angular.toJson(usernames), function(usersResults) {
-              var data = usersResults.data;
-              for (var i = 0; i < data.length; i++) {
-                $scope.relatedUsers[data[i].username] = data[i];
-              }
-            });
-          }
-        }
 
-        $scope.relatedGroups = {};
-        if ($scope.cloud.groupRoles) {
-          var groupIds = [];
-          for (var groupId in $scope.cloud.groupRoles) {
-            if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
-              groupIds.push(groupId);
+          $scope.relatedGroups = {};
+          if ($scope.cloud.groupRoles) {
+            var groupIds = [];
+            for (var groupId in $scope.cloud.groupRoles) {
+              if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
+                groupIds.push(groupId);
+              }
+            }
+            if (groupIds.length > 0) {
+              groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
+                var data = groupsResults.data;
+                for (var i = 0; i < data.length; i++) {
+                  $scope.relatedGroups[data[i].id] = data[i];
+                }
+              });
             }
           }
-          if (groupIds.length > 0) {
-            groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
-              var data = groupsResults.data;
-              for (var i = 0; i < data.length; i++) {
-                $scope.relatedGroups[data[i].id] = data[i];
-              }
-            });
-          }
-        }
+        });
+      }
 
-
-      });
-
+      refreshCloud();
       // get all cloud assignable roles
       $resource('rest/auth/roles/cloud', {}, {
         method: 'GET'
@@ -154,6 +156,7 @@ angular.module('alienUiApp').controller(
               toaster.pop('error', $translate('CLOUDS.ERRORS.ENABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.ENABLING_FAILED'), 4000, 'trustedHtml', null);
               $scope.cloud.enabled = false;
             } else {
+              refreshCloud();
               $scope.cloud.enabled = true;
             }
             $scope.enablePending = false;
@@ -202,6 +205,8 @@ angular.module('alienUiApp').controller(
           if (UTILS.isDefinedAndNotNull(response.error)) {
             var errorsHandle = $q.defer();
             return errorsHandle.resolve(response.error);
+          } else {
+            refreshCloud();
           }
         }).$promise;
       };
@@ -374,43 +379,6 @@ angular.module('alienUiApp').controller(
         });
       };
 
-      $scope.openAddCloudImageModal = function() {
-        var modalInstance = $modal.open({
-          templateUrl: 'views/clouds/new_image.html',
-          controller: 'AddCloudImageController',
-          windowClass: 'clouds-add-image',
-          scope: $scope
-        });
-
-        modalInstance.result.then(function(images) {
-          var imageIds = [];
-          for (var i = 0; i < images.length; i++) {
-            imageIds.push(images[i].id);
-          }
-          cloudServices.addImage({
-            id: $scope.cloud.id
-          }, angular.toJson(imageIds), function(success) {
-            for (var i = 0; i < images.length; i++) {
-              $scope.images[images[i].id] = images[i];
-            }
-            $scope.cloud.images = UTILS.concat($scope.cloud.images, imageIds);
-            updateComputeResources(success.data);
-          });
-        });
-      };
-
-      $scope.deleteCloudImage = function(imageId) {
-        cloudServices.removeImage({
-          id: $scope.cloud.id,
-          imageId: imageId
-        }, undefined, function(success) {
-          delete $scope.images[imageId];
-          var indexOfImage = $scope.cloud.images.indexOf(imageId);
-          $scope.cloud.images.splice(indexOfImage, 1);
-          updateComputeResources(success.data);
-        });
-      };
-
       /** handle Modal form for cloud image creation */
       $scope.openNetworkCreationModal = function() {
         var modalInstance = $modal.open({
@@ -499,5 +467,100 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
         });
       };
+      
+      // id of images candidat to be removed
+      $scope.imageRemoveSelection = [];
+      // id of images candidat to be added
+      $scope.imageAddSelection = [];
+      
+      $scope.switchCloudImageRemoveSelection = function(imageId) {
+        if (UTILS.arrayContains($scope.imageRemoveSelection, imageId)) {
+          UTILS.arrayRemove($scope.imageRemoveSelection, imageId);
+        } else {
+          $scope.imageRemoveSelection.push(imageId);
+        }
+      }
+      $scope.isInCloudImageRemoveSelection = function(imageId) {
+        return UTILS.arrayContains($scope.imageRemoveSelection, imageId);
+      }
+      $scope.performRemoveCloudImageSelection = function() {
+        if ($scope.imageRemoveSelection.length > 0) {
+          cloudServices.removeImages({
+              id: $scope.cloud.id
+            }, angular.toJson($scope.imageRemoveSelection), function(success) {
+              angular.forEach($scope.imageRemoveSelection, function(value, key) {
+                UTILS.arrayRemove($scope.cloud.images, value);
+              });
+              $scope.imageRemoveSelection = [];
+              updateComputeResources(success.data);
+              $scope.initSearchImageService();
+          });
+        }
+      }
+      
+      $scope.imageQueryProvider = {
+        query: '',
+        onSearchCompleted: function(searchResult) {
+          $scope.searchImageData = searchResult.data;
+          angular.forEach($scope.searchImageData.data, function(value, key) {
+            // we store the result images in a global map
+            $scope.images[value.id] = value;
+          });
+        }
+      }
+      $scope.initSearchImageService = function() {
+        $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
+          exclude: $scope.cloud.images
+        });
+        $scope.searchImage();      
+      };
+      $scope.searchImage = function() {
+        $scope.imageAddSelection = [];
+        $scope.searchImageService.search();
+      };      
+      $scope.imageQueryChanged = function(query) {
+        $scope.imageQueryProvider.query = query;
+      };      
+      
+      $scope.switchCloudImageAddSelection = function(imageId) {
+        if (UTILS.arrayContains($scope.imageAddSelection, imageId)) {
+          UTILS.arrayRemove($scope.imageAddSelection, imageId);
+        } else {
+          $scope.imageAddSelection.push(imageId);
+        }
+      }      
+      $scope.isInCloudImageAddSelection = function(imageId) {
+        return UTILS.arrayContains($scope.imageAddSelection, imageId);
+      }
+      $scope.performAddCloudImageSelection = function() {
+        cloudServices.addImage({
+          id: $scope.cloud.id
+        }, angular.toJson($scope.imageAddSelection), function(success) {
+          $scope.cloud.images = UTILS.concat($scope.cloud.images, $scope.imageAddSelection);
+          updateComputeResources(success.data);
+          $scope.imageAddSelection = [];
+          $scope.initSearchImageService();
+        });          
+      }      
+      $scope.createCloudImage = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/cloud-images/new_cloud_image.html',
+          controller: 'NewCloudImageController',
+          windowClass: 'newImageModal'
+        });
+
+        modalInstance.result.then(function(cloudImageId) {
+          
+          cloudImageServices.get({id : cloudImageId}, function(success) {
+            $scope.images[success.data.id] = success.data;
+            cloudServices.addImage({
+              id: $scope.cloud.id
+            }, angular.toJson([cloudImageId]), function(success) {
+              $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
+              updateComputeResources(success.data);
+            });             
+          });
+        });        
+      }
     }
   ]);

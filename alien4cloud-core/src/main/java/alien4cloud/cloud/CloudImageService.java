@@ -84,7 +84,7 @@ public class CloudImageService {
     }
 
     /**
-     * Get all cloud ids which use the image
+     * Get all cloud ids which use the image.
      *
      * @param id id of the cloud image
      * @return the list of cloud ids using this image
@@ -92,5 +92,16 @@ public class CloudImageService {
     public String[] getCloudsUsingImage(String id) {
         return alienDAO.selectPath(Cloud.class.getSimpleName().toLowerCase(), new Class<?>[] { Cloud.class }, QueryBuilders.termQuery("images", id), null,
                 "id", 0, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Get all cloud names which use the image.
+     *
+     * @param id id of the cloud image
+     * @return the list of cloud names using this image
+     */
+    public String[] getCloudsNameUsingImage(String id) {
+        return alienDAO.selectPath(Cloud.class.getSimpleName().toLowerCase(), new Class<?>[] { Cloud.class }, QueryBuilders.termQuery("images", id), null,
+                "name", 0, Integer.MAX_VALUE);
     }
 }

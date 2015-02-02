@@ -49,7 +49,7 @@ exports.config = {
 
   // The timeout for each script run on the browser. This should be longer
   // than the maximum time your application needs to stabilize between tasks.
-  allScriptsTimeout: 90000,
+  allScriptsTimeout: 110000,
 
   // ----- What tests to run -----
   //
@@ -151,7 +151,7 @@ exports.config = {
     // If true, include stack traces in failures.
     includeStackTrace: true,
     // Default time to wait in ms before a test fails.
-    defaultTimeoutInterval: 90000
+    defaultTimeoutInterval: 110000
   },
 
   // ----- The cleanup step -----

@@ -5,13 +5,23 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import alien4cloud.model.components.constraints.*;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraint;
 import alien4cloud.tosca.container.validation.ToscaPropertyConstraintDuplicate;
 import alien4cloud.tosca.container.validation.ToscaPropertyDefaultValueConstraints;
@@ -44,7 +54,7 @@ public class PropertyDefinition implements IOperationParameter {
     private String type;
 
     @NotNull
-    private boolean required = false;
+    private boolean required = true;
 
     @JsonProperty("default")
     @Getter(AccessLevel.NONE)

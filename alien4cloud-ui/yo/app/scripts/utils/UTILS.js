@@ -45,6 +45,10 @@ UTILS.arrayContains = function(array, val) {
   return (UTILS.isDefinedAndNotNull(array) && array.indexOf(val) >= 0);
 };
 
+UTILS.arrayRemove = function(array, val) {
+  array.splice(array.indexOf(val), 1);
+};
+
 UTILS.isNotEmpty = function(array) {
   return (UTILS.isDefinedAndNotNull(array) && array.length > 0);
 };
@@ -208,3 +212,14 @@ UTILS.findByFieldValues = function(array, nameValueEntries) {
   }
   return -1;
 };
+
+UTILS.array2csv = function(array) {
+  var result = '';
+  for (var i = 0; i < array.length; i++) {
+    if (i > 0) {
+      result = result + ', ';
+    }
+    result = result + array[i];
+  }
+  return result;
+}

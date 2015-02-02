@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM19</version>
+    <version>1.0.0-SM20</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -34,8 +34,8 @@
     </dependency>
   </dependencies>
 
-  
-  
+
+
   <build>
     <sourceDirectory>yo/app/scripts</sourceDirectory>
     <resources>
@@ -286,107 +286,7 @@
     </profile>
 
     <profile>
-      <id>chromeUITest</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
-            <executions>
-              <execution>
-                <id>clean-test-data</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <tasks>
-                    <delete includeemptydirs="true" failonerror="false">
-                      <fileset dir="${user.home}/.alien" includes="**/*" />
-                    </delete>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <version>${maven.cargo.version}</version>
-            <executions>
-              <execution>
-                <id>start-jetty</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-jetty</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <container>
-                <containerId>jetty9x</containerId>
-                <artifactInstaller>
-                  <groupId>org.eclipse.jetty</groupId>
-                  <artifactId>jetty-distribution</artifactId>
-                  <version>${jetty.version}</version>
-                </artifactInstaller>
-                <log>${basedir}/target/cargo.log</log>
-                <output>${basedir}/target/jetty.log</output>
-              </container>
-
-              <configuration>
-                <properties>
-                  <cargo.servlet.port>8088</cargo.servlet.port>
-                  <cargo.logging>high</cargo.logging>
-                  <cargo.jvmargs>-Denv=test -Dspring.profiles.active=security-demo</cargo.jvmargs>
-                </properties>
-              </configuration>
-
-              <deployables>
-                <deployable>
-                  <pingURL>http://localhost:8088/index.html</pingURL>
-                  <pingTimeout>60000</pingTimeout>
-                  <!--5 min, time to deploy -->
-                  <properties>
-                    <context>/</context>
-                  </properties>
-                </deployable>
-              </deployables>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>fr.fastconnect</groupId>
-            <artifactId>calm-yeoman-maven-plugin</artifactId>
-            <version>1.0.3</version>
-            <executions>
-              <execution>
-                <id>ittest-chrome</id>
-                <phase>integration-test</phase>
-                <configuration>
-                  <gruntTestArgs>chrome-ittest</gruntTestArgs>
-                </configuration>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>ffUITest</id>
+      <id>UITest</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -470,110 +370,10 @@
             <version>1.0.3</version>
             <executions>
               <execution>
-                <id>ittest-ff</id>
+                <id>${ui-task}</id>
                 <phase>integration-test</phase>
                 <configuration>
-                  <gruntTestArgs>firefox-ittest</gruntTestArgs>
-                </configuration>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>ieUITest</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <version>1.7</version>
-            <executions>
-              <execution>
-                <id>clean-test-data</id>
-                <phase>pre-integration-test</phase>
-                <configuration>
-                  <tasks>
-                    <delete includeemptydirs="true" failonerror="false">
-                      <fileset dir="${user.home}/.alien" includes="**/*" />
-                    </delete>
-                  </tasks>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <version>${maven.cargo.version}</version>
-            <executions>
-              <execution>
-                <id>start-jetty</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-jetty</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <container>
-                <containerId>jetty9x</containerId>
-                <artifactInstaller>
-                  <groupId>org.eclipse.jetty</groupId>
-                  <artifactId>jetty-distribution</artifactId>
-                  <version>${jetty.version}</version>
-                </artifactInstaller>
-                <log>${basedir}/target/cargo.log</log>
-                <output>${basedir}/target/jetty.log</output>
-              </container>
-
-              <configuration>
-                <properties>
-                  <cargo.servlet.port>8088</cargo.servlet.port>
-                  <cargo.logging>high</cargo.logging>
-                  <cargo.jvmargs>-Denv=test -Dspring.profiles.active=security-demo</cargo.jvmargs>
-                </properties>
-              </configuration>
-
-              <deployables>
-                <deployable>
-                  <pingURL>http://localhost:8088/index.html</pingURL>
-                  <pingTimeout>60000</pingTimeout>
-                  <!-- 5 min, time to deploy -->
-                  <properties>
-                    <context>/</context>
-                  </properties>
-                </deployable>
-              </deployables>
-            </configuration>
-          </plugin>
-          <plugin>
-            <groupId>fr.fastconnect</groupId>
-            <artifactId>calm-yeoman-maven-plugin</artifactId>
-            <version>1.0.3</version>
-            <executions>
-              <execution>
-                <id>ittest-ie</id>
-                <phase>integration-test</phase>
-                <configuration>
-                  <gruntTestArgs>iexplore-ittest</gruntTestArgs>
+                  <gruntTestArgs>${ui-task}</gruntTestArgs>
                 </configuration>
                 <goals>
                   <goal>test</goal>

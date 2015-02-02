@@ -34,8 +34,13 @@ a.editable-click:hover {
   background-color: transparent;
   cursor: pointer;
   border: 0;
-
 }
+
+#scaleEditableInput .editable-wrap .editable-controls > input {
+  width: 50%;
+}
+
+
 .editable-wrap {
   width: 100%;
 

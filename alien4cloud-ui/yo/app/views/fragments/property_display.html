@@ -1,8 +1,7 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl" id="meta_properties">
   <!-- Property Name -->
 
-  <label id="p_name_{{definition.name}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }"
-         tooltip="{{definition.name}}" tooltip-append-to-body="true">
+  <label id="p_name_{{definition.name}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{definition.name}}" tooltip-append-to-body="true">
     {{definition.name}}
   </label>
 
@@ -13,51 +12,47 @@
 
       <span ng-switch-when="select">
         <!-- Case : validValues  -->
-        <select class="form-control input-sm" ng-model="definitionObject.uiValue" ng-change="propertySave(definitionObject.uiValue)"
-                ng-options="option for option in definitionObject.uiSelectValues" ng-if="editable">
+        <select class="form-control input-sm" ng-model="definitionObject.uiValue" ng-change="propertySave(definitionObject.uiValue)" ng-options="option for option in definitionObject.uiSelectValues" ng-if="editable">
         </select>
         <span ng-if="!editable">{{definitionObject.uiValue}}</span>
       </span>
 
       <span ng-switch-when="checkbox">
-          <!-- Case : boolean -->
-          <a ng-class="{'checked_role':( roleChecked = definitionObject.uiValue )}" ng-click="propertySaveBoolean(!roleChecked);" ng-if="editable">
-            <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked }"></i>
-          </a>
-          <span ng-if="!editable">{{definitionObject.uiValue}}</span>
+        <!-- Case : boolean -->
+        <a ng-class="{'checked_role':( roleChecked = definitionObject.uiValue )}" ng-click="propertySaveBoolean(!roleChecked);" ng-if="editable">
+          <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked }"></i>
+        </a>
+        <span ng-if="!editable">{{definitionObject.uiValue}}</span>
       </span>
 
       <span ng-switch-when="date">
-          <!-- Case : Timestamp (date) -->
-          <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable">
+        <!-- Case : Timestamp (date) -->
+        <a href="#" editable-bsdate="definitionObject.uiValue" e-datepicker-popup="dd-MMMM-yyyy" onbeforesave="propertySave($data)" ng-if="editable">
             {{ (definitionObject.uiValue | date:"dd/MM/yyyy") || 'empty' }} <i class="fa fa-pencil-square-o"></i>
           </a>
-          <span ng-if="!editable">{{definitionObject.uiValue}}</span>
+        <span ng-if="!editable">{{definitionObject.uiValue}}</span>
       </span>
 
       <span ng-switch-when="range">
-          <!-- Case : inRange (date) -->
-          <a href="#" editable-range="definitionObject.uiValue" e-min="{{definitionObject.uiValueMin}}" e-max="{{definitionObject.uiValueMax}}" e-step="1"
-             onbeforesave="propertySave($data)" ng-if="editable">
+        <!-- Case : inRange (date) -->
+        <a href="#" editable-range="definitionObject.uiValue" e-min="{{definitionObject.uiValueMin}}" e-max="{{definitionObject.uiValueMax}}" e-step="1" onbeforesave="propertySave($data)" ng-if="editable">
             {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
-          </a>
-          <span ng-if="!editable">{{definitionObject.uiValue}}</span>
+        </a>
+        <span ng-if="!editable">{{definitionObject.uiValue}}</span>
       </span>
 
       <span ng-switch-default id="p_{{definition.name}}">
-
         <!-- Default case : string -->
-        <span ng-if="!definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)"
-              blur="submit">
-            {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
+        <span ng-if="!definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
+          {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
         </span>
+        <span ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue}}</span>
 
         <!-- Case : password -->
-        <span ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required
-              onbeforesave="propertySave($data)" blur="submit">
-            {{ definitionObject.uiValue | password:'*' }} <i class="fa fa-pencil-square-o"></i>
-          </span>
-        <span ng-if="!editable">{{ definitionObject.uiValue | password:'*' }}</span>
+        <span ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required onbeforesave="propertySave($data)" blur="submit">
+          {{ definitionObject.uiValue | password:'*' }} <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <span ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</span>
       </span>
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
     </div>
