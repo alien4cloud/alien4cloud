@@ -33,6 +33,7 @@ import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.UpdateApplicationVersionException;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
@@ -132,17 +133,20 @@ public class ApplicationVersionController {
     public RestResponse<Void> update(@PathVariable String applicationVersionId, @RequestBody ApplicationVersionRequest request) {
         ApplicationVersion appVersion = appVersionService.getOrFail(applicationVersionId);
 
-        if (request.getVersion() != null && !VersionUtil.isValid(request.getVersion())) {
+        if (appVersion.isReleased()) {
+            throw new UpdateApplicationVersionException("The application version " + appVersion.getId() + " is released and cannot be update.");
+        } else if (request.getVersion() != null && !VersionUtil.isValid(request.getVersion())) {
             throw new ApplicationVersionException(request.getVersion() + "is not a valid version name");
-        }
-        if (request.getVersion() != null && !appVersion.getVersion().equals(request.getVersion())
+        } else if (request.getVersion() != null && !appVersion.getVersion().equals(request.getVersion())
                 && appVersionService.isApplicationVersionNameExist(appVersion.getApplicationId(), request.getVersion())) {
             throw new AlreadyExistException("An application version already exist for this application with the version :" + applicationVersionId);
         }
+
         if (request.getVersion() != null) {
             appVersion.setSnapshot(VersionUtil.isSnapshot(request.getVersion()));
             appVersion.setReleased(!appVersion.isSnapshot());
         }
+
         ReflectionUtil.mergeObject(request, appVersion);
         alienDAO.save(appVersion);
         return RestResponseBuilder.<Void> builder().build();
