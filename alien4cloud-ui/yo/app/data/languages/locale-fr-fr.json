@@ -517,7 +517,7 @@
     },
     "IMAGES": {
       "NEW": "Nouvelle",
-      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'associer"
+      "NO_SELECTED_IMAGES": "Cliquez ou glissez-déposez une image pour l'associer"
     },
     "NETWORK": "Réseaux",
     "NETWORKS": {

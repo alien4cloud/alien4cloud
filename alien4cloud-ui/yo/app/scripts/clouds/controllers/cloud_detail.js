@@ -541,7 +541,14 @@ angular.module('alienUiApp').controller(
           updateImageResourcesStatistic();
           $scope.initSearchImageService();
         });          
-      }      
+      };   
+      
+      $scope.onImageDragged  = function(dragEvent) {
+        var imageId = angular.fromJson(dragEvent.source)
+        $scope.imageAddSelection = [imageId];
+        $scope.performAddCloudImageSelection();
+      };
+      
       $scope.createCloudImage = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/cloud-images/new_cloud_image.html',

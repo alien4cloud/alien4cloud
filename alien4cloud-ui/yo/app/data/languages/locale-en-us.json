@@ -495,7 +495,7 @@
     "IMAGES": {
       "NEW": "New",
       "NEW_MODAL_TITLE": "Add image",
-      "NO_SELECTED_IMAGES": "Click on an image to add"
+      "NO_SELECTED_IMAGES": "Click or drag-n-drop an image to add"
     },
     "FLAVORS": {
       "ID": "Name",

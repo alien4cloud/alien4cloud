@@ -118,7 +118,7 @@
 								</h4>
 							</legend>
               <div class="row">
-                <div class="col-md-6" id="imagesAdded">
+                <div class="col-md-6" id="imagesAdded" alien-droppable drag-data="" drag-on-drop="onImageDragged(data)">
                   <div class="panel panel-primary">
                     <div class="panel-body">
                       <div>
@@ -225,7 +225,7 @@
                       <div class="col-md-12">
                         <ul class="list-group">
                           <li class="list-group-item clickable-media {{isInCloudImageAddSelection(cloudImage.id) ? 'selected' : ''}}" ng-repeat="cloudImage in searchImageData.data">
-                            <div class="media" id="li_{{cloudImage.name}}" ng-click="switchCloudImageAddSelection(cloudImage.id)">
+                            <div class="media" id="li_{{cloudImage.name}}" ng-click="switchCloudImageAddSelection(cloudImage.id)" alien-draggable drag-enabled="true" drag-data="cloudImage.id">
                               <div class="media-body">
                                 <h4 class="media-heading">
                                   <div class="row">
