@@ -132,9 +132,6 @@ public class CloudResourceMatcherService {
         Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
         List<NetworkTemplate> eligibleNetworks = Lists.newArrayList();
         for (NetworkTemplate network : existingNetworks) {
-            if (!cloudResourceMatcherConfig.getNetworkMapping().containsKey(network)) {
-                continue;
-            }
             if (!match(networkProperties, NormativeNetworkConstants.CIDR, network.getCidr(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
@@ -157,9 +154,6 @@ public class CloudResourceMatcherService {
         Set<StorageTemplate> existingStorages = cloud.getStorages();
         List<StorageTemplate> eligibleStorages = Lists.newArrayList();
         for (StorageTemplate storage : existingStorages) {
-            if (!cloudResourceMatcherConfig.getStorageMapping().containsKey(storage)) {
-                continue;
-            }
             if (!match(storageProperties, NormativeBlockStorageConstants.DEVICE, storage.getDevice(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }

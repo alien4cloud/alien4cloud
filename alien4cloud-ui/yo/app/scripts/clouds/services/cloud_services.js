@@ -18,6 +18,11 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           "_notNull": true,
           "_validValues": [4, 6]
         },
+        "isExternal": {
+          "_label": "CLOUDS.NETWORKS.IS_EXTERNAL",
+          "_type": "boolean",
+          "_notNull": true
+        },
         "cidr": {
           "_label": "CLOUDS.NETWORKS.CIDR",
           "_type": "string",
@@ -30,7 +35,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
         }
       }
     };
-    
+
     var storageFormDescriptor = {
         "_type": "complex",
         "_order": [ "id", "device", "location", "size"],
@@ -64,7 +69,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
             ]
           }
         }
-      };    
+      };
 
     var flavorFormDescriptor = {
       "_type": "complex",
@@ -116,23 +121,23 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     };
 
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
-    
+
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
     var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
-    
+
     var crudStorage = $resource('rest/clouds/:id/storages/:storageId');
 
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
-    
+
     var cloudImageResource = $resource('rest/clouds/:id/images/:resourceId/resource');
-    
+
     var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:resourceId/resource');
 
     var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
-    
+
     var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
@@ -244,7 +249,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeNetwork': crudNetwork.remove,
       'storageFormDescriptor': storageFormDescriptor,
       'addStorage': crudStorage.save,
-      'removeStorage': crudStorage.remove,      
+      'removeStorage': crudStorage.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
       'setCloudNetworkResource': cloudNetworkResource.save,

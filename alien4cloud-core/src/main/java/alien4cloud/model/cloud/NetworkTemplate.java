@@ -25,6 +25,9 @@ public class NetworkTemplate implements ICloudResourceTemplate {
     @NotNull
     private Integer ipVersion;
 
+    @NotNull
+    private Boolean isExternal;
+
     private String cidr;
 
     private String gatewayIp;
