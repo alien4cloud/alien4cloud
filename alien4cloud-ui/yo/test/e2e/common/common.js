@@ -290,3 +290,22 @@ var removeAllFacetFilters = function removeAllFacetFilters() {
   browser.waitForAngular();
 };
 module.exports.removeAllFacetFilters = removeAllFacetFilters;
+
+var slideXEditableTo = function(id, newValue){
+  var scaleEditableInput = element(by.id(id));
+  scaleEditableInput.getText().then(function(text){
+    var oldValue = parseInt(text.trim());
+    scaleEditableInput.click();
+    var editForm = scaleEditableInput.element(by.tagName('form'));
+    var slider = editForm.element(by.tagName('input'));
+    var direction = oldValue < newValue ? protractor.Key.ARROW_RIGHT : protractor.Key.ARROW_LEFT;
+    var repeat = Math.abs(newValue - oldValue);
+    slider.click();
+    while(repeat>0){
+      slider.sendKeys(direction);
+      repeat--;
+    }
+  });
+};
+
+module.exports.slideXEditableTo = slideXEditableTo;

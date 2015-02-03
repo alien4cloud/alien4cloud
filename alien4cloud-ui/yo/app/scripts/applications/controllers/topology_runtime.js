@@ -352,22 +352,6 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.scale = function(newValue) {
-        if (newValue < 0) {
-          return $translate('ERRORS.800.greaterOrEqual', {
-            reference: '0'
-          });
-        }
-        var existingPolicy = $scope.topology.topology.scalingPolicies[$scope.selectedNodeTemplate.name];
-        if (newValue > existingPolicy.maxInstances) {
-          return $translate('ERRORS.800.lessOrEqual', {
-            reference: 'maxInstances'
-          });
-        }
-        if (newValue < existingPolicy.minInstances) {
-          return $translate('ERRORS.800.greaterOrEqual', {
-            reference: 'minInstances'
-          });
-        }
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
             applicationId: applicationId,

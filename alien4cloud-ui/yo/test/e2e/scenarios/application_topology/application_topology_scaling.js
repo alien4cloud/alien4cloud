@@ -24,15 +24,11 @@ var cancelAction = function(cancelPopup){
 };
 
 var scale = function(oldValue, newValue, cancel) {
-  var scaleEditableInput = element(by.id('scaleEditableInput'));
-  var scaleEditableButton = element(by.id('scaleEditableButton'));
-  scaleEditableButton.click();
-  var editForm = scaleEditableInput.element(by.tagName('form'));
-  var editInput = editForm.element(by.tagName('input'));
-  var submitBtn = editForm.element(by.css('button.btn-primary'));
-  editInput.clear();
-  editInput.sendKeys(newValue);
+  common.slideXEditableTo('scaleEditableInput', newValue);
   browser.waitForAngular();
+  var scaleEditableInput = element(by.id('scaleEditableInput'));
+  var editForm = scaleEditableInput.element(by.tagName('form'));
+  var submitBtn = editForm.element(by.css('button.btn-primary'));
   submitBtn.click();
   var valueToCheck;
   if (cancel) {

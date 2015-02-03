@@ -115,7 +115,11 @@
                 <h4 class="text-primary">{{selectedNodeTemplate.name | split:39}}</h4>
               </div>
               <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
-                <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)" e-required>
+                <div class="editable-discreet" editable-range="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)"
+                  e-step="1"
+                  e-min="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].minInstances}}"
+                  e-max="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].maxInstances}}"
+                  e-required>
                   <h4>
                     {{selectedNodeTemplate.newInstancesCount
                     || selectedNodeTemplate.instancesCount}}
