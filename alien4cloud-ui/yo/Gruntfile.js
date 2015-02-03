@@ -414,8 +414,8 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/application/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/application/**/*.js'
             ]
           }
         }
@@ -426,8 +426,8 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/application_topology/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/application_topology/**/*.js'
             ]
           }
         }
@@ -438,9 +438,9 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/deployment/**/*.js',
-            'test/e2e/scenarios/security/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/deployment/**/*.js',
+              'test/e2e/scenarios/security/**/*.js'
             ]
           }
         }
@@ -451,8 +451,8 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/*.js'            ]
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/*.js'            ]
           }
         }
       },
