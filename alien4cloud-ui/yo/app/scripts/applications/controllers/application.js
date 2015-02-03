@@ -1,9 +1,9 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory',
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', '$timeout',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory) {
+    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, $timeout) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -100,10 +100,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         }
       }
       if (envIndex !== null) {
-        console.log('update deploy environment');
-        console.log('was ', appEnvironments.deployEnvironments[envIndex]);
         appEnvironments.deployEnvironments.splice(envIndex, 1, environment);
-        console.log('is  ', appEnvironments.deployEnvironments[envIndex]);
       }
     };
 
@@ -222,17 +219,17 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     $scope.applicationEventServices = null;
     $scope.outputAttributesValue = {};
-    $scope.outputAttributesValueFinal = {};
     $scope.outputPropertiesValue = {};
 
     $scope.refreshInstancesStatuses = function refreshInstancesStatuses(applicationId, environmentId, pageStateId) {
-      $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
-      $scope.applicationEventServices.start();
       if ($scope.outputAttributesSize > 0) {
         applicationServices.runtime.get({
           applicationId: applicationId,
           applicationEnvironmentId: environmentId
         }, function(successResult) {
+          // start event listener on this new <app,env>
+          $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
+          $scope.applicationEventServices.start();
           doSubscribe(successResult.data, pageStateId);
         });
       }

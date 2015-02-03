@@ -66,107 +66,122 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
 
     // applications states
     .state('applications', {
-      url: '/applications',
-      template: '<ui-view/>'
-    }).state('applications.list', {
-      url: '/list',
-      templateUrl: 'views/applications/application_list.html',
-      controller: 'ApplicationListCtrl'
-    }).state('applications.detail', {
-      url: '/:id',
-      resolve: {
-        application: ['applicationServices', '$stateParams',
-          function(applicationServices, $stateParams) {
-            return applicationServices.get({
-              applicationId: $stateParams.id
-            }).$promise;
-          }
-        ],
-        appEnvironments: ['application', 'applicationEnvironmentServices',
-          function(application, applicationEnvironmentServices) {
-            return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
-              return {
-                environments: result.data.data
+        url: '/applications',
+        template: '<ui-view/>'
+      }).state('applications.list', {
+        url: '/list',
+        templateUrl: 'views/applications/application_list.html',
+        controller: 'ApplicationListCtrl'
+      }).state('applications.detail', {
+        url: '/:id',
+        resolve: {
+          application: ['applicationServices', '$stateParams',
+            function(applicationServices, $stateParams) {
+              return applicationServices.get({
+                applicationId: $stateParams.id
+              }).$promise;
+            }
+          ],
+          appEnvironments: ['application', 'applicationEnvironmentServices',
+            function(application, applicationEnvironmentServices) {
+              return applicationEnvironmentServices.getAllEnvironments(application.data.id).then(function(result) {
+                return {
+                  environments: result.data.data
+                };
+              });
+            }
+          ],
+          appVersions: ['$http', 'application', 'applicationVersionServices',
+            function($http, application, applicationVersionServices) {
+              var searchAppVersionRequestObject = {
+                'from': 0,
+                'size': 20
               };
+              return applicationVersionServices.searchVersion({
+                applicationId: application.data.id
+              }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+                return result.data.data;
+              });
+            }
+          ]
+        },
+        templateUrl: 'views/applications/vertical_menu_layout.html',
+        controller: 'ApplicationCtrl'
+      }).state('applications.detail.info', {
+        url: '/infos',
+        templateUrl: 'views/applications/application_infos.html',
+        controller: 'ApplicationInfosCtrl',
+        resolve: {
+          defaultEnvironmentTab: function(appEnvironments) {
+            // return the first deployed env found or null
+            var onlyDeployed = appEnvironments.environments.filter(function deployed(element) {
+              return element.status === 'DEPLOYED';
             });
+            return onlyDeployed.length > 0 ? onlyDeployed[0] : null;
           }
-        ],
-        appVersions: ['$http', 'application', 'applicationVersionServices',
-          function($http, application, applicationVersionServices) {
-            var searchAppVersionRequestObject = {
-              'from': 0,
-              'size': 20
-            };
-            return applicationVersionServices.searchVersion({
-              applicationId: application.data.id
-            }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result){return result.data.data;}) ;
+        }
+      }).state('applications.detail.topology', {
+        url: '/topology',
+        templateUrl: 'views/topology/topology_editor.html',
+        controller: 'TopologyCtrl',
+        resolve: {
+          topologyId: function() {
+            return null;
           }
-        ]
-      },
-      templateUrl: 'views/applications/vertical_menu_layout.html',
-      controller: 'ApplicationCtrl'
-    }).state('applications.detail.info', {
-      url: '/infos',
-      templateUrl: 'views/applications/application_infos.html',
-      controller: 'ApplicationInfosCtrl'
-    }).state('applications.detail.topology', {
-      url: '/topology',
-      templateUrl: 'views/topology/topology_editor.html',
-      controller: 'TopologyCtrl',
-      resolve: {
-        topologyId: function() { return null; }
-      }
-    }).state('applications.detail.plans', {
-      url: '/workflow',
-      templateUrl: 'views/topology/plan_graph.html',
-      controller: 'TopologyPlanGraphCtrl',
-      resolve: {
-        topologyId: function() { return null; }
-      }
-    }).state('applications.detail.deployment', {
-      url: '/deployment',
-      templateUrl: 'views/applications/application_deployment.html',
-      controller: 'ApplicationDeploymentCtrl'
-    }).state('applications.detail.runtime', {
-      url: '/runtime',
-      templateUrl: 'views/applications/topology_runtime.html',
-      controller: 'TopologyRuntimeCtrl'
-        // resolve: {
-        //   topologyId: function() {
-        //     // TODO : remove this when topology template will use version aswell
-        //     // Then we won't ned to give topologyId as param
-        //     return null;
-        //   }
-        // }
-    }).state('applications.detail.users', {
-      url: '/users',
-      templateUrl: 'views/applications/application_users.html',
-      resolve: {
-        applicationRoles: ['$resource',
-          function($resource) {
-            return $resource('rest/auth/roles/application', {}, {
-              method: 'GET'
-            }).get().$promise;
-          }
-        ],
-        environmentRoles: ['$resource',
-          function($resource) {
-            return $resource('rest/auth/roles/environment', {}, {
-              method: 'GET'
-            }).get().$promise;
-          }
-        ]
-      },
-      controller: 'ApplicationUsersCtrl'
-    }).state('applications.detail.environments', {
-      url: '/environment',
-      templateUrl: 'views/applications/application_environments.html',
-      controller: 'ApplicationEnvironmentsCtrl'
-    }).state('applications.detail.versions', {
-      url: '/versions',
-      templateUrl: 'views/applications/application_versions.html',
-      controller: 'ApplicationVersionsCtrl'
-    })
+        }
+      })
+      // .state('applications.detail.plans', {
+      //   url: '/workflow',
+      //   templateUrl: 'views/topology/plan_graph.html',
+      //   controller: 'TopologyPlanGraphCtrl',
+      //   resolve: {
+      //     topologyId: function() { return null; }
+      //   }
+      // })
+      .state('applications.detail.deployment', {
+        url: '/deployment',
+        templateUrl: 'views/applications/application_deployment.html',
+        controller: 'ApplicationDeploymentCtrl'
+      }).state('applications.detail.runtime', {
+        url: '/runtime',
+        templateUrl: 'views/applications/topology_runtime.html',
+        controller: 'TopologyRuntimeCtrl'
+          // resolve: {
+          //   topologyId: function() {
+          //     // TODO : remove this when topology template will use version aswell
+          //     // Then we won't ned to give topologyId as param
+          //     return null;
+          //   }
+          // }
+      }).state('applications.detail.users', {
+        url: '/users',
+        templateUrl: 'views/applications/application_users.html',
+        resolve: {
+          applicationRoles: ['$resource',
+            function($resource) {
+              return $resource('rest/auth/roles/application', {}, {
+                method: 'GET'
+              }).get().$promise;
+            }
+          ],
+          environmentRoles: ['$resource',
+            function($resource) {
+              return $resource('rest/auth/roles/environment', {}, {
+                method: 'GET'
+              }).get().$promise;
+            }
+          ]
+        },
+        controller: 'ApplicationUsersCtrl'
+      }).state('applications.detail.environments', {
+        url: '/environment',
+        templateUrl: 'views/applications/application_environments.html',
+        controller: 'ApplicationEnvironmentsCtrl'
+      }).state('applications.detail.versions', {
+        url: '/versions',
+        templateUrl: 'views/applications/application_versions.html',
+        controller: 'ApplicationVersionsCtrl'
+      })
 
     // topology templates
     .state('topologytemplates', {
@@ -354,17 +369,17 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     /* angular-xeditable config */
     editableThemes.bs3.inputClass = 'input-sm';
     editableThemes.bs3.buttonsClass = 'btn-sm';
-    editableThemes.bs3.submitTpl= '<button type="button" class="btn btn-primary"'+
-                                  ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"'+
-                                  ' confirm-title="{{\'CONFIRM\' | translate }}"'+
-                                  ' confirm-placement="left"'+
-                                  ' cancel-handler="$form.$cancel()"'+
-                                  ' ng-click="$event.stopPropagation();">'+
-                                    '<span class="fa fa-check"></span>'+
-                                  '</button>';
-    editableThemes.bs3.cancelTpl= '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">'+
-                                    '<span class="fa fa-times"></span>'+
-                                  '</button>';
+    editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
+      ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
+      ' confirm-title="{{\'CONFIRM\' | translate }}"' +
+      ' confirm-placement="left"' +
+      ' cancel-handler="$form.$cancel()"' +
+      ' ng-click="$event.stopPropagation();">' +
+      '<span class="fa fa-check"></span>' +
+      '</button>';
+    editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
+      '<span class="fa fa-times"></span>' +
+      '</button>';
     editableOptions.theme = 'bs3';
   }
 ]);

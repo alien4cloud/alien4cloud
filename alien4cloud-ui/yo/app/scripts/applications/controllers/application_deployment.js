@@ -16,8 +16,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
       $scope.selectedEnvironment = environment;
-      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology);
-      refreshDeploymentSetup();
+      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function() {
+        refreshDeploymentSetup();
+      });
     }
     setEnvironment($scope.envs[0]); // default env
 
@@ -69,6 +70,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
         if (found) {
           refreshDeploymentPropertyDefinitions();
+        }
+        else {
+          console.log('CLOUD NOT FOUND');
         }
         // TODO else is a rare situation but should be managed by refreshing the cloud list.
       }
@@ -234,6 +238,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.stopEvent();
       } else {
         $scope.stopEvent();
+        $scope.processTopologyInformations($scope.topologyId);
         $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
       }
     });

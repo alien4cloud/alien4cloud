@@ -83,7 +83,7 @@
     <!-- End Meta Properties display -->
 
     <!-- Tags display -->
-    <div class="row" style="margin-top: 10px;">
+    <div class="row" style="margin-top: 10px;" ng-if="isManager || application.tags.length>0">
       <div class="col-md-12">
         <strong>Tags</strong>
       </div>
@@ -145,7 +145,7 @@
     <!-- End Tags display -->
   </div>
 </div>
-<div class="row">
+<div class="row" ng-if="envs.length>0">
   <div class="row">
     <div class="col-md-12">
       <h3><i class="fa fa-share-alt"></i> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</h3>
@@ -155,8 +155,8 @@
     <div class="col-md-12">
       <tabset>
         <!-- events -->
-        <tab ng-repeat="e in envs" id="env-tab-{{e.name}}" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
-          <tab-heading >
+        <tab ng-repeat="e in envs" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
+          <tab-heading id="tab-env-{{e.name}}">
             <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
               'fa-circle text-success' : e.status == 'DEPLOYED',
               'fa-circle text-muted' : e.status == 'UNDEPLOYED',
