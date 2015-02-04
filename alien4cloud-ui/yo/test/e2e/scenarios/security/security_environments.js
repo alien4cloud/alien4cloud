@@ -5,6 +5,10 @@ var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
 var applications = require('../../applications/applications');
 var cloudsCommon = require('../../admin/clouds_common');
+var navigation = require('../../common/navigation');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var componentData = require('../../topology/component_data');
+var rolesCommon = require('../../common/roles_common');
 
 function assertCountEnvironment(expectedCount) {
   var environments = element.all(by.repeater('environment in searchAppEnvResult'));
@@ -13,35 +17,37 @@ function assertCountEnvironment(expectedCount) {
 
 describe('Application environments security check', function() {
 
-  var reset = false;
-  var after = false;
+  // var reset = false;
+  // var after = false;
 
   /* Before each spec in the tests suite */
   beforeEach(function() {
 
-    if (reset === true) {
-      // clean indexes
-      common.before();
-      // create and configure a cloud
-      authentication.login('admin');
-      cloudsCommon.goToCloudList();
-      cloudsCommon.createNewCloud('mock');
-      cloudsCommon.goToCloudDetail('mock');
-      cloudsCommon.enableCloud();
+    topologyEditorCommon.beforeTopologyTest();
 
-      // authentication.reLogin('applicationManager');
-      // cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-      applications.createApplication('Alien', 'Great Application with application environment to perform deployments...');
-      // applications.goToApplicationEnvironmentPageForApp('Alien');
-    }
+    // if (reset === true) {
+    //   // clean indexes
+    //   common.before();
+    //   // create and configure a cloud
+    //   authentication.login('admin');
+    //   cloudsCommon.goToCloudList();
+    //   cloudsCommon.createNewCloud('mock');
+    //   cloudsCommon.goToCloudDetail('mock');
+    //   cloudsCommon.enableCloud();
+    //
+    //   // authentication.reLogin('applicationManager');
+    //   // cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
+    //   applications.createApplication('Alien', 'Great Application with application environment to perform deployments...');
+    //   // applications.goToApplicationEnvironmentPageForApp('Alien');
+    // }
   });
 
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    if(after) {
+    // if(after) {
       common.after();
-    }
+    // }
   });
 
   it('should be able to deploy on default Environment as APPLICATION_MANAGER', function() {
@@ -49,20 +55,36 @@ describe('Application environments security check', function() {
     // assertCountEnvironment(1);
     // expect(element(by.id('Environment-envlistid')).$('option:checked').getText()).toEqual('OTHER');
 
-    // give right to the user on the cloud
+    cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
+    navigation.go('main', 'applications');
+    browser.element(by.binding('application.name')).click();
+    navigation.go('applications', 'topology');
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom({
+      compute: componentData.toscaBaseTypes.compute()
+    });
+    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
+    topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
+    // topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
 
+    applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
 
+    browser.sleep(10000);
+
+    navigation.go('applications', 'info');
+
+    browser.sleep(10000);
 
   });
 
-  it('description asynchrone', function(done) {
+  xit('description asynchrone', function(done) {
     // body...
     console.log(' asynchrone DONE>', done);
   });
 
-  it('description synchrone', function() {
+  xit('description synchrone', function() {
     // body...
-    console.log(' synchrone', done);
+    console.log(' synchrone');
   });
 
   // it('should create an application and must have a default application environment.', function() {

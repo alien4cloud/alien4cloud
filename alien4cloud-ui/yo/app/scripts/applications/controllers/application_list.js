@@ -1,5 +1,4 @@
 /* global d3, d3pie */
-
 'use strict';
 
 var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',

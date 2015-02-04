@@ -76,7 +76,6 @@ describe('Topology runtime view', function() {
       topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
     });
 
-    // applications.deployExistingApplication('Alien');
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
     navigation.go('applications', 'runtime');
 

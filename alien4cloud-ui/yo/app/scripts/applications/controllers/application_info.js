@@ -23,22 +23,32 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     $scope.selectedTab = null;
     $scope.selectTab = function selectTab(applicationId, environmentId) {
+      console.log('Selecting environments');
       $scope.selectedTab = {
         appId: applicationId,
         envId: environmentId
       };
     };
 
+    $scope.selectDev = function () {
+      document.getElementById('tab-env-DEV').click();
+      // body...
+    };
+
     // select a default environment if any
-    $timeout(function() {
-      if (defaultEnvironmentTab !== null) {
-        // console.log('Select this TAB >', defaultEnvironmentTab.name);
-        document.getElementById('tab-env-' + defaultEnvironmentTab.name).click();
-      }
-    });
+    // $timeout(function() {
+    //   $scope.defaultEnvironmentTab = defaultEnvironmentTab;
+    //   console.log('DEFAULT ENV', defaultEnvironmentTab);
+    //   if (defaultEnvironmentTab !== null) {
+    //     console.log('Select this TAB >', defaultEnvironmentTab.name);
+    //     document.getElementById('tab-env-' + defaultEnvironmentTab.name).click();
+    //     $scope.selectTab(defaultEnvironmentTab.applicationId, defaultEnvironmentTab.id);
+    //   }
+    // });
 
     // when scope change, stop current event listener
     $scope.$on('$destroy', function() {
+      console.log('STOP EVENTS');
       $scope.stopEvent();
     });
 

@@ -145,7 +145,8 @@
     <!-- End Tags display -->
   </div>
 </div>
-<div class="row" style="margin-top: 10px;" ng-if="envs.length>0">
+
+<div class="row" style="margin-top: 10px;">
 
   <div class="col-md-12">
 
@@ -156,8 +157,8 @@
       <div class="row col-md-12">
         <tabset>
           <!-- events -->
-          <tab ng-repeat="e in envs" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
-            <tab-heading id="tab-env-{{e.name}}">
+          <tab ng-repeat="e in envs" id="tab-env-{{e.name}}" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
+            <tab-heading>
               <i class="pull-left fa fa-x" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
                 'fa-circle text-success' : e.status == 'DEPLOYED',
                 'fa-circle text-muted' : e.status == 'UNDEPLOYED',

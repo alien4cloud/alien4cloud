@@ -515,6 +515,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security/security_cloud.js',
               //              'test/e2e/scenarios/security/security_groups.js',
               //              'test/e2e/scenarios/security/security_users.js',
+                           'test/e2e/scenarios/security/security_environments.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
@@ -526,12 +527,8 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/language_test.js',
               //              'test/e2e/scenarios/plugins.js',
               //              'test/e2e/scenarios/quick_search.js',
-              //              'test/e2e/scenarios/security_cloud.js',
-              //              'test/e2e/scenarios/security_groups.js',
-              //              'test/e2e/scenarios/security_users.js',
-              //              'test/e2e/scenarios/security_environments.js',
               //              'test/e2e/scenarios/topology_template.js',
-               'test/e2e/scenarios/*'
+              //  'test/e2e/scenarios/*'
             ]
           }
         }
