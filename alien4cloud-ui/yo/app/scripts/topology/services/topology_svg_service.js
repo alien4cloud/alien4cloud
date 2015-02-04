@@ -229,6 +229,13 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
         var newLinks = linkSelection.enter().append('path').attr('class', 'link');
         newLinks.each(function(link) {
+          link.id = link.type + '-' + topology.relationshipTypes; // YOLO
+
+          console.log("rr", instance);
+          var onclick = function() {
+            alert("Yolo");
+          };
+
           var linkPath = d3.select(this);
           var isHostedOn = toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes);
           linkPath.classed('link-hosted-on', function() { return isHostedOn; })
@@ -237,8 +244,8 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
               return toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes) ? 'url(#markerHosted)' : 'url(#markerDepends)';
             }).attr('marker-end', function(link) {
               return toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes) ? 'url(#markerHostedTarget)' : 'url(#markerDependsEnd)';
-            });
-          instance.drawLinkPath(linkPath);
+            }).attr("id", function(link) { return link.id; }).on('click', onclick);
+            instance.drawLinkPath(linkPath);
         });
 
         linkSelection.each(function() {

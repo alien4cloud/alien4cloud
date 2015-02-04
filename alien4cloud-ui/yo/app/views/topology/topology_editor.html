@@ -438,8 +438,7 @@
             </div>
             <div collapse="isRelationshipsCollapsed">
               <div class="topology-level"
-                ng-repeat="(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships">
-
+                ng-repeat="(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships">
                 <div class="topology-node-expand clickable editable-small"
                   ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
                   id="relationship_{{relationshipName}}">
@@ -470,6 +469,22 @@
                   <div class="row">
                     <div class="col-md-3">{{'COMPONENTS.RELATIONSHIPS.TARGET' | translate}}</div>
                     <div class="col-md-9">{{relationshipDefinition.target | split}}</div>
+                  </div>
+                  <div class="row">
+                      <table class="table table-condensed" id="relationshipProperties">
+                        <tr ng-repeat="(key, property) in topology.relationshipTypes[relationshipDefinition.type].properties">
+                          <td class="col-md-12" ng-init="property.name=key">
+                            <property-display
+                                    ng-init="condensed = false"
+                                    definition="property"
+                                    property-value="property.value"
+                                    on-save="updateProperty(propertyDefinition,propertyValue)"
+                                    editable="editRights"
+                                    condensed = "condensed">
+                            </property-display>
+                          </td>
+                        </tr>
+                      </table>
                   </div>
                 </div>
               </div>
