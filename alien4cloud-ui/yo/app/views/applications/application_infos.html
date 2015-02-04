@@ -145,32 +145,37 @@
     <!-- End Tags display -->
   </div>
 </div>
-<div class="row" ng-if="envs.length>0">
-  <div class="row">
-    <div class="col-md-12">
-      <h3><i class="fa fa-share-alt"></i> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</h3>
-    </div>
+<div class="row" style="margin-top: 10px;" ng-if="envs.length>0">
+
+  <div class="col-md-12">
+
+    <fieldset>
+      <legend style="text-align: center;">
+        <h3><i class="fa fa-share-alt-square"></i> {{'APPLICATIONS.ENVIRONMENT.ENV' | translate}}</h3>
+      </legend>
+      <div class="row col-md-12">
+        <tabset>
+          <!-- events -->
+          <tab ng-repeat="e in envs" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
+            <tab-heading id="tab-env-{{e.name}}">
+              <i class="pull-left fa fa-x" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
+                'fa-circle text-success' : e.status == 'DEPLOYED',
+                'fa-circle text-muted' : e.status == 'UNDEPLOYED',
+                'fa-warning text-warning' : e.status == 'WARNING',
+                'fa-circle text-danger' : e.status == 'FAILURE',
+                'fa-question-circle text-muted' : e.status == 'UNKNOWN',
+                'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
+              }"></i> {{e.name}}
+            </tab-heading>
+            <div>
+              <display-outputs application-id="{{application.id}}" environment-id="{{e.id}}"></display-output>
+            </div>
+          </tab>
+        </tabset>
+      </div>
+
+    </fieldset>
+
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <tabset>
-        <!-- events -->
-        <tab ng-repeat="e in envs" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
-          <tab-heading id="tab-env-{{e.name}}">
-            <i class="pull-left fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
-              'fa-circle text-success' : e.status == 'DEPLOYED',
-              'fa-circle text-muted' : e.status == 'UNDEPLOYED',
-              'fa-warning text-warning' : e.status == 'WARNING',
-              'fa-circle text-danger' : e.status == 'FAILURE',
-              'fa-question-circle text-muted' : e.status == 'UNKNOWN',
-              'fa-spinner fa-spin' : e.status == 'DEPLOYMENT_IN_PROGRESS' || e.status == 'UNDEPLOYMENT_IN_PROGRESS'
-            }"></i> {{e.name}}
-          </tab-heading>
-          <div>
-            <display-outputs application-id="{{application.id}}" environment-id="{{e.id}}"></display-output>
-          </div>
-        </tab>
-      </tabset>
-    </div>
-  </div>
+
 </div>

@@ -41,11 +41,12 @@
         <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
           <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
         </button>
-        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
-          selectedEnvironment.status === 'DEPLOYED' ||
+        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()"
+        ng-if="(selectedEnvironment.status === 'DEPLOYED' ||
           selectedEnvironment.status === 'WARNING' ||
           selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
-          selectedEnvironment.status === 'FAILURE'">
+          selectedEnvironment.status === 'FAILURE') &&
+          selectedCloud">
           <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
         </button>
       </div>

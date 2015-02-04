@@ -508,7 +508,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
               //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
-                            'test/e2e/scenarios/application_topology/application_topology_scaling.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_scaling.js',
               //              'test/e2e/scenarios/deployment/deployment.js',
               //              'test/e2e/scenarios/deployment/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
@@ -529,8 +529,9 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security_cloud.js',
               //              'test/e2e/scenarios/security_groups.js',
               //              'test/e2e/scenarios/security_users.js',
+              //              'test/e2e/scenarios/security_environments.js',
               //              'test/e2e/scenarios/topology_template.js',
-              //              'test/e2e/scenarios/*'
+               'test/e2e/scenarios/*'
             ]
           }
         }

@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments) {
+  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster) {
     var pageStateId = $state.current.name;
 
     // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
@@ -70,11 +70,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
         if (found) {
           refreshDeploymentPropertyDefinitions();
+        } else {
+          // No cloud rights or cloud not enabled or no loud defined
+          var errorTitle = $translate('APPLICATIONS.DEPLOYMENT.CLOUD_ERROR_TITLE');
+          var errorMessage = $translate('APPLICATIONS.DEPLOYMENT.CLOUD_ERROR_MESSAGE');
+          toaster.pop('error', errorTitle, errorMessage, 0, 'trustedHtml', null);
         }
-        else {
-          console.log('CLOUD NOT FOUND');
-        }
-        // TODO else is a rare situation but should be managed by refreshing the cloud list.
       }
     }
 
@@ -209,7 +210,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.isSelectedNetwork = function(template) {
       var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
-      return template.networkName === selected.networkName;
+      return UTILS.isDefinedAndNotNull(selected) && template.networkName === selected.networkName;
     };
 
     $scope.isSelectedNetworkName = function(key) {
@@ -338,7 +339,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var refreshCloudResources = function() {
       if ($scope.selectedCloud && $scope.selectedEnvironment.hasOwnProperty('cloudId')) {
+        // cleaning compute & network matching
         delete $scope.currentMatchedComputeTemplates;
+        delete $scope.currentMatchedNetworks;
+        // get fresh matching resources
         applicationServices.matchResources({
           applicationId: $scope.application.id,
           applicationEnvironmentId: $scope.selectedEnvironment.id
