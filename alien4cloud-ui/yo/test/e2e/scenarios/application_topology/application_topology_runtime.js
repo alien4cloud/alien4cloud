@@ -1,5 +1,4 @@
 /* global element, by */
-
 'use strict';
 
 var common = require('../../common/common');
@@ -106,7 +105,7 @@ describe('Topology runtime view', function() {
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
       expect(states.length).toEqual(2);
       states[0].click();
-      expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(2);
+      expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(1);
       var backButton = browser.element(by.id('backToInstanceListButton'));
       browser.actions().click(backButton).perform();
       element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
