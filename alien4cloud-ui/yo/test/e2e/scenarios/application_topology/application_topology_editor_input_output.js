@@ -46,7 +46,6 @@ describe('Topology input/output properties', function() {
     topologyEditorCommon.togglePropertyInput('Compute', 'ip_address');
     topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
     topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
-    topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
 
     checkPropertyState();
 

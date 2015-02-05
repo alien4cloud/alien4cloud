@@ -274,6 +274,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }, function() {
         $scope.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
         $scope.isUnDeploying = false;
+        $scope.stopEvent();
       });
     };
 
