@@ -488,8 +488,8 @@
                             <property-display
                                     ng-init="condensed = false"
                                     definition="property"
-                                    property-value="property.value"
-                                    on-save="updateProperty(key, property.value)"
+                                    property-value="topology.topology.nodeTemplates[selectedNodeTemplate.name].relationships[relationshipName].properties[key]"
+                                    on-save="updateProperty(property, propertyValue)"
                                     editable="editRights"
                                     condensed="condensed">
                             </property-display>

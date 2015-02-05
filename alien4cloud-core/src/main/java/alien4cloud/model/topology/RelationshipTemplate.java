@@ -1,5 +1,7 @@
 package alien4cloud.model.topology;
 
+import java.util.Map;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,4 +47,9 @@ public class RelationshipTemplate extends AbstractTemplate {
     private String requirementType;
 
     private String targetedCapabilityName;
+
+    /**
+     * Properties of the relationship template
+     */
+    private Map<String, String> properties;
 }
