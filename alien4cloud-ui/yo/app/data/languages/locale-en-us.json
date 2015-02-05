@@ -165,7 +165,7 @@
     "UNDEFINED_READ_ONLY": "Undefined",
     "TRUE": "Yes",
     "FALSE": "No",
-    "YES" : "Yes",
+    "YES": "Yes",
     "NO": "No",
     "REQUIRED": "Mandatory fields",
     "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved:",
@@ -313,7 +313,9 @@
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Network",
-      "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy."
+      "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy.",
+      "CLOUD_ERROR_TITLE": "Select cloud",
+      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin."
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
@@ -334,6 +336,7 @@
       "PROPERTIES": "Properties",
       "PROPERTIES_INPUTS": "Input properties",
       "PROPERTIES_OUTPUTS": "Output properties",
+      "NO_OUTPUTS": "No output properties or attributes",
       "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
       "REQUIREMENTS": "Prerequisites",
       "CAPABILITIES": "Capabilities",

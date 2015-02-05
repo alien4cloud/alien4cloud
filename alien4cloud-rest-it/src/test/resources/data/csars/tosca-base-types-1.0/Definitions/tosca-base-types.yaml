@@ -12,6 +12,11 @@ node_types:
       (e.g, consistent definitions for requirements, capabilities, and lifecycle interfaces).
     tags:
       icon: /images/root.png
+    attributes:
+      tosca_id:
+        type: string
+      tosca_name:
+        type: string
     requirements:
       dependency:
         type: tosca.capabilities.Feature
@@ -85,12 +90,11 @@ node_types:
         type: string
         required: false
     attributes:
-      public_ip_address:
+      ip_address:
         type: string
-        description: Public IP address of the node after deployed
-      private_ip_address:
-        type: string
-        description: Private IP address of the node after deployed
+        description: >
+          The primary IP address assigned by the cloud provider that applications may use to access the Compute node.
+          Note: This is used by the platform provider to convey the primary address used to access the compute node.  Future working drafts will address implementations that support floating or multiple IP addresses.
     requirements:
       network:
         type: tosca.capabilities.Connectivity

@@ -41,11 +41,12 @@
         <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
           <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
         </button>
-        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
-          selectedEnvironment.status === 'DEPLOYED' ||
+        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()"
+        ng-if="(selectedEnvironment.status === 'DEPLOYED' ||
           selectedEnvironment.status === 'WARNING' ||
           selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
-          selectedEnvironment.status === 'FAILURE'">
+          selectedEnvironment.status === 'FAILURE') &&
+          selectedCloud">
           <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
         </button>
       </div>
@@ -222,7 +223,7 @@
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
         <span>
-          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
+          <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
         <table class="table table-condensed" id="inputPropertiesTable">
           <tr>
@@ -300,52 +301,16 @@
     </div>
 
     <!-- Output properties  -->
-    <div class="row" style="margin-top: 20px;" ng-if="outputNodes.length > 0" ng-show="
+    <div class="row" style="margin-top: 20px;" ng-if="outputNodes.length > 0 && selectedCloud!=null" ng-show="
       selectedEnvironment.status == 'DEPLOYED' ||
       selectedEnvironment.status == 'WARNING' ||
       selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' ||
       selectedEnvironment.status == 'FAILURE'">
+
       <div class="col-md-12">
-        <span>
-          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
-        </span>
-        <table class="table table-condensed" id="outputPropertiesTable">
-          <tr>
-            <td colspan="2">
-            </td>
-          </tr>
-          <tr ng-repeat="nodeId in outputNodes">
-            <td>
-              <span>{{nodeId}}</span>
-            </td>
-            <td>
-              <ul>
-                <li ng-if="outputPropertiesSize > 0">
-                  <strong>{{ 'properties' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
-                      {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                    </li>
-                  </ul>
-                </li>
-                <li ng-if="outputAttributesSize > 0">
-                  <strong>{{ 'attributes' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
-                      {{'INSTANCE' | translate}} {{instanceId}}
-                      <ul>
-                        <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
-                          {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </table>
+        <display-outputs></display-outputs>
       </div>
+
     </div>
   </div>
 </div>

@@ -3,10 +3,8 @@
 
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
-var tagConfigCommon = require('../../admin/metaprops_configuration_common');
 var applications = require('../../applications/applications');
 var cloudsCommon = require('../../admin/clouds_common');
-var rolesCommon = require('../../common/roles_common');
 
 function assertCountEnvironment(expectedCount) {
   var environments = element.all(by.repeater('environment in searchAppEnvResult'));

@@ -100,14 +100,14 @@
         <div class="row">
           <div class="col-md-12">
             <fieldset>
-              <!-- 
+              <!--
               <legend class="text-center">
                 <h4>
                   <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
                 </h4>
               </legend>
               -->
-              
+
               <div class="row">
                 <div class="col-md-6" id="imagesAdded">
                   <div class="panel panel-primary">
@@ -149,20 +149,20 @@
                   </div>
                 </div>
                 <div class="col-md-1">
-                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block" 
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block"
                      ng-click="performAddCloudImageSelection();">
                     <i class="fa fa-angle-double-left"></i>
-                  </a>                        
+                  </a>
                   <br/>
-                  <a id="btn-remove-cloud-image" class="btn {{(imageRemoveSelection.length > 0) ? 'btn-success' : 'btn-default'}}  btn-sm center-block" 
+                  <a id="btn-remove-cloud-image" class="btn {{(imageRemoveSelection.length > 0) ? 'btn-success' : 'btn-default'}}  btn-sm center-block"
                      ng-click="performRemoveCloudImageSelection();">
                     <i class="fa fa-angle-double-right"></i>
                   </a>
                   <br/>
-                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block" 
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block"
                      ng-click="createCloudImage();">
                     <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-                  </a>                     
+                  </a>
                 </div>
                 <div class="col-md-5" id="imagesToAdd">
                   <div class="well">
@@ -215,7 +215,7 @@
                     </div>
                   </div>
                 </div>
-              </div>              
+              </div>
             </fieldset>
           </div>
         </div>
@@ -500,7 +500,7 @@
                           <td>{{network.ipVersion}}</td>
                           <td ng-if="manualMatchResource" ng-class="{'has-error': !network.paaSResourceId}">
                             <span ng-if="!manualMatchNetworkIds" editable-text="network.paaSResourceId" buttons="no" onaftersave="saveNetworkResource(network)" blur="submit">
-                              {{template.paaSResourceId}}
+                              {{network.paaSResourceId}}
                               <em ng-if="network.paaSResourceId === null || network.paaSResourceId === undefined" class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
                               </em>

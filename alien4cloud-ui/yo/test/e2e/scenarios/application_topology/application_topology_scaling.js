@@ -47,7 +47,7 @@ var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
   element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
     expect(states.length).toEqual(valueToCheck);
     states[0].click();
-    expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(2);
+    expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(1);
     var backButton = browser.element(by.id('backToInstanceListButton'));
     browser.actions().click(backButton).perform();
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {

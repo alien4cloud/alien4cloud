@@ -14,7 +14,7 @@
   "CSAR": "Csar",
   "TRUE": "Vrai",
   "FALSE": "Faux",
-  "YES" : "Oui",
+  "YES": "Oui",
   "NO": "Non",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
@@ -320,7 +320,9 @@
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Réseau",
-      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer.",
+      "CLOUD_ERROR_TITLE": "Sélectionner un cloud",
+      "CLOUD_ERROR_MESSAGE": "Vous n'avez pas les droits suffisants sur le cloud associé ou le cloud n'est pas activé pour déployer. Veuillez contacter votre administrateur."
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -341,6 +343,7 @@
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
