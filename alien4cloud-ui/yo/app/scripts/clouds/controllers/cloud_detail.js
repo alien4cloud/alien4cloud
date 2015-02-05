@@ -123,28 +123,29 @@ angular.module('alienUiApp').controller(
       $resource('rest/auth/roles/cloud', {}, {
         method: 'GET'
       }).get().$promise.then(function(roleResult) {
-          $scope.cloudRoles = roleResult.data;
-        });
+        $scope.cloudRoles = roleResult.data;
+      });
 
       $scope.updateCloud = function(cloud) {
+        if (cloud.name !== $scope.cloud.name) {
+          cloud.id = $scope.cloud.id;
+          $scope.cloudSaving = true;
 
-        cloud.id = $scope.cloud.id;
-        $scope.cloudSaving = true;
+          var resetSaved = function() {
+            $scope.cloudSavedSuccess = false;
+            $scope.cloudSavedError = false;
+          };
 
-        var resetSaved = function() {
-          $scope.cloudSavedSuccess = false;
-          $scope.cloudSavedError = false;
-        };
-
-        cloudServices.update([], angular.toJson(cloud), function() {
-          $scope.cloudSaving = false;
-          $scope.cloudSavedSuccess = true;
-          $timeout(resetSaved, 500, true);
-        }, function() {
-          $scope.cloudSaving = false;
-          $scope.cloudSavedError = true;
-          $timeout(resetSaved, 500, true);
-        });
+          cloudServices.update([], angular.toJson(cloud), function() {
+            $scope.cloudSaving = false;
+            $scope.cloudSavedSuccess = true;
+            $timeout(resetSaved, 500, true);
+          }, function() {
+            $scope.cloudSaving = false;
+            $scope.cloudSavedError = true;
+            $timeout(resetSaved, 500, true);
+          });
+        }
       };
 
       $scope.enableCloud = function() {
@@ -467,12 +468,12 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
         });
       };
-      
+
       // id of images candidat to be removed
       $scope.imageRemoveSelection = [];
       // id of images candidat to be added
       $scope.imageAddSelection = [];
-      
+
       $scope.switchCloudImageRemoveSelection = function(imageId) {
         if (UTILS.arrayContains($scope.imageRemoveSelection, imageId)) {
           UTILS.arrayRemove($scope.imageRemoveSelection, imageId);
@@ -486,18 +487,18 @@ angular.module('alienUiApp').controller(
       $scope.performRemoveCloudImageSelection = function() {
         if ($scope.imageRemoveSelection.length > 0) {
           cloudServices.removeImages({
-              id: $scope.cloud.id
-            }, angular.toJson($scope.imageRemoveSelection), function(success) {
-              angular.forEach($scope.imageRemoveSelection, function(value, key) {
-                UTILS.arrayRemove($scope.cloud.images, value);
-              });
-              $scope.imageRemoveSelection = [];
-              updateComputeResources(success.data);
-              $scope.initSearchImageService();
+            id: $scope.cloud.id
+          }, angular.toJson($scope.imageRemoveSelection), function(success) {
+            angular.forEach($scope.imageRemoveSelection, function(value, key) {
+              UTILS.arrayRemove($scope.cloud.images, value);
+            });
+            $scope.imageRemoveSelection = [];
+            updateComputeResources(success.data);
+            $scope.initSearchImageService();
           });
         }
       }
-      
+
       $scope.imageQueryProvider = {
         query: '',
         onSearchCompleted: function(searchResult) {
@@ -512,23 +513,23 @@ angular.module('alienUiApp').controller(
         $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
           exclude: $scope.cloud.images
         });
-        $scope.searchImage();      
+        $scope.searchImage();
       };
       $scope.searchImage = function() {
         $scope.imageAddSelection = [];
         $scope.searchImageService.search();
-      };      
+      };
       $scope.imageQueryChanged = function(query) {
         $scope.imageQueryProvider.query = query;
-      };      
-      
+      };
+
       $scope.switchCloudImageAddSelection = function(imageId) {
         if (UTILS.arrayContains($scope.imageAddSelection, imageId)) {
           UTILS.arrayRemove($scope.imageAddSelection, imageId);
         } else {
           $scope.imageAddSelection.push(imageId);
         }
-      }      
+      }
       $scope.isInCloudImageAddSelection = function(imageId) {
         return UTILS.arrayContains($scope.imageAddSelection, imageId);
       }
@@ -540,8 +541,8 @@ angular.module('alienUiApp').controller(
           updateComputeResources(success.data);
           $scope.imageAddSelection = [];
           $scope.initSearchImageService();
-        });          
-      }      
+        });
+      }
       $scope.createCloudImage = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/cloud-images/new_cloud_image.html',
@@ -550,17 +551,19 @@ angular.module('alienUiApp').controller(
         });
 
         modalInstance.result.then(function(cloudImageId) {
-          
-          cloudImageServices.get({id : cloudImageId}, function(success) {
+
+          cloudImageServices.get({
+            id: cloudImageId
+          }, function(success) {
             $scope.images[success.data.id] = success.data;
             cloudServices.addImage({
               id: $scope.cloud.id
             }, angular.toJson([cloudImageId]), function(success) {
               $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
               updateComputeResources(success.data);
-            });             
+            });
           });
-        });        
+        });
       }
     }
   ]);
