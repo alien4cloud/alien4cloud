@@ -2,9 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
-  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments', 'defaultEnvironmentTab', '$timeout', '$stateParams',
-  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments,
-    defaultEnvironmentTab, $timeout, $stateParams) {
+  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments',
+  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments) {
 
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
@@ -23,31 +22,12 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     $scope.selectedTab = null;
     $scope.selectTab = function selectTab(applicationId, environmentId) {
-      console.log('Selecting environments');
       $scope.selectedTab = {
         appId: applicationId,
         envId: environmentId
       };
+
     };
-
-    // $scope.selectDev = function () {
-    //   document.getElementById('tab-env-DEV').click();
-    //   // body...
-    // };
-
-    // select a default environment if any
-    $timeout(function() {
-      $scope.defaultEnvironmentTab = defaultEnvironmentTab;
-      console.log('DEFAULT ENV', defaultEnvironmentTab);
-      if (defaultEnvironmentTab !== null) {
-        console.log('Select this TAB >', defaultEnvironmentTab.name);
-        // document.getElementById('tab-env-' + defaultEnvironmentTab.name).click();
-        console.log(document.getElementById('tab-env-DEV'));
-        // document.getElementById('tab-env-DEV').click();
-        // document.getElementById('tab-env-DEV').select();
-        // $scope.selectTab(defaultEnvironmentTab.applicationId, defaultEnvironmentTab.id);
-      }
-    });
 
     // when scope change, stop current event listener
     $scope.$on('$destroy', function() {
@@ -56,35 +36,16 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     // whatching $scope.selectTab changes
     $scope.$watch('selectedTab', function(newValue, oldValue) {
-      console.log('WATCH ENV ID > ', newValue, oldValue);
-      if (newValue != oldValue) {
-        console.log('GET EVENTS FOR ENVIRONMENT');
+      if (newValue !== oldValue) {
         $scope.stopEvent();
         $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
           // get informations from this topology
-          $scope.processTopologyInformations(result.data);
-          $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
+          $scope.processTopologyInformations(result.data).$promise.then(function() {
+            $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
+          });
         });
       }
     });
-
-
-    // $scope.$watch(function(scope) {
-    //   if (UTILS.isDefinedAndNotNull(scope.selectedTab)) {
-    //     return scope.selectedTab;
-    //   }
-    //   return 'SAME_TAB_ENV';
-    // }, function(newValue, oldValue) {
-    //   if (newValue !== 'SAME_TAB_ENV') {
-    //     $scope.stopEvent();
-    //     $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
-    //       // get informations from this topology
-    //       $scope.processTopologyInformations(result.data);
-    //       $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
-    //     });
-    //   }
-    //
-    // });
 
     // Upload handler
     $scope.doUpload = function(file) {

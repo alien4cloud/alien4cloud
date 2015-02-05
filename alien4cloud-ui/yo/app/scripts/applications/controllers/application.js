@@ -133,8 +133,9 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
     };
 
-    // TOPOLOGY INFO CONCERNS
+    $scope.isMapEmpty = UTILS.isMapNotNullOrEmpty;
 
+    // TOPOLOGY INFO CONCERNS
     // verify the topology validity
     $scope.isTopologyValid = function isTopologyValid(topologyId) {
       // validate the topology

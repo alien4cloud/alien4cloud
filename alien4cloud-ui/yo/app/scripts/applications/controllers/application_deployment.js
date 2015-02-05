@@ -73,7 +73,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         } else {
           // No cloud rights or cloud not enabled or no loud defined
           if ($scope.selectedEnvironment.hasOwnProperty('cloudId')) {
-            console.log('CLOUD NOT FOUND', $scope.selectedEnvironment);
             var errorTitle = $translate('APPLICATIONS.DEPLOYMENT.CLOUD_ERROR_TITLE');
             var errorMessage = $translate('APPLICATIONS.DEPLOYMENT.CLOUD_ERROR_MESSAGE');
             toaster.pop('error', errorTitle, errorMessage, 0, 'trustedHtml', null);
@@ -242,8 +241,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.stopEvent();
       } else {
         $scope.stopEvent();
-        $scope.processTopologyInformations($scope.topologyId);
-        $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
+        $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
+          $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
+        });
       }
     });
 

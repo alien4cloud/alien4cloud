@@ -19,9 +19,7 @@ describe('Application environments security check', function() {
 
   /* Before each spec in the tests suite */
   beforeEach(function() {
-
     topologyEditorCommon.beforeTopologyTest();
-
   });
 
   /* After each spec in the tests suite(s) */
@@ -79,10 +77,21 @@ describe('Application environments security check', function() {
   xit('should be able to deploy 2 environments with 2 differents version and check outputs', function() {
     console.log('################# should be able to deploy 2 environments with 2 differents version and check outputs');
 
+
+    // create a new version
+    applications.createApplicationVersion('0.2.0-SNAPSHOT', 'A new version for my application...', '0.1.0-SNAPSHOT');
+    common.expectNoErrors();
+
     // create new version and new environment based on this
-    applications.createApplicationEnvironment('DEV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
+    applications.createApplicationEnvironment('DEV', 'A new dev environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.2.0-SNAPSHOT');
     common.expectNoErrors();
     assertCountEnvironment(2); // DEV + ENvironment
+
+    // select version 0.1.0-SNAPSHOT
+    // navigation.go('applications', targetedPageStateId);
+
+
+    // select version 0.2.0-SNAPSHOT
 
     // cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
     // navigation.go('main', 'applications');

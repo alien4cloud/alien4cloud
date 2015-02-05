@@ -309,10 +309,13 @@ var expectOutputValue = function expectOutputValue(appPageState, environmentName
   var targetedPageStateId = appPageState || 'deployment';
   navigation.go('applications', targetedPageStateId);
 
+  if ( outputType === 'property') {
+    instance = null;
+  }
+
   // select the environment if "info" page
   if (targetedPageStateId === 'info') {
     environmentName = environmentName === null ? 'Environment' : environmentName;
-    
   } else {
     // deployment page => may select an environment to check
     switchEnvironmentAndCloud(environmentName, null); // default cloud
@@ -320,7 +323,6 @@ var expectOutputValue = function expectOutputValue(appPageState, environmentName
 
   // outputType : attribute / property
   var outputElementId = (instance !== null) ? outputType + '-' + nodeId + '-' + instance + '-' + key : outputType + '-' + nodeId + '-' + key;
-  console.log('outputElement ID >', outputElementId, value);
   var outputElementToCheck = element(by.id(outputElementId));
 
   // check value
@@ -331,3 +333,14 @@ var expectOutputValue = function expectOutputValue(appPageState, environmentName
 
 };
 module.exports.expectOutputValue = expectOutputValue;
+
+var selectTopologyVersion = function selectTopologyVersion(appVersionName) {
+  navigation.go('applications', 'topology');
+  if (typeof appVersionName !== 'undefined') {
+    var selectVersion = element(by.id('versionslistid'));
+    common.selectDropdownByText(selectVersion, appVersionName, 100);
+  } else {
+    console.error('You should have at least one application version type defined');
+  }
+};
+module.exports.selectTopologyVersion = selectTopologyVersion;

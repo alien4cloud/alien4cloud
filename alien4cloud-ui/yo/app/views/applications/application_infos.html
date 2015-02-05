@@ -157,7 +157,7 @@
       <div class="row col-md-12">
         <tabset>
           <!-- events -->
-          <tab ng-repeat="e in envs" id="tab-env-{{e.name}}" disabled="e.status==='UNDEPLOYED' || e.status==='FAILURE' || e.status==='UNKNOWN'" select="selectTab(application.id,e.id)">
+          <tab ng-repeat="e in envs" id="tab-env-{{e.name}}" select="selectTab(application.id,e.id)">
             <tab-heading>
               <i class="pull-left fa fa-x" tooltip="{{'APPLICATIONS.' + e.status | translate }}" tooltip-append-to-body="true" ng-class="{
                 'fa-circle text-success' : e.status == 'DEPLOYED',
@@ -169,7 +169,7 @@
               }"></i> {{e.name}}
             </tab-heading>
             <div>
-              <display-outputs application-id="{{application.id}}" environment-id="{{e.id}}"></display-output>
+              <display-outputs></display-output>
             </div>
           </tab>
         </tabset>
