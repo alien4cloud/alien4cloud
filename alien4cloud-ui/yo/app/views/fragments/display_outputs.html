@@ -5,6 +5,9 @@
       <i class="fa fa-eye"></i>
       <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
     </span>
+    <span ng-if="outputPropertiesSize == 0 && outputAttributesSize == 0">
+      <strong>{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</strong>
+    </span>
     <table class="table table-condensed" id="outputPropertiesTable">
       <tr>
         <td colspan="2"></td>
@@ -21,7 +24,7 @@
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
-                  <span class="text-primary">{{outputPropertyValue}}</span>
+                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}">{{outputPropertyValue}}</span>
                 </li>
               </ul>
             </li>
@@ -30,12 +33,12 @@
             <li ng-if="outputAttributesSize > 0 && outputAttributesValue[nodeId]">
               <strong>{{ 'attributes' | translate }}</strong>
               <ul>
-                <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
+                <li ng-repeat="(instanceId, instanceAttributes) in outputAttributesValue[nodeId]">
                   {{'INSTANCE' | translate}} {{instanceId}}
                   <ul>
-                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
-                      {{outputPropertyKey}} :
-                      <span class="text-primary">{{outputPropertyValue}}</span>
+                    <li ng-repeat="(outputAttributeKey, outputAttributeValue) in instanceAttributes">
+                      {{outputAttributeKey}} :
+                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}">{{outputAttributeValue}}</span>
                     </li>
                   </ul>
                 </li>

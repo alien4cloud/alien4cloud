@@ -299,5 +299,35 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
   });
 };
-
 module.exports.expectDeploymentPropertyValue = expectDeploymentPropertyValue;
+
+// check output property / attribute on info or deployment page
+// prerequisite : we're on application details menu
+var expectOutputValue = function expectOutputValue(appPageState, environmentName, outputType, nodeId, instance, key, value) {
+
+  // jump on the targeted page : info / deployment => default deplyoment
+  var targetedPageStateId = appPageState || 'deployment';
+  navigation.go('applications', targetedPageStateId);
+
+  // select the environment if "info" page
+  if (targetedPageStateId === 'info') {
+    environmentName = environmentName === null ? 'Environment' : environmentName;
+    
+  } else {
+    // deployment page => may select an environment to check
+    switchEnvironmentAndCloud(environmentName, null); // default cloud
+  }
+
+  // outputType : attribute / property
+  var outputElementId = (instance !== null) ? outputType + '-' + nodeId + '-' + instance + '-' + key : outputType + '-' + nodeId + '-' + key;
+  console.log('outputElement ID >', outputElementId, value);
+  var outputElementToCheck = element(by.id(outputElementId));
+
+  // check value
+  expect(outputElementToCheck.isDisplayed()).toBe(true);
+  outputElementToCheck.getText().then(function(spanText) {
+    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
+  });
+
+};
+module.exports.expectOutputValue = expectOutputValue;

@@ -343,6 +343,7 @@
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",

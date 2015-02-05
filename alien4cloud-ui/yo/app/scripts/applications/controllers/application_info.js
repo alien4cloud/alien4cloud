@@ -30,36 +30,35 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
       };
     };
 
-    $scope.selectDev = function () {
-      document.getElementById('tab-env-DEV').click();
-      // body...
-    };
+    // $scope.selectDev = function () {
+    //   document.getElementById('tab-env-DEV').click();
+    //   // body...
+    // };
 
     // select a default environment if any
-    // $timeout(function() {
-    //   $scope.defaultEnvironmentTab = defaultEnvironmentTab;
-    //   console.log('DEFAULT ENV', defaultEnvironmentTab);
-    //   if (defaultEnvironmentTab !== null) {
-    //     console.log('Select this TAB >', defaultEnvironmentTab.name);
-    //     document.getElementById('tab-env-' + defaultEnvironmentTab.name).click();
-    //     $scope.selectTab(defaultEnvironmentTab.applicationId, defaultEnvironmentTab.id);
-    //   }
-    // });
+    $timeout(function() {
+      $scope.defaultEnvironmentTab = defaultEnvironmentTab;
+      console.log('DEFAULT ENV', defaultEnvironmentTab);
+      if (defaultEnvironmentTab !== null) {
+        console.log('Select this TAB >', defaultEnvironmentTab.name);
+        // document.getElementById('tab-env-' + defaultEnvironmentTab.name).click();
+        console.log(document.getElementById('tab-env-DEV'));
+        // document.getElementById('tab-env-DEV').click();
+        // document.getElementById('tab-env-DEV').select();
+        // $scope.selectTab(defaultEnvironmentTab.applicationId, defaultEnvironmentTab.id);
+      }
+    });
 
     // when scope change, stop current event listener
     $scope.$on('$destroy', function() {
-      console.log('STOP EVENTS');
       $scope.stopEvent();
     });
 
     // whatching $scope.selectTab changes
-    $scope.$watch(function(scope) {
-      if (UTILS.isDefinedAndNotNull(scope.selectedTab)) {
-        return scope.selectedTab;
-      }
-      return 'SAME_TAB_ENV';
-    }, function(newValue, oldValue) {
-      if (newValue !== 'SAME_TAB_ENV') {
+    $scope.$watch('selectedTab', function(newValue, oldValue) {
+      console.log('WATCH ENV ID > ', newValue, oldValue);
+      if (newValue != oldValue) {
+        console.log('GET EVENTS FOR ENVIRONMENT');
         $scope.stopEvent();
         $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
           // get informations from this topology
@@ -67,8 +66,25 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
           $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
         });
       }
-
     });
+
+
+    // $scope.$watch(function(scope) {
+    //   if (UTILS.isDefinedAndNotNull(scope.selectedTab)) {
+    //     return scope.selectedTab;
+    //   }
+    //   return 'SAME_TAB_ENV';
+    // }, function(newValue, oldValue) {
+    //   if (newValue !== 'SAME_TAB_ENV') {
+    //     $scope.stopEvent();
+    //     $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
+    //       // get informations from this topology
+    //       $scope.processTopologyInformations(result.data);
+    //       $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
+    //     });
+    //   }
+    //
+    // });
 
     // Upload handler
     $scope.doUpload = function(file) {

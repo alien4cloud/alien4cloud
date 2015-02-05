@@ -17,43 +17,21 @@ function assertCountEnvironment(expectedCount) {
 
 describe('Application environments security check', function() {
 
-  // var reset = false;
-  // var after = false;
-
   /* Before each spec in the tests suite */
   beforeEach(function() {
 
     topologyEditorCommon.beforeTopologyTest();
 
-    // if (reset === true) {
-    //   // clean indexes
-    //   common.before();
-    //   // create and configure a cloud
-    //   authentication.login('admin');
-    //   cloudsCommon.goToCloudList();
-    //   cloudsCommon.createNewCloud('mock');
-    //   cloudsCommon.goToCloudDetail('mock');
-    //   cloudsCommon.enableCloud();
-    //
-    //   // authentication.reLogin('applicationManager');
-    //   // cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
-    //   applications.createApplication('Alien', 'Great Application with application environment to perform deployments...');
-    //   // applications.goToApplicationEnvironmentPageForApp('Alien');
-    // }
   });
 
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    // if(after) {
-      common.after();
-    // }
+    common.after();
   });
 
-  it('should be able to deploy on default Environment as APPLICATION_MANAGER', function() {
-    console.log('################# should be able to deploy on default Environment as APPLICATION_MANAGER');
-    // assertCountEnvironment(1);
-    // expect(element(by.id('Environment-envlistid')).$('option:checked').getText()).toEqual('OTHER');
+  it('should be able to deploy on default Environment and check output properties / attributes on deployment / info page', function() {
+    console.log('################# should be able to deploy on default Environment and check output properties / attributes on deployment / info page');
 
     cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
     navigation.go('main', 'applications');
@@ -65,75 +43,96 @@ describe('Application environments security check', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
-    // topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
 
+    // check properties / attributes as output
+    topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
+    topologyEditorCommon.togglePropertyOutput('Compute', 'os_type');
+    topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
+    topologyEditorCommon.toggleAttributeOutput('Compute', 'tosca_name');
+
+    // check after toggle
+    topologyEditorCommon.expectPropertyOutputState('Compute', 'os_arch', false);
+    topologyEditorCommon.expectPropertyOutputState('Compute', 'disk_size', true);
+    topologyEditorCommon.expectPropertyOutputState('Compute', 'os_type', true);
+    topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
+    topologyEditorCommon.expectAttributeOutputState('Compute', 'tosca_name', true);
+    topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
+    topologyEditorCommon.expectAttributeOutputState('Compute', 'tosca_id', false);
+
+    // Deploy the app
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
 
-    browser.sleep(10000);
+    // checking deployment page
+    applications.expectOutputValue('deployment', null, 'attribute', 'Compute', 1, 'ip_address', '10.52.0.1');
+    applications.expectOutputValue('deployment', null, 'attribute', 'Compute', 1, 'tosca_name', 'TOSCA-Simple-Profile-YAML');
+    applications.expectOutputValue('deployment', null, 'property', 'Compute', 1, 'disk_size', '1024');
+    applications.expectOutputValue('deployment', null, 'property', 'Compute', 1, 'os_type', 'windows');
 
-    navigation.go('applications', 'info');
-
-    browser.sleep(10000);
+    // check on info page
+    applications.expectOutputValue('info', null, 'attribute', 'Compute', 1, 'ip_address', '10.52.0.1');
+    applications.expectOutputValue('info', null, 'attribute', 'Compute', 1, 'tosca_name', 'TOSCA-Simple-Profile-YAML');
+    applications.expectOutputValue('info', null, 'property', 'Compute', 1, 'disk_size', '1024');
+    applications.expectOutputValue('info', null, 'property', 'Compute', 1, 'os_type', 'windows');
 
   });
 
-  xit('description asynchrone', function(done) {
-    // body...
-    console.log(' asynchrone DONE>', done);
+  xit('should be able to deploy 2 environments with 2 differents version and check outputs', function() {
+    console.log('################# should be able to deploy 2 environments with 2 differents version and check outputs');
+
+    // create new version and new environment based on this
+    applications.createApplicationEnvironment('DEV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
+    common.expectNoErrors();
+    assertCountEnvironment(2); // DEV + ENvironment
+
+    // cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
+    // navigation.go('main', 'applications');
+    // browser.element(by.binding('application.name')).click();
+    // navigation.go('applications', 'topology');
+    // topologyEditorCommon.addNodeTemplatesCenterAndZoom({
+    //   compute: componentData.toscaBaseTypes.compute()
+    // });
+    // topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
+    // topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    // topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
+    //
+    // // check properties / attributes as output
+    // topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
+    // topologyEditorCommon.togglePropertyOutput('Compute', 'os_type');
+    // topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
+    // topologyEditorCommon.toggleAttributeOutput('Compute', 'tosca_name');
+    //
+    // // check after toggle
+    // topologyEditorCommon.expectPropertyOutputState('Compute', 'os_arch', false);
+    // topologyEditorCommon.expectPropertyOutputState('Compute', 'disk_size', true);
+    // topologyEditorCommon.expectPropertyOutputState('Compute', 'os_type', true);
+    // topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
+    // topologyEditorCommon.expectAttributeOutputState('Compute', 'tosca_name', true);
+    // topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
+    // topologyEditorCommon.expectAttributeOutputState('Compute', 'tosca_id', false);
+    //
+    // // Deploy the app
+    // applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
+    //
+    // // checking deployment page
+    // applications.expectOutputValue('deployment', null, 'attribute', 'Compute', 1, 'ip_address', '10.52.0.1');
+    // applications.expectOutputValue('deployment', null, 'attribute', 'Compute', 1, 'tosca_name', 'TOSCA-Simple-Profile-YAML');
+    // applications.expectOutputValue('deployment', null, 'property', 'Compute', 1, 'disk_size', '1024');
+    // applications.expectOutputValue('deployment', null, 'property', 'Compute', 1, 'os_type', 'windows');
+    //
+    // // check on info page
+    // applications.expectOutputValue('info', null, 'attribute', 'Compute', 1, 'ip_address', '10.52.0.1');
+    // applications.expectOutputValue('info', null, 'attribute', 'Compute', 1, 'tosca_name', 'TOSCA-Simple-Profile-YAML');
+    // applications.expectOutputValue('info', null, 'property', 'Compute', 1, 'disk_size', '1024');
+    // applications.expectOutputValue('info', null, 'property', 'Compute', 1, 'os_type', 'windows');
+
   });
 
-  xit('description synchrone', function() {
-    // body...
-    console.log(' synchrone');
+  xit('should not be able to see outputs of a deployed environment without rights on a cloud', function() {
+    console.log('################# should not be able to see outputs of a deployed environment without rights on a cloud');
   });
 
-  // it('should create an application and must have a default application environment.', function() {
-  //   console.log('################# should create an application and must have a default application environment.');
-  //   assertCountEnvironment(1);
-  //   expect(element(by.id('Environment-envlistid')).$('option:checked').getText()).toEqual('OTHER');
-  // });
-  //
-  // it('should create an application environment for a new application.', function() {
-  //   console.log('################# should create an application environment for a new application.');
-  //   applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
-  //   common.expectNoErrors();
-  //   assertCountEnvironment(2);
-  // });
-  //
-  // it('should be able to delete an application environment.', function() {
-  //   console.log('################# should be able to delete a created environment.');
-  //   assertCountEnvironment(2);
-  //   common.deleteWithConfirm('delete-env_ENV', true);
-  //   common.expectNoErrors();
-  //   assertCountEnvironment(1);
-  // });
-  //
-  // it('should reject a new application environment if an application environment with the same name already exist.', function() {
-  //   console.log('################# should reject a new application environment if an application environment with the same name already exist.');
-  //   applications.createApplicationEnvironment('Environment', 'A new environment whith an existing name', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
-  //   common.expectErrors();
-  //   common.dismissAlert();
-  //   assertCountEnvironment(1);
-  // });
-  //
-  // it('should failed to remove the last new application environment.', function() {
-  //   console.log('################# should failed to remove the last new application environment.');
-  //   common.deleteWithConfirm('delete-env_Environment', true);
-  //   common.expectErrors();
-  //   common.dismissAlert();
-  //   assertCountEnvironment(1);
-  // });
-  //
-  // it('should failed to rename if an application environment with the same name already exist.', function() {
-  //   after = true;
-  //   console.log('################# should failed to rename if an application environment with the same name already exist.');
-  //   applications.createApplicationEnvironment('ENV', 'A new environment for my application...', 'testcloud', applications.environmentTypes.dev, '0.1.0-SNAPSHOT');
-  //   common.expectNoErrors();
-  //   assertCountEnvironment(2);
-  //   common.sendValueToXEditable('ENV-name-td', 'Environment', false);
-  //   common.expectErrors();
-  //   browser.sleep(5000); // DO NOT REMOVE, we need to send a valid value to the editable text
-  //   element(by.css('#ENV-name-td input')).sendKeys('2');
-  // });
+  xit('should should not be able to deploy an environment without right on the underlying cloud', function() {
+    console.log('################# should should not be able to deploy an environment without right on the underlying cloud');
+  });
 
 });

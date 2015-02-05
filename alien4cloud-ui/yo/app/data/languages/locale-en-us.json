@@ -336,6 +336,7 @@
       "PROPERTIES": "Properties",
       "PROPERTIES_INPUTS": "Input properties",
       "PROPERTIES_OUTPUTS": "Output properties",
+      "NO_OUTPUTS": "No output properties or attributes",
       "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
       "REQUIREMENTS": "Prerequisites",
       "CAPABILITIES": "Capabilities",
