@@ -16,7 +16,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
       $scope.selectedEnvironment = environment;
-      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function() {
+      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
         refreshDeploymentSetup();
       });
     }
@@ -241,9 +241,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.stopEvent();
       } else {
         $scope.stopEvent();
-        $scope.processTopologyInformations($scope.topologyId).$promise.then(function() {
-          $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
+        $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
+          $scope.processTopologyInformations(result.data).$promise.then(function() {
+            $scope.refreshInstancesStatuses($scope.application.id, $scope.selectedEnvironment.id, pageStateId);
+          });
         });
+
       }
     });
 

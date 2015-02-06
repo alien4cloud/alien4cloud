@@ -168,7 +168,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
-        console.log('Process Topology', $scope.outputProperties, $scope.outputAttributes);
+        $scope.outputNodes = [];
         $scope.inputPropertiesSize = 0;
         $scope.outputPropertiesSize = 0;
         $scope.outputAttributesSize = 0;
@@ -212,6 +212,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.stopEvent = function stopEvent() {
       $scope.outputAttributesValue = {};
       $scope.outputPropertiesValue = {};
+      $scope.outputNodes = [];
       $scope.inputPropertiesSize = 0;
       $scope.outputPropertiesSize = 0;
       $scope.outputAttributesSize = 0;
@@ -225,6 +226,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.applicationEventServices = null;
     $scope.outputAttributesValue = {};
     $scope.outputPropertiesValue = {};
+    $scope.outputNodes = [];
 
     $scope.refreshInstancesStatuses = function refreshInstancesStatuses(applicationId, environmentId, pageStateId) {
       if ($scope.outputAttributesSize > 0) {
