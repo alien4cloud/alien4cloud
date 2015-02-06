@@ -63,3 +63,12 @@ Scenario: rename a relationship
   When I rename the relationship "hostedOnCompute" into "hostedOnRenamed" from the node template "Java"
   Then I should receive a RestResponse with no error
     And I should have a relationship "hostedOnRenamed" with type "tosca.relationships.HostedOn" from "Java" to "Compute" in ALIEN
+
+Scenario: update a relationship
+  Given I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
+    And I have added a node template "Java" related to the "fastconnect.nodes.Java:1.0" node type
+    And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
+    And I have added a relationship "dependsOnCompute" of type "tosca.relationships.DependsOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "dependency" of type "tosca.capabilities.Container" and target capability "feature"
+  When I update the "password" property of the relationship "hostedOnCompute" into "mypassword" from the node template "Java"
+  Then I should receive a RestResponse with no error
+    And I should have a relationship "hostedOnCompute" with type "tosca.relationships.HostedOn" from "Java" to "Compute" in ALIEN
