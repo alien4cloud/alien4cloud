@@ -101,7 +101,7 @@ public class TopologyService {
         }
     }
 
-    private void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
+    public void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }

@@ -372,7 +372,11 @@ public class TopologyController {
             nodeTemplates.get(nodeTemplateName).setRelationships(relationships);
         }
 
-        relationships.put(relationshipName, relationshipTemplateRequest.getRelationshipTemplate());
+        RelationshipTemplate relationship = relationshipTemplateRequest.getRelationshipTemplate();
+        Map<String, String> properties = Maps.newHashMap();
+        topologyService.fillProperties(properties, indexedRelationshipType.getProperties(), null);
+        relationship.setProperties(properties);
+        relationships.put(relationshipName, relationship);
         alienDAO.save(topology);
         log.info("Added relationship to the topology [" + topologyId + "], node name [" + nodeTemplateName + "], relationship name [" + relationshipName + "]");
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
@@ -460,6 +464,31 @@ public class TopologyController {
     }
 
     /**
+     * Build and return a RestResponse if we detected a property constraint violation
+     * 
+     * @param propertyName
+     * @param propertyValue
+     * @param propertyDefinition
+     * @return
+     */
+    private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
+            final PropertyDefinition propertyDefinition) {
+        try {
+            constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+        } catch (ConstraintViolationException e) {
+            log.error("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
+                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        }
+        return null;
+    }
+
+    /**
      * Update one property for a given {@link NodeTemplate}
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
@@ -482,27 +511,15 @@ public class TopologyController {
 
         IndexedNodeType node = csarRepoSearch.getElementInDependencies(IndexedNodeType.class, nodeTemp.getType(), topology.getDependencies());
 
-        // Check all constraints for this property
-        if (node.getProperties().containsKey(propertyName)) {
-            // Need nodetype properties
-            Map<String, PropertyDefinition> properties = node.getProperties();
-
-            try {
-                constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, properties.get(propertyName));
-            } catch (ConstraintViolationException e) {
-                log.error("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
-                return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                        + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-
-            }
-        } else {
+        if (!node.getProperties().containsKey(propertyName)) {
             throw new NotFoundException("Property <" + propertyName + "> doesn't exists for node <" + nodeTemplateName + "> of type <" + nodeTemp.getType()
                     + ">");
+        }
+
+        RestResponse<ConstraintInformation> response = buildRestErrorIfPropertyConstraintViolation(propertyName, propertyValue,
+                node.getProperties().get(propertyName));
+        if (response != null) {
+            return response;
         }
 
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
@@ -511,6 +528,50 @@ public class TopologyController {
         nodeTemp.getProperties().put(updatePropertyRequest.getPropertyName(), updatePropertyRequest.getPropertyValue());
         alienDAO.save(topology);
 
+        return RestResponseBuilder.<ConstraintInformation> builder().build();
+    }
+
+    /**
+     * Update one property for a given @{IndexedRelationshipType} of a {@link NodeTemplate}
+     *
+     * @param topologyId The id of the topology that contains the node template for which to update a property.
+     * @param nodeTemplateName The name of the node template for which to update a property.
+     * @param updatePropertyRequest The key and value of the property to update.
+     * @return a void rest response that contains no data if successful and an error if something goes wrong.
+     */
+    @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationships/{relationshipName}/updateProperty", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<ConstraintInformation> updateRelationshipPropertyValue(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String relationshipName, @RequestBody UpdateRelationshipPropertyRequest updatePropertyRequest) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        String propertyName = updatePropertyRequest.getPropertyName();
+        String propertyValue = updatePropertyRequest.getPropertyValue();
+        String relationshipType = updatePropertyRequest.getRelationshipType();
+        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
+
+        if (!relationshipTypes.get(relationshipType).getProperties().containsKey(propertyName)) {
+            throw new NotFoundException("Property <" + propertyName + "> doesn't exists for node <" + nodeTemplateName + "> of type <" + relationshipType + ">");
+        }
+
+        RestResponse<ConstraintInformation> response = buildRestErrorIfPropertyConstraintViolation(propertyName, propertyValue,
+                relationshipTypes.get(relationshipType).getProperties().get(propertyName));
+        if (response != null) {
+            return response;
+        }
+
+        log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
+                propertyName, relationshipType, nodeTemplateName, topology.getId(), relationshipTypes.get(relationshipType).getProperties().get(propertyName),
+                propertyValue);
+
+        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
+        relationships.get(relationshipName).getProperties().put(propertyName, propertyValue);
+
+        alienDAO.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 

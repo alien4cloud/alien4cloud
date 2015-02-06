@@ -874,6 +874,30 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       } // if end
     };
 
+    /* Update properties of a node template */
+    $scope.updateRelationshipProperty = function(propertyDefinition, propertyValue, relationshipType, relationshipName) {
+      var propertyName = propertyDefinition.name;
+
+      // if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName]) {
+      //   return;
+      // }
+      var updateRelationshipPropertyRequest = {
+        'propertyName': propertyName,
+        'propertyValue': propertyValue,
+        'relationshipType': relationshipType
+      };
+
+      return topologyServices.relationship.updateProperty({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        relationshipName: relationshipName
+      }, angular.toJson(updateRelationshipPropertyRequest), function() {
+        // update the selectedNodeTemplate properties locally
+        // $scope.selectedNodeTemplate.properties[propertyName] = propertyValue;
+        ;
+      }).$promise;
+    };
+
     // check if compute type
     $scope.isComputeType = function(nodeTemplate) {
       if (UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)) {

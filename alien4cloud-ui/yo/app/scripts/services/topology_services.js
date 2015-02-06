@@ -138,6 +138,18 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var updateRelationshipProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName/updateProperty', {}, {
+      'updateProperty': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          relationshipName: '@relationshipName',
+          updateRelationshipPropertyRequest: '@updateRelationshipPropertyRequest'
+        }
+      }
+    });
+
     var isValid = $resource('rest/topologies/:topologyId/isvalid', {}, {
       method: 'GET'
     });
@@ -204,7 +216,8 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,
       'relationshipDAO': relationshipDAO,
       'relationship':{
-        'updateName':updateRelationshipName.updateName
+        'updateName': updateRelationshipName.updateName,
+        'updateProperty': updateRelationshipProperty.updateProperty
       },
       'isValid': isValid.get,
       'cloud': cloudResource

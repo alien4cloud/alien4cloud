@@ -72,7 +72,7 @@
           <div class="row">
             <!-- nodeTemplateName div -->
             <div class="col-md-8">
-              <h4 class="pull-left">
+              <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
                 <span editable-text="nodeNameObj.val" ng-show="editRights"  buttons="no" e-required onbeforesave="updateNodeName($data)" blur="submit">
                   {{ selectedNodeTemplate.name | split }}
                   <i class="fa fa-pencil-square-o"></i>
@@ -86,7 +86,7 @@
                   tooltip="{{'COMPONENTS.COMPONENT.ABSTRACT_COMPONENT' | translate}}"
                   tooltip-placement="top"
                   src="images/abstract_ico.png"/>
-              </h4>
+              </h3>
             </div>
             <!-- buttons group div -->
             <div class="col-md-4">
@@ -162,13 +162,15 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.properties)">
             <div class="topology-node-expand clickable"
               ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
-              <span>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
+              </h4>
             </div>
             <!-- Test directive display property -->
             <div>
             </div>
+
             <div collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
 
@@ -216,9 +218,10 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.attributes)">
             <div class="topology-node-expand clickable"
               ng-click="isAttributesCollapsed = !isAttributesCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
-              <span>{{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
+              </h4>
             </div>
             <div collapse="isAttributesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateAttributes">
@@ -242,9 +245,10 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
             <div class="topology-node-expand clickable"
               ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}">
-              </i><span>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.ARTIFACTS' | translate}}
+              </h4>
             </div>
             <div collapse="isArtifactsCollapsed">
               <div class="topology-level"
@@ -290,9 +294,10 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.requirements)">
             <div class="topology-node-expand clickable"
               ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
-              <span>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
+              </h4>
             </div>
             <div collapse="isRequirementsCollapsed" class="topology-level">
               <div ng-repeat="(requirementName,requirement) in selectedNodeTemplate.requirements"
@@ -364,9 +369,10 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.capabilities)">
             <div class="topology-node-expand clickable"
               ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
-              <span>{{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
+              </h4>
             </div>
             <div collapse="isCapabilitiesCollapsed" class="topology-level">
               <div ng-repeat="(capabilityName,capability) in selectedNodeTemplate.capabilities"
@@ -433,13 +439,14 @@
           <div ng-if="checkMapSize(selectedNodeTemplate.relationships)">
             <div class="topology-node-expand clickable"
               ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
-              <i class="pull-left fa"
-                ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i><span>{{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}</span>
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
+                {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
+              </h4>
             </div>
             <div collapse="isRelationshipsCollapsed">
               <div class="topology-level"
-                ng-repeat="(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships">
-
+                ng-repeat="(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships">
                 <div class="topology-node-expand clickable editable-small"
                   ng-click="isRelationshipCollapsed = !isRelationshipCollapsed"
                   id="relationship_{{relationshipName}}">
@@ -470,6 +477,25 @@
                   <div class="row">
                     <div class="col-md-3">{{'COMPONENTS.RELATIONSHIPS.TARGET' | translate}}</div>
                     <div class="col-md-9">{{relationshipDefinition.target | split}}</div>
+                  </div>
+                  <div class="row" ng-if="topology.relationshipTypes[relationshipDefinition.type].properties">
+                    <div class="col-md-12">{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}} :</div>
+                  </div>
+                  <div class="row">
+                      <table class="table table-condensed" id="relationshipProperties">
+                        <tr ng-repeat="(key, property) in topology.relationshipTypes[relationshipDefinition.type].properties">
+                          <td ng-init="property.name=key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
+                            <property-display
+                                    ng-init="condensed = false"
+                                    definition="property"
+                                    property-value="topology.topology.nodeTemplates[selectedNodeTemplate.name].relationships[relationshipName].properties[key]"
+                                    on-save="updateRelationshipProperty(property, propertyValue, relationshipDefinition.type, relationshipName)"
+                                    editable="editRights"
+                                    condensed="condensed">
+                            </property-display>
+                          </td>
+                        </tr>
+                      </table>
                   </div>
                 </div>
               </div>
