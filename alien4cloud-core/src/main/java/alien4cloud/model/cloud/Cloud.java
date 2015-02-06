@@ -19,9 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
-import alien4cloud.utils.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -81,6 +79,7 @@ public class Cloud implements ISecuredResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
@@ -88,6 +87,7 @@ public class Cloud implements ISecuredResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })

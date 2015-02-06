@@ -1,4 +1,4 @@
-package alien4cloud.utils;
+package alien4cloud.utils.jackson;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

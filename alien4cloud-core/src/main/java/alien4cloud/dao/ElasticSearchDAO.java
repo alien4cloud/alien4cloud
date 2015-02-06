@@ -24,7 +24,7 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.ConditionalAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -81,8 +81,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         public ElasticSearchMapper() {
             super();
             this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
+            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
+            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
         }
     }
 }

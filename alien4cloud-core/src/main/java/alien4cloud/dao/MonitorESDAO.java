@@ -8,14 +8,10 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.json.serializer.BoundSerializer;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.model.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,8 +49,8 @@ public class MonitorESDAO extends ESGenericSearchDAO {
         public ElasticSearchMapper() {
             super();
             this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
+            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
+            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
         }
     }
 }

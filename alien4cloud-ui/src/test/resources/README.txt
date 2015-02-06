@@ -115,3 +115,17 @@ curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=
     }
 }
 '
+
+curl -X DELETE "http://localhost:9200/deployment/_query?pretty=true" -d '
+{
+    "query" : {
+          "bool" : {
+            "must" : [ {
+              "term" : {
+                "cloudId" : "433d9597-3891-4291-8007-c8bb477b04bb"
+              }
+            }]
+          }
+        }
+}
+'

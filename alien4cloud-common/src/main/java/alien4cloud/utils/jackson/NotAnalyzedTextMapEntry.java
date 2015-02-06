@@ -1,4 +1,4 @@
-package alien4cloud.utils;
+package alien4cloud.utils.jackson;
 
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.mapping.IndexType;
