@@ -3,7 +3,8 @@ package alien4cloud.utils;
 import javax.annotation.Resource;
 
 import org.springframework.beans.BeansException;
-import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
