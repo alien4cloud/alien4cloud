@@ -539,16 +539,17 @@ public class TopologyController {
      * @param updatePropertyRequest The key and value of the property to update.
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
-    @ApiOperation(value = "Update relationship properties values.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipType}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationships/{relationshipName}/updateProperty", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> updateRelationshipPropertyValue(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String relationshipType, @RequestBody UpdatePropertyRequest updatePropertyRequest) {
+            @PathVariable String relationshipName, @RequestBody UpdateRelationshipPropertyRequest updatePropertyRequest) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
 
         String propertyName = updatePropertyRequest.getPropertyName();
         String propertyValue = updatePropertyRequest.getPropertyValue();
+        String relationshipType = updatePropertyRequest.getRelationshipType();
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
 
         if (!relationshipTypes.get(relationshipType).getProperties().containsKey(propertyName)) {
@@ -561,14 +562,14 @@ public class TopologyController {
             return response;
         }
 
-        log.debug("Updating property <{}> of the relationship of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
-                propertyName, nodeTemplateName, topology.getId(), relationshipTypes.get(relationshipType).getProperties().get(propertyName), propertyValue);
-
+        log.debug("Updating property <{}> of the relationship <{}> for the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].",
+                propertyName, relationshipType, nodeTemplateName, topology.getId(), relationshipTypes.get(relationshipType).getProperties().get(propertyName),
+                propertyValue);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
-        relationships.get("wordpressConnectToMysqlMysql").getProperties().put(propertyName, propertyValue);
+        relationships.get(relationshipName).getProperties().put(propertyName, propertyValue);
 
         alienDAO.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();

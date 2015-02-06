@@ -484,12 +484,12 @@
                   <div class="row">
                       <table class="table table-condensed" id="relationshipProperties">
                         <tr ng-repeat="(key, property) in topology.relationshipTypes[relationshipDefinition.type].properties">
-                          <td class="col-md-12" ng-init="property.name=key">
+                          <td ng-init="property.name=key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
                             <property-display
                                     ng-init="condensed = false"
                                     definition="property"
                                     property-value="topology.topology.nodeTemplates[selectedNodeTemplate.name].relationships[relationshipName].properties[key]"
-                                    on-save="updateProperty(property, propertyValue)"
+                                    on-save="updateRelationshipProperty(property, propertyValue, relationshipDefinition.type, relationshipName)"
                                     editable="editRights"
                                     condensed="condensed">
                             </property-display>
