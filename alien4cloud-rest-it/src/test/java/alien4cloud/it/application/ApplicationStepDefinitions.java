@@ -127,7 +127,7 @@ public class ApplicationStepDefinitions {
         assertNotNull(template);
 
         // create the application linked to this template
-        CreateApplicationRequest request = new CreateApplicationRequest(name, description, template.getTopologyId());
+        CreateApplicationRequest request = new CreateApplicationRequest(name, description, template.getId());
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/", JsonUtil.toString(request)));
 
         // check the created application (topologyId)

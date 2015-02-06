@@ -1,9 +1,9 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', '$timeout',
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, $timeout) {
+    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory) {
     var application = applicationResult.data;
     $scope.application = application;
 

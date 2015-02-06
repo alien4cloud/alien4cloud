@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -41,6 +42,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -65,6 +67,7 @@ import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+@Slf4j
 @Service
 public class TopologyService {
 
@@ -867,6 +870,21 @@ public class TopologyService {
             return dataResult.getData()[0];
         }
         return null;
+    }
+
+    /**
+     * Retrieve the topology template from its id
+     *
+     * @param topologyTemplateId
+     * @return
+     */
+    public TopologyTemplate getOrFailTopologyTemplate(String topologyTemplateId) {
+        TopologyTemplate topologyTemplate = alienDAO.findById(TopologyTemplate.class, topologyTemplateId);
+        if (topologyTemplate == null) {
+            log.debug("Failed to recover the topology template <{}>", topologyTemplateId);
+            throw new NotFoundException("Topology template with id [" + topologyTemplateId + "] cannot be found");
+        }
+        return topologyTemplate;
     }
 
 }

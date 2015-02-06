@@ -6,10 +6,7 @@ var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
     $scope.app = {};
     $scope.create = function(valid, templateId) {
       if (valid) {
-        if (!angular.isUndefined(templateId)) {
-          // topologyId linked to the topology template
-          $scope.app.topologyId = templateId;
-        }
+        $scope.app.topologyTemplateId = templateId;
         $modalInstance.close($scope.app);
       }
     };
