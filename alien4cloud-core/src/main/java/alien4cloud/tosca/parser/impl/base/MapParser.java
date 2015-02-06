@@ -45,7 +45,7 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
     }
 
     private Map<String, T> doParse(MappingNode node, ParsingContextExecution context) {
-        Map<String, T> map = Maps.newHashMap();
+        Map<String, T> map = Maps.newLinkedHashMap();
         for (NodeTuple entry : node.getValue()) {
             String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             T value = null;

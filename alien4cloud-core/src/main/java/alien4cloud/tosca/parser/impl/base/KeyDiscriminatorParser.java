@@ -28,7 +28,7 @@ public class KeyDiscriminatorParser<T> implements INodeParser<T> {
      */
     public KeyDiscriminatorParser(Map<String, INodeParser<T>> parserByExistKey, INodeParser<T> fallbackParser) {
         if (parserByExistKey == null) {
-            this.parserByExistKey = Maps.newHashMap();
+            this.parserByExistKey = Maps.newLinkedHashMap();
         } else {
             this.parserByExistKey = parserByExistKey;
         }
