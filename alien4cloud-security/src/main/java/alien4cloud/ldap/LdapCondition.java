@@ -1,6 +1,7 @@
 package alien4cloud.ldap;
 
-import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;

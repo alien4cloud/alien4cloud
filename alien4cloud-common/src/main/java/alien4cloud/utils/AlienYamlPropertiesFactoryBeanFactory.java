@@ -2,7 +2,8 @@ package alien4cloud.utils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.boot.yaml.YamlPropertiesFactoryBean;
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
