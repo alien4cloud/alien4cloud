@@ -333,29 +333,44 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
       });
     });
 
+    var stateForward = {
+      applications: 'applications.list',
+      topologytemplates: 'topologytemplates.list',
+      components: 'components.list',
+      admin: 'admin.home'
+    }
+
+    // state routing
+    $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+      var forward = stateForward[toState.name];
+      if(UTILS.isDefinedAndNotNull(forward)) {
+        $state.go(forward);
+      }
+    });
+
     alienNavBarService.menu.left = [{
       'roles': [],
       'id': 'menu.applications',
       'key': 'NAVBAR.MENU_APPS',
-      'state': 'applications.list',
+      'state': 'applications',
       'icon': 'fa fa-desktop'
     }, {
       'roles': ['ARCHITECT'],
       'id': 'menu.topologytemplates',
       'key': 'NAVBAR.MENU_TOPOLOGY_TEMPLATE',
-      'state': 'topologytemplates.list',
+      'state': 'topologytemplates',
       'icon': 'fa fa-sitemap'
     }, {
       'roles': ['COMPONENTS_MANAGER', 'COMPONENTS_BROWSER'],
       'id': 'menu.components',
       'key': 'NAVBAR.MENU_COMPONENTS',
-      'state': 'components.list',
+      'state': 'components',
       'icon': 'fa fa-cubes'
     }, {
       'roles': ['ADMIN'],
       'id': 'menu.admin',
       'key': 'NAVBAR.MENU_ADMIN',
-      'state': 'admin.home',
+      'state': 'admin',
       'icon': 'fa fa-wrench'
     }];
 

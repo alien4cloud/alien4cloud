@@ -1,9 +1,11 @@
+/* global UTILS */
+
 'use strict';
 
 angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide',
   function($provide) {
-    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService', 'groupServices',
-      function($resource, $state, $http, alienNavBarService, groupServices) {
+    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService',
+      function($resource, $state, $http, alienNavBarService) {
         // isArray needed when results is JSON with nested object
         var userStatusResource = $resource('rest/auth/status', {}, {
           'query': {
