@@ -2,10 +2,17 @@ package alien4cloud.model.topology;
 
 import java.util.Map;
 
-import alien4cloud.model.components.DeploymentArtifact;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Specifies a kind of a component making up the cloud application.
@@ -25,6 +32,9 @@ public class NodeTemplate extends AbstractTemplate {
     /**
      * Properties of the node template
      */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, String> properties;
 
     /**

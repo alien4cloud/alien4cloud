@@ -20,7 +20,7 @@ function() {
         var mapField = propertyName+'Map';
         var map = {};
         for(var i=0; i< entryArray.length; i++) {
-          map[entryArray[i].key] = entryArray[i].value;
+          map[entryArray[i].key] = entryArray[i];
         }
         object[mapField] = map;
       }

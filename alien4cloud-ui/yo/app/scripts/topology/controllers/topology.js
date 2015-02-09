@@ -2,8 +2,8 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId',
-  function(alienAuthService, $scope, $modal, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'orderedMapEnricher', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId',
+  function(alienAuthService, $scope, $modal, orderedMapEnricher, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId) {
     $scope.view = 'RENDERED';
 
     // TODO : when topology templates edition with use also version, remove this IF statement
@@ -26,10 +26,28 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     var inputOutputKeys = ['inputProperties', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
 
+    // Size management
     var borderSpacing = 10;
     var border = 2;
     var detailDivWidth = 450;
     var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
+    var heightOffset = 156;
+    function onResize(width, height) {
+      $scope.dimensions = {
+        width: width,
+        height: height
+      };
+      $scope.$apply();
+    }
+
+    resizeServices.register(onResize, widthOffset, heightOffset);
+
+    $scope.dimensions = {
+      height: resizeServices.getHeight(heightOffset),
+      width: resizeServices.getWidth(widthOffset)
+    };
+    // end size management
+
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
 
     var setSelectedVersionByName = function(name) {
@@ -65,21 +83,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       selectTab('components-search');
     };
 
-    function onResize(width, height) {
-      $scope.dimensions = {
-        width: width,
-        height: height
-      };
-      $scope.$apply();
-    }
-
-    resizeServices.register(onResize, widthOffset, 120);
-
-    $scope.dimensions = {
-      height: resizeServices.getHeight(120),
-      width: resizeServices.getWidth(widthOffset)
-    };
-
     var refreshTopology = function(topologyDTO, selectedNodeTemplate) {
       for (var nodeId in topologyDTO.topology.nodeTemplates) {
         if (topologyDTO.topology.nodeTemplates.hasOwnProperty(nodeId)) {
@@ -87,6 +90,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       }
       $scope.topology = topologyDTO;
+
+      // enrich objects to add maps for the fields that are currently mapped as array of map entries.
+      orderedMapEnricher.processMap($scope.topology.nodeTypes, 'properties');
+      orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'properties');
+
       fillBounds($scope.topology.topology);
       initInputsOutputs($scope.topology.topology);
       $scope.editorContent = jsyaml.safeDump($scope.topology.topology);
@@ -263,38 +271,32 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.nodeNameObj = {}; // added to support <tabset> "childscope issue"
     function fillNodeSelectionVars(nodeTemplate) {
-      var selectedProperties = [];
-      for (var propertyKey in nodeTemplate.properties) {
-        if (nodeTemplate.properties.hasOwnProperty(propertyKey)) {
-          var property = {
-            'key': propertyKey,
-            'value': nodeTemplate.properties[propertyKey]
-          };
-          selectedProperties.push(property);
-        }
-      }
       $scope.selectedNodeTemplate = nodeTemplate;
-      $scope.selectedProperties = selectedProperties;
+      $scope.selectedProperties = nodeTemplate.properties;
       $scope.nodeNameObj.val = nodeTemplate.name;
       $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
     }
 
     $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
       // select the "Properties" <TAB> to see selected node details
-      selectTab('nodetemplate-details');
+      // selectTab('nodetemplate-details');
+      document.getElementById('nodetemplate-details').click();
 
-      if (oldSelectedName) {
-        var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
-        if (oldSelected) {
-          oldSelected.selected = false;
+      $timeout(function() {
+        console.log('change node tempalte...');
+        if (oldSelectedName) {
+          var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
+          if (oldSelected) {
+            oldSelected.selected = false;
+          }
         }
-      }
 
-      var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
-      newSelected.selected = true;
+        var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
+        newSelected.selected = true;
 
-      fillNodeSelectionVars(newSelected);
-      $scope.$apply();
+        fillNodeSelectionVars(newSelected);
+        $scope.$apply();
+      });
     };
 
     $scope.deleteNodeTemplate = function(nodeTemplName) {
@@ -357,9 +359,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     /* Update properties of a node template */
     $scope.updateProperty = function(propertyDefinition, propertyValue) {
-
       var propertyName = propertyDefinition.name;
-
       if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName]) {
         return;
       }
@@ -368,14 +368,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         'propertyValue': propertyValue
       };
 
+      var updatedNodeTemplate = $scope.selectedNodeTemplate;
       return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: $scope.selectedNodeTemplate.name
       }, angular.toJson(updatePropsObject), function() {
         // update the selectedNodeTemplate properties locally
-        $scope.selectedNodeTemplate.properties[propertyName] = propertyValue;
+        updatedNodeTemplate.propertiesMap[propertyName].value = propertyValue;
       }).$promise;
-
     };
 
     // Add property / artifact / attributes to input list
@@ -790,7 +790,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         fillCapabilityBounds(nodeTemplate);
       });
     };
-
     $scope.getShortName = UTILS.getShotName;
 
 
@@ -798,7 +797,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
      * Properties scopes
      */
     $scope.isPropertyRequired = function(propertyName) {
-      var propDef = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyName];
+      var propDef = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].propertiesMap[propertyName].value;
       return propDef.required;
     };
 
@@ -819,13 +818,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.getFormatedProperty = function(propertyKey) {
-      var formatedProperty = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey];
+      var formatedProperty = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].propertiesMap[propertyKey];
       formatedProperty.name = propertyKey;
       return formatedProperty;
     };
 
     $scope.getPropertyDescription = function(propertyKey) {
-      return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].properties[propertyKey].description;
+      return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].propertiesMap[propertyKey].description;
     };
 
     /**

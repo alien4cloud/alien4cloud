@@ -64,7 +64,7 @@
         </div>
       </tab>
 
-      <tab disabled="!selectedNodeTemplate">
+      <tab>
         <tab-heading id="nodetemplate-details">
            <i class="fa fa-list"></i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
         </tab-heading>
@@ -159,7 +159,7 @@
           </div>
         </div>
           <!-- Properties -->
-          <div ng-if="checkMapSize(selectedNodeTemplate.properties)">
+          <div ng-if="selectedNodeTemplate.properties.length > 0">
             <div class="topology-node-expand clickable"
               ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
@@ -167,18 +167,13 @@
                 {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
               </h4>
             </div>
-            <!-- Test directive display property -->
-            <div>
-            </div>
-
             <div collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
 
                 <tr ng-repeat="property in selectedProperties"
                    ng-init="isPropertyRequired = isPropertyRequired(property.key)">
-
-                  <td class="col-md-2" ng-class="{'property-required' : isPropertyRequired}">
-                    <div class="btn-group" data-toggle="buttons">
+                   <td ng-class="{'property-required' : isPropertyRequired}">
+                     <div class="btn-group" data-toggle="buttons">
                       <a id="p_input_{{property.key}}" ng-click="toggleInputProperty(property.key)" class="btn btn-default btn-xs" ng-class="{'active' : isInputProperty(property.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}" tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
                       </a>
@@ -187,8 +182,7 @@
                       </a>
                     </div>
                   </td>
-
-                  <td class="col-md-9">
+                  <td>
                     <property-display
                             ng-init="condensed = true"
                             definition="getFormatedProperty(property.key)"
@@ -198,8 +192,7 @@
                             condensed = "condensed">
                     </property-display>
                   </td>
-
-                  <td class="col-md-1">
+                  <td>
                     <button id="btn-description-{{property.key}}"
                       ng-if="getPropertyDescription(property.key)"
                       ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', getPropertyDescription(property.key))"
