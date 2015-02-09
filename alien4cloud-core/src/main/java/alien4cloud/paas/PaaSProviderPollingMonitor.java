@@ -95,16 +95,20 @@ public class PaaSProviderPollingMonitor implements Runnable {
                         // Enrich event with cloud id before saving them
                         event.setCloudId(cloudId);
                     }
-                    monitorDAO.save(auditEvents);
                     for (IPaasEventListener listener : listeners) {
                         for (AbstractMonitorEvent event : auditEvents) {
                             if (listener.canHandle(event)) {
                                 listener.eventHappened(event);
                             }
-                            Date eventDate = new Date(event.getDate());
-                            lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
+                            if (event.getDate() > 0) {
+                                Date eventDate = new Date(event.getDate());
+                                lastPollingDate = eventDate.after(lastPollingDate) ? eventDate : lastPollingDate;
+                            } else {
+                                event.setDate(System.currentTimeMillis());
+                            }
                         }
                     }
+                    monitorDAO.save(auditEvents);
                 }
                 getEventsInProgress = false;
             }

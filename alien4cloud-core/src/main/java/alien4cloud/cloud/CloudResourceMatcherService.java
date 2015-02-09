@@ -157,9 +157,6 @@ public class CloudResourceMatcherService {
             if (!match(storageProperties, NormativeBlockStorageConstants.DEVICE, storage.getDevice(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
-            if (!match(storageProperties, NormativeBlockStorageConstants.LOCATION, storage.getLocation(), new TextValueParser(), new EqualMatcher<String>())) {
-                continue;
-            }
             if (!match(storageProperties, NormativeBlockStorageConstants.SIZE, storage.getSize(), new LongValueParser(), new GreaterOrEqualValueMatcher<Long>())) {
                 continue;
             }

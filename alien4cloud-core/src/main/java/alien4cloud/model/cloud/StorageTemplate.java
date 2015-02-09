@@ -24,8 +24,6 @@ public class StorageTemplate implements ICloudResourceTemplate {
 
     @NotNull
     private Long size;
-    
+
     private String device;
-    
-    private String location;
 }
