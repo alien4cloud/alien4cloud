@@ -10,7 +10,7 @@ var navigation = require('../../common/navigation');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
 
-describe('Topology node template edition', function() {
+describe('Topology node template edition :', function() {
   // this tests is processed as a suite and thus are dependent one from each others.
   var isBeforeAllDone = false;
 
@@ -52,7 +52,7 @@ describe('Topology node template edition', function() {
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
 
-    var nameSpan = element(by.css('div.topology-details h4 span[editable-text]'));
+    var nameSpan = element(by.css('div.topology-details h3 span[editable-text]'));
     expect(nameSpan.isDisplayed()).toBe(true);
   });
 
@@ -60,13 +60,13 @@ describe('Topology node template edition', function() {
     var nodeToEdit = element(by.id('rect_Compute_2'));
     nodeToEdit.click();
 
-    var nameSpan = element(by.css('div.topology-details h4 span[editable-text]'));
+    var nameSpan = element(by.css('div.topology-details h3 span[editable-text]'));
 
     var editForm;
     var editInput;
     // success update
     nameSpan.click();
-    editForm = element(by.css('div.topology-details h4 form'));
+    editForm = element(by.css('div.topology-details h3 form'));
     editInput = editForm.element(by.tagName('input'));
     editInput.clear();
     editInput.sendKeys('Compute_new_NAME');
@@ -76,7 +76,7 @@ describe('Topology node template edition', function() {
 
     // fail update
     nameSpan.click();
-    editForm = element(by.css('div.topology-details h4 form'));
+    editForm = element(by.css('div.topology-details h3 form'));
     editInput = editForm.element(by.tagName('input'));
     editInput.clear();
     editInput.sendKeys('JavaRPM');
@@ -145,7 +145,6 @@ describe('Topology node template edition', function() {
 
   it('should have the a todo list if topology is not valid', function() {
     console.log('################# should have the a todo list if topology is not valid');
-
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.removeNodeTemplate('Compute_new_NAME');
     topologyEditorCommon.removeNodeTemplate('War');
