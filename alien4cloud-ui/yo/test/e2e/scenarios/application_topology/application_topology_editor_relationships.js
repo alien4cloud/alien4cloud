@@ -26,9 +26,7 @@ describe('NodeTemplate relationships edition', function() {
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
 
-    // check on relationships count
-    var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-    expect(relationships.count()).toBe(2);
+    topologyEditorCommon.checkNumberOfRelationship(2);
 
     // Check created relationship
     topologyEditorCommon.checkCreatedRelationship('hostedOnCompute', 1);
@@ -42,8 +40,7 @@ describe('NodeTemplate relationships edition', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({ war: componentData.fcTypes.war() });
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
-    var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-    expect(relationships.count()).toBe(1);
+    topologyEditorCommon.checkNumberOfRelationship(1);
 
     // Check created relationship
     topologyEditorCommon.checkCreatedRelationship('dependsOnCompute2', 1);
