@@ -38,7 +38,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var storageFormDescriptor = {
         "_type": "complex",
-        "_order": [ "id", "device", "location", "size"],
+        "_order": [ "id", "device", "size"],
         "_propertyType": {
           "id": {
             "_label": "CLOUDS.STORAGES.ID",
@@ -47,11 +47,6 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           },
           "device": {
             "_label": "CLOUDS.STORAGES.DEVICE",
-            "_type": "string",
-            "_notNull": false
-          },
-          "location": {
-            "_label": "CLOUDS.STORAGES.LOCATION",
             "_type": "string",
             "_notNull": false
           },

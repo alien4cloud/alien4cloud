@@ -102,13 +102,13 @@
           <span ng-if="imageNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>      
+        </tab-heading>
         <div class="row">
           <div class="col-md-12">
 				    <fieldset>
 							<legend class="text-center">
 								<h4>
-									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }} 
+									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
 									  <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
 										( <span> <i class="fa fa-warning text-danger"></i>
 											{{imageNotConfiguredCount}} {{
@@ -151,7 +151,7 @@
 	                                      <span class="small pull-left margin-top-05">{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}} : </span>
 							                          <div ng-class="{'has-error': !images[cloudImageId].paaSResourceId}" class="small pull-left margin-top-05">
 							                            <span ng-if="!cloud.enabled" >{{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
-							                            <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no" 
+							                            <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no"
 							                            onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
 							                              {{images[cloudImageId].paaSResourceId}}
 							                              <em ng-if="images[cloudImageId].paaSResourceId === null || images[cloudImageId].paaSResourceId === undefined" class="text-muted">
@@ -178,13 +178,13 @@
 																							</ul>
 																							</div>
 																					</div>
-							                          </div> 
+							                          </div>
 						                          </div>
-					                          </div> 
+					                          </div>
                                     <div class="col-md-2">
 					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)" id="cloud_delete_cloud_image_{{images[cloudImageId].resource.name}}"><i class="fa fa-trash-o"></i>
-					                            </button>                                    
-                                    </div>                               
+					                            </button>
+                                    </div>
                                   </div>
                                 </h4>
                               </div>
@@ -197,15 +197,15 @@
                   </div>
                 </div>
                 <div class="col-md-1">
-                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block" 
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block"
                      ng-click="performAddCloudImageSelection();">
                     <i class="fa fa-angle-double-left"></i>
-                  </a>                        
+                  </a>
                   <br/>
-                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block" 
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block"
                      ng-click="createCloudImage();">
                     <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
-                  </a>                     
+                  </a>
                 </div>
                 <div class="col-md-5" id="imagesToAdd">
                   <div class="well">
@@ -258,7 +258,7 @@
                     </div>
                   </div>
                 </div>
-              </div>              
+              </div>
             </fieldset>
           </div>
         </div>
@@ -269,7 +269,7 @@
           <span ng-if="flavorNotConfiguredCount > 0">
             <i class="fa fa-warning text-danger"></i>
           </span>
-        </tab-heading>        
+        </tab-heading>
         <div class="row">
           <div class="col-md-12">
             <fieldset>
@@ -284,7 +284,7 @@
                     )
                   </span>
                 </h4>
-              </legend>              
+              </legend>
               <div class="row" style="margin-top: 10px;">
                 <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
                   <div class="table-responsive large-data-container" id="cloud-flavors-table">
@@ -319,7 +319,7 @@
 																<button type="button"
 																	class="btn btn-default dropdown-toggle"
 																	id="{{flavor.id}}_resourceId">
-																	{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+																	{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
 																	<span class="caret"></span>
 																</button>
 																<ul class="dropdown-menu dropdown-menu-left">
@@ -332,7 +332,7 @@
 																</ul>
 															</div>
 														</div>
-											    </td>                          
+											    </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)" id="cloud_delete_flavor_{{flavor.id}}"><i class="fa fa-trash-o"></i>
                             </button>
@@ -523,9 +523,6 @@
       <tab id="tab-clouds-network">
         <tab-heading>
           {{'CLOUDS.NETWORK' | translate}}
-          <span ng-if="networkNotConfiguredCount > 0">
-            <i class="fa fa-warning text-danger"></i>
-          </span>
         </tab-heading>
         <div class="row">
           <div class="col-md-12">
@@ -536,7 +533,7 @@
                   <span ng-if="networkNotConfiguredCount > 0" style="font-size: 14px">
                     (
                     <span>
-                      <i class="fa fa-warning text-danger"></i> {{networkNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                      <i class="fa fa-info-circle text-info"></i> {{networkNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
                     </span>
                     )
                   </span>
@@ -576,7 +573,7 @@
 	                              <button type="button"
 	                                class="btn btn-default dropdown-toggle"
 	                                id="{{network.id}}_resourceId">
-	                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+	                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
 	                                <span class="caret"></span>
 	                              </button>
 	                              <ul class="dropdown-menu dropdown-menu-left">
@@ -589,7 +586,7 @@
 	                              </ul>
 	                            </div>
                             </div>
-                          </td>    
+                          </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network)" id="cloud_delete_network_{{network.id}}"><i class="fa fa-trash-o"></i>
                             </button>
@@ -612,9 +609,6 @@
       <tab id="tab-clouds-storage">
         <tab-heading>
           {{'CLOUDS.STORAGE' | translate}}
-          <span ng-if="storageNotConfiguredCount > 0">
-            <i class="fa fa-warning text-danger"></i>
-          </span>
         </tab-heading>
         <div class="row">
           <div class="col-md-12">
@@ -625,7 +619,7 @@
                   <span ng-if="storageNotConfiguredCount > 0" style="font-size: 14px">
                     (
                     <span>
-                      <i class="fa fa-warning text-danger"></i> {{storageNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                      <i class="fa fa-info-circle text-info"></i> {{storageNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
                     </span>
                     )
                   </span>
@@ -639,7 +633,6 @@
                         <tr>
                           <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
                           <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
-                          <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
                           <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
                           <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
                           <th></th>
@@ -649,7 +642,6 @@
                         <tr ng-repeat="storage in cloud.storages" id='cloud_storages_{{storage.id}}'>
                           <td>{{storage.id}}</td>
                           <td>{{storage.device || '---'}}</td>
-                          <td>{{storage.location || '---'}}</td>
                           <td>{{storage.size | bytes}}</td>
                           <td ng-class="{'has-error': !storages[storage.id].paaSResourceId}">
                             <span ng-if="!cloud.enabled" >{{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
@@ -665,7 +657,7 @@
 	                              <button type="button"
 	                                class="btn btn-default dropdown-toggle"
 	                                id="{{storage.id}}_resourceId">
-	                                {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}} 
+	                                {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
 	                                <span class="caret"></span>
 	                              </button>
 	                              <ul class="dropdown-menu dropdown-menu-left">
@@ -678,7 +670,7 @@
 	                              </ul>
 	                            </div>
                             </div>
-                          </td>    
+                          </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage)" id="cloud_delete_storage_{{storage.id}}"><i class="fa fa-trash-o"></i>
                             </button>
@@ -697,7 +689,7 @@
             </fieldset>
           </div>
         </div>
-      </tab>      
+      </tab>
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
         <div class="alert alert-info">
           {{'CLOUDS.CONFIGURATION_REQUIRES_DISABLE' | translate}}

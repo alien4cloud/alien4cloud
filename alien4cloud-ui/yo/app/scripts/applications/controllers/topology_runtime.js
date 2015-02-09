@@ -235,8 +235,13 @@ angular.module('alienUiApp').controller(
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].state = event.instanceState;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = event.properties;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
+          // Try to get properties from event which is not always available
+          if(UTILS.isDefinedAndNotNull(event.properties) && !UTILS.isObjectEmpty(event.properties)) {
+            $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = event.properties;
+          } else {
+            $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = $scope.topology.topology.nodeTemplates[event.nodeTemplateId].properties;
+          }
         }
         refreshSelectedNodeInstancesCount();
         $scope.$apply();
