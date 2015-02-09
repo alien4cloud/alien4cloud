@@ -33,6 +33,8 @@ import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.MatchedComputeTemplate;
 import alien4cloud.model.cloud.MatchedNetwork;
 import alien4cloud.model.cloud.Network;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
@@ -44,8 +46,6 @@ import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -156,7 +156,7 @@ public class CloudService {
         Cloud current = getMandatoryCloud(updated.getId());
 
         // Some data cannot be updated so we just update the authorized fields.
-        if (updated.getName() != null) {
+        if (updated.getName() != null && !updated.getName().equals(current.getName())) {
             if (alienDAO.count(Cloud.class, QueryBuilders.termQuery("name", updated.getName())) > 0) {
                 throw new AlreadyExistException("a cloud with the given name already exists.");
             }
