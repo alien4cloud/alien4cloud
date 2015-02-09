@@ -475,7 +475,7 @@
                     <div class="col-md-12">{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}} :</div>
                   </div>
                   <div class="row">
-                      <table class="table table-condensed" id="relationshipProperties">
+                      <table class="table table-condensed" id="relationshipProperties_{{relationshipName}}">
                         <tr ng-repeat="(key, property) in topology.relationshipTypes[relationshipDefinition.type].properties">
                           <td ng-init="property.name=key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
                             <property-display

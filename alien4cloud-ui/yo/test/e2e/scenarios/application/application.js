@@ -46,19 +46,9 @@ describe('Applications management :', function() {
     applications.goToApplicationDetailPage('JavaTomcatWarApplication', true);
 
     // check relationship count
-    // check relationship count
-    element(by.id('rect_JavaRPM')).click();
-    browser.waitForAngular();
-    var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-    expect(relationships.count()).toBe(2);
-    element(by.id('rect_Compute_2')).click();
-    browser.waitForAngular();
-    relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-    expect(relationships.count()).toBe(0);
-    element(by.id('rect_Compute')).click();
-    browser.waitForAngular();
-    relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-    expect(relationships.count()).toBe(0);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaRPM', 2);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute_2', 0);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute', 0);
   });
 
   it('should be able to delete an application from the search list and the application\'s detail page', function() {

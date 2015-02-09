@@ -44,6 +44,7 @@ import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
+import alien4cloud.rest.topology.UpdateRelationshipPropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -649,6 +650,23 @@ public class TopologyStepDefinitions {
                 Context.getRestClientInstance().putUrlEncoded(
                         "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/relationships/" + oldRelationshipName + "/updateName",
                         Lists.newArrayList(nvp)));
+    }
+
+    @When("^I update the \"([^\"]*)\" property of the relationship \"([^\"]*)\" into \"([^\"]*)\" from the node template \"([^\"]*)\"$")
+    public void I_update_the_property_of_the_relationship_into_from_the_node_template(String propertyName, String relationshipName, String newValue,
+            String nodeTemplateName)
+            throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+
+        UpdateRelationshipPropertyRequest updatePropertyRequest = new UpdateRelationshipPropertyRequest();
+        updatePropertyRequest.setPropertyName(propertyName);
+        updatePropertyRequest.setPropertyValue(newValue);
+        updatePropertyRequest.setRelationshipType("tosca.relationships.HostedOn");
+        String json = jsonMapper.writeValueAsString(updatePropertyRequest);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/relationships/" + relationshipName + "/updateProperty",
+                        json));
     }
 
     @And("^The topology should have as dependencies$")
