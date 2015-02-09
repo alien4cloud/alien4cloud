@@ -288,6 +288,14 @@ relationship_types:
     description: Relationship to use to describe that the source is hosted (installed/ deployed) on the target node.
     valid_sources: [ tosca.capabilities.Container ]
     valid_targets: [ tosca.capabilities.Container ]
+    properties:
+      password:
+        type: string
+        description: user_pass
+        required: false
+        constraints:
+          - min_length: 6
+          - max_length: 10
   tosca.relationships.ConnectsTo:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ tosca.capabilities.Endpoint ]
