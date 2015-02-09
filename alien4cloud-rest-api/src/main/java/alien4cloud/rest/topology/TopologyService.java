@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -17,8 +18,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.mapping.FilterValuesStrategy;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -31,7 +30,6 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.CSARDependency;
@@ -44,6 +42,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -56,7 +55,6 @@ import alien4cloud.rest.topology.task.SuggestionsTask;
 import alien4cloud.rest.topology.task.TaskCode;
 import alien4cloud.rest.topology.task.TopologyTask;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
@@ -69,6 +67,7 @@ import alien4cloud.utils.VersionUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+@Slf4j
 @Service
 public class TopologyService {
 
@@ -102,7 +101,7 @@ public class TopologyService {
         }
     }
 
-    private void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
+    public void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }
@@ -662,23 +661,7 @@ public class TopologyService {
         if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
             String applicationId = topology.getDelegateId();
             Application application = appService.getOrFail(applicationId);
-            try {
-                AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
-            } catch (AccessDeniedException e) {
-                ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
-                if (version == null) {
-                    throw new NotFoundException("Unable to check user rights for topology as no version associated with the topology can be found.");
-                }
-                ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
-                boolean isDenied = true;
-                for (int i = 0; i < environments.length && isDenied; i++) {
-                    isDenied = !AuthorizationUtil.hasAuthorizationForEnvironment(environments[i], ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-                }
-                if (isDenied) {
-                    throw new AccessDeniedException("user <" + SecurityContextHolder.getContext().getAuthentication().getName()
-                            + "> has no authorization to perform the requested operation on this cloud.");
-                }
-            }
+            AuthorizationUtil.checkAuthorizationForApplication(application, applicationRoles);
         } else {
             AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         }
@@ -887,6 +870,21 @@ public class TopologyService {
             return dataResult.getData()[0];
         }
         return null;
+    }
+
+    /**
+     * Retrieve the topology template from its id
+     *
+     * @param topologyTemplateId
+     * @return
+     */
+    public TopologyTemplate getOrFailTopologyTemplate(String topologyTemplateId) {
+        TopologyTemplate topologyTemplate = alienDAO.findById(TopologyTemplate.class, topologyTemplateId);
+        if (topologyTemplate == null) {
+            log.debug("Failed to recover the topology template <{}>", topologyTemplateId);
+            throw new NotFoundException("Topology template with id [" + topologyTemplateId + "] cannot be found");
+        }
+        return topologyTemplate;
     }
 
 }

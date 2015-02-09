@@ -1,5 +1,4 @@
 /* global d3, d3pie */
-
 'use strict';
 
 var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
@@ -7,10 +6,7 @@ var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
     $scope.app = {};
     $scope.create = function(valid, templateId) {
       if (valid) {
-        if (!angular.isUndefined(templateId)) {
-          // topologyId linked to the topology template
-          $scope.app.topologyId = templateId;
-        }
+        $scope.app.topologyTemplateId = templateId;
         $modalInstance.close($scope.app);
       }
     };
@@ -76,48 +72,60 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
       return appStatuses;
     };
 
-    var colors = {'DEPLOYED': '#398439', 'UNDEPLOYED': '#D8D8D8', 'UNKNOWN': '#505050', 'WARNING': '#DE9600', 'FAILURE': '#C51919',
-      'DEPLOYMENT_IN_PROGRESS': '#2C80D3', 'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'};
+    var colors = {
+      'DEPLOYED': '#398439',
+      'UNDEPLOYED': '#D8D8D8',
+      'UNKNOWN': '#505050',
+      'WARNING': '#DE9600',
+      'FAILURE': '#C51919',
+      'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
+      'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
+    };
 
     var drawPieChart = function(appName, data) {
-      var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
-        return node.data.name;
-      });
 
-      var pie = new d3pie('pieChart-' + appName, {
-        'size': {
-          'canvasWidth': 100,
-          'canvasHeight': 100
-        },
-        'data': {
-          'sortOrder': 'label-asc',
-          'content': data
-        },
-        'labels': {
-          'outer': {
-            'format': 'none'
+      if (data.length > 0) {
+        var tip = d3.tip().attr('class', 'd3-tip').html(function(node) {
+          return node.data.name;
+        });
+
+        var pie = new d3pie('pieChart-' + appName, {
+          'size': {
+            'canvasWidth': 100,
+            'canvasHeight': 100
           },
-          'inner': {
-            'format': 'none'
+          'data': {
+            'sortOrder': 'label-asc',
+            'content': data
+          },
+          'labels': {
+            'outer': {
+              'format': 'none'
+            },
+            'inner': {
+              'format': 'none'
+            }
+          },
+          'effects': {
+            'load': {
+              'effect': 'none'
+            },
+            'pullOutSegmentOnClick': {
+              'effect': 'none'
+            },
+            'highlightSegmentOnMouseover': true,
+            'highlightLuminosity': 0.10
+          },
+          'callbacks': {
+            'onMouseoverSegment': function(data) {
+              tip.show(data);
+            },
+            'onMouseoutSegment': tip.hide
           }
-        },
-        'effects': {
-          'load': {
-            'effect': 'none'
-          },
-          'pullOutSegmentOnClick': {
-            'effect': 'none'
-          },
-          'highlightSegmentOnMouseover': true,
-          'highlightLuminosity': 0.10
-        },
-        'callbacks': {
-          'onMouseoverSegment': function(data) { tip.show(data); },
-          'onMouseoutSegment': tip.hide
-        }
-      });
+        });
 
-      pie.svg.call(tip);
+        pie.svg.call(tip);
+      }
     };
 
     var updateApplicationStatuses = function(applicationSearchResult) {

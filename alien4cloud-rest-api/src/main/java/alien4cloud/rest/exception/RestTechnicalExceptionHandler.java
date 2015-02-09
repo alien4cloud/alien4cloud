@@ -37,6 +37,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.UpdateTopologyException;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
 import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.UpdateApplicationVersionException;
 
 import com.google.common.collect.Lists;
 
@@ -215,6 +216,17 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())
                 .build();
+    }
+
+    @ExceptionHandler(value = UpdateApplicationVersionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> updteApplicationVersionErrorHandler(UpdateApplicationVersionException e) {
+        log.error("Update application version error", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.UPDATE_RELEASED_APPLICATION_VERSION_ERROR)
+                        .message("Update application version error : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = DeleteLastApplicationEnvironmentException.class)

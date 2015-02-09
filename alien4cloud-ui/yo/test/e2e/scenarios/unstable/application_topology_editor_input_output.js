@@ -20,12 +20,12 @@ describe('Topology input/output properties', function() {
   });
 
   var checkPropertyState = function() {
+    browser.sleep(1000);
     topologyEditorCommon.expectPropertyInputState('Compute', 'ip_address', true);
     topologyEditorCommon.expectPropertyOutputState('Compute', 'ip_address', false);
     topologyEditorCommon.expectPropertyOutputState('Compute', 'disk_size', true);
     topologyEditorCommon.expectPropertyInputState('Compute', 'disk_size', false);
-    topologyEditorCommon.expectAttributeOutputState('Compute', 'public_ip_address', true);
-    topologyEditorCommon.expectAttributeOutputState('Compute', 'private_ip_address', true);
+    topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
   };
 
   it('should be able to define properties as input or output and see their values in application details view', function() {
@@ -46,8 +46,7 @@ describe('Topology input/output properties', function() {
 
     topologyEditorCommon.togglePropertyInput('Compute', 'ip_address');
     topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
-    topologyEditorCommon.toggleAttributeOutput('Compute', 'public_ip_address');
-    topologyEditorCommon.toggleAttributeOutput('Compute', 'private_ip_address');
+    topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
 
     checkPropertyState();
 
@@ -63,16 +62,15 @@ describe('Topology input/output properties', function() {
     browser.sleep(1000);
     var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
     browser.actions().click(deployButton).perform();
-    browser.sleep(7000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
+    browser.sleep(9000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
 
     var outputTable = browser.element(by.id('outputPropertiesTable'));
     var outputTableText = outputTable.getText();
     expect(outputTableText).toContain('disk_size');
     expect(outputTableText).toContain('1024');
-    expect(outputTableText).toContain('public_ip_address');
+    expect(outputTableText).toContain('ip_address');
     expect(outputTableText).toContain('10.52.0.');
-    expect(outputTableText).toContain('private_ip_address');
-    expect(outputTableText).toContain('192.168.0.');
+
 
     var inputTable = browser.element(by.id('inputPropertiesTable'));
     var inputTableText = inputTable.getText();
@@ -80,14 +78,14 @@ describe('Topology input/output properties', function() {
     expect(inputTableText).toContain('192.168.1.1');
 
     var undeployButton = browser.element(by.binding('APPLICATIONS.UNDEPLOY'));
+    browser.sleep(1000);
     browser.actions().click(undeployButton).perform();
-    browser.sleep(7000); // DO NOT REMOVE, wait for UNDEPLOY
+    browser.sleep(9000); // DO NOT REMOVE, wait for UNDEPLOY
     outputTableText = outputTable.getText();
     expect(outputTableText).not.toContain('disk_size');
     expect(outputTableText).not.toContain('1024');
-    expect(outputTableText).not.toContain('public_ip_address');
+    expect(outputTableText).not.toContain('ip_address');
     expect(outputTableText).not.toContain('10.52.0.');
-    expect(outputTableText).not.toContain('private_ip_address');
-    expect(outputTableText).not.toContain('192.168.0.');
+
   });
 });

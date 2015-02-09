@@ -49,16 +49,7 @@ module.exports.createTopologyTemplateWithNodesAndRelationships = function(topolo
   topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
 
   // check relationship count
-  element(by.id('rect_JavaRPM')).click();
-  browser.waitForAngular();
-  var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-  expect(relationships.count()).toBe(2);
-  element(by.id('rect_Compute_2')).click();
-  browser.waitForAngular();
-  relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-  expect(relationships.count()).toBe(0);
-  element(by.id('rect_Compute')).click();
-  browser.waitForAngular();
-  relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
-  expect(relationships.count()).toBe(0);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaRPM', 2);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute_2', 0);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute', 0);
 };

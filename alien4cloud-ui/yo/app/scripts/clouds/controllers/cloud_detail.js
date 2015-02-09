@@ -49,7 +49,7 @@ angular.module('alienUiApp').controller(
           $scope.paaSImageIds = response.data.paaSImageIds;
           $scope.paaSFlavorIds = response.data.paaSFlavorIds;
           $scope.paaSNetworkIds = response.data.paaSNetworkTemplateIds;
-          $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;    
+          $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;
           // array of PaaS stuff IDs available for mapping
           $scope.availaiblePaaSImageIds = [];
           $scope.availaiblePaaSFlavorIds = [];
@@ -68,7 +68,7 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
           updateNetworkResourcesStatistic();
           updateStorageResourcesStatistic();
-          
+
           $scope.relatedUsers = {};
           if ($scope.cloud.userRoles) {
             var usernames = [];
@@ -116,24 +116,26 @@ angular.module('alienUiApp').controller(
         });
 
       $scope.updateCloud = function(cloud) {
+        if (cloud.name !== $scope.cloud.name) {
 
-        cloud.id = $scope.cloud.id;
-        $scope.cloudSaving = true;
+          cloud.id = $scope.cloud.id;
+          $scope.cloudSaving = true;
 
-        var resetSaved = function() {
-          $scope.cloudSavedSuccess = false;
-          $scope.cloudSavedError = false;
-        };
+          var resetSaved = function() {
+            $scope.cloudSavedSuccess = false;
+            $scope.cloudSavedError = false;
+          };
 
-        cloudServices.update([], angular.toJson(cloud), function() {
-          $scope.cloudSaving = false;
-          $scope.cloudSavedSuccess = true;
-          $timeout(resetSaved, 500, true);
-        }, function() {
-          $scope.cloudSaving = false;
-          $scope.cloudSavedError = true;
-          $timeout(resetSaved, 500, true);
-        });
+          cloudServices.update([], angular.toJson(cloud), function() {
+            $scope.cloudSaving = false;
+            $scope.cloudSavedSuccess = true;
+            $timeout(resetSaved, 500, true);
+          }, function() {
+            $scope.cloudSaving = false;
+            $scope.cloudSavedError = true;
+            $timeout(resetSaved, 500, true);
+          });
+        }
       };
 
       $scope.enableCloud = function() {
@@ -319,7 +321,7 @@ angular.module('alienUiApp').controller(
         var notConfiguredCount = 0;
         if (paaSResourceIdArr) {
           // clone the array
-          var availablePaaSResourceIdArr = paaSResourceIdArr.slice(0); 
+          var availablePaaSResourceIdArr = paaSResourceIdArr.slice(0);
         }
         angular.forEach(alienResourceMap, function(value, key) {
           if (UTILS.isUndefinedOrNull(value.paaSResourceId)) {
@@ -327,32 +329,32 @@ angular.module('alienUiApp').controller(
           } else if (paaSResourceIdArr) {
             // this resource id is mapped, not available for others
             UTILS.arrayRemove(availablePaaSResourceIdArr, value.paaSResourceId);
-          }          
+          }
         });
         return {counter: notConfiguredCount, arr: availablePaaSResourceIdArr}
       };
-      
+
       // count the number of images that are not associated to a resource id
       var updateImageResourcesStatistic = function() {
         var result = updateResourcesStatistic($scope.paaSImageIds, $scope.images);
         $scope.imageNotConfiguredCount = result.counter;
         $scope.availaiblePaaSImageIds = result.arr;
       };
-      
+
       // count the number of flavors that are not associated to a resource id
       var updateFlavorResourcesStatistic = function() {
         var result = updateResourcesStatistic($scope.paaSFlavorIds, $scope.flavors);
         $scope.flavorNotConfiguredCount = result.counter;
         $scope.availaiblePaaSFlavorIds = result.arr;
-      };   
-      
+      };
+
       // count the number of storages that are not associated to a resource id
       var updateStorageResourcesStatistic = function() {
         var result = updateResourcesStatistic($scope.paaSStorageIds, $scope.storages);
         $scope.storageNotConfiguredCount = result.counter;
         $scope.availaiblePaaSStorageIds = result.arr;
-      };       
-      
+      };
+
       var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
@@ -427,7 +429,7 @@ angular.module('alienUiApp').controller(
           });
         });
       };
-      
+
       $scope.deleteNetwork = function(network) {
         cloudServices.removeNetwork({
           id: $scope.cloud.id,
@@ -449,7 +451,7 @@ angular.module('alienUiApp').controller(
           updateStorageResourcesStatistic();
         });
       };
-      
+
       $scope.selectTemplate = function(template) {
         $scope.selectedTemplate = template;
       };
@@ -483,17 +485,17 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.removeCloudImage = function(imageId) {
-          cloudServices.removeImage({
-              id: $scope.cloud.id, imageId: imageId
-            }, undefined, function(success) {
-              UTILS.arrayRemove($scope.cloud.images, imageId);
-              delete $scope.images[imageId];
-              updateImageResourcesStatistic();
-              updateComputeResources(success.data);
-              $scope.initSearchImageService();
-          });
+        cloudServices.removeImage({
+          id: $scope.cloud.id, imageId: imageId
+        }, undefined, function(success) {
+          UTILS.arrayRemove($scope.cloud.images, imageId);
+          delete $scope.images[imageId];
+          updateImageResourcesStatistic();
+          updateComputeResources(success.data);
+          $scope.initSearchImageService();
+        });
       }
-      
+
       $scope.imageQueryProvider = {
         query: '',
         onSearchCompleted: function(searchResult) {
@@ -504,23 +506,23 @@ angular.module('alienUiApp').controller(
         $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
           exclude: $scope.cloud.images
         });
-        $scope.searchImage();      
+        $scope.searchImage();
       };
       $scope.searchImage = function() {
         $scope.imageAddSelection = [];
         $scope.searchImageService.search();
-      };      
+      };
       $scope.imageQueryChanged = function(query) {
         $scope.imageQueryProvider.query = query;
-      };      
-      
+      };
+
       $scope.switchCloudImageAddSelection = function(imageId) {
         if (UTILS.arrayContains($scope.imageAddSelection, imageId)) {
           UTILS.arrayRemove($scope.imageAddSelection, imageId);
         } else {
           $scope.imageAddSelection.push(imageId);
         }
-      }      
+      }
       $scope.isInCloudImageAddSelection = function(imageId) {
         return UTILS.arrayContains($scope.imageAddSelection, imageId);
       }
@@ -535,22 +537,22 @@ angular.module('alienUiApp').controller(
           });
           // add to the images details map
           angular.forEach($scope.searchImageData.data, function(value, key) {
-              if (UTILS.arrayContains($scope.imageAddSelection, value.id)) {
-                $scope.images[value.id] = {resource: value};
-              }
-          });          
+            if (UTILS.arrayContains($scope.imageAddSelection, value.id)) {
+              $scope.images[value.id] = {resource: value};
+            }
+          });
           $scope.imageAddSelection = [];
           updateImageResourcesStatistic();
           $scope.initSearchImageService();
-        });          
-      };   
-      
-      $scope.onImageDragged  = function(dragEvent) {
+        });
+      };
+
+      $scope.onImageDragged = function(dragEvent) {
         var imageId = angular.fromJson(dragEvent.source)
         $scope.imageAddSelection = [imageId];
         $scope.performAddCloudImageSelection();
       };
-      
+
       $scope.createCloudImage = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/cloud-images/new_cloud_image.html',
@@ -559,68 +561,68 @@ angular.module('alienUiApp').controller(
         });
 
         modalInstance.result.then(function(cloudImageId) {
-          
-          cloudImageServices.get({id : cloudImageId}, function(success) {
-            $scope.images[success.data.id] = {resource : success.data};
+
+          cloudImageServices.get({id: cloudImageId}, function(success) {
+            $scope.images[success.data.id] = {resource: success.data};
             cloudServices.addImage({
               id: $scope.cloud.id
             }, angular.toJson([cloudImageId]), function(success) {
               $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
               updateImageResourcesStatistic();
               updateComputeResources(success.data);
-            });             
+            });
           });
-        });        
+        });
       }
-      
-      // associate a PaaS resource id to a cloud image 
+
+      // associate a PaaS resource id to a cloud image
       $scope.saveImageResourceId = function(cloudImageId, paaSResourceId) {
         savePasSResourceId(
-            cloudImageId, 
-            $scope.images, 
-            paaSResourceId, 
-            cloudServices.setCloudImageResource, 
-            function(result) {
-              updateImageResourcesStatistic();
-              updateComputeResources(result.data);
-            }
-         );        
-      };    
-      
-      // associate a PaaS resource id to a cloud flavor 
-      $scope.saveFlavorResourceId = function(cloudFlavorId, paaSResourceId) {
-        savePasSResourceId(
-            cloudFlavorId, 
-            $scope.flavors, 
-            paaSResourceId, 
-            cloudServices.setCloudFlavorResource, 
-            function(result) {
-              updateFlavorResourcesStatistic();
-              updateComputeResources(result.data);
-            }
+          cloudImageId,
+          $scope.images,
+          paaSResourceId,
+          cloudServices.setCloudImageResource,
+          function(result) {
+            updateImageResourcesStatistic();
+            updateComputeResources(result.data);
+          }
         );
       };
-      
-      // associate a PaaS resource id to a cloud network 
+
+      // associate a PaaS resource id to a cloud flavor
+      $scope.saveFlavorResourceId = function(cloudFlavorId, paaSResourceId) {
+        savePasSResourceId(
+          cloudFlavorId,
+          $scope.flavors,
+          paaSResourceId,
+          cloudServices.setCloudFlavorResource,
+          function(result) {
+            updateFlavorResourcesStatistic();
+            updateComputeResources(result.data);
+          }
+        );
+      };
+
+      // associate a PaaS resource id to a cloud network
       $scope.saveNetworkResourceId = function(cloudNetworkId, paaSResourceId) {
         savePasSResourceId(
-            cloudNetworkId, 
-            $scope.networks, 
-            paaSResourceId, 
-            cloudServices.setCloudNetworkResource, 
-            updateNetworkResourcesStatistic);
-      };   
-      
-      // associate a PaaS resource id to a cloud storage 
+          cloudNetworkId,
+          $scope.networks,
+          paaSResourceId,
+          cloudServices.setCloudNetworkResource,
+          updateNetworkResourcesStatistic);
+      };
+
+      // associate a PaaS resource id to a cloud storage
       $scope.saveStorageResourceId = function(cloudStorageId, paaSResourceId) {
         savePasSResourceId(
-            cloudStorageId, 
-            $scope.storages, 
-            paaSResourceId, 
-            cloudServices.setCloudStorageResource, 
-            updateStorageResourcesStatistic);
-      };        
-      
+          cloudStorageId,
+          $scope.storages,
+          paaSResourceId,
+          cloudServices.setCloudStorageResource,
+          updateStorageResourcesStatistic);
+      };
+
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
         if (paaSResourceId === null || paaSResourceId === '') {
@@ -634,8 +636,8 @@ angular.module('alienUiApp').controller(
           pasSResourceId: paaSResourceId
         }, undefined, function(result) {
           callbackFn(result);
-        });        
+        });
       };
-      
+
     }
   ]);

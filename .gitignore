@@ -44,4 +44,3 @@ alien4cloud-mock-paas-provider-plugin/.gitignore
 alien4cloud-rest-api/data/
 alien4cloud-security/.gitignore
 alien4cloud-ui/data/
-alien4cloud.log

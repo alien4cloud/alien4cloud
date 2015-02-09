@@ -14,7 +14,7 @@
   "CSAR": "Csar",
   "TRUE": "Vrai",
   "FALSE": "Faux",
-  "YES" : "Oui",
+  "YES": "Oui",
   "NO": "Non",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
@@ -319,6 +319,10 @@
       "TITLE_NETWORK": "Nom du réseau",
       "TITLE_STORAGE": "Nom du volume",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Réseau",
+      "CLOUD_ERROR_TITLE": "Sélectionner un cloud",
+      "CLOUD_ERROR_MESSAGE": "Vous n'avez pas les droits suffisants sur le cloud associé ou le cloud n'est pas activé pour déployer. Veuillez contacter votre administrateur.",
       "COMPUTE_RESOURCES": "Machines",
       "NETWORK_RESOURCES": "Réseaux",
       "STORAGE_RESOURCES": "Volumes",
@@ -343,6 +347,7 @@
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
@@ -535,7 +540,7 @@
       "LOCATION": "Point de montage",
       "SIZE": "Size",
       "NEW_MODAL_TITLE": "Créer un nouveau volume"
-    },    
+    },
     "IAAS": {
       "OTHER": "Autre",
       "OPENSTACK": "OpenStack",
@@ -635,6 +640,7 @@
     "604": "Une application doit nécéssairement avoir au moins un environnement",
     "607": "Un environnement déployé ne peut être supprimé",
     "605": "Le format de version saisie est invalide",
+    "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",

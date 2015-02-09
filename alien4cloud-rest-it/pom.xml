@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM20-SNAPSHOT</version>
+    <version>1.0.0-SM21-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-rest-it</artifactId>
   <packaging>war</packaging>
@@ -53,8 +53,9 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-all</artifactId>
+      <version>5.0.0.Alpha2</version>
+      <classifier>ALIEN4CLOUD</classifier>
       <scope>test</scope>
-      <version>5.0.0.Alpha2-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

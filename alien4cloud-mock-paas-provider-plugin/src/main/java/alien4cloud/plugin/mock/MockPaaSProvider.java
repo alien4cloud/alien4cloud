@@ -63,8 +63,9 @@ import com.google.common.collect.Lists;
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
 
-    public static final String PRIVATE_IP = "private_ip_address";
-    public static final String PUBLIC_IP = "public_ip_address";
+    public static final String PUBLIC_IP = "ip_address";
+    public static final String TOSCA_ID = "tosca_id";
+    public static final String TOSCA_NAME = "tosca_name";
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
@@ -149,10 +150,10 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     private InstanceInformation newInstance(int i) {
         Map<String, String> properties = Maps.newHashMap();
         Map<String, String> attributes = Maps.newHashMap();
-        attributes.put(PRIVATE_IP, "192.168.0." + i);
         attributes.put(PUBLIC_IP, "10.52.0." + i);
+        attributes.put(TOSCA_ID, "1.0-wd03");
+        attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
-        runtimeProperties.put(PRIVATE_IP, "192.168.0." + i);
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
         return new InstanceInformation("init", InstanceStatus.PROCESSING, properties, attributes, runtimeProperties);
     }

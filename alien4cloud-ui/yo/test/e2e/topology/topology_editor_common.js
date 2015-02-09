@@ -243,9 +243,9 @@ module.exports.addRelationship = function(relationshipDescription) {
 
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
-
   var countRelationship = 0;
-  var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
+  var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
+  browser.waitForAngular();
 
   // get a relationship array
   var relationshipList = relationships.map(function(elem, index) {
@@ -254,6 +254,7 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
       relationshipName: elem.element(by.tagName('span')).getText()
     };
   });
+  browser.waitForAngular();
 
   // when my relationship array is ready i do some test on it
   relationshipList.then(function(arrayRelationship) {
@@ -263,7 +264,6 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
       if (relationship.relationshipName.replace(/ /g, '').search(relationshipsNameStart) > -1) {
         countRelationship++;
       }
-
     });
 
     // test expected size
@@ -437,5 +437,18 @@ var expectAttributeOutputState = function(nodeTemplateName, propertyName, checke
     expect(ioButton.getAttribute('class')).not.toContain('active');
   }
 };
-
 module.exports.expectAttributeOutputState = expectAttributeOutputState;
+
+var checkNumberOfRelationship = function(expectedCount) {
+  var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
+  browser.waitForAngular();
+  expect(relationships.count()).toBe(expectedCount);
+};
+module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
+
+var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
+  element(by.id(nodeName)).click();
+  browser.waitForAngular();
+  checkNumberOfRelationship(expectedCount);
+};
+module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;

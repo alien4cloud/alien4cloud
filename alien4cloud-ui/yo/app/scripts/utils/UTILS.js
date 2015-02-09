@@ -222,4 +222,4 @@ UTILS.array2csv = function(array) {
     result = result + array[i];
   }
   return result;
-}
+};

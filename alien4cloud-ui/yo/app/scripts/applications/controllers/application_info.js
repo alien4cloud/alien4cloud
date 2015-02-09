@@ -2,13 +2,14 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$state', 'alienAuthService', '$upload', '$translate',
-  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application',
-  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult) {
+  'applicationServices', 'suggestionServices', 'tagConfigurationServices', 'toaster', 'application', 'appEnvironments',
+  function($scope, $state, alienAuthService, $upload, $translate, applicationServices, suggestionServices, tagConfigurationServices, toaster, applicationResult, appEnvironments) {
 
     /* Tag name with all letters a-Z and - and _ and no space */
     $scope.tagKeyPattern = /^[\-\w\d_]*$/;
     $scope.application = applicationResult.data;
     $scope.applicationId = $scope.application.id;
+    var pageStateId = $state.current.name;
 
     $scope.isManager = alienAuthService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
     $scope.isDeployer = alienAuthService.hasResourceRole($scope.application, 'DEPLOYMENT_MANAGER');
@@ -17,6 +18,34 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
     $scope.newAppName = $scope.application.name;
 
     $scope.isAllowedModify = UTILS.isDefinedAndNotNull($scope.application.topologyId) && ($scope.isManager || $scope.isDevops);
+    $scope.envs = appEnvironments.environments;
+
+    $scope.selectedTab = null;
+    $scope.selectTab = function selectTab(applicationId, environmentId) {
+      $scope.selectedTab = {
+        appId: applicationId,
+        envId: environmentId
+      };
+
+    };
+
+    // when scope change, stop current event listener
+    $scope.$on('$destroy', function() {
+      $scope.stopEvent();
+    });
+
+    // whatching $scope.selectTab changes
+    $scope.$watch('selectedTab', function(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        $scope.stopEvent();
+        $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
+          // get informations from this topology
+          $scope.processTopologyInformations(result.data).$promise.then(function() {
+            $scope.refreshInstancesStatuses(newValue.appId, newValue.envId, pageStateId);
+          });
+        });
+      }
+    });
 
     // Upload handler
     $scope.doUpload = function(file) {
@@ -145,7 +174,8 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
       }, angular.toJson(applicationUpdateRequest), undefined).$promise.then(
         function() {
           // Success
-        }, function(errorResponse) {
+        },
+        function(errorResponse) {
           // Error
           return $translate('ERRORS.' + errorResponse.data.error.code);
         }
