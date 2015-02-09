@@ -136,11 +136,11 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.deleteCoudNetwork('NETWORK1');
     expect(cloudsCommon.countNetworkCloud()).toBe(1);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('NETWORK2_resourceId', 'yetAnotherResourceId-NETWORK-0', 'value in availaiblePaaSNetworkIds', 9);
-        
-    cloudsCommon.addNewStorage('STORAGE1', '', '', 1024);
+
+    cloudsCommon.addNewStorage('STORAGE1', '/etc/dev1', 1024);
     expect(cloudsCommon.countStorageCloud()).toBe(1);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('STORAGE1_resourceId', 'yetAnotherResourceId-VOLUME-0', 'value in availaiblePaaSStorageIds', 10);
-    cloudsCommon.addNewStorage('STORAGE2', '', '', 1024);
+    cloudsCommon.addNewStorage('STORAGE2', '/etc/dev2', 1024);
     expect(cloudsCommon.countStorageCloud()).toBe(2);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('STORAGE2_resourceId', 'yetAnotherResourceId-VOLUME-1', 'value in availaiblePaaSStorageIds', 9);
     cloudsCommon.deleteCoudStorage('STORAGE1');

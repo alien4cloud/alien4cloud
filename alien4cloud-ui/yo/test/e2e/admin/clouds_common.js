@@ -233,12 +233,11 @@ var deleteCoudNetwork = function(name) {
 };
 module.exports.deleteCoudNetwork = deleteCoudNetwork;
 
-var addNewStorage = function(id, device, location, size) {
+var addNewStorage = function(id, device, size) {
   goToCloudDetailStorage();
   browser.element(by.id('clouds-storage-add-button')).click();
   genericForm.sendValueToPrimitive('id', id, false, 'input');
   genericForm.sendValueToPrimitive('device', device, false, 'input');
-  genericForm.sendValueToPrimitive('location', location, false, 'input');
   genericForm.sendValueToPrimitive('size', size, false, 'input');
   browser.actions().click(element(by.id("new-storage-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
   browser.waitForAngular();
