@@ -549,6 +549,7 @@
                           <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
                           <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
                           <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.IS_EXTERNAL' | translate}}</th>
                           <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
                           <th></th>
                         </tr>
@@ -559,6 +560,7 @@
                           <td>{{network.cidr}}</td>
                           <td>{{network.gatewayIp || '---'}}</td>
                           <td>{{network.ipVersion}}</td>
+                          <td>{{'CLOUDS.NETWORKS.IS_EXTERNAL_' + network.isExternal | translate}}</td>
                           <td ng-class="{'has-error': !networks[network.id].paaSResourceId}">
                             <span ng-if="!cloud.enabled" >{{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
                             <span ng-if="!paaSNetworkIds && cloud.enabled" editable-text="networks[network.id].paaSResourceId" buttons="no" onaftersave="saveNetworkResourceId(network.id, networks[network.id].paaSResourceId)" blur="submit">
@@ -642,7 +644,7 @@
                         <tr ng-repeat="storage in cloud.storages" id='cloud_storages_{{storage.id}}'>
                           <td>{{storage.id}}</td>
                           <td>{{storage.device || '---'}}</td>
-                          <td>{{storage.size | bytes}}</td>
+                          <td>{{storage.size}} GB</td>
                           <td ng-class="{'has-error': !storages[storage.id].paaSResourceId}">
                             <span ng-if="!cloud.enabled" >{{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
                             <span ng-if="!paaSStorageIds && cloud.enabled" editable-text="storages[storage.id].paaSResourceId" buttons="no" onaftersave="saveStorageResourceId(storage.id, storages[storage.id].paaSResourceId)" blur="submit">

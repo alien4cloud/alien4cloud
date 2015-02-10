@@ -355,8 +355,7 @@
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)" class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
                       <td>
-                        <i ng-if="!computeImage" class="fa fa-image fa-3x"></i>
-                        <img ng-if="computeImage" ng-src="{{computeImage?('img?id=' + computeImage + '&quality=QUALITY_64'):null}}" />
+                        <img ng-src="{{getResourceIcon(computeImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
                       <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
@@ -422,8 +421,7 @@
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedNetworkResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedNetworks(key, templates)" class="clickable-media" ng-class="{'info': isSelectedNetworkName(key), 'danger': !selectedNetworks[key]}">
                       <td>
-                        <i ng-if="!networkImage" class="fa fa-image fa-3x"></i>
-                        <img ng-if="networkImage" ng-src="{{networkImage?('img?id=' + networkImage + '&quality=QUALITY_64'):null}}" />
+                        <img ng-src="{{getResourceIcon(networkImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
                       <td>{{selectedNetworks[key].id}}</td>
@@ -477,8 +475,7 @@
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedStorageResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedStorages(key, templates)" class="clickable-media" ng-class="{'info': isSelectedStorageName(key), 'danger': !selectedStorages[key]}">
                       <td>
-                        <i ng-if="!storageImage" class="fa fa-image fa-3x"></i>
-                        <img ng-if="storageImage" ng-src="{{storageImage?('img?id=' + storageImage + '&quality=QUALITY_64'):null}}" />
+                        <img ng-src="{{getResourceIcon(storageImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
                       <td>{{selectedStorages[key].id}}</td>
@@ -503,14 +500,14 @@
                       <td>{{storage.id}}</td>
                       <td>{{storage.device || '---'}}</td>
                       <td>{{storage.location || '---'}}</td>
-                      <td>{{storage.size | bytes}}</td>
+                      <td>{{storage.size}} GB</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-        </tab>        
+        </tab>
       </tabset>
     </div>
   </div>

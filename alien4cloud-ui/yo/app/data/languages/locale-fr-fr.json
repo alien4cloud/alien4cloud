@@ -531,6 +531,9 @@
       "CIDR": "CIDR",
       "GATEWAY_IP": "IP du Gateway",
       "IP_VERSION": "Version d'IP",
+      "IS_EXTERNAL": "Réseau externe",
+      "IS_EXTERNAL_true": "Oui",
+      "IS_EXTERNAL_false": "Non",
       "NEW_MODAL_TITLE": "Créer un nouveau réseau"
     },
     "STORAGE": "Volumes",

@@ -12,6 +12,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Initialization
     $scope.application = applicationResult.data;
     $scope.envs = appEnvironments.deployEnvironments;
+    $scope.getResourceIcon = function(defaultImage, key) {
+      var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
+      if (UTILS.isDefinedAndNotNull(tags)) {
+        return 'img?id=' + (UTILS.isDefinedAndNotNull(defaultImage) ? defaultImage : UTILS.getIcon(tags)) + '&quality=QUALITY_64';
+      } else {
+        return null;
+      }
+    };
 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
@@ -20,6 +28,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         refreshDeploymentSetup();
       });
     }
+
     setEnvironment($scope.envs[0]); // default env
 
     function initializeCloudList() {
@@ -30,6 +39,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.clouds = clouds;
       });
     }
+
     initializeCloudList();
 
     // update the configuration for the cloud

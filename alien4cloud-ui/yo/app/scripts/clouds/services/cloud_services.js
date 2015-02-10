@@ -5,7 +5,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var networkFormDescriptor = {
       "_type": "complex",
-      "_order": [ "networkName", "ipVersion", "cidr", "gatewayIp"],
+      "_order": [ "networkName", "ipVersion", "isExternal", "cidr", "gatewayIp"],
       "_propertyType": {
         "networkName": {
           "_label": "CLOUDS.NETWORKS.NAME",
@@ -56,7 +56,6 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
             "_notNull": true,
             "_step": 0.5,
             "_unit": "GB",
-            "_multiplier": 1024 * 1024 * 1024,
             "_constraints": [
               {
                 "greaterThan": 0

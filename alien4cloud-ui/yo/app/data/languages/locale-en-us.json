@@ -523,6 +523,9 @@
       "CIDR": "CIDR",
       "GATEWAY_IP": "Gateway's IP",
       "IP_VERSION": "IP version",
+      "IS_EXTERNAL": "External Network",
+      "IS_EXTERNAL_true": "Yes",
+      "IS_EXTERNAL_false": "No",
       "NEW_MODAL_TITLE": "Create a new network"
     },
     "STORAGE": "Block Storages",
