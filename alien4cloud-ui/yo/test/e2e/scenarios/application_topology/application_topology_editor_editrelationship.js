@@ -42,6 +42,7 @@ describe('Editing Relationship name', function() {
     browser.waitForAngular();
     relashionshipDiv = element(by.id('relationship_hostedOnCompute_renamed'));
     relNameSpan = relashionshipDiv.element(by.css('span[editable-text]'));
+    browser.sleep(3000);
     topologyEditorCommon.checkCreatedRelationship('hostedOnCompute_renamed', 1);
 
     // fail update
@@ -53,5 +54,31 @@ describe('Editing Relationship name', function() {
     editForm.submit();
     browser.waitForAngular();
     topologyEditorCommon.checkCreatedRelationship('hostedOnCompute_renamed', 1);
+  });
+
+  it('should be able to update a property of a relationship', function() {
+    console.log('################# should be able to update a property of a relationship.');
+
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
+    topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
+
+    var javaNode = element(by.id('rect_JavaRPM'));
+    javaNode.click();
+    browser.waitForAngular();
+
+    var relashionshipPropertyDiv = element(by.id('relationshipProperties_hostedOnCompute'));
+    expect(relashionshipPropertyDiv.isDisplayed()).toBe(true);
+    expect(element(by.id('p_name_password')).isPresent()).toBe(true);
+
+    var relPropertySpan = relashionshipPropertyDiv.element(by.css('span[editable-text]'));
+    expect(relPropertySpan.isDisplayed()).toBe(true);
+    relPropertySpan.click();
+    var editForm = relashionshipPropertyDiv.element(by.tagName('form'));
+    var editInput = editForm.element(by.tagName('input'));
+    editInput.clear();
+    editInput.sendKeys('mypassword');
+    editForm.submit();
+    common.expectNoErrors();
+    browser.waitForAngular();
   });
 });
