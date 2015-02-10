@@ -10,6 +10,7 @@ import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
 import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
+import alien4cloud.it.cloud.CloudStorageStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetup;
@@ -17,6 +18,7 @@ import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
@@ -156,6 +158,7 @@ public class ApplicationResourceMatcherStepDefinitions {
         Context.getInstance().registerRestResponse(response);
     }
 
+
     @And("^The deployment setup of the application should contain following network mapping:$")
     public void The_deployment_setup_of_the_application_should_contain_following_network_mapping(DataTable networksMatching) throws Throwable {
         Map<String, NetworkTemplate> expectedNetworksMatching = Maps.newHashMap();
@@ -190,5 +193,41 @@ public class ApplicationResourceMatcherStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
                 .getData();
         Assert.assertTrue(deploymentSetup.getNetworkMapping() == null || deploymentSetup.getNetworkMapping().isEmpty());
+    }
+
+    @Then("^I should receive a match result with (\\d+) storages for the node \"([^\"]*)\":$")
+    public void I_should_receive_a_match_result_with_storages_for_the_node_(int numberOfStorages, String storageNodeName, DataTable expectedTemplatesTable)
+            throws Throwable {
+        RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
+                CloudResourceTopologyMatchResult.class);
+        Assert.assertNull(matchResultResponse.getError());
+        Assert.assertNotNull(matchResultResponse.getData());
+        Assert.assertNotNull(matchResultResponse.getData().getStorageMatchResult());
+        Assert.assertTrue(matchResultResponse.getData().getStorageMatchResult().containsKey(storageNodeName));
+        CloudStorageStepDefinitions.assertStorages(numberOfStorages,
+                Sets.newHashSet(matchResultResponse.getData().getStorageMatchResult().get(storageNodeName)), expectedTemplatesTable);
+    }
+
+    @Then("^I should receive a match result with no storages for the node \"([^\"]*)\"$")
+    public void I_should_receive_a_match_result_with_no_storages_for_the_node(String storageNodeName) throws Throwable {
+        RestResponse<CloudResourceTopologyMatchResult> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(),
+                CloudResourceTopologyMatchResult.class);
+        Assert.assertTrue(matchResultResponse.getData().getStorageMatchResult() == null
+                || matchResultResponse.getData().getStorageMatchResult().get(storageNodeName).isEmpty());
+    }
+
+    @When("^I select the storage with name \"([^\"]*)\" for my node \"([^\"]*)\"$")
+    public void I_select_the_the_storage_with_name_for_my_node(String storageName, String nodeName) throws Throwable {
+        Context.getInstance().getCloudForTopology();
+        String cloudId = Context.getInstance().getCloudForTopology();
+        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+        Map<String, StorageTemplate> storageMatching = Maps.newHashMap();
+        storageMatching.put(nodeName, cloudDTO.getStorages().get(storageName).getResource());
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, null, storageMatching);
+        Application application = Context.getInstance().getApplication();
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
     }
 }
