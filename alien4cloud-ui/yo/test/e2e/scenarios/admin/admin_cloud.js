@@ -41,7 +41,7 @@ describe('Test the cloud management: ', function() {
 
   it('should create network', function() {
     cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.addNewNetwork('private', '192.168.0.0/24', '192.168.0.1', '4');
+    cloudsCommon.addNewNetwork('private', '192.168.0.0/24', false, '192.168.0.1', '4');
     expect(cloudsCommon.countNetworkCloud()).toBe(1);
     cloudsCommon.assignPaaSIdToNetwork('private', 'alienPrivateNetwork');
   });
@@ -121,16 +121,16 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('MEDIUM_resourceId', 'yetAnotherResourceId-FLAVOR-0', 'value in availaiblePaaSFlavorIds', 10);
     // at this stage we should have 2 templates
     expect(cloudsCommon.countTemplateCloud()).toBe(2);
-    
+
     cloudsCommon.goToCloudDetailImage();
     cloudsCommon.deleteCoudImage('MyImage1');
     expect(cloudsCommon.countImageCloud()).toBe(1);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('MyImage2_resourceId', 'yetAnotherResourceId-IMAGE-0', 'value in availaiblePaaSImageIds', 9);
-    
-    cloudsCommon.addNewNetwork('NETWORK1', '', '', '4');
+
+    cloudsCommon.addNewNetwork('NETWORK1', '', false, '', '4');
     expect(cloudsCommon.countNetworkCloud()).toBe(1);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('NETWORK1_resourceId', 'yetAnotherResourceId-NETWORK-0', 'value in availaiblePaaSNetworkIds', 10);
-    cloudsCommon.addNewNetwork('NETWORK2', '', '', '4');
+    cloudsCommon.addNewNetwork('NETWORK2', '', false, '', '4');
     expect(cloudsCommon.countNetworkCloud()).toBe(2);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('NETWORK2_resourceId', 'yetAnotherResourceId-NETWORK-1', 'value in availaiblePaaSNetworkIds', 9);
     cloudsCommon.deleteCoudNetwork('NETWORK1');

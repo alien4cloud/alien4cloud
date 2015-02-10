@@ -215,11 +215,12 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
 };
 module.exports.addNewFlavor = addNewFlavor;
 
-var addNewNetwork = function(name, cidr, gateway, ipVersion) {
+var addNewNetwork = function(name, cidr, isExternal, gateway, ipVersion) {
   goToCloudDetailNetwork();
   browser.element(by.id('clouds-network-add-button')).click();
   genericForm.sendValueToPrimitive('networkName', name, false, 'input');
   genericForm.sendValueToPrimitive('cidr', cidr, false, 'input');
+  genericForm.sendValueToPrimitive('isExternal', isExternal, false, 'radio');
   genericForm.sendValueToPrimitive('gatewayIp', gateway, false, 'input');
   genericForm.sendValueToPrimitive('ipVersion', ipVersion, false, 'select');
   browser.actions().click(element(by.id("new-network-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();

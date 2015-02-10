@@ -77,14 +77,14 @@ describe('Manually match resources for cloud', function() {
     cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
     cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
     cloudsCommon.goToCloudDetail('testcloud');
-    
+
     // The deploy button must not be available
     expectDeploymentWork(true, false);
 
     authentication.reLogin('admin');
     cloudsCommon.goToCloudList();
     cloudsCommon.goToCloudDetail('testcloud');
-    cloudsCommon.addNewNetwork('private', '192.168.0.0/24', '192.168.0.1', '4');
+    cloudsCommon.addNewNetwork('private', '192.168.0.0/24', false, '192.168.0.1', '4');
     cloudsCommon.assignPaaSIdToNetwork('private', 'alienPrivateNetwork');
 
     // The deploy button must be available
