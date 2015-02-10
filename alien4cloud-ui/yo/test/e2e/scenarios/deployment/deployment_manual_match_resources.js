@@ -41,21 +41,7 @@ describe('Manually match resources for cloud', function() {
     common.after();
   });
 
-  var expectDeploymentWork = function(goToAppDetail, work) {
-    if (goToAppDetail) {
-      authentication.reLogin('applicationManager');
-      applications.goToApplicationDetailPage('Alien', false);
-      navigation.go('applications', 'deployment');
-    }
-    var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
-    if (work) {
-      expect(deployButton.getAttribute('disabled')).toBeNull();
-      expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
-    } else {
-      expect(deployButton.getAttribute('disabled')).toEqual('true');
-      expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).toContain('text-danger');
-    }
-  };
+
 
   it('should not be able to deploy application if resource is not matched', function() {
     console.log('should not be able to deploy application if compute is not matched');
@@ -65,7 +51,7 @@ describe('Manually match resources for cloud', function() {
     var selected = cloudsCommon.selectApplicationCloud('testcloud');
     expect(selected).toBe(true);
     // Deployment do not work as no compute template added to cloud
-    expectDeploymentWork(false, false);
+    topologyEditorCommon.expectDeploymentWork(false, false);
 
     // Fill cloud with proper resources matching
     authentication.reLogin('admin');
@@ -79,7 +65,7 @@ describe('Manually match resources for cloud', function() {
     cloudsCommon.goToCloudDetail('testcloud');
 
     // The deploy button must not be available
-    expectDeploymentWork(true, false);
+    topologyEditorCommon.expectDeploymentWork(true, false);
 
     authentication.reLogin('admin');
     cloudsCommon.goToCloudList();
@@ -88,7 +74,7 @@ describe('Manually match resources for cloud', function() {
     cloudsCommon.assignPaaSIdToNetwork('private', 'alienPrivateNetwork');
 
     // The deploy button must be available
-    expectDeploymentWork(true, true);
+    topologyEditorCommon.expectDeploymentWork(true, true);
   });
 
 });

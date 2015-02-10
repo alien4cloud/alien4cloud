@@ -10,7 +10,7 @@ var componentData = require('../../topology/component_data');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 
 
-describe('Application Deployment :', function() {
+describe('Application Deployment matcher :', function() {
   var reset = true;
   var after = false;
 
@@ -67,10 +67,58 @@ describe('Application Deployment :', function() {
   });
 
   it('should propose match between the node and the templates.', function() {
-    after = true;
     console.log('################# should propose match between the node and the templates.');
     element(by.id("tr-node-Compute")).click();
     var templates = element.all(by.repeater('template in currentMatchedComputeTemplates'));
     expect(templates.count()).toBe(2);
+  });
+
+  it('should display the matcher when we add a network without network in cloud.', function() {
+    console.log('################# should display the matcher when we add a network without network in cloud.');
+    applications.goToApplicationTopologyPage();
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom({ network: componentData.toscaBaseTypes.network() });
+    applications.goToApplicationDeploymentPage();
+    topologyEditorCommon.expectDeploymentWork(false, false);
+  });
+
+  it('should be able to asociate a network.', function() {
+    console.log('################# should be able to asociate a network.');
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.addNewNetwork('NETWORK1', '', false, '', '4');
+    expect(cloudsCommon.countNetworkCloud()).toBe(1);
+
+    applications.goToApplicationDetailPage('Alien', true);
+    applications.goToApplicationDeploymentPage();
+    element(by.id('tab-network-resources')).element(by.tagName('a')).click();
+    browser.element(by.id('tr-node-Network')).click();
+    browser.actions().click(element.all(by.repeater('network in currentMatchedNetworks')).first()).perform();
+    browser.waitForAngular();
+    topologyEditorCommon.expectDeploymentWork(false, true);
+  });
+
+  it('should display the matcher when we add a storage without storage in cloud.', function() {
+    console.log('################# should display the matcher when we add a volume without volume in cloud.');
+    applications.goToApplicationTopologyPage();
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom({ network: componentData.toscaBaseTypes.blockstorage() });
+    topologyEditorCommon.addRelationshipToNode('BlockStorage', 'Compute', 'attach', 'tosca.relationships.HostedOn:2.0', 'hostedOnCompute');
+    applications.goToApplicationDeploymentPage();
+    browser.waitForAngular();
+    topologyEditorCommon.expectDeploymentWork(false, false);
+  });
+
+  it('should be able to asociate a storage.', function() {
+    after = true;
+    console.log('################# should be able to asociate a storage.');
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.addNewStorage('STORAGE1', '/etc/dev1', 1024);
+    expect(cloudsCommon.countStorageCloud()).toBe(1);
+
+    applications.goToApplicationDetailPage('Alien', true);
+    applications.goToApplicationDeploymentPage();
+    element(by.id('tab-storage-resources')).element(by.tagName('a')).click();
+    browser.element(by.id('tr-node-BlockStorage')).click();
+    browser.actions().click(element.all(by.repeater('(key, templates) in matchedStorageResources')).first()).perform();
+    browser.waitForAngular();
+    topologyEditorCommon.expectDeploymentWork(false, true);
   });
 });
