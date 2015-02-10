@@ -116,7 +116,7 @@ angular.module('alienUiApp').controller(
             }
           }
         });
-      }
+      };
 
       refreshCloud();
       // get all cloud assignable roles
@@ -127,25 +127,26 @@ angular.module('alienUiApp').controller(
       });
 
       $scope.updateCloud = function(cloud) {
-        if (cloud.name !== $scope.cloud.name) {
-          cloud.id = $scope.cloud.id;
-          $scope.cloudSaving = true;
-
-          var resetSaved = function() {
-            $scope.cloudSavedSuccess = false;
-            $scope.cloudSavedError = false;
-          };
-
-          cloudServices.update([], angular.toJson(cloud), function() {
-            $scope.cloudSaving = false;
-            $scope.cloudSavedSuccess = true;
-            $timeout(resetSaved, 500, true);
-          }, function() {
-            $scope.cloudSaving = false;
-            $scope.cloudSavedError = true;
-            $timeout(resetSaved, 500, true);
-          });
+        if (cloud.hasOwnProperty('name') && Object.keys(cloud).length === 1 && cloud.name === $scope.cloud.name) {
+          return;
         }
+        cloud.id = $scope.cloud.id;
+        $scope.cloudSaving = true;
+
+        var resetSaved = function() {
+          $scope.cloudSavedSuccess = false;
+          $scope.cloudSavedError = false;
+        };
+
+        cloudServices.update([], angular.toJson(cloud), function() {
+          $scope.cloudSaving = false;
+          $scope.cloudSavedSuccess = true;
+          $timeout(resetSaved, 500, true);
+        }, function() {
+          $scope.cloudSaving = false;
+          $scope.cloudSavedError = true;
+          $timeout(resetSaved, 500, true);
+        });
       };
 
       $scope.enableCloud = function() {
@@ -402,7 +403,7 @@ angular.module('alienUiApp').controller(
         cloudServices.removeNetwork({
           id: $scope.cloud.id,
           networkName: networkName
-        }, undefined, function(success) {
+        }, undefined, function() {
           delete $scope.networks[networkName];
           var indexOfNetwork = $scope.cloud.networks.indexOf(networkName);
           $scope.cloud.networks.splice(indexOfNetwork, 1);
@@ -480,10 +481,10 @@ angular.module('alienUiApp').controller(
         } else {
           $scope.imageRemoveSelection.push(imageId);
         }
-      }
+      };
       $scope.isInCloudImageRemoveSelection = function(imageId) {
         return UTILS.arrayContains($scope.imageRemoveSelection, imageId);
-      }
+      };
       $scope.performRemoveCloudImageSelection = function() {
         if ($scope.imageRemoveSelection.length > 0) {
           cloudServices.removeImages({
@@ -497,7 +498,7 @@ angular.module('alienUiApp').controller(
             $scope.initSearchImageService();
           });
         }
-      }
+      };
 
       $scope.imageQueryProvider = {
         query: '',
@@ -508,7 +509,7 @@ angular.module('alienUiApp').controller(
             $scope.images[value.id] = value;
           });
         }
-      }
+      };
       $scope.initSearchImageService = function() {
         $scope.searchImageService = searchServiceFactory('rest/cloud-images/search', false, $scope.imageQueryProvider, 5, undefined, undefined, undefined, {
           exclude: $scope.cloud.images
@@ -529,10 +530,10 @@ angular.module('alienUiApp').controller(
         } else {
           $scope.imageAddSelection.push(imageId);
         }
-      }
+      };
       $scope.isInCloudImageAddSelection = function(imageId) {
         return UTILS.arrayContains($scope.imageAddSelection, imageId);
-      }
+      };
       $scope.performAddCloudImageSelection = function() {
         cloudServices.addImage({
           id: $scope.cloud.id
@@ -542,7 +543,7 @@ angular.module('alienUiApp').controller(
           $scope.imageAddSelection = [];
           $scope.initSearchImageService();
         });
-      }
+      };
       $scope.createCloudImage = function() {
         var modalInstance = $modal.open({
           templateUrl: 'views/cloud-images/new_cloud_image.html',
@@ -564,6 +565,6 @@ angular.module('alienUiApp').controller(
             });
           });
         });
-      }
+      };
     }
   ]);
