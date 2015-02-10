@@ -1,29 +1,28 @@
-/* global d3 */
-
+/* global d3, UTILS */
 'use strict';
 
 angular.module('alienUiApp').directive(
   'topologyRendering', ['topologySvgFactory', 'defaultNodeRendererService', 'simpleNodeRendererService',
     function(topologySvgFactory, defaultNodeRendererService, simpleNodeRendererService) {
       return {
-        restrict : 'E',
-        scope : {
+        restrict: 'E',
+        scope: {
           callback: '&',
           topology: '=',
           dimensions: '=',
           runtime: '=',
           simple: '='
         },
-        link : function(scope, element) {
+        link: function(scope, element) {
           // Default parent svg markup to render the topology
           var topologyElement = d3.select(element[0]);
 
           function getNodeRenderer() {
-            if(scope.runtime || !scope.simple) {
-              defaultNodeRendererService.setRuntime(scope.runtime);
-              return defaultNodeRendererService;
+            var nodeRendererService = scope.simple === true ? simpleNodeRendererService : defaultNodeRendererService;
+            if (UTILS.isDefinedAndNotNull(scope.runtime)) {
+              nodeRendererService.setRuntime(scope.runtime);
             }
-            return simpleNodeRendererService;
+            return nodeRendererService;
           }
 
           var nodeRenderer = getNodeRenderer();

@@ -130,14 +130,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
           }
         }
       })
-      // .state('applications.detail.plans', {
-      //   url: '/workflow',
-      //   templateUrl: 'views/topology/plan_graph.html',
-      //   controller: 'TopologyPlanGraphCtrl',
-      //   resolve: {
-      //     topologyId: function() { return null; }
-      //   }
-      // })
       .state('applications.detail.deployment', {
         url: '/deployment',
         templateUrl: 'views/applications/application_deployment.html',
@@ -146,13 +138,6 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         url: '/runtime',
         templateUrl: 'views/applications/topology_runtime.html',
         controller: 'TopologyRuntimeCtrl'
-          // resolve: {
-          //   topologyId: function() {
-          //     // TODO : remove this when topology template will use version aswell
-          //     // Then we won't ned to give topologyId as param
-          //     return null;
-          //   }
-          // }
       }).state('applications.detail.users', {
         url: '/users',
         templateUrl: 'views/applications/application_users.html',
