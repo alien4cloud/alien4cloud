@@ -15,7 +15,8 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.getResourceIcon = function(defaultImage, key) {
       var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
       if (UTILS.isDefinedAndNotNull(tags)) {
-        return 'img?id=' + (UTILS.isDefinedAndNotNull(defaultImage) ? defaultImage : UTILS.getIcon(tags)) + '&quality=QUALITY_64';
+        var icon = UTILS.getIcon(tags);
+        return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
       } else {
         return null;
       }
