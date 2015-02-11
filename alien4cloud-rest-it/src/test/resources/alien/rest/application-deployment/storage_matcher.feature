@@ -5,7 +5,9 @@ Feature: Match topology's storage to cloud's storage.
     And I upload a plugin
     And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
     And I enable the cloud "Mount doom cloud"
-    And I upload the archive "tosca base types 1.0"
+    And I upload the archive "tosca-normative-types"
+    And I upload the archive "alien-base-types"
+    And I upload the archive "alien-extended-storage-types"
     And There are these users in the system
       | sangoku |
     And I add a role "APPLICATIONS_MANAGER" to user "sangoku"
@@ -18,31 +20,51 @@ Feature: Match topology's storage to cloud's storage.
     And I add the storage with id "STORAGE2" and device "/etc/dev2" and size 2048 to the cloud "Mount doom cloud"
     And I match the storage with name "STORAGE2" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
     And I am authenticated with user named "sangoku"
-    And I have an application "ALIEN" with a topology containing a nodeTemplate "BlockStorage" related to "tosca.nodes.BlockStorage:1.0"
-    And I add a node template "BlockStorage" related to the "tosca.nodes.BlockStorage:1.0" node type
+    And I have an application "ALIEN" with a topology containing a nodeTemplate "ConfigurableBlockStorage" related to "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT"
+    And I add a node template "ConfigurableBlockStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I assign the cloud with name "Mount doom cloud" for the application
 
   Scenario: Match a topology for storage, no filter
     When I match for resources for my application on the cloud
-    Then I should receive a match result with 2 storages for the node "BlockStorage":
-      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
-      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
 
-  Scenario: Sould be able to add and remove a storage
+  Scenario: Should be able to add and remove a storage
     When I match for resources for my application on the cloud
-    Then I should receive a match result with 2 storages for the node "BlockStorage":
-      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
-      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
     And I am authenticated with "ADMIN" role
     And I add the storage with id "STORAGE3" and device "/etc/dev3" and size 2048 to the cloud "Mount doom cloud"
     And I match the storage with name "STORAGE3" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
     And I match for resources for my application on the cloud
-    Then I should receive a match result with 3 storages for the node "BlockStorage":
-      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
-      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
-      | STORAGE3 | /etc/dev3 | 2048 | alienPublicNetwork  |
+    Then I should receive a match result with 3 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
+      | STORAGE3 | /etc/dev3 | 2048 |
     Then I remove the storage with name "STORAGE3" from the cloud "Mount doom cloud"
     When I match for resources for my application on the cloud
-    Then I should receive a match result with 2 storages for the node "BlockStorage":
-      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
-      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
+
+  Scenario: Match a topology for storages, filter by topology size
+    When I match for resources for my application on the cloud
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
+    When I update the node template "ConfigurableBlockStorage"'s property "size" to "2048"
+    When I match for resources for my application on the cloud
+    Then I should receive a match result with 1 storages for the node "ConfigurableBlockStorage":
+      | STORAGE2 | /etc/dev2 | 2048 |
+
+  Scenario: Match a topology for storages, filter by topology device
+    When I match for resources for my application on the cloud
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
+    When I update the node template "ConfigurableBlockStorage"'s property "device" to "/etc/dev2"
+    When I match for resources for my application on the cloud
+    Then I should receive a match result with 1 storages for the node "ConfigurableBlockStorage":
+      | STORAGE2 | /etc/dev2 | 2048 |
