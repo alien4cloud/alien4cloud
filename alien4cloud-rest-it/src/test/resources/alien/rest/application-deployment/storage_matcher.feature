@@ -15,6 +15,8 @@ Feature: Match topology's storage to cloud's storage.
     And I add the flavor with name "medium", number of CPUs 4, disk size 64 and memory size 4096 to the cloud "Mount doom cloud" and match it to paaS flavor "3"
     And I add the storage with id "STORAGE1" and device "/etc/dev1" and size 1024 to the cloud "Mount doom cloud"
     And I match the storage with name "STORAGE1" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
+    And I add the storage with id "STORAGE2" and device "/etc/dev2" and size 2048 to the cloud "Mount doom cloud"
+    And I match the storage with name "STORAGE2" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
     And I am authenticated with user named "sangoku"
     And I have an application "ALIEN" with a topology containing a nodeTemplate "BlockStorage" related to "tosca.nodes.BlockStorage:1.0"
     And I add a node template "BlockStorage" related to the "tosca.nodes.BlockStorage:1.0" node type
@@ -22,13 +24,25 @@ Feature: Match topology's storage to cloud's storage.
 
   Scenario: Match a topology for storage, no filter
     When I match for resources for my application on the cloud
-    Then I should receive a match result with 1 storages for the node "BlockStorage":
+    Then I should receive a match result with 2 storages for the node "BlockStorage":
       | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
+      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
+
+  Scenario: Sould be able to add and remove a storage
+    When I match for resources for my application on the cloud
+    Then I should receive a match result with 2 storages for the node "BlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
+      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
     And I am authenticated with "ADMIN" role
-    And I add the storage with id "STORAGE2" and device "/etc/dev2" and size 2048 to the cloud "Mount doom cloud"
-    And I match the storage with name "STORAGE2" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
-    And I am authenticated with user named "sangoku"
+    And I add the storage with id "STORAGE3" and device "/etc/dev3" and size 2048 to the cloud "Mount doom cloud"
+    And I match the storage with name "STORAGE3" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
     And I match for resources for my application on the cloud
+    Then I should receive a match result with 3 storages for the node "BlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
+      | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
+      | STORAGE3 | /etc/dev3 | 2048 | alienPublicNetwork  |
+    Then I remove the storage with name "STORAGE3" from the cloud "Mount doom cloud"
+    When I match for resources for my application on the cloud
     Then I should receive a match result with 2 storages for the node "BlockStorage":
       | STORAGE1 | /etc/dev1 | 1024 | alienPrivateNetwork |
       | STORAGE2 | /etc/dev2 | 2048 | alienPublicNetwork  |
