@@ -436,11 +436,16 @@ var expectAttributeOutputState = function(nodeTemplateName, propertyName, checke
 };
 module.exports.expectAttributeOutputState = expectAttributeOutputState;
 
-var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
-  element(by.id(nodeName)).click();
-  browser.waitForAngular();
+var checkNumberOfRelationship = function(expectedCount) {
   var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
   expect(relationships.count()).toBe(expectedCount);
+};
+module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
+
+var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
+  element(by.id(nodeName)).click();
+  browser.waitForAngular();
+  checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
