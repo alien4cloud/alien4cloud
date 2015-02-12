@@ -10,11 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import alien4cloud.rest.model.RestResponse;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -31,28 +29,40 @@ public final class JsonUtil {
         return mapper;
     }
 
+    private static ObjectMapper createRestMapper() {
+        ObjectMapper mapper = new RestMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        return mapper;
+    }
+
     private JsonUtil() {
     }
 
     /**
      * Parse a {@link RestResponse} by using the specified dataType as the expected data object's class.
      *
-     * @param responseAsString
-     *            The {@link RestResponse} as a JSon String
-     * @param dataType
-     *            The type of the data object.
+     * @param responseAsString The {@link RestResponse} as a JSon String
+     * @param dataType The type of the data object.
      * @return The parsed {@link RestResponse} object matching the given JSon.
-     * @throws JsonParseException
-     *             In case of a JSon parsing issue.
-     * @throws JsonMappingException
-     *             In case of a JSon parsing issue.
-     * @throws IOException
-     *             In case of an IO error.
+     * @throws IOException In case of an IO error.
      */
     public static <T> RestResponse<T> read(String responseAsString, Class<T> dataType) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = createRestMapper();
         JavaType restResponseType = mapper.getTypeFactory().constructParametricType(RestResponse.class, dataType);
         return mapper.readValue(responseAsString, restResponseType);
+    }
+
+    /**
+     * Parse a {@link RestResponse} without being interested in parameterized type
+     *
+     * @param responseAsString
+     * @return
+     * @throws IOException
+     */
+    public static RestResponse<?> read(String responseAsString) throws IOException {
+        return createRestMapper().readValue(responseAsString, RestResponse.class);
     }
 
     /**
@@ -61,8 +71,6 @@ public final class JsonUtil {
      * @param objectText
      * @param objectClass
      * @return
-     * @throws JsonParseException
-     * @throws JsonMappingException
      * @throws IOException
      */
     public static <T> T readObject(String objectText, Class<T> objectClass) throws IOException {
@@ -75,8 +83,6 @@ public final class JsonUtil {
      * @param jsonStream
      * @param objectClass
      * @return
-     * @throws JsonParseException
-     * @throws JsonMappingException
      * @throws IOException
      */
     public static <T> T readObject(InputStream jsonStream, Class<T> objectClass) throws IOException {
@@ -88,8 +94,6 @@ public final class JsonUtil {
      *
      * @param objectText
      * @return
-     * @throws JsonParseException
-     * @throws JsonMappingException
      * @throws IOException
      */
     public static <T> T readObject(String objectText) throws IOException {
@@ -99,26 +103,11 @@ public final class JsonUtil {
     }
 
     /**
-     * Parse a {@link RestResponse} without being interested in parameterized type
-     *
-     * @param responseAsString
-     * @return
-     * @throws JsonParseException
-     * @throws JsonMappingException
-     * @throws IOException
-     */
-    public static RestResponse<?> read(String responseAsString) throws IOException {
-        return getOneObjectMapper().readValue(responseAsString, RestResponse.class);
-    }
-
-    /**
      * Serialize the given object in a JSon String.
      *
-     * @param obj
-     *            The object to serialize.
+     * @param obj The object to serialize.
      * @return The JSon serialization of the given object.
-     * @throws JsonProcessingException
-     *             In case of a failure in serialization.
+     * @throws JsonProcessingException In case of a failure in serialization.
      */
     public static String toString(Object obj) throws JsonProcessingException {
         return getOneObjectMapper().writeValueAsString(obj);
@@ -127,8 +116,7 @@ public final class JsonUtil {
     /**
      * Deserialize the given json string to a map
      *
-     * @param json
-     *            json text
+     * @param json json text
      * @return map object
      * @throws IOException
      */
@@ -154,7 +142,7 @@ public final class JsonUtil {
     }
 
     public static <V> V[] toArray(String json, Class<V> valueTypeClass) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = createRestMapper();
         JavaType arrayStringObjectType = mapper.getTypeFactory().constructArrayType(valueTypeClass);
         return mapper.readValue(json, arrayStringObjectType);
     }
@@ -162,8 +150,7 @@ public final class JsonUtil {
     /**
      * Deserialize the given json string to a list
      *
-     * @param json
-     *            json text
+     * @param json json text
      * @return list object
      * @throws IOException
      */

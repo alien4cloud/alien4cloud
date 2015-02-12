@@ -62,6 +62,9 @@ CONNECTORS.Grid.prototype = {
     }
   },
 
+  /**
+  * Compute the weight of the candidate point to compute the ideal next direction.
+  */
   getWeight: function(start, end, point) {
     if(point === null) {
       return null;
@@ -69,15 +72,23 @@ CONNECTORS.Grid.prototype = {
     if(point.equals(end)) {
       return Number.NEGATIVE_INFINITY;
     }
+    // we should not go outside the grid limits.
     if(point.x < 0 || point.x >= this.cells.length) {
       return 100000;
     }
     if(point.y < 0 || point.y >= this.cells[point.x].length) {
       return 100000;
     }
+    // weight of a cell is the current existing weight with the additional manhattan distance to pickup the right direction.
     return this.cells[point.x][point.y].weight + end.manhattan(point);
   },
 
+  /**
+  * Reverse the given direction and return the opposite direction.
+  *
+  * @param direction The direction to reverse
+  * @return The direction opposite to 'direction' parameter.
+  */
   reverse: function(direction) {
     if(direction === CONNECTORS.directions.up) {
       return CONNECTORS.directions.down;
@@ -91,6 +102,13 @@ CONNECTORS.Grid.prototype = {
     return CONNECTORS.directions.right;
   },
 
+  /**
+  * Compute an array of the candidates destinations that could be the next points. Null is pushed in case the path is currently comming from a
+  * direction (to not come back on our way).
+  *
+  * @param currentPoint The point that contains coordinates of the current position.
+  * @param commingFrom The direction we where comming from.
+  */
   moveCandidates: function(currentPoint, commingFrom) {
     var candidates = [];
     if(commingFrom !== CONNECTORS.directions.up) {
@@ -117,8 +135,10 @@ CONNECTORS.Grid.prototype = {
   },
 
   /**
-  One predicate for the routing algorithm is that all obstacle are rectangle with some cells in-between them.
-  This is why we can follow a main global direction and know we won't have to go back.
+  * Compute a route from p1 to p2.
+  *
+  * One predicate for the routing algorithm is that all obstacle are rectangle with some cells in-between them.
+  * This is why we can follow a main global direction and know we won't have to go back.
   */
   route: function(p1, p2) {
     var lastRouteCell, lastRoutePoint;
@@ -127,34 +147,38 @@ CONNECTORS.Grid.prototype = {
     // get target cell
     var end = this.getCellCoordinates(p2);
 
+    // the real route in which to add coordinates
     var route = [p1];
+    // the route based on cells (used to compute the route with simple algorithm)
     var cellRoute = [start];
 
     var currentCellPoint = start;
     // now let's try to build the route!
-    var lastSelected = null;
+    var lastselectedDir = null;
     var count = 0;
     while(!currentCellPoint.equals(end) && count < 200) {
       count ++;
       var i;
-      var commingFrom = lastSelected === null ? null : this.reverse(lastSelected);
+      var commingFrom = lastselectedDir === null ? null : this.reverse(lastselectedDir);
+      // compute candidate destinations points
       var candidates = this.moveCandidates(currentCellPoint, commingFrom);
+      // compute the weights for candidates (lowest weight is the best destination)
       var weights = [];
       for(i = 0; i < candidates.length; i++) {
         weights.push(this.getWeight(start, end, candidates[i]));
       }
-
-      var selected = 0;
-      if(weights[selected] === null) {
-        selected = 1;
+      // find the best candidate direction
+      var selectedDir = 0;
+      if(weights[selectedDir] === null) {
+        selectedDir = 1;
       }
-      for(i = selected+1; i < candidates.length; i++) {
-        if(weights[i] !== null && weights[i] < weights[selected]) {
-          selected = i;
+      for(i = selectedDir+1; i < candidates.length; i++) {
+        if(weights[i] !== null && weights[i] < weights[selectedDir]) {
+          selectedDir = i;
         }
       }
 
-      if(lastSelected !== null && selected !== lastSelected) {
+      if(lastselectedDir !== null && selectedDir !== lastselectedDir) {
         lastRouteCell = cellRoute[cellRoute.length-1];
         lastRoutePoint = route[route.length-1];
 
@@ -169,10 +193,10 @@ CONNECTORS.Grid.prototype = {
         // var pathCell = this.cells[currentCellPoint.x][currentCellPoint.y];
         // pathCell.visited = 1;
       }
-      currentCellPoint = candidates[selected];
+      currentCellPoint = candidates[selectedDir];
       var pathCell = this.cells[currentCellPoint.x][currentCellPoint.y];
       pathCell.visited = 1;
-      lastSelected = selected;
+      lastselectedDir = selectedDir;
     }
 
     lastRoutePoint = route[route.length-1];

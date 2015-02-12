@@ -108,12 +108,12 @@ angular.module('alienUiApp').factory('relationshipTopologyService', ['$q', 'comp
         var match = null;
         for(var i=0; i<nodeCapabilities.length; i++) {
           var capabilityId = nodeCapabilities[i].id;
-          if(candidateTemplate.capabilities[capabilityId].canAddRel.yes &&
+          if(candidateTemplate.capabilitiesMap[capabilityId].value.canAddRel.yes &&
             this.isValidTarget(validTargets, candidateTemplate.type, i, nodeTypes, capabilityTypes)) {
             if(match === null) {
               match = { template: candidateTemplate, capabilities: [] };
             }
-            match.capabilities.push({id: capabilityId, type: candidateTemplate.capabilities[capabilityId].type});
+            match.capabilities.push({id: capabilityId, type: candidateTemplate.capabilitiesMap[capabilityId].value.type});
           }
         }
         return match;

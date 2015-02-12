@@ -343,9 +343,9 @@ angular.module('alienUiApp').factory(
         var founds = [];
         if (UTILS.isDefinedAndNotNull(node.relationships)) {
           var relationships = node.relationships;
-          for ( var relationshipKey in relationships) {
-            var relationship = relationships[relationshipKey];
-            relationship.id = relationshipKey;
+          for(var i=0;i<node.relationships.length;i++) {
+            var relationship = node.relationships[i].value;
+            relationship.id = node.relationships[i].key;
             if (criteria(relationship)) {
               founds.push(relationship);
             }

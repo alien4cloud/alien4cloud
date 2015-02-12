@@ -40,21 +40,33 @@ public class NodeTemplate extends AbstractTemplate {
     /**
      * Attributes of the node template
      */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, String> attributes;
-
-    /**
-     * Relationships between node templates
-     */
-    private Map<String, RelationshipTemplate> relationships;
 
     /**
      * The requirement that this node template defines
      */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Requirement> requirements;
+
+    /**
+     * Relationships between node templates
+     */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
+    private Map<String, RelationshipTemplate> relationships;
 
     /**
      * The capabilities that this node template defines
      */
+    @ConditionalOnAttribute(ConditionalAttributes.REST)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
 
     /**

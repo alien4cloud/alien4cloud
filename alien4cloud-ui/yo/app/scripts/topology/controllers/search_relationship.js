@@ -1,7 +1,7 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$modalInstance', 'relationshipTopologyService', function($scope, $modalInstance, relationshipTopologyService) {
+angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$modalInstance', 'relationshipTopologyService', 'toscaService', function($scope, $modalInstance, relationshipTopologyService, toscaService) {
   $scope.totalStep = 3;
   $scope.step = 1;
 
@@ -22,7 +22,7 @@ angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$
 
   $scope.onSelectedRelationship = function(relationship) {
     $scope.relationshipModalData.relationship = relationship;
-    $scope.relationshipModalData.name = UTILS.relationshipNameFromTypeAndTarget($scope.relationshipModalData.relationship.elementId,
+    $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
         $scope.relationshipModalData.target);
     $scope.next();
   };
@@ -34,7 +34,7 @@ angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$
     // filter on valid targets
     if(capabilityName) {
       // TODO should we manage inheritance here ?
-      var validTargets = [$scope.topology.topology.nodeTemplates[targetName].capabilities[capabilityName].type];
+      var validTargets = [$scope.topology.topology.nodeTemplates[targetName].capabilitiesMap[capabilityName].value.type];
       $scope.relationshipHiddenFilters = [{
         term: 'validTargets',
         facet: validTargets
@@ -45,7 +45,7 @@ angular.module('alienUiApp').controller( 'SearchRelationshipCtrl', ['$scope', '$
     // if a relationship has already been provided skip the relationship search.
     if($scope.relationshipModalData.relationship) {
       $scope.next();
-      $scope.relationshipModalData.name = UTILS.relationshipNameFromTypeAndTarget($scope.relationshipModalData.relationship.elementId,
+      $scope.relationshipModalData.name = toscaService.generateRelationshipName($scope.relationshipModalData.relationship.elementId,
           $scope.relationshipModalData.target);
     }
   };

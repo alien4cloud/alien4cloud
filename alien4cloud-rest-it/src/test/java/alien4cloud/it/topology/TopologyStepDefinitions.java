@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.it.components.AddCommponentDefinitionSteps;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -64,11 +65,9 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class TopologyStepDefinitions {
-
     private final static Map<String, Class<? extends IndexedToscaElement>> WORDS_TO_CLASSES;
     private final ObjectMapper jsonMapper = new ObjectMapper();
     private final Client esClient = Context.getEsClientInstance();
-    private static final String COMPONENT_TEST_DATA_PACKAGE = "./src/test/resources/data/components/";
 
     private CommonStepDefinitions commonStepDefinitions = new CommonStepDefinitions();
 
@@ -412,9 +411,8 @@ public class TopologyStepDefinitions {
 
     @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the component \"([^\"]*)\"$")
     public void I_add_to_the_csar_the_component(String csarName, String csarVersion, String componentFileName) throws Throwable {
-        String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentFileName + ".json"));
         String csarId = csarName + ":" + csarVersion;
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", componentJson));
+        AddCommponentDefinitionSteps.uploadComponent(csarId, componentFileName);
     }
 
     @Given("^I add to the csar \"([^\"]*)\" \"([^\"]*)\" the components$")
@@ -436,12 +434,11 @@ public class TopologyStepDefinitions {
     }
 
     private IndexedNodeType[] getSuggestedNodesFor(String nodeTemplateName, Object taskList) throws IOException {
-
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> suggestedNodeTypes = (List<Object>) MapUtil.get(task, "suggestedNodeTypes");
             if (nodeTemp.equals(nodeTemplateName) && suggestedNodeTypes != null) {
-                return JsonUtil.toArray(JsonUtil.toString(suggestedNodeTypes), IndexedNodeType.class);
+                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class);
             }
         }
         return null;
@@ -654,8 +651,7 @@ public class TopologyStepDefinitions {
 
     @When("^I update the \"([^\"]*)\" property of the relationship \"([^\"]*)\" into \"([^\"]*)\" from the node template \"([^\"]*)\"$")
     public void I_update_the_property_of_the_relationship_into_from_the_node_template(String propertyName, String relationshipName, String newValue,
-            String nodeTemplateName)
-            throws Throwable {
+            String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
 
         UpdateRelationshipPropertyRequest updatePropertyRequest = new UpdateRelationshipPropertyRequest();

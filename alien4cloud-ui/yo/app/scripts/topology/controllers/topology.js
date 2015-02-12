@@ -2,8 +2,8 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'orderedMapEnricher', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId',
-  function(alienAuthService, $scope, $modal, orderedMapEnricher, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'orderedMapEnricher', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService',
+  function(alienAuthService, $scope, $modal, orderedMapEnricher, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService) {
     $scope.view = 'RENDERED';
 
     // TODO : when topology templates edition with use also version, remove this IF statement
@@ -94,6 +94,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       // enrich objects to add maps for the fields that are currently mapped as array of map entries.
       orderedMapEnricher.processMap($scope.topology.nodeTypes, 'properties');
       orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'properties');
+      orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'attributes');
+      orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'requirements');
+      orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'relationships');
+      orderedMapEnricher.processMap($scope.topology.topology.nodeTemplates, 'capabilities');
 
       fillBounds($scope.topology.topology);
       initInputsOutputs($scope.topology.topology);
@@ -155,7 +159,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.openSearchRelationshipModal = function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
-      if (!openedOnElement.requirements[requirementName].canAddRel.yes) {
+      if (!openedOnElement.requirementsMap[requirementName].value.canAddRel.yes) {
         console.debug('Should be able to add relationships');
         return;
       }
@@ -191,7 +195,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     var nodeTemplateNameFromType = function(type) {
-      var baseName = UTILS.getShortName(type);
+      var baseName = toscaService.simpleName(type);
 
       var i = 1;
       var tempName = baseName;
@@ -227,9 +231,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           for (var relationshipId in relationships) {
 
             var rel = relationships[relationshipId];
-            var oldRelationshipId = UTILS.relationshipNameFromTypeAndTarget(rel.type, oldNodeName);
+            var oldRelationshipId = toscaService.generateRelationshipName(rel.type, oldNodeName);
             if (relationshipId === oldRelationshipId) {
-              var newRelationshipId = UTILS.relationshipNameFromTypeAndTarget(rel.type, newName);
+              var newRelationshipId = toscaService.generateRelationshipName(rel.type, newName);
               delete relationships[relationshipId];
               relationships[newRelationshipId] = rel;
             }
@@ -248,7 +252,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       if (UTILS.isDefinedAndNotNull(sourceNodeTemplate) && UTILS.isDefinedAndNotNull(targetNodeTemplate)) {
         // let's try to find the requirement / for now we just support hosted on but we should improve that...
         var requirementName = nodeTemplateService.getContainerRequirement(sourceNodeTemplate, $scope.topology.nodeTypes, $scope.topology.relationshipTypes, $scope.topology.capabilityTypes);
-        $scope.openSearchRelationshipModal(sourceNodeTemplateName, sourceNodeTemplate, requirementName, sourceNodeTemplate.requirements[requirementName], targetNodeTemplateName);
+        $scope.openSearchRelationshipModal(sourceNodeTemplateName, sourceNodeTemplate, requirementName, sourceNodeTemplate.requirementsMap[requirementName].value, targetNodeTemplateName);
       }
     }
 
@@ -283,7 +287,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       document.getElementById('nodetemplate-details').click();
 
       $timeout(function() {
-        console.log('change node tempalte...');
         if (oldSelectedName) {
           var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
           if (oldSelected) {
@@ -703,82 +706,46 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /**
      * RELATIONSHIPS CARDINALITIES
      */
-    var UNBOUNDED = 'unbounded';
-    var canAddRelationshipWithSource = function(nodeTemplate, requirementName) {
-      var toReturn = {
-        yes: true,
-        remaining: UNBOUNDED
-      };
-
-      var relationships = nodeTemplate.relationships;
-      var requirement = nodeTemplate.requirements[requirementName];
-      //case unbounded
-      if (requirement.upperBound === UNBOUNDED) {
-        return toReturn;
-      }
-
-      var count = 0;
-      for (var relName in relationships) {
-        if (relationships[relName].requirementName === requirementName && relationships[relName].requirementType === requirement.type) {
-          count++;
-        }
-      }
-      toReturn.yes = count < requirement.upperBound;
-      toReturn.remaining = toReturn.yes ? requirement.upperBound - count : 0;
-      return toReturn;
-    };
-
-    var fillRequirementBounds = function(nodeTemplate) {
-      var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
-      nodeType.requirements.forEach(function(reqDef) {
-        nodeTemplate.requirements[reqDef.id].upperBound = reqDef.upperBound;
-        nodeTemplate.requirements[reqDef.id].lowerBound = reqDef.lowerBound;
-        nodeTemplate.requirements[reqDef.id].canAddRel = canAddRelationshipWithSource(nodeTemplate, reqDef.id);
-      });
-    };
-
-    var fillCapabilityBounds = function(nodeTemplate) {
-      var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
-      if (nodeType.capabilities) {
-        nodeType.capabilities.forEach(function(capaDef) {
-          nodeTemplate.capabilities[capaDef.id].upperBound = capaDef.upperBound;
-          nodeTemplate.capabilities[capaDef.id].canAddRel = canAddRelationshipWithTarget(nodeTemplate, capaDef.id);
-        });
-      }
-    };
-
-    var canAddRelationshipWithTarget = function(nodeTemplate, capabilityName) {
-      var nodeTemplates = $scope.topology.topology.nodeTemplates;
-      var capability = nodeTemplate.capabilities[capabilityName];
-      var UNBOUNDED = 'unbounded';
-      var toReturn = {
-        yes: true,
-        remaining: UNBOUNDED
-      };
-      if (capability.upperBound === UNBOUNDED) {
-        return toReturn;
-      }
-
-      var count = 0;
-      for (var templateName in nodeTemplates) {
-        var nodeTemp = nodeTemplates[templateName];
-        var relationships = nodeTemp.relationships;
-        if (UTILS.isUndefinedOrNull(relationships)) {
-          continue;
-        }
-        for (var relName in relationships) {
-          var relTemplate = relationships[relName];
-          if (UTILS.isDefinedAndNotNull(relTemplate.target) && relTemplate.target === nodeTemplate.name && relTemplate.requirementType === capability.type) {
-            count++;
-          }
-        }
-      }
-      toReturn.yes = count < capability.upperBound;
-      toReturn.remaining = toReturn.yes ? capability.upperBound - count : 0;
-      return toReturn;
-    };
-
-    $scope.canAddRelationshipWithTarget = canAddRelationshipWithTarget;
+    // var fillCapabilityBounds = function(nodeTemplate) {
+    //   var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
+    //   if (nodeType.capabilities) {
+    //     nodeType.capabilities.forEach(function(capaDef) {
+    //       nodeTemplate.capabilitiesMap[capaDef.id].value.upperBound = capaDef.upperBound;
+    //       nodeTemplate.capabilitiesMap[capaDef.id].value.canAddRel = canAddRelationshipWithTarget(nodeTemplate, capaDef.id);
+    //     });
+    //   }
+    // };
+    //
+    // var canAddRelationshipWithTarget = function(nodeTemplate, capabilityName) {
+    //   var nodeTemplates = $scope.topology.topology.nodeTemplates;
+    //   var capability = nodeTemplate.capabilitiesMap[capabilityName].value;
+    //   var UNBOUNDED = 'unbounded';
+    //   var toReturn = {
+    //     yes: true,
+    //     remaining: UNBOUNDED
+    //   };
+    //   if (capability.upperBound === UNBOUNDED) {
+    //     return toReturn;
+    //   }
+    //
+    //   var count = 0;
+    //   for (var templateName in nodeTemplates) {
+    //     var nodeTemp = nodeTemplates[templateName];
+    //     var relationships = nodeTemp.relationships;
+    //     if (UTILS.isUndefinedOrNull(relationships)) {
+    //       continue;
+    //     }
+    //     for (var relName in relationships) {
+    //       var relTemplate = relationships[relName];
+    //       if (UTILS.isDefinedAndNotNull(relTemplate.target) && relTemplate.target === nodeTemplate.name && relTemplate.requirementType === capability.type) {
+    //         count++;
+    //       }
+    //     }
+    //   }
+    //   toReturn.yes = count < capability.upperBound;
+    //   toReturn.remaining = toReturn.yes ? capability.upperBound - count : 0;
+    //   return toReturn;
+    // };
 
     var fillBounds = function(topology) {
       if (!topology.nodeTemplates) {
@@ -786,11 +753,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
       Object.keys(topology.nodeTemplates).forEach(function(nodeTemplateName) {
         var nodeTemplate = topology.nodeTemplates[nodeTemplateName];
-        fillRequirementBounds(nodeTemplate);
-        fillCapabilityBounds(nodeTemplate);
+        toscaCardinalitiesService.fillRequirementBounds($scope.topology.nodeTypes, nodeTemplate);
+        toscaCardinalitiesService.fillCapabilityBounds($scope.topology.nodeTypes, $scope.topology.topology.nodeTemplates, nodeTemplate);
       });
     };
-    $scope.getShortName = UTILS.getShotName;
+    $scope.getShortName = toscaService.simpleName;
 
 
     /**
@@ -802,18 +769,30 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.isInputProperty = function(propertyName) {
+      if(UTILS.isUndefinedOrNull($scope.topology.topology.inputProperties)) {
+        return false;
+      }
       return $scope.topology.topology.inputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
     };
 
     $scope.isInputArtifact = function(artifactName) {
+      if(UTILS.isUndefinedOrNull($scope.topology.topology.inputArtifacts)) {
+        return false;
+      }
       return $scope.topology.topology.inputArtifacts[$scope.selectedNodeTemplate.name].indexOf(artifactName) >= 0;
     };
 
     $scope.isOutputProperty = function(propertyName) {
+      if(UTILS.isUndefinedOrNull($scope.topology.topology.outputProperties)) {
+        return false;
+      }
       return $scope.topology.topology.outputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
     };
 
     $scope.isOutputAttribute = function(attributeName) {
+      if(UTILS.isUndefinedOrNull($scope.topology.topology.outputAttributes)) {
+        return false;
+      }
       return $scope.topology.topology.outputAttributes[$scope.selectedNodeTemplate.name].indexOf(attributeName) >= 0;
     };
 
@@ -853,7 +832,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /* Update relationship name */
     $scope.updateRelationshipName = function(oldName, newName) {
       // Update only when the name has changed
-      //        $scope.relationshipNameEditError[oldName] = null;
       if (oldName !== newName) {
         topologyServices.relationship.updateName({
           topologyId: $scope.topology.topology.id,
@@ -877,9 +855,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.updateRelationshipProperty = function(propertyDefinition, propertyValue, relationshipType, relationshipName) {
       var propertyName = propertyDefinition.name;
 
-      // if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName]) {
-      //   return;
-      // }
       var updateRelationshipPropertyRequest = {
         'propertyName': propertyName,
         'propertyValue': propertyValue,
@@ -892,8 +867,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         relationshipName: relationshipName
       }, angular.toJson(updateRelationshipPropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
-        // $scope.selectedNodeTemplate.properties[propertyName] = propertyValue;
-        ;
       }).$promise;
     };
 

@@ -1,8 +1,6 @@
 package alien4cloud.it.suggestion;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,11 +40,9 @@ public class SuggestionDefinitionsSteps {
         assertTrue(Arrays.asList(suggestionResp).contains(expectedValue));
     }
 
-    private AddCommponentDefinitionSteps addCommponentDefinitionSteps = new AddCommponentDefinitionSteps();
-
     @Given("^I already had a component \"([^\"]*)\" uploaded$")
     public void I_already_had_a_component_uploaded(String componentName) throws Throwable {
-        addCommponentDefinitionSteps.uploadComponent(componentName);
+        new AddCommponentDefinitionSteps().uploadComponent(componentName);
     }
 
     @When("^I search for suggestion on index \"([^\"]*)\", type \"([^\"]*)\", path \"([^\"]*)\" with text \"([^\"]*)\"$")
