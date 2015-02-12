@@ -64,8 +64,8 @@ public class FunctionEvaluatorTest {
             }
         }
 
-        String normativeLocalName = "tosca-normative-types-1.0.0.wd03";
-        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd03", normativeLocalName);
+        String normativeLocalName = "tosca-normative-types";
+        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", normativeLocalName);
         String sampleLocalName = "samples";
         repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/samples.git", "master", sampleLocalName);
         String extendedLocalName = "alien-extended-types";

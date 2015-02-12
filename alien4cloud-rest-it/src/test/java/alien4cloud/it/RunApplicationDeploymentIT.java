@@ -12,10 +12,10 @@ import cucumber.api.junit.Cucumber;
 // "classpath:alien/rest/application-deployment/deploy_application.feature"
 // "classpath:alien/rest/application-deployment/deploy_with_deployment_properties.feature"
 // "classpath:alien/rest/application-deployment/deployments.feature"
-//"classpath:alien/rest/application-deployment/deployment_setup.feature"
+"classpath:alien/rest/application-deployment/deployment_setup.feature"
 //"classpath:alien/rest/application-deployment/undeploy_application.feature"
 // "classpath:alien/rest/application-deployment/compute_template_matcher.feature"
-"classpath:alien/rest/application-deployment/storage_matcher.feature"
+// "classpath:alien/rest/application-deployment/storage_matcher.feature"
 }, format = { "pretty", "html:target/cucumber/application_deployment", "json:target/cucumber/cucumber-application-deployment.json" })
 public class RunApplicationDeploymentIT {
 }

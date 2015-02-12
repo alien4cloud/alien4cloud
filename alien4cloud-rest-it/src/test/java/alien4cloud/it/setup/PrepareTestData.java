@@ -14,8 +14,9 @@ import alien4cloud.utils.FileUtil;
  */
 @Slf4j
 public class PrepareTestData {
-    public static String ARCHIVES_TARGET_PATH_ROOT = "../target/it-artifacts/";
-    public static String ARCHIVES_TARGET_PATH = ARCHIVES_TARGET_PATH_ROOT + "zipped/";
+    public static String ARCHIVES_TARGET_PATH_ROOT = "target/it-artifacts/";
+    public static String RELATIVE_ARCHIVES_TARGET_PATH_ROOT = "../" + ARCHIVES_TARGET_PATH_ROOT;
+    public static String ARCHIVES_TARGET_PATH = RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "zipped/";
     public static String BASEDIR = "";
     private final static RepositoryManager repositoryManager = new RepositoryManager();
 
@@ -55,6 +56,7 @@ public class PrepareTestData {
                 "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master");
         checkoutArchiveFromGit("alien-extended-storage-types", "alien-base-types/alien-extended-storage-types-1.0-SNAPSHOT",
                 "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master");
-
+        checkoutArchiveFromGit("tosca-normative-types", "tosca-normative-types",
+                "https://github.com/alien4cloud/tosca-normative-types.git", "master");
     }
 }

@@ -49,4 +49,3 @@ Feature: Create cloud networks
       | public | 192.168.2.0/24 | 4 | 192.168.2.1 |  |
     When I remove the network with name "public" from the cloud "Mount doom cloud"
     Then The cloud "Mount doom cloud" should have empty network mapping configuration
-

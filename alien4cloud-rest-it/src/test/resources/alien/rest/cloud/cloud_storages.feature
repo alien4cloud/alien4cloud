@@ -1,4 +1,4 @@
-Feature: Match topology's storage to cloud's storage.
+Feature: Create cloud storages
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -24,22 +24,27 @@ Feature: Match topology's storage to cloud's storage.
     And I add a node template "ConfigurableBlockStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I assign the cloud with name "Mount doom cloud" for the application
 
-  Scenario: Match a topology for storages, filter by topology size
+  Scenario: Match a topology for storage, no filter
     When I match for resources for my application on the cloud
     Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
       | STORAGE1 | /etc/dev1 | 1024 |
-      | STORAGE2 | /etc/dev2 | 2048 |
-    When I update the node template "ConfigurableBlockStorage"'s property "size" to "2048"
-    When I match for resources for my application on the cloud
-    Then I should receive a match result with 1 storages for the node "ConfigurableBlockStorage":
       | STORAGE2 | /etc/dev2 | 2048 |
 
-  Scenario: Match a topology for storages, filter by topology device
+  Scenario: Should be able to add and remove a storage
     When I match for resources for my application on the cloud
     Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
       | STORAGE1 | /etc/dev1 | 1024 |
       | STORAGE2 | /etc/dev2 | 2048 |
-    When I update the node template "ConfigurableBlockStorage"'s property "device" to "/etc/dev2"
+    And I am authenticated with "ADMIN" role
+    And I add the storage with id "STORAGE3" and device "/etc/dev3" and size 2048 to the cloud "Mount doom cloud"
+    And I match the storage with name "STORAGE3" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
+    And I match for resources for my application on the cloud
+    Then I should receive a match result with 3 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
+      | STORAGE2 | /etc/dev2 | 2048 |
+      | STORAGE3 | /etc/dev3 | 2048 |
+    Then I remove the storage with name "STORAGE3" from the cloud "Mount doom cloud"
     When I match for resources for my application on the cloud
-    Then I should receive a match result with 1 storages for the node "ConfigurableBlockStorage":
+    Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
+      | STORAGE1 | /etc/dev1 | 1024 |
       | STORAGE2 | /etc/dev2 | 2048 |
