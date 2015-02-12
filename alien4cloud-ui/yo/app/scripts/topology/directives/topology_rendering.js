@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').directive(
-  'topologyRendering', ['topologySvgFactory', 'defaultNodeRendererService', 'simpleNodeRendererService',
-    function(topologySvgFactory, defaultNodeRendererService, simpleNodeRendererService) {
+  'topologyRendering', ['topologySvgFactory', 'commonNodeRendererService', 'simpleNodeRendererService', 'defaultNodeRendererService',
+    function(topologySvgFactory, commonNodeRendererService, simpleNodeRendererService, defaultNodeRendererService) {
       return {
         restrict: 'E',
         scope: {
@@ -26,7 +26,6 @@ angular.module('alienUiApp').directive(
           }
 
           var nodeRenderer = getNodeRenderer();
-
           var topologySvg = topologySvgFactory.create(scope.callback, topologyElement, scope.runtime, nodeRenderer);
 
           scope.$watch('topology', function(topology) {

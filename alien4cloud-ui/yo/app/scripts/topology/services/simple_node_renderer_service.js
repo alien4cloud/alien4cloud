@@ -4,9 +4,10 @@
 angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRendererService',
   function(commonNodeRendererService) {
     return {
+
       isRuntime: false,
       width: 50,
-      height: 70,
+      height: 60,
       distanceBetweenBranchHorizontal: 50,
       distanceBetweenNodeHorizontal: 30,
       distanceBetweenNodeVertical: 40,
@@ -14,13 +15,14 @@ angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRe
       setRuntime: function(isRuntime) {
         this.isRuntime = isRuntime;
         if (isRuntime) {
-          this.height = 100;
+          this.height = 95;
         } else {
-          this.height = 70;
+          this.height = 60;
         }
       },
 
       createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
+
         if (nodeType.tags) {
           var tags = UTILS.convertNameValueListToMap(nodeType.tags);
           if (tags.icon) {
@@ -38,7 +40,42 @@ angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRe
         }
       },
 
-      updateNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
+      drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY) {
+        var currentY = rectOriginY + 40;
+        var deletedCount = 0;
+        if (UTILS.isDefinedAndNotNull(nodeInstances) && nodeInstancesCount > 0) {
+          //the deployment status is no more unknown
+          this.removeRuntimeCount(runtimeGroup, 'runtime-count-unknown');
+
+          var successCount = this.getNumberOfInstanceByStatus(nodeInstances, 'SUCCESS');
+          var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
+          deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null);
+
+          if (nodeInstancesCount === successCount) {
+            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 25).attr('cy', rectOriginY + 75).attr('r', '16')
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: green');
+          } else if (nodeInstancesCount === failureCount) {
+            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 25).attr('cy', rectOriginY + 75).attr('r', '16')
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: red');
+          } else if (nodeInstancesCount === deletedCount) {
+            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 25).attr('cy', rectOriginY + 75).attr('r', '16').attr(
+              'orient', 'auto').attr('style', 'stroke: none; fill: gray');
+          } else {
+            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 25).attr('cy', rectOriginY + 75).attr('r', '16')
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: orange');
+          }
+        } else {
+          //unknown status
+          this.drawRuntimeCount(runtimeGroup, 'runtime-count-unknown', rectOriginX, currentY, '\uf110');
+          runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 25).attr('cy', rectOriginY + 75).attr('r', '16').attr(
+            'orient', 'auto').attr('style', 'stroke: none; fill: gray');
+        }
+
+        // draw the instance count at good size
+        runtimeGroup = commonNodeRendererService.appendCount(runtimeGroup, nodeInstancesCount, deletedCount, rectOriginX, rectOriginY, 30, 80, this.width);
+      },
+
+      updateNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY, topology) {
         // update text
         nodeGroup.select('.simple-title').text(commonNodeRendererService.getDisplayId(node, true));
 
@@ -50,87 +87,31 @@ angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRe
             }
           }
         });
-      },
-      tooltip: commonNodeRendererService.tooltip,
 
+        // runtime infos
+        if (this.isRuntime) {
+          var runtimeGroup = nodeGroup.select('#runtime');
 
+          var nodeInstances = null;
+          var nodeInstancesCount = null;
 
-
-      drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY) {
-        console.log('Draw simple runtime info');
-        var currentY = rectOriginY + 40;
-        var deletedCount = 0;
-        if (UTILS.isDefinedAndNotNull(nodeInstances) && nodeInstancesCount > 0) {
-          //the deployment status is no more unknown
-          this.removeRuntimeCount(runtimeGroup, 'runtime-count-unknown');
-
-          var successCount = this.getNumberOfInstanceByStatus(nodeInstances, 'SUCCESS');
-          var processingCount = this.getNumberOfInstanceByStatus(nodeInstances, 'PROCESSING');
-          var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
-          deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null);
-          if (successCount > 0) {
-            commonNodeRendererService.drawRuntimeCount(runtimeGroup, 'runtime-count-success', rectOriginX, currentY, '\uf00c', successCount, nodeInstancesCount);
-            currentY += 20;
-          } else {
-            this.removeRuntimeCount(runtimeGroup, 'runtime-count-success');
+          if (UTILS.isDefinedAndNotNull(topology.instances)) {
+            nodeInstances = topology.instances[node.id];
+            if (UTILS.isDefinedAndNotNull(nodeInstances)) {
+              nodeInstancesCount = Object.keys(nodeInstances).length;
+            }
           }
-          if (processingCount > 0) {
-            commonNodeRendererService.drawRuntimeCount(runtimeGroup, 'runtime-count-progress', rectOriginX, currentY, '\uf110', processingCount, nodeInstancesCount);
-            currentY += 20;
-          } else {
-            this.removeRuntimeCount(runtimeGroup, 'runtime-count-progress');
+          // TODO better draw network node
+          if (nodeType.elementId !== 'tosca.nodes.Network') {
+            this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
           }
-          if (failureCount > 0) {
-            commonNodeRendererService.drawRuntimeCount(runtimeGroup, 'runtime-count-failure', rectOriginX, currentY, '\uf00d', failureCount, nodeInstancesCount);
-          } else {
-            this.removeRuntimeCount(runtimeGroup, 'runtime-count-failure');
-          }
-
-          if (nodeInstancesCount === successCount) {
-            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-              .attr('orient', 'auto').attr('style', 'stroke: none; fill: green');
-          } else if (nodeInstancesCount === failureCount) {
-            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-              .attr('orient', 'auto').attr('style', 'stroke: none; fill: red');
-          } else if (nodeInstancesCount === deletedCount) {
-            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12').attr(
-              'orient', 'auto').attr('style', 'stroke: none; fill: gray');
-          } else {
-            runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-              .attr('orient', 'auto').attr('style', 'stroke: none; fill: orange');
-          }
-        } else {
-          //unknown status
-          commonNodeRendererService.drawRuntimeCount(runtimeGroup, 'runtime-count-unknown', rectOriginX, currentY, '\uf110');
-          runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12').attr(
-            'orient', 'auto').attr('style', 'stroke: none; fill: gray');
-        }
-
-        runtimeGroup.append('text').attr('text-anchor', 'start').attr('x', rectOriginX + this.width - 20).attr('y', rectOriginY + 20).attr('font-weight',
-          'bold').attr('fill', 'white').text(function() {
-          return nodeInstancesCount ? nodeInstancesCount - deletedCount : 0;
-        });
-      },
-
-      removeRuntimeCount: function(runtimeGroup, id) {
-        var groupSelection = runtimeGroup.select('#' + id);
-        if (!groupSelection.empty()) {
-          groupSelection.remove();
         }
       },
 
-      getNumberOfInstanceByStatus: function(nodeInstances, status) {
-        var count = 0;
-        for (var instanceId in nodeInstances) {
-          if (nodeInstances.hasOwnProperty(instanceId) && nodeInstances[instanceId].instanceStatus === status) {
-            count++;
-          }
-        }
-        return count;
-      }
-
-
-
+      // common services
+      removeRuntimeCount: commonNodeRendererService.removeRuntimeCount,
+      getNumberOfInstanceByStatus: commonNodeRendererService.getNumberOfInstanceByStatus,
+      tooltip: commonNodeRendererService.tooltip
     };
   } // function
 ]);
