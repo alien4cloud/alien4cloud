@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.git.RepositoryManager;
 import alien4cloud.utils.FileUtil;
 
 /**
@@ -13,8 +14,24 @@ import alien4cloud.utils.FileUtil;
  */
 @Slf4j
 public class PrepareTestData {
-    public static String ARCHIVES_TARGET_PATH = "../target/it-artifacts/zipped/";
+    public static String ARCHIVES_TARGET_PATH_ROOT = "target/it-artifacts/";
+    public static String RELATIVE_ARCHIVES_TARGET_PATH_ROOT = "../" + ARCHIVES_TARGET_PATH_ROOT;
+    public static String ARCHIVES_TARGET_PATH = RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "zipped/";
     public static String BASEDIR = "";
+    private final static RepositoryManager repositoryManager = new RepositoryManager();
+
+    private static void checkoutArchiveFromGit(String localName, String nameFolder, String url, String branch) {
+        Path archivesTargetPath = Paths.get(ARCHIVES_TARGET_PATH_ROOT);
+        repositoryManager.cloneOrCheckout(archivesTargetPath, url, branch, localName);
+
+        Path typesPath = archivesTargetPath.resolve(nameFolder);
+        Path typesZipPath = archivesTargetPath.resolve(nameFolder + ".zip");
+        try {
+            FileUtil.zip(typesPath, typesZipPath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to zip archive for tests.", e);
+        }
+    }
 
     public static void main(String[] args) {
         String baseDir = args[0];
@@ -34,5 +51,12 @@ public class PrepareTestData {
                 throw new RuntimeException("Failed to zip archive for tests.", e);
             }
         }
+
+        checkoutArchiveFromGit("alien-base-types", "alien-base-types/alien-base-types-1.0-SNAPSHOT",
+                "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master");
+        checkoutArchiveFromGit("alien-extended-storage-types", "alien-base-types/alien-extended-storage-types-1.0-SNAPSHOT",
+                "https://github.com/alien4cloud/alien4cloud-extended-types.git", "master");
+        checkoutArchiveFromGit("tosca-normative-types", "tosca-normative-types",
+                "https://github.com/alien4cloud/tosca-normative-types.git", "master");
     }
 }

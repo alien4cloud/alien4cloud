@@ -2,8 +2,10 @@ package alien4cloud.model.cloud;
 
 import javax.validation.constraints.Min;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -13,8 +15,10 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @EqualsAndHashCode
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class CloudImageFlavor implements Comparable<CloudImageFlavor> {
+public class CloudImageFlavor implements Comparable<CloudImageFlavor>, ICloudResourceTemplate {
 
     @NotBlank
     private String id;

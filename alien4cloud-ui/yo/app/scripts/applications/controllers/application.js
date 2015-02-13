@@ -163,6 +163,10 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags)) {
           $scope.networkImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.Network'].tags);
         }
+        if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage']) &&
+          UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags)) {
+          $scope.storageImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
+        }
         // process topology data
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;

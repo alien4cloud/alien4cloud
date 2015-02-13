@@ -40,7 +40,6 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IConfigurablePaaSProvider;
-import alien4cloud.paas.IManualResourceMatcherPaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -62,7 +61,7 @@ import com.google.common.collect.Lists;
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig>, IManualResourceMatcherPaaSProvider {
+public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
 
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
@@ -75,6 +74,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Resource
     private DeploymentService deploymentService;
+
+    private ProviderConfig providerConfiguration;
 
     /**
      * A little bit scary isn't it ? It's just a mock man.
@@ -538,6 +539,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
                 log.info("Throwing error for bad configuration");
                 throw new PluginConfigurationException("Failed to configure Mock PaaS Provider Plugin error.");
             }
+            this.providerConfiguration = configuration;
         } catch (JsonProcessingException e) {
             log.error("Fails to serialize configuration object as json string", e);
         }
@@ -545,6 +547,19 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     @Override
     public String[] getAvailableResourceIds(CloudResourceType resourceType) {
+        if (providerConfiguration != null && providerConfiguration.isProvideResourceIds()) {
+            String[] ids = new String[10];
+            for (int i = 0; i < 10; i++) {
+                ids[i] = "yetAnotherResourceId-" + resourceType.name() + "-" + i;
+            }
+            return ids;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
         return null;
     }
 }

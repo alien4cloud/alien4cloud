@@ -31,8 +31,8 @@ public class ArchiveParserTest {
 
     @Test
     public void parseNormativeTypesWd03() throws ParsingException, IOException {
-        String localName = "tosca-normative-types-1.0.0.wd03";
-        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "1.0.0.wd03", localName);
+        String localName = "tosca-normative-types";
+        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", localName);
 
         Path normativeTypesPath = artifactsDirectory.resolve(localName);
         Path normativeTypesZipPath = artifactsDirectory.resolve(localName + ".zip");

@@ -5,12 +5,20 @@ Background:
   And I upload a plugin
 
 Scenario: Update a cloud's name
-  When I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
-    And I update cloud name from "Mount doom cloud" to "Mordor cloud"
-  Then I should receive a RestResponse with no error
+  Given I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+    When I update cloud name from "Mount doom cloud" to "Mordor cloud"
+    Then I should receive a RestResponse with no error
   When I list clouds
   Then I should receive a RestResponse with no error
     And Response should contains a cloud with name "Mordor cloud"
+
+Scenario: Update a cloud's name with same name should not fail (just ignored)
+  Given I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+    When I update cloud name from "Mount doom cloud" to "Mount doom cloud"
+    Then I should receive a RestResponse with no error
+  When I list clouds
+  Then I should receive a RestResponse with no error
+    And Response should contains a cloud with name "Mount doom cloud"
 
 Scenario: Update a cloud's name with existing name should fail
   When I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"

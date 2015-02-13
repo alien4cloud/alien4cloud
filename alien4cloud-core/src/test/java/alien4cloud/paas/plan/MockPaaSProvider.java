@@ -8,6 +8,10 @@ import lombok.Getter;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
@@ -20,8 +24,6 @@ import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.model.components.PropertyDefinition;
 
 @Getter
 @Component
@@ -78,6 +80,21 @@ public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaa
     @Override
     public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
             IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+
+    }
+
+    @Override
+    public String[] getAvailableResourceIds(CloudResourceType resourceType) {
+        return new String[0];
+    }
+
+    @Override
+    public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
+        return new String[0];
+    }
+
+    @Override
+    public void updateMatcherConfig(CloudResourceMatcherConfig config) {
 
     }
 }

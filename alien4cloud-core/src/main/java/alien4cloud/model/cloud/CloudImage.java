@@ -17,7 +17,7 @@ import org.elasticsearch.mapping.IndexType;
 @EqualsAndHashCode
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class CloudImage {
+public class CloudImage implements ICloudResourceTemplate {
 
     /**
      * Technical internal id

@@ -80,7 +80,7 @@
   vertical-align: top;
 }
 
-.has-error .editable i, .has-error .editable em.text-muted {
+.has-error .editable i, .has-error .editable em.text-muted, .has-error > span {
   color: $state-danger-text;
 }
 
