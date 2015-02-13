@@ -23,6 +23,12 @@ var toscaBaseTypes = {
       type: 'tosca.nodes.Network',
       id: 'rect_Network'
     }, selectedVersion);
+  },
+  blockstorage: function(selectedVersion) {
+    return this.get({
+      type: 'tosca.nodes.BlockStorage',
+      id: 'rect_BlockStorage'
+    }, selectedVersion);
   }
 };
 module.exports.toscaBaseTypes = toscaBaseTypes;

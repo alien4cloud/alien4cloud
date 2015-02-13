@@ -12,14 +12,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class MatchedNetwork {
+public class AbstractMatchedResource<T> {
 
-    /**
-     * The cloud's network
-     */
-    private Network network;
-    /**
-     * The PaaS resource id
-     */
+    private T resource;
+
     private String paaSResourceId;
 }

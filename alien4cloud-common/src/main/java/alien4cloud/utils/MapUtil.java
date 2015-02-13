@@ -30,9 +30,8 @@ public final class MapUtil {
                 } else {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> nested = (Map<String, Object>) value;
-                    if (nested.containsKey(token)) {
-                        value = nested.get(token);
-                    } else {
+                    value = nested.get(token);
+                    if (value == null) {
                         return null;
                     }
                 }
@@ -57,5 +56,21 @@ public final class MapUtil {
             map.put(keys[i], values[i]);
         }
         return map;
+    }
+
+    /**
+     * Revert a map key --> value become value --> key
+     * 
+     * @param map the map to revert
+     * @param <K> the type of the key
+     * @param <V> the type of the value
+     * @return reverted map
+     */
+    public static <K, V> Map<V, K> revert(Map<K, V> map) {
+        Map<V, K> reverted = new HashMap<V, K>();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            reverted.put(entry.getValue(), entry.getKey());
+        }
+        return reverted;
     }
 }

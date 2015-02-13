@@ -2,16 +2,34 @@ package alien4cloud.utils;
 
 import java.lang.reflect.Field;
 
-import alien4cloud.model.components.*;
-import alien4cloud.model.components.constraints.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 
+import alien4cloud.model.cloud.CloudImageFlavor;
+import alien4cloud.model.cloud.CloudImageRequirement;
+import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.common.Tag;
-import alien4cloud.model.cloud.*;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 
 /**
  * Most of the equals and hashcode methods are generated using Lombok.
@@ -24,14 +42,10 @@ public class EqualsAndHashCodeAutoTest {
     public void testEqualsAndHashCode() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
         doTest(IndexedNodeType.class, "elementId", "archiveName", "archiveVersion");
         doTest(Tag.class, "name");
-        doTest(ActivableComputeTemplate.class, "cloudImageId", "cloudImageFlavorId");
-        doTest(ComputeTemplate.class, "cloudImageId", "cloudImageFlavorId");
         // TODO is it really what we want to check on CloudImageFlavor ?
         doTest(CloudImageFlavor.class, "id", "numCPUs", "diskSize", "memSize");
         doTest(CloudImageRequirement.class, "numCPUs", "diskSize", "memSize");
-        doTest(MatchedComputeTemplate.class, "computeTemplate", "paaSResourceId");
-        doTest(MatchedNetwork.class, "network", "paaSResourceId");
-        doTest(Network.class, "ipVersion", "cidr", "gatewayIp", "networkName");
+        doTest(NetworkTemplate.class, "ipVersion", "cidr", "gatewayIp", "id");
         doTest(CSARDependency.class, "name", "version");
         doTest(CapabilityDefinition.class, "id");
         doTest(Csar.class, "name", "version");

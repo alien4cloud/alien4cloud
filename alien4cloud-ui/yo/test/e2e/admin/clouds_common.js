@@ -5,6 +5,7 @@
 var authentication = require('../authentication/authentication');
 var common = require('../common/common');
 var rolesCommon = require('../common/roles_common');
+var cloudImagesCommon = require('./cloud_image');
 var navigation = require('../common/navigation');
 var genericForm = require('../generic_form/generic_form');
 
@@ -156,6 +157,11 @@ var goToCloudDetailNetwork = function() {
 };
 module.exports.goToCloudDetailNetwork = goToCloudDetailNetwork;
 
+var goToCloudDetailStorage = function() {
+  element(by.id('tab-clouds-storage')).element(by.tagName('a')).click();
+};
+module.exports.goToCloudDetailStorage = goToCloudDetailStorage;
+
 var goToCloudDetailTemplate = function() {
   element(by.id('tab-clouds-template')).element(by.tagName('a')).click();
 };
@@ -191,6 +197,11 @@ var countTemplateCloud = function() {
 };
 module.exports.countTemplateCloud = countTemplateCloud;
 
+var countStorageCloud = function() {
+  return element.all(by.repeater('storage in cloud.storages')).count();
+};
+module.exports.countStorageCloud = countStorageCloud;
+
 var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
   goToCloudDetailFlavor();
   browser.element(by.id('clouds-flavor-add-button')).click();
@@ -204,11 +215,12 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
 };
 module.exports.addNewFlavor = addNewFlavor;
 
-var addNewNetwork = function(name, cidr, gateway, ipVersion) {
+var addNewNetwork = function(name, cidr, isExternal, gateway, ipVersion) {
   goToCloudDetailNetwork();
   browser.element(by.id('clouds-network-add-button')).click();
   genericForm.sendValueToPrimitive('networkName', name, false, 'input');
   genericForm.sendValueToPrimitive('cidr', cidr, false, 'input');
+  genericForm.sendValueToPrimitive('isExternal', isExternal, false, 'radio');
   genericForm.sendValueToPrimitive('gatewayIp', gateway, false, 'input');
   genericForm.sendValueToPrimitive('ipVersion', ipVersion, false, 'select');
   browser.actions().click(element(by.id("new-network-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
@@ -216,6 +228,28 @@ var addNewNetwork = function(name, cidr, gateway, ipVersion) {
   common.dismissAlertIfPresent();
 };
 module.exports.addNewNetwork = addNewNetwork;
+
+var deleteCoudNetwork = function(name) {
+  browser.actions().click(element(by.id('cloud_delete_network_' + name))).perform();
+};
+module.exports.deleteCoudNetwork = deleteCoudNetwork;
+
+var addNewStorage = function(id, device, size) {
+  goToCloudDetailStorage();
+  browser.element(by.id('clouds-storage-add-button')).click();
+  genericForm.sendValueToPrimitive('id', id, false, 'input');
+  genericForm.sendValueToPrimitive('device', device, false, 'input');
+  genericForm.sendValueToPrimitive('size', size, false, 'input');
+  browser.actions().click(element(by.id("new-storage-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.waitForAngular();
+  common.dismissAlertIfPresent();
+};
+module.exports.addNewStorage = addNewStorage;
+
+var deleteCoudStorage = function(name) {
+  browser.actions().click(element(by.id('cloud_delete_storage_' + name))).perform();
+};
+module.exports.deleteCoudStorage = deleteCoudStorage;
 
 var selectFirstImageOfCloud = function() {
   goToCloudDetailImage();
@@ -247,14 +281,46 @@ var selectImageOfCloud = function(imageName) {
 };
 module.exports.selectImageOfCloud = selectImageOfCloud;
 
-var assignPaaSResourceToTemplate = function(cloudImageName, flavorId, paaSResourceId) {
-  goToCloudDetailTemplate();
-  common.sendValueToXEditable('computeTemplate_' + cloudImageName + '_' + flavorId, paaSResourceId, false);
+// add a new cloud image from the clouds details images tab
+var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize) {
+  goToCloudDetailImage();
+  element(by.id('clouds-image-create-button')).click();
+  browser.waitForAngular();
+  cloudImagesCommon.fillCloudImageCreationForm(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize, "newCloudImageModal");
 };
-module.exports.assignPaaSResourceToTemplate = assignPaaSResourceToTemplate;
+module.exports.addNewCloudImage = addNewCloudImage;
+
+var deleteCoudImage = function(name) {
+  browser.actions().click(element(by.id('cloud_delete_cloud_image_' + name))).perform();
+};
+module.exports.deleteCoudImage = deleteCoudImage;
+
+var assignPaaSResourceToImage = function(cloudImageName, paaSResourceId) {
+  goToCloudDetailImage();
+  common.sendValueToXEditable('cloudImage_' + cloudImageName, paaSResourceId, false);
+};
+module.exports.assignPaaSResourceToImage = assignPaaSResourceToImage;
+
+var assignPaaSResourceToFlavor = function(flavorId, paaSResourceId) {
+  goToCloudDetailFlavor();
+  common.sendValueToXEditable('cloud_flavor_' + flavorId, paaSResourceId, false);
+};
+module.exports.assignPaaSResourceToFlavor = assignPaaSResourceToFlavor;
 
 var assignPaaSIdToNetwork = function(networkName, paaSResourceId) {
   goToCloudDetailNetwork();
   common.sendValueToXEditable('cloud_network_' + networkName, paaSResourceId, false);
 };
 module.exports.assignPaaSIdToNetwork = assignPaaSIdToNetwork;
+
+var countAndSelectResourcePaaSIdFromDropDown = function(dropDownButtonId, pasSId, repeaterExpression, elementCount) {
+  // click on the button
+  browser.actions().click(element(by.id(dropDownButtonId))).perform();
+  // count the number of elements in the drop down
+  expect(element(by.id(dropDownButtonId)).element(by.xpath('..')).all(by.repeater(repeaterExpression)).count()).toBe(elementCount);
+  // select the on we want
+  browser.actions().click(element(by.id(dropDownButtonId + '_' + pasSId))).perform();
+  // check that the value is as expected
+  expect(element(by.id(dropDownButtonId)).getText()).toEqual(pasSId);
+};
+module.exports.countAndSelectResourcePaaSIdFromDropDown = countAndSelectResourcePaaSIdFromDropDown;

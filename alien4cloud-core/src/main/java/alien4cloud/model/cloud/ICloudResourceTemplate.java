@@ -5,5 +5,7 @@ package alien4cloud.model.cloud;
  * 
  * @author Minh Khang VU
  */
-public interface ICloudResource {
+public interface ICloudResourceTemplate {
+    
+    String getId();
 }

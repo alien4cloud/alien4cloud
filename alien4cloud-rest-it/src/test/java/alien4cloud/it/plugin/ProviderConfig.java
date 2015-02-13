@@ -34,4 +34,6 @@ public class ProviderConfig {
 
     @FormPropertyDefinition(type = ToscaType.VERSION, defaultValue = "1.6", constraints = @FormPropertyConstraint(greaterOrEqual = "1.6"))
     private String javaVersion;
+
+    private boolean provideResourceIds;
 }

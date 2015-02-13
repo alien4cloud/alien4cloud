@@ -24,10 +24,12 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.NetworkTemplate;
+import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
 
 import com.google.common.collect.Maps;
@@ -95,11 +97,11 @@ public class DeploymentSetupService {
      * Get the deployment setup
      * (environment right check done before method call)
      * 
-     * @param application
+     * @param applicationId
      * @param applicationEnvironmentId
      * @return
      */
-    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) {
+    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) throws CloudDisabledException {
 
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
@@ -127,25 +129,32 @@ public class DeploymentSetupService {
      * @param automaticSave automatically save the deployment setup if it has been changed
      * @return true if the topology's deployment setup is valid (all resources are matchable), false otherwise
      */
-    public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave) {
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
+    public boolean generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave)
+            throws CloudDisabledException {
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
-        CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig, types);
+        CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()),
+                cloudResourceMatcherConfig, types);
 
         // Generate default matching for compute template
         MappingGenerationResult<ComputeTemplate> computeMapping = generateDefaultMapping(deploymentSetup.getCloudResourcesMapping(),
                 matchResult.getComputeMatchResult(), topology);
 
         // Generate default matching for network
-        MappingGenerationResult<Network> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(), matchResult.getNetworkMatchResult(),
-                topology);
+        MappingGenerationResult<NetworkTemplate> networkMapping = generateDefaultMapping(deploymentSetup.getNetworkMapping(),
+                matchResult.getNetworkMatchResult(), topology);
+
+        // Generate default matching for storage
+        MappingGenerationResult<StorageTemplate> storageMapping = generateDefaultMapping(deploymentSetup.getStorageMapping(),
+                matchResult.getStorageMatchResult(), topology);
 
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
         deploymentSetup.setNetworkMapping(networkMapping.mapping);
-        if ((computeMapping.changed || networkMapping.changed) && automaticSave) {
+        deploymentSetup.setStorageMapping(storageMapping.mapping);
+        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed) && automaticSave) {
             alienDAO.save(deploymentSetup);
         }
-        return computeMapping.valid && networkMapping.valid;
+        return computeMapping.valid && networkMapping.valid && storageMapping.valid;
     }
 
     @AllArgsConstructor
@@ -242,7 +251,7 @@ public class DeploymentSetupService {
     /**
      * Get a topology Id for a deploymentSetup
      * 
-     * @param deploymentId
+     * @param deploymentSetupId
      * @return a topology id
      */
     public String getTopologyId(String deploymentSetupId) {
