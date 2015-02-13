@@ -168,117 +168,117 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         controller: 'ApplicationVersionsCtrl'
       })
 
-    // topology templates
-    .state('topologytemplates', {
-      url: '/topologytemplates',
-      template: '<ui-view/>'
-    }).state('topologytemplates.list', {
-      url: '/list',
-      templateUrl: 'views/topologytemplates/topology_template_list.html',
-      controller: 'TopologyTemplateListCtrl'
-    }).state('topologytemplates.detail', {
-      url: '/:id',
-      templateUrl: 'views/topologytemplates/topology_template.html',
-      resolve: {
-        topologyTemplate: ['topologyTemplateService', '$stateParams',
-          function(topologyTemplateService, $stateParams) {
-            return topologyTemplateService.get({
-              topologyTemplateId: $stateParams.id
-            }).$promise;
+      // topology templates
+      .state('topologytemplates', {
+        url: '/topologytemplates',
+        template: '<ui-view/>'
+      }).state('topologytemplates.list', {
+        url: '/list',
+        templateUrl: 'views/topologytemplates/topology_template_list.html',
+        controller: 'TopologyTemplateListCtrl'
+      }).state('topologytemplates.detail', {
+        url: '/:id',
+        templateUrl: 'views/topologytemplates/topology_template.html',
+        resolve: {
+          topologyTemplate: ['topologyTemplateService', '$stateParams',
+            function(topologyTemplateService, $stateParams) {
+              return topologyTemplateService.get({
+                topologyTemplateId: $stateParams.id
+              }).$promise;
+            }
+          ]
+        },
+        controller: 'TopologyTemplateCtrl'
+      }).state('topologytemplates.detail.topology', {
+        url: '/topology',
+        templateUrl: 'views/topology/topology_editor.html',
+        resolve: {
+          topologyId: ['topologyTemplate',
+            function(topologyTemplate) {
+              return topologyTemplate.data.topologyId;
+            }
+          ],
+          appVersions: function() {
+            // TODO : handle versions for topology templates
+            return null;
           }
-        ]
-      },
-      controller: 'TopologyTemplateCtrl'
-    }).state('topologytemplates.detail.topology', {
-      url: '/topology',
-      templateUrl: 'views/topology/topology_editor.html',
-      resolve: {
-        topologyId: ['topologyTemplate',
-          function(topologyTemplate) {
-            return topologyTemplate.data.topologyId;
-          }
-        ],
-        appVersions: function() {
-          // TODO : handle versions for topology templates
-          return null;
-        }
-      },
-      controller: 'TopologyCtrl'
-    })
+        },
+        controller: 'TopologyCtrl'
+      })
 
-    // administration
-    .state('admin', {
-      url: '/admin',
-      templateUrl: 'views/common/vertical_menu_layout.html',
-      controller: 'AdminCtrl'
-    }).state('admin.home', {
-      url: '/',
-      templateUrl: 'views/common/vertical_menu_homepage_layout.html',
-      controller: 'AdminLayoutHomeCtrl'
-    }).state('admin.users', {
-      url: '/users',
-      templateUrl: 'views/users/user_list.html',
-      controller: 'UsersCtrl'
-    }).state('admin.plugins', {
-      url: '/plugins',
-      templateUrl: 'views/plugin_list.html',
-      controller: 'PluginCtrl'
-    }).state('admin.metaprops', {
-      url: '/metaproperties',
-      template: '<ui-view/>'
-    }).state('admin.metaprops.list', {
-      url: '/list',
-      templateUrl: 'views/meta-props/tag_configuration_list.html',
-      controller: 'TagConfigurationListCtrl'
-    }).state('admin.metaprops.detail', {
-      url: '/:id',
-      templateUrl: 'views/meta-props/tag_configuration.html',
-      controller: 'TagConfigurationCtrl'
-    }).state('admin.clouds', {
-      url: '/clouds',
-      template: '<ui-view/>'
-    }).state('admin.clouds.list', {
-      url: '/list',
-      templateUrl: 'views/clouds/cloud_list.html',
-      controller: 'CloudListController'
-    }).state('admin.clouds.detail', {
-      url: '/:id',
-      templateUrl: 'views/clouds/cloud_detail.html',
-      controller: 'CloudDetailController'
-    }).state('admin.metrics', {
-      url: '/metrics',
-      templateUrl: 'views/admin/metrics.html',
-      controller: 'MetricsController'
-    }).state('admin.cloud-images', {
-      url: '/cloud-images',
-      template: '<ui-view/>'
-    }).state('admin.cloud-images.list', {
-      url: '/list',
-      templateUrl: 'views/cloud-images/cloud_image_list.html',
-      controller: 'CloudImageListController'
-    }).state('admin.cloud-images.detail', {
-      url: '/:id?mode',
-      resolve: {
-        cloudImage: ['cloudImageServices', '$stateParams',
-          function(cloudImageServices, $stateParams) {
-            return cloudImageServices.get({
-              id: $stateParams.id
-            }).$promise.then(function(success) {
-              var cloudImage = success.data;
-              if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
-                cloudImage.numCPUs = cloudImage.requirement.numCPUs;
-                cloudImage.diskSize = cloudImage.requirement.diskSize;
-                cloudImage.memSize = cloudImage.requirement.memSize;
-              }
-              return cloudImage;
-            });
-          }
-        ]
-      },
-      templateUrl: 'views/cloud-images/cloud_image_detail.html',
-      controller: 'CloudImageDetailController'
+      // administration
+      .state('admin', {
+        url: '/admin',
+        templateUrl: 'views/common/vertical_menu_layout.html',
+        controller: 'AdminCtrl'
+      }).state('admin.home', {
+        url: '/',
+        templateUrl: 'views/common/vertical_menu_homepage_layout.html',
+        controller: 'AdminLayoutHomeCtrl'
+      }).state('admin.users', {
+        url: '/users',
+        templateUrl: 'views/users/user_list.html',
+        controller: 'UsersCtrl'
+      }).state('admin.plugins', {
+        url: '/plugins',
+        templateUrl: 'views/plugin_list.html',
+        controller: 'PluginCtrl'
+      }).state('admin.metaprops', {
+        url: '/metaproperties',
+        template: '<ui-view/>'
+      }).state('admin.metaprops.list', {
+        url: '/list',
+        templateUrl: 'views/meta-props/tag_configuration_list.html',
+        controller: 'TagConfigurationListCtrl'
+      }).state('admin.metaprops.detail', {
+        url: '/:id',
+        templateUrl: 'views/meta-props/tag_configuration.html',
+        controller: 'TagConfigurationCtrl'
+      }).state('admin.clouds', {
+        url: '/clouds',
+        template: '<ui-view/>'
+      }).state('admin.clouds.list', {
+        url: '/list',
+        templateUrl: 'views/clouds/cloud_list.html',
+        controller: 'CloudListController'
+      }).state('admin.clouds.detail', {
+        url: '/:id',
+        templateUrl: 'views/clouds/cloud_detail.html',
+        controller: 'CloudDetailController'
+      }).state('admin.metrics', {
+        url: '/metrics',
+        templateUrl: 'views/admin/metrics.html',
+        controller: 'MetricsController'
+      }).state('admin.cloud-images', {
+        url: '/cloud-images',
+        template: '<ui-view/>'
+      }).state('admin.cloud-images.list', {
+        url: '/list',
+        templateUrl: 'views/cloud-images/cloud_image_list.html',
+        controller: 'CloudImageListController'
+      }).state('admin.cloud-images.detail', {
+        url: '/:id?mode',
+        resolve: {
+          cloudImage: ['cloudImageServices', '$stateParams',
+            function(cloudImageServices, $stateParams) {
+              return cloudImageServices.get({
+                id: $stateParams.id
+              }).$promise.then(function(success) {
+                var cloudImage = success.data;
+                if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
+                  cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                  cloudImage.diskSize = cloudImage.requirement.diskSize;
+                  cloudImage.memSize = cloudImage.requirement.memSize;
+                }
+                return cloudImage;
+              });
+            }
+          ]
+        },
+        templateUrl: 'views/cloud-images/cloud_image_detail.html',
+        controller: 'CloudImageDetailController'
+      });
     });
-  });
 
 /* i18n : angular-translate configuration */
 alien4cloudApp.config(['$translateProvider',
