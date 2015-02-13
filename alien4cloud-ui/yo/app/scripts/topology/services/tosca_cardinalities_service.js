@@ -22,7 +22,7 @@ angular.module('alienUiApp').factory('toscaCardinalitiesService',
         var count = 0;
         for(var i=0; i< this.relationships.length; i++) {
           var relationship = this.relationships[i];
-          if(relationship.requirementName === this.requirement.key && relationship.requirementType === this.requirement.type) {
+          if(relationship.value.requirementName === this.requirementName && relationship.value.requirementType === this.requirement.type) {
             count++;
           }
         }
@@ -94,6 +94,7 @@ angular.module('alienUiApp').factory('toscaCardinalitiesService',
           requirement.upperBound = reqDef.upperBound;
           requirement.lowerBound = reqDef.lowerBound;
           requirement.canAddRel = instance.computeBoundRemains(requirement, {
+            requirementName: reqDef.id,
             requirement: requirement,
             relationships: nodeTemplate.relationships,
             call: instance.computeRequirementUsage

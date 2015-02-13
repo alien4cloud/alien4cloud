@@ -45,7 +45,6 @@ describe('Quick search', function() {
   });
 
   it('When authenticate with a role, should only see allowed items [components, application, or both]', function() {
-
     console.log('################# When authenticate with a role, should only see allowed items [components, application, or both]. ');
     // creating applications as applicationManager
     uploadData();

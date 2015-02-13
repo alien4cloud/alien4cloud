@@ -1,9 +1,9 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory',
+angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory) {
+    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -153,6 +153,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         topologyId: topologyId
       }, function(result) {
         $scope.topologyDTO = result.data;
+        topologyJsonProcessor.process($scope.topologyDTO);
         // initialize compute and network icons from the actual tosca types (to match topology representation).
         if (UTILS.isDefinedAndNotNull($scope.topologyDTO.nodeTypes['tosca.nodes.Compute']) &&
           UTILS.isArrayDefinedAndNotEmpty($scope.topologyDTO.nodeTypes['tosca.nodes.Compute'].tags)) {
@@ -259,7 +260,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           $scope.outputPropertiesValue[nodeId] = {};
           for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
             var outputPropertyName = $scope.outputProperties[nodeId][i];
-            $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].properties[outputPropertyName];
+            $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].propertiesMap[outputPropertyName].value;
           }
         }
       }

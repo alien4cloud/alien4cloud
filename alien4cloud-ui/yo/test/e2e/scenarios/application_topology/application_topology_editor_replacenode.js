@@ -48,8 +48,8 @@ describe('Replacing a node template', function() {
     // check if the target name have been changed in the source of the relationship (Compute_2)
     element(by.id('rect_Compute_2')).click();
     browser.waitForAngular();
-    var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
+    var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
     browser.waitForAngular();
-    expect(relationships.first().element(by.binding('relationshipDefinition.target')).getText()).toContain('JavaRPM');
+    expect(relationships.first().element(by.binding('relationshipEntry.value.target')).getText()).toContain('JavaRPM');
   });
 });

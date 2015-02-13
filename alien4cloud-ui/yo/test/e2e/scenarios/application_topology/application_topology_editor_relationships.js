@@ -76,6 +76,7 @@ describe('NodeTemplate relationships edition', function() {
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     // expect the button to be disabled
     topologyEditorCommon.checkCreatedRelationship('hostedOnCompute', 1);
+    browser.sleep(10000);
     expect(element(by.id(topologyEditorCommon.btnRelationshipNameBaseId + 'host')).isEnabled()).toBe(false);
   });
 

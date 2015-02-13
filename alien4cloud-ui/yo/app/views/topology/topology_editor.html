@@ -170,9 +170,8 @@
             <div collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
 
-                <tr ng-repeat="propEntry in selectedProperties"
-                   ng-init="isPropertyRequired = isPropertyRequired(propEntry.key)">
-                   <td ng-class="{'property-required' : isPropertyRequired}">
+                <tr ng-repeat="propEntry in selectedProperties">
+                   <td>
                      <div class="btn-group" data-toggle="buttons">
                       <a id="p_input_{{propEntry.key}}" ng-click="toggleInputProperty(propEntry.key)" class="btn btn-default btn-xs" ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}" tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
@@ -398,7 +397,7 @@
                     ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
                   <span
                     ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
-                    editable-text="relNameObj[relationshipEntry.key]" ng-if="editRights"  buttons="no" e-required onbeforesave="updaterelationshipEntry.key(relationshipEntry.key, $data)" blur="submit" ng-click="$event.stopPropagation();"
+                    editable-text="relNameObj[relationshipEntry.key]" ng-if="editRights"  buttons="no" e-required onbeforesave="updateRelationshipName(relationshipEntry.key, $data)" blur="submit" ng-click="$event.stopPropagation();"
                     tooltip="{{relationshipEntry.key | split:15}}" tooltip-append-to-body="true">
                     {{relationshipEntry.key | truncate:25}}
                     <i class="fa fa-pencil-square-o"></i>
@@ -427,13 +426,15 @@
                   </div>
                   <div class="row">
                       <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
-                        <tr ng-repeat="(key, property) in topology.relationshipTypes[relationshipEntry.value.type].properties">
-                          <td ng-init="property.name=key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
+                        <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
+                          <td ng-init="propertyEntry.value.name=propertyEntry.key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
+                            {{relationshipEntry.value.properties}}
+                            {{propertyEntry.key}}
                             <property-display
                                     ng-init="condensed = false"
-                                    definition="property"
-                                    property-value="topology.topology.nodeTemplates[selectedNodeTemplate.name].relationships[relationshipEntry.key].properties[key]"
-                                    on-save="updateRelationshipProperty(property, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                                    definition="propertyEntry.value"
+                                    property-value="relationshipEntry.value.properties[propertyEntry.key]"
+                                    on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                                     editable="editRights"
                                     condensed="condensed">
                             </property-display>
@@ -447,7 +448,7 @@
           </div>
 
           <!-- Artifacts -->
-          <div ng-if="selectedNodeTemplate.artifacts.length > 0">
+          <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
             <div class="topology-node-expand clickable"
               ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
@@ -457,37 +458,37 @@
             </div>
             <div collapse="isArtifactsCollapsed">
               <div class="topology-level"
-                ng-repeat="(artifactEntry.key, artifactEntry.value) in selectedNodeTemplate.artifacts">
+                ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="topology-node-expand clickable"
                   ng-click="isArtifactCollapsed = !isArtifactCollapsed">
                   <i class="pull-left fa"
                     ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
-                  <span>{{artifactEntry.key}}</span>
+                  <span>{{artifactId}}</span>
 
                   <i class="fa fa-fw "
-                    ng-click="updateInputArtifactList(artifactEntry.key); $event.stopPropagation();"
+                    ng-click="updateInputArtifactList(artifactId); $event.stopPropagation();"
                     tooltip="{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_CHECK_INPUT' | translate}}"
-                    ng-class="{'fa-check-square-o text-success' : ( artifactChecked = isInputArtifact(artifactEntry.key) ),  'fa-square-o': !artifactChecked}"></i>
+                    ng-class="{'fa-check-square-o text-success' : ( artifactChecked = isInputArtifact(artifactId) ),  'fa-square-o': !artifactChecked}"></i>
 
                 </div>
                 <div class="topology-level" collapse="isArtifactCollapsed">
                   <div class="row">
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
-                    <div class="col-md-9">{{artifactEntry.value.artifactType}}</div>
+                    <div class="col-md-9">{{artifact.artifactType}}</div>
                   </div>
                   <div class="row">
                     <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
                     <div class="col-md-9">
-                      <div ng-if="!uploads[artifactEntry.key].isUploading">
-                        <span tooltip="{{artifactEntry.value.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifactEntry.value.artifactName.length > 20]}}">{{artifactEntry.value.artifactName | truncate:20}}</span>
+                      <div ng-if="!uploads[artifactId].isUploading">
+                        <span tooltip="{{artifact.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifact.artifactName.length > 20]}}">{{artifact.artifactName | truncate:20}}</span>
                         <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
                           <span>
                             <i class="fa fa-upload text-primary"></i>
                           </span>
-                          <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactEntry.key)">
+                          <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactId)">
                         </div>
                       </div>
-                      <progressbar ng-if="uploads[artifactEntry.key].isUploading" class="progress-striped active" value="uploads[artifactEntry.key].uploadProgress" type="{{uploads[artifactEntry.key].type}}" />
+                      <progressbar ng-if="uploads[artifactId].isUploading" class="progress-striped active" value="uploads[artifactId].uploadProgress" type="{{uploads[artifactId].type}}" />
                     </div>
                   </div>
                 </div>

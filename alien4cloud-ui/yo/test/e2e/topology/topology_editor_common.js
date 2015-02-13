@@ -241,7 +241,7 @@ module.exports.addRelationship = function(relationshipDescription) {
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
   var countRelationship = 0;
-  var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
+  var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
 
   // get a relationship array
@@ -255,7 +255,6 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
 
   // when my relationship array is ready i do some test on it
   relationshipList.then(function(arrayRelationship) {
-
     // Testing relationshipsNameStart count
     arrayRelationship.forEach(function(relationship) {
       if (relationship.relationshipName.replace(/ /g, '').search(relationshipsNameStart) > -1) {
@@ -437,7 +436,7 @@ var expectAttributeOutputState = function(nodeTemplateName, propertyName, checke
 module.exports.expectAttributeOutputState = expectAttributeOutputState;
 
 var checkNumberOfRelationship = function(expectedCount) {
-  var relationships = element.all(by.repeater('(relationshipName, relationshipDefinition) in selectedNodeTemplate.relationships'));
+  var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
   expect(relationships.count()).toBe(expectedCount);
 };

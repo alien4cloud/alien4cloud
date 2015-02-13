@@ -452,7 +452,8 @@ module.exports = function(grunt) {
             baseUrl: 'http://localhost:8088',
             specs: [
               'test/e2e/setup-scenario/before-all.js',
-              'test/e2e/scenarios/*.js'            ]
+              'test/e2e/scenarios/*.js'
+            ]
           }
         }
       },
@@ -492,7 +493,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/admin/admin_groups_management.js',
               //              'test/e2e/scenarios/admin/admin_metaprops_configuration.js',
               //              'test/e2e/scenarios/admin/admin_users_management.js',
-                            'test/e2e/scenarios/application/application.js',
+              //              'test/e2e/scenarios/application/application.js',
               //              'test/e2e/scenarios/application/application_metaprops.js',
               //              'test/e2e/scenarios/application/application_environments.js',
               //              'test/e2e/scenarios/application/application_versions.js',
@@ -500,8 +501,8 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
-              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
-              //              'test/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
+              //            'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
+                            'test/e2e/scenarios/unstable/application_topology_editor_input_output.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_multiplenodeversions.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_plan.js',
