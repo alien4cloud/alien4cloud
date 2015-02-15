@@ -1,8 +1,21 @@
 package alien4cloud.paas.plan;
 
-import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.*;
-import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.*;
-
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.AVAILABLE;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CONFIGURED;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CREATE;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.CREATED;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.INITIAL;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.STANDARD;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.START;
+import static alien4cloud.paas.plan.ToscaNodeLifecycleConstants.STARTED;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.ADD_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.ADD_TARGET;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.POST_CONFIGURE_TARGET;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.PRE_CONFIGURE_SOURCE;
+import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.PRE_CONFIGURE_TARGET;
+import static alien4cloud.tosca.normative.NormativeRelationshipConstants.CONNECTS_TO;
+import static alien4cloud.tosca.normative.NormativeRelationshipConstants.DEPENDS_ON;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 
 /**
@@ -33,7 +46,9 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         waitMyself(node, DEPENDS_ON, STARTED);
 
         // synchronous add source / target implementation.
-        callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_TARGET, ADD_SOURCE);
+        // trigger them
+        triggerRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
+        // callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
 
         state(node.getId(), AVAILABLE);
 

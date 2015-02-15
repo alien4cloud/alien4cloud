@@ -1,11 +1,14 @@
 package alien4cloud.paas.plan;
 
-import static alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants.ROOT;
+import static alien4cloud.tosca.normative.NormativeRelationshipConstants.ROOT;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -120,6 +123,20 @@ public abstract class AbstractPlanGenerator {
     }
 
     /**
+     * Trigger the execution of an operation on a relationship.
+     *
+     * @param relationshipTemplate The relationship template on which to trigger the execution of the operation.
+     * @param interfaceName The interface name.
+     * @param mainMember The main member of the relationship to process (source or target).
+     * @param sideMember The other member of the relationship to process(target if the main is source, source if not)
+     */
+    protected void trigger(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, RelationshipMember mainMember, RelationshipMember sideMember) {
+        Interface interfaz = getRelationshipInterface(relationshipTemplate, interfaceName);
+        triggerOperation(relationshipTemplate.getCsarPath(), interfaz, interfaceName, relationshipTemplate.getId(), mainMember, sideMember);
+        // triggerOperation(relationshipTemplate.getCsarPath(), interfaz, nodeId, relationshipTemplate.getId(), interfaceName, operation, sideOperation);
+    }
+
+    /**
      * Wait for all target nodes of relationships (except if target and source are the same node) to reach the expected state.
      *
      * @param nodeTemplate The node that should wait for it's relationships target to reach the given state.
@@ -206,8 +223,8 @@ public abstract class AbstractPlanGenerator {
      *
      * @param nodeTemplate The node that is source or target of the relations.
      * @param interfaceName The interface that holds the operations.
-     * @param sourceOperation The operation to be triggered if the node is source.
-     * @param targetOperation The operation to be triggered if the node is target.
+     * @param sourceOperation The operation to be executed if the node is source.
+     * @param targetOperation The operation to be executed if the node is target.
      */
     protected void callRelations(PaaSNodeTemplate nodeTemplate, String interfaceName, String sourceOperation, String targetOperation) {
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
@@ -216,6 +233,28 @@ public abstract class AbstractPlanGenerator {
                     call(relationshipTemplate, interfaceName, sourceOperation);
                 } else {
                     call(relationshipTemplate, interfaceName, targetOperation);
+                }
+            }
+        }
+    }
+
+    /**
+     * Trigger the call of operations from the node relationships.
+     *
+     * @param nodeTemplate The node that is source or target of the relations.
+     * @param interfaceName The interface that holds the operations.
+     * @param sourceOperation The operation to be triggered if the node is source.
+     * @param targetOperation The operation to be triggered if the node is target.
+     */
+    protected void triggerRelations(PaaSNodeTemplate nodeTemplate, String interfaceName, String sourceOperation, String targetOperation) {
+        for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
+            if (relationshipTemplate.instanceOf(ROOT)) {
+                RelationshipMember source = new RelationshipMember(relationshipTemplate.getSource(), sourceOperation);
+                RelationshipMember target = new RelationshipMember(relationshipTemplate.getRelationshipTemplate().getTarget(), targetOperation);
+                if (source.nodeId.equals(nodeTemplate.getId())) {
+                    trigger(relationshipTemplate, interfaceName, source, target);
+                } else {
+                    trigger(relationshipTemplate, interfaceName, target, source);
                 }
             }
         }
@@ -241,13 +280,51 @@ public abstract class AbstractPlanGenerator {
     }
 
     private void callOperation(Path csarPath, Interface interfaz, String nodeTemplateId, String relationshipId, String interfaceName, String operationName) {
-        Operation operation = interfaz.getOperations().get(operationName);
+        Operation operation = operationName != null ? interfaz.getOperations().get(operationName) : null;
         if (operation == null || operation.getImplementationArtifact() == null) {
             // if there is no implementation for the requested operation we just don't generate a step.
             return;
         }
 
         OperationCallActivity activity = new OperationCallActivity();
+        fillOperationCallActivity(activity, csarPath, nodeTemplateId, relationshipId, interfaceName, operationName, operation);
+        next(activity);
+    }
+
+    private void triggerOperation(final Path csarPath, final Interface interfaz, final String interfaceName, final String relationshipId,
+            final RelationshipMember mainMember, final RelationshipMember sideMember) {
+
+        final Operation operation = interfaz.getOperations().get(mainMember.operation);
+        final Operation sideOperation = interfaz.getOperations().get(sideMember.operation);
+        final boolean processMain = !(operation == null || operation.getImplementationArtifact() == null);
+        final boolean processSide = !(sideOperation == null || sideOperation.getImplementationArtifact() == null);
+        if (!processMain && !processSide) {
+            // if there is no implementation neither for the requested operation, nor for the side one, we just don't generate a step.
+            return;
+        }
+
+        RelationshipTriggerEvent activity = new RelationshipTriggerEvent();
+        activity.setCsarPath(csarPath);
+        activity.setRelationshipId(relationshipId);
+        activity.setInterfaceName(interfaceName);
+        activity.setNodeTemplateId(mainMember.nodeId);
+        activity.setSideNodeTemplateId(sideMember.nodeId);
+
+        if (processMain) {
+            activity.setOperationName(mainMember.operation);
+        }
+
+        if (processSide) {
+            activity.setSideOperationName(sideMember.operation);
+            activity.setSideOperationImplementationArtifact(sideOperation.getImplementationArtifact());
+            activity.setSideInputParameters(sideOperation.getInputParameters());
+        }
+
+        next(activity);
+    }
+
+    private void fillOperationCallActivity(OperationCallActivity activity, Path csarPath, String nodeTemplateId, String relationshipId, String interfaceName,
+            String operationName, Operation operation) {
         activity.setCsarPath(csarPath);
         activity.setInterfaceName(interfaceName);
         activity.setOperationName(operationName);
@@ -255,7 +332,6 @@ public abstract class AbstractPlanGenerator {
         activity.setRelationshipId(relationshipId);
         activity.setImplementationArtifact(operation.getImplementationArtifact());
         activity.setInputParameters(operation.getInputParameters());
-        next(activity);
     }
 
     private static Interface getNodeInterface(PaaSNodeTemplate nodeTemplate, String interfaceName) {
@@ -279,5 +355,12 @@ public abstract class AbstractPlanGenerator {
 
     private static Interface getInterface(String interfaceName, Map<String, Interface> interfaces) {
         return interfaces == null ? null : interfaces.get(interfaceName);
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    protected class RelationshipMember {
+        String nodeId;
+        String operation;
     }
 }
