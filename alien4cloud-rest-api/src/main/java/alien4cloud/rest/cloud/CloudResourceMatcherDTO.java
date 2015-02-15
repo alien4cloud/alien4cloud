@@ -14,7 +14,9 @@ public class CloudResourceMatcherDTO {
 
     private CloudResourceMatcherConfig matcherConfig;
 
-    private String[] paaSComputeTemplateIds;
+    private String[] paaSImageIds;
+
+    private String[] paaSFlavorIds;
 
     private String[] paaSNetworkTemplateIds;
 }

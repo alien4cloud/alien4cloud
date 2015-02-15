@@ -12,6 +12,15 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Initialization
     $scope.application = applicationResult.data;
     $scope.envs = appEnvironments.deployEnvironments;
+    $scope.getResourceIcon = function(defaultImage, key) {
+      var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
+      if (UTILS.isDefinedAndNotNull(tags)) {
+        var icon = UTILS.getIcon(tags);
+        return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
+      } else {
+        return null;
+      }
+    };
 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
@@ -20,6 +29,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         refreshDeploymentSetup();
       });
     }
+
     setEnvironment($scope.envs[0]); // default env
 
     function initializeCloudList() {
@@ -30,6 +40,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.clouds = clouds;
       });
     }
+
     initializeCloudList();
 
     // update the configuration for the cloud
@@ -110,6 +121,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         // update resource matching data.
         $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
         $scope.selectedNetworks = $scope.setup.networkMapping;
+        $scope.selectedStorages = $scope.setup.storageMapping;
 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
@@ -132,6 +144,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         }
         $scope.selectedComputeTemplates = {};
         $scope.selectedNetworks = {};
+        $scope.selectedStorages = {};
         var updateAppEnvRequest = {};
         updateAppEnvRequest.cloudId = switchToCloud.id;
         // update for the current environment
@@ -171,6 +184,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.currentMatchedNetworks = currentMatchedNetworks;
     };
 
+    $scope.setCurrentMatchedStorages = function(name, currentMatchedStorages) {
+      $scope.currentStorageNodeTemplateId = name;
+      $scope.currentMatchedStorages = currentMatchedStorages;
+    };
+
     $scope.changeSelectedNetwork = function(template) {
       $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
       // Update deployment setup when matching change
@@ -179,6 +197,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         applicationEnvironmentId: $scope.selectedEnvironment.id
       }, angular.toJson({
         networkMapping: $scope.selectedNetworks
+      }));
+    };
+
+    $scope.changeSelectedStorage = function(template) {
+      $scope.selectedStorages[$scope.currentStorageNodeTemplateId] = template;
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        storageMapping: $scope.selectedStorages
       }));
     };
 
@@ -212,11 +241,20 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.isSelectedNetwork = function(template) {
       var selected = $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId];
-      return UTILS.isDefinedAndNotNull(selected) && template.networkName === selected.networkName;
+      return UTILS.isDefinedAndNotNull(selected) && template.id === selected.id;
+    };
+
+    $scope.isSelectedStorage = function(template) {
+      var selected = $scope.selectedStorages[$scope.currentStorageNodeTemplateId];
+      return template.id === selected.id;
     };
 
     $scope.isSelectedNetworkName = function(key) {
       return key === $scope.currentNetworkNodeTemplateId;
+    };
+
+    $scope.isSelectedStorageName = function(key) {
+      return key === $scope.currentStorageNodeTemplateId;
     };
 
     $scope.isAllowedInputDeployment = function() {
@@ -356,6 +394,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         }, undefined, function(response) {
           $scope.matchedComputeResources = response.data.computeMatchResult;
           $scope.matchedNetworkResources = response.data.networkMatchResult;
+          $scope.matchedStorageResources = response.data.storageMatchResult;
           $scope.images = response.data.images;
           $scope.flavors = response.data.flavors;
           var key;
@@ -371,6 +410,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
               if (!$scope.selectedNetworks.hasOwnProperty(key)) {
                 $scope.hasUnmatchedNetwork = true;
+                break;
+              }
+            }
+          }
+          for (key in $scope.matchedStorageResources) {
+            if ($scope.matchedStorageResources.hasOwnProperty(key)) {
+              if (!$scope.selectedStorages.hasOwnProperty(key)) {
+                $scope.hasUnmatchedStorage = true;
                 break;
               }
             }

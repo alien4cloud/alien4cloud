@@ -15,15 +15,14 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.utils.AlienUtils;
 
 @Slf4j
 @Component
@@ -65,7 +64,12 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
         String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
         if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
-            volumeIds = AlienUtils.putValueCommaSeparatedInPosition(volumeIds, storageEvent.getVolumeId(), Integer.parseInt(storageEvent.getInstanceId()));
+            if (volumeIds == null) {
+                volumeIds = "";
+            } else {
+                volumeIds += ",";
+            }
+            volumeIds += storageEvent.getVolumeId();
         }
         nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
         log.info("Updated NodeTemplate <{}.{}> to add VolumeId <{}> in position <{}> . New value is <{}>", topology.getId(), nodeTemplate.getName(),

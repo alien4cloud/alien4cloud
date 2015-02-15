@@ -47,11 +47,13 @@ var beforeTopologyTest = function() {
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
   cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
-//  cloudsCommon.selectFirstImageOfCloud();
-//  cloudsCommon.selectFirstImageOfCloud();
+  cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
   cloudsCommon.selectAllImageOfCloud();
-  cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
-  cloudsCommon.assignPaaSResourceToTemplate('Ubuntu', 'medium', 'MEDIUM_UBUNTU');
+  cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
+  cloudsCommon.assignPaaSResourceToImage("Ubuntu", "passIdImage2");
+  cloudsCommon.goToCloudDetail('testcloud');
+  cloudsCommon.disableCloud();
+  cloudsCommon.enableCloud();
   authentication.logout();
 
   authentication.login('applicationManager');
@@ -449,3 +451,20 @@ var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
   checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
+
+var expectDeploymentWork = function(goToAppDetail, work) {
+  if (goToAppDetail) {
+    authentication.reLogin('applicationManager');
+    applications.goToApplicationDetailPage('Alien', false);
+    navigation.go('applications', 'deployment');
+  }
+  var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
+  if (work) {
+    expect(deployButton.getAttribute('disabled')).toBeNull();
+    expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
+  } else {
+    expect(deployButton.getAttribute('disabled')).toEqual('true');
+    expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).toContain('text-danger');
+  }
+};
+module.exports.expectDeploymentWork = expectDeploymentWork;

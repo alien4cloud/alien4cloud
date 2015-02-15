@@ -92,7 +92,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Deploys the application on the configured Cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) {
+    public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) throws CloudDisabledException {
 
         // Application environment : get an check right on the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(deployApplicationRequest.getApplicationId(),
@@ -357,7 +357,8 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws CloudDisabledException {
         Application application = applicationService.checkAndGetApplication(applicationId);
 
         // get the topology from the version and the cloud from the environment
@@ -373,16 +374,16 @@ public class ApplicationDeploymentController {
                     + "] does not have any cloud assigned");
         }
         Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.findCloudResourceMatcherConfig(cloud);
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         return RestResponseBuilder
                 .<CloudResourceTopologyMatchResult> builder()
-                .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudResourceMatcherConfig,
+                .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,
                         topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
     }
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
+    public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws CloudDisabledException {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
@@ -401,7 +402,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
-            @RequestBody UpdateDeploymentSetupRequest updateRequest) {
+            @RequestBody UpdateDeploymentSetupRequest updateRequest) throws CloudDisabledException {
 
         Application application = applicationService.checkAndGetApplication(applicationId);
         // check rights on related environment

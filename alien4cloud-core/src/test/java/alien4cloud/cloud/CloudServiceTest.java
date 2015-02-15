@@ -6,7 +6,6 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.Cloud;
@@ -24,6 +23,7 @@ public class CloudServiceTest {
     private PaaSProviderService paaSProviderService;
     private PaaSProviderFactoriesService paaSProviderFactoriesService;
     private IGenericSearchDAO alienDAO;
+    private CloudImageService cloudImageService;
 
     private CloudService cloudService;
 
@@ -42,12 +42,13 @@ public class CloudServiceTest {
         alienDAO = Mockito.mock(IGenericSearchDAO.class);
         paaSProviderFactoriesService = Mockito.mock(PaaSProviderFactoriesService.class);
         paaSProviderService = Mockito.mock(PaaSProviderService.class);
-
+        cloudImageService = Mockito.mock(CloudImageService.class);
         // initialize cloud service instance with mocks
         cloudService = new CloudService();
         setPrivateField(cloudService, "alienDAO", alienDAO);
         setPrivateField(cloudService, "paaSProviderFactoriesService", paaSProviderFactoriesService);
         setPrivateField(cloudService, "paaSProviderService", paaSProviderService);
+        setPrivateField(cloudService, "cloudImageService", cloudImageService);
     }
 
     @Test
@@ -178,7 +179,6 @@ public class CloudServiceTest {
         Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
-
         cloudService.initialize();
 
         IConfigurablePaaSProvider<String> cPaaSProvider = (IConfigurablePaaSProvider<String>) paaSProvider;

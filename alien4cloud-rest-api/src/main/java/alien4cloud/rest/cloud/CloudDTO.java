@@ -7,9 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudImage;
-import alien4cloud.model.cloud.CloudImageFlavor;
-import alien4cloud.model.cloud.Network;
+import alien4cloud.model.cloud.MatchedCloudImage;
+import alien4cloud.model.cloud.MatchedCloudImageFlavor;
+import alien4cloud.model.cloud.MatchedNetworkTemplate;
+import alien4cloud.model.cloud.MatchedStorageTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -23,11 +24,19 @@ public class CloudDTO {
 
     private Cloud cloud;
 
-    private CloudResourceMatcherDTO cloudResourceMatcher;
+    private Map<String, MatchedCloudImage> images;
 
-    private Map<String, CloudImage> images;
+    private Map<String, MatchedCloudImageFlavor> flavors;
 
-    private Map<String, CloudImageFlavor> flavors;
+    private Map<String, MatchedNetworkTemplate> networks;
 
-    private Map<String, Network> networks;
+    private Map<String, MatchedStorageTemplate> storages;
+
+    private String[] paaSImageIds;
+
+    private String[] paaSFlavorIds;
+
+    private String[] paaSNetworkTemplateIds;
+
+    private String[] paaSStorageTemplateIds;
 }
