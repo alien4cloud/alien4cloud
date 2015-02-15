@@ -114,12 +114,13 @@ public abstract class AbstractPlanGenerator {
      * Call an operation on a relationship.
      *
      * @param relationshipTemplate The relationship template on which to execute the operation.
+     * @param nodeTemplate The related node template member of the relationship
      * @param interfaceName The interface name.
      * @param operation The operation name.
      */
-    protected void call(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, String operation) {
+    protected void call(PaaSRelationshipTemplate relationshipTemplate, PaaSNodeTemplate nodeTemplate, String interfaceName, String operation) {
         Interface lifecycle = getRelationshipInterface(relationshipTemplate, interfaceName);
-        callOperation(relationshipTemplate.getCsarPath(), lifecycle, relationshipTemplate.getSource(), relationshipTemplate.getId(), interfaceName, operation);
+        callOperation(relationshipTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), relationshipTemplate.getId(), interfaceName, operation);
     }
 
     /**
@@ -230,9 +231,9 @@ public abstract class AbstractPlanGenerator {
         for (PaaSRelationshipTemplate relationshipTemplate : nodeTemplate.getRelationshipTemplates()) {
             if (relationshipTemplate.instanceOf(ROOT)) {
                 if (relationshipTemplate.getSource().equals(nodeTemplate.getId())) {
-                    call(relationshipTemplate, interfaceName, sourceOperation);
+                    call(relationshipTemplate, nodeTemplate, interfaceName, sourceOperation);
                 } else {
-                    call(relationshipTemplate, interfaceName, targetOperation);
+                    call(relationshipTemplate, nodeTemplate, interfaceName, targetOperation);
                 }
             }
         }

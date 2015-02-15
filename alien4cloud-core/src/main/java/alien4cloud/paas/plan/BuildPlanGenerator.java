@@ -48,7 +48,6 @@ public class BuildPlanGenerator extends AbstractPlanGenerator {
         // synchronous add source / target implementation.
         // trigger them
         triggerRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
-        // callRelations(node, ToscaRelationshipLifecycleConstants.CONFIGURE, ADD_SOURCE, ADD_TARGET);
 
         state(node.getId(), AVAILABLE);
 
