@@ -13,7 +13,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -31,10 +30,8 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
@@ -61,7 +58,6 @@ import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.ToscaTypeLoader;
 import alien4cloud.utils.MapUtil;
-import alien4cloud.utils.PropertyUtil;
 import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Maps;
@@ -92,71 +88,8 @@ public class TopologyService {
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
-    private void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
-        if (attributes2 == null || attributes == null) {
-            return;
-        }
-        for (Map.Entry<String, AttributeDefinition> entry : attributes2.entrySet()) {
-            attributes.put(entry.getKey(), null);
-        }
-    }
-
     public void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
-        if (propertiesDefinitions == null || properties == null) {
-            return;
-        }
-        for (Map.Entry<String, PropertyDefinition> entry : propertiesDefinitions.entrySet()) {
-            String existingValue = MapUtils.getObject(propertiesToMerge, entry.getKey());
-            if (existingValue == null) {
-                String defaultValue = entry.getValue().getDefault();
-                if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                    properties.put(entry.getKey(), defaultValue);
-                } else {
-                    properties.put(entry.getKey(), null);
-                }
-            } else {
-                properties.put(entry.getKey(), existingValue);
-            }
-        }
-    }
-
-    private void fillCapabilitiesMap(Map<String, Capability> map, List<CapabilityDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Capability> mapToMerge) {
-        if (elements == null) {
-            return;
-        }
-        for (CapabilityDefinition capa : elements) {
-            Capability toAddCapa = MapUtils.getObject(mapToMerge, capa.getId());
-            if (toAddCapa == null) {
-                toAddCapa = new Capability();
-                toAddCapa.setType(capa.getType());
-                IndexedCapabilityType indexedCapa = csarRepoSearchService.getElementInDependencies(IndexedCapabilityType.class, capa.getType(), dependencies);
-                if (indexedCapa != null && indexedCapa.getProperties() != null) {
-                    toAddCapa.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedCapa.getProperties()));
-                }
-            }
-            map.put(capa.getId(), toAddCapa);
-        }
-    }
-
-    private void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
-            Map<String, Requirement> mapToMerge) {
-        if (elements == null) {
-            return;
-        }
-        for (RequirementDefinition requirement : elements) {
-            Requirement toAddRequirement = MapUtils.getObject(mapToMerge, requirement.getId());
-            if (toAddRequirement == null) {
-                toAddRequirement = new Requirement();
-                toAddRequirement.setType(requirement.getType());
-                IndexedCapabilityType indexedReq = csarRepoSearchService.getElementInDependencies(IndexedCapabilityType.class, requirement.getType(),
-                        dependencies);
-                if (indexedReq != null && indexedReq.getProperties() != null) {
-                    toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
-                }
-            }
-            map.put(requirement.getId(), toAddRequirement);
-        }
+        topologyServiceCore.fillProperties(properties, propertiesDefinitions, propertiesToMerge);
     }
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
@@ -722,43 +655,7 @@ public class TopologyService {
      * @return new constructed node template
      */
     public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
-        NodeTemplate nodeTemplate = new NodeTemplate();
-        nodeTemplate.setType(indexedNodeType.getElementId());
-        Map<String, Capability> capabilities = Maps.newHashMap();
-        Map<String, Requirement> requirements = Maps.newHashMap();
-        Map<String, String> properties = Maps.newHashMap();
-        Map<String, String> attributes = Maps.newHashMap();
-        Map<String, DeploymentArtifact> deploymentArtifacts = null;
-        Map<String, DeploymentArtifact> deploymentArtifactsToMerge = templateToMerge != null ? templateToMerge.getArtifacts() : null;
-        if (deploymentArtifactsToMerge != null) {
-            if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
-                for (Entry<String, DeploymentArtifact> entryArtifact : deploymentArtifactsToMerge.entrySet()) {
-                    DeploymentArtifact existingArtifact = entryArtifact.getValue();
-                    if (deploymentArtifacts.containsKey(entryArtifact.getKey())) {
-                        deploymentArtifacts.put(entryArtifact.getKey(), existingArtifact);
-                    }
-                }
-            }
-        } else {
-            if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
-            }
-        }
-        fillCapabilitiesMap(capabilities, indexedNodeType.getCapabilities(), dependencies, templateToMerge != null ? templateToMerge.getCapabilities() : null);
-        fillRequirementsMap(requirements, indexedNodeType.getRequirements(), dependencies, templateToMerge != null ? templateToMerge.getRequirements() : null);
-        fillProperties(properties, indexedNodeType.getProperties(), templateToMerge != null ? templateToMerge.getProperties() : null);
-        fillAttributes(attributes, indexedNodeType.getAttributes());
-
-        nodeTemplate.setCapabilities(capabilities);
-        nodeTemplate.setRequirements(requirements);
-        nodeTemplate.setProperties(properties);
-        nodeTemplate.setAttributes(attributes);
-        nodeTemplate.setArtifacts(deploymentArtifacts);
-        if (templateToMerge != null && templateToMerge.getRelationships() != null) {
-            nodeTemplate.setRelationships(templateToMerge.getRelationships());
-        }
-        return nodeTemplate;
+        return topologyServiceCore.buildNodeTemplate(dependencies, indexedNodeType, templateToMerge);
     }
 
     private CSARDependency getDependencyWithName(Topology topology, String archiveName) {

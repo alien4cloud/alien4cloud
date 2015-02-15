@@ -23,12 +23,17 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 @Slf4j
 public final class JsonUtil {
-    private static ObjectMapper getOneObjectMapper() {
+
+    private static ObjectMapper getOneObjectMapper(boolean writeNullMapValues) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        mapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, writeNullMapValues);
         return mapper;
+    }
+
+    private static ObjectMapper getOneObjectMapper() {
+        return getOneObjectMapper(false);
     }
 
     private JsonUtil() {
@@ -122,6 +127,19 @@ public final class JsonUtil {
      */
     public static String toString(Object obj) throws JsonProcessingException {
         return getOneObjectMapper().writeValueAsString(obj);
+    }
+
+    /**
+     * Serialize the given object in a JSon String (including null map entries).
+     *
+     * @param obj
+     *            The object to serialize.
+     * @return The JSon serialization of the given object.
+     * @throws JsonProcessingException
+     *             In case of a failure in serialization.
+     */
+    public static String toVerboseString(Object obj) throws JsonProcessingException {
+        return getOneObjectMapper(true).writeValueAsString(obj);
     }
 
     /**

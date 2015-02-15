@@ -24,4 +24,7 @@ public interface INodeParser<T> {
      * @return True if deferred, false if not.
      */
     boolean isDeferred(ParsingContextExecution context);
+
+    int getDefferedOrder(ParsingContextExecution context);
+
 }

@@ -2,22 +2,26 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
 
 /**
  * Parse a type reference value. The referenced type must exists in the local definitions or in the dependencies.
  */
-public abstract class ReferencedToscaTypeParser implements INodeParser<String> {
+public abstract class ReferencedToscaTypeParser extends DefaultDeferredParser<String> {
     @SuppressWarnings("unchecked")
     private static final Class<? extends IndexedInheritableToscaElement>[] possibleTypes = new Class[] { IndexedNodeType.class, IndexedRelationshipType.class,
             IndexedCapabilityType.class, IndexedArtifactType.class };
@@ -30,11 +34,6 @@ public abstract class ReferencedToscaTypeParser implements INodeParser<String> {
 
     public ReferencedToscaTypeParser(Class<? extends IndexedInheritableToscaElement>... validTypes) {
         this.validTypes = validTypes;
-    }
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return true;
     }
 
     @Override

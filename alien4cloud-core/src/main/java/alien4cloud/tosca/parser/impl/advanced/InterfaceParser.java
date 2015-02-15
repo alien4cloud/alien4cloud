@@ -14,13 +14,17 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
+import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Maps;
 
 @Component
-public class InterfaceParser implements INodeParser<Interface> {
+public class InterfaceParser extends DefaultParser<Interface> {
     private static final String INPUTS_KEY = "inputs";
     private static final String DESCRIPTION_KEY = "description";
 
@@ -59,7 +63,7 @@ public class InterfaceParser implements INodeParser<Interface> {
                     // implementation artifact parsing should be done using a deferred parser as we need to look for artifact types.
                     BeanWrapper targetBean = new BeanWrapperImpl(operation);
                     MappingTarget target = new MappingTarget("implementationArtifact", implementationArtifactParser);
-                    context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
+                    context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, entry.getValueNode()));
                     operations.put(key, operation);
                 } else {
                     operations.put(key, operationParser.parse(entry.getValueNode(), context));
@@ -69,8 +73,4 @@ public class InterfaceParser implements INodeParser<Interface> {
         return interfaz;
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
 }

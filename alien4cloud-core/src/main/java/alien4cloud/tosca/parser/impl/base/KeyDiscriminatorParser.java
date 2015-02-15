@@ -1,22 +1,24 @@
 package alien4cloud.tosca.parser.impl.base;
 
-import alien4cloud.tosca.parser.INodeParser;
-import alien4cloud.tosca.parser.ParserUtils;
-import alien4cloud.tosca.parser.ParsingContextExecution;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
+
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import java.util.Map;
-import java.util.Set;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Map using a child parser based on a discriminator key (valid only for MappingNode).
  */
-public class KeyDiscriminatorParser<T> implements INodeParser<T> {
+public class KeyDiscriminatorParser<T> extends DefaultParser<T> {
     private Map<String, INodeParser<T>> parserByExistKey;
     private INodeParser<T> fallbackParser;
 
@@ -54,8 +56,4 @@ public class KeyDiscriminatorParser<T> implements INodeParser<T> {
         return fallbackParser.parse(node, context);
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
 }

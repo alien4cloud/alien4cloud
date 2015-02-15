@@ -81,13 +81,21 @@
       "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
       "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
+      "TOPOLOGY_DETECTED": "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "ToscaPropertyType": "Le type de la propriété [ {{path}} ] n'est pas un type TOSCA valide. Details [ {{message}} ]",
       "ToscaPropertyConstraint": "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate": "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
       "ToscaPropertyDefaultValueType": "La valeur par défaut de la propriété [ {{path}} ] n'est pas du type de celle-ci.",
-      "ToscaPropertyDefaultValueConstraints": "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci."
+      "ToscaPropertyDefaultValueConstraints": "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
+      "ToscaSequenceExpected": "Une séquence YAML est attendu.",
+      "ToscaMappingNodeExpected": "Un noeud de type mapping est attendu.",
+      "ToscaRequirementTargetNodeTemplateNameRequired": "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
+      "ToscaRelationshipNotBuilt": "La relationship correspondant au requirement [{{note}}] n'a pas pu être contruite (consultez les erreurs)",
+      "ToscaRequirementNotFound": "La définition du requirement [{{note}}] est introuvable.",
+      "ToscaRequirementTargetNotFound": "La cible du requirement [{{note}}] n'exite pas.",
+      "ToscaRequirementCapabilityNotFound": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",

@@ -2,7 +2,6 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import javax.annotation.Resource;
 
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
@@ -10,23 +9,19 @@ import org.yaml.snakeyaml.nodes.Node;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
-import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class ImportParser implements INodeParser<CSARDependency> {
+public class ImportParser extends DefaultParser<CSARDependency> {
     @Resource
     private CsarService csarService;
     @Resource
     private ScalarParser scalarParser;
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
 
     @Override
     public CSARDependency parse(Node node, ParsingContextExecution context) {
