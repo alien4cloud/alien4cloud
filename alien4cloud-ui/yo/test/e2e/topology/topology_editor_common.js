@@ -285,7 +285,7 @@ module.exports.removeRelationship = removeRelationship;
 var replaceNodeTemplates = function(nodeName, replacementElementId) {
   var node = element(by.id('rect_' + nodeName));
   node.click();
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     element(by.css('.btn[ng-click^="getPossibleReplacements"]')).click();
     element(by.id('newnode_' + replacementElementId)).click();
   });
@@ -314,7 +314,7 @@ module.exports.addScalingPolicy = addScalingPolicy;
 
 var removeScalingPolicy = function(computeId) {
 
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     // Check properties edition on compute node template
     var nodeToEdit = browser.element(by.id(computeId));
     browser.actions().click(nodeToEdit).perform();
@@ -373,7 +373,7 @@ var beforeToggle = function(nodeTemplateName) {
   browser.waitForAngular();
 };
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType) {
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     beforeToggle(nodeTemplateName);
     var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
     browser.actions().click(ioButton).perform();
@@ -405,7 +405,7 @@ module.exports.togglePropertyOutput = togglePropertyOutput;
 
 var toggleAttributeOutput = function(nodeTemplateName, attributeName) {
   beforeToggle(nodeTemplateName);
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     var ioButton = browser.element(by.id('a_output_' + attributeName));
     browser.actions().click(ioButton).perform();
   });

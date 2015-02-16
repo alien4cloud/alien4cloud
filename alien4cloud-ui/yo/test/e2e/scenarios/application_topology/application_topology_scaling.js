@@ -82,7 +82,7 @@ describe('Topology scaling feature', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
 
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
-    common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+    browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.removeScalingPolicy('rect_Compute');
     });
     browser.sleep(1000);
@@ -91,7 +91,7 @@ describe('Topology scaling feature', function() {
     expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
-    common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+    browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.removeScalingPolicy('rect_Ubuntu');
     });
     browser.sleep(1000);

@@ -25,7 +25,7 @@ var goToAlienAppAndSelectApachelbOperations = function() {
   topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
   topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
   topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     topologyEditorCommon.addRelationshipToNode('apacheLBGroovy', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
   });
 
@@ -56,7 +56,7 @@ describe('Topology runtime view', function() {
     console.log('################# should be able to add scaling policy to a compute node');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
-    common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+    browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.removeScalingPolicy('rect_Compute');
     });
     browser.sleep(1000);
@@ -71,7 +71,7 @@ describe('Topology runtime view', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
-    common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+    browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
     });
 

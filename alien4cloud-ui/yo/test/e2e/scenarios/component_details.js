@@ -37,7 +37,7 @@ var findCapabilityRow = function(testedCapabilityId) {
 
 var flagComponentAsRecommanded = function(component, testedCapability) {
   components.goToComponentDetailPage(component.id);
-  expect(element(by.binding('component.elementId')).getText()).toContain(component.elementId);
+  expect(element.all(by.binding('component.elementId')).first().getText()).toContain(component.elementId);
   expect(element(by.binding('component.archiveVersion')).getText()).toContain(component.archiveVersion);
 
   var firstCapaRow = findCapabilityRow(testedCapability);
@@ -99,12 +99,12 @@ describe('Component Details :', function() {
     pagination.get(0).element(by.tagName('a')).click();
     browser.waitForAngular();
     components.goToComponentDetailPage(computeComponentV2.id);
-    expect(element(by.binding('component.elementId')).getText()).toContain(computeComponentV2.elementId);
+    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponentV2.elementId);
     expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponentV2.archiveVersion);
 
     navigation.go('main', 'components');
     components.changeComponentVersionAndGo(computeComponentV2.id, computeComponent.archiveVersion);
-    expect(element(by.binding('component.elementId')).getText()).toContain(computeComponent.elementId);
+    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponent.elementId);
     expect(element(by.binding('component.archiveVersion')).getText()).toContain(computeComponent.archiveVersion);
   });
 
@@ -123,7 +123,7 @@ describe('Component Details :', function() {
     checkRecommanded(true, findCapabilityRow(rootCapability));
 
     components.goToComponentDetailPage(computeComponentV2.id);
-    expect(element(by.binding('component.elementId')).getText()).toContain(computeComponentV2.elementId);
+    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponentV2.elementId);
 
     // first be sure it is not recommended yet
     var firstCapaRow = findCapabilityRow(rootCapability);
@@ -157,7 +157,7 @@ describe('Component Details :', function() {
     browser.actions().click(pagination.last().element(by.tagName('a'))).perform();
     components.goToComponentDetailPage(computeComponentV2.id);
 
-    expect(element(by.binding('component.elementId')).getText()).toContain(computeComponentV2.elementId);
+    expect(element.all(by.binding('component.elementId')).first().getText()).toContain(computeComponentV2.elementId);
 
     flagComponentAsRecommanded(computeComponentV2, computeCapability);
     // first be sure it is already recommended

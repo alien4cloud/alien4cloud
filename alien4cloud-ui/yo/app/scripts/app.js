@@ -323,7 +323,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
       topologytemplates: 'topologytemplates.list',
       components: 'components.list',
       admin: 'admin.home'
-    }
+    };
 
     // state routing
     $rootScope.$on('$stateChangeSuccess', function(event, toState) {

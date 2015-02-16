@@ -30,7 +30,7 @@ describe('Manually match resources for cloud', function() {
     browser.element(by.binding('application.name')).click();
     navigation.go('applications', 'topology');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
-    common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+    browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.addRelationshipToNode('Compute', 'Network', 'network', 'tosca.relationships.Network:2.0', 'connectedToNetwork');
     });
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
