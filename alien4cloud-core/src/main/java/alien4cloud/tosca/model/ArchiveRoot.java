@@ -3,9 +3,14 @@ package alien4cloud.tosca.model;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.components.*;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.topology.Topology;
 
 import com.google.common.collect.Maps;
 
@@ -15,6 +20,11 @@ import com.google.common.collect.Maps;
 public class ArchiveRoot {
     /** Contains meta-data related to the actual archive. */
     private Csar archive = new Csar();
+
+    /** An archive can embed topology template (TOSCA meaning). */
+    private Topology topology;
+    /** The description of the topology template is not a property of the topology. */
+    private String topologyTemplateDescription;
 
     private List<ArchiveRoot> localImports;
 

@@ -9,26 +9,17 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.Constants;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.common.Tag;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.rest.model.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -94,8 +85,7 @@ public class ComponentController {
      * @param searchRequest The search request.
      * @param queryAllVersions Retrieve all versions of the component, by default set to false which means only retrieve the last recent version of the
      *            component
-     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link IndexedNodeType}. Or an error with error code
-     *         {@link RestErrorCode#SEARCH_FAILED} in case of a DAO error.
+     * @return A {@link RestResponse} that contains a {@link FacetedSearchResult} of {@link IndexedNodeType}.
      */
     @ApiOperation(value = "Search for components (tosca types) in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -175,7 +165,7 @@ public class ComponentController {
      * Update or insert one tag for a given component
      *
      * @param componentId The if of the component for which to insert a tag.
-     * @param updateComponentRequest The request that contains the key and value for the tag to update.
+     * @param updateTagRequest The request that contains the key and value for the tag to update.
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update or insert a tag for a component (tosca element).")

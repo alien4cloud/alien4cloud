@@ -35,12 +35,14 @@ Feature: Set/Remove In/Out properties
     And The topology should not have the property "os_arch" of the node "Compute" defined as output property
 
   Scenario: Define an attribute as output
-    When I define the attribute "private_ip_address" of the node "Compute" as output attribute
+    When I define the attribute "ip_address" of the node "Compute" as output attribute
     Then I should receive a RestResponse with no error
-    And The topology should have the attribute "private_ip_address" of the node "Compute" defined as output attribute
+    And The topology should have the attribute "ip_address" of the node "Compute" defined as output attribute
 
   Scenario: Define an non existing attribute as output
-    When I define the attribute "public_ip_address_2" of the node "Compute" as output attribute
+    When I define the attribute "public_ip_address" of the node "Compute" as output attribute
+    Then I should receive a RestResponse with an error code 802
+    When I define the attribute "private_ip_address" of the node "Compute" as output attribute
     Then I should receive a RestResponse with an error code 802
 
   Scenario: Remove an attribute as output

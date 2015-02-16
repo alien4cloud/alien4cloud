@@ -14,7 +14,7 @@
   "CSAR": "Csar",
   "TRUE": "Vrai",
   "FALSE": "Faux",
-  "YES" : "Oui",
+  "YES": "Oui",
   "NO": "Non",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
@@ -81,13 +81,21 @@
       "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
       "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
+      "TOPOLOGY_DETECTED": "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "ToscaPropertyType": "Le type de la propriété [ {{path}} ] n'est pas un type TOSCA valide. Details [ {{message}} ]",
       "ToscaPropertyConstraint": "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
       "ToscaPropertyConstraintDuplicate": "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
       "ToscaPropertyDefaultValueType": "La valeur par défaut de la propriété [ {{path}} ] n'est pas du type de celle-ci.",
-      "ToscaPropertyDefaultValueConstraints": "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci."
+      "ToscaPropertyDefaultValueConstraints": "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
+      "ToscaSequenceExpected": "Une séquence YAML est attendu.",
+      "ToscaMappingNodeExpected": "Un noeud de type mapping est attendu.",
+      "ToscaRequirementTargetNodeTemplateNameRequired": "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
+      "ToscaRelationshipNotBuilt": "La relationship correspondant au requirement [{{note}}] n'a pas pu être contruite (consultez les erreurs)",
+      "ToscaRequirementNotFound": "La définition du requirement [{{note}}] est introuvable.",
+      "ToscaRequirementTargetNotFound": "La cible du requirement [{{note}}] n'exite pas.",
+      "ToscaRequirementCapabilityNotFound": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -317,9 +325,15 @@
       "TITLE_SIZE_DISK": "Disque",
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Nom du réseau",
+      "TITLE_STORAGE": "Nom du volume",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Réseau",
+      "CLOUD_ERROR_TITLE": "Sélectionner un cloud",
+      "CLOUD_ERROR_MESSAGE": "Vous n'avez pas les droits suffisants sur le cloud associé ou le cloud n'est pas activé pour déployer. Veuillez contacter votre administrateur.",
+      "COMPUTE_RESOURCES": "Machines",
+      "NETWORK_RESOURCES": "Réseaux",
+      "STORAGE_RESOURCES": "Volumes",
       "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
     },
     "TOPOLOGY": {
@@ -341,6 +355,7 @@
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
@@ -496,14 +511,15 @@
     "TEMPLATE": "Template",
     "TEMPLATE_CONFIGURATION": "Images et gabarits",
     "TEMPLATE_DETAILS": "Détails",
+    "PAAS_RESOURCE_ID": "Identifiant PaaS",
+    "RESOURCE_NOT_CONFIGURED": "Non Configuré(s)",
+    "RESOURCE_NOT_MAPPED": "Non mappé(s)",
     "TEMPLATES": {
       "ENABLE": "Activé",
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit",
-      "RESOURCE_ID": "PaaS Resource Id",
-      "NOT_CONFIGURED": "Non Configuré(s)"
+      "FLAVOR_NAME": "Gabarit"
     },
     "FLAVORS": {
       "ID": "Nom",
@@ -515,8 +531,7 @@
     },
     "IMAGES": {
       "NEW": "Nouvelle",
-      "TO_BE_ADDED_TITLE": "Images associées",
-      "NO_SELECTED_IMAGES": "Cliquez sur une image pour l'associer"
+      "NO_SELECTED_IMAGES": "Cliquez ou glissez-déposez une image pour l'associer"
     },
     "NETWORK": "Réseaux",
     "NETWORKS": {
@@ -525,9 +540,18 @@
       "CIDR": "CIDR",
       "GATEWAY_IP": "IP du Gateway",
       "IP_VERSION": "Version d'IP",
-      "RESOURCE_ID": "Resource id",
-      "NEW_MODAL_TITLE": "Créer un nouveau réseau",
-      "NOT_CONFIGURED": "Non configuré"
+      "IS_EXTERNAL": "Réseau externe",
+      "IS_EXTERNAL_true": "Oui",
+      "IS_EXTERNAL_false": "Non",
+      "NEW_MODAL_TITLE": "Créer un nouveau réseau"
+    },
+    "STORAGE": "Volumes",
+    "STORAGES": {
+      "ID": "Id",
+      "DEVICE": "Volume",
+      "LOCATION": "Point de montage",
+      "SIZE": "Size",
+      "NEW_MODAL_TITLE": "Créer un nouveau volume"
     },
     "IAAS": {
       "OTHER": "Autre",
@@ -628,6 +652,7 @@
     "604": "Une application doit nécéssairement avoir au moins un environnement",
     "607": "Un environnement déployé ne peut être supprimé",
     "605": "Le format de version saisie est invalide",
+    "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",

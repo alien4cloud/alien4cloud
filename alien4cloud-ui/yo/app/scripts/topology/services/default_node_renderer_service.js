@@ -1,10 +1,10 @@
 /* global UTILS */
-
 'use strict';
 
-angular.module('alienUiApp').factory('defaultNodeRendererService', [
-  function() {
+angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeRendererService',
+  function(commonNodeRendererService) {
     return {
+
       isRuntime: false,
       width: 200,
       height: 50,
@@ -15,18 +15,19 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
       setRuntime: function(isRuntime) {
         this.isRuntime = isRuntime;
         if (isRuntime) {
-          this.height = 100;
+          this.height = 85;
         } else {
           this.height = 50;
         }
       },
 
       createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
+
         if (nodeType.tags) {
           var tags = UTILS.convertNameValueListToMap(nodeType.tags);
           if (tags.icon) {
             nodeGroup.append('image').attr('x', oX + 8).attr('y', oY + 8).attr('width', '32').attr('height', '32').attr('xlink:href',
-                'img?id=' + tags.icon + '&quality=QUALITY_32');
+              'img?id=' + tags.icon + '&quality=QUALITY_32');
           }
         }
 
@@ -48,7 +49,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
 
       updateNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY, topology) {
         // update text
-        nodeGroup.select('.title').text(this.getDisplayId(node));
+        nodeGroup.select('.title').text(commonNodeRendererService.getDisplayId(node, false));
 
         // update version
         nodeGroup.select('.version').text(function() {
@@ -66,7 +67,6 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
           var nodeInstances = null;
           var nodeInstancesCount = null;
 
-
           if (UTILS.isDefinedAndNotNull(topology.instances)) {
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
@@ -80,22 +80,13 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
         }
       },
 
-      getDisplayId: function(node) {
-        var nodeTemplateNameSizeCut = (this.isRuntime === true) ? 5 : 2;
-        if (node.id.length >= UTILS.maxNodeNameDrawSize) {
-          return node.id.substring(0, UTILS.maxNodeNameDrawSize - nodeTemplateNameSizeCut) + '...';
-        } else {
-          return node.id;
-        }
-      },
-
       drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY) {
         var currentY = rectOriginY + 40;
         var deletedCount = 0;
         if (UTILS.isDefinedAndNotNull(nodeInstances) && nodeInstancesCount > 0) {
           //the deployment status is no more unknown
           this.removeRuntimeCount(runtimeGroup, 'runtime-count-unknown');
-          
+
           var successCount = this.getNumberOfInstanceByStatus(nodeInstances, 'SUCCESS');
           var processingCount = this.getNumberOfInstanceByStatus(nodeInstances, 'PROCESSING');
           var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
@@ -121,13 +112,13 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
           if (nodeInstancesCount === successCount) {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
               .attr('orient', 'auto').attr('style', 'stroke: none; fill: green');
-          } else if(nodeInstancesCount === failureCount){
+          } else if (nodeInstancesCount === failureCount) {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
-            .attr('orient', 'auto').attr('style', 'stroke: none; fill: red');
-          }else if(nodeInstancesCount === deletedCount ){
+              .attr('orient', 'auto').attr('style', 'stroke: none; fill: red');
+          } else if (nodeInstancesCount === deletedCount) {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12').attr(
               'orient', 'auto').attr('style', 'stroke: none; fill: gray');
-          }else{
+          } else {
             runtimeGroup.append('circle').attr('cx', rectOriginX + this.width - 17).attr('cy', rectOriginY + 16).attr('r', '12')
               .attr('orient', 'auto').attr('style', 'stroke: none; fill: orange');
           }
@@ -138,10 +129,8 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
             'orient', 'auto').attr('style', 'stroke: none; fill: gray');
         }
 
-        runtimeGroup.append('text').attr('text-anchor', 'start').attr('x', rectOriginX + this.width - 20).attr('y', rectOriginY + 20).attr('font-weight',
-          'bold').attr('fill', 'white').text(function() {
-            return nodeInstancesCount ? nodeInstancesCount - deletedCount : 0;
-          });
+        // draw the instance count at good size
+        runtimeGroup = commonNodeRendererService.appendCount(runtimeGroup, nodeInstancesCount, deletedCount, rectOriginX, rectOriginY, 20, 20, this.width);
       },
 
       drawRuntimeCount: function(runtimeGroup, id, rectOriginX, currentY, iconCode, count, instanceCount) {
@@ -157,25 +146,10 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', [
         }
       },
 
-      removeRuntimeCount: function(runtimeGroup, id) {
-        var groupSelection = runtimeGroup.select('#' + id);
-        if (!groupSelection.empty()) {
-          groupSelection.remove();
-        }
-      },
-
-      getNumberOfInstanceByStatus: function(nodeInstances, status) {
-        var count = 0;
-        for (var instanceId in nodeInstances) {
-          if (nodeInstances.hasOwnProperty(instanceId) && nodeInstances[instanceId].instanceStatus === status) {
-            count++;
-          }
-        }
-        return count;
-      },
-      tooltip: function(node) {
-        return node.id;
-      }
+      // common services
+      removeRuntimeCount: commonNodeRendererService.removeRuntimeCount,
+      getNumberOfInstanceByStatus: commonNodeRendererService.getNumberOfInstanceByStatus,
+      tooltip: commonNodeRendererService.tooltip
     };
   } // function
 ]);

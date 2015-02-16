@@ -14,11 +14,12 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Maps;
 
 @AllArgsConstructor
-public class MapParser<T> implements INodeParser<Map<String, T>> {
+public class MapParser<T> extends DefaultParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */
     private String toscaType;
@@ -45,7 +46,7 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
     }
 
     private Map<String, T> doParse(MappingNode node, ParsingContextExecution context) {
-        Map<String, T> map = Maps.newHashMap();
+        Map<String, T> map = Maps.newLinkedHashMap();
         for (NodeTuple entry : node.getValue()) {
             String key = ParserUtils.getScalar(entry.getKeyNode(), context);
             T value = null;
@@ -61,8 +62,4 @@ public class MapParser<T> implements INodeParser<Map<String, T>> {
         return map;
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
 }

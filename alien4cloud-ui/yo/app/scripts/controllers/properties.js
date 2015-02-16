@@ -4,10 +4,14 @@
 
 angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$q',
   function($scope, propertiesServices, $translate, $q) {
+    var initialValue = $scope.propertyValue;
 
     $scope.propertySave = function(data) {
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
+      }
+      if(data === initialValue) {
+        return;
       }
       // check constraint here
       var saveDefer = $q.defer();

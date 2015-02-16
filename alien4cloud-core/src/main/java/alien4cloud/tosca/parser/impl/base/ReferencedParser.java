@@ -20,7 +20,7 @@ public class ReferencedParser<T> implements INodeParser<T> {
 
     @Override
     public T parse(Node node, ParsingContextExecution context) {
-        INodeParser delegate = context.getRegistry().get(typeName);
+        INodeParser<?> delegate = context.getRegistry().get(typeName);
         if (delegate == null) {
             log.error("No parser found for yaml type {}", typeName);
             context.getParsingErrors().add(
@@ -32,7 +32,14 @@ public class ReferencedParser<T> implements INodeParser<T> {
 
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
-        INodeParser delegate = context.getRegistry().get(typeName);
+        INodeParser<?> delegate = context.getRegistry().get(typeName);
         return delegate.isDeferred(context);
     }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        INodeParser<?> delegate = context.getRegistry().get(typeName);
+        return delegate.getDefferedOrder(context);
+    }
+
 }

@@ -1,9 +1,13 @@
 package alien4cloud.tosca.parser;
 
+import java.util.Map.Entry;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.keyvalue.DefaultMapEntry;
 import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.NotWritablePropertyException;
 import org.yaml.snakeyaml.nodes.Node;
 
@@ -22,9 +26,16 @@ public abstract class AbstractTypeNodeParser {
     }
 
     protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContextExecution context, MappingTarget mappingTarget) {
+        // let's store the parent in the context for future use
+        context.setParent(target.getWrappedInstance());
+
+        Entry<BeanWrapper, String> entry = findWrapperPropertyByPath(context.getRoot(), target, mappingTarget.getPath());
+        BeanWrapper realTarget = entry.getKey();
+        String propertyName = entry.getValue();
+
         Object value = ((INodeParser<?>) mappingTarget.getParser()).parse(valueNode, context);
         try {
-            target.setPropertyValue(mappingTarget.getPath(), value);
+            realTarget.setPropertyValue(propertyName, value);
         } catch (NotWritablePropertyException e) {
             log.warn("Error while setting property for yaml parsing.", e);
             context.getParsingErrors().add(
@@ -34,9 +45,9 @@ public abstract class AbstractTypeNodeParser {
 
         if (mappingTarget instanceof KeyValueMappingTarget) {
             KeyValueMappingTarget kvmt = (KeyValueMappingTarget) mappingTarget;
-            BeanWrapper keyBeanWrapper = target;
+            BeanWrapper keyBeanWrapper = realTarget;
             try {
-                if (!(keyBeanWrapper.getPropertyValue(kvmt.getKeyPath()) != null && mappingTarget.getPath().equals(key))) {
+                if (!(keyBeanWrapper.getPropertyValue(kvmt.getKeyPath()) != null && propertyName.equals(key))) {
                     keyBeanWrapper.setPropertyValue(kvmt.getKeyPath(), key);
                 }
             } catch (NotWritablePropertyException e) {
@@ -47,4 +58,31 @@ public abstract class AbstractTypeNodeParser {
             }
         }
     }
+
+    /**
+     * For example:
+     * <ul>
+     * <li>.something : the value will be set to the property of root named 'something'
+     * <li>child1.child2.prop : the value will be mapped u getChild1().getChild2().setProp()
+     * </ul>
+     */
+    private Entry<BeanWrapper, String> findWrapperPropertyByPath(BeanWrapper root, BeanWrapper current, String path) {
+        int dotIdx = path.indexOf(".");
+        if (dotIdx < 0) {
+            return new DefaultMapEntry<BeanWrapper, String>(current, path);
+        }
+        BeanWrapper base = current;
+        String nextPath = path;
+        if (path.startsWith(".")) {
+            base = root;
+            nextPath = path.substring(1);
+        } else {
+            String wrapperCandidateName = path.substring(0, path.indexOf("."));
+            Object wrapperCandidate = current.getPropertyValue(wrapperCandidateName);
+            base = new BeanWrapperImpl(wrapperCandidate);
+            nextPath = path.substring(path.indexOf(".") + 1);
+        }
+        return findWrapperPropertyByPath(root, base, nextPath);
+    }
+
 }

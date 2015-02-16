@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>alien4cloud</groupId>
   <artifactId>alien4cloud-parent</artifactId>
-  <version>1.0.0-SM20</version>
+  <version>1.0.0-SM21</version>
   <packaging>pom</packaging>
   <name>Application LIfecycle ENabler parent project.</name>
   <description>Application LIfecycle ENabler is an application that allows you to manage your application's lifecycle on a cloud environment.</description>
@@ -52,9 +52,10 @@
     <jaxb.version>2.1.9</jaxb.version>
 
     <!-- Spring (DI / Rest / Security) -->
-    <spring-boot.version>1.1.6.RELEASE</spring-boot.version>
-    <spring.version>4.0.7.RELEASE</spring.version>
-    <spring.security.version>3.2.3.RELEASE</spring.security.version>
+    <spring-boot.version>1.2.1.RELEASE</spring-boot.version>
+    <spring.version>4.1.4.RELEASE</spring.version>
+    <spring.security.version>3.2.5.RELEASE</spring.security.version>
+
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
 
     <aspectj.version>1.7.4</aspectj.version>

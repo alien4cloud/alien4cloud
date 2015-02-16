@@ -7,7 +7,7 @@
 
 	<context:annotation-config />
 	<context:component-scan
-		base-package="alien4cloud.tosca.parser, alien4cloud.tosca.parser.*" />
+		base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*" />
 
 	<bean id="archiveParser" class="alien4cloud.tosca.ArchiveParser" />
 	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />

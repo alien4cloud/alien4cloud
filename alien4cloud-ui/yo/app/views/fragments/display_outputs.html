@@ -1,0 +1,51 @@
+<div class="row">
+  <div class="col-md-12">
+    <span ng-if="!isMapEmpty(outputPropertiesValue) && !isMapEmpty(outputAttributesValue)">
+      <strong>{{'APPLICATIONS.TOPOLOGY.NO_OUTPUTS' | translate}}</strong>
+    </span>
+    <table class="table table-condensed" id="outputPropertiesTable">
+      <span ng-if="isMapEmpty(outputPropertiesValue) || isMapEmpty(outputAttributesValue)">
+        <i class="fa fa-eye"></i>
+        <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
+      </span>
+      <tr>
+        <td colspan="2"></td>
+      </tr>
+      <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId]">
+        <td>
+          <span>{{nodeId}}</span>
+        </td>
+        <td>
+          <ul>
+            <!-- Output properties list -->
+            <li ng-if="outputPropertiesSize > 0 && outputPropertiesValue[nodeId]">
+              <strong>{{ 'properties' | translate }}</strong>
+              <ul>
+                <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
+                  {{outputPropertyKey}} :
+                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}">{{outputPropertyValue}}</span>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Output attributes list -->
+            <li ng-if="outputAttributesSize > 0 && outputAttributesValue[nodeId]">
+              <strong>{{ 'attributes' | translate }}</strong>
+              <ul>
+                <li ng-repeat="(instanceId, instanceAttributes) in outputAttributesValue[nodeId]">
+                  {{'INSTANCE' | translate}} {{instanceId}}
+                  <ul>
+                    <li ng-repeat="(outputAttributeKey, outputAttributeValue) in instanceAttributes">
+                      {{outputAttributeKey}} :
+                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}">{{outputAttributeValue}}</span>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

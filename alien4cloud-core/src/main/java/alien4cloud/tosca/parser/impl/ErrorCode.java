@@ -41,5 +41,7 @@ public enum ErrorCode {
     /** Scalar unit declaration not well managed. */
     INVALID_SCALAR_UNIT,
     /** Implementation artifact is unknown. */
-    UNKNOWN_IMPLEMENTATION_ARTIFACT;
+    UNKNOWN_IMPLEMENTATION_ARTIFACT,
+    /** A topology has been detected. */
+    TOPOLOGY_DETECTED;
 }

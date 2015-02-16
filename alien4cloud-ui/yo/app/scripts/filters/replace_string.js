@@ -30,7 +30,7 @@ alienApp.filter('replaceAll', function() {
  */
 alienApp.filter('prefix', function() {
   return function(text, prefixString) {
-    if (UTILS.isUndefinedOrNull(text) || text.length == 0) {
+    if (UTILS.isUndefinedOrNull(text) || text.length === 0) {
       return '';
     }
     return prefixString + text;
@@ -42,7 +42,7 @@ alienApp.filter('prefix', function() {
  */
 alienApp.filter('suffix', function() {
   return function(text, suffixString) {
-    if (UTILS.isUndefinedOrNull(text) || text.length == 0) {
+    if (UTILS.isUndefinedOrNull(text) || text.length === 0) {
       return '';
     }
     return text + suffixString;

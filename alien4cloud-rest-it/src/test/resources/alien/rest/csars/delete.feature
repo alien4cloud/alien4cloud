@@ -15,10 +15,10 @@ Feature: CSAR delete
   	Given I am authenticated with "COMPONENTS_MANAGER" role
   	And I upload a plugin
     And I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+    And I enable the cloud "Mount doom cloud"
     And I have already created a cloud image with name "Ubuntu Trusty", architecture "x86_64", type "linux", distribution "Ubuntu" and version "14.04.1"
-    And I add the cloud image "Ubuntu Trusty" to the cloud "Mount doom cloud"
-    And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud"
-    And I match the template composed of image "Ubuntu Trusty" and flavor "small" of the cloud "Mount doom cloud" to the PaaS resource "SMALL_LINUX"  
+    And I add the cloud image "Ubuntu Trusty" to the cloud "Mount doom cloud" and match it to paaS image "UBUNTU"
+    And I add the flavor with name "small", number of CPUs 2, disk size 32 and memory size 2048 to the cloud "Mount doom cloud" and match it to paaS flavor "2"
   	Given I am authenticated with "APPLICATIONS_MANAGER" role
     And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
     And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type

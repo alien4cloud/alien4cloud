@@ -21,7 +21,10 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
 import alien4cloud.rest.exception.FieldErrorDTO;
@@ -29,9 +32,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.User;
 import alien4cloud.security.groups.Group;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.components.Csar;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -40,7 +40,6 @@ import cucumber.api.java.en.Then;
 public class CommonStepDefinitions {
     private final Client esClient = Context.getEsClientInstance();
     private List<String> indicesToClean;
-    private final ITCsarRetriever csarRetriever = new ITCsarRetriever();
 
     public CommonStepDefinitions() {
         indicesToClean = Lists.newArrayList();
@@ -64,8 +63,6 @@ public class CommonStepDefinitions {
 
     @Before
     public void beforeScenario() throws IOException, InterruptedException, ExecutionException {
-        csarRetriever.retrieveGitArtifacts();
-
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());
         }

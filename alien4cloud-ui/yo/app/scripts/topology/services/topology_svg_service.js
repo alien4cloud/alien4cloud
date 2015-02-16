@@ -238,7 +238,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
             }).attr('marker-end', function(link) {
               return toscaService.isHostedOnType(link.type, topology.relationshipTypes) || toscaService.isNetworkType(link.type, topology.relationshipTypes) ? 'url(#markerHostedTarget)' : 'url(#markerDependsEnd)';
             });
-          instance.drawLinkPath(linkPath);
+            instance.drawLinkPath(linkPath);
         });
 
         linkSelection.each(function() {

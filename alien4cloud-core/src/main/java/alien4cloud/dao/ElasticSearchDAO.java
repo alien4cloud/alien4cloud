@@ -16,15 +16,20 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.ConditionalAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -65,7 +70,6 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(MetaPropConfiguration.class);
         initIndice(Cloud.class);
         initIndice(CloudConfiguration.class);
-        initIndice(CloudResourceMatcherConfig.class);
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
         initCompleted();
@@ -81,8 +85,8 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         public ElasticSearchMapper() {
             super();
             this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(JSonMapEntryArraySerializer.MAP_SERIALIZER_AS_ARRAY, "true");
+            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
+            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
         }
     }
 }

@@ -14,7 +14,15 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.tosca.parser.*;
+import alien4cloud.tosca.parser.AbstractTypeNodeParser;
+import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
 import com.google.common.collect.Maps;
@@ -36,6 +44,11 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
         return false;
+    }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        return 0;
     }
 
     @Override
@@ -128,10 +141,12 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;
             if (target.getParser().isDeferred(context)) {
-                context.getDeferredParsers().add(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode()));
+                context.addDeferredParser(new DefferedParsingValueExecutor(key, targetBean, context, target, nodeTuple.getValueNode(), target.getParser()
+                        .getDefferedOrder(context)));
             } else {
                 parseAndSetValue(targetBean, key, nodeTuple.getValueNode(), context, target);
             }
         }
     }
+
 }

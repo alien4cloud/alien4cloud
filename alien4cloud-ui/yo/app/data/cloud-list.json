@@ -1,8 +1,0 @@
-[
-{"id":"1","status":"stopped","name":"Demo cloud","template":"Amazon EC2"},
-{"id":"2","status":"running","name":"Dev cloud","template":"OpenStack (Dev)"},
-{"id":"3","status":"running","name":"Pre-production cloud","template":"OpenStack (Prod)"},
-{"id":"4","status":"running","name":"Production cloud 1","template":"OpenStack (Prod)"},
-{"id":"5","status":"running","name":"Production cloud 2","template":"OpenStack (Prod)"},
-{"id":"6","status":"running","name":"GoogleCompute Production cloud 2","template":"GoogleCompute (Prod)"}
-]

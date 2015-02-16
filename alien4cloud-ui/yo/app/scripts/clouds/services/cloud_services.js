@@ -5,7 +5,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var networkFormDescriptor = {
       "_type": "complex",
-      "_order": [ "networkName", "ipVersion", "cidr", "gatewayIp"],
+      "_order": [ "networkName", "ipVersion", "isExternal", "cidr", "gatewayIp"],
       "_propertyType": {
         "networkName": {
           "_label": "CLOUDS.NETWORKS.NAME",
@@ -17,6 +17,11 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           "_type": "number",
           "_notNull": true,
           "_validValues": [4, 6]
+        },
+        "isExternal": {
+          "_label": "CLOUDS.NETWORKS.IS_EXTERNAL",
+          "_type": "boolean",
+          "_notNull": true
         },
         "cidr": {
           "_label": "CLOUDS.NETWORKS.CIDR",
@@ -30,6 +35,35 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
         }
       }
     };
+
+    var storageFormDescriptor = {
+        "_type": "complex",
+        "_order": [ "id", "device", "size"],
+        "_propertyType": {
+          "id": {
+            "_label": "CLOUDS.STORAGES.ID",
+            "_type": "string",
+            "_notNull": true
+          },
+          "device": {
+            "_label": "CLOUDS.STORAGES.DEVICE",
+            "_type": "string",
+            "_notNull": false
+          },
+          "size": {
+            "_label": "CLOUDS.STORAGES.SIZE",
+            "_type": "number",
+            "_notNull": true,
+            "_step": 0.5,
+            "_unit": "GB",
+            "_constraints": [
+              {
+                "greaterThan": 0
+              }
+            ]
+          }
+        }
+      };
 
     var flavorFormDescriptor = {
       "_type": "complex",
@@ -81,25 +115,24 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     };
 
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
-    
-    var crudRemoveImages = $resource('rest/clouds/:id/removeImages', {}, {
-      'removeMultiple': {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
 
     var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
 
+    var crudStorage = $resource('rest/clouds/:id/storages/:storageId');
+
     var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
 
-    var setNetworkResource = $resource('rest/clouds/:id/networks/:networkName/resource');
+    var cloudImageResource = $resource('rest/clouds/:id/images/:resourceId/resource');
+
+    var cloudFlavorResource = $resource('rest/clouds/:id/flavors/:resourceId/resource');
+
+    var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
+
+    var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
@@ -205,13 +238,18 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'removeFlavor': crudFlavor.remove,
       'addImage': crudImage.save,
       'removeImage': crudImage.remove,
-      'removeImages': crudRemoveImages.removeMultiple,
       'networkFormDescriptor': networkFormDescriptor,
       'addNetwork': crudNetwork.save,
       'removeNetwork': crudNetwork.remove,
+      'storageFormDescriptor': storageFormDescriptor,
+      'addStorage': crudStorage.save,
+      'removeStorage': crudStorage.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
-      'setNetworkResource': setNetworkResource.save
+      'setCloudNetworkResource': cloudNetworkResource.save,
+      'setCloudImageResource' : cloudImageResource.save,
+      'setCloudFlavorResource' : cloudFlavorResource.save,
+      'setCloudStorageResource' : cloudStorageResource.save
     };
   }
 ]);

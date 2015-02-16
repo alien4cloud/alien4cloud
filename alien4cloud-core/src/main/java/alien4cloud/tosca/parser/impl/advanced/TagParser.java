@@ -8,19 +8,14 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.common.Tag;
-import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 import com.google.common.collect.Lists;
 
 @Component
-public class TagParser implements INodeParser<List<Tag>> {
-
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
+public class TagParser extends DefaultParser<List<Tag>> {
 
     @Override
     public List<Tag> parse(Node node, ParsingContextExecution context) {

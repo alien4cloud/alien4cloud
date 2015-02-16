@@ -10,22 +10,16 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.DateField;
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
-import alien4cloud.model.common.Tag;
 import alien4cloud.model.common.ITaggableResource;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
-import alien4cloud.utils.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -72,6 +66,7 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
@@ -79,6 +74,7 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })

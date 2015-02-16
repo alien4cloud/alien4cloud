@@ -107,25 +107,12 @@ UTILS.isMapNotNullOrEmpty = function(map) {
   return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
 };
 
-var toLowerCase = function(text) {
+UTILS.lowerCamelCase = function(text) {
   return text.charAt(0).toLowerCase() + text.slice(1);
 };
 
-var toUpperCase = function(text) {
+UTILS.upperCamelCase = function(text) {
   return text.charAt(0).toUpperCase() + text.slice(1);
-};
-
-UTILS.relationshipNameFromTypeAndTarget = function(type, targetName) {
-  return toLowerCase(UTILS.getShortName(type)) + toUpperCase(targetName);
-};
-
-UTILS.getShortName = function(longName) {
-  var tokens = longName.trim().split('.');
-  if (tokens.length > 0) {
-    return tokens[tokens.length - 1];
-  } else {
-    return longName;
-  }
 };
 
 UTILS.isFromNodeType = function(nodeType, type) {
@@ -222,4 +209,4 @@ UTILS.array2csv = function(array) {
     result = result + array[i];
   }
   return result;
-}
+};

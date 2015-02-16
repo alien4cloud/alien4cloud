@@ -414,8 +414,8 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/application/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/application/**/*.js'
             ]
           }
         }
@@ -426,8 +426,8 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/application_topology/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/application_topology/**/*.js'
             ]
           }
         }
@@ -438,9 +438,9 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/deployment/**/*.js',
-            'test/e2e/scenarios/security/**/*.js'
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/deployment/**/*.js',
+              'test/e2e/scenarios/security/**/*.js'
             ]
           }
         }
@@ -451,8 +451,9 @@ module.exports = function(grunt) {
             browser: grunt.option('browser'),
             baseUrl: 'http://localhost:8088',
             specs: [
-            'test/e2e/setup-scenario/before-all.js',
-            'test/e2e/scenarios/*.js'            ]
+              'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/scenarios/*.js'
+            ]
           }
         }
       },
@@ -486,7 +487,7 @@ module.exports = function(grunt) {
             // baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
-              'test/e2e/setup-scenario/before-all.js',
+              // 'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
               //              'test/e2e/scenarios/admin/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin/admin_groups_management.js',
@@ -499,38 +500,33 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security.js',
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
-              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationshipname.js',
-              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
-              //              'test/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
+              //            'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
+                            'test/e2e/scenarios/unstable/application_topology_editor_input_output.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_multiplenodeversions.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_plan.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_relationships.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
               //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
-                            'test/e2e/scenarios/application_topology/application_topology_scaling.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_scaling.js',
               //              'test/e2e/scenarios/deployment/deployment.js',
               //              'test/e2e/scenarios/deployment/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
               //              'test/e2e/scenarios/security/security_cloud.js',
               //              'test/e2e/scenarios/security/security_groups.js',
               //              'test/e2e/scenarios/security/security_users.js',
+              //              'test/e2e/scenarios/security/security_environments.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',
               //              'test/e2e/scenarios/csar.js',
-              //              'test/e2e/scenarios/deployment.js',
-              //              'test/e2e/scenarios/deployment_matcher.js',
-              //              'test/e2e/scenarios/deployment_manual_match_resources.js',
               //              'test/e2e/scenarios/homepage.js',
               //              'test/e2e/scenarios/language_test.js',
               //              'test/e2e/scenarios/plugins.js',
               //              'test/e2e/scenarios/quick_search.js',
-              //              'test/e2e/scenarios/security_cloud.js',
-              //              'test/e2e/scenarios/security_groups.js',
-              //              'test/e2e/scenarios/security_users.js',
               //              'test/e2e/scenarios/topology_template.js',
-              //              'test/e2e/scenarios/*'
+              // 'test/e2e/scenarios/*'
             ]
           }
         }

@@ -299,5 +299,48 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
   });
 };
-
 module.exports.expectDeploymentPropertyValue = expectDeploymentPropertyValue;
+
+// check output property / attribute on info or deployment page
+// prerequisite : we're on application details menu
+var expectOutputValue = function expectOutputValue(appPageState, environmentName, outputType, nodeId, instance, key, value) {
+
+  // jump on the targeted page : info / deployment => default deplyoment
+  var targetedPageStateId = appPageState || 'deployment';
+  navigation.go('applications', targetedPageStateId);
+
+  if ( outputType === 'property') {
+    instance = null;
+  }
+
+  // select the environment if "info" page
+  if (targetedPageStateId === 'info') {
+    environmentName = environmentName === null ? 'Environment' : environmentName;
+  } else {
+    // deployment page => may select an environment to check
+    switchEnvironmentAndCloud(environmentName, null); // default cloud
+  }
+
+  // outputType : attribute / property
+  var outputElementId = (instance !== null) ? outputType + '-' + nodeId + '-' + instance + '-' + key : outputType + '-' + nodeId + '-' + key;
+  var outputElementToCheck = element(by.id(outputElementId));
+
+  // check value
+  expect(outputElementToCheck.isDisplayed()).toBe(true);
+  outputElementToCheck.getText().then(function(spanText) {
+    expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
+  });
+
+};
+module.exports.expectOutputValue = expectOutputValue;
+
+var selectTopologyVersion = function selectTopologyVersion(appVersionName) {
+  navigation.go('applications', 'topology');
+  if (typeof appVersionName !== 'undefined') {
+    var selectVersion = element(by.id('versionslistid'));
+    common.selectDropdownByText(selectVersion, appVersionName, 100);
+  } else {
+    console.error('You should have at least one application version type defined');
+  }
+};
+module.exports.selectTopologyVersion = selectTopologyVersion;

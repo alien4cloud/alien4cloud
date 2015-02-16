@@ -15,8 +15,10 @@ import org.elasticsearch.annotation.query.TermFilter;
 
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.security.IManagedSecuredResource;
-import alien4cloud.utils.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -48,6 +50,7 @@ public class Topology implements IManagedSecuredResource {
     private Set<CSARDependency> dependencies = Sets.newHashSet();
 
     @TermFilter(paths = "value.type")
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> nodeTemplates;

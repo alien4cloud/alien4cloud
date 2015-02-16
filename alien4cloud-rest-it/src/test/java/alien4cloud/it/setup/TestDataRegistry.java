@@ -44,6 +44,11 @@ public class TestDataRegistry {
 
         // test uploading an unzipped file (do not zip it)
         CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));
+        CONDITION_TO_PATH.put("alien-base-types",
+                Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "alien-base-types/alien-base-types-1.0-SNAPSHOT.zip"));
+        CONDITION_TO_PATH.put("alien-extended-storage-types",
+                Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "alien-base-types/alien-extended-storage-types-1.0-SNAPSHOT.zip"));
+        CONDITION_TO_PATH.put("tosca-normative-types", Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "tosca-normative-types.zip"));
     }
 
     public static void addConditionFolder(String condition, String folderPathStr) {

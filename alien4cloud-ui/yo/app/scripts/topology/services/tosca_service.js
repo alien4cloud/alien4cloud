@@ -57,6 +57,32 @@ angular.module('alienUiApp').factory('toscaService',
           }
         }
         return false;
+      },
+
+      /**
+      * Return the simple name of a TOSCA element from it's complex name.
+      *
+      * @param name The full name of a TOSCA element.
+      * @return The simple name of the element.
+      */
+      simpleName : function(longName) {
+        var tokens = longName.trim().split('.');
+        if (tokens.length > 0) {
+          return tokens[tokens.length - 1];
+        } else {
+          return longName;
+        }
+      },
+
+      /**
+      * Generates a relationship name from a relationship type and a target name.
+      *
+      * @param type The type of the relationship for which to generate a name.
+      * @param targetName The name of the relationship target.
+      * @return the generated name of the relationship.
+      */
+      generateRelationshipName: function(type, targetName) {
+        return UTILS.lowerCamelCase(this.simpleName(type)) + UTILS.upperCamelCase(targetName);
       }
     };
   } // function

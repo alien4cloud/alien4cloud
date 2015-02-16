@@ -10,13 +10,13 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.tosca.parser.DefferedParsingValueExecutor;
-import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.impl.base.ReferencedParser;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @Component
-public class CapabilityDefinitionParser implements INodeParser<CapabilityDefinition> {
+public class CapabilityDefinitionParser extends DefaultParser<CapabilityDefinition> {
     @Resource
     private ReferencedCapabilityTypeParser referencedCapabilityTypeParser;
     private final ReferencedParser<CapabilityDefinition> capabilityDefinitionParser;
@@ -26,17 +26,12 @@ public class CapabilityDefinitionParser implements INodeParser<CapabilityDefinit
     }
 
     @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
-
-    @Override
     public CapabilityDefinition parse(Node node, ParsingContextExecution context) {
         if (node instanceof ScalarNode) {
             CapabilityDefinition definition = new CapabilityDefinition();
             BeanWrapper instanceWrapper = new BeanWrapperImpl(definition);
-            context.getDeferredParsers().add(
-                    new DefferedParsingValueExecutor(null, instanceWrapper, context, new MappingTarget("type", referencedCapabilityTypeParser), node));
+            context.addDeferredParser(new DefferedParsingValueExecutor(null, instanceWrapper, context,
+                    new MappingTarget("type", referencedCapabilityTypeParser), node));
             return definition;
         }
 

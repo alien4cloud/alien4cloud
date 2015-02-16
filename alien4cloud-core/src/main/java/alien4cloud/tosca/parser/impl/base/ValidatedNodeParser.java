@@ -52,4 +52,10 @@ public class ValidatedNodeParser<T> implements INodeParser<T> {
     public boolean isDeferred(ParsingContextExecution context) {
         return delegate.isDeferred(context);
     }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        return delegate.getDefferedOrder(context);
+    }
+
 }

@@ -46,7 +46,7 @@
         <span ng-if="!definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
         </span>
-        <span ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue}}</span>
+        <span ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</span>
 
         <!-- Case : password -->
         <span ng-if="definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" e-type="password" buttons="no" e-required onbeforesave="propertySave($data)" blur="submit">
@@ -54,7 +54,7 @@
         </span>
         <span ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</span>
       </span>
-      <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
+      <label ng-if="definition.required && editable" tooltip="{{ 'REQUIRED' | translate }}">*</label>
     </div>
   </div>
 </div>

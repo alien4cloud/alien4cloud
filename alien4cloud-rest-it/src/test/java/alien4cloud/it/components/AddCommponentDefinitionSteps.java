@@ -3,8 +3,10 @@ package alien4cloud.it.components;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.it.csars.CrudCSARSStepDefinition;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.en.Given;
@@ -26,8 +28,17 @@ public class AddCommponentDefinitionSteps {
     }
 
     public String uploadComponent(String componentName) throws IOException {
-        String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentName + ".json"));
         String csarId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
+        return AddCommponentDefinitionSteps.uploadComponent(csarId, componentName);
+    }
+
+    public static String uploadComponent(String csarId, String componentName) throws IOException {
+        String componentJson = FileUtil.readTextFile(Paths.get(COMPONENT_TEST_DATA_PACKAGE + componentName + ".json"));
+        // parse the json using an ES mapper
+        IndexedNodeType nodeType = new ElasticSearchDAO.ElasticSearchMapper().readValue(componentJson, IndexedNodeType.class);
+        nodeType.setArchiveVersion("1.0");
+        // and send it to rest API through the REST mapper
+        componentJson = Context.getInstance().getJsonMapper().writeValueAsString(nodeType);
         return Context.getRestClientInstance().postJSon("/rest/csars/" + csarId + "/nodetypes", componentJson);
     }
 }

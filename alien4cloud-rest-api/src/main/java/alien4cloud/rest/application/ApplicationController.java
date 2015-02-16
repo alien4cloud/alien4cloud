@@ -37,6 +37,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
@@ -46,6 +47,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
+import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
@@ -88,6 +90,8 @@ public class ApplicationController {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
+    @Resource
+    private TopologyService topologyService;
 
     /**
      * Create a new application in the system.
@@ -101,9 +105,18 @@ public class ApplicationController {
     public RestResponse<String> create(@Valid @RequestBody CreateApplicationRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        // check the topology template id to recover the related topology id
+        String topologyId = null;
+        if (request.getTopologyTemplateId() != null) {
+            TopologyTemplate template = topologyService.getOrFailTopologyTemplate(request.getTopologyTemplateId());
+            topologyId = template.getTopologyId();
+        }
+        // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
-        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, request.getTopologyId());
+        ApplicationVersion version = applicationVersionService.createApplicationVersion(applicationId, topologyId);
         ApplicationEnvironment environment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, version.getId());
+        // create the deployment setup
         deploymentSetupService.createOrFail(version, environment);
         return RestResponseBuilder.<String> builder().data(applicationId).build();
     }

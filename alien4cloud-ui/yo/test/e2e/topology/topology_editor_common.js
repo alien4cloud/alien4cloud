@@ -47,11 +47,13 @@ var beforeTopologyTest = function() {
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
   cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
-//  cloudsCommon.selectFirstImageOfCloud();
-//  cloudsCommon.selectFirstImageOfCloud();
+  cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
   cloudsCommon.selectAllImageOfCloud();
-  cloudsCommon.assignPaaSResourceToTemplate('Windows', 'medium', 'MEDIUM_WINDOWS');
-  cloudsCommon.assignPaaSResourceToTemplate('Ubuntu', 'medium', 'MEDIUM_UBUNTU');
+  cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
+  cloudsCommon.assignPaaSResourceToImage("Ubuntu", "passIdImage2");
+  cloudsCommon.goToCloudDetail('testcloud');
+  cloudsCommon.disableCloud();
+  cloudsCommon.enableCloud();
   authentication.logout();
 
   authentication.login('applicationManager');
@@ -240,9 +242,9 @@ module.exports.addRelationship = function(relationshipDescription) {
 
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
-
   var countRelationship = 0;
-  var relationships = element.all(by.repeater('(relationshipName,relationshipDefinition) in selectedNodeTemplate.relationships'));
+  var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
+  browser.waitForAngular();
 
   // get a relationship array
   var relationshipList = relationships.map(function(elem, index) {
@@ -251,16 +253,15 @@ var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCou
       relationshipName: elem.element(by.tagName('span')).getText()
     };
   });
+  browser.waitForAngular();
 
   // when my relationship array is ready i do some test on it
   relationshipList.then(function(arrayRelationship) {
-
     // Testing relationshipsNameStart count
     arrayRelationship.forEach(function(relationship) {
       if (relationship.relationshipName.replace(/ /g, '').search(relationshipsNameStart) > -1) {
         countRelationship++;
       }
-
     });
 
     // test expected size
@@ -434,5 +435,35 @@ var expectAttributeOutputState = function(nodeTemplateName, propertyName, checke
     expect(ioButton.getAttribute('class')).not.toContain('active');
   }
 };
-
 module.exports.expectAttributeOutputState = expectAttributeOutputState;
+
+var checkNumberOfRelationship = function(expectedCount) {
+  var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
+  browser.waitForAngular();
+  expect(relationships.count()).toBe(expectedCount);
+};
+module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
+
+var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
+  element(by.id(nodeName)).click();
+  browser.waitForAngular();
+  checkNumberOfRelationship(expectedCount);
+};
+module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
+
+var expectDeploymentWork = function(goToAppDetail, work) {
+  if (goToAppDetail) {
+    authentication.reLogin('applicationManager');
+    applications.goToApplicationDetailPage('Alien', false);
+    navigation.go('applications', 'deployment');
+  }
+  var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
+  if (work) {
+    expect(deployButton.getAttribute('disabled')).toBeNull();
+    expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
+  } else {
+    expect(deployButton.getAttribute('disabled')).toEqual('true');
+    expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).toContain('text-danger');
+  }
+};
+module.exports.expectDeploymentWork = expectDeploymentWork;

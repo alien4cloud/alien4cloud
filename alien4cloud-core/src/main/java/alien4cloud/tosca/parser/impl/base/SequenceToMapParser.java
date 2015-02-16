@@ -29,7 +29,7 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     public Map<String, T> parse(Node node, ParsingContextExecution context) {
         if (node instanceof SequenceNode) {
             SequenceNode sequenceNode = (SequenceNode) node;
-            Map<String, T> sequenceMap = Maps.newHashMap();
+            Map<String, T> sequenceMap = Maps.newLinkedHashMap();
             for (Node elementNode : sequenceNode.getValue()) {
                 if (elementNode instanceof MappingNode) {
                     MappingNode mappingNode = (MappingNode) elementNode;
@@ -52,4 +52,10 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     public boolean isDeferred(ParsingContextExecution context) {
         return valueParser.isDeferred(context);
     }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        return valueParser.getDefferedOrder(context);
+    }
+
 }

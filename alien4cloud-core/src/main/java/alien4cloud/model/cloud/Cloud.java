@@ -19,14 +19,13 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.JSonMapEntryArraySerializer;
-import alien4cloud.utils.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiModel;
 import com.wordnik.swagger.annotations.ApiModelProperty;
@@ -81,6 +80,7 @@ public class Cloud implements ISecuredResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
@@ -88,6 +88,7 @@ public class Cloud implements ISecuredResource {
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
+    @ConditionalOnAttribute(ConditionalAttributes.ES)
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
@@ -99,7 +100,17 @@ public class Cloud implements ISecuredResource {
 
     private Set<CloudImageFlavor> flavors = Sets.newLinkedHashSet();
 
+    private Set<NetworkTemplate> networks = Sets.newLinkedHashSet();
+
+    private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
+
     private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
 
-    private Set<Network> networks = Sets.newLinkedHashSet();
+    private Map<String, String> imageMapping = Maps.newHashMap();
+
+    private Map<String, String> flavorMapping = Maps.newHashMap();
+
+    private Map<String, String> networkMapping = Maps.newHashMap();
+
+    private Map<String, String> storageMapping = Maps.newHashMap();
 }

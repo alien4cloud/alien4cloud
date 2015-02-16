@@ -38,14 +38,15 @@
 
       <div class="col-md-4" style="padding-top: 25px;">
         <!-- DEPLOY BUTTON -->
-        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
+        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage" ng-click="deploy()" ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
           <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
         </button>
-        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-show="
-          selectedEnvironment.status === 'DEPLOYED' ||
+        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()"
+        ng-if="(selectedEnvironment.status === 'DEPLOYED' ||
           selectedEnvironment.status === 'WARNING' ||
           selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
-          selectedEnvironment.status === 'FAILURE'">
+          selectedEnvironment.status === 'FAILURE') &&
+          selectedCloud">
           <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
         </button>
       </div>
@@ -222,7 +223,7 @@
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
         <span>
-          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
+          <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
         <table class="table table-condensed" id="inputPropertiesTable">
           <tr>
@@ -239,7 +240,7 @@
                 <li ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
                   {{inputPropertyValue}} :
                   <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                    {{nodeTemplates[propertyKey].properties[inputPropertyValue]}} <i class="fa fa-pencil-square-o"></i>
+                    {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
                   </span>
                 </li>
               </ul>
@@ -300,52 +301,16 @@
     </div>
 
     <!-- Output properties  -->
-    <div class="row" style="margin-top: 20px;" ng-if="outputNodes.length > 0" ng-show="
+    <div class="row" style="margin-top: 20px;" ng-show="
       selectedEnvironment.status == 'DEPLOYED' ||
       selectedEnvironment.status == 'WARNING' ||
       selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' ||
       selectedEnvironment.status == 'FAILURE'">
+
       <div class="col-md-12">
-        <span>
-          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
-        </span>
-        <table class="table table-condensed" id="outputPropertiesTable">
-          <tr>
-            <td colspan="2">
-            </td>
-          </tr>
-          <tr ng-repeat="nodeId in outputNodes">
-            <td>
-              <span>{{nodeId}}</span>
-            </td>
-            <td>
-              <ul>
-                <li ng-if="outputPropertiesSize > 0">
-                  <strong>{{ 'properties' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
-                      {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                    </li>
-                  </ul>
-                </li>
-                <li ng-if="outputAttributesSize > 0">
-                  <strong>{{ 'attributes' | translate }}</strong>
-                  <ul>
-                    <li ng-repeat="(instanceId, instanceProperties) in outputAttributesValue[nodeId]">
-                      {{'INSTANCE' | translate}} {{instanceId}}
-                      <ul>
-                        <li ng-repeat="(outputPropertyKey, outputPropertyValue) in instanceProperties">
-                          {{outputPropertyKey}} : <span class="text-primary">{{outputPropertyValue}}</span>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </table>
+        <display-outputs></display-outputs>
       </div>
+
     </div>
   </div>
 </div>
@@ -355,12 +320,12 @@
   <div class="row">
     <div class="col-md-12">
       <legend class="text-center title-border">
-        <h3><i ng-class="{'fa fa-warning text-danger' : hasUnmatchedCompute || hasUnmatchedNetwork, 'fa fa-random': !hasUnmatchedCompute || hasUnmatchedNetwork}"></i>
+        <h3><i ng-class="{'fa fa-warning text-danger' : hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage, 'fa fa-random': !hasUnmatchedCompute || !hasUnmatchedNetwork || !hasUnmatchedStorage}"></i>
           {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER' | translate}}</h3>
       </legend>
     </div>
   </div>
-  <div class="row" ng-if="hasUnmatchedCompute || hasUnmatchedNetwork" style="margin-bottom: 10px;">
+  <div class="row" ng-if="hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage" style="margin-bottom: 10px;">
     <div class="col-md-12">
       <span><i class="fa fa-warning text-danger"></i> {{'APPLICATIONS.DEPLOYMENT.RESOURCES_NOT_MATCHED' | translate}}</span>
     </div>
@@ -390,8 +355,7 @@
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)" class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
                       <td>
-                        <i ng-if="!computeImage" class="fa fa-image fa-3x"></i>
-                        <img ng-if="computeImage" ng-src="{{computeImage?('img?id=' + computeImage + '&quality=QUALITY_64'):null}}" />
+                        <img ng-src="{{getResourceIcon(computeImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
                       <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
@@ -457,11 +421,10 @@
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedNetworkResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedNetworks(key, templates)" class="clickable-media" ng-class="{'info': isSelectedNetworkName(key), 'danger': !selectedNetworks[key]}">
                       <td>
-                        <i ng-if="!networkImage" class="fa fa-image fa-3x"></i>
-                        <img ng-if="networkImage" ng-src="{{networkImage?('img?id=' + networkImage + '&quality=QUALITY_64'):null}}" />
+                        <img ng-src="{{getResourceIcon(networkImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
-                      <td>{{selectedNetworks[key].networkName}}</td>
+                      <td>{{selectedNetworks[key].id}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -480,10 +443,64 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="network in currentMatchedNetworks" class="clickable-media" ng-class="{'info' : isSelectedNetwork(network)}" ng-click="changeSelectedNetwork(network)">
-                      <td>{{network.networkName}}</td>
+                      <td>{{network.id}}</td>
                       <td>{{network.cidr}}</td>
                       <td>{{network.gatewayIp || '---'}}</td>
                       <td>{{network.ipVersion}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+        <tab id="tab-storage-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.STORAGE_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedStorage">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_STORAGE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedStorageResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedStorages(key, templates)" class="clickable-media" ng-class="{'info': isSelectedStorageName(key), 'danger': !selectedStorages[key]}">
+                      <td>
+                        <img ng-src="{{getResourceIcon(storageImage, key)}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{selectedStorages[key].id}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedStorages">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="storage in currentMatchedStorages" class="clickable-media" ng-class="{'info' : isSelectedStorage(storage)}" ng-click="changeSelectedStorage(storage)">
+                      <td>{{storage.id}}</td>
+                      <td>{{storage.device || '---'}}</td>
+                      <td>{{storage.location || '---'}}</td>
+                      <td>{{storage.size}} GB</td>
                     </tr>
                   </tbody>
                 </table>

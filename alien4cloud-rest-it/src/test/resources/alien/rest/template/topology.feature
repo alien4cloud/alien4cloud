@@ -39,10 +39,6 @@ Feature: Create topology template
     Given I have created a new topology template with name "topology_template_name2" and description "My topology template description2"
     And I have created a new topology template with name "topology_template_name1" and description "My topology template description1"
     When I update the topology template "topology_template_name1" fields:
-      | name         | value                      |
-      | unknownFiled | a field that doesnt exists |
-    Then I should receive a RestResponse with an error code 500
-    When I update the topology template "topology_template_name1" fields:
       | name | value                   |
       | name | topology_template_name2 |
     Then I should receive a RestResponse with an error code 502

@@ -80,7 +80,7 @@ public class CloudDefinitionsSteps {
         cloud.setName(newCloudName);
         updateCloud(cloudName, cloud);
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
-        if (restResponse.getError() == null) {
+        if (restResponse.getError() == null && !cloudName.equals(newCloudName)) {
             Context.getInstance().unregisterCloud(cloudName);
             Context.getInstance().registerCloud(cloud.getId(), newCloudName);
         }

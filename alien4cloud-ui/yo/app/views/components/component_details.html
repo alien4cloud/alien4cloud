@@ -166,16 +166,15 @@
             </legend>
             <div class="table-responsive">
               <table class="table table-condensed">
-                <tr ng-repeat="(propName, propDef) in component.properties">
-                  <td><strong>{{propName}}</strong>
-                  </td>
+                <tr ng-repeat="propertyEntry in component.properties">
+                  <td><strong>{{propertyEntry.key}}</strong></td>
                   <td>
-                    <div ng-repeat="constraint in propDef.constraints">
+                    <div ng-repeat="constraint in propertyEntry.value.constraints">
                       <span ng-repeat="(name, value) in constraint"> {{name}} : {{value}} </span>
                     </div>
                   </td>
                   <td>
-                    <button ng-if="propDef.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openSimpleModal(propDef.description)" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}" tooltip-append-to-body="true">
+                    <button ng-if="propertyEntry.value.description" class="btn btn-primary btn-xs" data-toggle="modal" ng-click="openSimpleModal(propertyEntry.value.description)" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}" tooltip-append-to-body="true">
                       <i class="fa fa-question-circle"></i>
                     </button>
                   </td>

@@ -36,6 +36,7 @@ alien4cloud-rest-api/.gitignore
 alien4cloud-auth-rest/.gitignore
 alien4cloud-compilation-tool/.gitignore
 alien4cloud-mock-paas-provider-plugin/.gitignore
+alien4cloud.log
 
 /data/
 /target/
@@ -44,4 +45,3 @@ alien4cloud-mock-paas-provider-plugin/.gitignore
 alien4cloud-rest-api/data/
 alien4cloud-security/.gitignore
 alien4cloud-ui/data/
-alien4cloud.log

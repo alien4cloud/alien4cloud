@@ -1,7 +1,6 @@
 package alien4cloud.rest.template;
 
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -20,14 +19,15 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
-import alien4cloud.model.topology.Topology;
-import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -49,6 +49,10 @@ public class TopologyTemplateController {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource
+    private TopologyService topologyService;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
 
     /**
      * Create a new {@link TopologyTemplate}
@@ -62,26 +66,14 @@ public class TopologyTemplateController {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
 
         // Create the new topology linked to the topology template
-        String topologyId = UUID.randomUUID().toString();
         Topology topology = new Topology();
-        topology.setId(topologyId);
 
-        String topologyTemplateId = UUID.randomUUID().toString();
-        TopologyTemplate topologyTemplate = new TopologyTemplate();
-        topologyTemplate.setId(topologyTemplateId);
-        topologyTemplate.setName(checkNameUnicity(createTopologyTemplateRequest.getName()));
-        topologyTemplate.setDescription(createTopologyTemplateRequest.getDescription());
-        topologyTemplate.setTopologyId(topologyId);
+        TopologyTemplate template = topologyServiceCore.createTopologyTemplate(topology, checkNameUnicity(createTopologyTemplateRequest.getName()),
+                createTopologyTemplateRequest.getDescription());
 
-        topology.setDelegateId(topologyTemplateId);
-        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+        log.info("Created topology template <{}>", template.getId());
 
-        this.alienDAO.save(topology);
-        this.alienDAO.save(topologyTemplate);
-
-        log.info("Created topology template <{}>", topologyTemplateId);
-
-        return RestResponseBuilder.<String> builder().data(topologyTemplateId).build();
+        return RestResponseBuilder.<String> builder().data(template.getId()).build();
     }
 
     private String checkNameUnicity(String name) {
@@ -105,7 +97,7 @@ public class TopologyTemplateController {
     public RestResponse<TopologyTemplate> get(@PathVariable String topologyTemplateId) {
 
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate template = retrieveTopologyTemplate(topologyTemplateId);
+        TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
         return RestResponseBuilder.<TopologyTemplate> builder().data(template).build();
     }
 
@@ -132,13 +124,14 @@ public class TopologyTemplateController {
      * Delete an existing {@link TopologyTemplate}
      *
      * @param topologyTemplateId
+     * 
      * @return
      */
     @ApiOperation(value = "Delete a topology template given an id. Alse delete the related topology", notes = "Role required [ Role.ARCHITECT ]")
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate topologyTemplate = retrieveTopologyTemplate(topologyTemplateId);
+        TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
         alienDAO.delete(TopologyTemplate.class, topologyTemplate.getId());
         alienDAO.delete(Topology.class, topologyTemplate.getTopologyId());
         return RestResponseBuilder.<Void> builder().build();
@@ -156,7 +149,7 @@ public class TopologyTemplateController {
     public RestResponse<Void> update(@ApiParam(value = " Id of the topology template", required = true) @PathVariable String topologyTemplateId,
             @ApiIgnore @RequestBody UpdateTopologyTemplateRequest updateTopologyTemplateRequest) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
-        TopologyTemplate topologyTemplate = retrieveTopologyTemplate(topologyTemplateId);
+        TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
         String currentTemplateName = topologyTemplate.getName();
         ReflectionUtil.mergeObject(updateTopologyTemplateRequest, topologyTemplate);
         if (topologyTemplate.getName() == null || topologyTemplate.getName().isEmpty()) {
@@ -167,21 +160,6 @@ public class TopologyTemplateController {
         }
         alienDAO.save(topologyTemplate);
         return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Retrieve the topology template from its id
-     *
-     * @param topologyTemplateId
-     * @return
-     */
-    private TopologyTemplate retrieveTopologyTemplate(String topologyTemplateId) {
-        TopologyTemplate topologyTemplate = this.alienDAO.findById(TopologyTemplate.class, topologyTemplateId);
-        if (topologyTemplate == null) {
-            log.debug("Failed to recover the topology template <{}>", topologyTemplateId);
-            throw new NotFoundException("Topology template with id [" + topologyTemplateId + "] cannot be found");
-        }
-        return topologyTemplate;
     }
 
 }

@@ -2,8 +2,14 @@
   <div class="row">
 
     <div class="col-md-7 col-lg-8">
-      <div class="well topology">
-        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" />
+      <div class="well topology" ng-init="visual = false; simple = false">
+        <div class="btn-toolbar">
+          <div class="btn-group">
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+          </div>
+        </div>
+        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" simple="simple"/>
       </div>
     </div>
     <div class="col-md-5 col-lg-4">
@@ -115,7 +121,11 @@
                 <h4 class="text-primary">{{selectedNodeTemplate.name | split:39}}</h4>
               </div>
               <div id="scaleEditableInput" class="col-md-7" ng-if="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
-                <div class="editable-discreet" editable-number="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)" e-required>
+                <div class="editable-discreet" editable-range="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)"
+                  e-step="1"
+                  e-min="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].minInstances}}"
+                  e-max="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].maxInstances}}"
+                  e-required>
                   <h4>
                     {{selectedNodeTemplate.newInstancesCount
                     || selectedNodeTemplate.instancesCount}}

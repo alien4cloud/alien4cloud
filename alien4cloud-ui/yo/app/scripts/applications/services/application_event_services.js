@@ -1,3 +1,4 @@
+/* global UTILS */
 'use strict';
 
 angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices',
