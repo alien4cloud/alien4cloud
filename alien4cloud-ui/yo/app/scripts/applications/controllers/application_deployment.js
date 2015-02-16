@@ -13,10 +13,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.application = applicationResult.data;
     $scope.envs = appEnvironments.deployEnvironments;
     $scope.getResourceIcon = function(defaultImage, key) {
-      var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
-      if (UTILS.isDefinedAndNotNull(tags)) {
-        var icon = UTILS.getIcon(tags);
-        return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
+      if (UTILS.isDefinedAndNotNull($scope.topologyDTO) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology.nodeTemplates) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology.nodeTemplates[key])) {
+        var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
+        if (UTILS.isDefinedAndNotNull(tags)) {
+          var icon = UTILS.getIcon(tags);
+          return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
+        } else {
+          return null;
+        }
       } else {
         return null;
       }
