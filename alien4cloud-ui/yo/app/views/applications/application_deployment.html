@@ -240,7 +240,7 @@
                 <li ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
                   {{inputPropertyValue}} :
                   <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                    {{nodeTemplates[propertyKey].properties[inputPropertyValue]}} <i class="fa fa-pencil-square-o"></i>
+                    {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
                   </span>
                 </li>
               </ul>
