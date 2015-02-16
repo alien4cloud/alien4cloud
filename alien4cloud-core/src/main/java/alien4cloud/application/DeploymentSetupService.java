@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ import com.google.common.collect.Maps;
 /**
  * Manages deployment setups.
  */
+@Slf4j
 @Service
 public class DeploymentSetupService {
 
@@ -101,7 +103,7 @@ public class DeploymentSetupService {
      * @param applicationEnvironmentId
      * @return
      */
-    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) throws CloudDisabledException {
+    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) {
 
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
@@ -113,7 +115,11 @@ public class DeploymentSetupService {
         }
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-            generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
+            try {
+                generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
+            } catch (CloudDisabledException e) {
+                log.warn("Cannot generate mapping for deployment setup as cloud is disabled, it will be re-generated next time");
+            }
         }
         return deploymentSetup;
     }
