@@ -1,7 +1,6 @@
 package alien4cloud.rest.template;
 
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -28,6 +27,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -51,6 +51,8 @@ public class TopologyTemplateController {
     private IGenericSearchDAO alienDAO;
     @Resource
     private TopologyService topologyService;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
 
     /**
      * Create a new {@link TopologyTemplate}
@@ -64,26 +66,14 @@ public class TopologyTemplateController {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
 
         // Create the new topology linked to the topology template
-        String topologyId = UUID.randomUUID().toString();
         Topology topology = new Topology();
-        topology.setId(topologyId);
 
-        String topologyTemplateId = UUID.randomUUID().toString();
-        TopologyTemplate topologyTemplate = new TopologyTemplate();
-        topologyTemplate.setId(topologyTemplateId);
-        topologyTemplate.setName(checkNameUnicity(createTopologyTemplateRequest.getName()));
-        topologyTemplate.setDescription(createTopologyTemplateRequest.getDescription());
-        topologyTemplate.setTopologyId(topologyId);
+        TopologyTemplate template = topologyServiceCore.createTopologyTemplate(topology, checkNameUnicity(createTopologyTemplateRequest.getName()),
+                createTopologyTemplateRequest.getDescription());
 
-        topology.setDelegateId(topologyTemplateId);
-        topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+        log.info("Created topology template <{}>", template.getId());
 
-        this.alienDAO.save(topology);
-        this.alienDAO.save(topologyTemplate);
-
-        log.info("Created topology template <{}>", topologyTemplateId);
-
-        return RestResponseBuilder.<String> builder().data(topologyTemplateId).build();
+        return RestResponseBuilder.<String> builder().data(template.getId()).build();
     }
 
     private String checkNameUnicity(String name) {
@@ -134,6 +124,7 @@ public class TopologyTemplateController {
      * Delete an existing {@link TopologyTemplate}
      *
      * @param topologyTemplateId
+     * 
      * @return
      */
     @ApiOperation(value = "Delete a topology template given an id. Alse delete the related topology", notes = "Role required [ Role.ARCHITECT ]")

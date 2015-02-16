@@ -9,13 +9,15 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.model.components.Csar;
+import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.VersionUtil;
 
 @Component
@@ -33,6 +35,8 @@ public class ArchiveUploadService {
     private CsarService csarService;
     @Resource
     private ArchiveIndexer archiveIndexer;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
 
     /**
      * Upload a TOSCA archive and index it's components.
@@ -61,6 +65,18 @@ public class ArchiveUploadService {
             }
         }
 
+        // if a topology has been added we want to notify the user
+        boolean topologyParsed = parsingResult.getResult().getTopology() != null;
+        String topologyTemplateName = null;
+        if (topologyParsed) {
+            topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
+            parsingResult
+                    .getContext()
+                    .getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                            topologyTemplateName));
+        }
+
         ParsingResult<Csar> simpleResult = toSimpleResult(parsingResult);
 
         if (ArchiveUploadService.hasError(parsingResult, null)) {
@@ -82,6 +98,11 @@ public class ArchiveUploadService {
         imageLoader.importImages(path, parsingResult);
         // index the archive content in elastic-search
         archiveIndexer.indexArchive(archiveName, archiveVersion, parsingResult.getResult(), archive != null);
+        
+        if (topologyParsed) {
+            topologyServiceCore.createTopologyTemplate(parsingResult.getResult().getTopology(), topologyTemplateName, parsingResult.getResult()
+                    .getTopologyTemplateDescription());
+        }
 
         return simpleResult;
     }

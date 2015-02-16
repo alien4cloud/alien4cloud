@@ -9,22 +9,22 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.model.components.ImplementationArtifact;
-import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.impl.ErrorCode;
+import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.io.Files;
 
 @Component
-public class ImplementationArtifactParser implements INodeParser<ImplementationArtifact> {
+public class ImplementationArtifactParser extends DefaultDeferredParser<ImplementationArtifact> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDao;
 
@@ -80,8 +80,4 @@ public class ImplementationArtifactParser implements INodeParser<ImplementationA
         return null;
     }
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return true;
-    }
 }

@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.constraints.*;
 import lombok.AllArgsConstructor;
 
 import org.springframework.beans.BeanWrapper;
@@ -16,7 +15,25 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.tosca.parser.*;
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
+import alien4cloud.tosca.parser.AbstractTypeNodeParser;
+import alien4cloud.tosca.parser.INodeParser;
+import alien4cloud.tosca.parser.MappingTarget;
+import alien4cloud.tosca.parser.ParserUtils;
+import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
+import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
@@ -57,6 +74,11 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
         return false;
+    }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        return 0;
     }
 
     @Override

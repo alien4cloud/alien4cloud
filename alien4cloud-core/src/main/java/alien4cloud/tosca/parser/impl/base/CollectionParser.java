@@ -15,9 +15,10 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @AllArgsConstructor
-public abstract class CollectionParser<T> implements INodeParser<Collection<T>> {
+public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the list. */
     private String toscaType;
@@ -77,8 +78,4 @@ public abstract class CollectionParser<T> implements INodeParser<Collection<T>> 
 
     protected abstract Collection<T> getCollectionInstance();
 
-    @Override
-    public boolean isDeferred(ParsingContextExecution context) {
-        return false;
-    }
 }

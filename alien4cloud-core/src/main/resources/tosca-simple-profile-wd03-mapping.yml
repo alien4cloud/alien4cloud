@@ -16,6 +16,8 @@
 - tag: alien4cloud.tosca.parser.impl.advanced.TagParser
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
+- relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
+
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -45,10 +47,27 @@
     key: elementId
     type: artifact_type
     # inputs:
-    # node_templates:
-    # relationship_templates:
-    # groups:
-    # outputs:
+  topology_template:
+    inner: topology
+    deferred: true
+    deferredOrder: 1000 # we want this to be the last executed
+    type: topology_template_type
+
+- topology_template_type: alien4cloud.model.topology.Topology|topologyChecker
+  description: .topologyTemplateDescription # mapped to a root's property 
+  node_templates: 
+    map: nodeTemplates
+    type: node_template  
+      
+- node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
+  type: type
+  name: name
+  properties: 
+    map: properties
+    type: scalar
+  requirements:
+    inner: relationships
+    type: relationship_templates_type
 
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
@@ -157,7 +176,7 @@
     map: inputParameters
     type: input
 
-- node_type: alien4cloud.model.components.IndexedNodeType
+- node_type: alien4cloud.model.components.IndexedNodeType|toscaElementChecker
   description: description
   abstract: abstract
   tags:
@@ -187,7 +206,7 @@
     sequence_to_map: artifacts
     type: deployment_artifact
 
-- capability_type: alien4cloud.model.components.IndexedCapabilityType
+- capability_type: alien4cloud.model.components.IndexedCapabilityType|toscaElementChecker
   description: description
   abstract: abstract
   tags:
@@ -200,7 +219,7 @@
     map: properties
     type: property_definition
 
-- relationship_type: alien4cloud.model.components.IndexedRelationshipType
+- relationship_type: alien4cloud.model.components.IndexedRelationshipType|toscaElementChecker
   description: description
   abstract: abstract
   tags:
@@ -228,7 +247,7 @@
     list: validSources
     type: scalar
 
-- artifact_type: alien4cloud.model.components.IndexedArtifactType
+- artifact_type: alien4cloud.model.components.IndexedArtifactType|toscaElementChecker
   description: description
   abstract: abstract
   tags:

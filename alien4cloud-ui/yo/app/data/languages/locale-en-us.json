@@ -74,13 +74,21 @@
       "INVALID_SCALAR_UNIT": "Expected type was a TOSCA scalar unit, both unit and value are required.",
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
       "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
+      "TOPOLOGY_DETECTED": "A topology template has been detected in the archive and created with name: {{note}}",
       "NotNull": "The property [ {{path}} ] cannot be null",
       "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
       "ToscaPropertyType": "Property [ {{path}} ] has an invalid type, please check supported TOSCA types. Details [ {{message}} ]",
       "ToscaPropertyConstraint": "Constraint [ {{path}} ] is not valid or cannot be applied on the defined property.",
       "ToscaPropertyConstraintDuplicate": "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
       "ToscaPropertyDefaultValueType": "The default value for the property [ {{path}} ] do not follow its type.",
-      "ToscaPropertyDefaultValueConstraints": "The default value for the property [ {{path}} ] do not respect its constraint."
+      "ToscaPropertyDefaultValueConstraints": "The default value for the property [ {{path}} ] do not respect its constraint.",
+      "ToscaSequenceExpected": "A YAML sequence is expected.",
+      "ToscaMappingNodeExpected": "A mapping node is expected.",
+      "ToscaRequirementTargetNodeTemplateNameRequired": "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
+      "ToscaRelationshipNotBuilt": "Not able to build the relationship for the requirement [{{note}}] (please read errors)",
+      "ToscaRequirementNotFound": "Requirement definition for [{{note}}] was not found.",
+      "ToscaRequirementTargetNotFound": "The requirement's target for [{{note}}] doesn't exists.",
+      "ToscaRequirementCapabilityNotFound": "The capability corresponding to the requirement [{{note}}] can't be identified."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",

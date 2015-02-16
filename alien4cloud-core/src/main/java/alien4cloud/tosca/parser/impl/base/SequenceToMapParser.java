@@ -52,4 +52,10 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     public boolean isDeferred(ParsingContextExecution context) {
         return valueParser.isDeferred(context);
     }
+
+    @Override
+    public int getDefferedOrder(ParsingContextExecution context) {
+        return valueParser.getDefferedOrder(context);
+    }
+
 }
