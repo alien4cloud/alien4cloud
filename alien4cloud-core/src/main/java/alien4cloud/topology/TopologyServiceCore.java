@@ -169,15 +169,15 @@ public class TopologyServiceCore {
             IToscaElementFinder toscaElementFinder) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
-        Map<String, Capability> capabilities = Maps.newHashMap();
-        Map<String, Requirement> requirements = Maps.newHashMap();
-        Map<String, String> properties = Maps.newHashMap();
-        Map<String, String> attributes = Maps.newHashMap();
+        Map<String, Capability> capabilities = Maps.newLinkedHashMap();
+        Map<String, Requirement> requirements = Maps.newLinkedHashMap();
+        Map<String, String> properties = Maps.newLinkedHashMap();
+        Map<String, String> attributes = Maps.newLinkedHashMap();
         Map<String, DeploymentArtifact> deploymentArtifacts = null;
         Map<String, DeploymentArtifact> deploymentArtifactsToMerge = templateToMerge != null ? templateToMerge.getArtifacts() : null;
         if (deploymentArtifactsToMerge != null) {
             if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
+                deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
                 for (Entry<String, DeploymentArtifact> entryArtifact : deploymentArtifactsToMerge.entrySet()) {
                     DeploymentArtifact existingArtifact = entryArtifact.getValue();
                     if (deploymentArtifacts.containsKey(entryArtifact.getKey())) {
@@ -187,7 +187,7 @@ public class TopologyServiceCore {
             }
         } else {
             if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
+                deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
             }
         }
         fillCapabilitiesMap(capabilities, indexedNodeType.getCapabilities(), dependencies, templateToMerge != null ? templateToMerge.getCapabilities() : null,
