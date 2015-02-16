@@ -65,18 +65,6 @@ public class ArchiveUploadService {
             }
         }
 
-        // if a topology has been added we want to notify the user
-        boolean topologyParsed = parsingResult.getResult().getTopology() != null;
-        String topologyTemplateName = null;
-        if (topologyParsed) {
-            topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
-            parsingResult
-                    .getContext()
-                    .getParsingErrors()
-                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
-                            topologyTemplateName));
-        }
-
         ParsingResult<Csar> simpleResult = toSimpleResult(parsingResult);
 
         if (ArchiveUploadService.hasError(parsingResult, null)) {
@@ -99,7 +87,15 @@ public class ArchiveUploadService {
         // index the archive content in elastic-search
         archiveIndexer.indexArchive(archiveName, archiveVersion, parsingResult.getResult(), archive != null);
         
-        if (topologyParsed) {
+        // if a topology has been added we want to notify the user
+        if (parsingResult.getResult().getTopology() != null) {
+            String topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
+            simpleResult
+                    .getContext()
+                    .getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                            topologyTemplateName));
+
             topologyServiceCore.createTopologyTemplate(parsingResult.getResult().getTopology(), topologyTemplateName, parsingResult.getResult()
                     .getTopologyTemplateDescription());
         }
