@@ -513,6 +513,7 @@
     "TEMPLATE_DETAILS": "Détails",
     "PAAS_RESOURCE_ID": "Identifiant PaaS",
     "RESOURCE_NOT_CONFIGURED": "Non Configuré(s)",
+    "RESOURCE_NOT_MAPPED": "Non mappé(s)",
     "TEMPLATES": {
       "ENABLE": "Activé",
       "ENABLED": "Activé(s)",

@@ -503,6 +503,7 @@
     "TEMPLATE_DETAILS": "Details",
     "PAAS_RESOURCE_ID": "PaaS resource id",
     "RESOURCE_NOT_CONFIGURED": "Not configured",
+    "RESOURCE_NOT_MAPPED": "Not mapped",
     "IMAGES": {
       "NEW": "New",
       "NEW_MODAL_TITLE": "Add image",
