@@ -8,7 +8,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 public class CheckedTypeNodeParser<T> extends TypeNodeParser<T> {
 
     private IChecker checker;
-    
+
     public CheckedTypeNodeParser(Class<T> type, String toscaType, IChecker checker) {
         super(type, toscaType);
         this.checker = checker;
@@ -17,15 +17,18 @@ public class CheckedTypeNodeParser<T> extends TypeNodeParser<T> {
     @Override
     public T parse(Node node, ParsingContextExecution context) {
         T result = super.parse(node, context);
-        checker.check(result, context, node);
+        if (result != null) {
+            checker.check(result, context, node);
+        }
         return result;
     }
 
     @Override
     public T parse(Node node, ParsingContextExecution context, T instance) {
         T result = super.parse(node, context, instance);
-        checker.check(result, context, node);
+        if (result != null) {
+            checker.check(result, context, node);
+        }
         return result;
     }
-
 }

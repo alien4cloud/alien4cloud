@@ -1,11 +1,7 @@
 package alien4cloud.topology;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -13,26 +9,13 @@ import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.*;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Requirement;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.topology.*;
 import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
@@ -44,7 +27,7 @@ public class TopologyServiceCore {
     private IGenericSearchDAO alienDAO;
 
     @Resource
-    private CSARRepositorySearchService csarRepoSearchService;
+    private ICSARRepositorySearchService csarRepoSearchService;
 
     /**
      * The default tosca element finder will search into repo.
@@ -224,7 +207,7 @@ public class TopologyServiceCore {
         }
         return nodeTemplate;
     }
-    
+
     private static void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
         if (attributes2 == null || attributes == null) {
             return;
@@ -272,7 +255,7 @@ public class TopologyServiceCore {
             map.put(capa.getId(), toAddCapa);
         }
     }
-    
+
     private static void fillRequirementsMap(Map<String, Requirement> map, List<RequirementDefinition> elements, Collection<CSARDependency> dependencies,
             Map<String, Requirement> mapToMerge, IToscaElementFinder toscaElementFinder) {
         if (elements == null) {
@@ -284,16 +267,15 @@ public class TopologyServiceCore {
                 toAddRequirement = new Requirement();
                 toAddRequirement.setType(requirement.getType());
                 IndexedCapabilityType indexedReq = toscaElementFinder
-                        .getElementInDependencies(IndexedCapabilityType.class, requirement.getType(),
-                        dependencies);
+                        .getElementInDependencies(IndexedCapabilityType.class, requirement.getType(), dependencies);
                 if (indexedReq != null && indexedReq.getProperties() != null) {
                     toAddRequirement.setProperties(PropertyUtil.getDefaultPropertyValuesFromPropertyDefinitions(indexedReq.getProperties()));
                 }
             }
             map.put(requirement.getId(), toAddRequirement);
         }
-    }    
-    
+    }
+
     public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description) {
         String topologyId = UUID.randomUUID().toString();
         topology.setId(topologyId);

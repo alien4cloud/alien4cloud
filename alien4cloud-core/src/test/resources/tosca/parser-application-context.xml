@@ -5,7 +5,7 @@
 	http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd">
 
   <context:annotation-config />
-  <context:component-scan base-package="alien4cloud.tosca.parser, alien4cloud.tosca.parser.*" />
+  <context:component-scan base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*" />
 
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
 
