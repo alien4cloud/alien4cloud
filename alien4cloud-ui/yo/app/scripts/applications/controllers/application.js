@@ -172,7 +172,10 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
+        // console.log('Topology > ', result.data.topology, $scope.topologyDTO);
+        // console.log('Topology > ', $scope.topologyDTO);
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+        $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
         $scope.outputNodes = [];
         $scope.inputPropertiesSize = 0;
         $scope.outputPropertiesSize = 0;
@@ -197,6 +200,20 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
       });
 
+    };
+
+    // get the property definition for the good (node, property)
+    $scope.getPropertyDefinition = function(nodeKey, propertyKey) {
+      var type = $scope.nodeTemplates[nodeKey].type;
+      var propertyDefinition = null;
+      var properties = $scope.topologyDTO.nodeTypes[type].properties;
+      for (var i = 0; i < properties.length; i++) {
+        if (properties[i].key === propertyKey) {
+          propertyDefinition = properties[i].value;
+          propertyDefinition.name = propertyKey;
+        }
+      }
+      return propertyDefinition;
     };
 
     // get a topologyId

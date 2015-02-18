@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster) {
+  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$timeout',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster, $timeout) {
     var pageStateId = $state.current.name;
 
     // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
@@ -70,24 +70,34 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // refresh the actual selected cloud.
     function refreshSelectedCloud() {
 
-      delete $scope.selectedCloud;
       delete $scope.deploymentPropertyDefinitions;
 
-      var clouds = $scope.clouds;
-      if (UTILS.isDefinedAndNotNull(clouds)) {
+      // var clouds = $scope.clouds;
+      if (UTILS.isDefinedAndNotNull($scope.clouds)) {
         // select the cloud that is currently associated with the environment
         var found = false,
           i = 0;
-        while (!found && i < clouds.length) {
-          if (clouds[i].id === $scope.selectedEnvironment.cloudId) {
-            $scope.selectedCloud = clouds[i];
+        while (!found && i < $scope.clouds.length) {
+          // console.log('Cloud id refresh >', clouds[i].id, $scope.selectedEnvironment);
+          if ($scope.clouds[i].id === $scope.selectedEnvironment.cloudId) {
+            // delete $scope.selectedCloud;
+            // $scope.selectedCloud = clouds[i];
+            console.log('Cloud id FOUND >', i, $scope.selectedCloud, $scope.clouds[i].name);
+            // $scope.selectedCloud = $scope.clouds[i].id;
             found = true;
+            break;
           }
           i++;
         }
 
         if (found) {
-          refreshDeploymentPropertyDefinitions();
+          $timeout(function() {
+            console.log('setting cloud', i, $scope.clouds[i]);
+            delete $scope.selectedCloud;
+            $scope.selectedCloud = $scope.clouds[i];
+            console.log('cloud found !');
+            refreshDeploymentPropertyDefinitions();
+          });
         } else {
           // No cloud rights or cloud not enabled or no loud defined
           if ($scope.selectedEnvironment.hasOwnProperty('cloudId')) {
@@ -132,6 +142,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
+        console.log('REFRESH CLOUD');
         refreshSelectedCloud();
         refreshCloudResources();
       });
@@ -145,8 +156,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     var changeCloud = function(switchToCloud) {
+      console.log('switch cloud >>>>>', switchToCloud);
       if (UTILS.isDefinedAndNotNull(switchToCloud)) {
-        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id !== $scope.selectedCloud.id) {
+        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id === $scope.selectedCloud.id) {
           return;
         }
         $scope.selectedComputeTemplates = {};
@@ -154,6 +166,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.selectedStorages = {};
         var updateAppEnvRequest = {};
         updateAppEnvRequest.cloudId = switchToCloud.id;
+        console.log('switch to cloud >', switchToCloud);
         // update for the current environment
         applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
@@ -440,7 +453,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         return; // no change
       }
       var deploymentPropertyObject = {
-        'cloudId': $scope.selectedCloud.id,
+        'cloudId': $scope.selectedCloud,
         'deploymentPropertyName': propertyName,
         'deploymentPropertyValue': propertyValue
       };

@@ -23,8 +23,8 @@
         <select id="environment-select" class="form-control " ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
           <option value="selectedEnvironment"></option>
         </select>
-
-        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="c.name for c in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+ ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}**
+        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="cloud.name for cloud in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
@@ -225,29 +225,58 @@
         <span>
           <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
-        <table class="table table-condensed" id="inputPropertiesTable">
-          <tr>
+
+        <!-- <table class="table table-condensed" id="inputPropertiesTable"> -->
+
+        <div class="col-md-12" ng-repeat="(propertyKey,propertyValue) in inputProperties">
+          <hr/>
+          <div class="col-md-2">
+            {{propertyKey}}
+          </div>
+          <div class="col-md-10" id="p_{{propertyKey}}">
+
+            <div class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
+
+              <!-- <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
+                {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
+              </span> -->
+              <property-display
+                      definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
+                      property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
+                      on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                      editable="true"
+                      condensed="true">
+              </property-display>
+
+            </div>
+          </div>
+        </div>
+
+          <!-- <tr>
             <td colspan="2">
             </td>
-          </tr>
-          <tr ng-repeat="(propertyKey,propertyValue) in inputProperties">
-            <td>
+          </tr> -->
+
+            <!-- <td>
               <span>{{propertyKey}}</span>
             </td>
             <td id="p_{{propertyKey}}">
 
-              <ul>
-                <li ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
-                  {{inputPropertyValue}} :
-                  <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                    {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                </li>
-              </ul>
+              <div class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
 
-            </td>
-          </tr>
-        </table>
+                <!<span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
+                  {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
+                </span> -->
+                <!-- <property-display
+                        definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
+                        property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
+                        on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                        editable="true"
+                        condensed="true">
+                </property-display> -->
+
+        <!-- </table> -->
+
       </div>
     </div>
 
