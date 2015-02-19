@@ -7,39 +7,39 @@ Scenario: Upload valid CSAR
   Given I upload the archive "tosca base types 1.0"
   Then I should receive a RestResponse with no error
 
-Scenario: Upload invalid CSAR (uploaded file is not a zipped file)
+Scenario: Upload invalid CSAR : uploaded file is not a zipped file
   Given I upload the archive "unzipped"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (invalid (definition file not found))
+Scenario: Upload invalid CSAR : definition file not found
   Given I upload the archive "invalid (definition file not found)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (invalid (definition file is not valid yaml file))
+Scenario: Upload invalid CSAR : definition file is not valid yaml file
   Given I upload the archive "invalid (definition file is not valid yaml file)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (invalid (definition file's declaration duplicated))
+Scenario: Upload invalid CSAR : definition file's declaration duplicated
   Given I upload the archive "invalid (definition file's declaration duplicated)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (invalid (ALIEN-META.yaml fail validation))
+Scenario: Upload invalid CSAR : ALIEN-META.yaml fail validation
   Given I upload the archive "invalid (ALIEN-META.yaml fail validation)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (ALIEN-META.yaml not found)
+Scenario: Upload invalid CSAR : ALIEN-META.yaml not found
   Given I upload the archive "invalid (ALIEN-META.yaml not found)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid (ALIEN-META.yaml invalid)
+Scenario: Upload invalid : ALIEN-META.yaml invalid
   Given I upload the archive "invalid (ALIEN-META.yaml invalid)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid CSAR (icon not found)
+Scenario: Upload invalid CSAR : icon not found
   Given I upload the archive "invalid (icon not found)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
-Scenario: Upload invalid (icon invalid)
+Scenario: Upload invalid : icon invalid
   Given I upload the archive "invalid (icon invalid)"
   Then I should receive a RestResponse with an error code 201 and 1 compilation errors in 1 file(s)
 
@@ -49,7 +49,7 @@ Scenario: Upload CSAR that already exist in the repository
   When I upload the archive "tosca base types 1.0"
   Then I should receive a RestResponse with an error code 502
 
-Scenario: Upload invalid CSAR (dependency in definition do not exist)
+Scenario: Upload invalid CSAR : dependency in definition do not exist
   Given I upload the archive "sample java types 1.0"
   Then I should receive a RestResponse with an error code 200 and 10 compilation errors in 1 file(s)
 

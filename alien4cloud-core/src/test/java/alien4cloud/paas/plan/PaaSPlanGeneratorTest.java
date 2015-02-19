@@ -20,12 +20,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.tosca.ArchiveUploadService;
-import alien4cloud.tosca.parser.ToscaParserSimpleProfileWd03Test;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.security.Role;
+import alien4cloud.test.utils.SecurityTestUtils;
+import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.parser.ToscaParserSimpleProfileWd03Test;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.YamlParserUtil;
 
@@ -52,10 +54,12 @@ public class PaaSPlanGeneratorTest {
 
     private void initialize() throws ParsingException, CSARVersionAlreadyExistsException, IOException {
         log.info("Initializing ALIEN repository.");
+        SecurityTestUtils.setTestAuthentication(Role.ADMIN);
 
         Path inputPath = Paths.get(CSAR_SOURCE_PATH + "tosca-base-types-1.0");
         Path zipPath = Files.createTempFile("csar", ".zip");
         FileUtil.zip(inputPath, zipPath);
+
         ParsingResult<?> result = csarUploadService.upload(zipPath);
         ToscaParserSimpleProfileWd03Test.assertNoBlocker(result);
 
