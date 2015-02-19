@@ -23,8 +23,8 @@
         <select id="environment-select" class="form-control " ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
           <option value="selectedEnvironment"></option>
         </select>
-          ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}**
-        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="cloud.name for cloud in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+          <!-- ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}** -->
+        <select ng-disabled="!(selectedEnvironment.status === 'UNDEPLOYED')" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="cloud.name for cloud in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
@@ -207,7 +207,13 @@
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
               <td id="p_{{propertyKey}}">
-                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="condensed">
+                <property-display
+                  ng-init="condensed = true"
+                  definition="propertyDefinition"
+                  property-value="deploymentProperties[propertyKey]"
+                  on-save="updateDeploymentProperty(propertyDefinition,propertyValue)"
+                  editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                  condensed="condensed">
                 </property-display>
               </td>
             </tr>
@@ -238,7 +244,7 @@
                 definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
                 property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
                 on-save="updateProperty(propertyKey,inputPropertyValue,propertyValue)"
-                editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                editable="!(selectedEnvironment.status === 'DEPLOYED')"
                 condensed="true">
               </property-display>
 

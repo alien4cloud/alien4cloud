@@ -180,7 +180,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputAttributesSize = 0;
         $scope.inputArtifactsSize = 0;
 
-        console.log('is defined input properties > ', result.data.topology.inputProperties);
         if (angular.isDefined(result.data.topology.inputProperties)) {
           $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
         }
@@ -234,10 +233,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.outputAttributesValue = {};
       $scope.outputPropertiesValue = {};
       $scope.outputNodes = [];
-      $scope.inputPropertiesSize = 0;
-      $scope.outputPropertiesSize = 0;
-      $scope.outputAttributesSize = 0;
-      $scope.inputArtifactsSize = 0;
       if ($scope.applicationEventServices !== null) {
         $scope.applicationEventServices.stop();
         $scope.applicationEventServices = null;

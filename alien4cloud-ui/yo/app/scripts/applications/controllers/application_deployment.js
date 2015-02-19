@@ -78,25 +78,16 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         var found = false,
           i = 0;
         while (!found && i < $scope.clouds.length) {
-          console.log('Cloud id refresh >', $scope.clouds[i].id, $scope.selectedEnvironment.cloudId);
           if ($scope.clouds[i].id === $scope.selectedEnvironment.cloudId) {
             delete $scope.selectedCloud;
-            console.log('--- CURRENT SELECTED CLOUD >', $scope.selectedCloud);
             $scope.selectedCloud = $scope.clouds[i];
-            console.log('--- NEW SELECTED CLOUD >', $scope.selectedCloud.id, $scope.selectedCloud);
             found = true;
           }
           i++;
         }
 
         if (found) {
-          // $timeout(function() {
-          //   console.log('setting cloud', i, $scope.clouds[i]);
-          //   delete $scope.selectedCloud;
-          //   $scope.selectedCloud = $scope.clouds[i];
-          //   console.log('cloud found !');
           refreshDeploymentPropertyDefinitions();
-          // });
         } else {
           // No cloud rights or cloud not enabled or no loud defined
           if ($scope.selectedEnvironment.hasOwnProperty('cloudId')) {
@@ -141,7 +132,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
-        console.log('REFRESH CLOUD');
         refreshSelectedCloud();
         refreshCloudResources();
       });
@@ -155,7 +145,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     var changeCloud = function(switchToCloud) {
-      console.log('switch cloud >>>>>', switchToCloud);
       if (UTILS.isDefinedAndNotNull(switchToCloud)) {
         if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id === $scope.selectedCloud.id) {
           return;
@@ -165,7 +154,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.selectedStorages = {};
         var updateAppEnvRequest = {};
         updateAppEnvRequest.cloudId = switchToCloud.id;
-        console.log('switch to cloud >', switchToCloud);
         // update for the current environment
         applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
@@ -277,7 +265,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isAllowedInputDeployment = function() {
-      // console.log('isAllowedInputDeployment', $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager), $scope.inputPropertiesSize, $scope.isDeployer, $scope.isManager);
       return $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager);
     };
 
@@ -352,7 +339,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topologyDTO.topology.id,
         nodeTemplateName: nodeTemplateName
-      }, angular.toJson(updatePropsObject), function() {}).$promise;
+      }, angular.toJson(updatePropsObject), function() {
+        // update the properties locally
+        $scope.nodeTemplates[nodeTemplateName].propertiesMap[propertyName].value = propertyValue;
+        refreshDeploymentSetup();
+      }).$promise;
     };
 
     // Artifact upload handler
