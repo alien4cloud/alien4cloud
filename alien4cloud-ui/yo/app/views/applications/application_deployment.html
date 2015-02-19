@@ -222,60 +222,32 @@
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
+
         <span>
           <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
 
-        <!-- <table class="table table-condensed" id="inputPropertiesTable"> -->
-
         <div class="col-md-12" ng-repeat="(propertyKey,propertyValue) in inputProperties">
           <hr/>
-          <div class="col-md-2">
+          <div class="col-md-4">
             {{propertyKey}}
           </div>
-          <div class="col-md-10" id="p_{{propertyKey}}">
+          <div class="col-md-8" id="p_{{propertyKey}}">
 
             <div class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
 
-              <!-- <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
-              </span> -->
               <property-display
-                      definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
-                      property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
-                      on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                      editable="true"
-                      condensed="true">
+                definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
+                property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
+                on-save="updateProperty(propertyKey,inputPropertyValue,propertyValue)"
+                editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                condensed="true">
               </property-display>
 
             </div>
           </div>
         </div>
 
-          <!-- <tr>
-            <td colspan="2">
-            </td>
-          </tr> -->
-
-            <!-- <td>
-              <span>{{propertyKey}}</span>
-            </td>
-            <td id="p_{{propertyKey}}">
-
-              <div class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
-
-                <!<span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                  {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
-                </span> -->
-                <!-- <property-display
-                        definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
-                        property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
-                        on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                        editable="true"
-                        condensed="true">
-                </property-display> -->
-
-        <!-- </table> -->
 
       </div>
     </div>

@@ -349,24 +349,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         'propertyName': propertyName,
         'propertyValue': propertyValue
       };
-
-      var d = $q.defer();
-      topologyServices.nodeTemplate.updateProperty({
+      return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topologyDTO.topology.id,
         nodeTemplateName: nodeTemplateName
-      }, angular.toJson(updatePropsObject), function(data) {
-        if (data.error !== null) {
-          // Constraint error display + translation
-          var constraintInfo = data.data;
-          d.resolve($translate('ERRORS.' + data.error.code + '.' + constraintInfo.name, constraintInfo));
-        } else {
-          d.resolve();
-          if (UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName]) && UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName][propertyName])) {
-            $scope.outputPropertiesValue[nodeTemplateName][propertyName] = propertyValue;
-          }
-        }
-      });
-      return d.promise;
+      }, angular.toJson(updatePropsObject), function() {
+      }).$promise;
     };
 
     // Artifact upload handler
