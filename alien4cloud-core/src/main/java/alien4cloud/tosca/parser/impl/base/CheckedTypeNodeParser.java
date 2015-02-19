@@ -15,15 +15,6 @@ public class CheckedTypeNodeParser<T> extends TypeNodeParser<T> {
     }
 
     @Override
-    public T parse(Node node, ParsingContextExecution context) {
-        T result = super.parse(node, context);
-        if (result != null) {
-            checker.check(result, context, node);
-        }
-        return result;
-    }
-
-    @Override
     public T parse(Node node, ParsingContextExecution context, T instance) {
         T result = super.parse(node, context, instance);
         if (result != null) {

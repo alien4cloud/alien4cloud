@@ -1,0 +1,60 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+tosca_default_namespace: Tosca default namespace value
+template_name: AllInclusiveArchive
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: all inclusive (types + topology), use of short notation for requirement in node_template
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+topology_template:
+  node_templates:
+    compute:
+      type: custom.nodes.MyCompute
+    software:
+      type: custom.nodes.MySoftwareComponent
+      requirements:
+        - host: 
+            node: compute
+            # this capability type won't be found
+            capability: custom.capabilities.MyCapability
+            relationship: _tosca.relationships.HostedOn
+            properties:
+              password: unfuckingbelievable
+              
+node_types:
+  custom.nodes.MyCompute:
+    derived_from: tosca.nodes.Root
+    description: a custom compute.
+    capabilities:
+      host: 
+        type: custom.capabilities.MyCapability
+
+  custom.nodes.MySoftwareComponent:
+    derived_from: tosca.nodes.Root
+    description: Just a stuff that can be associated with a MyCompute.
+    requirements:
+      host: 
+        type: custom.capabilities.MyCapability
+        relationship_type: custom.relationships.MyRelationType
+      
+capability_types:
+  custom.capabilities.MyCapability:
+    derived_from: tosca.capabilities.Root
+      
+relationship_types:
+  custom.relationships.MyRelationType:
+    derived_from: tosca.relationships.Root
+    valid_targets: [ tosca.capabilities.Attachment ]
+    properties:
+      prop1:
+        type: string
+        constraints:
+          - min_length: 1
+      prop2:
+        type: string
+        required: false      
+        

@@ -3,7 +3,12 @@ package alien4cloud.it;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +22,8 @@ import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
 import alien4cloud.it.exception.ITException;
@@ -30,6 +37,7 @@ import alien4cloud.utils.MapUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import cucumber.runtime.io.ClasspathResourceLoader;
 
 /**
@@ -101,6 +109,8 @@ public class Context {
 
     private ThreadLocal<TopologyTemplate> topologyTemplate;
 
+    private ThreadLocal<EvaluationContext> spelEvaluationContext;
+
     private ThreadLocal<Application> applicationLocal;
 
     private ThreadLocal<Map<String, String>> applicationInfos;
@@ -131,6 +141,7 @@ public class Context {
         csarIdLocal = new ThreadLocal<String>();
         applicationLocal = new ThreadLocal<Application>();
         topologyTemplate = new ThreadLocal<TopologyTemplate>();
+        spelEvaluationContext = new ThreadLocal<EvaluationContext>();
         cloudInfos = new ThreadLocal<Map<String, String>>();
         topologyCloudInfos = new ThreadLocal<String>();
         deployApplicationProperties = new ThreadLocal<Map<String, String>>();
@@ -399,6 +410,15 @@ public class Context {
     public void registerTopologyTemplate(TopologyTemplate topologTemplate) {
         log.debug("Registering topology template [" + topologTemplate + "] in the context");
         topologyTemplate.set(topologTemplate);
+    }
+
+    public EvaluationContext getSpelEvaluationContext() {
+        return spelEvaluationContext.get();
+    }
+
+    public void buildEvaluationContext(Object object) {
+        log.debug("Building evaluation context with object of class [" + object.getClass() + "] and keep it in the context");
+        spelEvaluationContext.set(new StandardEvaluationContext(object));
     }
 
     public void registerCloud(String cloudId, String cloudName) {

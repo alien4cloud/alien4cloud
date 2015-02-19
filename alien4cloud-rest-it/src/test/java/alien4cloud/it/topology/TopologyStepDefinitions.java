@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.it.components.AddCommponentDefinitionSteps;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -28,8 +27,10 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.it.components.AddCommponentDefinitionSteps;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -49,7 +50,6 @@ import alien4cloud.rest.topology.UpdateRelationshipPropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -675,4 +675,22 @@ public class TopologyStepDefinitions {
         Set<CSARDependency> actualDependencies = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getDependencies();
         Assert.assertEquals(expectedDependencies, actualDependencies);
     }
+    
+    @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" and store the related topology as a SPEL context$")
+    public void searchForTopologyTemplateByName(String topologyTemplateName) throws Throwable {
+        String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        String topologyId = null;
+        for (Object singleResult : restResponse.getData().getData()) {
+            Map map = (Map) singleResult;
+            if (topologyTemplateName.equals(map.get("name"))) {
+                topologyId = map.get("topologyId").toString();
+            }
+        }
+        assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
+        response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
+        RestResponse<TopologyDTO> topologyDto = JsonUtil.read(response, TopologyDTO.class);
+        Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
+    }
+    
 }
