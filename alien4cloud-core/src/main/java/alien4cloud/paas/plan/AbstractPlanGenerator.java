@@ -77,12 +77,24 @@ public abstract class AbstractPlanGenerator {
         for (PaaSNodeTemplate node : nodes) {
             lastStep = gateway;
             generateNodeWorkflow(node);
+            gateway.setLastInnerStep(lastStep);
         }
+        gateway.close();
         if (gateway.getParallelSteps().size() > 1) {
-            lastStep = previousStep.setNextStep(gateway);
+            if (previousStep instanceof ParallelGateway) {
+                lastStep = ((ParallelGateway) previousStep).addParallelStep(gateway);
+            } else {
+                lastStep = previousStep.setNextStep(gateway);
+            }
         } else if (gateway.getParallelSteps().size() == 1) {
             // just skip the gateway
-            previousStep.setNextStep(gateway.getParallelSteps().get(0));
+            if (previousStep instanceof ParallelGateway) {
+                ((ParallelGateway) previousStep).addParallelStep(gateway.getParallelSteps().get(0));
+                lastStep = gateway.getLastInnerStep();
+            } else {
+                previousStep.setNextStep(gateway.getParallelSteps().get(0));
+                lastStep = gateway.getLastInnerStep();
+            }
         } else {
             lastStep = previousStep;
         }
