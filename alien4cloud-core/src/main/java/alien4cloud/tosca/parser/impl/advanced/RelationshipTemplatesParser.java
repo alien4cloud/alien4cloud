@@ -174,10 +174,7 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         IndexedNodeType indexedNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTemplate.getType(), archiveRoot, searchService);
         if (indexedNodeType == null) {
-            // context.getParsingErrors().add(
-            // new ParsingError(ErrorCode.TYPE_NOT_FOUND, "node_template requirements parsing", node.getStartMark(),
-            // "Not able to find the note template's type nor in current or dependencies", node
-            // .getEndMark(), nodeTemplate.getType()));
+            // the note type is null if not found in archive or dep, the error is already raised
             return null;
         }
         RequirementDefinition rd = getRequirementDefinitionByName(indexedNodeType, toscaRequirementName);
@@ -190,7 +187,6 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         String relationshipTypeName = (relationshipType != null) ? relationshipType : rd.getRelationshipType();
         // ex: host
         relationshipTemplate.setRequirementName(toscaRequirementName);
-        // relationshipTemplate.setTargetedCapabilityName(rd.getId());
         // ex: tosca.nodes.Compute
         relationshipTemplate.setRequirementType(rd.getType());
         // ex: tosca.relationships.HostedOn
@@ -204,13 +200,14 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                             toscaRequirementTargetNodeTemplateName));
             return null;
         }
-        IndexedNodeType indexedTargetNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(targetNodeTemplate.getType(), archiveRoot, searchService);
-        if (!indexedTargetNodeType.getDerivedFrom().contains(rd.getType())) {
+        // IndexedNodeType indexedTargetNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(targetNodeTemplate.getType(), archiveRoot,
+        // searchService);
+        // if (!indexedTargetNodeType.getDerivedFrom().contains(rd.getType())) {
             // an error ?
             // context.getParsingErrors().add(
             // new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.VALIDATION_ERROR, "node_template requirements parsing", node.getStartMark(),
             // "The relation target doesn't seem to be compibatble with the requirement", node.getEndMark(), targetNodeTemplate.getType()));
-        }
+        // }
 
         Capability capability = null;
         if (capabilityType == null) {

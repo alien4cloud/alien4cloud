@@ -10,6 +10,8 @@ import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.Csar;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
@@ -63,6 +65,14 @@ public class ArchiveUploadService {
                 // Cannot override RELEASED CSAR .
                 throw new CSARVersionAlreadyExistsException("CSAR: " + archiveName + ", Version: " + archiveVersion + " already exists in the repository.");
             }
+        }
+
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        if (archiveRoot.hasToscaTopologyTemplate()) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
+        }
+        if (archiveRoot.hasToscaTypes()) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN);
         }
 
         ParsingResult<Csar> simpleResult = toSimpleResult(parsingResult);

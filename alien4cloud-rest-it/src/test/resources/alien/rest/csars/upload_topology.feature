@@ -1,4 +1,4 @@
-Feature: CSAR upload
+Feature: CSAR upload with topology
 
 Background:
   Given I am authenticated with "ADMIN" role
