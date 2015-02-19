@@ -172,8 +172,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
-        // console.log('Topology > ', result.data.topology, $scope.topologyDTO);
-        // console.log('Topology > ', $scope.topologyDTO);
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
         $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
         $scope.outputNodes = [];
@@ -182,6 +180,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputAttributesSize = 0;
         $scope.inputArtifactsSize = 0;
 
+        console.log('is defined input properties > ', result.data.topology.inputProperties);
         if (angular.isDefined(result.data.topology.inputProperties)) {
           $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
         }
