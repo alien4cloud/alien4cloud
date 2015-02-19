@@ -11,6 +11,10 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Assert;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
@@ -165,4 +169,24 @@ public class CommonStepDefinitions {
         Assert.assertNotNull(restResponse.getData());
         Assert.assertEquals(expectedResponseStr, restResponse.getData());
     }
+
+    @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
+    public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
+        EvaluationContext context = Context.getInstance().getSpelEvaluationContext();
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression exp = parser.parseExpression(spelExpression);
+        Boolean result = (Boolean) exp.getValue(context);
+        Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
+    }
+
+    @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
+    public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
+        EvaluationContext context = Context.getInstance().getSpelEvaluationContext();
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression exp = parser.parseExpression(spelExpression);
+        String result = exp.getValue(context).toString();
+        Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
+        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+    }
+
 }

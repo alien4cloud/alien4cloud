@@ -6,18 +6,18 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.tosca.parser.ParsingError;
 import lombok.extern.slf4j.Slf4j;
 
 import org.junit.Assert;
 
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.setup.TestDataRegistry;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.csar.CsarUploadResult;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.parser.ParsingError;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 
@@ -34,7 +34,8 @@ public class UploadCSARSStepDefinition {
     }
 
     @Then("^I should receive a RestResponse with an error code (\\d+) and (\\d+) compilation errors in (\\d+) file\\(s\\)$")
-    public void I_should_receive_a_RestResponse_with_an_error_code_and_compilation_errors_in_file_s(int expectedCode, int compilationErrors, int errornousFiles)
+    public void I_should_receive_a_RestResponse_with_an_error_code_and_compilation_errors_in_file_s(int expectedCode,
+            int compilationErrors, int errornousFiles)
             throws Throwable {
 
         RestResponse<CsarUploadResult> result = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarUploadResult.class);
@@ -48,6 +49,42 @@ public class UploadCSARSStepDefinition {
             errorCount += errorEntry.getValue().size();
         }
         Assert.assertEquals(compilationErrors, errorCount);
+    }
+
+    @Then("^I should receive a RestResponse with (\\d+) alerts in (\\d+) files : (\\d+) errors (\\d+) warnings and (\\d+) infos$")
+    public void I_should_receive_a_RestResponse_with_compilation_alerts_in_file_s(int expectedAlertCount,
+            int errornousFiles, int exptectedErrorCount, int exptectedWarningCount, int exptectedInfoCount) throws Throwable {
+
+        RestResponse<CsarUploadResult> result = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarUploadResult.class);
+
+        Assert.assertFalse("We should have alerts", result.getData().getErrors().isEmpty());
+        Assert.assertEquals(errornousFiles, result.getData().getErrors().size());
+
+        int alertCount = 0;
+        int errorCount = 0;
+        int warningCount = 0;
+        int infoCount = 0;
+
+        for (Map.Entry<String, List<ParsingError>> errorEntry : result.getData().getErrors().entrySet()) {
+            alertCount += errorEntry.getValue().size();
+            for (ParsingError pe : errorEntry.getValue()) {
+                switch (pe.getErrorLevel()) {
+                case ERROR:
+                    errorCount++;
+                    break;
+                case WARNING:
+                    warningCount++;
+                    break;
+                case INFO:
+                    infoCount++;
+                    break;
+                }
+            }
+        }
+        Assert.assertEquals(expectedAlertCount, alertCount);
+        Assert.assertEquals(exptectedErrorCount, errorCount);
+        Assert.assertEquals(exptectedWarningCount, warningCount);
+        Assert.assertEquals(exptectedInfoCount, infoCount);
     }
 
     @Then("^I should have last update date greater than creation date$")

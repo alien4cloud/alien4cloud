@@ -10,6 +10,8 @@ import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.Csar;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
@@ -65,16 +67,12 @@ public class ArchiveUploadService {
             }
         }
 
-        // if a topology has been added we want to notify the user
-        boolean topologyParsed = parsingResult.getResult().getTopology() != null;
-        String topologyTemplateName = null;
-        if (topologyParsed) {
-            topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
-            parsingResult
-                    .getContext()
-                    .getParsingErrors()
-                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
-                            topologyTemplateName));
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        if (archiveRoot.hasToscaTopologyTemplate()) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT, Role.ADMIN);
+        }
+        if (archiveRoot.hasToscaTypes()) {
+            AuthorizationUtil.checkHasOneRoleIn(Role.COMPONENTS_MANAGER, Role.ADMIN);
         }
 
         ParsingResult<Csar> simpleResult = toSimpleResult(parsingResult);
@@ -99,7 +97,15 @@ public class ArchiveUploadService {
         // index the archive content in elastic-search
         archiveIndexer.indexArchive(archiveName, archiveVersion, parsingResult.getResult(), archive != null);
         
-        if (topologyParsed) {
+        // if a topology has been added we want to notify the user
+        if (parsingResult.getResult().getTopology() != null) {
+            String topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
+            simpleResult
+                    .getContext()
+                    .getParsingErrors()
+                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                            topologyTemplateName));
+
             topologyServiceCore.createTopologyTemplate(parsingResult.getResult().getTopology(), topologyTemplateName, parsingResult.getResult()
                     .getTopologyTemplateDescription());
         }
