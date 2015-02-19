@@ -92,6 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/runtime/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/suggest/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/suggestions/toscaelement/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        http.authorizeRequests().antMatchers(HttpMethod.POST, "/rest/csars").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "ARCHITECT");
         http.authorizeRequests().antMatchers("/rest/csars/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/plugin/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/tagconfigurations/search/**").authenticated();

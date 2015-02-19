@@ -42,6 +42,7 @@ public class TestDataRegistry {
         addConditionFolder("valid-csar-with-update3", "src/test/resources/data/csars/snapshot-test/snapshot-test-update3");
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
 
+        addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");
         addConditionFolder("topology apache", "src/test/resources/data/csars/topology_template/topology-apache");
         addConditionFolder("topology custom types", "src/test/resources/data/csars/topology_template/topology-custom-types");
         addConditionFolder("topology-error-missingtype", "src/test/resources/data/csars/topology_template/topology-error-missingtype");
