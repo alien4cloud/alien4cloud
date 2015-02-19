@@ -19,9 +19,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.topologyId = topologyId;
     }
 
-    // TODO remove this!!!
-    $scope.editRights = true;
-    // $scope.hasYamlEditor = true;
     $scope.editorContent = '';
     var inputOutputKeys = ['inputProperties', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
@@ -697,50 +694,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         delete $scope.topology.topology.scalingPolicies[nodeTemplateName];
       });
     };
-
-    /**
-     * RELATIONSHIPS CARDINALITIES
-     */
-    // var fillCapabilityBounds = function(nodeTemplate) {
-    //   var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
-    //   if (nodeType.capabilities) {
-    //     nodeType.capabilities.forEach(function(capaDef) {
-    //       nodeTemplate.capabilitiesMap[capaDef.id].value.upperBound = capaDef.upperBound;
-    //       nodeTemplate.capabilitiesMap[capaDef.id].value.canAddRel = canAddRelationshipWithTarget(nodeTemplate, capaDef.id);
-    //     });
-    //   }
-    // };
-    //
-    // var canAddRelationshipWithTarget = function(nodeTemplate, capabilityName) {
-    //   var nodeTemplates = $scope.topology.topology.nodeTemplates;
-    //   var capability = nodeTemplate.capabilitiesMap[capabilityName].value;
-    //   var UNBOUNDED = 'unbounded';
-    //   var toReturn = {
-    //     yes: true,
-    //     remaining: UNBOUNDED
-    //   };
-    //   if (capability.upperBound === UNBOUNDED) {
-    //     return toReturn;
-    //   }
-    //
-    //   var count = 0;
-    //   for (var templateName in nodeTemplates) {
-    //     var nodeTemp = nodeTemplates[templateName];
-    //     var relationships = nodeTemp.relationships;
-    //     if (UTILS.isUndefinedOrNull(relationships)) {
-    //       continue;
-    //     }
-    //     for (var relName in relationships) {
-    //       var relTemplate = relationships[relName];
-    //       if (UTILS.isDefinedAndNotNull(relTemplate.target) && relTemplate.target === nodeTemplate.name && relTemplate.requirementType === capability.type) {
-    //         count++;
-    //       }
-    //     }
-    //   }
-    //   toReturn.yes = count < capability.upperBound;
-    //   toReturn.remaining = toReturn.yes ? capability.upperBound - count : 0;
-    //   return toReturn;
-    // };
 
     var fillBounds = function(topology) {
       if (!topology.nodeTemplates) {

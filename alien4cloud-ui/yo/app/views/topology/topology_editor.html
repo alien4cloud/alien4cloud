@@ -73,12 +73,9 @@
             <!-- nodeTemplateName div -->
             <div class="col-md-8">
               <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
-                <span editable-text="nodeNameObj.val" ng-show="editRights"  buttons="no" e-required onbeforesave="updateNodeName($data)" blur="submit">
+                <span editable-text="nodeNameObj.val"  buttons="no" e-required onbeforesave="updateNodeName($data)" blur="submit">
                   {{ selectedNodeTemplate.name | split }}
                   <i class="fa fa-pencil-square-o"></i>
-                </span>
-                <span ng-show="!editRights">
-                  {{ selectedNodeTemplate.name | split }}
                 </span>
                 <img ng-show="selectionabstract"
                   class="icon_16"
@@ -129,7 +126,7 @@
 
               </div>
            </div>
-           <div class="col-md-12" ng-if="editRights && nodeTempNameEditError" style="margin-bottom: 10px;">
+           <div class="col-md-12" ng-if="nodeTempNameEditError" style="margin-bottom: 10px;">
               <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
             </div>
         </div>
@@ -187,7 +184,7 @@
                       definition="getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
                       on-save="updateProperty(propertyDefinition,propertyValue)"
-                      editable="editRights"
+                      editable="true"
                       condensed = "condensed">
                     </property-display>
                   </td>
@@ -397,13 +394,10 @@
                     ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
                   <span
                     ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
-                    editable-text="relNameObj[relationshipEntry.key]" ng-if="editRights"  buttons="no" e-required onbeforesave="updateRelationshipName(relationshipEntry.key, $data)" blur="submit" ng-click="$event.stopPropagation();"
+                    editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="updateRelationshipName(relationshipEntry.key, $data)" blur="submit" ng-click="$event.stopPropagation();"
                     tooltip="{{relationshipEntry.key | split:15}}" tooltip-append-to-body="true">
                     {{relationshipEntry.key | truncate:25}}
                     <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                  <span ng-if="!editRights" tooltip="{{relationshipEntry.key}}" tooltip-append-to-body="true">
-                    {{relationshipEntry.key  | truncate:25}}
                   </span>
                   <span class="pull-right">
                     <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="removeRelationship(relationshipEntry.key, selectedNodeTemplate)"
@@ -435,7 +429,7 @@
                                     definition="propertyEntry.value"
                                     property-value="relationshipEntry.value.properties[propertyEntry.key]"
                                     on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                                    editable="editRights"
+                                    editable="true"
                                     condensed="condensed">
                             </property-display>
                           </td>
@@ -511,10 +505,9 @@
                   ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">
                   <td>{{policyFieldName}}</td>
                   <td id="{{policyFieldName}}">
-                    <span ng-show="editRights" editable-number="topology.topology.scalingPolicies[selectedNodeTemplate.name][policyFieldName]" buttons="no" e-required onbeforesave="updateScalingPolicy(policyFieldName, $data)" blur="submit">
+                    <span editable-number="topology.topology.scalingPolicies[selectedNodeTemplate.name][policyFieldName]" buttons="no" e-required onbeforesave="updateScalingPolicy(policyFieldName, $data)" blur="submit">
                       {{policyFieldValue}} <i class="fa fa-pencil-square-o"></i>
                     </span>
-                    <span ng-show="!editRights">{{policyFieldValue}}</span>
                   </td>
                 </tr>
               </table>
