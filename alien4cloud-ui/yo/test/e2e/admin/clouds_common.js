@@ -1,4 +1,4 @@
-/* global by, element, UTILS */
+/* global by, element */
 'use strict';
 
 // var SCREENSHOT = require('./screenshot');
