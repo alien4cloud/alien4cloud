@@ -288,11 +288,10 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
   expect(container.isDisplayed()).toBe(true);
   var span = container.element(by.tagName('span'));
   var editable = (editableBoolean === undefined || editableBoolean === '' || editableBoolean === null) ? false : editableBoolean; // if editableBoolean not defined, false
-  var subSpanElement = span.element(by.tagName('span'));
   if (editable) {
-    expect(subSpanElement.getAttribute('class')).toContain('editable');
+    expect(span.getAttribute('class')).toContain('editable');
   } else {
-    expect(subSpanElement.getAttribute('class')).not.toContain('editable');
+    expect(span.getAttribute('class')).not.toContain('editable');
   }
   expect(span.isDisplayed()).toBe(true);
   span.getText().then(function(spanText) {
