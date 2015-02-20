@@ -5,7 +5,7 @@ angular.module('alienUiApp').factory('svgServiceFactory', ['svgControlsFactory',
 
     function SvgGraph (containerElement, svgId, svgClass) {
       // create a controls instance for this svg (to move it and center it.).
-      var toolbarElement = containerElement.append('div').attr('class', 'btn-toolbar pull-right').attr('role', 'toolbar').append('div').attr('class', 'btn-group');
+      var toolbarElement = containerElement.append('div').attr('id', 'topology-control-button').attr('class', 'btn-toolbar pull-right').attr('role', 'toolbar').append('div').attr('class', 'btn-group');
       this.svg = containerElement.append('svg:svg');
       this.controls = svgControlsFactory.create(this.svg, toolbarElement);
       this.svg.attr('id', svgId);

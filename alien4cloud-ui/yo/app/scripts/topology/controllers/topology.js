@@ -2,9 +2,59 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService',
-  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', '$window',
+  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService, $window) {
     $scope.view = 'RENDERED';
+    $scope.colTopology = 'col-md-6';
+    $scope.colProperty = 'col-md-6';
+    $scope.colPanel = 'col-md-3';
+    $scope.displayTopology = true;
+
+    $scope.displayAddNode = false;
+    $scope.toggleAddNode = function() {
+      $scope.displayAddNode = $scope.displayAddNode === false ? true: false;
+      if ($scope.displayAddNode) {
+        $scope.displayDependencies = false;
+      } else {
+        $scope.displayTopology = true;
+      }
+      resizeViewElement();
+    };
+
+    $scope.displayDependencies = false;
+    $scope.toggleDependencies = function() {
+      $scope.displayDependencies = $scope.displayDependencies === false ? true: false;
+      if ($scope.displayDependencies) {
+        $scope.displayAddNode = false;
+      } else {
+        $scope.displayTopology = true;
+      }
+      resizeViewElement();
+    };
+
+    $scope.closeNodeTemplateDetails = function() {
+      $scope.selectedNodeTemplate = null;
+      $scope.displayTopology = true;
+      resizeViewElement();
+    };
+
+    var resizeViewElement = function() {
+      var displayPanel = ($scope.displayAddNode || $scope.displayDependencies) ? true : false;
+      if (!$scope.selectedNodeTemplate && !displayPanel) {
+        $scope.colTopology = 'col-md-12';
+      } else if ($scope.selectedNodeTemplate && !displayPanel) {
+        $scope.colTopology = 'col-md-6';
+        $scope.colProperty = 'col-md-6';
+      } else if (!$scope.selectedNodeTemplate && displayPanel) {
+        $scope.colTopology = 'col-md-8';
+        $scope.colPanel = 'col-md-4';
+      } else {
+        $scope.displayTopology = false;
+        $scope.colProperty = 'col-md-6';
+        $scope.colPanel = 'col-md-6';
+      }
+    };
+    resizeViewElement();
 
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
@@ -290,6 +340,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         newSelected.selected = true;
 
         fillNodeSelectionVars(newSelected);
+        resizeViewElement();
         $scope.$apply();
       });
     };
