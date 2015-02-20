@@ -158,7 +158,7 @@
     key: function
     value:
       list: parameters
-      type: scalar
+      type: scalar_property_input
 
 # created using constructor(String)
 - scalar_property_input: alien4cloud.model.components.ScalarPropertyValue

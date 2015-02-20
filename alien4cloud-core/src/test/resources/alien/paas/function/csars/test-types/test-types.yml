@@ -42,11 +42,11 @@ node_types:
           inputs:
             testScalar: test
             customHostName: { get_property: [SELF, customHostName]}
-            insufficientParams: { get_property: [SELF] } 
-            keywordSourceBadUsage: { get_property: [SOURCE, customHostName]} 
-            KeywordTargetBadUsage: { get_property: [TARGET, customHostName]} 
+            insufficientParams: { get_property: [SELF] }
+            keywordSourceBadUsage: { get_property: [SOURCE, customHostName]}
+            KeywordTargetBadUsage: { get_property: [TARGET, customHostName]}
           implementation: scripts/setHostname.sh
-        
+
   alien.test.nodes.TomcatSh:
     derived_from: alien.nodes.cloudify.Tomcat
     description: >
@@ -64,17 +64,20 @@ node_types:
               required: true
             customHostName: { get_property: [HOST, customHostName] }
           implementation: scripts/helloCmd.groovy
-          
+
 relationship_types:
   alien.test.relationships.cloudify.WarHostedOnTomcat:
     derived_from: alien.relationships.cloudify.WarHostedOnTomcat
     interfaces:
       configure:
-        post_configure_source: 
+        post_configure_source:
           inputs:
-            contextPath: { get_property: [SOURCE, contextPath] } 
+            contextPath: { get_property: [SOURCE, contextPath] }
             tomcatVersion: { get_property: [TARGET, version] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
+            # myConcatUrl: { concat: [TARGET, ip_address] }
+            # myConcatUrl: { TARGET, ip_address] }
+            # myUrl: { concat: [http, get_attribute: [TARGET, ip_address], myapp] }
+            myUrl: { concat: [get_attribute: [TARGET, ip_address]] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
           implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
-            
