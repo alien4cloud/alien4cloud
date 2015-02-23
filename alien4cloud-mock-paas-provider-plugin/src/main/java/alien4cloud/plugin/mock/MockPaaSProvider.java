@@ -30,16 +30,11 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
-import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -53,15 +48,13 @@ import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.tosca.normative.ToscaType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.Lists;
 
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
+public class MockPaaSProvider extends AbstractPaaSProvider {
 
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
@@ -69,7 +62,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    private final Map<String, PropertyDefinition> deploymentProperties;
     private final Map<String, DeploymentStatus> deploymentsMap = Maps.newConcurrentMap();
 
     @Resource
@@ -96,7 +88,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
     private static final String BLOCKSTORAGE_APPLICATION = "BLOCKSTORAGE-APPLICATION";
 
     public MockPaaSProvider() {
-        deploymentProperties = Maps.newHashMap();
         executorService.scheduleWithFixedDelay(new Runnable() {
 
             @Override
@@ -482,51 +473,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         result = allowedOperation.contains(request.getOperationName()) ? "OK" : "KO";
         log.info("RESULT IS : {}", result);
         return result;
-    }
-
-    @Override
-    public Map<String, PropertyDefinition> getDeploymentPropertyMap() {
-
-        // Field 1 : managerUrl as string
-        PropertyDefinition managerUrl = new PropertyDefinition();
-        managerUrl.setType(ToscaType.STRING.toString());
-        managerUrl.setRequired(true);
-        managerUrl.setDescription("PaaS manager URL");
-        managerUrl.setConstraints(null);
-        PatternConstraint manageUrlConstraint = new PatternConstraint();
-        manageUrlConstraint.setPattern("http://.+");
-        managerUrl.setConstraints(Arrays.asList((PropertyConstraint) manageUrlConstraint));
-
-        // Field 2 : number backup with constraint
-        PropertyDefinition numberBackup = new PropertyDefinition();
-        numberBackup.setType(ToscaType.INTEGER.toString());
-        numberBackup.setRequired(true);
-        numberBackup.setDescription("Number of backup");
-        numberBackup.setConstraints(null);
-        GreaterOrEqualConstraint greaterOrEqualConstraint = new GreaterOrEqualConstraint();
-        greaterOrEqualConstraint.setGreaterOrEqual(String.valueOf("1"));
-        numberBackup.setConstraints(Lists.newArrayList((PropertyConstraint) greaterOrEqualConstraint));
-
-        // Field 3 : email manager
-        PropertyDefinition managerEmail = new PropertyDefinition();
-        managerEmail.setType(ToscaType.STRING.toString());
-        managerEmail.setRequired(true);
-        managerEmail.setDescription("PaaS manager email");
-        managerEmail.setConstraints(null);
-        PatternConstraint managerEmailConstraint = new PatternConstraint();
-        managerEmailConstraint.setPattern(".+@.+");
-        managerEmail.setConstraints(Arrays.asList((PropertyConstraint) managerEmailConstraint));
-
-        deploymentProperties.put("managementUrl", managerUrl);
-        deploymentProperties.put("numberBackup", numberBackup);
-        deploymentProperties.put("managerEmail", managerEmail);
-
-        return deploymentProperties;
-    }
-
-    @Override
-    public ProviderConfig getDefaultConfiguration() {
-        return null;
     }
 
     @Override
