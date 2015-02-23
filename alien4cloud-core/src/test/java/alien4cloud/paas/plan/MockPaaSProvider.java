@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
@@ -60,11 +59,6 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request,
             IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException {
 
-    }
-
-    @Override
-    public Map<String, PropertyDefinition> getDeploymentPropertyMap() {
-        return null;
     }
 
     @Override

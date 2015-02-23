@@ -38,6 +38,7 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IConfigurablePaaSProviderFactory;
+import alien4cloud.paas.IDeploymentParameterizablePaaSProviderFactory;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
 import alien4cloud.paas.PaaSProviderFactoriesService;
@@ -114,7 +115,10 @@ public class CloudService {
         // save default configuration
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
-            cloud.setConfigurable(saveDefaultConfiguration(cloud.getId(), ((IConfigurablePaaSProviderFactory) passProviderFactory).getDefaultConfiguration()));
+            saveDefaultConfiguration(cloud.getId(), ((IConfigurablePaaSProviderFactory) passProviderFactory).getDefaultConfiguration());
+            cloud.setConfigurable(true);
+        } else {
+            cloud.setConfigurable(false);
         }
 
         alienDAO.save(cloud);
@@ -129,13 +133,9 @@ public class CloudService {
     }
 
     @SuppressWarnings("rawtypes")
-    private boolean saveDefaultConfiguration(String cloudId, Object defaultConfiguration) {
-        if (defaultConfiguration != null) {
-            CloudConfiguration configuration = new CloudConfiguration(cloudId, defaultConfiguration);
-            alienDAO.save(configuration);
-            return true;
-        }
-        return false;
+    private void saveDefaultConfiguration(String cloudId, Object defaultConfiguration) {
+        CloudConfiguration configuration = new CloudConfiguration(cloudId, defaultConfiguration);
+        alienDAO.save(configuration);
     }
 
     /**
@@ -230,13 +230,13 @@ public class CloudService {
      * @return The map of property definitions for the given cloud.
      */
     public Map<String, PropertyDefinition> getDeploymentPropertyDefinitions(String id) {
-        getMandatoryCloud(id);
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(id);
-        if (paaSProvider == null) {
-            // cloud is disabled, return empty properties
+        Cloud cloud = getMandatoryCloud(id);
+        IPaaSProviderFactory<IPaaSProvider> providerFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
+        if (providerFactory instanceof IDeploymentParameterizablePaaSProviderFactory) {
+            return ((IDeploymentParameterizablePaaSProviderFactory) providerFactory).getDeploymentPropertyDefinitions();
+        } else {
             return null;
         }
-        return paaSProvider.getDeploymentPropertyMap();
     }
 
     /**
