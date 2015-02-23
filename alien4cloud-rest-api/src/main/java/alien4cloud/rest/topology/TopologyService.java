@@ -30,6 +30,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -39,6 +40,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -87,10 +89,6 @@ public class TopologyService {
 
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-
-    public void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
-        topologyServiceCore.fillProperties(properties, propertiesDefinitions, propertiesToMerge);
-    }
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
@@ -558,9 +556,10 @@ public class TopologyService {
             task.setComponent(relatedIndexedNodeType);
             task.setProperties(Lists.<String> newArrayList());
             Map<String, PropertyDefinition> relatedProperties = relatedIndexedNodeType.getProperties();
-            for (Entry<String, String> propertyEntry : nodeTemplate.getProperties().entrySet()) {
+            for (Entry<String, AbstractPropertyValue> propertyEntry : nodeTemplate.getProperties().entrySet()) {
                 PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
-                if (propertyDef.isRequired() && StringUtils.isBlank(propertyEntry.getValue())) {
+                if (propertyDef.isRequired() && propertyEntry instanceof ScalarPropertyValue
+                        && StringUtils.isBlank(((ScalarPropertyValue) propertyEntry).getValue())) {
                     task.getProperties().add(propertyEntry.getKey());
                 }
             }

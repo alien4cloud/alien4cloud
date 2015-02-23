@@ -18,9 +18,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.InstanceInformation;
@@ -101,10 +103,12 @@ public class FunctionEvaluatorTest {
     public void testParseString() {
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
+        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_1") }));
         nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
         NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
+        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_2") }));
         nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);

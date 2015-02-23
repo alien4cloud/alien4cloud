@@ -23,7 +23,6 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.cloud.CloudResourceMatcherService;
-import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -32,8 +31,8 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
@@ -131,7 +130,8 @@ public class ApplicationDeploymentController {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
         DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        if (!deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true)) {
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
+        if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
         }
@@ -354,32 +354,37 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
-            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
-            throws CloudDisabledException {
-        Application application = applicationService.checkAndGetApplication(applicationId);
-
-        // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-
-        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-        if (environment.getCloudId() == null) {
-            throw new InvalidArgumentException("Environment [" + applicationEnvironmentId + "] for application [" + application.getName()
-                    + "] does not have any cloud assigned");
-        }
-        Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
-        return RestResponseBuilder
-                .<CloudResourceTopologyMatchResult> builder()
-                .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,
-                        topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
-    }
+    // @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology",
+    // notes = "Returns the detailed informations of the application on the PaaS it is deployed."
+    // + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
+    // @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/cloud-resources", method = RequestMethod.GET, produces =
+    // MediaType.APPLICATION_JSON_VALUE)
+    // public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String
+    // applicationEnvironmentId)
+    // throws CloudDisabledException {
+    // Application application = applicationService.checkAndGetApplication(applicationId);
+    //
+    // // get the topology from the version and the cloud from the environment
+    // ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
+    // if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+    // AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+    // }
+    // ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
+    //
+    // Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+    // if (environment.getCloudId() == null) {
+    // throw new InvalidArgumentException("Environment [" + applicationEnvironmentId + "] for application [" + application.getName()
+    // + "] does not have any cloud assigned");
+    // }
+    // Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
+    // CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
+    // deploymentSetupService.getDeploymentSetup(applicationId, applicationEnvironmentId)
+    // deploymentSetupService.processGetInput(deploymentSetup, topology);
+    // return RestResponseBuilder
+    // .<CloudResourceTopologyMatchResult> builder()
+    // .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,
+    // topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
+    // }
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

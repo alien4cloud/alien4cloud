@@ -4,6 +4,7 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.AbstractPropertyValue;
 
 /**
  * <p>
@@ -51,5 +52,5 @@ public class RelationshipTemplate extends AbstractTemplate {
     /**
      * Properties of the relationship template
      */
-    private Map<String, String> properties;
+    private Map<String, AbstractPropertyValue> properties;
 }

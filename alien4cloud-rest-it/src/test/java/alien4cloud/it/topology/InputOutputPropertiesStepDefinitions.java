@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.Then;
@@ -34,11 +35,11 @@ public class InputOutputPropertiesStepDefinitions {
     public void The_topology_should_have_the_property_of_the_node_defined_as_input_property(String propertyName, String nodeName) throws Throwable {
         TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class).getData();
-        Map<String, Set<String>> inputProperties = topologyDTO.getTopology().getInputProperties();
+        Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertNotNull(inputProperties);
-        Set<String> inputPropertiesOfNode = inputProperties.get(nodeName);
+        PropertyDefinition inputPropertiesOfNode = inputProperties.get(nodeName);
         Assert.assertNotNull(inputPropertiesOfNode);
-        Assert.assertTrue(inputPropertiesOfNode.contains(propertyName));
+        Assert.assertTrue(inputPropertiesOfNode.getType().contains(propertyName));
     }
 
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as non input property$")
@@ -50,11 +51,11 @@ public class InputOutputPropertiesStepDefinitions {
     public void The_topology_should_not_have_the_property_of_the_node_defined_as_input_property(String propertyName, String nodeName) throws Throwable {
         TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class).getData();
-        Map<String, Set<String>> inputProperties = topologyDTO.getTopology().getInputProperties();
+        Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         if (inputProperties != null) {
-            Set<String> inputPropertiesOfNode = inputProperties.get(nodeName);
+            PropertyDefinition inputPropertiesOfNode = inputProperties.get(nodeName);
             if (inputPropertiesOfNode != null) {
-                Assert.assertFalse(inputPropertiesOfNode.contains(propertyName));
+                Assert.assertFalse(inputPropertiesOfNode.getType().contains(propertyName));
             }
         }
     }

@@ -50,6 +50,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
@@ -365,7 +366,9 @@ public class CloudServiceArchiveController {
                 csarDAO.save(topology);
                 // deploy this topology
                 DeploymentSetup deploymentSetup = new DeploymentSetup();
-                if (!deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, false)) {
+                DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud,
+                        false);
+                if (!deploymentSetupMatchInfo.isValid()) {
                     throw new InvalidDeploymentSetupException("Test topology for CSAR [" + csar.getId() + "] is not deployable on the cloud [" + cloud.getId()
                             + "] because it contains unmatchable resources");
                 }

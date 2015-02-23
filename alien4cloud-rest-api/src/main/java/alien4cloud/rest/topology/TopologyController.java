@@ -28,10 +28,12 @@ import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -205,7 +207,7 @@ public class TopologyController {
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
-        updatePropertiesAndTopologiesInputs(nodeTemplateName, newNodeTemplateName, topology);
+        updateArtifactsOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
@@ -216,24 +218,7 @@ public class TopologyController {
     /**
      * Update properties and artifacts inputs in a topology
      */
-    private void updatePropertiesAndTopologiesInputs(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
-
-        // Input properties
-        if (topology.getInputProperties() != null) {
-            Set<String> oldPropertiesInputs = topology.getInputProperties().remove(oldNodeTemplateName);
-            if (oldPropertiesInputs != null) {
-                topology.getInputProperties().put(newNodeTemplateName, oldPropertiesInputs);
-            }
-        }
-
-        // Output properties
-        if (topology.getOutputProperties() != null) {
-            Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
-            if (oldPropertiesOutputs != null) {
-                topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
-            }
-        }
-
+    private void updateArtifactsOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
         // Input artifacts
         if (topology.getInputArtifacts() != null) {
             Set<String> oldArtifactsInputs = topology.getInputArtifacts().remove(oldNodeTemplateName);
@@ -241,7 +226,6 @@ public class TopologyController {
                 topology.getInputArtifacts().put(newNodeTemplateName, oldArtifactsInputs);
             }
         }
-
     }
 
     /**
@@ -373,8 +357,8 @@ public class TopologyController {
         }
 
         RelationshipTemplate relationship = relationshipTemplateRequest.getRelationshipTemplate();
-        Map<String, String> properties = Maps.newHashMap();
-        topologyService.fillProperties(properties, indexedRelationshipType.getProperties(), null);
+        Map<String, AbstractPropertyValue> properties = Maps.newHashMap();
+        TopologyServiceCore.fillProperties(properties, indexedRelationshipType.getProperties(), null);
         relationship.setProperties(properties);
         relationships.put(relationshipName, relationship);
         alienDAO.save(topology);
@@ -422,44 +406,18 @@ public class TopologyController {
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
+        removeArtifactsAndPolicies(nodeTemplateName, topology);
 
-        removeInputs(nodeTemplateName, topology);
-        removeOutputs(nodeTemplateName, topology);
-        removeScalingPolicy(nodeTemplateName, topology);
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    private void removeScalingPolicy(String nodeTemplateName, Topology topology) {
+    private void removeArtifactsAndPolicies(String nodeTemplateName, Topology topology) {
         if (topology.getScalingPolicies() != null) {
             topology.getScalingPolicies().remove(nodeTemplateName);
         }
-    }
-
-    /**
-     * Remove a nodeTemplate inputs in a topology
-     */
-    private void removeInputs(String nodeTemplateName, Topology topology) {
-        if (topology.getInputProperties() != null) {
-            topology.getInputProperties().remove(nodeTemplateName);
-        }
         if (topology.getInputArtifacts() != null) {
             topology.getInputArtifacts().remove(nodeTemplateName);
-        }
-        if (topology.getInputArtifacts() != null) {
-            topology.getInputArtifacts().remove(nodeTemplateName);
-        }
-    }
-
-    /**
-     * Remove a nodeTemplate outputs in a topology
-     */
-    private void removeOutputs(String nodeTemplateName, Topology topology) {
-        if (topology.getOutputProperties() != null) {
-            topology.getOutputProperties().remove(nodeTemplateName);
-        }
-        if (topology.getOutputAttributes() != null) {
-            topology.getOutputAttributes().remove(nodeTemplateName);
         }
     }
 
@@ -525,7 +483,7 @@ public class TopologyController {
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
-        nodeTemp.getProperties().put(updatePropertyRequest.getPropertyName(), updatePropertyRequest.getPropertyValue());
+        nodeTemp.getProperties().put(updatePropertyRequest.getPropertyName(), new ScalarPropertyValue(updatePropertyRequest.getPropertyValue()));
         alienDAO.save(topology);
 
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -569,7 +527,7 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
-        relationships.get(relationshipName).getProperties().put(propertyName, propertyValue);
+        relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
         alienDAO.save(topology);
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -641,8 +599,7 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
-        removeInputs(nodeTemplateName, topology);
-        removeOutputs(nodeTemplateName, topology);
+        removeArtifactsAndPolicies(nodeTemplateName, topology);
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
@@ -821,36 +778,6 @@ public class TopologyController {
         topologyService.checkEditionAuthorizations(topology);
 
         topology.setOutputAttributes(removeValueFromMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
-        alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    @ApiOperation(value = "Add a property in the input property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isInput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addInputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-
-        if (nodeTemplate.getProperties() != null && nodeTemplate.getProperties().containsKey(propertyName)) {
-            topology.setInputProperties(addToMap(topology.getInputProperties(), nodeTemplateName, propertyName));
-        } else {
-            // propertyName does not exists in the node template
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
-        }
-        alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    @ApiOperation(value = "Remove a property from the input property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isInput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeInputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-
-        topology.setInputProperties(removeValueFromMap(topology.getInputProperties(), nodeTemplateName, propertyName));
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }

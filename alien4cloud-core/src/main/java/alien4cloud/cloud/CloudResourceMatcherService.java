@@ -23,7 +23,9 @@ import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSProvider;
@@ -128,7 +130,7 @@ public class CloudResourceMatcherService {
     }
 
     public List<NetworkTemplate> matchNetworks(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
-        Map<String, String> networkProperties = nodeTemplate.getProperties();
+        Map<String, AbstractPropertyValue> networkProperties = nodeTemplate.getProperties();
         Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
         List<NetworkTemplate> eligibleNetworks = Lists.newArrayList();
         for (NetworkTemplate network : existingNetworks) {
@@ -150,7 +152,7 @@ public class CloudResourceMatcherService {
     }
 
     public List<StorageTemplate> matchStorages(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
-        Map<String, String> storageProperties = nodeTemplate.getProperties();
+        Map<String, AbstractPropertyValue> storageProperties = nodeTemplate.getProperties();
         Set<StorageTemplate> existingStorages = cloud.getStorages();
         List<StorageTemplate> eligibleStorages = Lists.newArrayList();
         for (StorageTemplate storage : existingStorages) {
@@ -173,7 +175,7 @@ public class CloudResourceMatcherService {
      * @return the available images on the cloud
      */
     public List<CloudImage> matchImages(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
-        Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
+        Map<String, AbstractPropertyValue> computeTemplateProperties = nodeTemplate.getProperties();
         Map<String, CloudImage> availableImages = cloudImageService.getMultiple(cloud.getImages());
         List<CloudImage> matchedImages = Lists.newArrayList();
         for (CloudImage cloudImage : availableImages.values()) {
@@ -258,7 +260,7 @@ public class CloudResourceMatcherService {
             }
         }
         List<CloudImageFlavor> matchedFlavors = Lists.newArrayList();
-        Map<String, String> computeTemplateProperties = nodeTemplate.getProperties();
+        Map<String, AbstractPropertyValue> computeTemplateProperties = nodeTemplate.getProperties();
         for (CloudImageFlavor flavor : eligibleFlavors) {
             if (!match(computeTemplateProperties, NormativeComputeConstants.NUM_CPUS, flavor.getNumCPUs(), new IntegerValueParser(),
                     new GreaterOrEqualValueMatcher<Integer>())) {
@@ -337,16 +339,22 @@ public class CloudResourceMatcherService {
         }
     }
 
-    private <T> boolean match(Map<String, String> properties, String keyToCheck, T actualValue, ValueParser<T> valueParser, ValueMatcher<T> valueMatcher) {
+    private <T> boolean match(Map<String, AbstractPropertyValue> properties, String keyToCheck, T actualValue, ValueParser<T> valueParser,
+            ValueMatcher<T> valueMatcher) {
         try {
             if (properties == null) {
                 return true;
             }
-            String expectedValue = properties.get(keyToCheck);
-            if (expectedValue == null || expectedValue.isEmpty()) {
+            AbstractPropertyValue expectedValue = properties.get(keyToCheck);
+            if (!(expectedValue instanceof ScalarPropertyValue)) {
+                throw new RuntimeException("Error in A4C functions should have been processed before matching resources.");
+            }
+
+            String expectedStrValue = ((ScalarPropertyValue) expectedValue).getValue();
+            if (expectedStrValue == null || expectedStrValue.isEmpty()) {
                 return true;
             } else {
-                return valueMatcher.matchValue(valueParser.parseValue(expectedValue), actualValue);
+                return valueMatcher.matchValue(valueParser.parseValue(expectedStrValue), actualValue);
             }
         } catch (Exception e) {
             log.warn("Error happened while matching key [" + keyToCheck + "], actual value [" + actualValue + "], properties [" + properties + "]", e);

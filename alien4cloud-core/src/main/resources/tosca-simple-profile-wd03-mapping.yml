@@ -2,7 +2,7 @@
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
-- property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
+# - property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - bound: alien4cloud.tosca.parser.impl.advanced.BoundParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
@@ -64,7 +64,7 @@
   name: name
   properties: 
     map: properties
-    type: scalar
+    type: property_value
   requirements:
     inner: relationships
     type: relationship_templates_type
@@ -154,6 +154,14 @@
 
 # created using constructor(String)
 - scalar_property_input: alien4cloud.model.components.ScalarPropertyValue
+
+- property_value: __discriminator
+  keys:
+    type: property_definition
+    get_input: tosca_function
+    get_property: tosca_function
+    get_attribute: tosca_function
+  default: scalar_property_input
 
 - input: __discriminator
   keys:

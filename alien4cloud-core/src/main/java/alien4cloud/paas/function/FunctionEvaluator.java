@@ -5,8 +5,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
@@ -22,8 +24,6 @@ import alien4cloud.tosca.normative.ToscaFunctionConstants;
  * ex:
  * attributes:
  * url: "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super"
- *
- * @author luc boutier
  */
 @Slf4j
 public final class FunctionEvaluator {
@@ -59,7 +59,11 @@ public final class FunctionEvaluator {
             cursor = matcher.end();
             NodeTemplate template = topology.getNodeTemplates().get(nodeName);
             if (template != null) {
-                String propertyValue = template.getProperties().get(propertyName);
+                String propertyValue = null;
+                AbstractPropertyValue abstractPropertyValue = template.getProperties().get(propertyName);
+                if (abstractPropertyValue instanceof ScalarPropertyValue) {
+                    propertyValue = ((ScalarPropertyValue) abstractPropertyValue).getValue();
+                }
                 if (propertyValue != null) {
                     sb.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyName));
                 }
@@ -128,8 +132,12 @@ public final class FunctionEvaluator {
     public static String evaluateGetPropertyFuntion(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         PaaSNodeTemplate entity = getPaaSEntity(basePaaSTemplate, functionParam.getParameters().get(0), builtPaaSTemplates);
-
-        return entity.getNodeTemplate().getProperties() == null ? null : entity.getNodeTemplate().getProperties().get(functionParam.getParameters().get(1));
+        String result = null;
+        if (entity.getNodeTemplate().getProperties() != null) {
+            AbstractPropertyValue abstractPropertyValue = entity.getNodeTemplate().getProperties().get(functionParam.getParameters().get(1));
+            result = (abstractPropertyValue instanceof ScalarPropertyValue) ? ((ScalarPropertyValue) abstractPropertyValue).getValue() : null;
+        }
+        return result;
     }
 
     private static PaaSNodeTemplate getPaaSNodeOrDie(String nodeId, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {

@@ -133,7 +133,37 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
         refreshSelectedCloud();
-        refreshCloudResources();
+
+        $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
+        $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
+        $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
+        $scope.images = response.data.matchResult.images;
+        $scope.flavors = response.data.matchResult.flavors;
+        var key;
+        for (key in $scope.matchedComputeResources) {
+          if ($scope.matchedComputeResources.hasOwnProperty(key)) {
+            if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+              $scope.hasUnmatchedCompute = true;
+              break;
+            }
+          }
+        }
+        for (key in $scope.matchedNetworkResources) {
+          if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
+            if (!$scope.selectedNetworks.hasOwnProperty(key)) {
+              $scope.hasUnmatchedNetwork = true;
+              break;
+            }
+          }
+        }
+        for (key in $scope.matchedStorageResources) {
+          if ($scope.matchedStorageResources.hasOwnProperty(key)) {
+            if (!$scope.selectedStorages.hasOwnProperty(key)) {
+              $scope.hasUnmatchedStorage = true;
+              break;
+            }
+          }
+        }
       });
     }
 
@@ -385,52 +415,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.onArtifactSelected = function($files, nodeTemplateName, artifactName) {
       var file = $files[0];
       $scope.doUploadArtifact(file, nodeTemplateName, artifactName);
-    };
-
-    // DEPLOYMENT AND CLOUD MANAGEMENT
-
-    var refreshCloudResources = function() {
-      if ($scope.selectedCloud && $scope.selectedEnvironment.hasOwnProperty('cloudId')) {
-        // cleaning compute & network matching
-        delete $scope.currentMatchedComputeTemplates;
-        delete $scope.currentMatchedNetworks;
-        // get fresh matching resources
-        applicationServices.matchResources({
-          applicationId: $scope.application.id,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, undefined, function(response) {
-          $scope.matchedComputeResources = response.data.computeMatchResult;
-          $scope.matchedNetworkResources = response.data.networkMatchResult;
-          $scope.matchedStorageResources = response.data.storageMatchResult;
-          $scope.images = response.data.images;
-          $scope.flavors = response.data.flavors;
-          var key;
-          for (key in $scope.matchedComputeResources) {
-            if ($scope.matchedComputeResources.hasOwnProperty(key)) {
-              if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-                $scope.hasUnmatchedCompute = true;
-                break;
-              }
-            }
-          }
-          for (key in $scope.matchedNetworkResources) {
-            if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
-              if (!$scope.selectedNetworks.hasOwnProperty(key)) {
-                $scope.hasUnmatchedNetwork = true;
-                break;
-              }
-            }
-          }
-          for (key in $scope.matchedStorageResources) {
-            if ($scope.matchedStorageResources.hasOwnProperty(key)) {
-              if (!$scope.selectedStorages.hasOwnProperty(key)) {
-                $scope.hasUnmatchedStorage = true;
-                break;
-              }
-            }
-          }
-        });
-      }
     };
 
     /** Properties definition */
