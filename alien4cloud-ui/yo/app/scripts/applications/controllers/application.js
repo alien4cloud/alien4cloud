@@ -173,6 +173,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
+        $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
         $scope.outputNodes = [];
         $scope.inputPropertiesSize = 0;
         $scope.outputPropertiesSize = 0;
@@ -199,6 +200,20 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     };
 
+    // get the property definition for the good (node, property)
+    $scope.getPropertyDefinition = function(nodeKey, propertyKey) {
+      var type = $scope.nodeTemplates[nodeKey].type;
+      var propertyDefinition = null;
+      var properties = $scope.topologyDTO.nodeTypes[type].properties;
+      for (var i = 0; i < properties.length; i++) {
+        if (properties[i].key === propertyKey) {
+          propertyDefinition = properties[i].value;
+          propertyDefinition.name = propertyKey;
+        }
+      }
+      return propertyDefinition;
+    };
+
     // get a topologyId
     $scope.setTopologyId = function setTopologyId(applicationId, environmentId, successTopologyIdCallBack) {
       return applicationEnvironmentServices.getTopologyId({
@@ -218,10 +233,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.outputAttributesValue = {};
       $scope.outputPropertiesValue = {};
       $scope.outputNodes = [];
-      $scope.inputPropertiesSize = 0;
-      $scope.outputPropertiesSize = 0;
-      $scope.outputAttributesSize = 0;
-      $scope.inputArtifactsSize = 0;
       if ($scope.applicationEventServices !== null) {
         $scope.applicationEventServices.stop();
         $scope.applicationEventServices = null;

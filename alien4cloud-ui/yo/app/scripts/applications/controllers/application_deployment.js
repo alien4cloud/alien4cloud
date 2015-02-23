@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster) {
+  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$timeout',
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster, $timeout) {
     var pageStateId = $state.current.name;
 
     // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
@@ -70,17 +70,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // refresh the actual selected cloud.
     function refreshSelectedCloud() {
 
-      delete $scope.selectedCloud;
       delete $scope.deploymentPropertyDefinitions;
 
-      var clouds = $scope.clouds;
-      if (UTILS.isDefinedAndNotNull(clouds)) {
+      // var clouds = $scope.clouds;
+      if (UTILS.isDefinedAndNotNull($scope.clouds)) {
         // select the cloud that is currently associated with the environment
         var found = false,
           i = 0;
-        while (!found && i < clouds.length) {
-          if (clouds[i].id === $scope.selectedEnvironment.cloudId) {
-            $scope.selectedCloud = clouds[i];
+        while (!found && i < $scope.clouds.length) {
+          if ($scope.clouds[i].id === $scope.selectedEnvironment.cloudId) {
+            delete $scope.selectedCloud;
+            $scope.selectedCloud = $scope.clouds[i];
             found = true;
           }
           i++;
@@ -146,7 +146,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var changeCloud = function(switchToCloud) {
       if (UTILS.isDefinedAndNotNull(switchToCloud)) {
-        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id !== $scope.selectedCloud.id) {
+        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id === $scope.selectedCloud.id) {
           return;
         }
         $scope.selectedComputeTemplates = {};
@@ -336,24 +336,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         'propertyName': propertyName,
         'propertyValue': propertyValue
       };
-
-      var d = $q.defer();
-      topologyServices.nodeTemplate.updateProperty({
+      return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topologyDTO.topology.id,
         nodeTemplateName: nodeTemplateName
-      }, angular.toJson(updatePropsObject), function(data) {
-        if (data.error !== null) {
-          // Constraint error display + translation
-          var constraintInfo = data.data;
-          d.resolve($translate('ERRORS.' + data.error.code + '.' + constraintInfo.name, constraintInfo));
-        } else {
-          d.resolve();
-          if (UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName]) && UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName][propertyName])) {
-            $scope.outputPropertiesValue[nodeTemplateName][propertyName] = propertyValue;
-          }
-        }
-      });
-      return d.promise;
+      }, angular.toJson(updatePropsObject), function() {
+        // update the properties locally
+        $scope.nodeTemplates[nodeTemplateName].propertiesMap[propertyName].value = propertyValue;
+        refreshDeploymentSetup();
+      }).$promise;
     };
 
     // Artifact upload handler

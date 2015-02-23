@@ -22,7 +22,9 @@
         <a ng-class="{'checked_role':( roleChecked = definitionObject.uiValue )}" ng-click="propertySaveBoolean(!roleChecked);" ng-if="editable">
           <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked }"></i>
         </a>
-        <span ng-if="!editable">{{definitionObject.uiValue}}</span>
+        <span ng-class="{'checked_role':( roleChecked = definitionObject.uiValue )}" ng-if="!editable" ng-disabled="true">
+          <i class="fa fa-fw" ng-class="{'fa-check-square-o' : roleChecked,  'fa-square-o': !roleChecked }"></i>
+        </span>
       </span>
 
       <span ng-switch-when="date">

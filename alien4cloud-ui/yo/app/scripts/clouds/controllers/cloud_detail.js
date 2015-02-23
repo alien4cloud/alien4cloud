@@ -585,10 +585,9 @@ angular.module('alienUiApp').controller(
             };
             cloudServices.addImage({
               id: $scope.cloud.id
-            }, angular.toJson([cloudImageId]), function(success) {
+            }, angular.toJson([cloudImageId]), function() {
               $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
               updateImageResourcesStatistic();
-              updateComputeResources(success.data);
             });
           });
         });
