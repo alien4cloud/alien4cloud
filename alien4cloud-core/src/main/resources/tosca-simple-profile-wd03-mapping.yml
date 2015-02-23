@@ -54,15 +54,15 @@
     type: topology_template_type
 
 - topology_template_type: alien4cloud.model.topology.Topology|topologyChecker
-  description: .topologyTemplateDescription # mapped to a root's property 
-  node_templates: 
+  description: .topologyTemplateDescription # mapped to a root's property
+  node_templates:
     map: nodeTemplates
-    type: node_template  
-      
+    type: node_template
+
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type
   name: name
-  properties: 
+  properties:
     map: properties
     type: scalar
   requirements:
@@ -152,6 +152,13 @@
       list: parameters
       type: scalar
 
+- tosca_concat: alien4cloud.model.components.ConcatPropertyValue
+  __0:
+    key: function_concat
+    value:
+      list: parameters
+      type: input
+
 # created using constructor(String)
 - scalar_property_input: alien4cloud.model.components.ScalarPropertyValue
 
@@ -162,6 +169,7 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
+    concat: tosca_concat
   default: scalar_property_input
 
 - operation_definition: alien4cloud.model.components.Operation

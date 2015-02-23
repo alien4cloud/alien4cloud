@@ -206,7 +206,7 @@
           <h3><i class="fa fa-cog"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
-              <td id="p_{{propertyKey}}">
+              <td id="p_deployment_{{propertyKey}}">
                 <property-display
                   ng-init="condensed = true"
                   definition="propertyDefinition"
@@ -236,9 +236,9 @@
           <div class="col-md-4">
             {{propertyKey}}
           </div>
-          <div class="col-md-8" id="p_{{propertyKey}}">
+          <div class="col-md-8">
 
-            <div class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
+            <div id="p_input_{{propertyKey}}" class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
 
               <property-display
                 definition="getPropertyDefinition(propertyKey,inputPropertyValue)"

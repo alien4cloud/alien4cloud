@@ -3,11 +3,11 @@ package alien4cloud.tosca.parser;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.model.components.*;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -16,13 +16,27 @@ import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.csar.services.CsarService;
-import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
-import alien4cloud.model.components.CSARDependency;
 import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.tosca.model.*;
+import alien4cloud.csar.services.CsarService;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.ConcatPropertyValue;
+import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.MaxLengthConstraint;
 import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -242,7 +256,7 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
                         Mockito.any(List.class))).thenReturn(hostedOn);
-        
+
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type.yml"));
 
         assertNoBlocker(parsingResult);
@@ -338,6 +352,52 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(ScalarPropertyValue.class, operation.getInputParameters().get("value_input").getClass());
         Assert.assertEquals(PropertyDefinition.class, operation.getInputParameters().get("definition_input").getClass());
         Assert.assertEquals(FunctionPropertyValue.class, operation.getInputParameters().get("function_input").getClass());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testInputConcatValid() throws Throwable {
+
+        Mockito.reset(repositorySearchService);
+        Mockito.reset(csarService);
+        Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
+        Mockito.when(csarService.getIfExists(csar.getName(), csar.getVersion())).thenReturn(csar);
+
+        IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-inputs.yml"));
+
+        Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
+
+        assertNoBlocker(parsingResult);
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        Assert.assertNotNull(archiveRoot.getArchive());
+        Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
+
+        // check nodetype elements
+        Entry<String, IndexedNodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
+        Assert.assertEquals("alien.test.TestComputeConcat", entry.getKey());
+        IndexedNodeType nodeType = entry.getValue();
+        Map<String, IOperationParameter> inputs = nodeType.getInterfaces().get("tosca.interfaces.node.lifecycle.Standard").getOperations().get("configure")
+                .getInputParameters();
+
+        IOperationParameter simpleInput = inputs.get("customHostName");
+        IOperationParameter simpleConcat = inputs.get("myConcatUrl");
+        IOperationParameter nestedConcat = inputs.get("nestedConcat");
+
+        // check inputs types
+        Assert.assertTrue(simpleInput.getClass().equals(FunctionPropertyValue.class));
+        Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
+        Assert.assertTrue(nestedConcat.getClass().equals(ConcatPropertyValue.class));
+
+        // serialize nodeType
+        String nodeTypeJson = JsonUtil.toString(nodeType);
+        // recover node from serialized string
+        nodeType = JsonUtil.readObject(nodeTypeJson, IndexedNodeType.class);
+        Assert.assertNotNull(nodeType);
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {

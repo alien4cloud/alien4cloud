@@ -1,5 +1,6 @@
 package alien4cloud.json.deserializer;
 
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.PropertyDefinition;
@@ -14,5 +15,6 @@ public class OperationParameterDeserializer extends AbstractDiscriminatorPolymor
         addToRegistry("type", PropertyDefinition.class);
         addToRegistry("function", FunctionPropertyValue.class);
         addToRegistry("value", ScalarPropertyValue.class);
+        addToRegistry("function_concat", ConcatPropertyValue.class);
     }
 }
