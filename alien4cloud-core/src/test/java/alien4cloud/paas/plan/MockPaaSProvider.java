@@ -27,14 +27,9 @@ import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 
 @Getter
 @Component
-public class MockPaaSProvider implements IConfigurablePaaSProvider<String>, IPaaSProvider {
+public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvider<String> {
 
     private List<PaaSNodeTemplate> roots;
-
-    @Override
-    public String getDefaultConfiguration() {
-        return null;
-    }
 
     @Override
     public void setConfiguration(String configuration) throws PluginConfigurationException {

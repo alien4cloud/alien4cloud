@@ -39,7 +39,6 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -61,7 +60,7 @@ import com.google.common.collect.Lists;
 @Slf4j
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
+public class MockPaaSProvider extends AbstractPaaSProvider {
 
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
@@ -522,11 +521,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider implements IConfigura
         deploymentProperties.put("managerEmail", managerEmail);
 
         return deploymentProperties;
-    }
-
-    @Override
-    public ProviderConfig getDefaultConfiguration() {
-        return null;
     }
 
     @Override

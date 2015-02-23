@@ -6,8 +6,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.IConfigurablePaaSProvider;
 import alien4cloud.paas.IPaaSCallback;
-import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.IllegalDeploymentStateException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.exception.PaaSAlreadyDeployedException;
@@ -19,7 +19,7 @@ import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.utils.MapUtil;
 
 @Slf4j
-public abstract class AbstractPaaSProvider implements IPaaSProvider {
+public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
 
     @Override

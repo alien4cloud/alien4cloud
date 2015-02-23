@@ -37,6 +37,7 @@ import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IConfigurablePaaSProviderFactory;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
 import alien4cloud.paas.PaaSProviderFactoriesService;
@@ -47,7 +48,6 @@ import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.MappingUtil;
-import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -113,8 +113,9 @@ public class CloudService {
 
         // save default configuration
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
-        IPaaSProvider provider = passProviderFactory.newInstance();
-        cloud.setConfigurable(saveDefaultConfiguration(cloud.getId(), provider));
+        if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
+            cloud.setConfigurable(saveDefaultConfiguration(cloud.getId(), ((IConfigurablePaaSProviderFactory) passProviderFactory).getDefaultConfiguration()));
+        }
 
         alienDAO.save(cloud);
         return cloud.getId();
@@ -128,9 +129,8 @@ public class CloudService {
     }
 
     @SuppressWarnings("rawtypes")
-    private boolean saveDefaultConfiguration(String cloudId, IPaaSProvider provider) {
-        if (provider instanceof IConfigurablePaaSProvider) {
-            Object defaultConfiguration = ((IConfigurablePaaSProvider) provider).getDefaultConfiguration();
+    private boolean saveDefaultConfiguration(String cloudId, Object defaultConfiguration) {
+        if (defaultConfiguration != null) {
             CloudConfiguration configuration = new CloudConfiguration(cloudId, defaultConfiguration);
             alienDAO.save(configuration);
             return true;
@@ -230,14 +230,12 @@ public class CloudService {
      * @return The map of property definitions for the given cloud.
      */
     public Map<String, PropertyDefinition> getDeploymentPropertyDefinitions(String id) {
-        Cloud cloud = getMandatoryCloud(id);
-
+        getMandatoryCloud(id);
         IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(id);
         if (paaSProvider == null) {
-            // cloud may be disabled, let's get properties from a new instance
-            paaSProvider = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean()).newInstance();
+            // cloud is disabled, return empty properties
+            return null;
         }
-
         return paaSProvider.getDeploymentPropertyMap();
     }
 
@@ -271,14 +269,8 @@ public class CloudService {
     }
 
     private Class<?> getConfigurationType(Cloud cloud) {
-        IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
-        if (paaSProvider == null) {
-            paaSProvider = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean()).newInstance();
-        }
-        if (paaSProvider instanceof IConfigurablePaaSProvider) {
-            return ReflectionUtil.getGenericArgumentType(paaSProvider.getClass(), IConfigurablePaaSProvider.class, 0);
-        }
-        return null;
+        return ((IConfigurablePaaSProviderFactory) paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean()))
+                .getConfigurationType();
     }
 
     /**
@@ -324,8 +316,10 @@ public class CloudService {
         // get a PaaSProvider bean and configure it.
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         // create and configure a IPaaSProvider instance.
-        IPaaSProvider provider = passProviderFactory.newInstance();
-        if (provider instanceof IConfigurablePaaSProvider) {
+        IPaaSProvider provider;
+        if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
+            IConfigurablePaaSProvider<Object> cProvider = ((IConfigurablePaaSProviderFactory<Object>) passProviderFactory).newInstance();
+            provider = cProvider;
             Object configuration = getConfiguration(cloud.getId());
             if (configuration != null) {
                 Object validConfiguration;
@@ -334,9 +328,10 @@ public class CloudService {
                 } catch (IOException e) {
                     throw new PluginConfigurationException("Failed convert configuration in object.", e);
                 }
-
-                ((IConfigurablePaaSProvider) provider).setConfiguration(validConfiguration);
+                cProvider.setConfiguration(validConfiguration);
             }
+        } else {
+            provider = passProviderFactory.newInstance();
         }
         initializeMatcherConfig(provider, cloud);
         // register the IPaaSProvider for the cloud.
@@ -394,10 +389,20 @@ public class CloudService {
     }
 
     private void disableCloud(Cloud cloud) {
-        // un-register the IPaaSProvider for the cloud.
-        paaSProviderService.unregister(cloud.getId());
-        cloud.setEnabled(false);
-        alienDAO.save(cloud);
+        try {
+            // un-register the IPaaSProvider for the cloud.
+            IPaaSProvider paaSProvider = paaSProviderService.unregister(cloud.getId());
+            IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
+            if (paaSProvider != null) {
+                passProviderFactory.destroy(paaSProvider);
+            }
+        } catch (Exception e) {
+            log.info("Unable to destroy paaS provider, it may not be created yet", e);
+        } finally {
+            // Mark the cloud as disabled
+            cloud.setEnabled(false);
+            alienDAO.save(cloud);
+        }
     }
 
     /**
