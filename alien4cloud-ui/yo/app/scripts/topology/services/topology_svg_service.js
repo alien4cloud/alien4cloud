@@ -192,7 +192,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
           var netY = oY + (this.nodeRenderer.height/2) - 2;
           var netStyle = node.networkId % this.networkStyles;
           var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
-          nodeGroup.append('path').attr('d', path).attr('class', 'tosca-link tosca-link-network tosca-link-network-' + netStyle);
+          nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');
         }
 
         D3JS_UTILS.rect(nodeGroup, oX, oY, this.nodeRenderer.width, this.nodeRenderer.height, 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
@@ -256,12 +256,12 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
           var linkPath = d3.select(this);
           if(link.isNetwork) {
             var netStyle = link.networkId % instance.networkStyles;
-            linkPath.attr('class', 'tosca-link tosca-link-network tosca-link-network-' + netStyle);
+            linkPath.attr('class', 'link link-network link-network-' + netStyle);
           } else {
-            linkPath.attr('class', 'tosca-link');
+            linkPath.attr('class', 'link');
             var isHostedOn = toscaService.isHostedOnType(link.type, topology.relationshipTypes);
-            linkPath.classed('tosca-tosca-link-hosted-on', function() { return isHostedOn; })
-              .classed('tosca-tosca-link-depends-on', function() { return !isHostedOn; })
+            linkPath.classed('link-hosted-on', function() { return isHostedOn; })
+              .classed('link-depends-on', function() { return !isHostedOn; })
               .attr('marker-start', function(link) {
                 return toscaService.isHostedOnType(link.type, topology.relationshipTypes) ? 'url(#markerHosted)' : 'url(#markerDepends)';
               }).attr('marker-end', function(link) {
@@ -290,7 +290,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
             return path;
           });
-        linkPath.classed('tosca-link-selected', function(link) { return link.selected; });
+        linkPath.classed('link-selected', function(link) { return link.selected; });
       },
 
       defineMarkers: function(svg) {

@@ -39,7 +39,6 @@ angular.module('alienUiApp').controller('UploadCtrl', [ '$scope', '$upload', fun
     }).progress(function(evt) {
       $scope.uploadInfos[index].progress = parseInt(100.0 * evt.loaded / evt.total);
     }).success(function(data) {
-      // console.log('got response', data);
       // file is uploaded successfully and the server respond without error
       if (data.error === null) {
         $scope.uploadInfos[index].infoType = statesToClasses.success;
