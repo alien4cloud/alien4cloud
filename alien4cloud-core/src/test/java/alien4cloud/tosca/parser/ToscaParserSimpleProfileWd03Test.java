@@ -18,11 +18,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
+import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IAttributeValue;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
@@ -356,7 +357,7 @@ public class ToscaParserSimpleProfileWd03Test {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testInputConcatValid() throws Throwable {
+    public void testAttributesConcatValid() throws Throwable {
 
         Mockito.reset(repositorySearchService);
         Mockito.reset(csarService);
@@ -381,19 +382,21 @@ public class ToscaParserSimpleProfileWd03Test {
         Entry<String, IndexedNodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
         Assert.assertEquals("alien.test.TestComputeConcat", entry.getKey());
         IndexedNodeType nodeType = entry.getValue();
-        Map<String, IOperationParameter> inputs = nodeType.getInterfaces().get("tosca.interfaces.node.lifecycle.Standard").getOperations().get("configure")
-                .getInputParameters();
 
-        IOperationParameter simpleInput = inputs.get("customHostName");
-        IOperationParameter simpleConcat = inputs.get("myConcatUrl");
-        IOperationParameter nestedConcat = inputs.get("nestedConcat");
+        Map<String, IAttributeValue> attributes = nodeType.getAttributes();
 
-        // check inputs types
-        Assert.assertTrue(simpleInput.getClass().equals(FunctionPropertyValue.class));
+        IAttributeValue simpleDefinition = attributes.get("simple_definition");
+        IAttributeValue ipAddressDefinition = attributes.get("ip_address");
+        IAttributeValue simpleConcat = attributes.get("simple_concat");
+        IAttributeValue complexConcat = attributes.get("complex_concat");
+
+        // check attributes types
+        Assert.assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
+        Assert.assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
         Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
-        Assert.assertTrue(nestedConcat.getClass().equals(ConcatPropertyValue.class));
+        Assert.assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
 
-        // serialize nodeType
+        // Test nodeType serialization
         String nodeTypeJson = JsonUtil.toString(nodeType);
         // recover node from serialized string
         nodeType = JsonUtil.readObject(nodeTypeJson, IndexedNodeType.class);

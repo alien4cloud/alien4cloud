@@ -12,6 +12,8 @@ import alien4cloud.tosca.container.validation.ToscaPropertyType;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormValidValues;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,8 +21,9 @@ import alien4cloud.ui.form.annotation.FormValidValues;
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
+@JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "default", "description" })
-public class AttributeDefinition {
+public class AttributeDefinition implements IAttributeValue {
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     private String type;
@@ -35,5 +38,10 @@ public class AttributeDefinition {
 
     public void setDefault(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+
+    @Override
+    public boolean isDefinition() {
+        return true;
     }
 }

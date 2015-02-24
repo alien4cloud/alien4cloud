@@ -169,8 +169,13 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
-    concat: tosca_concat
   default: scalar_property_input
+
+- attribute: __discriminator
+  keys:
+    type: attribute_definition
+    concat: tosca_concat
+  default: attribute_definition
 
 - operation_definition: alien4cloud.model.components.Operation
   implementation:
@@ -198,7 +203,7 @@
     type: property_definition
   attributes:
     map: attributes
-    type: attribute_definition
+    type: attribute
   requirements:
     list: requirements
     key: id
@@ -241,7 +246,7 @@
     type: property_definition
   attributes:
     map: attributes
-    type: attribute_definition
+    type: attribute
   interfaces:
     reference: interfaces
     type: interfaces

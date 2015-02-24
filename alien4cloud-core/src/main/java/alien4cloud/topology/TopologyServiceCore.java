@@ -1,7 +1,11 @@
 package alien4cloud.topology;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -13,9 +17,22 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.*;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
@@ -208,11 +225,11 @@ public class TopologyServiceCore {
         return nodeTemplate;
     }
 
-    private static void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
+    private static void fillAttributes(Map<String, String> attributes, Map<String, IAttributeValue> attributes2) {
         if (attributes2 == null || attributes == null) {
             return;
         }
-        for (Map.Entry<String, AttributeDefinition> entry : attributes2.entrySet()) {
+        for (Entry<String, IAttributeValue> entry : attributes2.entrySet()) {
             attributes.put(entry.getKey(), null);
         }
     }
