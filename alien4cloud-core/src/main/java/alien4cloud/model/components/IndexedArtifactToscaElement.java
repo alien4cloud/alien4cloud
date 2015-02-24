@@ -11,8 +11,11 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.query.FetchContext;
 
+import alien4cloud.json.deserializer.AbstractAttributeDeserializer;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Getter
 @Setter
@@ -23,7 +26,8 @@ public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement 
     private Map<String, DeploymentArtifact> artifacts;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    private Map<String, AttributeDefinition> attributes;
+    @JsonDeserialize(contentUsing = AbstractAttributeDeserializer.class)
+    private Map<String, IAttributeValue> attributes;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, Interface> interfaces;

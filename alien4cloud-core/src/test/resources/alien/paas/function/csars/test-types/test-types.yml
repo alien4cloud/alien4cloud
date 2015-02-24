@@ -30,7 +30,6 @@ node_types:
             customHostName: { get_property: [HOST, customHostName] }
           implementation: scripts/helloCmd.groovy
 
-
   alien.test.BadTestCompute:
     derived_from: tosca.nodes.Compute
     properties:
@@ -75,9 +74,5 @@ relationship_types:
             contextPath: { get_property: [SOURCE, contextPath] }
             tomcatVersion: { get_property: [TARGET, version] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
-            # myConcatUrl: { concat: [TARGET, ip_address] }
-            # myConcatUrl: { TARGET, ip_address] }
-            # myUrl: { concat: [http, get_attribute: [TARGET, ip_address], myapp] }
-            myUrl: { concat: [get_attribute: [TARGET, ip_address]] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
           implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
