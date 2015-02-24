@@ -29,6 +29,8 @@ import alien4cloud.tosca.normative.ToscaFunctionConstants;
 public final class FunctionEvaluator {
     private static Pattern getPropertyPattern = Pattern.compile("get_property\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
     private static Pattern getAttributePattern = Pattern.compile("get_attribute\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
+    private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]"); // ([ ,.a-zA-Z0-9]+)\\
+    // private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[([ ,\\s*(\\w*)\\s*]+)\\]"); // ([ ,.a-zA-Z0-9]+)\\
 
     /**
      * Parse a string to render the attribute or property based on topology and runtime data.
@@ -40,8 +42,9 @@ public final class FunctionEvaluator {
      * @return A string with complete informations.
      */
     public static String parseString(String str, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
-        String parsedString = parseProperties(str, topology);
-        return parseAttributes(parsedString, runtimeInformations, currentInstance);
+        String propertiesParsedString = parseProperties(str, topology);
+        String attributesParsed = parseAttributes(propertiesParsedString, runtimeInformations, currentInstance);
+        return parseConcat(attributesParsed, runtimeInformations, currentInstance);
     }
 
     public static String parseProperties(String str, Topology topology) {
@@ -74,6 +77,36 @@ public final class FunctionEvaluator {
             return str;
         }
         Matcher matcher = getAttributePattern.matcher(str);
+        StringBuilder sb = new StringBuilder();
+        int cursor = 0;
+        while (matcher.find()) {
+            String nodeName = matcher.group(1);
+            String attributeName = matcher.group(2);
+            sb.append(str.substring(cursor, matcher.start()));
+            cursor = matcher.end();
+            String attributeValue;
+            if (runtimeInformations.get(nodeName) != null) {
+                if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
+                    attributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(attributeName);
+                } else {
+                    attributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(attributeName);
+                }
+                sb.append(attributeValue);
+            } else {
+                log.warn("Couldn't find attributes/properties of in node <{}>", nodeName);
+                sb.append("[" + nodeName + "." + attributeName + "=Error!]");
+            }
+        }
+        sb.append(str.substring(cursor));
+
+        return sb.toString();
+    }
+
+    public static String parseConcat(String str, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
+        if (str == null) {
+            return str;
+        }
+        Matcher matcher = concatPattern.matcher(str);
         StringBuilder sb = new StringBuilder();
         int cursor = 0;
         while (matcher.find()) {
@@ -142,16 +175,16 @@ public final class FunctionEvaluator {
 
     private static String evaluateEntityName(String stringToEval, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
         switch (stringToEval) {
-            case ToscaFunctionConstants.HOST:
-                return getHostNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.SELF:
-                return getSelfNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.SOURCE:
-                return getSourceNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.TARGET:
-                return getTargetNodeId(basePaaSTemplate);
-            default:
-                return stringToEval;
+        case ToscaFunctionConstants.HOST:
+            return getHostNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.SELF:
+            return getSelfNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.SOURCE:
+            return getSourceNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.TARGET:
+            return getTargetNodeId(basePaaSTemplate);
+        default:
+            return stringToEval;
         }
     }
 

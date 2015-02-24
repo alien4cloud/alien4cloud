@@ -399,8 +399,21 @@ public class ToscaParserSimpleProfileWd03Test {
         // Test nodeType serialization
         String nodeTypeJson = JsonUtil.toString(nodeType);
         // recover node from serialized string
-        nodeType = JsonUtil.readObject(nodeTypeJson, IndexedNodeType.class);
-        Assert.assertNotNull(nodeType);
+        IndexedNodeType nodeTypeDeserialized = JsonUtil.readObject(nodeTypeJson, IndexedNodeType.class);
+        Assert.assertNotNull(nodeTypeDeserialized);
+
+        attributes = nodeTypeDeserialized.getAttributes();
+        simpleDefinition = attributes.get("simple_definition");
+        ipAddressDefinition = attributes.get("ip_address");
+        simpleConcat = attributes.get("simple_concat");
+        complexConcat = attributes.get("complex_concat");
+
+        // check attributes types after deserialization
+        Assert.assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
+        Assert.assertTrue(ipAddressDefinition.getClass().equals(AttributeDefinition.class));
+        Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
+        Assert.assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
+
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {
