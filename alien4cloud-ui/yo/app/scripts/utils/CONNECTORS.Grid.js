@@ -13,7 +13,7 @@ CONNECTORS.directions = {
 CONNECTORS.Grid = function(bbox, gridSpacing) {
   this.lastBbox = null;
   this.gridSpacing = gridSpacing;
-  this.obstacleWeight = 1000;
+  this.obstacleWeight = 10000;
 
   // initialize the grid
   this.bbox = bbox.cloneWithPadding(this.gridSpacing * 4);
@@ -65,7 +65,7 @@ CONNECTORS.Grid.prototype = {
   /**
   * Compute the weight of the candidate point to compute the ideal next direction.
   */
-  getWeight: function(start, end, point) {
+  getWeight: function(end, point) {
     if(point === null) {
       return null;
     }
@@ -111,27 +111,44 @@ CONNECTORS.Grid.prototype = {
   */
   moveCandidates: function(currentPoint, commingFrom) {
     var candidates = [];
-    if(commingFrom !== CONNECTORS.directions.up) {
-      candidates.push(new CONNECTORS.Point(currentPoint.x, currentPoint.y + 1));
-    } else {
-      candidates.push(null);
-    }
-    if(commingFrom !== CONNECTORS.directions.right) {
-      candidates.push(new CONNECTORS.Point(currentPoint.x + 1, currentPoint.y));
-    } else {
-      candidates.push(null);
-    }
-    if(commingFrom !== CONNECTORS.directions.left) {
-      candidates.push(new CONNECTORS.Point(currentPoint.x - 1, currentPoint.y));
-    } else {
-      candidates.push(null);
-    }
-    if(commingFrom !== CONNECTORS.directions.down) {
-      candidates.push(new CONNECTORS.Point(currentPoint.x, currentPoint.y - 1));
-    } else {
-      candidates.push(null);
-    }
+    candidates.push(new CONNECTORS.Point(currentPoint.x, currentPoint.y + 1)); // up
+    candidates.push(new CONNECTORS.Point(currentPoint.x + 1, currentPoint.y)); // right
+    candidates.push(new CONNECTORS.Point(currentPoint.x - 1, currentPoint.y)); // left
+    candidates.push(new CONNECTORS.Point(currentPoint.x, currentPoint.y - 1)); // down
+
+    candidates[commingFrom] = null;
+
     return candidates;
+  },
+
+  /**
+  * Get the next best direction
+  * @param direction The current direction
+  */
+  nextDirection: function(end, currentPoint, direction, lastWeight) {
+    var i;
+    var commingFrom = this.reverse(direction);
+    var candidates = this.moveCandidates(currentPoint, commingFrom);
+    // compute the weights for candidates (lowest weight is the best destination)
+    var weights = [];
+    for(i = 0; i < candidates.length; i++) {
+      weights.push(this.getWeight(end, candidates[i]));
+    }
+    // if keeping the same direction reduces the weight then we should keep moving in order to reduce direction switches.
+    if(weights[direction] < lastWeight) {
+      return {candidates: candidates, direction: direction, weight: weights[direction]};
+    }
+    // find the best candidate direction
+    var selectedDir = 0;
+    if(weights[selectedDir] === null) {
+      selectedDir = 1;
+    }
+    for(i = selectedDir+1; i < candidates.length; i++) {
+      if(weights[i] !== null && weights[i] < weights[selectedDir]) {
+        selectedDir = i;
+      }
+    }
+    return {candidates: candidates, direction: selectedDir, weight: weights[selectedDir]};
   },
 
   /**
@@ -140,7 +157,7 @@ CONNECTORS.Grid.prototype = {
   * One predicate for the routing algorithm is that all obstacle are rectangle with some cells in-between them.
   * This is why we can follow a main global direction and know we won't have to go back.
   */
-  route: function(p1, p2) {
+  route: function(p1, p2, direction) {
     var lastRouteCell, lastRoutePoint;
     // get start cell
     var start = this.getCellCoordinates(p1);
@@ -154,31 +171,16 @@ CONNECTORS.Grid.prototype = {
 
     var currentCellPoint = start;
     // now let's try to build the route!
-    var lastselectedDir = null;
+    var lastselectedDir = direction;
     var count = 0;
+    var lastWeight = Number.POSITIVE_INFINITY;
     while(!currentCellPoint.equals(end) && count < 200) {
       count ++;
-      var i;
-      var commingFrom = lastselectedDir === null ? null : this.reverse(lastselectedDir);
-      // compute candidate destinations points
-      var candidates = this.moveCandidates(currentCellPoint, commingFrom);
-      // compute the weights for candidates (lowest weight is the best destination)
-      var weights = [];
-      for(i = 0; i < candidates.length; i++) {
-        weights.push(this.getWeight(start, end, candidates[i]));
-      }
-      // find the best candidate direction
-      var selectedDir = 0;
-      if(weights[selectedDir] === null) {
-        selectedDir = 1;
-      }
-      for(i = selectedDir+1; i < candidates.length; i++) {
-        if(weights[i] !== null && weights[i] < weights[selectedDir]) {
-          selectedDir = i;
-        }
-      }
+      var dirInfo = this.nextDirection(end, currentCellPoint, lastselectedDir, lastWeight);
+      var selectedDir = dirInfo.direction;
+      lastWeight = dirInfo.weight;
 
-      if(lastselectedDir !== null && selectedDir !== lastselectedDir) {
+      if(selectedDir !== lastselectedDir) {
         lastRouteCell = cellRoute[cellRoute.length-1];
         lastRoutePoint = route[route.length-1];
 
@@ -193,7 +195,7 @@ CONNECTORS.Grid.prototype = {
         // var pathCell = this.cells[currentCellPoint.x][currentCellPoint.y];
         // pathCell.visited = 1;
       }
-      currentCellPoint = candidates[selectedDir];
+      currentCellPoint = dirInfo.candidates[selectedDir];
       var pathCell = this.cells[currentCellPoint.x][currentCellPoint.y];
       pathCell.visited = 1;
       lastselectedDir = selectedDir;

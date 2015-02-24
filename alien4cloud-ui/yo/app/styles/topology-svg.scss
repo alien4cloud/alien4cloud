@@ -89,24 +89,40 @@
   stroke-opacity: 0;
 }
 
-.link {
+.tosca-link {
   fill: none;
   stroke-width: 1px;
-  stroke-opacity: .5;
+  stroke-opacity: .2;
 }
 
-.link-selected {
+.tosca-link-selected {
   stroke-width: 2px;
   stroke-opacity: 1;
 }
 
-.link-hosted-on {
+.tosca-link-hosted-on {
   stroke: #0000FF;
 }
 
-.link-depends-on {
+.tosca-link-depends-on {
   stroke: #048204;
 }
+
+.tosca-link-network {
+  stroke-width: 4px;
+  stroke-opacity: .3;
+}
+
+.tosca-link-network-0 { stroke: #9A0808; }
+.tosca-link-network-1 { stroke: #202AB4; }
+.tosca-link-network-2 { stroke: #2A7C93; }
+.tosca-link-network-3 { stroke: #6B2C76; }
+.tosca-link-network-4 { stroke: #30762C; }
+.tosca-link-network-5 { stroke: #2C7655; }
+.tosca-link-network-6 { stroke: #ED4D13; }
+.tosca-link-network-7 { stroke: #DA0000; }
+.tosca-link-network-8 { stroke: #1364ED; }
+.tosca-link-network-9 { stroke: #DAD000; }
 
 .d3-tip {
   font-size: $font-size-small;

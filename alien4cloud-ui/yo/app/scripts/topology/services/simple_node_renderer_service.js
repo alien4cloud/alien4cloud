@@ -8,9 +8,9 @@ angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRe
       isRuntime: false,
       width: 50,
       height: 60,
-      distanceBetweenBranchHorizontal: 50,
-      distanceBetweenNodeHorizontal: 30,
-      distanceBetweenNodeVertical: 40,
+      distanceBetweenBranchHorizontal: 40,
+      distanceBetweenNodeHorizontal: 20,
+      distanceBetweenNodeVertical: 20,
 
       setRuntime: function(isRuntime) {
         this.isRuntime = isRuntime;
