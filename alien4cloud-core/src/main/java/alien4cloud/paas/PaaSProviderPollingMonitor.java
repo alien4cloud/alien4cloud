@@ -34,7 +34,7 @@ public class PaaSProviderPollingMonitor implements Runnable {
     private List<IPaasEventListener> listeners;
     private PaaSEventsCallback paaSEventsCallback;
     private String cloudId;
-    private boolean hasDeployments;
+    private boolean hasDeployments = false;
     private boolean getEventsInProgress = false;
 
     /**
@@ -118,6 +118,9 @@ public class PaaSProviderPollingMonitor implements Runnable {
         public void onFailure(Throwable throwable) {
             synchronized (PaaSProviderPollingMonitor.this) {
                 getEventsInProgress = false;
+                // Make it re-verify if has deployment returns something in order to no loop infinitely
+                // If the PaaS is down, there might be a chance that the deployment has been marked as failed
+                hasDeployments = false;
                 log.error("Error happened while trying to retrieve events from PaaS provider", throwable);
             }
         }
