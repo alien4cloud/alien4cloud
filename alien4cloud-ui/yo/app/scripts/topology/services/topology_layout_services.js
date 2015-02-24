@@ -17,7 +17,7 @@ angular.module('alienUiApp').factory(
           // compute graph
           var treeGraph = this.buildTreeGraph(tree, nodeTemplatesCopy, relationshipTypes, nodeSize);
           // manage networks
-          this.networkLayout(tree, treeGraph, nodeSize);
+          this.networkLayout(tree, treeGraph, nodeSize, spacing);
           this.linkLayout(treeGraph, nodeTemplatesCopy, nodeTypes, relationshipTypes, nodeSize, spacing);
           return treeGraph;
         },
@@ -275,25 +275,22 @@ angular.module('alienUiApp').factory(
           node.bbox = new UTILS.BoundingBox(position.x, position.y, nodeSize.width, nodeSize.height);
           node.nodeCoordinate = {x: node.bbox.minX, y: -node.bbox.minY};
 
-          var attachedY;
-          if(initial) {
-            attachedY = node.bbox.maxY;
-          } else {
-            attachedY = node.bbox.minY;
-          }
+          var attachedY = node.bbox.minY - nodeSize.height;
           for(var j = 0; j < node.attached.length; j++) {
             var attached = node.attached[j];
             if(initial) { // append the attached node
               attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
-              attached.nodeCoordinate = {x: attached.bbox.minX, y: attached.bbox.minY};
-              attachedY = attached.bbox.maxY;
-              node.bbox.addPoint(attached.bbox.maxX, -attached.bbox.maxY);
+              attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
+              attachedY = attached.bbox.minY - nodeSize.height;
+              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
+              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
             } else { // insert the attached node
               node.nodeCoordinate.y = -node.bbox.maxY;
-              node.bbox.addPoint(node.bbox.maxX, node.bbox.maxY + nodeSize.height);
               attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
               attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
               attachedY = attached.bbox.maxY;
+              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
+              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
             }
           }
 
@@ -311,14 +308,16 @@ angular.module('alienUiApp').factory(
           return node.bbox;
         },
 
-        networkLayout: function(tree, graph, nodeSize) {
-          var networkX = graph.bbox.minX - nodeSize.halfWidth;
+        networkLayout: function(tree, graph, nodeSize, spacing) {
+          var networkX = graph.bbox.minX - nodeSize.halfWidth - spacing.network;
+          var netYSpacing = spacing.network;
           for(var i=0; i<tree.networks.length; i++) {
             var node = tree.networks[i];
             node.nodeCoordinate = {
               x: networkX,
-              y: graph.bbox.maxY + nodeSize.halfHeight
+              y: graph.bbox.maxY + nodeSize.halfHeight + netYSpacing
             };
+            netYSpacing = 0;
             node.networkId = i;
             graph.nodes.push({
               id : node.name,
@@ -369,7 +368,7 @@ angular.module('alienUiApp').factory(
                 isNetwork = true;
                 networkCount++;
                 source.x = nodeTemplate.bbox.minX - nodeSize.halfWidth + spacing.network * networkCount;
-                source.y = - nodeTemplate.bbox.minY - nodeSize.halfHeight;
+                source.y = - nodeTemplate.bbox.minY + nodeSize.halfHeight;
                 target.x = source.x;
                 target.y = targetCenter.y;
                 networkId = nodeMap[relationship.target].networkId;

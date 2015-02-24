@@ -103,11 +103,13 @@ function() {
     */
     isCrossingObstacle: function(p1, p2, direction) {
       var p = p1;
+      var movedToFree = false;
       while(!pointEquals(p, p2)) {
         this.cells[p.x][p.y].visited = 1;
-        if(this.cells[p.x][p.y].weight >= this.obstacleWeight) {
+        if(movedToFree && this.cells[p.x][p.y].weight >= this.obstacleWeight) {
           return true;
         }
+        movedToFree = true;
         p = this.move(p, direction);
       }
       return false;

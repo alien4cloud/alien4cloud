@@ -107,12 +107,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         if(link.isNetwork) {
           route = [];
         } else {
-          if (toscaService.isHostedOnType(link.type, this.topology.relationshipTypes) || toscaService.isNetworkType(link.type, this.topology.relationshipTypes)) {
-            route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
-          } else {
-            route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
-            // route = this.grid.route(new CONNECTORS.Point(link.source.x + connectorTargetShift, link.source.y), new CONNECTORS.Point(link.target.x - connectorTargetShift, link.target.y), link.source.direction);
-          }
+          route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
         }
         route.unshift(link.source);
         route.push(link.target);
