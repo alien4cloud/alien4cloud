@@ -5,6 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.utils.jackson.ConditionalAttributes;
@@ -34,7 +35,7 @@ public class NodeTemplate extends AbstractTemplate {
      * Properties of the node template
      */
     @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
+    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, AbstractPropertyValue> properties;
 
@@ -76,8 +77,8 @@ public class NodeTemplate extends AbstractTemplate {
     private Map<String, DeploymentArtifact> artifacts;
 
     public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, String> attributes,
-            Map<String, RelationshipTemplate> relationships,
-            Map<String, Requirement> requirements, Map<String, Capability> capabilities, Map<String, DeploymentArtifact> artifacts) {
+            Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
+            Map<String, DeploymentArtifact> artifacts) {
         this.setType(type);
         this.properties = properties;
         this.attributes = attributes;

@@ -130,7 +130,7 @@ public class FunctionEvaluatorTest {
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);
         IOperationParameter param = configOp.getInputParameters().get("customHostName");
 
-        Assert.assertEquals(computePaaS.getNodeTemplate().getProperties().get("customHostName"),
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates));
 
         // HOST keyword
@@ -138,7 +138,7 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
         Operation customHelloOp = tomcatPaaS.getIndexedToscaElement().getInterfaces().get("custom").getOperations().get("helloCmd");
         param = customHelloOp.getInputParameters().get("customHostName");
-        Assert.assertEquals(computePaaS.getNodeTemplate().getProperties().get("customHostName"),
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, tomcatPaaS, builtPaaSNodeTemplates));
     }
 
@@ -156,14 +156,17 @@ public class FunctionEvaluatorTest {
 
         // test SOURCE keyword
         IOperationParameter param = configOp.getInputParameters().get("contextPath");
-        Assert.assertEquals(warPaaS.getNodeTemplate().getProperties().get("contextPath"),
+        Assert.assertEquals(getPropertyValue(warPaaS, "contextPath"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test TARGET keyword
         param = configOp.getInputParameters().get("tomcatVersion");
-        Assert.assertEquals(tomcatPaaS.getNodeTemplate().getProperties().get("version"),
+        Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
-
+    }
+    
+    private String getPropertyValue(PaaSNodeTemplate paaSNodeTemplate, String propertyName) {
+        return ((ScalarPropertyValue)paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyName)).getValue();
     }
 
     @Test(expected = BadUsageKeywordException.class)

@@ -2,7 +2,7 @@
 
 # declare custom parsers for complex types that requires specific parser.
 - scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
-# - property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
+- property_value: alien4cloud.tosca.parser.impl.advanced.PropertyValueParser
 - import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
 - bound: alien4cloud.tosca.parser.impl.advanced.BoundParser
 - implementation_artifact: alien4cloud.tosca.parser.impl.advanced.ImplementationArtifactParser
@@ -17,7 +17,6 @@
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
 - relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
-
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -54,17 +53,17 @@
     type: topology_template_type
 
 - topology_template_type: alien4cloud.model.topology.Topology|topologyChecker
-  description: .topologyTemplateDescription # mapped to a root's property 
-  node_templates: 
+  description: .topologyTemplateDescription # mapped to a root's property
+  node_templates:
     map: nodeTemplates
-    type: node_template  
-      
+    type: node_template
+
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type
   name: name
-  properties: 
+  properties:
     map: properties
-    type: property_value
+    type: template_property
   requirements:
     inner: relationships
     type: relationship_templates_type
@@ -110,7 +109,7 @@
     type: bound
   properties:
     map: properties
-    type: property_value
+    type: template_property
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
@@ -152,16 +151,15 @@
       list: parameters
       type: scalar
 
-# created using constructor(String)
-- scalar_property_input: alien4cloud.model.components.ScalarPropertyValue
-
-- property_value: __discriminator
+- template_property: __discriminator
   keys:
     type: property_definition
     get_input: tosca_function
     get_property: tosca_function
     get_attribute: tosca_function
-  default: scalar_property_input
+  default: property_value
+
+- scalar_property_value: alien4cloud.model.components.ScalarPropertyValue
 
 - input: __discriminator
   keys:
@@ -170,7 +168,7 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
-  default: scalar_property_input
+  default: scalar_property_value
 
 - operation_definition: alien4cloud.model.components.Operation
   implementation:

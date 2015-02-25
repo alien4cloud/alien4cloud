@@ -4,7 +4,10 @@ import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * <p>
@@ -52,5 +55,6 @@ public class RelationshipTemplate extends AbstractTemplate {
     /**
      * Properties of the relationship template
      */
+    @JsonDeserialize(contentUsing = PropertyValueDeserializer.class)
     private Map<String, AbstractPropertyValue> properties;
 }

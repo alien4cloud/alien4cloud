@@ -65,7 +65,7 @@ public final class FunctionEvaluator {
                     propertyValue = ((ScalarPropertyValue) abstractPropertyValue).getValue();
                 }
                 if (propertyValue != null) {
-                    sb.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyName));
+                    sb.append(propertyValue);
                 }
             }
         }
