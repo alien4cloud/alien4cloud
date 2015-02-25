@@ -5,8 +5,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
@@ -29,8 +35,7 @@ import alien4cloud.tosca.normative.ToscaFunctionConstants;
 public final class FunctionEvaluator {
     private static Pattern getPropertyPattern = Pattern.compile("get_property\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
     private static Pattern getAttributePattern = Pattern.compile("get_attribute\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
-    private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]"); // ([ ,.a-zA-Z0-9]+)\\
-    // private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[([ ,\\s*(\\w*)\\s*]+)\\]"); // ([ ,.a-zA-Z0-9]+)\\
+    private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[([,\\s*\\w*]+)\\]");
 
     /**
      * Parse a string to render the attribute or property based on topology and runtime data.
@@ -43,8 +48,62 @@ public final class FunctionEvaluator {
      */
     public static String parseString(String str, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
         String propertiesParsedString = parseProperties(str, topology);
-        String attributesParsed = parseAttributes(propertiesParsedString, runtimeInformations, currentInstance);
-        return parseConcat(attributesParsed, runtimeInformations, currentInstance);
+        return parseAttributes(propertiesParsedString, runtimeInformations, currentInstance);
+    }
+
+    /**
+     * Parse an attribute value that can be : {@link ConcatPropertyValue} / {@link AttributeDefinition}
+     * 
+     * @param attributeValue
+     * @param topology
+     * @param runtimeInformations
+     * @param currentInstance
+     * @return
+     */
+    public static String parseAttribute(IAttributeValue attributeValue, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations,
+            String currentInstance) {
+
+        // handle AttributeDefinition type
+        if (attributeValue instanceof AttributeDefinition) {
+            // TODO : ?? what should i return here ??
+            return ((AttributeDefinition) attributeValue).getDefault();
+        }
+
+        // handle concat function
+        StringBuilder evaluatedAttribute = new StringBuilder();
+        ConcatPropertyValue concatPropertyValue = (ConcatPropertyValue) attributeValue;
+        for (IOperationParameter concatParam : concatPropertyValue.getParameters()) {
+            // scalar type
+            if (concatParam instanceof ScalarPropertyValue) {
+                evaluatedAttribute.append(((ScalarPropertyValue) concatParam).getValue());
+            }
+            // propertydefinition type
+            if (concatParam instanceof PropertyDefinition) {
+                // TODO : ?? what should i do here ??
+            }
+            // function type
+            if (concatParam instanceof FunctionPropertyValue) {
+                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
+                switch (functionPropertyValue.getFunction()) {
+                case ToscaFunctionConstants.GET_ATTRIBUTE:
+                    // parse get_attribute => DONE IN DRIVER
+                    evaluatedAttribute.append(parseAttributes("", runtimeInformations, currentInstance));
+                    break;
+                case ToscaFunctionConstants.GET_PROPERTY:
+                    // check all params for function get_property
+
+                    // for (String getPropertyParam : functionPropertyValue.getParameters()) {
+                    //
+                    // }
+                    break;
+                default:
+                    log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
+                }
+
+            }
+        }
+
+        return evaluatedAttribute.toString();
     }
 
     public static String parseProperties(String str, Topology topology) {
@@ -77,36 +136,6 @@ public final class FunctionEvaluator {
             return str;
         }
         Matcher matcher = getAttributePattern.matcher(str);
-        StringBuilder sb = new StringBuilder();
-        int cursor = 0;
-        while (matcher.find()) {
-            String nodeName = matcher.group(1);
-            String attributeName = matcher.group(2);
-            sb.append(str.substring(cursor, matcher.start()));
-            cursor = matcher.end();
-            String attributeValue;
-            if (runtimeInformations.get(nodeName) != null) {
-                if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
-                    attributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(attributeName);
-                } else {
-                    attributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(attributeName);
-                }
-                sb.append(attributeValue);
-            } else {
-                log.warn("Couldn't find attributes/properties of in node <{}>", nodeName);
-                sb.append("[" + nodeName + "." + attributeName + "=Error!]");
-            }
-        }
-        sb.append(str.substring(cursor));
-
-        return sb.toString();
-    }
-
-    public static String parseConcat(String str, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
-        if (str == null) {
-            return str;
-        }
-        Matcher matcher = concatPattern.matcher(str);
         StringBuilder sb = new StringBuilder();
         int cursor = 0;
         while (matcher.find()) {

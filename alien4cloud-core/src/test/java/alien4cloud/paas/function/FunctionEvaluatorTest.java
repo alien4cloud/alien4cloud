@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,9 +19,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.InstanceInformation;
@@ -100,8 +103,29 @@ public class FunctionEvaluatorTest {
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();
     }
 
+    // @Test
+    // public void testParseString() {
+    // Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
+    // NodeTemplate nodeTemplate1 = new NodeTemplate();
+    // nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
+    // nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
+    // NodeTemplate nodeTemplate2 = new NodeTemplate();
+    // nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
+    // nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
+    // Topology topology = new Topology();
+    // topology.setNodeTemplates(nodeTemplates);
+    //
+    // Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
+    //
+    // String parsedString = FunctionEvaluator.parseString(
+    // "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
+    // runtimeInformations, "0");
+    // Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
+    // }
+
     @Test
-    public void testParseString() {
+    public void testParseAttributConcatScalar() {
+
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
         nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
@@ -114,29 +138,27 @@ public class FunctionEvaluatorTest {
 
         Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
 
-        String parsedString = FunctionEvaluator.parseString(
-                "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
-                runtimeInformations, "0");
-        Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
-    }
+        // Create a IAttributeValue
+        ConcatPropertyValue concatAttributeValue = new ConcatPropertyValue();
+        ScalarPropertyValue scalarParameter1 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter2 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter3 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter4 = new ScalarPropertyValue();
 
-    @Test
-    public void testParseConcatString() {
-        Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
-        NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
-        nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
-        NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
-        nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
-        Topology topology = new Topology();
-        topology.setNodeTemplates(nodeTemplates);
+        scalarParameter1.setValue("http://");
+        scalarParameter2.setValue("mywebsiteurl");
+        scalarParameter3.setValue(":");
+        scalarParameter4.setValue("port");
 
-        Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
+        concatAttributeValue.setParameters(new ArrayList<IOperationParameter>());
+        concatAttributeValue.getParameters().add(scalarParameter1);
+        concatAttributeValue.getParameters().add(scalarParameter2);
+        concatAttributeValue.getParameters().add(scalarParameter3);
+        concatAttributeValue.getParameters().add(scalarParameter4);
 
-        String parsedConcatString = FunctionEvaluator.parseString("http://concat: [the_node_tempalte_value_1, the_node_tempalte_value_2]:/super", topology,
-                runtimeInformations, "0");
-        Assert.assertEquals("http://the_node_tempalte_1the_property_name_1:the_property_value_2/super", parsedConcatString);
+        String parsedConcatString = FunctionEvaluator.parseAttribute(concatAttributeValue, topology, runtimeInformations, "0");
+        String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
+        Assert.assertEquals(fullUrl, parsedConcatString);
     }
 
     @Test
