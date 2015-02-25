@@ -95,4 +95,10 @@ public class PropertyDefinition implements IOperationParameter {
     public boolean isDefinition() {
         return true;
     }
+
+    public void mergeConstraintsIfValid(PropertyDefinition propertyDefinition) {
+        List<PropertyConstraint> newConstraints = propertyDefinition.getConstraints();
+        this.constraints.addAll(newConstraints);
+        // TODO: need to check
+    }
 }
