@@ -1,5 +1,6 @@
 package alien4cloud.paas.function;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +47,7 @@ public final class FunctionEvaluator {
      * @param currentInstance The instance id of the current node for which to parse the attribute or property string (str).
      * @return A string with complete informations.
      */
+    @Deprecated
     public static String parseString(String str, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
         String propertiesParsedString = parseProperties(str, topology);
         return parseAttributes(propertiesParsedString, runtimeInformations, currentInstance);
@@ -58,10 +60,11 @@ public final class FunctionEvaluator {
      * @param topology
      * @param runtimeInformations
      * @param currentInstance
+     * @param basePaaSTemplate 
      * @return
      */
     public static String parseAttribute(IAttributeValue attributeValue, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations,
-            String currentInstance) {
+            String currentInstance, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
 
         // handle AttributeDefinition type
         if (attributeValue instanceof AttributeDefinition) {
@@ -75,26 +78,49 @@ public final class FunctionEvaluator {
         for (IOperationParameter concatParam : concatPropertyValue.getParameters()) {
             // scalar type
             if (concatParam instanceof ScalarPropertyValue) {
+            	// scalar case
                 evaluatedAttribute.append(((ScalarPropertyValue) concatParam).getValue());
-            }
-            // propertydefinition type
-            if (concatParam instanceof PropertyDefinition) {
-                // TODO : ?? what should i do here ??
-            }
-            // function type
-            if (concatParam instanceof FunctionPropertyValue) {
+            } else if (concatParam instanceof PropertyDefinition) {
+            	// Definition case
+                // TODO : ?? what should i do here ?? currently returns default value in the definition
+            	evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
+            }else if (concatParam instanceof FunctionPropertyValue) {
+            	// Function case
+            	// init values
+            	String nodeName = null, propertyOrAttributeName = null, propertyOrAttributeValue = null ;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
+                List<String> parameters = functionPropertyValue.getParameters();
+                nodeName = parameters.get(0);
+                propertyOrAttributeName = parameters.get(1);
+                nodeName = evaluateEntityName(nodeName, basePaaSTemplate);
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
-                    // parse get_attribute => DONE IN DRIVER
-                    evaluatedAttribute.append(parseAttributes("", runtimeInformations, currentInstance));
-                    break;
+                    // get the current attribute value
+                	if (runtimeInformations.get(nodeName) != null) {
+                		// get value for an instance if instance numbr found
+                        if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
+                        	propertyOrAttributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(propertyOrAttributeName);
+                        } else {
+                        	propertyOrAttributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(propertyOrAttributeName);
+                        }
+                        evaluatedAttribute.append(propertyOrAttributeValue);
+                    } else {
+                        log.warn("Couldn't find attribute <{}> of in node <{}>", propertyOrAttributeName, nodeName);
+                        evaluatedAttribute.append("[" + nodeName + "." + propertyOrAttributeName + "=Error!]");
+                    }
+                	break;
                 case ToscaFunctionConstants.GET_PROPERTY:
-                    // check all params for function get_property
-
-                    // for (String getPropertyParam : functionPropertyValue.getParameters()) {
-                    //
-                    // }
+                    // get the actual value for the property
+                    NodeTemplate template = topology.getNodeTemplates().get(nodeName);
+                    if (template != null) {
+	                    propertyOrAttributeValue = template.getProperties().get(propertyOrAttributeName);
+	                    if (propertyOrAttributeValue != null) {
+	                    	evaluatedAttribute.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyOrAttributeName));
+	                    }
+                    } else {
+                        log.warn("Couldn't find property <{}> of node <{}>", propertyOrAttributeName, nodeName);
+                        evaluatedAttribute.append("[" + nodeName + "." + propertyOrAttributeName + "=Error!]");
+                    }
                     break;
                 default:
                     log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
@@ -102,10 +128,10 @@ public final class FunctionEvaluator {
 
             }
         }
-
         return evaluatedAttribute.toString();
     }
 
+    @Deprecated
     public static String parseProperties(String str, Topology topology) {
         if (str == null) {
             return str;
@@ -131,6 +157,7 @@ public final class FunctionEvaluator {
         return sb.toString();
     }
 
+    @Deprecated
     public static String parseAttributes(String str, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
         if (str == null) {
             return str;

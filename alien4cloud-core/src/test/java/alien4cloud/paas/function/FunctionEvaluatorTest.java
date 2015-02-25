@@ -156,9 +156,10 @@ public class FunctionEvaluatorTest {
         concatAttributeValue.getParameters().add(scalarParameter3);
         concatAttributeValue.getParameters().add(scalarParameter4);
 
-        String parsedConcatString = FunctionEvaluator.parseAttribute(concatAttributeValue, topology, runtimeInformations, "0");
+        String parsedConcatString = FunctionEvaluator.parseAttribute(concatAttributeValue, topology, runtimeInformations, "0", null);
         String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
         Assert.assertEquals(fullUrl, parsedConcatString);
+        
     }
 
     @Test
