@@ -214,9 +214,11 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
             // the capability type is not known, we assume that we are parsing a Short notation (node only)
             // in such notation : "a requirement named ‘host’ that needs to be fulfilled by the same named capability"
             // so here we use the requirement name to find the capability
-            capability = targetNodeTemplate.getCapabilities().get(toscaRequirementName);
-            if (capability != null) {
-                relationshipTemplate.setTargetedCapabilityName(rd.getId());
+            if (targetNodeTemplate.getCapabilities() != null) {
+                capability = targetNodeTemplate.getCapabilities().get(toscaRequirementName);
+                if (capability != null) {
+                    relationshipTemplate.setTargetedCapabilityName(rd.getId());
+                }
             }
         } else {
             Entry<String, Capability> capabilityEntry = getCapabilityByType(targetNodeTemplate, capabilityType);

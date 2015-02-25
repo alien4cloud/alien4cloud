@@ -143,10 +143,10 @@ public abstract class AbstractPlanGenerator {
      * @param mainMember The main member of the relationship to process (source or target).
      * @param sideMember The other member of the relationship to process(target if the main is source, source if not)
      */
-    protected void trigger(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, RelationshipMember mainMember, RelationshipMember sideMember) {
+    protected void triggerRelation(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, RelationshipMember mainMember,
+            RelationshipMember sideMember) {
         Interface interfaz = getRelationshipInterface(relationshipTemplate, interfaceName);
         triggerOperation(relationshipTemplate.getCsarPath(), interfaz, interfaceName, relationshipTemplate.getId(), mainMember, sideMember);
-        // triggerOperation(relationshipTemplate.getCsarPath(), interfaz, nodeId, relationshipTemplate.getId(), interfaceName, operation, sideOperation);
     }
 
     /**
@@ -265,9 +265,9 @@ public abstract class AbstractPlanGenerator {
                 RelationshipMember source = new RelationshipMember(relationshipTemplate.getSource(), sourceOperation);
                 RelationshipMember target = new RelationshipMember(relationshipTemplate.getRelationshipTemplate().getTarget(), targetOperation);
                 if (source.nodeId.equals(nodeTemplate.getId())) {
-                    trigger(relationshipTemplate, interfaceName, source, target);
+                    triggerRelation(relationshipTemplate, interfaceName, source, target);
                 } else {
-                    trigger(relationshipTemplate, interfaceName, target, source);
+                    triggerRelation(relationshipTemplate, interfaceName, target, source);
                 }
             }
         }

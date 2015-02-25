@@ -5,7 +5,6 @@ import java.util.Map;
 
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -81,13 +80,6 @@ public interface IPaaSProvider {
      */
     void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> operationResultCallback)
             throws OperationExecutionException;
-
-    /**
-     * Get the deployment property definition
-     *
-     * @return A map containing property definitions
-     */
-    Map<String, PropertyDefinition> getDeploymentPropertyMap();
 
     /**
      * Call to determine available ids for the given resource type

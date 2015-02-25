@@ -66,10 +66,13 @@ public class PaaSProviderService implements IPaasEventService {
      *
      * @param cloudId The id of the cloud for which to remove registration.
      */
-    public void unregister(String cloudId) {
+    public IPaaSProvider unregister(String cloudId) {
         Registration registration = monitorRegistrations.remove(cloudId);
         if (registration != null) {
             registration.registration.cancel(false);
+            return registration.providerInstance;
+        } else {
+            return null;
         }
     }
 

@@ -1,5 +1,7 @@
 package alien4cloud.rest.deployment;
 
+import java.util.Set;
+
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,8 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
+
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Component
@@ -65,11 +69,14 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         String volumeIds = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
         if (StringUtils.isNotBlank(storageEvent.getVolumeId())) {
             if (volumeIds == null) {
-                volumeIds = "";
+                volumeIds = storageEvent.getVolumeId();
             } else {
-                volumeIds += ",";
+                Set<String> existingVolumes = Sets.newHashSet(volumeIds.split(","));
+                if (!existingVolumes.contains(storageEvent.getVolumeId())) {
+                    volumeIds += ",";
+                    volumeIds += storageEvent.getVolumeId();
+                }
             }
-            volumeIds += storageEvent.getVolumeId();
         }
         nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, volumeIds);
         log.info("Updated NodeTemplate <{}.{}> to add VolumeId <{}> in position <{}> . New value is <{}>", topology.getId(), nodeTemplate.getName(),
