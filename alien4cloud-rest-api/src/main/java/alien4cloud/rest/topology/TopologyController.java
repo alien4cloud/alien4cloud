@@ -226,6 +226,15 @@ public class TopologyController {
                 topology.getInputArtifacts().put(newNodeTemplateName, oldArtifactsInputs);
             }
         }
+
+        // Output properties
+        if (topology.getOutputProperties() != null) {
+            Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
+            if (oldPropertiesOutputs != null) {
+                topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
+            }
+        }
+
     }
 
     /**
@@ -367,6 +376,18 @@ public class TopologyController {
     }
 
     /**
+     * Remove a nodeTemplate outputs in a topology
+     */
+    private void removeOutputs(String nodeTemplateName, Topology topology) {
+        if (topology.getOutputProperties() != null) {
+            topology.getOutputProperties().remove(nodeTemplateName);
+        }
+        if (topology.getOutputAttributes() != null) {
+            topology.getOutputAttributes().remove(nodeTemplateName);
+        }
+    }
+
+    /**
      * Delete a node template from a topology
      *
      * @param topologyId Id of the topology from which to delete the node template.
@@ -407,6 +428,7 @@ public class TopologyController {
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
         removeArtifactsAndPolicies(nodeTemplateName, topology);
+        removeOutputs(nodeTemplateName, topology);
 
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
