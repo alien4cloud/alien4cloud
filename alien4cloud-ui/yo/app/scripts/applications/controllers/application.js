@@ -171,6 +171,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
+        console.log('output ATTRIBUTES >', result.data.topology.outputAttributes);
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
         $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
@@ -253,6 +254,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           // start event listener on this new <app,env>
           $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
           $scope.applicationEventServices.start();
+          console.log('InstanceStatuses >', successResult.data);
           doSubscribe(successResult.data, pageStateId);
         });
       }
@@ -293,6 +295,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       } else {
         // Add modify event
         var allAttributes = event.attributes;
+        console.log('EVENTS > ', event);
         for (var attribute in allAttributes) {
           if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
             if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
@@ -313,6 +316,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {
+          console.log('appRuntimeInfo >', appRuntimeInformation);
           if (appRuntimeInformation.hasOwnProperty(nodeId)) {
             $scope.outputAttributesValue[nodeId] = {};
             var nodeInformation = appRuntimeInformation[nodeId];

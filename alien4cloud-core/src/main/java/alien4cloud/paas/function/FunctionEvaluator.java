@@ -60,12 +60,15 @@ public final class FunctionEvaluator {
      * @param topology
      * @param runtimeInformations
      * @param currentInstance
-     * @param basePaaSTemplate 
+     * @param basePaaSTemplate
      * @return
      */
     public static String parseAttribute(IAttributeValue attributeValue, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations,
             String currentInstance, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
 
+        if (attributeValue == null) {
+            return null;
+        }
         // handle AttributeDefinition type
         if (attributeValue instanceof AttributeDefinition) {
             // TODO : ?? what should i return here ??
@@ -78,16 +81,16 @@ public final class FunctionEvaluator {
         for (IOperationParameter concatParam : concatPropertyValue.getParameters()) {
             // scalar type
             if (concatParam instanceof ScalarPropertyValue) {
-            	// scalar case
+                // scalar case
                 evaluatedAttribute.append(((ScalarPropertyValue) concatParam).getValue());
             } else if (concatParam instanceof PropertyDefinition) {
-            	// Definition case
+                // Definition case
                 // TODO : ?? what should i do here ?? currently returns default value in the definition
-            	evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
-            }else if (concatParam instanceof FunctionPropertyValue) {
-            	// Function case
-            	// init values
-            	String nodeName = null, propertyOrAttributeName = null, propertyOrAttributeValue = null ;
+                evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
+            } else if (concatParam instanceof FunctionPropertyValue) {
+                // Function case
+                // init values
+                String nodeName = null, propertyOrAttributeName = null, propertyOrAttributeValue = null;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
                 List<String> parameters = functionPropertyValue.getParameters();
                 nodeName = parameters.get(0);
@@ -96,27 +99,28 @@ public final class FunctionEvaluator {
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
                     // get the current attribute value
-                	if (runtimeInformations.get(nodeName) != null) {
-                		// get value for an instance if instance numbr found
+                    if (runtimeInformations.get(nodeName) != null) {
+                        // get value for an instance if instance numbr found
                         if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
-                        	propertyOrAttributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(propertyOrAttributeName);
+                            propertyOrAttributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(propertyOrAttributeName);
                         } else {
-                        	propertyOrAttributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(propertyOrAttributeName);
+                            propertyOrAttributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes()
+                                    .get(propertyOrAttributeName);
                         }
                         evaluatedAttribute.append(propertyOrAttributeValue);
                     } else {
                         log.warn("Couldn't find attribute <{}> of in node <{}>", propertyOrAttributeName, nodeName);
                         evaluatedAttribute.append("[" + nodeName + "." + propertyOrAttributeName + "=Error!]");
                     }
-                	break;
+                    break;
                 case ToscaFunctionConstants.GET_PROPERTY:
                     // get the actual value for the property
                     NodeTemplate template = topology.getNodeTemplates().get(nodeName);
                     if (template != null) {
-	                    propertyOrAttributeValue = template.getProperties().get(propertyOrAttributeName);
-	                    if (propertyOrAttributeValue != null) {
-	                    	evaluatedAttribute.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyOrAttributeName));
-	                    }
+                        propertyOrAttributeValue = template.getProperties().get(propertyOrAttributeName);
+                        if (propertyOrAttributeValue != null) {
+                            evaluatedAttribute.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyOrAttributeName));
+                        }
                     } else {
                         log.warn("Couldn't find property <{}> of node <{}>", propertyOrAttributeName, nodeName);
                         evaluatedAttribute.append("[" + nodeName + "." + propertyOrAttributeName + "=Error!]");

@@ -159,7 +159,53 @@ public class FunctionEvaluatorTest {
         String parsedConcatString = FunctionEvaluator.parseAttribute(concatAttributeValue, topology, runtimeInformations, "0", null);
         String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
         Assert.assertEquals(fullUrl, parsedConcatString);
-        
+
+    }
+
+    @Test
+    public void testParseAttributeConcatWithFunctions() {
+
+        Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
+
+        Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
+        NodeTemplate nodeTemplate1 = new NodeTemplate();
+        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
+        nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
+        NodeTemplate nodeTemplate2 = new NodeTemplate();
+        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
+        nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
+        Topology topology = new Topology();
+        topology.setNodeTemplates(nodeTemplates);
+
+        Map<String, Map<String, InstanceInformation>> runtimeInformations2 = runtimeInformations;
+        fillRuntimeInformations(runtimeInformations2);
+
+        // Create a IAttributeValue
+        ConcatPropertyValue concatAttributeValue = new ConcatPropertyValue();
+        ScalarPropertyValue scalarParameter1 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter2 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter3 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter4 = new ScalarPropertyValue();
+
+        scalarParameter1.setValue("http://");
+        scalarParameter2.setValue("mywebsiteurl");
+        scalarParameter3.setValue(":");
+        scalarParameter4.setValue("port");
+
+        concatAttributeValue.setParameters(new ArrayList<IOperationParameter>());
+        concatAttributeValue.getParameters().add(scalarParameter1);
+        concatAttributeValue.getParameters().add(scalarParameter2);
+        concatAttributeValue.getParameters().add(scalarParameter3);
+        concatAttributeValue.getParameters().add(scalarParameter4);
+
+        String parsedConcatString = FunctionEvaluator.parseAttribute(concatAttributeValue, topology, runtimeInformations2, "0", null);
+        String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
+        Assert.assertEquals(fullUrl, parsedConcatString);
+
+    }
+
+    private void fillRuntimeInformations(Map<String, Map<String, InstanceInformation>> runtimeInformations) {
+
     }
 
     @Test
