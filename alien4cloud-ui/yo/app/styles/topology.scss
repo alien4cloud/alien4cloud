@@ -90,6 +90,9 @@ h4 .editable-error {
 /*
   Vertical menu
 */
+#closeComponentsSearch, #closeDependencies, #closeNodeTemplateDetails {
+  border-color: white;
+}
 
 #topology-control-button {
   margin-top: -22px;

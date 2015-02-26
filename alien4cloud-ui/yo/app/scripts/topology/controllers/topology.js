@@ -15,6 +15,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.displayAddNode = $scope.displayAddNode === false ? true: false;
       if ($scope.displayAddNode) {
         $scope.displayDependencies = false;
+        $scope.selectedNodeTemplate = null;
       } else {
         $scope.displayTopology = true;
       }
@@ -26,6 +27,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.displayDependencies = $scope.displayDependencies === false ? true: false;
       if ($scope.displayDependencies) {
         $scope.displayAddNode = false;
+        $scope.selectedNodeTemplate = null;
       } else {
         $scope.displayTopology = true;
       }
@@ -49,9 +51,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         $scope.colTopology = 'col-md-8';
         $scope.colPanel = 'col-md-4';
       } else {
-        $scope.displayTopology = false;
-        $scope.colProperty = 'col-md-6';
-        $scope.colPanel = 'col-md-6';
+        $scope.displayAddNode = false;
+        $scope.displayDependencies = false;
+        $scope.colTopology = 'col-md-7';
+        $scope.colProperty = 'col-md-4';
       }
     };
     resizeViewElement();

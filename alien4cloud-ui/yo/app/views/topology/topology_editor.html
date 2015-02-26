@@ -20,7 +20,7 @@
 
   <!-- NodeTemplate details -->
   <div id="nodetemplate-details" ng-show="selectedNodeTemplate" class="topology-panel-style topology-columns topology-details" ng-class="colProperty">
-    <i id='close' class="fa fa-remove close-panel" ng-click="closeNodeTemplateDetails()"></i>
+    <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right" ng-click="closeNodeTemplateDetails()"><i class="fa fa-remove close-panel" ></i></span>
     <div  ng-init="resizeViewElement()">
       <div class="row" style="margin-top: 12px;">
         <!-- nodeTemplateName div -->
@@ -505,11 +505,17 @@
   <nav id="topology-vertical-menu">
     <ul>
       <li>
-        <span id="components-search" ng-click="toggleAddNode()" style="transform: translate(-10px, 120px) rotate(-90deg);"><i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}</span>
+        <span id="components-search" ng-click="toggleAddNode()" style="transform: translate(-10px, 140px) rotate(-90deg);"><i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}</span>
       </li>
       <li >
-        <span ng-click="toggleDependencies()" style="transform: translate(-10px, 220px) rotate(-90deg);"><i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}</span>
+        <span ng-click="toggleDependencies()" style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}</span>
       </li>
+      <!-- <li>
+        <span style="transform: translate(-10px, 340px) rotate(-90deg);"><i class="fa fa-archive"></i> Inputs</span>
+      </li>
+      <li>
+        <span ng-click="toggleDependencies()" style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> Topology</span>
+      </li> -->
     </ul>
   </nav>
 
