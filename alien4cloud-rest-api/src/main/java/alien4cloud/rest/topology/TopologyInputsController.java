@@ -2,19 +2,21 @@ package alien4cloud.rest.topology;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -22,6 +24,9 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
 
 @Slf4j
 @RestController
@@ -37,21 +42,6 @@ public class TopologyInputsController {
     @Resource
     private TopologyServiceCore topologyServiceCore;
 
-    // /**
-    // * Add a new input.
-    // *
-    // * @param topologyId The id of the topology to retrieve.
-    // * @return
-    // */
-    // @ApiOperation(value = "Add a new input", notes = "Add a new input. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    // @RequestMapping(value = "/{topologyId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public void addInput(@PathVariable String topologyId, @PathVariable String type, @PathVariable String value) {
-    // Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-    // topologyService.checkEditionAuthorizations(topology);
-    // Map<String, PropertyDefinition> inputProperties = topology.getInputs();
-    //
-    // }
-
     /**
      * Update the inputId for the {@link FunctionPropertyValue} of a Map of properties.
      * 
@@ -59,7 +49,7 @@ public class TopologyInputsController {
      * @param oldInputId
      * @param newInputId
      */
-    private void updateInputIdInProperties(Map<String, AbstractPropertyValue> properties, final String oldInputId, final String newInputId) {
+    private void updateInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String oldInputId, final String newInputId) {
         for (AbstractPropertyValue propertyValue : properties.values()) {
             if (propertyValue instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
@@ -76,7 +66,11 @@ public class TopologyInputsController {
      * @param oldInputId
      * @param newInputId
      */
-    public void updateInputId(String topologyId, String oldInputId, String newInputId) {
+    @ApiOperation(value = "Change the name of an input parameter.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyqId:.+}/updateInputId/{oldInputId}/{newInputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void updateInputId(@ApiParam(value = "The topology id.", required = true) final String topologyId,
+            @ApiParam(value = "The name of the old input.", required = true) final String oldInputId,
+            @ApiParam(value = "The name of the new input.", required = true) final String newInputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -90,6 +84,7 @@ public class TopologyInputsController {
                 updateInputIdInProperties(relationshipTemplate.getProperties(), oldInputId, newInputId);
             }
         }
+        alienDAO.save(topology);
     }
 
     /**
@@ -98,12 +93,12 @@ public class TopologyInputsController {
      * @param properties
      * @param inputId
      */
-    private void removeInputIdInProperties(Map<String, AbstractPropertyValue> properties, String inputId) {
-        for (AbstractPropertyValue propertyValue : properties.values()) {
-            if (propertyValue instanceof FunctionPropertyValue) {
-                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
+    private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String inputId) {
+        for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+            if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
+                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
                 if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getParameters().get(0) == inputId) {
-                    functionPropertyValue.setParameters(Arrays.asList((String) null));
+                    propertyEntry.setValue(null);
                 }
             }
         }
@@ -116,7 +111,10 @@ public class TopologyInputsController {
      * @param topologyId
      * @param inputId
      */
-    public void removeInput(String topologyId, String inputId) {
+    @ApiOperation(value = "Remove an input from a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyqId:.+}/remove/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void removeInput(@ApiParam(value = "The topology id.", required = true) final String topologyId,
+            @ApiParam(value = "The name of the input.", required = true) final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -129,6 +127,9 @@ public class TopologyInputsController {
                 removeInputIdInProperties(relationshipTemplate.getProperties(), inputId);
             }
         }
+
+        log.debug("Remove the input " + inputId + " from the topology " + topologyId);
+        alienDAO.save(topology);
     }
 
     /**
@@ -149,7 +150,13 @@ public class TopologyInputsController {
      * @param propertyId
      * @throws ConstraintViolationException
      */
-    public void setInputToNodeTemplate(String topologyId, String inputId, String nodeTemplateId, String propertyId) throws ConstraintViolationException {
+    @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplate/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) final String topologyId,
+            @ApiParam(value = "The name of the input.", required = true) final String inputId,
+            @ApiParam(value = "The node temlate id.", required = true) final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) final String propertyId)
+            throws ConstraintViolationException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -157,15 +164,18 @@ public class TopologyInputsController {
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplate.getType());
 
         if (inputProperties.containsKey(inputId)) {
-            AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(propertyId);
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            for (PropertyConstraint propertyConstraint : propertyDefinition.getConstraints()) {
-                propertyConstraint.validate(abstractPropertyValue);
-            }
             propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
+        FunctionPropertyValue getInput = new FunctionPropertyValue();
+        getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
+        getInput.setParameters(Arrays.asList(inputId));
+        nodeTemplate.getProperties().put(propertyId, getInput);
+
+        log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateId, topologyId);
+        alienDAO.save(topology);
     }
 
     /**
@@ -187,24 +197,33 @@ public class TopologyInputsController {
      * @param propertyId
      * @throws ConstraintViolationException
      */
-    public void setInputToRelationshipTemplate(String topologyId, String inputId, String nodeTemplateId, String relationshipTemplateId, String propertyId)
-            throws ConstraintViolationException {
+    @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplate/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void setInputToRelationshipTemplate(@ApiParam(value = "The topology id.", required = true) final String topologyId,
+            @ApiParam(value = "The name of the input.", required = true) final String inputId,
+            @ApiParam(value = "The node temlate id.", required = true) final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) final String propertyId,
+            @ApiParam(value = "The relationship template id.", required = true) final String relationshipTemplateId) throws ConstraintViolationException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplate.getType());
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
 
         if (inputProperties.containsKey(inputId)) {
-            RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
-            AbstractPropertyValue abstractPropertyValue = relationshipTemplate.getProperties().get(propertyId);
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            for (PropertyConstraint propertyConstraint : propertyDefinition.getConstraints()) {
-                propertyConstraint.validate(abstractPropertyValue);
-            }
             propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
+        FunctionPropertyValue getInput = new FunctionPropertyValue();
+        getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
+        getInput.setParameters(Arrays.asList(inputId));
+        relationshipTemplate.getProperties().put(propertyId, getInput);
+
+        log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipTemplateId,
+                topologyId);
+        alienDAO.save(topology);
     }
 }
