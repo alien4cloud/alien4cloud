@@ -287,7 +287,7 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
   expect(container.isPresent()).toBe(true);
   expect(container.isDisplayed()).toBe(true);
   var span = container.element(by.tagName('span'));
-  var editable = editableBoolean || true; // if editableBoolean not defined, true
+  var editable = (editableBoolean === undefined || editableBoolean === '' || editableBoolean === null) ? false : editableBoolean; // if editableBoolean not defined, false
   var subSpanElement = span.element(by.tagName('span'));
   if (editable) {
     expect(subSpanElement.getAttribute('class')).toContain('editable');
@@ -309,7 +309,7 @@ var expectOutputValue = function expectOutputValue(appPageState, environmentName
   var targetedPageStateId = appPageState || 'deployment';
   navigation.go('applications', targetedPageStateId);
 
-  if ( outputType === 'property') {
+  if (outputType === 'property') {
     instance = null;
   }
 

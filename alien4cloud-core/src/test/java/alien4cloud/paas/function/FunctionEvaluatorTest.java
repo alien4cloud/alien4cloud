@@ -31,6 +31,8 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
+import alien4cloud.security.Role;
+import alien4cloud.test.utils.SecurityTestUtils;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -65,6 +67,7 @@ public class FunctionEvaluatorTest {
                 e.printStackTrace();
             }
         }
+        SecurityTestUtils.setTestAuthentication(Role.ADMIN);
 
         String normativeLocalName = "tosca-normative-types";
         repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", normativeLocalName);

@@ -37,6 +37,7 @@ import com.google.common.collect.Sets;
 @Slf4j
 @Component
 public class BlockStorageEventHandler extends DeploymentEventHandler {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource

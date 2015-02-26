@@ -54,8 +54,8 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
         IndexedNodeType indexedNodeType = ToscaParsingUtil.getNodeTypeFromArchiveOrDependencies(nodeTypeName, archiveRoot, searchService);
         if (indexedNodeType == null) {
             // node type can't be found neither in archive or in dependencies
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Derived_from type not found", node.getStartMark(),
+            context.getParsingErrors()
+                    .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, "Derived_from type not found", node.getStartMark(),
                             "The type specified for a node_template is not found neither in the archive or it's dependencies.", node.getEndMark(), nodeTypeName));
             return;
         }

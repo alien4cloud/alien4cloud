@@ -6,8 +6,24 @@ angular.module('alienUiApp').factory('toscaService',
     var containerType = 'tosca.capabilities.Container';
     var hostedOnType = 'tosca.relationships.HostedOn';
     var networkType = 'tosca.relationships.Network';
+    var attachedToType = 'tosca.relationships.AttachTo';
 
     return {
+      /**
+      * Return the simple name of a TOSCA element from it's complex name.
+      *
+      * @param name The full name of a TOSCA element.
+      * @return The simple name of the element.
+      */
+      simpleName : function(longName) {
+        var tokens = longName.trim().split('.');
+        if (tokens.length > 0) {
+          return tokens[tokens.length - 1];
+        } else {
+          return longName;
+        }
+      },
+
       /**
       * Checks if a capability type is a Container capability.
       *
@@ -40,6 +56,16 @@ angular.module('alienUiApp').factory('toscaService',
       },
 
       /**
+       * Checks if a relationshipType is an instance of attached to.
+       *
+       * @param relationshipTypeName The name of the relationship type to check.
+       * @param relationshipTypes A map of available relationships types. It must contains the actual relationshipTypeName.
+       */
+      isAttachedToType: function(relationshipTypeName, relationshipTypes) {
+        return this.isOneOfType([attachedToType], relationshipTypeName, relationshipTypes);
+      },
+
+      /**
       * Check if a type is a one of requested types.
       *
       * @param requestedTypes Array that contains type names, one of them has to be the candidate type or one of it's parent type.
@@ -60,21 +86,6 @@ angular.module('alienUiApp').factory('toscaService',
       },
 
       /**
-      * Return the simple name of a TOSCA element from it's complex name.
-      *
-      * @param name The full name of a TOSCA element.
-      * @return The simple name of the element.
-      */
-      simpleName : function(longName) {
-        var tokens = longName.trim().split('.');
-        if (tokens.length > 0) {
-          return tokens[tokens.length - 1];
-        } else {
-          return longName;
-        }
-      },
-
-      /**
       * Generates a relationship name from a relationship type and a target name.
       *
       * @param type The type of the relationship for which to generate a name.
@@ -83,6 +94,29 @@ angular.module('alienUiApp').factory('toscaService',
       */
       generateRelationshipName: function(type, targetName) {
         return UTILS.lowerCamelCase(this.simpleName(type)) + UTILS.upperCamelCase(targetName);
+      },
+
+      /**
+      * Get a subset of a node template relationships based on a criteria function.
+      *
+      * @param nodeTemplate The node template in which to look for relationships.
+      * @param criteria The criteria function that should take a relationship in parameter and output a boolean (true if the criteria is met, false if not).
+      */
+      getRelationships: function(nodeTemplate, criteria) {
+        var founds = [];
+        if (UTILS.isUndefinedOrNull(nodeTemplate.relationships)) {
+          return founds;
+        }
+
+        for(var i=0;i<nodeTemplate.relationships.length;i++) {
+          var relationship = nodeTemplate.relationships[i].value;
+          relationship.id = nodeTemplate.relationships[i].key;
+          if (criteria(relationship)) {
+            founds.push(relationship);
+          }
+        }
+
+        return founds;
       }
     };
   } // function

@@ -32,4 +32,19 @@ public class ArchiveRoot {
     private Map<String, IndexedRelationshipType> relationshipTypes = Maps.newHashMap();
     private Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
     private Map<String, IndexedArtifactType> artifactTypes = Maps.newHashMap();
+
+    /**
+     * Indicates if this archive contains tosca types (node types, relationships, capabilities, artifacts).
+     */
+    public boolean hasToscaTypes() {
+        return !nodeTypes.isEmpty() || !relationshipTypes.isEmpty() || !capabilityTypes.isEmpty() || !artifactTypes.isEmpty();
+    }
+
+    /**
+     * Indicates if this archive contains a topology template.
+     */
+    public boolean hasToscaTopologyTemplate() {
+        return topology != null;
+    }
+
 }

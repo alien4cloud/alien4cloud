@@ -23,8 +23,8 @@
         <select id="environment-select" class="form-control " ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
           <option value="selectedEnvironment"></option>
         </select>
-
-        <select ng-disabled="selectedEnvironment.status === 'DEPLOYED'" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="c.name for c in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+          <!-- ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}** -->
+        <select ng-disabled="!(selectedEnvironment.status === 'UNDEPLOYED')" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="cloud.name for cloud in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
           <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
         </select>
 
@@ -51,8 +51,6 @@
         </button>
       </div>
     </div>
-
-
 
   </div>
   <div class="col-md-6">
@@ -209,7 +207,13 @@
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
               <td id="p_{{propertyKey}}">
-                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="condensed">
+                <property-display
+                  ng-init="condensed = true"
+                  definition="propertyDefinition"
+                  property-value="deploymentProperties[propertyKey]"
+                  on-save="updateDeploymentProperty(propertyDefinition,propertyValue)"
+                  editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                  condensed="condensed">
                 </property-display>
               </td>
             </tr>
@@ -222,32 +226,32 @@
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
+
         <span>
           <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
-        <table class="table table-condensed" id="inputPropertiesTable">
-          <tr>
-            <td colspan="2">
-            </td>
-          </tr>
-          <tr ng-repeat="(propertyKey,propertyValue) in inputProperties">
-            <td>
-              <span>{{propertyKey}}</span>
-            </td>
-            <td id="p_{{propertyKey}}">
 
-              <ul>
-                <li ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
-                  {{inputPropertyValue}} :
-                  <span editable-text="nodeTemplates[propertyKey].properties[inputPropertyValue]" buttons="no" e-required onbeforesave="updateProperty(propertyKey,inputPropertyValue, $data)" blur="submit">
-                    {{nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value}} <i class="fa fa-pencil-square-o"></i>
-                  </span>
-                </li>
-              </ul>
+        <div id="inputPropertiesTable" class="col-md-12" ng-repeat="(propertyKey,propertyValue) in inputProperties">
+          <hr/>
+          <div class="col-md-4">
+            {{propertyKey}}
+          </div>
+          <div class="col-md-8">
 
-            </td>
-          </tr>
-        </table>
+            <div id="p_input_{{propertyKey}}" class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
+
+              <property-display
+                definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
+                property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
+                on-save="updateProperty(propertyKey,inputPropertyValue,propertyValue)"
+                editable="!(selectedEnvironment.status === 'DEPLOYED')"
+                condensed="true">
+              </property-display>
+
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 

@@ -92,7 +92,12 @@
 .link {
   fill: none;
   stroke-width: 1px;
-  stroke-opacity: .5;
+  stroke-opacity: .2;
+}
+
+.link-network {
+  fill: none;
+  stroke-width: 4px;
 }
 
 .link-selected {
@@ -107,6 +112,17 @@
 .link-depends-on {
   stroke: #048204;
 }
+
+.link-network-0 { stroke: #9A0808; }
+.link-network-1 { stroke: #202AB4; }
+.link-network-2 { stroke: #2A7C93; }
+.link-network-3 { stroke: #6B2C76; }
+.link-network-4 { stroke: #30762C; }
+.link-network-5 { stroke: #2C7655; }
+.link-network-6 { stroke: #ED4D13; }
+.link-network-7 { stroke: #DA0000; }
+.link-network-8 { stroke: #1364ED; }
+.link-network-9 { stroke: #DAD000; }
 
 .d3-tip {
   font-size: $font-size-small;

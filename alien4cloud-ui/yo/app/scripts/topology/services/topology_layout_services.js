@@ -1,374 +1,397 @@
-/* global UTILS */
-
+/* global UTILS, $ */
 'use strict';
 
 angular.module('alienUiApp').factory(
-    'topologyLayoutService', ['toscaService',
-    function(toscaService) {
-      /**
-       * Step 1 - Build the tree structure for our topology based on hosted on
-       * relationship.
-       */
-      var buildHostedOnTree = function(nodeMap, relationshipTypes) {
-        return buildTree(nodeMap, relationshipTypes, getHostedOnRelationship);
-      };
+    'topologyLayoutService', ['toscaService','routerFactoryService',
+    function(toscaService, routerFactoryService) {
+      return {
+        layout: function(nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
+          nodeSize.halfWidth = nodeSize.width / 2;
+          nodeSize.halfHeight = nodeSize.height / 2;
 
-      var getHostedOnRelationship = function(node, relationshipTypes) {
-        var hostedOnRelationship = searchRelationship(node, function(relationship) {
-          return toscaService.isHostedOnType(relationship.type, relationshipTypes) || toscaService.isNetworkType(relationship.type, relationshipTypes);
-        });
-        return hostedOnRelationship;
-      };
+          var nodeTemplatesCopy = UTILS.deepCopy(nodeTemplates);
+          var tree = this.buildTree(nodeTemplatesCopy, nodeTypes, relationshipTypes);
+          this.sortTree(tree, relationshipTypes, nodeTemplatesCopy);
+          // process the layout of all tree elements but network
+          this.treeLayout(tree, 0, nodeSize, spacing);
+          // compute graph
+          var treeGraph = this.buildTreeGraph(tree, nodeTemplatesCopy, relationshipTypes, nodeSize);
+          // manage networks
+          this.networkLayout(tree, treeGraph, nodeSize, spacing);
+          this.linkLayout(treeGraph, nodeTemplatesCopy, nodeTypes, relationshipTypes, nodeSize, spacing);
+          return treeGraph;
+        },
 
-      var getDependsOnRelationship = function(node, relationshipTypes) {
-        var dependsOnRelationship = searchRelationship(node, function(relationship) {
-          return !toscaService.isHostedOnType(relationship.type, relationshipTypes) && !toscaService.isNetworkType(relationship.type, relationshipTypes);
-        });
-        return dependsOnRelationship;
-      };
+        /**
+        * Build a tree of nodes based on tosca relationships.
+        *
+        * @param nodeTemplates The map of node templates in the topology.
+        * @param relationshipTypes Map of relationship types used in the topology.
+        */
+        buildTree: function(nodeTemplates, nodeTypes, relationshipTypes) {
+          var thiss = this;
+          // define the root of the tree that will be returned
+          var tree = {
+            'children' : [],
+            'networks': []
+          };
+          if(!nodeTemplates) {
+            return tree;
+          }
+          $.each(nodeTemplates, function(nodeId, nodeTemplate) {
+            nodeTemplate.name = nodeId;
+            // network are not managed like other nodes
+            if(toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, nodeTypes)) {
+              tree.networks.push(nodeTemplate);
+            } else {
+              thiss.addNodeTemplateToTree(tree, nodeTemplate, nodeTemplates, relationshipTypes);
+            }
+          });
 
-      var buildTree = function(nodeMap, relationshipTypes, getRelationship) {
-        var rootNode = {
-          'children' : []
-        };
-        if (!nodeMap) {
-          return rootNode;
-        }
-        for ( var nodeName in nodeMap) {
-          if (nodeMap.hasOwnProperty(nodeName)) {
-            var currentNode = nodeMap[nodeName];
-            currentNode.name = nodeName;
-            var relationships = getRelationship(currentNode, relationshipTypes);
+          var visitedNodes = {};
+          for(var i=0;i<tree.children.length;i++) {
+            this.computeNodeDepth(tree.children[i], visitedNodes, 0);
+          }
+
+          return tree;
+        },
+
+        addNodeTemplateToTree: function(tree, nodeTemplate, nodeTemplates, relationshipTypes) {
+          if(UTILS.isUndefinedOrNull(nodeTemplate.children)) {
+            nodeTemplate.children = [];
+          }
+          if(UTILS.isUndefinedOrNull(nodeTemplate.attached)) {
+            nodeTemplate.attached = [];
+          }
+          nodeTemplate.weight = 0;
+          // get relationships that we want to display as hosted on.
+          var relationships = this.getHostedOnRelationships(nodeTemplate, relationshipTypes);
+          if (relationships.length > 0) {
+            // TODO we should not have more than a single hosted on actually. Manage if not.
+            var parent = nodeTemplates[relationships[0].target];
+            UTILS.safePush(parent, 'children', nodeTemplate);
+            nodeTemplate.parent = parent;
+          } else {
+            // Manage the attach relationship in a specific way in order to display the storage close to the compute.
+            relationships = this.getAttachedToRelationships(nodeTemplate, relationshipTypes);
             if (relationships.length > 0) {
-              // Only take into account first element of the relationships found
-              // It's enough to build the tree
-              var parent = nodeMap[relationships[0].target];
-              if (parent.hasOwnProperty('children')) {
-                parent.children.push(currentNode);
-                currentNode.parent = parent;
-              } else {
-                parent.children = [currentNode];
-                currentNode.parent = parent;
-              }
+              var target = nodeTemplates[relationships[0].target];
+              UTILS.safePush(target, 'attached', nodeTemplate);
+              nodeTemplate.parent = tree;
+              nodeTemplate.isAttached = true;
             } else {
-              rootNode.children.push(currentNode);
-              currentNode.parent = rootNode;
+              // if the node is not hosted on another node just add it to the root.
+              tree.children.push(nodeTemplate);
+              nodeTemplate.parent = tree;
             }
           }
-        }
-        return rootNode;
-      };
+        },
 
-      /**
-       * Step 2 - Calculate the depth for each node of our nodeMap Use DFS to
-       * calculate node depth
-       */
-      var calculateNodeDepth = function(rootNode) {
-        var visitedNodes = {};
-        doCalculateNodeDepth(rootNode, visitedNodes, -1);
-      };
-
-      var doCalculateNodeDepth = function(node, visitedNodes, parentDepth) {
-        if (node.name in visitedNodes) {
-          // Do not visit an already visited node to prevent cyclic dependencies
-          return;
-        }
-        visitedNodes[node.name] = node;
-        node.nodeDepth = parentDepth + 1;
-        if (UTILS.isDefinedAndNotNull(node.children)) {
+        /**
+        * Quickly go over the tree to add a depth field to every node (this will be used for sorting later on).
+        */
+        computeNodeDepth: function(node, visitedNodes, parentDepth) {
+          if (node.name in visitedNodes) {
+            // Do not visit an already visited node to prevent cyclic dependencies
+            console.log('Hosted on cyclic dependency detected, topology may not be valid.');
+            return;
+          }
+          visitedNodes[node.name] = node;
+          node.depth = parentDepth + 1;
+          $.each(node.attached, function(index, value){
+            value.depth = node.depth;
+          });
           for (var i = 0; i < node.children.length; i++) {
-            doCalculateNodeDepth(node.children[i], visitedNodes, node.nodeDepth);
+            this.computeNodeDepth(node.children[i], visitedNodes, node.depth);
           }
-        }
-      };
+        },
 
-      /**
-       * Step 3 - Calculate the horizontal weight for each node of our topology.
-       * More a node has higher horizontal weight, more it will be on the right
-       * hand side of the graph
-       */
-      var calculateHorizontalWeight = function(rootNode, nodeMap, relationshipTypes, externalLinkWeight) {
-        var branches = [];
-        if (!UTILS.isDefinedAndNotNull(rootNode.children)) {
-          return;
-        }
-        var rootNodeChildrenLength = rootNode.children.length;
-        var i, currentBranch, nodeName;
-        for (i = 0; i < rootNodeChildrenLength; i++) {
-          rootNode.children[i].branchHorizontalWeight = -Number.MAX_VALUE;
-          branches.push(flattenTreeStructure(rootNode.children[i]));
-        }
-        var branchesLength = branches.length;
-        // Initialize left weight and right weight for each node
-        for (i = 0; i < branchesLength; i++) {
-          currentBranch = branches[i];
-          for (nodeName in currentBranch.nodes) {
-            if (currentBranch.nodes.hasOwnProperty(nodeName)) {
-              currentBranch.nodes[nodeName].nodeHorizontalWeight = -Number.MAX_VALUE;
+        /**
+        * Get all hosted on or network relationships on a given node template.
+        */
+        getHostedOnRelationships: function(nodeTemplate, relationshipTypes) {
+          var hostedOnRelationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+            return toscaService.isHostedOnType(relationship.type, relationshipTypes);
+          });
+          return hostedOnRelationships;
+        },
+
+        /**
+        * Get all attached to relationships on a given node template.
+        */
+        getAttachedToRelationships: function(nodeTemplate, relationshipTypes) {
+          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+            return toscaService.isAttachedToType(relationship.type, relationshipTypes);
+          });
+          return relationships;
+        },
+
+        /**
+        * Get all attached to relationships on a given node template.
+        */
+        getNetworkRelationships: function(nodeTemplate, relationshipTypes) {
+          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+            return toscaService.isNetworkType(relationship.type, relationshipTypes);
+          });
+          return relationships;
+        },
+
+        /**
+        * Sort the tree based on depends on relationships that connects nodes to each others.
+        *
+        * Each group from the root is displayed horizontally while children are displayed vertically.
+        */
+        sortTree: function(tree, relationshipTypes, nodeTemplates) {
+          var thiss = this;
+          // compute nodes weight and attractions.
+          $.each(tree.children, function(index, child) {
+            thiss.nodeWeight(tree, relationshipTypes, nodeTemplates, child);
+          });
+          this.recursiveTreeSort(tree);
+        },
+        recursiveTreeSort: function (node) {
+          var children = [];
+          for(var i = 0; i < node.children.length; i++) {
+            var child = node.children[i];
+            if(child.children.length >0) {
+              this.recursiveTreeSort(child);
             }
-          }
-        }
 
-        // Calculate horizontal weight
-        for (i = 0; i < branchesLength; i++) {
-          currentBranch = branches[i];
-          for (nodeName in currentBranch.nodes) {
-            if (currentBranch.nodes.hasOwnProperty(nodeName)) {
-              computeNodeHorizontalWeight(nodeMap, relationshipTypes, externalLinkWeight, i, branches, currentBranch, nodeName);
+            var candidatePosition = -1;
+            if(UTILS.isDefinedAndNotNull(child.before)) { // ensure the node is added before.
+              for(var j=0; j<children.length && candidatePosition === -1; j++) {
+                if(child.before.indexOf(children[j]) >= 0) {
+                  candidatePosition = j;
+                }
+              }
             }
-          }
-        }
-      };
-
-      var computeNodeHorizontalWeight = function(nodeMap, relationshipTypes, externalLinkWeight, i, branches, currentBranch, nodeName) {
-        var dependsOnRelationships = getDependsOnRelationship(currentBranch.nodes[nodeName], relationshipTypes);
-        var dependsOnRelationshipsLength = dependsOnRelationships.length;
-        if (dependsOnRelationshipsLength > 0) {
-          // I'm the source of some depends on relationship
-          var source = currentBranch.nodes[nodeName];
-          for (var j = 0; j < dependsOnRelationshipsLength; j++) {
-            var targetName = dependsOnRelationships[j].target;
-            var target = nodeMap[targetName];
-            var weightToAdd;
-            if (targetName in currentBranch.nodes) {
-              weightToAdd = 1;
+            if(UTILS.isDefinedAndNotNull(child.after)) { // ensure the node is added after.
+              for(var k=children.length-1; k>candidatePosition; k--) {
+                if(child.after.indexOf(children[k]) >= 0) {
+                  candidatePosition = k+1;
+                }
+              }
+            }
+            if(candidatePosition === -1) {
+              children.push(child);
             } else {
-              var targetBranch = findBranchContainingNode(branches, targetName, i);
-              if (targetBranch.root.branchHorizontalWeight === -Number.MAX_VALUE) {
-                targetBranch.root.branchHorizontalWeight = 0;
-              }
-              if (currentBranch.root.branchHorizontalWeight === -Number.MAX_VALUE) {
-                currentBranch.root.branchHorizontalWeight = 0;
-              }
-              targetBranch.root.branchHorizontalWeight += 1;
-              currentBranch.root.branchHorizontalWeight -= 1;
-              // Add more weight if it's external link
-              weightToAdd = externalLinkWeight;
+              children.splice(candidatePosition, 0, child);
             }
-            if (source.nodeHorizontalWeight === -Number.MAX_VALUE) {
-              source.nodeHorizontalWeight = 0;
-            }
-            if (target.nodeHorizontalWeight === -Number.MAX_VALUE) {
-              target.nodeHorizontalWeight = 0;
-            }
-            source.nodeHorizontalWeight += weightToAdd;
-            target.nodeHorizontalWeight -= weightToAdd;
           }
-        }
-      };
+          node.children = children;
+        },
+        nodeWeight: function (tree, relationshipTypes, nodeTemplates, node) {
+          var thiss = this;
+          // process child nodes
+          $.each(node.children, function(index, child){
+            thiss.nodeWeight(tree, relationshipTypes, nodeTemplates, child);
+          });
+          // process current node
+          var relationships = this.getDependsOnRelationships(node, relationshipTypes);
+          $.each(relationships, function(index, relationship){
+            var commonParentInfo = thiss.getCommonParentInfo(tree, node, nodeTemplates[relationship.target]);
+            if(commonParentInfo !== null) {
+              commonParentInfo.child2.weight += 10000;
+              UTILS.safePush(commonParentInfo.child2, 'after', commonParentInfo.child1);
+              UTILS.safePush(commonParentInfo.child1, 'before', commonParentInfo.child2);
+            }
+          });
+        },
+        getCommonParentInfo: function(tree, node1, node2) {
+          // if both nodes doesn't have the same depth it cannot have the same parent.
+          if(node1.depth < node2.depth) {
+            return this.getCommonParentInfo(tree, node1, node2.parent);
+          } else if(node1.depth > node2.depth) {
+            return this.getCommonParentInfo(tree, node1.parent, node2);
+          }
 
-      /**
-       * Step 4 - Calculate the layout based on vertical and horizontal weight
-       * that we already calculated
-       */
-      var calculateLayout = function(rootNode, nodeMap, relationshipTypes, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-          distanceBetweenNodeVertical) {
-        var nodeName, node;
-        // Sort the branches
-        rootNode.children.sort(compareBranchHorizontalWeight);
-        // Sort the tree based on the horizontal weight
-        for (nodeName in nodeMap) {
-          node = nodeMap[nodeName];
-          if (node !== rootNode) {
-            // Sort only nodes which are not root of branches
-            // Branches are already sorted above
-            var children = node.children;
-            if (UTILS.isDefinedAndNotNull(children)) {
-              children.sort(compareNodeHorizontalWeight);
-            }
+          if(node1 === node2) {
+            // both nodes are part of the same hierarchy
+            return null;
           }
-        }
-        // After this call we have the tree with every element filled with
-        // coordinate. We start from nodeWidth / 2 to have the rectangle inside
-        // the viewbox
-        doCalculateLayout(rootNode, rootNode, nodeWidth / 2, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-            distanceBetweenNodeVertical);
-        // Extract our graph with node and links
-        var bbox = new UTILS.BoundingBox();
-        var graph = {
-          nodes : [],
-          links : [],
-          bbox : bbox
-        };
-        // We might save the graph (coordinates) on server side to
-        // save the state of a topology graph
-        for (nodeName in nodeMap) {
-          node = nodeMap[nodeName];
+
+          var parent1 = node1.parent;
+          var parent2 = node2.parent;
+          if(parent1 === parent2) {
+            return {
+              parent: parent1,
+              child1: node1,
+              child2: node2
+            };
+          }
+
+          return this.getCommonParentInfo(tree, parent1, parent2);
+        },
+
+        getDependsOnRelationships: function(nodeTemplate, relationshipTypes) {
+          var dependsOnRelationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+            return !toscaService.isHostedOnType(relationship.type, relationshipTypes) && !toscaService.isNetworkType(relationship.type, relationshipTypes);
+          });
+          return dependsOnRelationships;
+        },
+
+        buildTreeGraph: function(tree, nodeMap, relationshipTypes, nodeSize) {
+          // Extract our graph with node and links
+          var bbox = new UTILS.BoundingBox();
+          var graph = {
+            nodes : [],
+            links : [],
+            bbox : bbox
+          };
+          for (var i = 0; i < tree.children.length; i++) {
+            this.addNodeToGraph(graph, tree.children[i], nodeMap, relationshipTypes, nodeSize);
+          }
+          return graph;
+        },
+
+        addNodeToGraph: function(graph, node, nodeMap, relationshipTypes, nodeSize) {
+          var i;
+          // add the node to the graph
           graph.nodes.push({
             id : node.name,
             coordinate : node.nodeCoordinate,
-            bbox: new UTILS.BoundingBox(node.nodeCoordinate.x - nodeWidth/2 , node.nodeCoordinate.y - nodeHeight/2 , nodeWidth, nodeHeight)
+            bbox: new UTILS.BoundingBox(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
           });
+          graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
 
-          graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeWidth, nodeHeight);
+          for (i = 0; i < node.attached.length; i++) {
+            this.addNodeToGraph(graph, node.attached[i], nodeMap, relationshipTypes, nodeSize);
+          }
+          for (i = 0; i < node.children.length; i++) {
+            this.addNodeToGraph(graph, node.children[i], nodeMap, relationshipTypes, nodeSize);
+          }
+        },
 
-          buildGraphRelationships(graph, node, nodeMap, relationshipTypes, getHostedOnRelationship, nodeWidth, nodeHeight);
-          buildGraphRelationships(graph, node, nodeMap, relationshipTypes, getDependsOnRelationship, nodeWidth, nodeHeight);
-        }
+        treeLayout: function(tree, x, nodeSize, spacing) {
+          var position = {x: x, y: 0};
+          for (var i = 0; i < tree.children.length; i++) {
+            this.nodeLayout(tree.children[i], position, nodeSize, spacing, true);
+            position.x += spacing.rootBranch.x + tree.children[i].bbox.width();
+            position.y = 0;
+          }
+        },
 
-        return graph;
-      };
+        nodeLayout: function(node, position, nodeSize, spacing, initial) {
+          node.bbox = new UTILS.BoundingBox(position.x, position.y, nodeSize.width, nodeSize.height);
+          node.nodeCoordinate = {x: node.bbox.minX, y: -node.bbox.minY};
 
-      var buildGraphRelationships = function(graph, node, nodeMap, relationshipTypes, getRelationships, nodeWidth, nodeHeight) {
-        var relationships = getRelationships(node, relationshipTypes);
-        if (UTILS.isDefinedAndNotNull(relationships)) {
-          var relationshipsLength = relationships.length;
-          for (var i = 0; i < relationshipsLength; i++) {
-            var relationship = relationships[i];
-            var sourceCenter = node.nodeCoordinate;
-            var targetCenter = nodeMap[relationship.target].nodeCoordinate;
-            var source = {};
-            var target = {};
-            if (toscaService.isHostedOnType(relationship.type, relationshipTypes) || toscaService.isNetworkType(relationship.type, relationshipTypes)) {
-              if (sourceCenter.y > targetCenter.y) {
-                source.y = sourceCenter.y - nodeHeight / 2;
-                target.y = targetCenter.y + nodeHeight / 2;
-              } else {
-                source.y = sourceCenter.y + nodeHeight / 2;
-                target.y = targetCenter.y - nodeHeight / 2;
-              }
-              source.x = sourceCenter.x;
-              target.x = targetCenter.x;
-            } else {
-              // if (sourceCenter.x > targetCenter.x) {
-              //   source.x = sourceCenter.x - nodeWidth / 2 - 1;
-              //   target.x = targetCenter.x + nodeWidth / 2 + 1;
-              // } else {
-              source.x = sourceCenter.x + nodeWidth / 2;
-              target.x = targetCenter.x - nodeWidth / 2;
-              // }
-              source.y = sourceCenter.y;
-              target.y = targetCenter.y;
+          var attachedY = node.bbox.minY - nodeSize.height;
+          for(var j = 0; j < node.attached.length; j++) {
+            var attached = node.attached[j];
+            if(initial) { // append the attached node
+              attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
+              attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
+              attachedY = attached.bbox.minY - nodeSize.height;
+              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
+              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
+            } else { // insert the attached node
+              node.nodeCoordinate.y = -node.bbox.maxY;
+              attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
+              attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
+              attachedY = attached.bbox.maxY;
+              node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
+              node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
             }
-            var selected = nodeMap[relationship.target].selected || node.selected;
-            graph.links.push({
-              id: node.name + '.' + relationship.id,
-              type: relationship.type,
-              source: source,
-              target: target,
-              selected: selected
+          }
+
+          var childPosition = {
+            x: node.bbox.minX + spacing.branch.x,
+            y: node.bbox.maxY + spacing.branch.y
+          };
+
+          for(var i = 0; i < node.children.length; i++) {
+            var childBbox = this.nodeLayout(node.children[i], childPosition, nodeSize, spacing, false);
+            node.bbox.addPoint(childBbox.maxX, childBbox.maxY);
+            childPosition.y = childBbox.maxY + spacing.node.y;
+          }
+
+          return node.bbox;
+        },
+
+        networkLayout: function(tree, graph, nodeSize, spacing) {
+          var networkX = graph.bbox.minX - nodeSize.halfWidth - spacing.network;
+          var netYSpacing = spacing.network;
+          for(var i=0; i<tree.networks.length; i++) {
+            var node = tree.networks[i];
+            node.nodeCoordinate = {
+              x: networkX,
+              y: graph.bbox.maxY + nodeSize.halfHeight + netYSpacing
+            };
+            netYSpacing = 0;
+            node.networkId = i;
+            graph.nodes.push({
+              id : node.name,
+              coordinate : node.nodeCoordinate,
+              networkId: i,
+              bbox: new UTILS.BoundingBox(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
             });
+            graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
           }
-        }
-      };
+        },
 
-      var doCalculateLayout = function(node, rootNode, currentX, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-          distanceBetweenNodeVertical) {
-        node.nodeCoordinate = {};
-        node.nodeCoordinate.y = node.nodeDepth * (nodeHeight + distanceBetweenNodeVertical) + nodeHeight / 2;
-        var children = node.children;
-        var newX = currentX;
-        if (UTILS.isDefinedAndNotNull(children)) {
-          for (var i = 0; i < children.length; i++) {
-            newX = doCalculateLayout(children[i], rootNode, newX, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-                distanceBetweenNodeVertical);
-            if (i !== children.length - 1) {
-              if (node === rootNode) {
-                // I'm a branch root so must apply the
-                // distanceBetweenBranchHorizontal
-                newX += distanceBetweenBranchHorizontal;
-              } else {
-                newX += distanceBetweenNodeHorizontal;
+        linkLayout: function(graph, nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
+          var thiss = this;
+
+          $.each(nodeTemplates, function(nodeId, node) {
+            // For each node map the relationships to the graph.
+            thiss.buildGraphRelationships(graph, node, nodeTemplates, relationshipTypes, nodeSize, spacing);
+          });
+        },
+
+        buildGraphRelationships: function(graph, nodeTemplate, nodeMap, relationshipTypes, nodeSize, spacing) {
+          var networkCount = 0;
+          var relationships = toscaService.getRelationships(nodeTemplate, function(relationship) {
+            return toscaService.isOneOfType(['tosca.relationships.Root'], relationship.type, relationshipTypes);
+          });
+          // var relationships = getRelationships(node, relationshipTypes);
+          if (UTILS.isDefinedAndNotNull(relationships)) {
+            var relationshipsLength = relationships.length;
+            for (var i = 0; i < relationshipsLength; i++) {
+              var relationship = relationships[i];
+              var sourceCenter = nodeTemplate.nodeCoordinate;
+              var targetCenter = nodeMap[relationship.target].nodeCoordinate;
+              var source = {};
+              var target = {};
+              var isNetwork = false;
+              var networkId = null;
+              if(toscaService.isAttachedToType(relationship.type, relationshipTypes)) {
+                continue;
               }
-            }
-          }
-          node.nodeCoordinate.x = (newX + currentX - nodeWidth) / 2;
-        } else {
-          node.nodeCoordinate.x = currentX;
-          newX += nodeWidth;
-        }
-        return newX;
-      };
-
-      var compareNodeHorizontalWeight = function(left, right) {
-        if (left.nodeHorizontalWeight < right.nodeHorizontalWeight) {
-          return -1;
-        }
-        if (left.nodeHorizontalWeight > right.nodeHorizontalWeight) {
-          return 1;
-        }
-        return 0;
-      };
-
-      var compareBranchHorizontalWeight = function(left, right) {
-        if (left.branchHorizontalWeight < right.branchHorizontalWeight) {
-          return -1;
-        }
-        if (left.branchHorizontalWeight > right.branchHorizontalWeight) {
-          return 1;
-        }
-        return 0;
-      };
-
-      var findBranchContainingNode = function(branches, nodeName, excludeIndex) {
-        var branchLenght = branches.length;
-        for (var i = 0; i < branchLenght; i++) {
-          if (i === excludeIndex) {
-            continue;
-          }
-          if (nodeName in branches[i].nodes) {
-            return branches[i];
-          }
-        }
-      };
-
-      /**
-       * Use BFS to flatten tree structure
-       */
-      var flattenTreeStructure = function(rootNode) {
-        var branchNodes = {};
-        var queue = [rootNode];
-        var node;
-        while (UTILS.isDefinedAndNotNull(node = queue.shift())) {
-          // Only consider a node if it's not yet processed to prevent cyclic
-          // dependencies
-          if (!(node.name in branchNodes)) {
-            branchNodes[node.name] = node;
-            if (UTILS.isDefinedAndNotNull(node.children)) {
-              queue = queue.concat(node.children);
+              if (toscaService.isHostedOnType(relationship.type, relationshipTypes)) {
+                source.x = sourceCenter.x - nodeSize.halfWidth - 1;
+                source.y = sourceCenter.y + nodeSize.halfHeight - 5;
+                target.x = targetCenter.x - nodeSize.halfWidth + 5;
+                target.y = targetCenter.y - nodeSize.halfHeight - 1;
+                source.direction = routerFactoryService.directions.left;
+                target.direction = routerFactoryService.directions.up;
+              } else if(toscaService.isNetworkType(relationship.type, relationshipTypes)){
+                isNetwork = true;
+                networkCount++;
+                source.x = nodeTemplate.bbox.minX - nodeSize.halfWidth + spacing.network * networkCount;
+                source.y = - nodeTemplate.bbox.minY + nodeSize.halfHeight;
+                target.x = source.x;
+                target.y = targetCenter.y;
+                networkId = nodeMap[relationship.target].networkId;
+              } else {
+                source.x = sourceCenter.x + nodeSize.halfWidth + 1;
+                source.y = sourceCenter.y;
+                target.x = targetCenter.x - nodeSize.halfWidth - 1;
+                target.y = targetCenter.y;
+                source.direction = routerFactoryService.directions.right;
+                target.direction = routerFactoryService.directions.left;
+              }
+              var selected = nodeMap[relationship.target].selected || nodeTemplate.selected;
+              graph.links.push({
+                id: nodeTemplate.name + '.' + relationship.id,
+                type: relationship.type,
+                source: source,
+                target: target,
+                selected: selected,
+                isNetwork: isNetwork,
+                networkId: networkId
+              });
             }
           }
         }
-        return {
-          root : rootNode,
-          nodes : branchNodes
-        };
-      };
-
-      /**
-       * Search and return the node's relationship with defined criteria. Do not
-       * consider multiple relationship of the same type for the moment.
-       */
-      var searchRelationship = function(node, criteria) {
-        var founds = [];
-        if (UTILS.isDefinedAndNotNull(node.relationships)) {
-          var relationships = node.relationships;
-          for(var i=0;i<node.relationships.length;i++) {
-            var relationship = node.relationships[i].value;
-            relationship.id = node.relationships[i].key;
-            if (criteria(relationship)) {
-              founds.push(relationship);
-            }
-          }
-        }
-        return founds;
-      };
-
-      var layout = function(nodeMap, relationshipTypes, externalLinkWeight, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-          distanceBetweenNodeVertical) {
-        var copy = UTILS.deepCopy(nodeMap);
-        var tree = this.buildHostedOnTree(copy, relationshipTypes);
-        this.calculateNodeDepth(tree);
-        this.calculateHorizontalWeight(tree, copy, relationshipTypes, externalLinkWeight);
-        return this.calculateLayout(tree, copy, relationshipTypes, nodeWidth, nodeHeight, distanceBetweenBranchHorizontal, distanceBetweenNodeHorizontal,
-            distanceBetweenNodeVertical);
-      };
-
-      return {
-        'buildHostedOnTree' : buildHostedOnTree,
-        'calculateNodeDepth' : calculateNodeDepth,
-        'calculateHorizontalWeight' : calculateHorizontalWeight,
-        'calculateLayout' : calculateLayout,
-        'layout' : layout
       };
     }]);
