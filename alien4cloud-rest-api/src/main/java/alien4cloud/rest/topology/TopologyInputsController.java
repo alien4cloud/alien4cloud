@@ -8,7 +8,9 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +45,25 @@ public class TopologyInputsController {
     private TopologyServiceCore topologyServiceCore;
 
     /**
+     * Add a new input.
+     *
+     * @param topologyId The id of the topology to retrieve.
+     * @return
+     */
+    @ApiOperation(value = "Add a new input", notes = "Add a new input. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId}/add/{newInputId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public void addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String newInputId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        inputProperties.put(newInputId, new PropertyDefinition());
+
+        log.debug("Add a new input <{}> for the topology <{}>.", newInputId, topologyId);
+        alienDAO.save(topology);
+    }
+
+    /**
      * Update the inputId for the {@link FunctionPropertyValue} of a Map of properties.
      * 
      * @param properties
@@ -69,8 +90,8 @@ public class TopologyInputsController {
     @ApiOperation(value = "Change the name of an input parameter.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyqId:.+}/updateInputId/{oldInputId}/{newInputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public void updateInputId(@ApiParam(value = "The topology id.", required = true) final String topologyId,
-            @ApiParam(value = "The name of the old input.", required = true) final String oldInputId,
-            @ApiParam(value = "The name of the new input.", required = true) final String newInputId) {
+            @ApiParam(value = "The name of the old input.", required = true) @NotBlank @PathVariable final String oldInputId,
+            @ApiParam(value = "The name of the new input.", required = true) @NotBlank @PathVariable final String newInputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -84,6 +105,8 @@ public class TopologyInputsController {
                 updateInputIdInProperties(relationshipTemplate.getProperties(), oldInputId, newInputId);
             }
         }
+
+        log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", oldInputId, newInputId, topologyId);
         alienDAO.save(topology);
     }
 
@@ -113,8 +136,8 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Remove an input from a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyqId:.+}/remove/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void removeInput(@ApiParam(value = "The topology id.", required = true) final String topologyId,
-            @ApiParam(value = "The name of the input.", required = true) final String inputId) {
+    public void removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -153,9 +176,9 @@ public class TopologyInputsController {
     @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplate/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public void setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) final String topologyId,
-            @ApiParam(value = "The name of the input.", required = true) final String inputId,
-            @ApiParam(value = "The node temlate id.", required = true) final String nodeTemplateId,
-            @ApiParam(value = "The property id.", required = true) final String propertyId)
+            @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
+            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
             throws ConstraintViolationException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -200,10 +223,11 @@ public class TopologyInputsController {
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplate/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public void setInputToRelationshipTemplate(@ApiParam(value = "The topology id.", required = true) final String topologyId,
-            @ApiParam(value = "The name of the input.", required = true) final String inputId,
-            @ApiParam(value = "The node temlate id.", required = true) final String nodeTemplateId,
-            @ApiParam(value = "The property id.", required = true) final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) final String relationshipTemplateId) throws ConstraintViolationException {
+            @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
+            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId)
+            throws ConstraintViolationException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
