@@ -53,8 +53,8 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
         // update version
         nodeGroup.select('.version').text(function() {
           if (UTILS.isDefinedAndNotNull(nodeTemplate.properties)
-            && UTILS.isDefinedAndNotNull(nodeTemplate.propertiesMap.version)) {
-            return 'v' + nodeTemplate.propertiesMap.version.value;
+            && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
+            return 'v' + nodeTemplate.properties.version.value;
           }
         });
 
