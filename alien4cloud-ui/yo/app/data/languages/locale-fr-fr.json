@@ -575,7 +575,8 @@
         "CONNECTION_CONFIGURATION": {
           "CLOUDIFY_URL": "L'URL de Cloudify",
           "USER_NAME": "Nom d'utilisateur",
-          "PASSWORD": "Mot de passe"
+          "PASSWORD": "Mot de passe",
+          "TIMEOUT": "Délai de connexion (Sec)"
         },
         "COMPUTE_TEMPLATES": "Modèles de machine",
         "COMPUTE_TEMPLATE": {
