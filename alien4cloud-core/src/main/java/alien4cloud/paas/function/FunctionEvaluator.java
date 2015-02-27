@@ -12,12 +12,15 @@ import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
+import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+
+import com.google.common.collect.Maps;
 
 /**
  * Utility class to process functions defined in attributes level:
@@ -150,16 +153,16 @@ public final class FunctionEvaluator {
 
     private static String evaluateEntityName(String stringToEval, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
         switch (stringToEval) {
-            case ToscaFunctionConstants.HOST:
-                return getHostNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.SELF:
-                return getSelfNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.SOURCE:
-                return getSourceNodeId(basePaaSTemplate);
-            case ToscaFunctionConstants.TARGET:
-                return getTargetNodeId(basePaaSTemplate);
-            default:
-                return stringToEval;
+        case ToscaFunctionConstants.HOST:
+            return getHostNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.SELF:
+            return getSelfNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.SOURCE:
+            return getSourceNodeId(basePaaSTemplate);
+        case ToscaFunctionConstants.TARGET:
+            return getTargetNodeId(basePaaSTemplate);
+        default:
+            return stringToEval;
         }
     }
 
@@ -209,5 +212,30 @@ public final class FunctionEvaluator {
 
     public static boolean isGetAttribute(FunctionPropertyValue function) {
         return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
+    }
+
+    /**
+     * Get the scalar value
+     * 
+     * @param propertyValue the property value
+     * @throws alien4cloud.paas.exception.NotSupportedException if called on a non ScalarPropertyValue
+     * @return the value or null if the propertyValue is null
+     */
+    public static String getScalarValue(AbstractPropertyValue propertyValue) {
+        if (propertyValue == null) {
+            return null;
+        } else if (propertyValue instanceof ScalarPropertyValue) {
+            return ((ScalarPropertyValue) propertyValue).getValue();
+        } else {
+            throw new NotSupportedException("Property value is not of type scalar");
+        }
+    }
+
+    public static Map<String, String> getScalarValues(Map<String, AbstractPropertyValue> propertyValues) {
+        Map<String, String> properties = Maps.newHashMap();
+        for (Map.Entry<String, AbstractPropertyValue> propertyValueEntry : propertyValues.entrySet()) {
+            properties.put(propertyValueEntry.getKey(), getScalarValue(propertyValueEntry.getValue()));
+        }
+        return properties;
     }
 }
