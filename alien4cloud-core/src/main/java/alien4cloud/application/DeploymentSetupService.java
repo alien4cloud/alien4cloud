@@ -185,20 +185,24 @@ public class DeploymentSetupService {
     public void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
         for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
             processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
-            for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+            if (nodeTemplate.getRelationships() != null) {
+                for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
+                    processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                }
             }
         }
     }
 
     private void processGetInput(Map<String, String> inputs, Map<String, AbstractPropertyValue> properties) {
-        for (Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
-            if (propEntry.getValue() instanceof FunctionPropertyValue) {
-                FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
-                if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                    propEntry.setValue(new ScalarPropertyValue(inputs.get(function.getParameters().get(0))));
-                } else {
-                    log.warn("Function detected for property <{}> while only get_input should be authorized.", propEntry.getKey());
+        if (properties != null) {
+            for (Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
+                if (propEntry.getValue() instanceof FunctionPropertyValue) {
+                    FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
+                    if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
+                        propEntry.setValue(new ScalarPropertyValue(inputs.get(function.getParameters().get(0))));
+                    } else {
+                        log.warn("Function detected for property <{}> while only get_input should be authorized.", propEntry.getKey());
+                    }
                 }
             }
         }

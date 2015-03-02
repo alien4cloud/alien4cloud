@@ -25,10 +25,10 @@ import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSProvider;
+import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -345,12 +345,7 @@ public class CloudResourceMatcherService {
             if (properties == null) {
                 return true;
             }
-            AbstractPropertyValue expectedValue = properties.get(keyToCheck);
-            if (!(expectedValue instanceof ScalarPropertyValue)) {
-                throw new RuntimeException("Error in A4C functions should have been processed before matching resources.");
-            }
-
-            String expectedStrValue = ((ScalarPropertyValue) expectedValue).getValue();
+            String expectedStrValue = FunctionEvaluator.getScalarValue(properties.get(keyToCheck));
             if (expectedStrValue == null || expectedStrValue.isEmpty()) {
                 return true;
             } else {
