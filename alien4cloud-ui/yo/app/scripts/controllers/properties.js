@@ -61,7 +61,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.definitionObject = {};
 
     $scope.initScope = function() {
-      // console.log('DEFINITION property ', $scope.definition);
       // Define properties
       if(!UTILS.isDefinedAndNotNull($scope.definition)) {
         return;
