@@ -31,13 +31,14 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var updateInputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyName/isInput', {}, {
+    var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
       'add': {
-        method: 'POST',
+        method: 'PUT',
         params: {
           topologyId: '@topologyId',
           nodeTemplateName: '@nodeTemplateName',
-          propertyName: '@propertyName'
+          propertyId: '@propertyId',
+          inputId: '@inputId'
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'

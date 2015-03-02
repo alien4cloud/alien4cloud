@@ -20,7 +20,7 @@
 
   <!-- NodeTemplate details -->
   <div id="nodetemplate-details" ng-show="selectedNodeTemplate" class="topology-panel-style topology-columns topology-details" ng-class="colProperty">
-    <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right" ng-click="closeNodeTemplateDetails()"><i class="fa fa-remove close-panel" ></i></span>
+    <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="closeNodeTemplateDetails()"><i class="fa fa-remove close-panel" ></i></span>
     <div  ng-init="resizeViewElement()">
       <div class="row" style="margin-top: 12px;">
         <!-- nodeTemplateName div -->
@@ -41,7 +41,6 @@
         <!-- buttons group div -->
         <div class="col-md-4" style="margin-top: 6px;">
           <div class="pull-right">
-
             <a tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
               tooltip-append-to-body="true" class="btn btn-default btn-sm"
               class="dropdown-toggle" data-toggle="dropdown"
@@ -72,42 +71,40 @@
                 <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
               </a>
             </span>
-
             <!-- Delete selected nodetemplate with confirm -->
             <delete-confirm id="btn-delete-node" func="deleteNodeTemplate(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
             </delete-confirm>
-
           </div>
-       </div>
-       <div class="col-md-12" ng-if="nodeTempNameEditError" style="margin-bottom: 10px;">
-          <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
         </div>
-    </div>
-    <div class="row">
-      <div class="col-md-10">
-        <div class="input-group">
-          <span class="input-group-addon">
-            <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
-          </span>
-          <span class="form-control"> {{selectedNodeTemplate.type}} </span>
+        <div class="col-md-12" ng-if="nodeTempNameEditError" style="margin-bottom: 10px;">
+            <span class="text-danger">{{''+nodeTempNameEditError.code | translate}}</span>
         </div>
       </div>
-      <div class="col-md-2">
-        <a class=" btn btn-default" href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
-      </div>
-    </div>
-    <div class="row" style="margin-top: 5px;">
-      <div class="col-md-12">
-        <div class="input-group">
-          <span class="input-group-addon">
-            <i class="fa fa-archive"></i>  {{topology.nodeTypes[selectedNodeTemplate.type].archiveName}}
-          </span>
-          <span class="form-control">
-            {{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}
-          </span>
+      <div class="row">
+        <div class="col-md-10">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
+            </span>
+            <span class="form-control"> {{selectedNodeTemplate.type}} </span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <a class=" btn btn-default" href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
         </div>
       </div>
-    </div>
+      <div class="row" style="margin-top: 5px;">
+        <div class="col-md-12">
+          <div class="input-group">
+            <span class="input-group-addon">
+              <i class="fa fa-archive"></i>  {{topology.nodeTypes[selectedNodeTemplate.type].archiveName}}
+            </span>
+            <span class="form-control">
+              {{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}
+            </span>
+          </div>
+        </div>
+      </div>
       <!-- Properties -->
       <div ng-if="selectedNodeTemplate.properties.length > 0">
         <div class="topology-node-expand clickable"
@@ -119,11 +116,10 @@
         </div>
         <div collapse="isPropertiesCollapsed" class="topology-level">
           <table class="table table-condensed" id="nodeTemplateProperties">
-
             <tr ng-repeat="propEntry in selectedProperties">
                <td>
                  <div class="btn-group" data-toggle="buttons">
-                  <a id="p_input_{{propEntry.key}}" ng-click="toggleInputProperty(propEntry.key)" class="btn btn-default btn-xs" ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}" tooltip-append-to-body="true">
+                  <a id="p_input_{{propEntry.key}}" ng-click="toggleInputProperty(propEntry.key)" class="btn btn-default btn-xs" ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}" tooltip-append-to-body="true" drag-and-drop-enabled="true">
                       <i class="fa fa-cogs"></i>
                   </a>
                   <a id="p_output_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs" ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}" tooltip-append-to-body="true">
@@ -358,7 +354,6 @@
                 </delete-confirm>
               </span>
             </div>
-
             <div class="topology-level" collapse="isRelationshipCollapsed">
               <div class="row">
                 <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
@@ -416,7 +411,6 @@
                 ng-click="updateInputArtifactList(artifactId); $event.stopPropagation();"
                 tooltip="{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_CHECK_INPUT' | translate}}"
                 ng-class="{'fa-check-square-o text-success' : ( artifactChecked = isInputArtifact(artifactId) ),  'fa-square-o': !artifactChecked}"></i>
-
             </div>
             <div class="topology-level" collapse="isArtifactCollapsed">
               <div class="row">
@@ -442,36 +436,36 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Scaling -->
-      <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-        <div class="topology-node-expand clickable"
-          ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
-          <h4>
-          <i class="pull-left fa"
-            ng-class="{'fa-chevron-down' : !isScalingPolicyCollapsed, 'fa-chevron-right': isScalingPolicyCollapsed}"></i>
-          <span>{{'APPLICATIONS.TOPOLOGY.SCALING_POLICY' | translate}}</span></h4>
-        </div>
-        <div collapse="isScalingPolicyCollapsed">
-          <table class="table table-condensed">
-            <tr
-              ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-              <td>{{policyFieldName}}</td>
-              <td id="{{policyFieldName}}">
-                <span editable-number="topology.topology.scalingPolicies[selectedNodeTemplate.name][policyFieldName]" buttons="no" e-required onbeforesave="updateScalingPolicy(policyFieldName, $data)" blur="submit">
-                  {{policyFieldValue}} <i class="fa fa-pencil-square-o"></i>
-                </span>
-              </td>
-            </tr>
-          </table>
-        </div>
+    <!-- Scaling -->
+    <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+      <div class="topology-node-expand clickable"
+        ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
+        <h4>
+        <i class="pull-left fa"
+          ng-class="{'fa-chevron-down' : !isScalingPolicyCollapsed, 'fa-chevron-right': isScalingPolicyCollapsed}"></i>
+        <span>{{'APPLICATIONS.TOPOLOGY.SCALING_POLICY' | translate}}</span></h4>
+      </div>
+      <div collapse="isScalingPolicyCollapsed">
+        <table class="table table-condensed">
+          <tr
+            ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+            <td>{{policyFieldName}}</td>
+            <td id="{{policyFieldName}}">
+              <span editable-number="topology.topology.scalingPolicies[selectedNodeTemplate.name][policyFieldName]" buttons="no" e-required onbeforesave="updateScalingPolicy(policyFieldName, $data)" blur="submit">
+                {{policyFieldValue}} <i class="fa fa-pencil-square-o"></i>
+              </span>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
 
   <!-- Components search -->
   <div style="height: 530px;" ng-show="displayAddNode" class="topology-panel-style" ng-class="colPanel">
-    <span id='closeComponentsSearch' class="btn btn-default btn-xs pull-right" ng-click="toggleAddNode()"><i class="fa fa-remove close-panel"></i></span>
+    <span id='closeComponentsSearch' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleAddNode()"><i class="fa fa-remove close-panel"></i></span>
     <div id="slide-side-bar" style="overflow: auto;">
       <alien-search-component refresh="refresh"
         display-detail-pannel="false"
@@ -484,7 +478,7 @@
 
   <!-- Dependencies -->
   <div ng-show="displayDependencies" class="topology-panel-style" ng-class="colPanel">
-    <span id='closeDependencies' class="btn btn-default btn-xs pull-right" ng-click="toggleDependencies()"><i class="fa fa-remove close-panel"></i></span>
+    <span id='closeDependencies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDependencies()"><i class="fa fa-remove close-panel"></i></span>
     <table class="table table-hover">
       <thead>
         <tr>
@@ -501,6 +495,24 @@
     </table>
   </div>
 
+  <!-- Inputs -->
+  <div ng-show="displayInputs" class="topology-panel-style" ng-class="colPanel">
+    <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleInputs()"><i class="fa fa-remove close-panel"></i></span>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Inputs</th>
+        </tr>
+      </thead>
+      <tbody alien-droppable drag-data="" drag-on-drop="onInoutDragged(data)">
+        <tr ng-repeat="dependency in topology.topology.dependencies">
+          <td>Content of inputs</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
   <!-- Right vertical menu -->
   <nav id="topology-vertical-menu">
     <ul>
@@ -510,10 +522,10 @@
       <li >
         <span ng-click="toggleDependencies()" style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}</span>
       </li>
-      <!-- <li>
-        <span style="transform: translate(-10px, 340px) rotate(-90deg);"><i class="fa fa-archive"></i> Inputs</span>
-      </li>
       <li>
+        <span ng-click="toggleInputs()" style="transform: translate(-10px, 295px) rotate(-90deg);"><i class="fa fa-cogs"></i> Inputs</span>
+      </li>
+      <!-- <li>
         <span ng-click="toggleDependencies()" style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> Topology</span>
       </li> -->
     </ul>
