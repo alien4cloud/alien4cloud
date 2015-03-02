@@ -494,25 +494,22 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     var toggleInputOutput = function(propertyName, inputOrOutput, type) {
-
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
+      var inputIndex = topology[inputOrOutput][nodeTemplateName].indexOf(propertyName);
       var params = {
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: nodeTemplateName,
         propertyId: propertyName,
         inputId: propertyName
       };
-      console.log('params : ', params);
 
-      // if (type === 'property') {
-      //   params.propertyName = propertyName;
-      // }
-      // if (type === 'attribute') {
-      //   params.attributeName = propertyName;
-      // }
-
-      var inputIndex = topology[inputOrOutput][nodeTemplateName].indexOf(propertyName);
+      if (type === 'property') {
+        params.propertyName = propertyName;
+      }
+      if (type === 'attribute') {
+        params.attributeName = propertyName;
+      }
 
       if (inputIndex < 0) {
         // add input property
@@ -584,16 +581,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     }];
 
     $scope.updateInputArtifactList = function(artifactName) {
-
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
+      var inputIndex = topology.inputArtifacts[nodeTemplateName].indexOf(artifactName);
       var artifactInput = {
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: nodeTemplateName,
         artifactName: artifactName
       };
-
-      var inputIndex = topology.inputArtifacts[nodeTemplateName].indexOf(artifactName);
 
       if (inputIndex < 0) {
         // add input artifact

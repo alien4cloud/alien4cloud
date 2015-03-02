@@ -105,6 +105,7 @@
           </div>
         </div>
       </div>
+
       <!-- Properties -->
       <div ng-if="selectedNodeTemplate.properties.length > 0">
         <div class="topology-node-expand clickable"
@@ -406,7 +407,6 @@
               <i class="pull-left fa"
                 ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
               <span>{{artifactId}}</span>
-
               <i class="fa fa-fw "
                 ng-click="updateInputArtifactList(artifactId); $event.stopPropagation();"
                 tooltip="{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_CHECK_INPUT' | translate}}"
@@ -505,13 +505,14 @@
         </tr>
       </thead>
       <tbody alien-droppable drag-data="" drag-on-drop="onInoutDragged(data)">
-        <tr ng-repeat="dependency in topology.topology.dependencies">
-          <td>Content of inputs</td>
+        <tr ng-repeat="input in topology.topology.inputs">
+          <td>
+            {{input.description}}
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
-
 
   <!-- Right vertical menu -->
   <nav id="topology-vertical-menu">
@@ -525,9 +526,6 @@
       <li>
         <span ng-click="toggleInputs()" style="transform: translate(-10px, 295px) rotate(-90deg);"><i class="fa fa-cogs"></i> Inputs</span>
       </li>
-      <!-- <li>
-        <span ng-click="toggleDependencies()" style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> Topology</span>
-      </li> -->
     </ul>
   </nav>
 
