@@ -103,26 +103,6 @@ public class FunctionEvaluatorTest {
         builtPaaSNodeTemplates = treeBuilder.buildPaaSTopology(topology).getAllNodes();
     }
 
-    // @Test
-    // public void testParseString() {
-    // Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
-    // NodeTemplate nodeTemplate1 = new NodeTemplate();
-    // nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
-    // nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
-    // NodeTemplate nodeTemplate2 = new NodeTemplate();
-    // nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
-    // nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
-    // Topology topology = new Topology();
-    // topology.setNodeTemplates(nodeTemplates);
-    //
-    // Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
-    //
-    // String parsedString = FunctionEvaluator.parseString(
-    // "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
-    // runtimeInformations, "0");
-    // Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
-    // }
-
     @Test
     public void testParseAttributConcatScalar() {
 

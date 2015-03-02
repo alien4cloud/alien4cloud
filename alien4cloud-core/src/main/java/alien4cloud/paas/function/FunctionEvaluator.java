@@ -2,8 +2,6 @@ package alien4cloud.paas.function;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
 import alien4cloud.model.components.AttributeDefinition;
@@ -36,28 +34,11 @@ import com.google.common.collect.Lists;
  */
 @Slf4j
 public final class FunctionEvaluator {
-    private static Pattern getPropertyPattern = Pattern.compile("get_property\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
-    private static Pattern getAttributePattern = Pattern.compile("get_attribute\\s*:\\s*\\[\\s*(\\w*)\\s*,\\s*(\\w*)\\s*\\]");
-    private static Pattern concatPattern = Pattern.compile("concat\\s*:\\s*\\[([,\\s*\\w*]+)\\]");
-
-    /**
-     * Parse a string to render the attribute or property based on topology and runtime data.
-     *
-     * @param str The attribute (or property) string.
-     * @param topology The topology that holds properties definitions.
-     * @param runtimeInformations The runtime informations (that should holds attribute informations).
-     * @param currentInstance The instance id of the current node for which to parse the attribute or property string (str).
-     * @return A string with complete informations.
-     */
-    @Deprecated
-    public static String parseString(String str, Topology topology, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
-        String propertiesParsedString = parseProperties(str, topology);
-        return parseAttributes(propertiesParsedString, runtimeInformations, currentInstance);
-    }
 
     /**
      * Parse an attribute value that can be : {@link ConcatPropertyValue} / {@link AttributeDefinition}
      * 
+     * @param attributeId
      * @param attributeValue
      * @param topology
      * @param runtimeInformations
@@ -77,9 +58,12 @@ public final class FunctionEvaluator {
         if (attributeValue instanceof AttributeDefinition) {
             String runtimeAttributeValue = extractRuntimeInformationAttribute(runtimeInformations, currentInstance, new String[] { basePaaSTemplate.getId() },
                     attributeId);
-            if (!runtimeAttributeValue.contains("=Error!]") && !runtimeAttributeValue.equals("") && !runtimeAttributeValue.equals(null)) {
-                return runtimeAttributeValue;
+            if (runtimeAttributeValue != null) {
+                if (!runtimeAttributeValue.contains("=Error!]") && !runtimeAttributeValue.equals("") && !runtimeAttributeValue.equals(null)) {
+                    return runtimeAttributeValue;
+                }
             }
+
             return ((AttributeDefinition) attributeValue).getDefault();
         }
 
@@ -97,7 +81,6 @@ public final class FunctionEvaluator {
                 evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
             } else if (concatParam instanceof FunctionPropertyValue) {
                 // Function case
-                // init values
                 String[] nodeNames = null;
                 String propertyOrAttributeName = null;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
@@ -109,7 +92,6 @@ public final class FunctionEvaluator {
                     evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, nodeNames, propertyOrAttributeName));
                     break;
                 case ToscaFunctionConstants.GET_PROPERTY:
-                    // get the actual value for the property
                     evaluatedAttribute.append(extractRuntimeInformationProperty(topology, propertyOrAttributeName, nodeNames));
                     break;
                 default:
@@ -121,6 +103,14 @@ public final class FunctionEvaluator {
         return evaluatedAttribute.toString();
     }
 
+    /**
+     * Extract property value from runtime informations
+     * 
+     * @param topology
+     * @param propertyOrAttributeName
+     * @param nodeNames
+     * @return
+     */
     private static String extractRuntimeInformationProperty(Topology topology, String propertyOrAttributeName, String[] nodeNames) {
         String propertyOrAttributeValue;
         NodeTemplate template = null;
@@ -138,7 +128,7 @@ public final class FunctionEvaluator {
     }
 
     /**
-     * Return the first matching value in parent nodes
+     * Return the first matching value in parent nodes hierarchy
      * 
      * @param runtimeInformations
      * @param currentInstance
@@ -148,82 +138,24 @@ public final class FunctionEvaluator {
      */
     private static String extractRuntimeInformationAttribute(Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
             String[] nodeNames, String propertyOrAttributeName) {
+        Map<String, String> attributes = null;
         // return the first found
         for (String nodeName : nodeNames) {
             // get the current attribute value
             if (runtimeInformations.get(nodeName) != null) {
                 // get value for an instance if instance number found
-                if (runtimeInformations.get(nodeName).containsKey(currentInstance)
-                        && runtimeInformations.get(nodeName).get(currentInstance).getAttributes() != null) {
-                    return runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(propertyOrAttributeName);
-
-                } else {
-                    if (runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes() != null) {
-                        return runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(propertyOrAttributeName);
-                    }
-                }
-
-            }
-        }
-        log.warn("Couldn't find attribute <{}> of in nodes <{}>", propertyOrAttributeName, nodeNames);
-        return "[" + nodeNames + "." + propertyOrAttributeName + "=Error!]";
-    }
-
-    @Deprecated
-    public static String parseProperties(String str, Topology topology) {
-        if (str == null) {
-            return str;
-        }
-        Matcher matcher = getPropertyPattern.matcher(str);
-        StringBuilder sb = new StringBuilder();
-        int cursor = 0;
-        while (matcher.find()) {
-            String nodeName = matcher.group(1);
-            String propertyName = matcher.group(2);
-            // get the actual value for the property.
-            sb.append(str.substring(cursor, matcher.start()));
-            cursor = matcher.end();
-            NodeTemplate template = topology.getNodeTemplates().get(nodeName);
-            if (template != null) {
-                String propertyValue = template.getProperties().get(propertyName);
-                if (propertyValue != null) {
-                    sb.append(topology.getNodeTemplates().get(nodeName).getProperties().get(propertyName));
-                }
-            }
-        }
-        sb.append(str.substring(cursor));
-        return sb.toString();
-    }
-
-    @Deprecated
-    public static String parseAttributes(String str, Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance) {
-        if (str == null) {
-            return str;
-        }
-        Matcher matcher = getAttributePattern.matcher(str);
-        StringBuilder sb = new StringBuilder();
-        int cursor = 0;
-        while (matcher.find()) {
-            String nodeName = matcher.group(1);
-            String attributeName = matcher.group(2);
-            sb.append(str.substring(cursor, matcher.start()));
-            cursor = matcher.end();
-            String attributeValue;
-            if (runtimeInformations.get(nodeName) != null) {
                 if (runtimeInformations.get(nodeName).containsKey(currentInstance)) {
-                    attributeValue = runtimeInformations.get(nodeName).get(currentInstance).getAttributes().get(attributeName);
+                    attributes = runtimeInformations.get(nodeName).get(currentInstance).getAttributes();
                 } else {
-                    attributeValue = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes().get(attributeName);
+                    attributes = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes();
                 }
-                sb.append(attributeValue);
-            } else {
-                log.warn("Couldn't find attributes/properties of in node <{}>", nodeName);
-                sb.append("[" + nodeName + "." + attributeName + "=Error!]");
+                if (attributes.containsKey(propertyOrAttributeName)) {
+                    return attributes.get(propertyOrAttributeName);
+                }
             }
         }
-        sb.append(str.substring(cursor));
-
-        return sb.toString();
+        log.warn("Couldn't find attribute <{}> in nodes <{}>", propertyOrAttributeName, nodeNames.toString());
+        return "<" + propertyOrAttributeName + ">"; // value not yet computed (or won't be computes)
     }
 
     /**
