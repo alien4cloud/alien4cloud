@@ -23,7 +23,7 @@
               <ul>
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
-                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}">{{outputPropertyValue}}</span>
+                  <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue | linky:'_blank'"></span>
                 </li>
               </ul>
             </li>
@@ -37,7 +37,7 @@
                   <ul>
                     <li ng-repeat="(outputAttributeKey, outputAttributeValue) in instanceAttributes">
                       {{outputAttributeKey}} :
-                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}">{{outputAttributeValue}}</span>
+                      <span class="text-primary" id="attribute-{{nodeId}}-{{instanceId}}-{{outputAttributeKey}}" ng-bind-html="outputAttributeValue | linky:'_blank'"></span>
                     </li>
                   </ul>
                 </li>
