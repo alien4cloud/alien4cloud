@@ -567,7 +567,8 @@
         "CONNECTION_CONFIGURATION": {
           "CLOUDIFY_URL": "Cloudify URL",
           "USER_NAME": "User name",
-          "PASSWORD": "Password"
+          "PASSWORD": "Password",
+          "TIMEOUT": "Connection timeout (Sec)"
         },
         "COMPUTE_TEMPLATES": "Compute templates",
         "COMPUTE_TEMPLATE": {

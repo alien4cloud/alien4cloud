@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.paas.model.PaaSTopology;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -902,7 +903,8 @@ public class TopologyController {
 
         Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
-        StartEvent startEvent = new BuildPlanGenerator().generate(roots);
+        
+        StartEvent startEvent = new BuildPlanGenerator(true).generate(roots);
 
         return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
     }
