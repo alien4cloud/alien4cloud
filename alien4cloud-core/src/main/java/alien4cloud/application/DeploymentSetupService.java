@@ -111,7 +111,7 @@ public class DeploymentSetupService {
      * @param applicationEnvironmentId
      * @return
      */
-    public DeploymentSetup getDeploymentSetup(String applicationId, String applicationEnvironmentId) {
+    public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(String applicationId, String applicationEnvironmentId) {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
@@ -128,7 +128,7 @@ public class DeploymentSetupService {
                 log.warn("Cannot generate mapping for deployment setup as cloud is disabled, it will be re-generated next time");
             }
         }
-        return deploymentSetup;
+        return new DeploymentSetupMatchInfo(deploymentSetup);
     }
 
     /**
@@ -183,11 +183,13 @@ public class DeploymentSetupService {
      * @param topology The topology to process.
      */
     public void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
-        for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-            processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
-            if (nodeTemplate.getRelationships() != null) {
-                for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                    processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+        if (topology.getNodeTemplates() != null) {
+            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+                processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
+                if (nodeTemplate.getRelationships() != null) {
+                    for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
+                        processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                    }
                 }
             }
         }

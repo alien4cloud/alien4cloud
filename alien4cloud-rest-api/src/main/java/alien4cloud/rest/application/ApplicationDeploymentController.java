@@ -354,38 +354,6 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    // @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology",
-    // notes = "Returns the detailed informations of the application on the PaaS it is deployed."
-    // + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    // @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/cloud-resources", method = RequestMethod.GET, produces =
-    // MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String
-    // applicationEnvironmentId)
-    // throws CloudDisabledException {
-    // Application application = applicationService.checkAndGetApplication(applicationId);
-    //
-    // // get the topology from the version and the cloud from the environment
-    // ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-    // if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-    // AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-    // }
-    // ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-    //
-    // Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-    // if (environment.getCloudId() == null) {
-    // throw new InvalidArgumentException("Environment [" + applicationEnvironmentId + "] for application [" + application.getName()
-    // + "] does not have any cloud assigned");
-    // }
-    // Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-    // CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
-    // deploymentSetupService.getDeploymentSetup(applicationId, applicationEnvironmentId)
-    // deploymentSetupService.processGetInput(deploymentSetup, topology);
-    // return RestResponseBuilder
-    // .<CloudResourceTopologyMatchResult> builder()
-    // .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,
-    // topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
-    // }
-
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws CloudDisabledException {
@@ -394,8 +362,8 @@ public class ApplicationDeploymentController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        return RestResponseBuilder.<DeploymentSetup> builder().data(deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId))
-                .build();
+        return RestResponseBuilder.<DeploymentSetup> builder()
+                .data(deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId)).build();
     }
 
     /**
@@ -416,9 +384,9 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        DeploymentSetup setup = deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId);
-        ReflectionUtil.mergeObject(updateRequest, setup);
-        alienDAO.save(setup);
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId);
+        ReflectionUtil.mergeObject(updateRequest, deploymentSetupMatchInfo);
+        alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
         return RestResponseBuilder.<Void> builder().build();
     }
 
