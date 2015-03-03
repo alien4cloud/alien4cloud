@@ -156,7 +156,7 @@ public class MappingGenerator extends DefaultParser<Map<String, INodeParser>> {
             String checkerName = javaType.substring(javaType.indexOf("|") + 1);
             log.debug(String.format("After parsing <%s>, realJavaType is <%s>, checkerName is <%s>", javaType, realJavaType, checkerName));
             checker = checkers.get(checkerName);
-            if (checker != null) {
+            if (checker == null) {
                 log.warn(String.format("Can not find checker <%s>, using a standard TypeNodeParser", checkerName));
             }
         }

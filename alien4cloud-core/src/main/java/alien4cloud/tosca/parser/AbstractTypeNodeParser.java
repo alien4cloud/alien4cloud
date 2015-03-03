@@ -1,5 +1,6 @@
 package alien4cloud.tosca.parser;
 
+import java.util.Map;
 import java.util.Map.Entry;
 
 import lombok.Getter;
@@ -34,13 +35,16 @@ public abstract class AbstractTypeNodeParser {
         String propertyName = entry.getValue();
 
         Object value = ((INodeParser<?>) mappingTarget.getParser()).parse(valueNode, context);
-        try {
-            realTarget.setPropertyValue(propertyName, value);
-        } catch (NotWritablePropertyException e) {
-            log.warn("Error while setting property for yaml parsing.", e);
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
-                            valueNode.getEndMark(), toscaType));
+        if (!propertyName.equals("void")) {
+            // property named 'void' means : process the parsing but do not set anything
+            try {
+                realTarget.setPropertyValue(propertyName, value);
+            } catch (NotWritablePropertyException e) {
+                log.warn("Error while setting property for yaml parsing.", e);
+                context.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
+                                valueNode.getEndMark(), toscaType));
+            }
         }
 
         if (mappingTarget instanceof KeyValueMappingTarget) {
