@@ -689,7 +689,7 @@ public class TopologyStepDefinitions {
         }
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
         response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
-        RestResponse<TopologyDTO> topologyDto = JsonUtil.read(response, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
         Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
     }
     
