@@ -12,11 +12,12 @@ import java.util.Map;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Test;
 
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.AttributeDefinition;
+import alien4cloud.model.components.IAttributeValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.common.Tag;
-import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 
@@ -140,7 +141,8 @@ public class IndexedModelTest {
         propDef.setDefault("default_parent");
         attrDef.setType("string");
         parent.setProperties(MapUtil.newHashMap(new String[] { "prop1" }, new PropertyDefinition[] { propDef }));
-        parent.setAttributes(MapUtil.newHashMap(new String[] { "attr1" }, new AttributeDefinition[] { attrDef }));
+        parent.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        parent.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();
         propDef.setDefault("default_parent2");
@@ -148,7 +150,8 @@ public class IndexedModelTest {
         attrDef = new AttributeDefinition();
         attrDef.setType("version");
         parent.getProperties().put("prop2", propDef);
-        parent.setAttributes(MapUtil.newHashMap(new String[] { "attr2" }, new AttributeDefinition[] { attrDef }));
+        parent.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        parent.getAttributes().put("attr2", attrDef);
 
         propDef = new PropertyDefinition();
         propDef.setDefault("default_son");
@@ -156,7 +159,9 @@ public class IndexedModelTest {
         attrDef = new AttributeDefinition();
         attrDef.setType("integer");
         son.setProperties(MapUtil.newHashMap(new String[] { "prop1" }, new PropertyDefinition[] { propDef }));
-        son.setAttributes(MapUtil.newHashMap(new String[] { "attr1" }, new AttributeDefinition[] { attrDef }));
+        // son.setAttributes(MapUtil.newHashMap(new String[] { "attr1" }, new AttributeDefinition[] { attrDef }));
+        son.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        son.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();
         propDef.setDefault("default_son2");
@@ -176,7 +181,7 @@ public class IndexedModelTest {
         PropertyDefinition propDefSon = son.getProperties().get("prop1");
         assertNotNull(propDefSon);
         assertEquals("default_son", propDefSon.getDefault());
-        AttributeDefinition attrDefSon = son.getAttributes().get("attr1");
+        AttributeDefinition attrDefSon = (AttributeDefinition) son.getAttributes().get("attr1");
         assertEquals("integer", attrDefSon.getType());
 
         // son has all parent's
