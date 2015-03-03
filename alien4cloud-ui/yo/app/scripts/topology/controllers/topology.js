@@ -92,7 +92,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     }
 
     $scope.editorContent = '';
-    var inputOutputKeys = ['inputProperties', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
+    var inputOutputKeys = ['inputs', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
 
     // Size management
@@ -511,13 +511,17 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         params.attributeName = propertyName;
       }
 
-      if (inputIndex < 0) {
+      if ((inputOrOutput === 'output' && inputIndex < 0) || (inputOrOutput === 'inputs' && !$scope.isInputProperty(propertyName))) {
         // add input property
         topologyServices.nodeTemplate[inputOrOutput].add(
           params,
           function(successResult) {
             if (!successResult.error) {
-              topology[inputOrOutput][nodeTemplateName].push(propertyName);
+              if (inputOrOutput === 'output') {
+                topology[inputOrOutput][nodeTemplateName].push(propertyName);
+              } else {
+                $scope.topology.topology.inputs[propertyName] = propertyName;
+              }
             } else {
               console.debug(successResult.error);
             }
@@ -532,7 +536,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           params,
           function(successResult) {
             if (!successResult.error) {
-              topology[inputOrOutput][nodeTemplateName].splice(inputIndex, 1);
+              if (inputOrOutput === 'output') {
+                topology[inputOrOutput][nodeTemplateName].splice(inputIndex, 1);
+              } else {
+                delete $scope.topology.topology.inputs[propertyName];
+              }
             } else {
               console.debug(successResult.error);
             }
@@ -545,7 +553,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.toggleInputProperty = function(propertyName) {
-      toggleInputOutput(propertyName, 'inputProperties', 'property');
+      toggleInputOutput(propertyName, 'inputs', 'property');
     };
 
     $scope.toggleOutputProperty = function(propertyName) {
@@ -792,10 +800,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
      * Properties scopes
      */
     $scope.isInputProperty = function(propertyName) {
-      if(UTILS.isUndefinedOrNull($scope.topology.topology.inputProperties)) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.inputs[propertyName])) {
         return false;
       }
-      return $scope.topology.topology.inputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
+      return true;
     };
 
     $scope.isInputArtifact = function(artifactName) {
@@ -833,7 +841,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
      * Capabilities and Requirements docs
      */
     $scope.getComponent = function(nodeTemplate, type) {
-
       var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
       var componentId = type + ':' + nodeType.archiveVersion;
 
@@ -879,7 +886,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /* Update properties of a node template */
     $scope.updateRelationshipProperty = function(propertyDefinition, propertyValue, relationshipType, relationshipName) {
       var propertyName = propertyDefinition.name;
-
       var updateRelationshipPropertyRequest = {
         'propertyName': propertyName,
         'propertyValue': propertyValue,

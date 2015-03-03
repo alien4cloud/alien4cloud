@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.paas.model.PaaSTopology;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
@@ -506,7 +505,7 @@ public class TopologyController {
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
-        nodeTemp.getProperties().put(updatePropertyRequest.getPropertyName(), new ScalarPropertyValue(updatePropertyRequest.getPropertyValue()));
+        nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
         alienDAO.save(topology);
 
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -746,7 +745,7 @@ public class TopologyController {
     }
 
     @ApiOperation(value = "Activate a property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> addOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);

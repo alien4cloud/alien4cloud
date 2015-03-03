@@ -194,7 +194,7 @@ public class DeploymentSetupService {
     }
 
     private void processGetInput(Map<String, String> inputs, Map<String, AbstractPropertyValue> properties) {
-        if (properties != null) {
+        if (inputs != null && properties != null) {
             for (Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
