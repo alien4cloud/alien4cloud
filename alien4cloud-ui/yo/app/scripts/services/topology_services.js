@@ -31,13 +31,12 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
+  //  var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
+    var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/:inputId', {}, {
       'add': {
-        method: 'PUT',
+        method: 'GET',
         params: {
           topologyId: '@topologyId',
-          nodeTemplateName: '@nodeTemplateName',
-          propertyId: '@propertyId',
           inputId: '@inputId'
         },
         headers: {
@@ -46,6 +45,10 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       },
       'remove': {
         method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId'
+        },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
         }
@@ -209,7 +212,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'updateProperty': updateNodeProperty.update,
         'getPossibleReplacements': replacements.get,
         'replace': replacements.replace,
-        'inputProperties': updateInputProperty,
+        'inputs': updateInputProperty,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
         'artifactInput': updateInputArtifact
