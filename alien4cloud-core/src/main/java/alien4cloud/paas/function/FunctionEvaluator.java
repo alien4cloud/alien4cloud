@@ -186,14 +186,21 @@ public final class FunctionEvaluator {
      *            {@link PaaSNodeTemplate}s should have been built, thus referencing their related parents and relationships.
      * @return the String result of the function evalutation
      */
-    public static AbstractPropertyValue evaluateGetPropertyFuntion(FunctionPropertyValue functionParam,
-            IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+    public static String evaluateGetPropertyFuntion(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<PaaSNodeTemplate> entities = getPaaSEntities(basePaaSTemplate, functionParam.getParameters().get(0), builtPaaSTemplates);
         String propertyId = functionParam.getParameters().get(1);
         for (PaaSNodeTemplate paaSNodeTemplate : entities) {
             // the first nodeTemplate with the required propertyId is returned
             if (paaSNodeTemplate.getNodeTemplate().getProperties().containsKey(propertyId)) {
-                return paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyId);
+                AbstractPropertyValue propertyValue = paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyId);
+                if (propertyValue instanceof ScalarPropertyValue) {
+                    return ((ScalarPropertyValue) propertyValue).getValue();
+                } else if (propertyValue instanceof FunctionPropertyValue) {
+                    return evaluateGetPropertyFuntion((FunctionPropertyValue) propertyValue, paaSNodeTemplate, builtPaaSTemplates);
+                } else {
+                    throw new FunctionEvaluationException("");
+                }
             }
         }
         return null;
