@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.Operation;
@@ -103,7 +105,8 @@ public class FunctionEvaluatorTest {
     }
 
     @Test
-    public void testParseString() {
+    public void testParseAttributConcatScalar() {
+
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
         nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
@@ -118,10 +121,28 @@ public class FunctionEvaluatorTest {
 
         Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
 
-        String parsedString = FunctionEvaluator.parseString(
-                "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
-                runtimeInformations, "0");
-        Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
+        // Create a IAttributeValue
+        ConcatPropertyValue concatAttributeValue = new ConcatPropertyValue();
+        ScalarPropertyValue scalarParameter1 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter2 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter3 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter4 = new ScalarPropertyValue();
+
+        scalarParameter1.setValue("http://");
+        scalarParameter2.setValue("mywebsiteurl");
+        scalarParameter3.setValue(":");
+        scalarParameter4.setValue("port");
+
+        concatAttributeValue.setParameters(new ArrayList<IOperationParameter>());
+        concatAttributeValue.getParameters().add(scalarParameter1);
+        concatAttributeValue.getParameters().add(scalarParameter2);
+        concatAttributeValue.getParameters().add(scalarParameter3);
+        concatAttributeValue.getParameters().add(scalarParameter4);
+
+        String parsedConcatString = FunctionEvaluator.parseAttribute(null, concatAttributeValue, topology, runtimeInformations, "0", null);
+        String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
+        Assert.assertEquals(fullUrl, parsedConcatString);
+
     }
 
     @Test
@@ -167,9 +188,9 @@ public class FunctionEvaluatorTest {
         Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
     }
-    
+
     private String getPropertyValue(PaaSNodeTemplate paaSNodeTemplate, String propertyName) {
-        return ((ScalarPropertyValue)paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyName)).getValue();
+        return ((ScalarPropertyValue) paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyName)).getValue();
     }
 
     @Test(expected = BadUsageKeywordException.class)
