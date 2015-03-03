@@ -17,6 +17,7 @@
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
 - relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
+- outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -54,16 +55,24 @@
 
 - topology_template_type: alien4cloud.model.topology.Topology|topologyChecker
   description: .topologyTemplateDescription # mapped to a root's property
+  inputs:
+    map: inputs
+    type: property_definition
   node_templates:
     map: nodeTemplates
     type: node_template
-
+  outputs:
+    inner: void # means : do the parsing but do not set anything
+    deferred: true
+    deferredOrder: 1001 # we want this to be the very last executed
+    type: outputs_type
+    
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type
   name: name
   properties:
     map: properties
-    type: template_property
+    type: node_template_property
   requirements:
     inner: relationships
     type: relationship_templates_type
@@ -168,6 +177,14 @@
       list: parameters
       type: input
 
+- node_template_property: __discriminator
+  keys:
+    type: property_definition
+    get_input: tosca_function
+    get_property: tosca_function
+    get_attribute: tosca_function
+  default: scalar_property_value
+  
 - input: __discriminator
   keys:
     type: property_definition
