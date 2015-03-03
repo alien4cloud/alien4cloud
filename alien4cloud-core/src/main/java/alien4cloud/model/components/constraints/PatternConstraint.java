@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,5 +30,13 @@ public class PatternConstraint extends AbstractStringPropertyConstraint {
         if (!compiledPattern.matcher(propertyValue).matches()) {
             throw new ConstraintViolationException("The value do not match pattern " + pattern);
         }
+    }
+
+    @Override
+    public boolean isCompatible(PropertyConstraint propertyConstraint) {
+        if ((propertyConstraint instanceof PatternConstraint) && this.getPattern().equals(((PatternConstraint) propertyConstraint).getPattern())) {
+            return true;
+        }
+        return false;
     }
 }

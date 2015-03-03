@@ -19,6 +19,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
@@ -190,13 +191,15 @@ public class TopologyInputsController {
      * @param inputId
      * @param nodeTemplateId
      * @param propertyId
+     * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
-            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
+            throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -209,7 +212,7 @@ public class TopologyInputsController {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         } else if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
+            propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
@@ -241,6 +244,7 @@ public class TopologyInputsController {
      * @param nodeTemplateId
      * @param relationshipTemplateId
      * @param propertyId
+     * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -249,7 +253,8 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId) {
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId)
+            throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -263,7 +268,7 @@ public class TopologyInputsController {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         } else if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
+            propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
