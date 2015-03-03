@@ -16,7 +16,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       if ($scope.displayAddNode) {
         $scope.displayInputs = false;
         $scope.displayDependencies = false;
-        $scope.selectedNodeTemplate = null;
+        $scope.showDetailsCoponent = false;
       } else {
         $scope.displayTopology = true;
       }
@@ -29,7 +29,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       if ($scope.displayDependencies) {
         $scope.displayInputs = false;
         $scope.displayAddNode = false;
-        $scope.selectedNodeTemplate = null;
+        $scope.showDetailsCoponent = false;
       } else {
         $scope.displayTopology = true;
       }
@@ -42,7 +42,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       if ($scope.displayInputs) {
         $scope.displayDependencies = false;
         $scope.displayAddNode = false;
-        $scope.selectedNodeTemplate = null;
+        $scope.showDetailsCoponent = false;
       } else {
         $scope.displayTopology = true;
       }
@@ -50,23 +50,24 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.closeNodeTemplateDetails = function() {
-      $scope.selectedNodeTemplate = null;
+      $scope.showDetailsCoponent = false;
       $scope.displayTopology = true;
       resizeViewElement();
     };
 
     var resizeViewElement = function() {
+      console.log('yolo1: ', $scope.displayAddNode);
       var displayPanel = ($scope.displayAddNode || $scope.displayDependencies || $scope.displayInputs) ? true : false;
-      if (!$scope.selectedNodeTemplate && !displayPanel) {
+      if (!$scope.showDetailsCoponent && !displayPanel) {
         $scope.colTopology = 'col-md-12';
-      } else if ($scope.selectedNodeTemplate && $scope.displayInputs) {
+      } else if ($scope.showDetailsCoponent && $scope.displayInputs) {
         $scope.displayTopology = false;
         $scope.colPanel = 'col-md-6';
         $scope.colProperty = 'col-md-6';
-      } else if ($scope.selectedNodeTemplate && !displayPanel) {
+      } else if ($scope.showDetailsCoponent && !displayPanel) {
         $scope.colTopology = 'col-md-6';
         $scope.colProperty = 'col-md-6';
-      } else if (!$scope.selectedNodeTemplate && displayPanel) {
+      } else if (!$scope.showDetailsCoponent && displayPanel) {
         $scope.colTopology = 'col-md-8';
         $scope.colPanel = 'col-md-4';
       } else {
@@ -220,6 +221,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         // for refreshing the ui
         refreshTopology(result.data, openedOnElementName);
       });
+      $scope.showDetailsCoponent = true;
+      resizeViewElement();
     };
 
     $scope.openSearchRelationshipModal = function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
@@ -371,6 +374,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         newSelected.selected = true;
 
         fillNodeSelectionVars(newSelected);
+        $scope.showDetailsCoponent = true;
         resizeViewElement();
         $scope.$apply();
       });
@@ -432,6 +436,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           $scope.nodeNameObj.val = $scope.selectedNodeTemplate.name;
         });
       } // if end
+      $scope.showDetailsCoponent = true;
+      resizeViewElement();
     };
 
     /* Update properties of a node template */

@@ -19,7 +19,7 @@
   </div>
 
   <!-- NodeTemplate details -->
-  <div id="nodetemplate-details" ng-show="selectedNodeTemplate" class="topology-panel-style topology-columns topology-details" ng-class="colProperty">
+  <div id="nodetemplate-details" ng-show="selectedNodeTemplate && showDetailsCoponent" class="topology-panel-style topology-columns topology-details" ng-class="colProperty">
     <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="closeNodeTemplateDetails()"><i class="fa fa-remove close-panel" ></i></span>
     <div  ng-init="resizeViewElement()">
       <div class="row" style="margin-top: 12px;">
@@ -371,8 +371,6 @@
                   <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
                     <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
                       <td ng-init="propertyEntry.value.name=propertyEntry.key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
-                        {{relationshipEntry.value.properties}}
-                        {{propertyEntry.key}}
                         <property-display
                                 ng-init="condensed = false"
                                 definition="propertyEntry.value"
