@@ -23,6 +23,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
+import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -151,12 +152,12 @@ public class ApplicationStepDefinitions {
 
         String topologyId = getTopologyIdFromApplication(CURRENT_APPLICATION.getName());
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
-        TopologyDTO createdTopology = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO createdTopology = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
 
         // base topology template
         authSteps.I_am_authenticated_with_role("ARCHITECT"); // quick win solution
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + template.getTopologyId()));
-        TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyTemplateBase = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
 
         Map<String, NodeTemplate> nodeTemplates = topologyTemplateBase.getTopology().getNodeTemplates();
 

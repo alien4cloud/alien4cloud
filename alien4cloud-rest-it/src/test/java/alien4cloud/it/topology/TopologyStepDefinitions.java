@@ -212,7 +212,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should not contain a nodetemplate named \"([^\"]*)\"")
     public void The_RestResponse_should_not_contain_a_nodetemplate_named(String key) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getTopology());
         assertTrue(topologyDTO.getTopology().getNodeTemplates() == null || topologyDTO.getTopology().getNodeTemplates().get(key) == null);
@@ -231,7 +231,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should contain a nodetemplate named \"([^\"]*)\" and type \"([^\"]*)\"")
     public void The_RestResponse_should_contain_a_nodetemplate_named_and_type(String key, String type) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getTopology());
         assertNotNull(topologyDTO.getTopology().getNodeTemplates());
