@@ -11,4 +11,6 @@ public interface PropertyConstraint {
     void validate(Object propertyValue) throws ConstraintViolationException;
 
     void validate(ToscaType toscaType, String propertyTextValue) throws ConstraintViolationException;
+
+    boolean isCompatible(PropertyConstraint propertyConstraint);
 }

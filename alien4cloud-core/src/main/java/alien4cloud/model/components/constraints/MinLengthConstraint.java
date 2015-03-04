@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 @Getter
@@ -26,5 +27,13 @@ public class MinLengthConstraint extends AbstractStringPropertyConstraint {
         if (propertyValue.length() < minLength) {
             throw new ConstraintViolationException("The length of the value is less than [" + minLength + "]");
         }
+    }
+
+    @Override
+    public boolean isCompatible(PropertyConstraint propertyConstraint) {
+        if ((propertyConstraint instanceof MinLengthConstraint) && this.getMinLength() == ((MinLengthConstraint) propertyConstraint).getMinLength()) {
+            return true;
+        }
+        return false;
     }
 }

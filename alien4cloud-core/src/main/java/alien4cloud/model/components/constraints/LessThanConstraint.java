@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -27,5 +28,13 @@ public class LessThanConstraint extends AbstractComparablePropertyConstraint {
         if (getComparable().compareTo(propertyValue) <= 0) {
             throw new ConstraintViolationException(propertyValue + " > " + lessThan);
         }
+    }
+
+    @Override
+    public boolean isCompatible(PropertyConstraint propertyConstraint) {
+        if ((propertyConstraint instanceof LessThanConstraint) && this.getLessThan().equals(((LessThanConstraint) propertyConstraint).getLessThan())) {
+            return true;
+        }
+        return false;
     }
 }
