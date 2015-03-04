@@ -33,7 +33,7 @@ import alien4cloud.it.utils.websocket.IStompDataFuture;
 import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
@@ -487,13 +487,13 @@ public class ApplicationsDeploymentStepDefinitions {
             String deploymentPropertyValue = deploymentProperty.get(1).trim();
             expectedDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
-        DeploymentSetup deploymentSetup = JsonUtil.read(
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
                 Context.getRestClientInstance().get(
                         "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
-                                + "/deployment-setup"), DeploymentSetup.class).getData();
-        Assert.assertNotNull(deploymentSetup.getProviderDeploymentProperties());
-        Assert.assertEquals(expectedDeploymentProperties, deploymentSetup.getProviderDeploymentProperties());
+                                + "/deployment-setup"), DeploymentSetupMatchInfo.class).getData();
+        Assert.assertNotNull(deploymentSetupMatchInfo.getProviderDeploymentProperties());
+        Assert.assertEquals(expectedDeploymentProperties, deploymentSetupMatchInfo.getProviderDeploymentProperties());
     }
 
     @Given("^I deploy an application environment \"([^\"]*)\" for application \"([^\"]*)\"$")

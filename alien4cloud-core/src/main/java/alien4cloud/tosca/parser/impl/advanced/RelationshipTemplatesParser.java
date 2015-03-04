@@ -103,8 +103,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                     if (mappingValueNodeChilds.getKeyNode() instanceof ScalarNode
                             && ((ScalarNode) mappingValueNodeChilds.getKeyNode()).getValue().equals("properties")
                             && (mappingValueNodeChilds.getValueNode() instanceof MappingNode)) {
-                        INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("property_value");
-                        MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "property_value");
+                        INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("scalar_property_value");
+                        MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "scalar_property_value");
                         relationshipProperties = mapParser.parse(mappingValueNodeChilds.getValueNode(), context);
                     }
                 }
@@ -115,9 +115,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                 if (toscaRequirementTargetNodeTemplateName == null) {
                     // the node template name is required
                     context.getParsingErrors().add(
-                            new ParsingError(ErrorCode.VALIDATION_ERROR, "ToscaRequirementTargetNodeTemplateNameRequired", valueNode.getStartMark(),
-                                    "The requirement target node should be defined using a 'node' property, not able to find the relation ship target",
-                                    valueNode.getEndMark(), ""));
+                            new ParsingError(ErrorCode.REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED, null, valueNode.getStartMark(), null, valueNode
+                                    .getEndMark(), null));
                     continue;
                 }
                 // this is a Capability Type
@@ -185,13 +184,14 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                     new ParsingError(ErrorCode.REQUIREMENT_NOT_FOUND, null, node.getStartMark(), null, node.getEndMark(), toscaRequirementName));
             return null;
         }
+        // the relationship template type is take from 'relationship' node or requirement definition
+        String relationshipTypeName = (relationshipType != null) ? relationshipType : rd.getRelationshipType();
         // ex: host
         relationshipTemplate.setRequirementName(toscaRequirementName);
-        // relationshipTemplate.setTargetedCapabilityName(rd.getId());
         // ex: tosca.nodes.Compute
         relationshipTemplate.setRequirementType(rd.getType());
         // ex: tosca.relationships.HostedOn
-        relationshipTemplate.setType(rd.getRelationshipType());
+        relationshipTemplate.setType(relationshipTypeName);
 
         // now find the target of the relation
         NodeTemplate targetNodeTemplate = archiveRoot.getTopology().getNodeTemplates().get(toscaRequirementTargetNodeTemplateName);
@@ -238,13 +238,11 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
         relationshipTemplate.setTarget(toscaRequirementTargetNodeTemplateName);
 
         // now find the relationship type
-        IndexedRelationshipType indexedRelationshipType = ToscaParsingUtil.getRelationshipTypeFromArchiveOrDependencies(rd.getRelationshipType(), archiveRoot,
+        IndexedRelationshipType indexedRelationshipType = ToscaParsingUtil.getRelationshipTypeFromArchiveOrDependencies(relationshipTypeName, archiveRoot,
                 searchService);
         if (indexedRelationshipType == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ErrorCode.TYPE_NOT_FOUND, "ToscaRequirementRelationshipTypeNotFound", node.getStartMark(),
-                            "The relationship type corresponding to the requirement definition can't be identified", node.getEndMark(), rd
-                                    .getRelationshipType()));
+            context.getParsingErrors()
+                    .add(new ParsingError(ErrorCode.TYPE_NOT_FOUND, null, node.getStartMark(), null, node.getEndMark(), relationshipTypeName));
             return null;
         }
         Map<String, AbstractPropertyValue> properties = Maps.newHashMap();

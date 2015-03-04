@@ -31,6 +31,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
+import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -239,7 +240,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should contain a node type with \"([^\"]*)\" id$")
     public void The_RestResponse_should_contain_a_node_type_with_id(String expectedId) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getNodeTypes());
         assertNotNull(topologyDTO.getNodeTypes().get(expectedId.split(":")[0]));
@@ -675,7 +676,7 @@ public class TopologyStepDefinitions {
         Set<CSARDependency> actualDependencies = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getDependencies();
         Assert.assertEquals(expectedDependencies, actualDependencies);
     }
-    
+
     @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" and store the related topology as a SPEL context$")
     public void searchForTopologyTemplateByName(String topologyTemplateName) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
@@ -689,8 +690,8 @@ public class TopologyStepDefinitions {
         }
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
         response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
-        RestResponse<TopologyDTO> topologyDto = JsonUtil.read(response, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
         Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
     }
-    
+
 }

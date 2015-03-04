@@ -12,8 +12,8 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   And The SPEL boolean expression "nodeTemplates.size() == 2" should return true
   And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
   And The SPEL boolean expression "nodeTemplates['compute'].properties.size() == 8" should return true
-  And The SPEL expression "nodeTemplates['compute'].properties['os_distribution']" should return "ubuntu"
-  And The SPEL expression "nodeTemplates['compute'].properties['os_type']" should return "linux"
+  And The SPEL expression "nodeTemplates['compute'].properties['os_distribution'].value" should return "ubuntu"
+  And The SPEL expression "nodeTemplates['compute'].properties['os_type'].value" should return "linux"
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.size() == 3" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('ip_address')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_id')" should return true
@@ -31,7 +31,7 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
   And The SPEL boolean expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size() == 1" should return true
-  And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password']" should return "unfuckingbelievable"
+  And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "unfuckingbelievable"
   
   
 Scenario: Upload CSAR containing cutom types and embeded topology template using short notation for requirements  
