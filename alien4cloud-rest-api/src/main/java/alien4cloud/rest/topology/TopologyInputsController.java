@@ -247,6 +247,32 @@ public class TopologyInputsController {
 
     /**
      * <p>
+     * Disassociated the property of a node template to an input of the topology.
+     * </p>
+     * 
+     * @param topologyId
+     * @param inputId
+     * @param nodeTemplateId
+     * @param propertyId
+     */
+    @ApiOperation(value = "Disassociated the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> unsetInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
+
+        nodeTemplate.getProperties().remove(propertyId);
+
+        log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateId, topologyId);
+        alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * <p>
      * Associate the property of a relationship template to an input of the topology.
      * </p>
      * <p>
@@ -296,6 +322,36 @@ public class TopologyInputsController {
         log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipTemplateId,
                 topologyId);
         topology.setInputs(inputProperties);
+        alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * <p>
+     * Disassociated the property of a relationship template to an input of the topology.
+     * </p>
+     * 
+     * @param topologyId
+     * @param nodeTemplateId
+     * @param relationshipTemplateId
+     * @param propertyId
+     */
+    @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> unsetInputToRelationshipTemplate(
+            @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
+
+        relationshipTemplate.getProperties().remove(propertyId);
+
+        log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipTemplateId,
+                topologyId);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
