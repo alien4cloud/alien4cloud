@@ -11,12 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -62,12 +64,17 @@ public class TopologyInputsController {
     @ApiOperation(value = "Activate a property as an input property.", notes = "Activate a property as an input property. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/{inputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
-            @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId) {
+            @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId,
+            @ApiParam(value = "The property definition of the new input.", required = true) @RequestBody PropertyDefinition newPropertyDefinition) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
 
-        inputProperties.put(inputId, new PropertyDefinition());
+        if (inputProperties.containsKey(inputId)) {
+            throw new AlreadyExistException("An input with the id " + inputId + "already exist in the topology " + topologyId);
+        }
+
+        inputProperties.put(inputId, newPropertyDefinition);
         topology.setInputs(inputProperties);
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
