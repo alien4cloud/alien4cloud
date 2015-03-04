@@ -96,9 +96,21 @@ public class PropertyDefinition implements IOperationParameter {
         return true;
     }
 
+    /**
+     * Check if all constraint are equals
+     *
+     * @param propertyDefinition
+     * @throws IncompatiblePropertyDefinitionException
+     */
     public void checkIfCompatibleOrFail(PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
+        if (propertyDefinition == null) {
+            throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + this.getType() + "is incompatible whit a NullPointer");
+        }
+
         List<PropertyConstraint> otherConstraints = propertyDefinition.getConstraints();
-        if (this.getConstraints() == null || otherConstraints == null || this.getConstraints().size() != otherConstraints.size()) {
+        if (this.getConstraints() == null && otherConstraints == null) {
+            return;
+        } else if (this.getConstraints() == null || otherConstraints == null || this.getConstraints().size() != otherConstraints.size()) {
             throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
                     + this.getType());
         }
