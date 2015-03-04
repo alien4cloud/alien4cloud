@@ -22,7 +22,6 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.application.InvalidDeploymentSetupException;
-import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -78,8 +77,6 @@ public class ApplicationDeploymentController {
     private CloudService cloudService;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
