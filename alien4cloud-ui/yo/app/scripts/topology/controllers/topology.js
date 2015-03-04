@@ -116,7 +116,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     }
 
     $scope.editorContent = '';
-    var inputOutputKeys = ['inputs', 'outputProperties', 'outputAttributes', 'inputArtifacts'];
+    var inputOutputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
 
     // Size management
@@ -455,7 +455,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /* Update properties of a node template */
     $scope.updateProperty = function(propertyDefinition, propertyValue) {
       var propertyName = propertyDefinition.name;
-      if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName]) {
+      if (propertyValue === $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].propertiesMap[propertyName].value) {
         return;
       }
       var updatePropsObject = {
@@ -563,7 +563,20 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.toggleInputProperty = function(propertyName) {
-      
+      var selectedNodeTemplateType = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
+      var selectedPropertyDefinition = selectedNodeTemplateType.propertiesMap[propertyName].value;
+      topologyServices.inputs.add({
+        topologyId: $scope.topology.topology.id,
+        inputId: propertyName
+      }, angular.toJson(selectedPropertyDefinition), function() {
+        // Success
+        topologyServices.nodeTemplate.setInputs.set({
+          topologyId: $scope.topology.topology.id,
+          inputId: propertyName,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          propertyId: propertyName
+        });
+      });
     };
 
     $scope.toggleOutputProperty = function(propertyName) {
@@ -810,7 +823,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
      * Properties scopes
      */
     $scope.isInputProperty = function(propertyName) {
-      var propertyValue = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName];
+      var propertyValue = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].propertiesMap[propertyName].value;
       if (UTILS.isUndefinedOrNull(propertyValue)) {
         return false;
       }
@@ -845,7 +858,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.getPropertyDescription = function(propertyKey) {
-      return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].propertiesMap[propertyKey].description;
+      return $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type].propertiesMap[propertyKey].value.description;
     };
 
     /**

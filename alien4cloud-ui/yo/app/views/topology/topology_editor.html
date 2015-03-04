@@ -532,9 +532,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="input in topology.topology.inputs">
+          <tr ng-repeat="(key,value) in topology.topology.inputs">
             <td>
-              {{input}}
+              {{topology.topology.inputs}}
             </td>
           </tr>
         </tbody>
