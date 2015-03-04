@@ -25,6 +25,8 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyServiceCore;
@@ -63,11 +65,8 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
 
-        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
-        if (inputProperties == null) {
-            inputProperties = Maps.newHashMap();
-        }
         inputProperties.put(inputId, new PropertyDefinition());
         topology.setInputs(inputProperties);
 
@@ -107,7 +106,14 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the new input.", required = true) @NotBlank @PathVariable final String newInputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        if (inputProperties == null) {
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
+        } else if (!inputProperties.containsKey(oldInputId)) {
+            return RestResponseBuilder.<Void> builder().build();
+        }
+
         PropertyDefinition propertyDefinition = inputProperties.remove(oldInputId);
         inputProperties.put(newInputId, propertyDefinition);
 
@@ -157,7 +163,14 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        if (inputProperties == null) {
+            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
+        } else if (!inputProperties.containsKey(inputId)) {
+            return RestResponseBuilder.<Void> builder().build();
+        }
+
         inputProperties.remove(inputId);
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
@@ -202,20 +215,18 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
 
-        if (inputProperties == null) {
-            inputProperties = Maps.newHashMap();
-            inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
-        } else if (inputProperties.containsKey(inputId)) {
+        if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
             propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
+
         FunctionPropertyValue getInput = new FunctionPropertyValue();
         getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
         getInput.setParameters(Arrays.asList(inputId));
@@ -257,21 +268,19 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
 
-        if (inputProperties == null) {
-            inputProperties = Maps.newHashMap();
-            inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
-        } else if (inputProperties.containsKey(inputId)) {
+        if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
             propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
+
         FunctionPropertyValue getInput = new FunctionPropertyValue();
         getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
         getInput.setParameters(Arrays.asList(inputId));
@@ -282,5 +291,13 @@ public class TopologyInputsController {
         topology.setInputs(inputProperties);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    private Map<String, PropertyDefinition> getInputsOrCreateIt(Topology topology) {
+        Map<String, PropertyDefinition> inputs = topology.getInputs();
+        if (inputs == null) {
+            inputs = Maps.newHashMap();
+        }
+        return inputs;
     }
 }
