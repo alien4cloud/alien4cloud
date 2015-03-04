@@ -10,7 +10,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
       }
-      if(data === initialValue) {
+      if (data === initialValue) {
         return;
       }
       // check constraint here
@@ -61,9 +61,15 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.definitionObject = {};
 
     $scope.initScope = function() {
+
       // Define properties
-      if(!UTILS.isDefinedAndNotNull($scope.definition)) {
+      if (!UTILS.isDefinedAndNotNull($scope.definition)) {
         return;
+      }
+      // Now a property is an AbstractPropertyValue : (Scalar or Function)
+      if (UTILS.isDefinedAndNotNull($scope.propertyValue) && $scope.propertyValue.hasOwnProperty('value') && $scope.propertyValue.definition === false) {
+        // Here handle scalar value
+        $scope.propertyValue = $scope.propertyValue.value;
       }
       var shownValue = $scope.propertyValue || $scope.definition.default;
 
