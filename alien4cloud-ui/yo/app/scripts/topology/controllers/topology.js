@@ -5,79 +5,102 @@
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', '$window',
   function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService, $window) {
     $scope.view = 'RENDERED';
-    $scope.colTopology = 'col-md-6';
-    $scope.colProperty = 'col-md-6';
-    $scope.colPanel = 'col-md-3';
-    $scope.displayTopology = true;
 
-    $scope.displayAddNode = false;
-    $scope.toggleAddNode = function() {
-      $scope.displayAddNode = $scope.displayAddNode === false ? true: false;
-      if ($scope.displayAddNode) {
-        $scope.displayInputs = false;
-        $scope.displayDependencies = false;
-        $scope.showDetailsCoponent = false;
-      } else {
-        $scope.displayTopology = true;
-      }
-      resizeViewElement();
-    };
+    $scope.activeDisplays = ['displayTopology'];
 
-    $scope.displayDependencies = false;
-    $scope.toggleDependencies = function() {
-      $scope.displayDependencies = $scope.displayDependencies === false ? true: false;
-      if ($scope.displayDependencies) {
-        $scope.displayInputs = false;
-        $scope.displayAddNode = false;
-        $scope.showDetailsCoponent = false;
-      } else {
-        $scope.displayTopology = true;
-      }
-      resizeViewElement();
-    };
+    $scope.displays = {};
 
-    $scope.displayInputs = false;
-    $scope.toggleInputs = function() {
-      $scope.displayInputs = $scope.displayInputs === false ? true: false;
-      if ($scope.displayInputs) {
-        $scope.displayDependencies = false;
-        $scope.displayAddNode = false;
-        $scope.showDetailsCoponent = false;
-      } else {
-        $scope.displayTopology = true;
-      }
-      resizeViewElement();
-    };
+    $scope.displays.displayTopology = {};
+    $scope.displays.displayTopology.active = true;
 
-    $scope.closeNodeTemplateDetails = function() {
-      $scope.showDetailsCoponent = false;
-      $scope.displayTopology = true;
-      resizeViewElement();
-    };
+    $scope.displays.displayAddNode = {};
+    $scope.displays.displayAddNode.active = false;
 
-    var resizeViewElement = function() {
-      console.log('yolo1: ', $scope.displayAddNode);
-      var displayPanel = ($scope.displayAddNode || $scope.displayDependencies || $scope.displayInputs) ? true : false;
-      if (!$scope.showDetailsCoponent && !displayPanel) {
-        $scope.colTopology = 'col-md-12';
-      } else if ($scope.showDetailsCoponent && $scope.displayInputs) {
-        $scope.displayTopology = false;
-        $scope.colPanel = 'col-md-6';
-        $scope.colProperty = 'col-md-6';
-      } else if ($scope.showDetailsCoponent && !displayPanel) {
-        $scope.colTopology = 'col-md-6';
-        $scope.colProperty = 'col-md-6';
-      } else if (!$scope.showDetailsCoponent && displayPanel) {
-        $scope.colTopology = 'col-md-8';
-        $scope.colPanel = 'col-md-4';
-      } else {
-        $scope.displayAddNode = false;
-        $scope.displayDependencies = false;
-        $scope.colTopology = 'col-md-7';
-        $scope.colProperty = 'col-md-4';
+    $scope.displays.displayDependencies = {};
+    $scope.displays.displayDependencies.active = false;
+
+    $scope.displays.displayInputs = {};
+    $scope.displays.displayInputs.active = false;
+
+    $scope.displays.displayDependencies = {};
+    $scope.displays.displayDependencies.active = false;
+
+    $scope.displays.displayDetailsComponent = {};
+    $scope.displays.displayDetailsComponent.active = false;
+
+    var disableAllDisplayExcept = function(displays) {
+      $scope.activeDisplays = displays;
+      for (var displayName in $scope.displays) {
+        if ($scope.displays.hasOwnProperty(displayName)) {
+          $scope.displays[displayName].active = UTILS.arrayContains($scope.activeDisplays, displayName);
+        }
       }
     };
-    resizeViewElement();
+
+    $scope.setDisplay = function(displayName, active) {
+      if ($scope.displays[displayName].active !== active) {
+        $scope.toggleDisplay(displayName);
+      }
+    };
+
+    $scope.toggleDisplay = function(displayName) {
+      $scope.displays[displayName].active = !$scope.displays[displayName].active;
+      // Specific rules for displays which are logically linked
+      if ($scope.displays[displayName].active) {
+        $scope.activeDisplays.push(displayName);
+        switch (displayName) {
+          case 'displayAddNode':
+            disableAllDisplayExcept(['displayTopology', 'displayAddNode']);
+            break;
+          case 'displayDependencies':
+            disableAllDisplayExcept(['displayTopology', 'displayDependencies']);
+            break;
+          case 'displayInputs':
+            if (!$scope.displays['displayDetailsComponent'].active) {
+              disableAllDisplayExcept(['displayTopology', 'displayInputs']);
+            } else {
+              disableAllDisplayExcept(['displayDetailsComponent', 'displayInputs']);
+            }
+            break;
+          case 'displayDetailsComponent':
+            if (!$scope.displays['displayInputs'].active) {
+              disableAllDisplayExcept(['displayTopology', 'displayDetailsComponent']);
+            } else {
+              disableAllDisplayExcept(['displayDetailsComponent', 'displayInputs']);
+            }
+            break;
+        }
+      } else {
+        UTILS.arrayRemove($scope.activeDisplays, displayName);
+      }
+      calculateDisplay();
+    };
+
+    var calculateDisplay = function() {
+      var maxDisplay = 2;
+      var numberOfColumn = 12;
+      // How many display that is asked to display
+      if ($scope.activeDisplays.length > maxDisplay) {
+        while ($scope.activeDisplays.length > maxDisplay) {
+          var removedDisplay = $scope.activeDisplays.shift();
+          $scope.displays[removedDisplay].active = false;
+        }
+      }
+      // If only one display is asked to be displayed, we show also the topology
+      // If no display is asked to be displayed, we show at least the topology
+      if (($scope.activeDisplays.length === 1 && $scope.activeDisplays[0] !== 'displayTopology') ||
+        $scope.activeDisplays.length === 0) {
+        $scope.displays.displayTopology.active = true;
+        $scope.activeDisplays.push('displayTopology');
+      }
+
+      for (var displayName in $scope.displays) {
+        if ($scope.displays.hasOwnProperty(displayName) && $scope.displays[displayName].active) {
+          $scope.displays[displayName].size = numberOfColumn / $scope.activeDisplays.length;
+        }
+      }
+    };
+    calculateDisplay();
 
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
@@ -102,6 +125,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     var detailDivWidth = 450;
     var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
     var heightOffset = 156;
+
     function onResize(width, height) {
       $scope.dimensions = {
         width: width,
@@ -221,8 +245,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         // for refreshing the ui
         refreshTopology(result.data, openedOnElementName);
       });
-      $scope.showDetailsCoponent = true;
-      resizeViewElement();
+      $scope.setDisplay('displayDetailsComponent', true);
     };
 
     $scope.openSearchRelationshipModal = function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
@@ -287,15 +310,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         hostNodeName = evt.target.getAttribute('node-template-id');
       }
       $scope.nodeTypeSelected(nodeType, hostNodeName);
-    };
-
-    $scope.onInoutDragged = function(e) {
-      var nodeType = angular.fromJson(e.source);
-      var evt = e.event;
-      console.log('YOLO : onInoutDragged ', evt);
-      // if (evt.target.hasAttribute('node-template-id')) {
-      //   hostNodeName = evt.target.getAttribute('node-template-id');
-      // }
     };
 
     // refresh a node name in relationships
@@ -374,8 +388,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         newSelected.selected = true;
 
         fillNodeSelectionVars(newSelected);
-        $scope.showDetailsCoponent = true;
-        resizeViewElement();
+        $scope.setDisplay('displayDetailsComponent', true);
         $scope.$apply();
       });
     };
@@ -436,8 +449,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           $scope.nodeNameObj.val = $scope.selectedNodeTemplate.name;
         });
       } // if end
-      $scope.showDetailsCoponent = true;
-      resizeViewElement();
+      $scope.setDisplay('displayDetailsComponent', true);
     };
 
     /* Update properties of a node template */
@@ -499,35 +511,31 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
     };
 
-    var toggleInputOutput = function(propertyName, inputOrOutput, type) {
+    var toggleOutput = function(propertyName, outputType) {
+
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
-      var inputIndex = topology[inputOrOutput][nodeTemplateName].indexOf(propertyName);
       var params = {
         topologyId: $scope.topology.topology.id,
-        nodeTemplateName: nodeTemplateName,
-        propertyId: propertyName,
-        inputId: propertyName
+        nodeTemplateName: nodeTemplateName
       };
 
-      if (type === 'property') {
+      if (type === 'outputProperties') {
         params.propertyName = propertyName;
       }
-      if (type === 'attribute') {
+      if (type === 'outputAttributes') {
         params.attributeName = propertyName;
       }
 
-      if ((inputOrOutput === 'output' && inputIndex < 0) || (inputOrOutput === 'inputs' && !$scope.isInputProperty(propertyName))) {
+      var inputIndex = topology[outputType][nodeTemplateName].indexOf(propertyName);
+
+      if (inputIndex < 0) {
         // add input property
-        topologyServices.nodeTemplate[inputOrOutput].add(
+        topologyServices.nodeTemplate[outputType].add(
           params,
           function(successResult) {
             if (!successResult.error) {
-              if (inputOrOutput === 'output') {
-                topology[inputOrOutput][nodeTemplateName].push(propertyName);
-              } else {
-                $scope.topology.topology.inputs[propertyName] = propertyName;
-              }
+              topology[outputType][nodeTemplateName].push(propertyName);
             } else {
               console.debug(successResult.error);
             }
@@ -538,15 +546,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         );
       } else {
         // remove input
-        topologyServices.nodeTemplate[inputOrOutput].remove(
+        topologyServices.nodeTemplate[outputType].remove(
           params,
           function(successResult) {
             if (!successResult.error) {
-              if (inputOrOutput === 'output') {
-                topology[inputOrOutput][nodeTemplateName].splice(inputIndex, 1);
-              } else {
-                delete $scope.topology.topology.inputs[propertyName];
-              }
+              topology[outputType][nodeTemplateName].splice(inputIndex, 1);
             } else {
               console.debug(successResult.error);
             }
@@ -559,15 +563,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.toggleInputProperty = function(propertyName) {
-      toggleInputOutput(propertyName, 'inputs', 'property');
+      
     };
 
     $scope.toggleOutputProperty = function(propertyName) {
-      toggleInputOutput(propertyName, 'outputProperties', 'property');
+      toggleOutput(propertyName, 'outputProperties', 'property');
     };
 
     $scope.toggleOutputAttribute = function(attributeName) {
-      toggleInputOutput(attributeName, 'outputAttributes', 'attribute');
+      toggleOutput(attributeName, 'outputAttributes', 'attribute');
     };
 
     $scope.openSimpleModal = function(modalTitle, modalContent) {
@@ -806,28 +810,29 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
      * Properties scopes
      */
     $scope.isInputProperty = function(propertyName) {
-      if (UTILS.isUndefinedOrNull($scope.topology.topology.inputs[propertyName])) {
+      var propertyValue = $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].properties[propertyName];
+      if (UTILS.isUndefinedOrNull(propertyValue)) {
         return false;
       }
-      return true;
+      return angular.isObject(propertyValue);
     };
 
     $scope.isInputArtifact = function(artifactName) {
-      if(UTILS.isUndefinedOrNull($scope.topology.topology.inputArtifacts)) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.inputArtifacts)) {
         return false;
       }
       return $scope.topology.topology.inputArtifacts[$scope.selectedNodeTemplate.name].indexOf(artifactName) >= 0;
     };
 
     $scope.isOutputProperty = function(propertyName) {
-      if(UTILS.isUndefinedOrNull($scope.topology.topology.outputProperties)) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.outputProperties)) {
         return false;
       }
       return $scope.topology.topology.outputProperties[$scope.selectedNodeTemplate.name].indexOf(propertyName) >= 0;
     };
 
     $scope.isOutputAttribute = function(attributeName) {
-      if(UTILS.isUndefinedOrNull($scope.topology.topology.outputAttributes)) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.outputAttributes)) {
         return false;
       }
       return $scope.topology.topology.outputAttributes[$scope.selectedNodeTemplate.name].indexOf(attributeName) >= 0;
@@ -920,4 +925,5 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
     };
   }
-]);
+])
+;
