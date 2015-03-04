@@ -34,7 +34,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
   //  var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
     var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/:inputId', {}, {
       'add': {
-        method: 'GET',
+        method: 'POST',
         params: {
           topologyId: '@topologyId',
           inputId: '@inputId'
