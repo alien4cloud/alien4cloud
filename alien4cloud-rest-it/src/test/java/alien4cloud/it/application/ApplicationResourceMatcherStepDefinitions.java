@@ -13,7 +13,6 @@ import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
 import alien4cloud.it.cloud.CloudStorageStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
 import alien4cloud.model.application.Application;
-import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -104,24 +103,24 @@ public class ApplicationResourceMatcherStepDefinitions {
             expectedCloudResourcesMatching.put(nodeTemplate, new ComputeTemplate(cloudImageId, cloudImageFlavorId));
         }
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
-        DeploymentSetup deploymentSetup = JsonUtil
-                .read(Context.getRestClientInstance().get(
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
                         "/rest/applications/" + application.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
-                .getData();
-        Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
-        Assert.assertEquals(expectedCloudResourcesMatching, deploymentSetup.getCloudResourcesMapping());
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertNotNull(deploymentSetupMatchInfo.getCloudResourcesMapping());
+        Assert.assertEquals(expectedCloudResourcesMatching, deploymentSetupMatchInfo.getCloudResourcesMapping());
     }
 
     @Then("^The deployment setup of the application should contain no resources mapping$")
     public void The_deployment_setup_of_the_application_should_contain_no_resources_mapping() throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
-        DeploymentSetup deploymentSetup = JsonUtil
-                .read(Context.getRestClientInstance().get(
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
                         "/rest/applications/" + application.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
-                .getData();
-        Assert.assertTrue(deploymentSetup.getCloudResourcesMapping() == null || deploymentSetup.getCloudResourcesMapping().isEmpty());
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertTrue(deploymentSetupMatchInfo.getCloudResourcesMapping() == null || deploymentSetupMatchInfo.getCloudResourcesMapping().isEmpty());
     }
 
     @Then("^I should receive a match result with (\\d+) networks for the node \"([^\"]*)\":$")
@@ -176,24 +175,24 @@ public class ApplicationResourceMatcherStepDefinitions {
             expectedNetworksMatching.put(rows.get(0), network);
         }
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
-        DeploymentSetup deploymentSetup = JsonUtil
-                .read(Context.getRestClientInstance().get(
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
                         "/rest/applications/" + application.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
-                .getData();
-        Assert.assertNotNull(deploymentSetup.getCloudResourcesMapping());
-        Assert.assertEquals(expectedNetworksMatching, deploymentSetup.getNetworkMapping());
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertNotNull(deploymentSetupMatchInfo.getCloudResourcesMapping());
+        Assert.assertEquals(expectedNetworksMatching, deploymentSetupMatchInfo.getNetworkMapping());
     }
 
     @Then("^The deployment setup of the application should contain an empty network mapping$")
     public void The_deployment_setup_of_the_application_should_contain_an_empty_network_mapping() throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
-        DeploymentSetup deploymentSetup = JsonUtil
-                .read(Context.getRestClientInstance().get(
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
                         "/rest/applications/" + application.getId() + "/environments/"
-                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"), DeploymentSetup.class)
-                .getData();
-        Assert.assertTrue(deploymentSetup.getNetworkMapping() == null || deploymentSetup.getNetworkMapping().isEmpty());
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertTrue(deploymentSetupMatchInfo.getNetworkMapping() == null || deploymentSetupMatchInfo.getNetworkMapping().isEmpty());
     }
 
     @Then("^I should receive a match result with (\\d+) storages for the node \"([^\"]*)\":$")
