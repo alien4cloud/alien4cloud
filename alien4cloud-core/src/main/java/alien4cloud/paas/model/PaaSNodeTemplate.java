@@ -60,9 +60,9 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
      * @param id The id of the relationship template to get.
      * @return The {@link PaaSRelationshipTemplate} that matches the id or null if not found.
      */
-    public PaaSRelationshipTemplate getRelationshipTemplate(String id) {
+    public PaaSRelationshipTemplate getRelationshipTemplate(String id, String sourceId) {
         for (PaaSRelationshipTemplate relationshipTemplate : relationshipTemplates) {
-            if (relationshipTemplate.getId().equals(id)) {
+            if (relationshipTemplate.getId().equals(id) && relationshipTemplate.getSource().equals(sourceId)) {
                 return relationshipTemplate;
             }
         }

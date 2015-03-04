@@ -19,11 +19,14 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -54,17 +57,23 @@ public class TopologyInputsController {
      * @param topologyId The id of the topology to retrieve.
      * @return
      */
-    @ApiOperation(value = "Add a new input", notes = "Add a new input. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId}/add/{newInputId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
-            @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String newInputId) {
+    @ApiOperation(value = "Activate a property as an input property.", notes = "Activate a property as an input property. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId}/{inputId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
-        inputProperties.put(newInputId, new PropertyDefinition());
 
-        log.debug("Add a new input <{}> for the topology <{}>.", newInputId, topologyId);
+        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
+        if (inputProperties == null) {
+            inputProperties = Maps.newHashMap();
+        }
+        inputProperties.put(inputId, new PropertyDefinition());
+        topology.setInputs(inputProperties);
+
+        log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -93,7 +102,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Change the name of an input parameter.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyqId:.+}/updateInputId/{oldInputId}/{newInputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void updateInputId(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<Void> updateInputId(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the old input.", required = true) @NotBlank @PathVariable final String oldInputId,
             @ApiParam(value = "The name of the new input.", required = true) @NotBlank @PathVariable final String newInputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -112,6 +121,7 @@ public class TopologyInputsController {
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", oldInputId, newInputId, topologyId);
         alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -121,6 +131,9 @@ public class TopologyInputsController {
      * @param inputId
      */
     private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String inputId) {
+        if (properties == null) {
+            return;
+        }
         for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
@@ -139,8 +152,8 @@ public class TopologyInputsController {
      * @param inputId
      */
     @ApiOperation(value = "Remove an input from a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyqId:.+}/remove/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    @RequestMapping(value = "/{topologyId:.+}/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -150,13 +163,16 @@ public class TopologyInputsController {
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (NodeTemplate nodeTemp : nodeTemplates.values()) {
             removeInputIdInProperties(nodeTemp.getProperties(), inputId);
-            for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {
-                removeInputIdInProperties(relationshipTemplate.getProperties(), inputId);
+            if (nodeTemp.getRelationships() != null) {
+                for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {
+                    removeInputIdInProperties(relationshipTemplate.getProperties(), inputId);
+                }
             }
         }
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -175,13 +191,15 @@ public class TopologyInputsController {
      * @param inputId
      * @param nodeTemplateId
      * @param propertyId
+     * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<Void> setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
-            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
+            throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -194,7 +212,7 @@ public class TopologyInputsController {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         } else if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
+            propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
@@ -206,6 +224,7 @@ public class TopologyInputsController {
         log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateId, topologyId);
         topology.setInputs(inputProperties);
         alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
     }
 
     /**
@@ -225,14 +244,17 @@ public class TopologyInputsController {
      * @param nodeTemplateId
      * @param relationshipTemplateId
      * @param propertyId
+     * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void setInputToRelationshipTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<Void> setInputToRelationshipTemplate(
+            @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId) {
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId)
+            throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
@@ -246,7 +268,7 @@ public class TopologyInputsController {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         } else if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            propertyDefinition.mergeConstraintsIfValid(indexedNodeType.getProperties().get(propertyId));
+            propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }
@@ -259,5 +281,6 @@ public class TopologyInputsController {
                 topologyId);
         topology.setInputs(inputProperties);
         alienDAO.save(topology);
+        return RestResponseBuilder.<Void> builder().build();
     }
 }

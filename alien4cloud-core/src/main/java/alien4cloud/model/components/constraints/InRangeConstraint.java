@@ -4,11 +4,12 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
@@ -99,5 +100,14 @@ public class InRangeConstraint extends AbstractPropertyConstraint {
         } else {
             inRange.set(1, maxValue);
         }
+    }
+
+    @Override
+    public boolean isCompatible(PropertyConstraint propertyConstraint) {
+        if ((propertyConstraint instanceof InRangeConstraint) && this.getRangeMaxValue() == ((InRangeConstraint) propertyConstraint).getRangeMaxValue()
+                && this.getRangeMinValue() == ((InRangeConstraint) propertyConstraint).getRangeMinValue()) {
+            return true;
+        }
+        return false;
     }
 }

@@ -173,7 +173,7 @@ public class FunctionEvaluatorTest {
         String tomcatName = "tomcat";
         PaaSNodeTemplate warPaaS = builtPaaSNodeTemplates.get(warName);
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
-        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat");
+        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat", "war_1");
 
         Operation configOp = hostedOnRelTemp.getIndexedToscaElement().getInterfaces().get(ToscaRelationshipLifecycleConstants.CONFIGURE).getOperations()
                 .get(ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE);

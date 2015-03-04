@@ -96,9 +96,38 @@ public class PropertyDefinition implements IOperationParameter {
         return true;
     }
 
-    public void mergeConstraintsIfValid(PropertyDefinition propertyDefinition) {
-        List<PropertyConstraint> newConstraints = propertyDefinition.getConstraints();
-        this.constraints.addAll(newConstraints);
-        // TODO: need to check
+    /**
+     * Check if all constraint are equals
+     *
+     * @param propertyDefinition
+     * @throws IncompatiblePropertyDefinitionException
+     */
+    public void checkIfCompatibleOrFail(PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
+        if (propertyDefinition == null) {
+            throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + this.getType() + "is incompatible whit a NullPointer");
+        }
+
+        List<PropertyConstraint> otherConstraints = propertyDefinition.getConstraints();
+        if (this.getConstraints() == null && otherConstraints == null) {
+            return;
+        } else if (this.getConstraints() == null || otherConstraints == null || this.getConstraints().size() != otherConstraints.size()) {
+            throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
+                    + this.getType());
+        }
+
+        for (PropertyConstraint property : this.getConstraints()) {
+            for (int i = 0; i <= otherConstraints.size(); i++) {
+                if (otherConstraints.size() == 0) {
+                    break;
+                } else if (i == otherConstraints.size()) {
+                    throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
+                            + this.getType());
+                } else if (property.equals(otherConstraints.get(i))) {
+                    otherConstraints.remove(i);
+                    break;
+                }
+            }
+        }
     }
+
 }

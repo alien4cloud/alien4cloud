@@ -23,4 +23,9 @@ public class DeploymentSetupMatchInfo extends DeploymentSetup {
         super(initFrom.getId(), initFrom.getVersionId(), initFrom.getEnvironmentId(), initFrom.getProviderDeploymentProperties(),
                 initFrom.getInputProperties(), initFrom.getCloudResourcesMapping(), initFrom.getNetworkMapping(), initFrom.getStorageMapping());
     }
+
+    public DeploymentSetup getDeploymentSetup() {
+        return new DeploymentSetup(getId(), getVersionId(), getEnvironmentId(), getProviderDeploymentProperties(), getInputProperties(),
+                getCloudResourcesMapping(), getNetworkMapping(), getStorageMapping());
+    }
 }

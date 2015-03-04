@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.json.deserializer.TextDeserializer;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -32,5 +33,14 @@ public class LessOrEqualConstraint extends AbstractComparablePropertyConstraint 
         if (getComparable().compareTo(propertyValue) < 0) {
             throw new ConstraintViolationException(propertyValue + " >= " + lessOrEqual);
         }
+    }
+
+    @Override
+    public boolean isCompatible(PropertyConstraint propertyConstraint) {
+        if ((propertyConstraint instanceof LessOrEqualConstraint)
+                && this.getLessOrEqual().equals(((LessOrEqualConstraint) propertyConstraint).getLessOrEqual())) {
+            return true;
+        }
+        return false;
     }
 }
