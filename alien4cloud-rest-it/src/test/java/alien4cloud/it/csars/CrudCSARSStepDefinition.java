@@ -3,12 +3,13 @@ package alien4cloud.it.csars;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -84,7 +85,7 @@ public class CrudCSARSStepDefinition {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().get("/rest/csars/" + CURRENT_CSAR_NAME + "/version/" + CURRENT_CSAR_VERSION + "/cloudid/" + cloudId));
-        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> response = JsonTestUtil.read(Context.getInstance().getRestResponse());
         if (response.getData() != null) {
             Context.getInstance().registerTopologyDeploymentId(response.getData().toString());
         }

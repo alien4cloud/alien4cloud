@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Getter
 @Setter
 public class DeploymentSetupMatchInfo extends DeploymentSetup {
@@ -24,6 +26,7 @@ public class DeploymentSetupMatchInfo extends DeploymentSetup {
                 initFrom.getInputProperties(), initFrom.getCloudResourcesMapping(), initFrom.getNetworkMapping(), initFrom.getStorageMapping());
     }
 
+    @JsonIgnore
     public DeploymentSetup getDeploymentSetup() {
         return new DeploymentSetup(getId(), getVersionId(), getEnvironmentId(), getProviderDeploymentProperties(), getInputProperties(),
                 getCloudResourcesMapping(), getNetworkMapping(), getStorageMapping());

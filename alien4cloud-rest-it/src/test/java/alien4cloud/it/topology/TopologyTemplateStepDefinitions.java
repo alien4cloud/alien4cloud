@@ -11,11 +11,12 @@ import org.elasticsearch.common.collect.Maps;
 import alien4cloud.it.Context;
 import alien4cloud.it.Entry;
 import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.template.CreateTopologyTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.utils.ReflectionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -66,9 +67,8 @@ public class TopologyTemplateStepDefinitions {
         }
 
         // Created topology should have a node template count == count(nodeTemplates)
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()));
-        TopologyDTO topologyTemplateBase = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()));
+        TopologyDTO topologyTemplateBase = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
 
         assertEquals(topologyTemplateBase.getTopology().getNodeTemplates().size(), nodeTemplates.raw().size());
 

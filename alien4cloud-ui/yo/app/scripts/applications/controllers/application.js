@@ -171,7 +171,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         $scope.inputProperties = result.data.topology.inputProperties;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
-        console.log('output ATTRIBUTES >', result.data.topology.outputAttributes);
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
         $scope.nodeTypes = $scope.topologyDTO.nodeTypes;

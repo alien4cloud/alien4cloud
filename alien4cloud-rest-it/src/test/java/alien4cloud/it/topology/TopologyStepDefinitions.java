@@ -31,6 +31,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
+import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -211,7 +212,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should not contain a nodetemplate named \"([^\"]*)\"")
     public void The_RestResponse_should_not_contain_a_nodetemplate_named(String key) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getTopology());
         assertTrue(topologyDTO.getTopology().getNodeTemplates() == null || topologyDTO.getTopology().getNodeTemplates().get(key) == null);
@@ -219,7 +220,7 @@ public class TopologyStepDefinitions {
 
     @Then("The RestResponse should not contain a relationship of type \"([^\"]*)\" with source \"([^\"]*)\" and target \"([^\"]*)\"")
     public void The_RestResponse_should_not_contain_a_relationship_of_type_with_source_and_target(String type, String source, String target) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getTopology());
         assertNotNull(topologyDTO.getTopology().getNodeTemplates());
@@ -230,7 +231,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should contain a nodetemplate named \"([^\"]*)\" and type \"([^\"]*)\"")
     public void The_RestResponse_should_contain_a_nodetemplate_named_and_type(String key, String type) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getTopology());
         assertNotNull(topologyDTO.getTopology().getNodeTemplates());
@@ -239,7 +240,7 @@ public class TopologyStepDefinitions {
 
     @Then("^The RestResponse should contain a node type with \"([^\"]*)\" id$")
     public void The_RestResponse_should_contain_a_node_type_with_id(String expectedId) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
         assertNotNull(topologyDTO);
         assertNotNull(topologyDTO.getNodeTypes());
         assertNotNull(topologyDTO.getNodeTypes().get(expectedId.split(":")[0]));
@@ -254,7 +255,7 @@ public class TopologyStepDefinitions {
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named(String name) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
         Map<String, NodeTemplate> nodeTemplates = topologyResponse.getData().getTopology().getNodeTemplates();
         assertNotNull(nodeTemplates);
@@ -276,7 +277,7 @@ public class TopologyStepDefinitions {
         The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
 
         String topologyResponseText = Context.getInstance().getRestResponse();
-        NodeTemplate nodeTemp = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
+        NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
 
         assertNotNull(nodeTemp.getProperties());
         assertNotNull(nodeTemp.getProperties().get(propertyName));
@@ -293,7 +294,7 @@ public class TopologyStepDefinitions {
 
         // I should have a relationship with type
         String topologyJson = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyJson, TopologyDTO.class);
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(source);
         relName = relName == null || relName.isEmpty() ? getRelationShipName(relType, target) : relName;
         RelationshipTemplate rel = sourceNode.getRelationships().get(relName);
@@ -308,7 +309,7 @@ public class TopologyStepDefinitions {
     public void I_should_have_relationship_with_source_for_requirement_of_type(int relationshipCount, String source, String target, String relType,
             String requirementName, String requirementType) throws Throwable {
         String topologyJson = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyJson, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyJson, TopologyDTO.class);
         NodeTemplate sourceNode = topologyResponse.getData().getTopology().getNodeTemplates().get(source);
         RelationshipTemplate rel = sourceNode.getRelationships().get(getRelationShipName(relType, target));
         assertNotNull(rel);
@@ -587,7 +588,7 @@ public class TopologyStepDefinitions {
             int maxInstances, int initialInstances, int minInstances) throws Throwable {
         I_try_to_retrieve_the_created_topology();
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
         Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
         assertTrue(policies != null && !policies.isEmpty());
@@ -608,7 +609,7 @@ public class TopologyStepDefinitions {
     public void There_s_no_defined_scaling_policy(String nodeName) throws Throwable {
         I_try_to_retrieve_the_created_topology();
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
         Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
         if (policies != null) {
@@ -672,10 +673,10 @@ public class TopologyStepDefinitions {
             expectedDependencies.add(new CSARDependency(row.get(0), row.get(1)));
         }
         String topologyResponseText = Context.getInstance().getRestResponse();
-        Set<CSARDependency> actualDependencies = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getDependencies();
+        Set<CSARDependency> actualDependencies = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getDependencies();
         Assert.assertEquals(expectedDependencies, actualDependencies);
     }
-    
+
     @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" and store the related topology as a SPEL context$")
     public void searchForTopologyTemplateByName(String topologyTemplateName) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
@@ -692,5 +693,5 @@ public class TopologyStepDefinitions {
         RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
         Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
     }
-    
+
 }

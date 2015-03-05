@@ -22,7 +22,6 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.application.InvalidDeploymentSetupException;
-import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -78,8 +77,6 @@ public class ApplicationDeploymentController {
     private CloudService cloudService;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
@@ -356,13 +353,14 @@ public class ApplicationDeploymentController {
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws CloudDisabledException {
+    public RestResponse<DeploymentSetupMatchInfo> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws CloudDisabledException {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        return RestResponseBuilder.<DeploymentSetup> builder()
+        return RestResponseBuilder.<DeploymentSetupMatchInfo> builder()
                 .data(deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId)).build();
     }
 

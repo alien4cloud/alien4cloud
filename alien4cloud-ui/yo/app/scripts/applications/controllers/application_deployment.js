@@ -3,7 +3,7 @@
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
   '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$timeout',
-  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster, $timeout) {
+  function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster) {
     var pageStateId = $state.current.name;
 
     // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
@@ -32,7 +32,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
       $scope.selectedEnvironment = environment;
-      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
+      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function() {
         refreshDeploymentSetup();
       });
     }
@@ -134,11 +134,15 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
         refreshSelectedCloud();
 
-        $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
-        $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
-        $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
-        $scope.images = response.data.matchResult.images;
-        $scope.flavors = response.data.matchResult.flavors;
+        // only an environment with an associated cloud can have resources
+        if (response.data.hasOwnProperty('matchResult')) {
+          $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
+          $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
+          $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
+          $scope.images = response.data.matchResult.images;
+          $scope.flavors = response.data.matchResult.flavors;
+        }
+
         var key;
         for (key in $scope.matchedComputeResources) {
           if ($scope.matchedComputeResources.hasOwnProperty(key)) {
