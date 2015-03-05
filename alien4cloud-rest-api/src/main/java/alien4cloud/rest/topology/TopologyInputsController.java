@@ -1,6 +1,8 @@
 package alien4cloud.rest.topology;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -269,6 +271,32 @@ public class TopologyInputsController {
         log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateId, topologyId);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * <p>
+     * Disassociated the property of a node template to an input of the topology.
+     * </p>
+     * 
+     * @param topologyId
+     * @param inputId
+     * @param nodeTemplateId
+     * @param propertyId
+     */
+    @ApiOperation(value = "Get the possible inputs candidates to be associated with this property.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateId}/property/{propertyId}/inputcandidats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<List<String>> getInputCandidate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
+            @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
+        // TODO: search the property definition for this property
+        // TODO: iterate overs existing inputs and filter checking constraint compatibility
+        List<String> inputIds = new ArrayList<String>();
+        inputIds.add("input1");
+        inputIds.add("input2");
+        return RestResponseBuilder.<List<String>> builder().data(inputIds).build();
     }
 
     /**
