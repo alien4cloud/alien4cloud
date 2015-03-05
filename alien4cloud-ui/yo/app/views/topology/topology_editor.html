@@ -127,7 +127,9 @@
               <tr ng-repeat="propEntry in selectedProperties">
                 <td>
                   <div class="btn-group" data-toggle="buttons">
-                    <a id="p_input_{{propEntry.key}}" class="btn btn-default btn-xs dropdown-toggle"
+                    <a id="p_input_{{propEntry.key}}"
+                       ng-click="getInputCandidatesForProperty(propEntry.key)"
+                       class="btn btn-default btn-xs dropdown-toggle"
                        ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                        tooltip-append-to-body="true" drag-and-drop-enabled="true">
                       <i class="fa fa-cogs"></i>
@@ -135,11 +137,11 @@
                     <ul class="dropdown-menu dropdown-menu-left" role="menu" ng-click="$event.stopPropagation()">
                       <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                       <li>
-                        <a ng-click="createInputFromProperty(propEntry.key)">
+                        <a ng-show="!topology.topology.inputs.hasOwnProperty(propEntry.key)" ng-click="createInputFromProperty(propEntry.key)">
                           <strong>Add To Input <i class="fa fa-plus"></i></strong>
                         </a>
                       </li>
-                      <li ng-repeat="(inputId, definition) in topology.topology.inputs | orderBy:'inputId.toString()' ">
+                      <li ng-repeat="inputId in currentInputCandidatesForProperty | orderBy:'inputId.toString()' ">
                         <a ng-click="togglePropertyInput(propEntry.key, inputId)">
                           <i class="fa fa-fw" ng-class="{'fa-check-square-o' : isPropertyAssociatedToInput(propEntry.key, inputId),  'fa-square-o': !isPropertyAssociatedToInput(propEntry.key, inputId)}"></i> {{inputId}}
                         </a>

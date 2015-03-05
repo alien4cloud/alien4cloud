@@ -58,6 +58,20 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var getPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
+      'getCandidates': {
+        method: 'GET',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var updateInput = $resource('rest/topologies/:topologyId/inputs/:inputId', {}, {
       'add': {
         method: 'POST',
@@ -249,6 +263,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'updateName': updateNodeTemplateName.updateName,
         'updateProperty': updateNodeProperty.update,
         'setInputs': setInputToProperty,
+        'getInputCandidates': getPropertyInputCandidates,
         'getPossibleReplacements': replacements.get,
         'replace': replacements.replace,
         'outputProperties': updateOutputProperty,

@@ -174,7 +174,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(successResult) {
         refreshTopology(successResult.data);
       });
-      selectTab('components-search');
+      selectTab('topology-components-search');
     };
 
     var refreshTopology = function(topologyDTO, selectedNodeTemplate) {
@@ -408,7 +408,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(result) {
         // for refreshing the ui
         refreshTopology(result.data);
-        selectTab('components-search');
+        selectTab('topology-components-search');
       });
     };
 
@@ -570,26 +570,65 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
     };
 
-    $scope.toggleInputProperty = function(propertyName) {
+    $scope.createInputFromProperty = function(propertyName) {
       var selectedNodeTemplateType = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
       var selectedPropertyDefinition = selectedNodeTemplateType.propertiesMap[propertyName].value;
-      var inputId = propertyName;
       topologyServices.inputs.add({
         topologyId: $scope.topology.topology.id,
-        inputId: inputId
+        inputId: propertyName
       }, angular.toJson(selectedPropertyDefinition), function() {
         // Success
         if (UTILS.isUndefinedOrNull($scope.topology.topology.inputs)) {
           $scope.topology.topology.inputs = {};
         }
-        $scope.topology.topology.inputs[inputId] = selectedPropertyDefinition;
+        $scope.topology.topology.inputs[propertyName] = UTILS.deepCopy(selectedPropertyDefinition);
+        $scope.topology.topology.inputs[propertyName].inputId = propertyName;
+        $scope.togglePropertyInput(propertyName, propertyName);
+      });
+    };
+
+    $scope.getInputCandidatesForProperty = function(propertyName) {
+      $scope.currentInputCandidatesForProperty = [];
+      topologyServices.nodeTemplate.getInputCandidates.getCandidates({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        propertyId: propertyName
+      }, function(success) {
+        $scope.currentInputCandidatesForProperty = success.data;
+      });
+    };
+
+    $scope.togglePropertyInput = function(propertyName, inputId) {
+      if (!$scope.isPropertyAssociatedToInput(propertyName, inputId)) {
         topologyServices.nodeTemplate.setInputs.set({
           topologyId: $scope.topology.topology.id,
           inputId: inputId,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
-          propertyId: inputId
+          propertyId: propertyName
+        }, function() {
+          $scope.selectedNodeTemplate.propertiesMap[propertyName].value = {
+            'function': 'get_input',
+            'parameters': [inputId],
+            'definition': false
+          };
         });
-      });
+      } else {
+        topologyServices.nodeTemplate.setInputs.unset({
+          topologyId: $scope.topology.topology.id,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          propertyId: propertyName
+        }, function() {
+          $scope.selectedNodeTemplate.propertiesMap[propertyName].value = null;
+        });
+      }
+    };
+
+    $scope.isPropertyAssociatedToInput = function(propertyName, inputId) {
+      var propertyValue = $scope.selectedNodeTemplate.propertiesMap[propertyName].value;
+      if (UTILS.isDefinedAndNotNull(propertyValue) && UTILS.isDefinedAndNotNull(propertyValue.parameters) && propertyValue.parameters.length > 0) {
+        return propertyValue.parameters[0] === inputId;
+      }
+      return false;
     };
 
     $scope.removeInput = function(inputId) {

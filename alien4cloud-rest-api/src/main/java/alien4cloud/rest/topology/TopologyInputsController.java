@@ -118,16 +118,16 @@ public class TopologyInputsController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, PropertyDefinition> inputProperties = topology.getInputs();
-        if (inputProperties == null || !inputProperties.containsKey(inputId)) {
+        Map<String, PropertyDefinition> inputs = topology.getInputs();
+        if (inputs == null || !inputs.containsKey(inputId)) {
             throw new NotFoundException("Input " + inputId + " not found");
         }
 
-        if (inputProperties.containsKey(newInputId)) {
+        if (inputs.containsKey(newInputId)) {
             throw new AlreadyExistException("Input " + newInputId + " already existed");
         }
-        PropertyDefinition propertyDefinition = inputProperties.remove(inputId);
-        inputProperties.put(newInputId, propertyDefinition);
+        PropertyDefinition propertyDefinition = inputs.remove(inputId);
+        inputs.put(newInputId, propertyDefinition);
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (NodeTemplate nodeTemp : nodeTemplates.values()) {
