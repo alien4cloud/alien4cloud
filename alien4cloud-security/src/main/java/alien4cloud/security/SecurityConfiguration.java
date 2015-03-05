@@ -85,7 +85,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/groups/search/**", "/rest/groups/getGroups/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/groups/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/topologies/**").authenticated();
-        http.authorizeRequests().antMatchers("/rest/topologies-inputs/**").hasAnyAuthority("ADMIN", "ARCHITECT", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/templates/**").hasAnyAuthority("ADMIN", "ARCHITECT", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/components/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
         http.authorizeRequests().antMatchers("/csarrepository/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");

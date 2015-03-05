@@ -31,7 +31,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var setInputToProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
+    var setInputToProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/input', {}, {
       'set': {
         method: 'POST',
         params: {
@@ -58,7 +58,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/:inputId', {}, {
+    var updateInput = $resource('rest/topologies/:topologyId/inputs/:inputId', {}, {
       'add': {
         method: 'POST',
         params: {
@@ -69,25 +69,22 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
           'Content-Type': 'application/json; charset=UTF-8'
         }
       },
+      'update': {
+        method: 'PUT',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          newInputId: '@newInputId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
       'remove': {
         method: 'DELETE',
         params: {
           topologyId: '@topologyId',
           inputId: '@inputId'
-        },
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
-    var updateInputId = $resource('rest/topologies-inputs/:topologyId/updateInputId/:oldInput/:newInput', {}, {
-      'update': {
-        method: 'POST',
-        params: {
-          topologyId: '@topologyId',
-          oldInput: '@oldInput',
-          newInput: '@newInput'
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
@@ -245,11 +242,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
 
     return {
       'dao': topologyDAO,
-      'inputs': {
-        'add': updateInputProperty.add,
-        'remove': updateInputProperty.remove,
-        'update': updateInputId.update
-      },
+      'inputs': updateInput,
       'nodeTemplate': {
         'add': addNodeTemplate.add,
         'remove': addNodeTemplate.remove,

@@ -127,11 +127,24 @@
               <tr ng-repeat="propEntry in selectedProperties">
                 <td>
                   <div class="btn-group" data-toggle="buttons">
-                    <a id="p_input_{{propEntry.key}}" ng-click="toggleInputProperty(propEntry.key)" class="btn btn-default btn-xs"
+                    <a id="p_input_{{propEntry.key}}" class="btn btn-default btn-xs dropdown-toggle"
                        ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                       tooltip-append-to-body="true>
+                       tooltip-append-to-body="true" drag-and-drop-enabled="true">
                       <i class="fa fa-cogs"></i>
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-left" role="menu" ng-click="$event.stopPropagation()">
+                      <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
+                      <li>
+                        <a ng-click="createInputFromProperty(propEntry.key)">
+                          <strong>Add To Input <i class="fa fa-plus"></i></strong>
+                        </a>
+                      </li>
+                      <li ng-repeat="(inputId, definition) in topology.topology.inputs | orderBy:'inputId.toString()' ">
+                        <a ng-click="togglePropertyInput(propEntry.key, inputId)">
+                          <i class="fa fa-fw" ng-class="{'fa-check-square-o' : isPropertyAssociatedToInput(propEntry.key, inputId),  'fa-square-o': !isPropertyAssociatedToInput(propEntry.key, inputId)}"></i> {{inputId}}
+                        </a>
+                      </li>
+                    </ul>
                     <a id="p_output_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
                        ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                        tooltip-append-to-body="true">
@@ -141,9 +154,19 @@
                 </td>
                 <td>
                   <property-display
+                    ng-if="isInputProperty(propEntry.key)"
                     ng-init="condensed = true"
                     definition="getFormatedProperty(propEntry.key)"
-                    property-value="propEntry.value.value"
+                    property-value="propEntry.value"
+                    on-save="updateProperty(propertyDefinition,propertyValue)"
+                    editable="false"
+                    condensed="condensed">
+                  </property-display>
+                  <property-display
+                    ng-if="!isInputProperty(propEntry.key)"
+                    ng-init="condensed = true"
+                    definition="getFormatedProperty(propEntry.key)"
+                    property-value="propEntry.value"
                     on-save="updateProperty(propertyDefinition,propertyValue)"
                     editable="true"
                     condensed="condensed">
@@ -384,20 +407,44 @@
                   <div class="col-md-12">{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}} :</div>
                 </div>
                 <div class="row">
-                  <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
-                    <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
-                      <td ng-init="propertyEntry.value.name=propertyEntry.key" style="border-bottom-width: 0px; padding-bottom: 0px; padding-top: 0px;">
-                        <property-display
-                          ng-init="condensed = false"
-                          definition="propertyEntry.value"
-                          property-value="relationshipEntry.value.properties[propertyEntry.key]"
-                          on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
-                          editable="true"
-                          condensed="condensed">
-                        </property-display>
-                      </td>
-                    </tr>
-                  </table>
+                  <div class="col-md-12">
+                    <table class="table table-condensed" id="relationshipProperties_{{relationshipEntry.key}}">
+                      <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
+                        <td class="col-md-1">
+                          <div class="btn-group" data-toggle="buttons">
+                            <a id="p_input_{{propEntry.key}}" class="btn btn-default btn-xs dropdown-toggle"
+                               ng-class="{'active' : isInputRelationshipProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                               tooltip-append-to-body="true" drag-and-drop-enabled="true">
+                              <i class="fa fa-cogs"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-left" role="menu" ng-click="$event.stopPropagation()">
+                              <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
+                              <li>
+                                <a ng-click="createInputFromRelationshipProperty(propEntry.key)">
+                                  <strong>Add To Input <i class="fa fa-plus"></i></strong>
+                                </a>
+                              </li>
+                              <li ng-repeat="(inputId, definition) in topology.topology.inputs | orderBy:'inputId.toString()' ">
+                                <a ng-click="toggleRelationshipPropertyInput(propEntry.key, inputId)">
+                                  <i class="fa fa-fw" ng-class="{'fa-check-square-o' : isRelationshipPropertyAssociatedToInput(propEntry.key, inputId),  'fa-square-o': !isRelationshipPropertyAssociatedToInput(propEntry.key, inputId)}"></i> {{inputId}}
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                        <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-11">
+                          <property-display
+                            ng-init="condensed = true"
+                            definition="propertyEntry.value"
+                            property-value="relationshipEntry.value.properties[propertyEntry.key]"
+                            on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                            editable="true"
+                            condensed="condensed">
+                          </property-display>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -483,6 +530,7 @@
 
   <!-- Components search -->
   <div ng-show="displays['displayAddNode'].active" class="topology-panel-style" ng-class="'col-md-' + displays['displayAddNode'].size">
+
     <div class="well">
       <span id='closeComponentsSearch' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('displayAddNode')"><i
         class="fa fa-remove close-panel"></i></span>
@@ -558,16 +606,16 @@
   <nav id="topology-vertical-menu">
     <ul>
       <li>
-        <span id="components-search-btn" ng-class="{'badge' : displays['displayAddNode'].active}" ng-click="toggleDisplay('displayAddNode')"
+        <span id="topology-components-search" ng-class="{'badge' : displays['displayAddNode'].active}" ng-click="toggleDisplay('displayAddNode')"
               style="transform: translate(-10px, 140px) rotate(-90deg);"><i
           class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}</span>
       </li>
       <li>
-        <span ng-class="{'badge' : displays['displayDependencies'].active}" ng-click="toggleDisplay('displayDependencies')"
+        <span id="topology-dependencies" ng-class="{'badge' : displays['displayDependencies'].active}" ng-click="toggleDisplay('displayDependencies')"
               style="transform: translate(-10px, 240px) rotate(-90deg);"><i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}</span>
       </li>
       <li>
-        <span ng-class="{'badge' : displays['displayInputs'].active}" ng-click="toggleDisplay('displayInputs')"
+        <span id="topology-inputs" ng-class="{'badge' : displays['displayInputs'].active}" ng-click="toggleDisplay('displayInputs')"
               style="transform: translate(-10px, 295px) rotate(-90deg);"><i class="fa fa-cogs"></i> Inputs</span>
       </li>
     </ul>

@@ -604,8 +604,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.updateInput = function(oldInput, newInput) {
       topologyServices.inputs.update({
         topologyId: $scope.topology.topology.id,
-        oldInput: oldInput,
-        newInput: newInput
+        inputId: oldInput,
+        newInputId: newInput
       }, function(success) {
         refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
       });
@@ -859,7 +859,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       if (UTILS.isUndefinedOrNull(propertyValue)) {
         return false;
       }
-      return angular.isObject(propertyValue);
+      return UTILS.isDefinedAndNotNull(propertyValue.function) && propertyValue.function === 'get_input';
     };
 
     $scope.isInputArtifact = function(artifactName) {
