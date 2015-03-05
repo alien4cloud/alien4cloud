@@ -565,16 +565,21 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.toggleInputProperty = function(propertyName) {
       var selectedNodeTemplateType = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
       var selectedPropertyDefinition = selectedNodeTemplateType.propertiesMap[propertyName].value;
+      var inputId = propertyName;
       topologyServices.inputs.add({
         topologyId: $scope.topology.topology.id,
-        inputId: propertyName
+        inputId: inputId
       }, angular.toJson(selectedPropertyDefinition), function() {
         // Success
+        if(UTILS.isUndefinedOrNull($scope.topology.topology.inputs)) {
+          $scope.topology.topology.inputs = {};
+        }
+        $scope.topology.topology.inputs[inputId] = selectedPropertyDefinition;
         topologyServices.nodeTemplate.setInputs.set({
           topologyId: $scope.topology.topology.id,
-          inputId: propertyName,
+          inputId: inputId,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
-          propertyId: propertyName
+          propertyId: inputId
         });
       });
     };
