@@ -135,7 +135,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         refreshSelectedCloud();
 
         // only an environment with an associated cloud can have resources
-        if (response.data.hasOwnProperty(response.data)) {
+        if (response.data.hasOwnProperty('matchResult')) {
           $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
           $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
           $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
