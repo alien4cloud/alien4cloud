@@ -332,6 +332,7 @@ angular.module('alienUiApp').factory(
         linkLayout: function(graph, nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
           var thiss = this;
 
+          nodeTemplates = nodeTemplates || {};
           $.each(nodeTemplates, function(nodeId, node) {
             // For each node map the relationships to the graph.
             thiss.buildGraphRelationships(graph, node, nodeTemplates, relationshipTypes, nodeSize, spacing);
