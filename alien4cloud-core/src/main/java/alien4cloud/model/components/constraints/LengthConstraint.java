@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 @Getter
@@ -21,13 +20,5 @@ public class LengthConstraint extends AbstractStringPropertyConstraint {
         if (propertyValue.length() != length) {
             throw new ConstraintViolationException("The length of the value is not equals to [" + length + "]");
         }
-    }
-
-    @Override
-    public boolean isCompatible(PropertyConstraint propertyConstraint) {
-        if ((propertyConstraint instanceof LengthConstraint) && this.getLength() == ((LengthConstraint) propertyConstraint).getLength()) {
-            return true;
-        }
-        return false;
     }
 }

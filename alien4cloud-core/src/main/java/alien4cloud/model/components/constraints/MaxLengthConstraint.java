@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 @Getter
@@ -27,13 +26,5 @@ public class MaxLengthConstraint extends AbstractStringPropertyConstraint {
         if (propertyValue.length() > maxLength) {
             throw new ConstraintViolationException("The length of the value is greater than [" + maxLength + "]");
         }
-    }
-
-    @Override
-    public boolean isCompatible(PropertyConstraint propertyConstraint) {
-        if ((propertyConstraint instanceof MaxLengthConstraint) && this.getMaxLength() == ((MaxLengthConstraint) propertyConstraint).getMaxLength()) {
-            return true;
-        }
-        return false;
     }
 }

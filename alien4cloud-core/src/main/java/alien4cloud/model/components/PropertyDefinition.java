@@ -1,5 +1,6 @@
 package alien4cloud.model.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -102,28 +103,27 @@ public class PropertyDefinition implements IOperationParameter {
      * @param propertyDefinition
      * @throws IncompatiblePropertyDefinitionException
      */
-    public void checkIfCompatibleOrFail(PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
+    public void checkIfCompatibleOrFail(final PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
         if (propertyDefinition == null) {
             throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + this.getType() + "is incompatible whit a NullPointer");
-        }
-
-        List<PropertyConstraint> otherConstraints = propertyDefinition.getConstraints();
-        if (this.getConstraints() == null && otherConstraints == null) {
+        } else if (this.getConstraints() == null && propertyDefinition.getConstraints() == null) {
             return;
-        } else if (this.getConstraints() == null || otherConstraints == null || this.getConstraints().size() != otherConstraints.size()) {
+        } else if (this.getConstraints() == null || propertyDefinition.getConstraints() == null
+                || this.getConstraints().size() != propertyDefinition.getConstraints().size()) {
             throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
                     + this.getType());
         }
 
-        for (PropertyConstraint property : this.getConstraints()) {
-            for (int i = 0; i <= otherConstraints.size(); i++) {
-                if (otherConstraints.size() == 0) {
-                    break;
-                } else if (i == otherConstraints.size()) {
+        ArrayList<PropertyConstraint> copyOfOtherConstraints = new ArrayList<PropertyConstraint>(propertyDefinition.getConstraints());
+        for (PropertyConstraint constraint : this.getConstraints()) {
+            for (int i = 0; i <= copyOfOtherConstraints.size(); i++) {
+                if (copyOfOtherConstraints.size() == 0) { // If all elements are compatible
+                    return;
+                } else if (i == copyOfOtherConstraints.size()) { // If the constraint is not compatible with an constraint from the other PropertyDefinition
                     throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
                             + this.getType());
-                } else if (property.equals(otherConstraints.get(i))) {
-                    otherConstraints.remove(i);
+                } else if (constraint.equals(copyOfOtherConstraints.get(i))) { // If the two constraints are compatible
+                    copyOfOtherConstraints.remove(i); // we remove the constraint in the copy of the other propertyDefinition constraints and continue
                     break;
                 }
             }

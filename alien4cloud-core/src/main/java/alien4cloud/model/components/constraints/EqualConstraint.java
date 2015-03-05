@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -49,13 +48,5 @@ public class EqualConstraint extends AbstractPropertyConstraint {
     private void fail(Object propertyValue) throws ConstraintViolationException {
         throw new ConstraintViolationException("Equal constraint violation, the reference is <" + equal + "> but the value to compare is <" + propertyValue
                 + ">");
-    }
-
-    @Override
-    public boolean isCompatible(PropertyConstraint propertyConstraint) {
-        if ((propertyConstraint instanceof EqualConstraint) && this.getEqual().equals(((EqualConstraint) propertyConstraint).getEqual())) {
-            return true;
-        }
-        return false;
     }
 }
