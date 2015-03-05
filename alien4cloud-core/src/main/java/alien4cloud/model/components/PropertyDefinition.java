@@ -105,13 +105,12 @@ public class PropertyDefinition implements IOperationParameter {
      */
     public void checkIfCompatibleOrFail(final PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
         if (propertyDefinition == null) {
-            throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + this.getType() + "is incompatible whit a NullPointer");
+            throw new IncompatiblePropertyDefinitionException();
         } else if (this.getConstraints() == null && propertyDefinition.getConstraints() == null) {
             return;
         } else if (this.getConstraints() == null || propertyDefinition.getConstraints() == null
                 || this.getConstraints().size() != propertyDefinition.getConstraints().size()) {
-            throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
-                    + this.getType());
+            throw new IncompatiblePropertyDefinitionException();
         }
 
         ArrayList<PropertyConstraint> copyOfOtherConstraints = new ArrayList<PropertyConstraint>(propertyDefinition.getConstraints());
@@ -120,8 +119,7 @@ public class PropertyDefinition implements IOperationParameter {
                 if (copyOfOtherConstraints.size() == 0) { // If all elements are compatible
                     return;
                 } else if (i == copyOfOtherConstraints.size()) { // If the constraint is not compatible with an constraint from the other PropertyDefinition
-                    throw new IncompatiblePropertyDefinitionException("The PropertyDefinition " + propertyDefinition.getType() + "is incompatible whit "
-                            + this.getType());
+                    throw new IncompatiblePropertyDefinitionException();
                 } else if (constraint.equals(copyOfOtherConstraints.get(i))) { // If the two constraints are compatible
                     copyOfOtherConstraints.remove(i); // we remove the constraint in the copy of the other propertyDefinition constraints and continue
                     break;

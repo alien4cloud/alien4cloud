@@ -339,7 +339,9 @@ public class TopologyInputsController {
 
         if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
+            if (indexedNodeType.getProperties() != null) {
+                propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
+            }
         } else {
             inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
         }

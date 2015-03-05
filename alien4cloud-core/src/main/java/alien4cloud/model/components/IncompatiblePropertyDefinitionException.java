@@ -9,6 +9,10 @@ public class IncompatiblePropertyDefinitionException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
+    public IncompatiblePropertyDefinitionException() {
+        super("The two PropertyDefinition are incompatible.");
+    }
+
     public IncompatiblePropertyDefinitionException(String message) {
         super(message);
     }
