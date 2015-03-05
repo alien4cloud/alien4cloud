@@ -66,9 +66,11 @@ module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show "Add node template" tab
 function showComponentsTab() {
-  var componentsSearchTab = element(by.id('components-search'));
-  expect(componentsSearchTab.isPresent()).toBe(true);
-  componentsSearchTab.click();
+  element(by.id('slide-side-bar')).isDisplayed().then(function(isDisplay) {
+    if (!isDisplay) {
+      element(by.id('components-search-btn')).click();
+    }
+  });
   browser.waitForAngular();
 }
 

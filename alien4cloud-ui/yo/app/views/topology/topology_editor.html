@@ -129,7 +129,7 @@
                   <div class="btn-group" data-toggle="buttons">
                     <a id="p_input_{{propEntry.key}}" ng-click="toggleInputProperty(propEntry.key)" class="btn btn-default btn-xs"
                        ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
-                       tooltip-append-to-body="true" drag-and-drop-enabled="true">
+                       tooltip-append-to-body="true>
                       <i class="fa fa-cogs"></i>
                     </a>
                     <a id="p_output_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
@@ -558,7 +558,7 @@
   <nav id="topology-vertical-menu">
     <ul>
       <li>
-        <span id="components-search" ng-class="{'badge' : displays['displayAddNode'].active}" ng-click="toggleDisplay('displayAddNode')"
+        <span id="components-search-btn" ng-class="{'badge' : displays['displayAddNode'].active}" ng-click="toggleDisplay('displayAddNode')"
               style="transform: translate(-10px, 140px) rotate(-90deg);"><i
           class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}</span>
       </li>

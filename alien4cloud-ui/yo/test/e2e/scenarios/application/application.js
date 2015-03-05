@@ -1,5 +1,4 @@
 /* global by, element */
-
 'use strict';
 
 var authentication = require('../../authentication/authentication');
