@@ -579,6 +579,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
+    $scope.removeInput = function(inputId) {
+      topologyServices.inputs.remove({
+        topologyId: $scope.topology.topology.id,
+        inputId: inputId
+      }, function(success) {
+        refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+      });
+    };
+
     $scope.toggleOutputProperty = function(propertyName) {
       toggleOutput(propertyName, 'outputProperties', 'property');
     };
