@@ -1,6 +1,5 @@
 package alien4cloud.tosca.parser;
 
-import java.util.Map;
 import java.util.Map.Entry;
 
 import lombok.Getter;
@@ -29,7 +28,10 @@ public abstract class AbstractTypeNodeParser {
     protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContextExecution context, MappingTarget mappingTarget) {
         // let's store the parent in the context for future use
         context.setParent(target.getWrappedInstance());
-
+        if (mappingTarget.getPath().equals("null")) {
+            // if the path is null, we just to do nothing with the stuff
+            return;
+        }
         Entry<BeanWrapper, String> entry = findWrapperPropertyByPath(context.getRoot(), target, mappingTarget.getPath());
         BeanWrapper realTarget = entry.getKey();
         String propertyName = entry.getValue();

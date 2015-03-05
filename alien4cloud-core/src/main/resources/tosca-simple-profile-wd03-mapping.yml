@@ -30,6 +30,7 @@
   imports:
     set: archive.dependencies
     type: import_definition
+  dsl_definitions: null # this means we take this node in charge but won't parse it's content
   node_types:
     map: nodeTypes
     key: elementId

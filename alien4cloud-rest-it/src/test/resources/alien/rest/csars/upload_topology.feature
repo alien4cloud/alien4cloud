@@ -86,3 +86,27 @@ Scenario: Upload a CSAR containing topology with an incorrect requirement name
   When I upload the archive "topology-unknown-req"
   Then I should receive a RestResponse with 2 alerts in 1 files : 1 errors 1 warnings and 0 infos  
   
+Scenario: Upload CSAR containing embeded topology template with inputs
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology_inputs"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  And If I search for topology templates I can find one with the name "topology-inputs-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL expression "inputs['os_type'].type" should return "string"
+  And The SPEL boolean expression "inputs['os_type'].constraints[0].validValues.size() == 4" should return true
+  And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].function" should return "get_input"
+  And The SPEL boolean expression "nodeTemplates['compute1'].properties['os_type'].parameters.size() == 1" should return true
+  And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].parameters[0]" should return "os_type"
+  And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].function" should return "get_input"
+  And The SPEL boolean expression "nodeTemplates['compute2'].properties['os_type'].parameters.size() == 1" should return true
+  And The SPEL expression "nodeTemplates['compute2'].properties['os_type'].parameters[0]" should return "os_type"  
+    
+Scenario: Upload CSAR containing embeded topology template with outputs
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology_outputs"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos    
+  And If I search for topology templates I can find one with the name "topology-outputs-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL boolean expression "outputProperties['apache'].size() == 1" should return true
+  And The SPEL expression "outputProperties['apache'][0]" should return "port"
+  And The SPEL boolean expression "outputProperties['apache'].size() == 1" should return true
+  And The SPEL expression "outputAttributes['compute'][0]" should return "ip_address"
+  

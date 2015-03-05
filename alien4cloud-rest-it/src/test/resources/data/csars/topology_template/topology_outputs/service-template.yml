@@ -1,0 +1,80 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Apache.
+template_name: topology-outputs
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-base-types:1.0"
+
+topology_template:
+  description: A simple topology template created directly from a CSAR archive
+  node_templates:
+    compute:
+      type: tosca.nodes.Compute
+    apache:
+      type: alien.nodes.Apache
+  outputs:
+    www_port:
+      description: The port of the apache server
+      # short notation for a function
+      value: { get_property: [ apache, port ] }
+    www_host:
+      decription: The IP address of the apache server
+      value: 
+        # this is another YAML notation
+        get_attribute: 
+          - compute
+          - ip_address
+      
+node_types:
+  alien.nodes.Apache:
+    derived_from: tosca.nodes.WebServer
+    description: >
+      The TOSCA Apache Node Type represents an apache component
+      that can be managed and run by a TOSCA Compute Node Type.
+    capabilities:
+      host:
+        type: alien.capabilities.ApacheContainer
+        properties:
+          valid_node_types: [ tosca.nodes.WebApplication ]
+    tags:
+      icon: /images/apache.png
+    properties:
+      version:
+        type: version
+        default: 2.4
+        constraints:
+          - equal: 2.4
+      port:
+        type: integer
+        description: Port for the Apache server
+        default: 80
+        constraints:
+          - greater_or_equal: 1
+      document_root:
+          type: string
+          required: true
+          default: "/var/www"
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+            DOC_ROOT: { get_property: [SELF, document_root] }
+          implementation: scripts/install_apache.sh
+        start: scripts/start_apache.sh
+      fastconnect.cloudify.extensions:
+        start_detection:
+          inputs:
+            PORT: { get_property: [SELF, port] }
+          implementation: scripts/apache_start_detection.groovy
+
+capability_types:
+  alien.capabilities.ApacheContainer:
+      derived_from: tosca.capabilities.Container
+
+artifact_types:
+  tosca.artifacts.GroovyScript:
+    description: A groovy script (.groovy file)
+    file_ext: [groovy]
