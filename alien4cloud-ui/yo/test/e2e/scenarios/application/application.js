@@ -1,4 +1,5 @@
 /* global by, element */
+
 'use strict';
 
 var authentication = require('../../authentication/authentication');
@@ -7,7 +8,7 @@ var topologyEditorCommon = require('../../topology/topology_editor_common');
 var topologyTemplates = require('../../topology/topology_templates_common');
 var applications = require('../../applications/applications');
 
-describe('Applications management :', function() {
+describe('Applications management', function() {
   /* Before each spec in the tests suite */
   beforeEach(function() {
     common.before();

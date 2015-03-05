@@ -68,17 +68,23 @@ public class PropertyDefinitionConstraintsTest {
         List<PropertyConstraint> constraintsProp1 = Lists.newArrayList();
         List<PropertyConstraint> constraintsProp2 = Lists.newArrayList();
 
-        EqualConstraint constraint1 = new EqualConstraint();
-        constraint1.setEqual("test");
+        EqualConstraint constraint11 = new EqualConstraint();
+        constraint11.setEqual("test");
 
-        LessThanConstraint constraint2 = new LessThanConstraint();
-        constraint2.setLessThan("5");
+        LessThanConstraint constraint12 = new LessThanConstraint();
+        constraint12.setLessThan("5");
 
-        constraintsProp1.add(constraint1);
-        constraintsProp1.add(constraint2);
+        constraintsProp1.add(constraint11);
+        constraintsProp1.add(constraint12);
 
-        constraintsProp2.add(constraint2);
-        constraintsProp2.add(constraint1);
+        EqualConstraint constraint21 = new EqualConstraint();
+        constraint21.setEqual("test");
+
+        LessThanConstraint constraint22 = new LessThanConstraint();
+        constraint22.setLessThan("5");
+
+        constraintsProp2.add(constraint22);
+        constraintsProp2.add(constraint21);
 
         propDef1.setConstraints(constraintsProp1);
         propDef2.setConstraints(constraintsProp2);

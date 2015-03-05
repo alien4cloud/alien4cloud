@@ -67,9 +67,13 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         return;
       }
       // Now a property is an AbstractPropertyValue : (Scalar or Function)
-      if (UTILS.isDefinedAndNotNull($scope.propertyValue) && $scope.propertyValue.hasOwnProperty('value') && $scope.propertyValue.definition === false) {
-        // Here handle scalar value
-        $scope.propertyValue = $scope.propertyValue.value;
+      if (UTILS.isDefinedAndNotNull($scope.propertyValue) && $scope.propertyValue.definition === false) {
+        if ($scope.propertyValue.hasOwnProperty('value')) {
+          // Here handle scalar value
+          $scope.propertyValue = $scope.propertyValue.value;
+        } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
+          $scope.propertyValue = $scope.propertyValue.function + ' [ ' + $scope.propertyValue.parameters[0] + ' ] ';
+        }
       }
       var shownValue = $scope.propertyValue || $scope.definition.default;
 

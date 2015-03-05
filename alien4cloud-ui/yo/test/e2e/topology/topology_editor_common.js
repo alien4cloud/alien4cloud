@@ -64,15 +64,34 @@ var beforeTopologyTest = function() {
 };
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
-// Show "Add node template" tab
-function showComponentsTab() {
-  element(by.id('slide-side-bar')).isDisplayed().then(function(isDisplay) {
-    if (!isDisplay) {
-      element(by.id('components-search-btn')).click();
-    }
-  });
+// Show tabs in the topology page
+function showTopologyTab(topologyTabId) {
+  var tab = element(by.id(topologyTabId));
+  expect(tab.isPresent()).toBe(true);
+  tab.click();
   browser.waitForAngular();
 }
+
+function showComponentsTab() {
+  showTopologyTab('topology-components-search');
+}
+module.exports.showComponentsTab = showComponentsTab;
+
+function showDependenciesTab() {
+  showTopologyTab('topology-dependencies');
+}
+module.exports.showDependenciesTab = showDependenciesTab;
+
+function showDependenciesTab() {
+  showTopologyTab('topology-dependencies');
+}
+module.exports.showDependenciesTab = showDependenciesTab;
+
+function showInputsTab() {
+  showTopologyTab('topology-inputs');
+}
+module.exports.showInputsTab = showInputsTab;
+
 
 // Add a node template
 var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersion) {
@@ -100,11 +119,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-    '\
+      '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -337,6 +356,8 @@ var selectNodeAndCheckProperty = function(nodeTemplateName, propertyName) {
 
 var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
 
+  // select "Add node tab"
+  showComponentsTab();
   selectNodeAndCheckProperty(nodeTemplateName, propertyName);
 
   var propertyElement = element(by.id('p_' + propertyName));

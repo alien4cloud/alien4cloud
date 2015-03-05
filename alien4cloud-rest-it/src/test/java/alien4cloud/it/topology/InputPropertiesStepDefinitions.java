@@ -74,4 +74,14 @@ public class InputPropertiesStepDefinitions {
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded(fullUrl, nvps));
     }
+
+    @When("^I ask for the input candidate for the node template \"([^\"]*)\" and property \"([^\"]*)\"$")
+    public void I_ask_for_the_input_candidate_for_the_node_template_and_property(String nodeTemplateId, String property) throws Throwable {
+        String url = String.format("/rest/topologies/%s/nodetemplates/%s/property/%s/inputcandidats", Context.getInstance().getTopologyId(),
+                nodeTemplateId, property);
+        String restResult = Context.getRestClientInstance().get(url);
+        List<String> candidates = JsonUtil.read(restResult, List.class).getData();
+        Context.getInstance().buildEvaluationContext(candidates);
+    }
+
 }
