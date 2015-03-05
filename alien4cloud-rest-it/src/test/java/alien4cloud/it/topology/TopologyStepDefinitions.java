@@ -42,6 +42,7 @@ import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
+import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
@@ -278,10 +279,9 @@ public class TopologyStepDefinitions {
 
         String topologyResponseText = Context.getInstance().getRestResponse();
         NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
-
         assertNotNull(nodeTemp.getProperties());
         assertNotNull(nodeTemp.getProperties().get(propertyName));
-        assertEquals(propertyValue, nodeTemp.getProperties().get(propertyName));
+        assertEquals(propertyValue, FunctionEvaluator.getScalarValue(nodeTemp.getProperties().get(propertyName)));
     }
 
     @Then("^I should have a relationship with type \"([^\"]*)\" from \"([^\"]*)\" to \"([^\"]*)\" in ALIEN$")
