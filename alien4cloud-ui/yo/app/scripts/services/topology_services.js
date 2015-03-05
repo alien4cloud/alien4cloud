@@ -31,7 +31,33 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-  //  var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
+    var setInputToProperty = $resource('rest/topologies-inputs/:topologyId/setinput/:inputId/nodetemplates/:nodeTemplateName/property/:propertyId', {}, {
+      'set': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'unset': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var updateInputProperty = $resource('rest/topologies-inputs/:topologyId/:inputId', {}, {
       'add': {
         method: 'POST',
@@ -205,21 +231,22 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
 
     return {
       'dao': topologyDAO,
+      'inputs': updateInputProperty,
       'nodeTemplate': {
         'add': addNodeTemplate.add,
         'remove': addNodeTemplate.remove,
         'updateName': updateNodeTemplateName.updateName,
         'updateProperty': updateNodeProperty.update,
+        'setInputs': setInputToProperty,
         'getPossibleReplacements': replacements.get,
         'replace': replacements.replace,
-        'inputs': updateInputProperty,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
         'artifactInput': updateInputArtifact
       },
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,
       'relationshipDAO': relationshipDAO,
-      'relationship':{
+      'relationship': {
         'updateName': updateRelationshipName.updateName,
         'updateProperty': updateRelationshipProperty.updateProperty
       },

@@ -528,13 +528,20 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Inputs</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Constraint</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="input in topology.topology.inputs">
+          <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
+            <td>{{inputId}}</td>
+            <td>{{inputDefinition.type}}</td>
+            <td>{{inputDefinition.constraints}}</td>
             <td>
-              {{input}}
+              <delete-confirm class="pull-right" func="removeInput(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+              </delete-confirm>
             </td>
           </tr>
         </tbody>

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -93,7 +94,8 @@ public class TopologyInputsController {
         for (AbstractPropertyValue propertyValue : properties.values()) {
             if (propertyValue instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
-                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getParameters().get(0) == oldInputId) {
+                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
+                        && functionPropertyValue.getParameters().get(0).equals(oldInputId)) {
                     functionPropertyValue.setParameters(Arrays.asList(newInputId));
                 }
             }
@@ -150,7 +152,8 @@ public class TopologyInputsController {
         for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
-                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getParameters().get(0) == inputId) {
+                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
+                        && functionPropertyValue.getParameters().get(0).equals(inputId)) {
                     propertyEntry.setValue(null);
                 }
             }
@@ -166,18 +169,15 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Remove an input from a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/{inputId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<TopologyDTO> removeInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
-        if (inputProperties == null) {
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
-        } else if (!inputProperties.containsKey(inputId)) {
-            return RestResponseBuilder.<Void> builder().build();
+        if (inputProperties == null || !inputProperties.containsKey(inputId)) {
+            throw new NotFoundException("Input " + inputId + "not found in topology");
         }
-
         inputProperties.remove(inputId);
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
@@ -192,7 +192,7 @@ public class TopologyInputsController {
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topologyServiceCore.getMandatoryTopology(topologyId))).build();
     }
 
     /**
@@ -214,7 +214,7 @@ public class TopologyInputsController {
      * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/property/{propertyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateId,
@@ -291,7 +291,7 @@ public class TopologyInputsController {
      * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/setinput/{inputId}/nodetemplates/{nodeTemplateId}/relationship/{relationshipTemplateId}/property/{propertyId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setInputToRelationshipTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId,
