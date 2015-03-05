@@ -111,7 +111,7 @@ public class TopologyInputsController {
      * @param newInputId
      */
     @ApiOperation(value = "Change the name of an input parameter.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyqId:.+}/updateInputId/{oldInputId}/{newInputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/updateInputId/{oldInputId}/{newInputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> updateInputId(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the old input.", required = true) @NotBlank @PathVariable final String oldInputId,
             @ApiParam(value = "The name of the new input.", required = true) @NotBlank @PathVariable final String newInputId) {
@@ -131,8 +131,10 @@ public class TopologyInputsController {
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (NodeTemplate nodeTemp : nodeTemplates.values()) {
             updateInputIdInProperties(nodeTemp.getProperties(), oldInputId, newInputId);
-            for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {
-                updateInputIdInProperties(relationshipTemplate.getProperties(), oldInputId, newInputId);
+            if (nodeTemp.getRelationships() != null) {
+                for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {
+                    updateInputIdInProperties(relationshipTemplate.getProperties(), oldInputId, newInputId);
+                }
             }
         }
 

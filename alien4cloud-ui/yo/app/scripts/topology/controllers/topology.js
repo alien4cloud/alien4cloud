@@ -116,7 +116,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     }
 
     $scope.editorContent = '';
-    var inputOutputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
+    var outputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
 
     // Size management
@@ -189,7 +189,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       topologyJsonProcessor.process($scope.topology);
 
       fillBounds($scope.topology.topology);
-      initInputsOutputs($scope.topology.topology);
+      initOutputs($scope.topology.topology);
+      var topologyInputs = $scope.topology.topology.inputs;
+      if (UTILS.isDefinedAndNotNull(topologyInputs)) {
+        for (var inputId in topologyInputs) {
+          if (topologyInputs.hasOwnProperty(inputId)) {
+            topologyInputs[inputId].inputId = inputId;
+          }
+        }
+      }
       $scope.editorContent = jsyaml.safeDump($scope.topology.topology);
       if (UTILS.isDefinedAndNotNull(selectedNodeTemplate)) {
         fillNodeSelectionVars($scope.topology.topology.nodeTemplates[selectedNodeTemplate]);
@@ -443,7 +451,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
             $scope.selectedNodeTemplate.name = newName;
             $scope.topology.topology.nodeTemplates[newName] = nodeTemplate;
             refreshNodeNameInRelationships(oldNodeName, newName);
-            refreshInOutMaps($scope.topology.topology, oldNodeName, newName);
+            refreshOutputMaps($scope.topology.topology, oldNodeName, newName);
           }
         }, function() {
           $scope.nodeNameObj.val = $scope.selectedNodeTemplate.name;
@@ -474,7 +482,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     // Add property / artifact / attributes to input list
-    var initInOutMap = function(topology, nodeTemplateName, key) {
+    var initOutputMap = function(topology, nodeTemplateName, key) {
       if (angular.isDefined(topology[key])) {
         if (!angular.isDefined(topology[key][nodeTemplateName])) {
           topology[key][nodeTemplateName] = [];
@@ -485,28 +493,28 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
     };
 
-    var initInOutMaps = function(topology, nodeTemplateName) {
-      inputOutputKeys.forEach(function(key) {
-        initInOutMap(topology, nodeTemplateName, key);
+    var initOutputMaps = function(topology, nodeTemplateName) {
+      outputKeys.forEach(function(key) {
+        initOutputMap(topology, nodeTemplateName, key);
       });
     };
 
-    var refreshInOutMap = function(topology, oldName, newName, key) {
+    var refreshOutputsMap = function(topology, oldName, newName, key) {
       var map = topology[key][oldName];
       delete topology[key][oldName];
       topology[key][newName] = map;
     };
 
-    var refreshInOutMaps = function(topology, oldName, newName) {
-      inputOutputKeys.forEach(function(key) {
-        refreshInOutMap(topology, oldName, newName, key);
+    var refreshOutputMaps = function(topology, oldName, newName) {
+      outputKeys.forEach(function(key) {
+        refreshOutputsMap(topology, oldName, newName, key);
       });
     };
 
-    var initInputsOutputs = function(topology) {
+    var initOutputs = function(topology) {
       if (topology.nodeTemplates) {
         Object.keys(topology.nodeTemplates).forEach(function(nodeTemplateName) {
-          initInOutMaps(topology, nodeTemplateName);
+          initOutputMaps(topology, nodeTemplateName);
         });
       }
     };
@@ -571,7 +579,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         inputId: inputId
       }, angular.toJson(selectedPropertyDefinition), function() {
         // Success
-        if(UTILS.isUndefinedOrNull($scope.topology.topology.inputs)) {
+        if (UTILS.isUndefinedOrNull($scope.topology.topology.inputs)) {
           $scope.topology.topology.inputs = {};
         }
         $scope.topology.topology.inputs[inputId] = selectedPropertyDefinition;
@@ -588,6 +596,16 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       topologyServices.inputs.remove({
         topologyId: $scope.topology.topology.id,
         inputId: inputId
+      }, function(success) {
+        refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+      });
+    };
+
+    $scope.updateInput = function(oldInput, newInput) {
+      topologyServices.inputs.update({
+        topologyId: $scope.topology.topology.id,
+        oldInput: oldInput,
+        newInput: newInput
       }, function(success) {
         refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
       });

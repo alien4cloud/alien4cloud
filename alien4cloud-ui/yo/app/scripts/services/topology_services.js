@@ -81,6 +81,20 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var updateInputId = $resource('rest/topologies-inputs/:topologyId/updateInputId/:oldInput/:newInput', {}, {
+      'update': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          oldInput: '@oldInput',
+          newInput: '@newInput'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var updateOutputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyName/isOutput', {}, {
       'add': {
         method: 'POST',
@@ -231,7 +245,11 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
 
     return {
       'dao': topologyDAO,
-      'inputs': updateInputProperty,
+      'inputs': {
+        'add': updateInputProperty.add,
+        'remove': updateInputProperty.remove,
+        'update': updateInputId.update
+      },
       'nodeTemplate': {
         'add': addNodeTemplate.add,
         'remove': addNodeTemplate.remove,
