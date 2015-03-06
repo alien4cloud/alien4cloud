@@ -27,7 +27,7 @@ var fillCloudImageCreationForm = function(name, osType, osArch, osDistribution, 
   }
   browser.waitForAngular();
   common.dismissAlertIfPresent();
-}
+};
 module.exports.fillCloudImageCreationForm = fillCloudImageCreationForm;
 
 var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize) {
