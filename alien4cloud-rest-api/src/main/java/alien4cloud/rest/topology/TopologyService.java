@@ -33,6 +33,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
@@ -558,8 +559,15 @@ public class TopologyService {
             Map<String, PropertyDefinition> relatedProperties = relatedIndexedNodeType.getProperties();
             for (Entry<String, AbstractPropertyValue> propertyEntry : nodeTemplate.getProperties().entrySet()) {
                 PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
-                if (propertyDef.isRequired() && propertyEntry instanceof ScalarPropertyValue
-                        && StringUtils.isBlank(((ScalarPropertyValue) propertyEntry).getValue())) {
+                // check value
+                AbstractPropertyValue value = propertyEntry.getValue();
+                String propertyValue = null;
+                if (value instanceof ScalarPropertyValue) {
+                    propertyValue = ((ScalarPropertyValue) value).getValue();
+                } else if (value instanceof FunctionPropertyValue) {
+                    propertyValue = ((FunctionPropertyValue) value).getFunction();
+                }
+                if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                     task.getProperties().add(propertyEntry.getKey());
                 }
             }
