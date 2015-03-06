@@ -244,9 +244,9 @@ public class TopologyInputsController {
         getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
         getInput.setParameters(Arrays.asList(inputId));
         nodeTemplate.getProperties().put(propertyId, getInput);
+        topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
-        topology.setInputs(inputs);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -270,7 +270,6 @@ public class TopologyInputsController {
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
 
         if (nodeTemplate.getProperties().containsKey(propertyId)) {
-            // search the property definition for this property
             // search the property definition for this property
             IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                     topology.getDependencies());
@@ -384,11 +383,11 @@ public class TopologyInputsController {
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+            throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
         }
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         if (nodeTemplate.getRelationships() == null || !nodeTemplate.getRelationships().containsKey(relationshipId)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+            throw new NotFoundException("Relationship " + relationshipId + " do not exist for node " + nodeTemplateName);
         }
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
         IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
@@ -407,9 +406,9 @@ public class TopologyInputsController {
         getInput.setFunction(ToscaFunctionConstants.GET_INPUT);
         getInput.setParameters(Arrays.asList(inputId));
         relationshipTemplate.getProperties().put(propertyId, getInput);
+        topology.setInputs(inputs);
 
         log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
-        topology.setInputs(inputs);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -434,12 +433,12 @@ public class TopologyInputsController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+            throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
         }
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
 
         if (nodeTemplate.getRelationships() == null || !nodeTemplate.getRelationships().containsKey(relationshipId)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+            throw new NotFoundException("Relationship " + relationshipId + " do not exist for node " + nodeTemplateName);
         }
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
 
@@ -455,7 +454,6 @@ public class TopologyInputsController {
             }
             log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId,
                     topologyId);
-            alienDAO.save(topology);
         } else {
             throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
         }
