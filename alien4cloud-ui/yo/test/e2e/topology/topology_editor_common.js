@@ -65,30 +65,28 @@ var beforeTopologyTest = function() {
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show tabs in the topology page
-function showTopologyTab(topologyTabId) {
-  var tab = element(by.id(topologyTabId));
-  expect(tab.isPresent()).toBe(true);
-  tab.click();
-  browser.waitForAngular();
+
+function showTopologyTab(panel, btn) {
+  element(by.id(panel)).isDisplayed().then(function(isDisplay) {
+   if (!isDisplay) {
+     element(by.id(btn)).click();
+   }
+ });
+ browser.waitForAngular();
 }
 
 function showComponentsTab() {
-  showTopologyTab('topology-components-search');
+  showTopologyTab('slide-side-bar', 'topology-components-search');
 }
 module.exports.showComponentsTab = showComponentsTab;
 
 function showDependenciesTab() {
-  showTopologyTab('topology-dependencies');
-}
-module.exports.showDependenciesTab = showDependenciesTab;
-
-function showDependenciesTab() {
-  showTopologyTab('topology-dependencies');
+  showTopologyTab('closeDependencies', 'topology-dependencies');
 }
 module.exports.showDependenciesTab = showDependenciesTab;
 
 function showInputsTab() {
-  showTopologyTab('topology-inputs');
+  showTopologyTab('closeInputs', 'topology-inputs');
 }
 module.exports.showInputsTab = showInputsTab;
 
