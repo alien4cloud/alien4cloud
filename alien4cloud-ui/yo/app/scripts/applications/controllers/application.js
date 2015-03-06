@@ -3,7 +3,7 @@
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
+           environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -137,10 +137,11 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     // TOPOLOGY INFO CONCERNS
     // verify the topology validity
-    $scope.isTopologyValid = function isTopologyValid(topologyId) {
+    $scope.isTopologyValid = function isTopologyValid(topologyId, environmentId) {
       // validate the topology
       return topologyServices.isValid({
-        topologyId: topologyId
+        topologyId: topologyId,
+        environmentId: environmentId
       }, function(result) {
         return result.data;
       });
@@ -297,7 +298,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.$apply();
     };
 
-    var doSubscribe = function doSubscribe(appRuntimeInformation, stateId)  {
+    var doSubscribe = function doSubscribe(appRuntimeInformation, stateId) {
       $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {

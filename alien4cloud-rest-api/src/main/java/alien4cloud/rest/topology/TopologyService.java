@@ -274,7 +274,7 @@ public class TopologyService {
      * @param topology
      * @return
      */
-    public ValidTopologyDTO validateTopology(Topology topology) {
+    public ValidTopologyDTO validateTopology(Topology topology, Map<String, String> inputs) {
         ValidTopologyDTO dto = new ValidTopologyDTO();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
@@ -291,7 +291,7 @@ public class TopologyService {
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
         // validate required properties
-        dto.addToTaskList(validateProperties(topology));
+        dto.addToTaskList(validateProperties(topology, inputs));
 
         dto.setValid(CollectionUtils.isEmpty(dto.getTaskList()));
 
@@ -537,7 +537,7 @@ public class TopologyService {
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
-    private List<PropertiesTask> validateProperties(Topology topology) {
+    private List<PropertiesTask> validateProperties(Topology topology, Map<String, String> inputs) {
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
@@ -564,8 +564,8 @@ public class TopologyService {
                 String propertyValue = null;
                 if (value instanceof ScalarPropertyValue) {
                     propertyValue = ((ScalarPropertyValue) value).getValue();
-                } else if (value instanceof FunctionPropertyValue) {
-                    propertyValue = ((FunctionPropertyValue) value).getFunction();
+                } else if (value instanceof FunctionPropertyValue && inputs != null) {
+                    propertyValue = inputs.get(((FunctionPropertyValue) value).getParameters().get(0));
                 }
                 if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                     task.getProperties().add(propertyEntry.getKey());
