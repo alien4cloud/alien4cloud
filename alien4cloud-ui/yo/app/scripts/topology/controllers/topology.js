@@ -587,6 +587,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     var generateInputIdFromPropertyName = function(propertyName) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.inputs)) {
+        return propertyName;
+      }
       var i = 0;
       var inputId = propertyName;
       while ($scope.topology.topology.inputs.hasOwnProperty(inputId)) {
