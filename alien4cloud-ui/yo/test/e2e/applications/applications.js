@@ -286,15 +286,15 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
   var container = element(by.id(id));
   expect(container.isPresent()).toBe(true);
   expect(container.isDisplayed()).toBe(true);
-  var span = container.element(by.tagName('span'));
   var editable = (editableBoolean === undefined || editableBoolean === '' || editableBoolean === null) ? false : editableBoolean; // if editableBoolean not defined, false
+  var displayValue = {};
   if (editable) {
-    expect(span.getAttribute('class')).toContain('editable');
+    displayValue = container.element(by.tagName('span'));
   } else {
-    expect(span.getAttribute('class')).not.toContain('editable');
+    displayValue = container.element(by.tagName('em'));
   }
-  expect(span.isDisplayed()).toBe(true);
-  span.getText().then(function(spanText) {
+  expect(displayValue.isPresent()).toBeTruthy();
+  displayValue.getText().then(function(spanText) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
   });
 };
