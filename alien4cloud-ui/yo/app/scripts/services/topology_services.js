@@ -58,6 +58,35 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var setInputToRelationshipProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/input', {}, {
+      'set': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'unset': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var getPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
       'getCandidates': {
         method: 'GET',
@@ -65,6 +94,21 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
           topologyId: '@topologyId',
           nodeTemplateName: '@nodeTemplateName',
           propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
+      'getCandidates': {
+        method: 'GET',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
@@ -268,7 +312,11 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'replace': replacements.replace,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
-        'artifactInput': updateInputArtifact
+        'artifactInput': updateInputArtifact,
+        'relationship': {
+          'getInputCandidates': getRelationshipPropertyInputCandidates,
+          'setInputs': setInputToRelationshipProperty
+        }
       },
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,
       'relationshipDAO': relationshipDAO,

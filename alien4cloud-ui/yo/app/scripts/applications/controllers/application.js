@@ -168,20 +168,20 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           $scope.storageImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
         }
         // process topology data
-        $scope.inputProperties = result.data.topology.inputProperties;
+        $scope.inputs = result.data.topology.inputs;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
         $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
         $scope.outputNodes = [];
-        $scope.inputPropertiesSize = 0;
+        $scope.inputsSize = 0;
         $scope.outputPropertiesSize = 0;
         $scope.outputAttributesSize = 0;
         $scope.inputArtifactsSize = 0;
 
-        if (angular.isDefined(result.data.topology.inputProperties)) {
-          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
+        if (angular.isDefined(result.data.topology.inputs)) {
+          $scope.inputsSize = Object.keys(result.data.topology.inputs).length;
         }
         if (angular.isDefined($scope.outputProperties)) {
           $scope.outputNodes = Object.keys($scope.outputProperties);
@@ -198,20 +198,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
       });
 
-    };
-
-    // get the property definition for the good (node, property)
-    $scope.getPropertyDefinition = function(nodeKey, propertyKey) {
-      var type = $scope.nodeTemplates[nodeKey].type;
-      var propertyDefinition = null;
-      var properties = $scope.topologyDTO.nodeTypes[type].properties;
-      for (var i = 0; i < properties.length; i++) {
-        if (properties[i].key === propertyKey) {
-          propertyDefinition = properties[i].value;
-          propertyDefinition.name = propertyKey;
-        }
-      }
-      return propertyDefinition;
     };
 
     // get a topologyId

@@ -144,6 +144,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         }
 
         var key;
+        $scope.hasUnmatchedCompute = false;
         for (key in $scope.matchedComputeResources) {
           if ($scope.matchedComputeResources.hasOwnProperty(key)) {
             if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
@@ -152,6 +153,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             }
           }
         }
+        $scope.hasUnmatchedNetwork = false;
         for (key in $scope.matchedNetworkResources) {
           if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
             if (!$scope.selectedNetworks.hasOwnProperty(key)) {
@@ -160,6 +162,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
             }
           }
         }
+        $scope.hasUnmatchedStorage = false;
         for (key in $scope.matchedStorageResources) {
           if ($scope.matchedStorageResources.hasOwnProperty(key)) {
             if (!$scope.selectedStorages.hasOwnProperty(key)) {
@@ -299,7 +302,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isAllowedInputDeployment = function() {
-      return $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager);
+      return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
     };
 
     $scope.isAllowedDeployment = function() {
@@ -361,21 +364,22 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     /* Handle properties inputs */
-    $scope.updateProperty = function(nodeTemplateName, propertyName, propertyValue) {
+    $scope.updateInputValue = function(definition, inputValue, inputId) {
       // No update if it's the same value
-      if (propertyValue === $scope.nodeTemplates[nodeTemplateName].properties[propertyName]) {
-        return;
+      if (UTILS.isUndefinedOrNull($scope.setup.inputProperties)) {
+        $scope.setup.inputProperties = {};
       }
-      var updatePropsObject = {
-        'propertyName': propertyName,
-        'propertyValue': propertyValue
-      };
-      return topologyServices.nodeTemplate.updateProperty({
-        topologyId: $scope.topologyDTO.topology.id,
-        nodeTemplateName: nodeTemplateName
-      }, angular.toJson(updatePropsObject), function() {
-        // update the properties locally
-        $scope.nodeTemplates[nodeTemplateName].propertiesMap[propertyName].value = propertyValue;
+      if (inputValue === $scope.setup.inputProperties[inputId]) {
+        return;
+      } else {
+        $scope.setup.inputProperties[inputId] = inputValue;
+      }
+      return applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        inputProperties: $scope.setup.inputProperties
+      }), function() {
         refreshDeploymentSetup();
       }).$promise;
     };
