@@ -10,9 +10,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
       }
-      if (data === initialValue) {
-        return;
-      }
       // check constraint here
       var saveDefer = $q.defer();
       var propertyRequest = {

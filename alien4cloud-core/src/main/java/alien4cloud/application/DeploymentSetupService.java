@@ -196,12 +196,18 @@ public class DeploymentSetupService {
     }
 
     private void processGetInput(Map<String, String> inputs, Map<String, AbstractPropertyValue> properties) {
-        if (inputs != null && properties != null) {
+        if (properties != null) {
             for (Entry<String, AbstractPropertyValue> propEntry : properties.entrySet()) {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                        propEntry.setValue(new ScalarPropertyValue(inputs.get(function.getParameters().get(0))));
+                        ScalarPropertyValue value;
+                        if (inputs != null) {
+                            value = new ScalarPropertyValue(inputs.get(function.getParameters().get(0)));
+                        } else {
+                            value = new ScalarPropertyValue(null);
+                        }
+                        propEntry.setValue(value);
                     } else {
                         log.warn("Function detected for property <{}> while only get_input should be authorized.", propEntry.getKey());
                     }
