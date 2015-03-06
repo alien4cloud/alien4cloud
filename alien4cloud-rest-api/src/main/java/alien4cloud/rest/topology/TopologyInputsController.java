@@ -29,6 +29,7 @@ import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
@@ -268,10 +269,22 @@ public class TopologyInputsController {
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
 
-        nodeTemplate.getProperties().put(propertyId, null);
+        if (nodeTemplate.getProperties().containsKey(propertyId)) {
+            // search the property definition for this property
+            // search the property definition for this property
+            IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+                    topology.getDependencies());
+            PropertyDefinition pd = indexedNodeType.getProperties().get(propertyId);
 
-        log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
-        alienDAO.save(topology);
+            if (pd != null && pd.getDefault() != null) {
+                nodeTemplate.getProperties().put(propertyId, new ScalarPropertyValue(pd.getDefault()));
+            } else {
+                nodeTemplate.getProperties().put(propertyId, null);
+            }
+            log.debug("Disassociated the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
+            alienDAO.save(topology);
+        }
+
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -419,12 +432,21 @@ public class TopologyInputsController {
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
 
-        // TODO set default value
-        relationshipTemplate.getProperties().put(propertyId, null);
+        if (relationshipTemplate.getProperties().containsKey(propertyId)) {
+            // search the property definition for this property
+            IndexedRelationshipType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
+                    relationshipTemplate.getType(), topology.getDependencies());
+            PropertyDefinition pd = indexedNodeType.getProperties().get(propertyId);
+            if (pd != null && pd.getDefault() != null) {
+                relationshipTemplate.getProperties().put(propertyId, new ScalarPropertyValue(pd.getDefault()));
+            } else {
+                relationshipTemplate.getProperties().put(propertyId, null);
+            }
+            log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId,
+                    relationshipTemplateId, topologyId);
+            alienDAO.save(topology);
+        }
 
-        log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipTemplateId,
-                topologyId);
-        alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
 

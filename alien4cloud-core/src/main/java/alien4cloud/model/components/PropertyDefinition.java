@@ -106,6 +106,8 @@ public class PropertyDefinition implements IOperationParameter {
     public void checkIfCompatibleOrFail(final PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
         if (propertyDefinition == null) {
             throw new IncompatiblePropertyDefinitionException();
+        } else if (!this.getType().equals(propertyDefinition.getType())) {
+            throw new IncompatiblePropertyDefinitionException();
         } else if (this.getConstraints() == null && propertyDefinition.getConstraints() == null) {
             return;
         } else if (this.getConstraints() == null || propertyDefinition.getConstraints() == null
