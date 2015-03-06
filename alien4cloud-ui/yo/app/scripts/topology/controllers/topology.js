@@ -528,10 +528,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         nodeTemplateName: nodeTemplateName
       };
 
-      if (type === 'outputProperties') {
+      if (outputType === 'outputProperties') {
         params.propertyName = propertyName;
       }
-      if (type === 'outputAttributes') {
+      if (outputType === 'outputAttributes') {
         params.attributeName = propertyName;
       }
 
