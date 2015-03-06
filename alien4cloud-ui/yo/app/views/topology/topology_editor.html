@@ -137,7 +137,7 @@
                     <ul class="dropdown-menu dropdown-menu-left" role="menu">
                       <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                       <li>
-                        <a ng-click="createInputFromProperty(propEntry.key)">
+                        <a id="addToInputBtn_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
                           <strong>Add To Input <i class="fa fa-plus"></i></strong>
                         </a>
                       </li>

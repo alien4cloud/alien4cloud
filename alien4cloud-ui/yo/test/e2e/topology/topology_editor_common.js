@@ -414,6 +414,8 @@ var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, che
 
 var togglePropertyInput = function(nodeTemplateName, propertyName) {
   toggleIOProperty(nodeTemplateName, propertyName, 'input');
+  browser.actions().click(browser.element(by.id('addToInputBtn_' + propertyName))).perform();
+  browser.waitForAngular();
 };
 
 module.exports.togglePropertyInput = togglePropertyInput;
