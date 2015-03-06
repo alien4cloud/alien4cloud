@@ -2,7 +2,7 @@ Feature: Topology inputs controller
 
   Background:
     Given I am authenticated with "ADMIN" role
-  And I upload the archive "tosca base types 1.0"
+    And I upload the archive "tosca base types 1.0"
     And I should receive a RestResponse with no error
     And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
     And I create a new application with name "ioMan" and description "Yeo man!"
@@ -40,4 +40,16 @@ Feature: Topology inputs controller
       And The topology should have the property "os_distribution" defined as input property
     Then I associate the property "password" of a relationship "HostedOn_Compute" for the node template "BlockStorage" to the input "os_distribution"
       And I should receive a RestResponse with no error
- 
+
+  Scenario: The input candidates are well managed    
+    Given I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
+    When I ask for the input candidate for the node template "Compute2" and property "os_distribution"
+      Then The SPEL boolean expression "#root.size() == 0" should return true    
+    Given I define the property "os_distribution" of the node "Compute" as input property
+    When I ask for the input candidate for the node template "Compute2" and property "os_distribution"
+      Then The SPEL boolean expression "#root.size() == 1" should return true
+      And The SPEL expression "#root[0]" should return "os_distribution"
+    Given I define the property "mem_size" of the node "Compute" as input int property
+    When I ask for the input candidate for the node template "Compute2" and property "os_distribution"
+      Then The SPEL boolean expression "#root.size() == 1" should return true
+      And The SPEL expression "#root[0]" should return "os_distribution"    

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -16,24 +17,22 @@ import cucumber.api.java.en.When;
 
 public class InputPropertiesStepDefinitions {
 
-    private String getInputUrl(String inputId) {
-        return "/rest/topologies-inputs/" + Context.getInstance().getTopologyId() + "/" + inputId;
-    }
-
-    private String getAssociateInputUrl(String inputId, String nodeTemplateName) {
-        return "/rest/topologies-inputs/" + Context.getInstance().getTopologyId() + "/setinput/" + inputId + "/nodetemplates/" + nodeTemplateName;
-    }
-
-    private PropertyDefinition getFakePropertyDefinition(String inputId) {
-        PropertyDefinition propertyDefinition = new PropertyDefinition();
-        propertyDefinition.setType("string");
-        return propertyDefinition;
-    }
-
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as input property$")
     public void I_define_the_property_of_the_node_as_input_property(String inputId, String nodeName) throws Throwable {
-        String json = JsonUtil.toString(getFakePropertyDefinition(inputId));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(getInputUrl(inputId), json));
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType("string");
+        String json = JsonUtil.toString(propertyDefinition);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
+    }
+
+    @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as input int property$")
+    public void I_define_the_property_of_the_node_as_input_int_property(String inputId, String nodeName) throws Throwable {
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
+        PropertyDefinition propertyDefinition = new PropertyDefinition();
+        propertyDefinition.setType("integer");
+        String json = JsonUtil.toString(propertyDefinition);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
     @Then("^The topology should have the property \"([^\"]*)\" defined as input property$")
@@ -48,7 +47,8 @@ public class InputPropertiesStepDefinitions {
 
     @When("^I remove the input property \"([^\"]*)\"$")
     public void I_remove_the_input_property(String inputId) throws Throwable {
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(getInputUrl(inputId)));
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(fullUrl));
     }
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
@@ -61,8 +61,10 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^I associate the property \"([^\"]*)\" of a node template \"([^\"]*)\" to the input \"([^\"]*)\"$")
     public void I_associate_the_property_of_a_node_template_to_the_input(String property, String nodeTemplateName, String inputId) throws Throwable {
-        String fullUrl = getAssociateInputUrl(inputId, nodeTemplateName) + "/property/" + property;
+        String fullUrl = String.format("/rest/topologies/%s/nodetemplates/%s/property/%s/input", Context.getInstance().getTopologyId(), nodeTemplateName,
+                property);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("inputId", inputId));
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded(fullUrl, nvps));
     }
 
@@ -70,8 +72,10 @@ public class InputPropertiesStepDefinitions {
     public void I_associate_the_property_of_a_relationship_for_the_node_template_to_the_input(String property, String relationshipTemplateId,
             String nodeTemplateName, String inputId)
             throws Throwable {
-        String fullUrl = getAssociateInputUrl(inputId, nodeTemplateName) + "/relationship/" + relationshipTemplateId + "/property/" + property;
+        String fullUrl = String.format("/rest/topologies/%s/nodetemplates/%s/relationship/%s/property/%s/input", Context.getInstance().getTopologyId(),
+                nodeTemplateName, relationshipTemplateId, property);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("inputId", inputId));
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded(fullUrl, nvps));
     }
 
