@@ -72,14 +72,14 @@ public class TopologyInputsController {
             @ApiParam(value = "The property definition of the new input.", required = true) @RequestBody PropertyDefinition newPropertyDefinition) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
+        Map<String, PropertyDefinition> inputs = getInputs(topology, true);
 
-        if (inputProperties.containsKey(inputId)) {
+        if (inputs.containsKey(inputId)) {
             throw new AlreadyExistException("An input with the id " + inputId + "already exist in the topology " + topologyId);
         }
 
-        inputProperties.put(inputId, newPropertyDefinition);
-        topology.setInputs(inputProperties);
+        inputs.put(inputId, newPropertyDefinition);
+        topology.setInputs(inputs);
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         alienDAO.save(topology);
@@ -228,13 +228,13 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
+        Map<String, PropertyDefinition> inputs = getInputs(topology, false);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
 
-        if (inputProperties.containsKey(inputId)) {
-            PropertyDefinition propertyDefinition = inputProperties.get(inputId);
+        if (inputs.containsKey(inputId)) {
+            PropertyDefinition propertyDefinition = inputs.get(inputId);
             propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
             throw new NotFoundException("Input " + inputId + " is not found");
@@ -246,7 +246,7 @@ public class TopologyInputsController {
         nodeTemplate.getProperties().put(propertyId, getInput);
 
         log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
-        topology.setInputs(inputProperties);
+        topology.setInputs(inputs);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -382,17 +382,23 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
-        Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
+        Map<String, PropertyDefinition> inputs = getInputs(topology, false);
+        if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+        }
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
+        if (nodeTemplate.getRelationships() == null || !nodeTemplate.getRelationships().containsKey(relationshipId)) {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+        }
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
         IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
                 relationshipTemplate.getType(), topology.getDependencies());
-
-        if (inputProperties.containsKey(inputId)) {
-            PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            if (indexedRelationshipType.getProperties() != null) {
-                propertyDefinition.checkIfCompatibleOrFail(indexedRelationshipType.getProperties().get(propertyId));
-            }
+        if (indexedRelationshipType.getProperties() == null || !indexedRelationshipType.getProperties().containsKey(propertyId)) {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+        }
+        if (inputs.containsKey(inputId)) {
+            PropertyDefinition propertyDefinition = inputs.get(inputId);
+            propertyDefinition.checkIfCompatibleOrFail(indexedRelationshipType.getProperties().get(propertyId));
         } else {
             throw new NotFoundException("Input " + inputId + " is not found");
         }
@@ -403,7 +409,7 @@ public class TopologyInputsController {
         relationshipTemplate.getProperties().put(propertyId, getInput);
 
         log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
-        topology.setInputs(inputProperties);
+        topology.setInputs(inputs);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -427,7 +433,14 @@ public class TopologyInputsController {
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+        }
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
+
+        if (nodeTemplate.getRelationships() == null || !nodeTemplate.getRelationships().containsKey(relationshipId)) {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
+        }
         RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
 
         if (relationshipTemplate.getProperties().containsKey(propertyId)) {
@@ -440,20 +453,24 @@ public class TopologyInputsController {
             } else {
                 relationshipTemplate.getProperties().put(propertyId, null);
             }
-            log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId,
-                    relationshipTemplateId, topologyId);
+            log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId,
+                    topologyId);
             alienDAO.save(topology);
+        } else {
+            throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
         }
-
-        log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    private Map<String, PropertyDefinition> getInputsOrCreateIt(Topology topology) {
+    private Map<String, PropertyDefinition> getInputs(Topology topology, boolean create) {
         Map<String, PropertyDefinition> inputs = topology.getInputs();
         if (inputs == null) {
-            inputs = Maps.newHashMap();
+            if (create) {
+                inputs = Maps.newHashMap();
+            } else {
+                throw new NotFoundException("The topology has no defined input");
+            }
         }
         return inputs;
     }
