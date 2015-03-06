@@ -39,6 +39,7 @@ import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -47,6 +48,9 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -372,7 +376,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+    public RestResponse<?> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateDeploymentSetupRequest updateRequest) throws CloudDisabledException {
 
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -381,11 +385,24 @@ public class ApplicationDeploymentController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
 
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId);
-        ReflectionUtil.mergeObject(updateRequest, deploymentSetupMatchInfo);
-        alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
+        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        ReflectionUtil.mergeObject(updateRequest, deploymentSetup);
+        if (deploymentSetup.getInputProperties() != null) {
+            // If someone modified the input properties, must validate them
+            try {
+                deploymentSetupService.validateInputProperties(deploymentSetup, topology);
+            } catch (ConstraintViolationException e) {
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            }
+        }
+        alienDAO.save(deploymentSetup);
         return RestResponseBuilder.<Void> builder().build();
     }
-
 }

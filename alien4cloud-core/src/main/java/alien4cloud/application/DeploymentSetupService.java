@@ -40,6 +40,9 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
 
@@ -62,6 +65,8 @@ public class DeploymentSetupService {
     private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
+    @Resource
+    private ConstraintPropertyService constraintPropertyService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -115,11 +120,12 @@ public class DeploymentSetupService {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
-
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         DeploymentSetup deploymentSetup = get(version, environment);
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
+        generateInputProperties(deploymentSetup, topology, true);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
             try {
@@ -129,6 +135,71 @@ public class DeploymentSetupService {
             }
         }
         return new DeploymentSetupMatchInfo(deploymentSetup);
+    }
+
+    public void validateInputProperties(DeploymentSetup deploymentSetup, Topology topology) throws ConstraintValueDoNotMatchPropertyTypeException,
+            ConstraintViolationException {
+        if (deploymentSetup.getInputProperties() == null) {
+            return;
+        }
+        Map<String, String> inputProperties = deploymentSetup.getInputProperties();
+        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
+            PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
+            if (definition != null) {
+                constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                        inputDefinitions.get(inputPropertyEntry.getKey()));
+            }
+        }
+    }
+
+    public boolean generateInputProperties(DeploymentSetup deploymentSetup, Topology topology, boolean automaticSave) {
+        Map<String, String> inputProperties = deploymentSetup.getInputProperties();
+        Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        boolean changed = false;
+        if (inputDefinitions == null || inputDefinitions.isEmpty()) {
+            deploymentSetup.setInputProperties(null);
+            changed = inputProperties != null;
+        } else {
+            if (inputProperties == null) {
+                inputProperties = Maps.newHashMap();
+                deploymentSetup.setInputProperties(inputProperties);
+                changed = true;
+            }
+            if (inputProperties != null) {
+                Iterator<Map.Entry<String, String>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
+                while (inputPropertyEntryIterator.hasNext()) {
+                    Map.Entry<String, String> inputPropertyEntry = inputPropertyEntryIterator.next();
+                    if (!inputDefinitions.containsKey(inputPropertyEntry.getKey())) {
+                        inputPropertyEntryIterator.remove();
+                        changed = true;
+                    } else {
+                        try {
+                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                                    inputDefinitions.get(inputPropertyEntry.getKey()));
+                        } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                            // Property is not valid anymore for the input, remove the old value
+                            inputPropertyEntryIterator.remove();
+                            changed = true;
+                        }
+                    }
+                }
+            }
+            for (Map.Entry<String, PropertyDefinition> inputDefinitionEntry : inputDefinitions.entrySet()) {
+                String existingValue = inputProperties.get(inputDefinitionEntry.getKey());
+                if (existingValue == null) {
+                    String defaultValue = inputDefinitionEntry.getValue().getDefault();
+                    if (defaultValue != null) {
+                        inputProperties.put(inputDefinitionEntry.getKey(), defaultValue);
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if (changed && automaticSave) {
+            alienDAO.save(deploymentSetup);
+        }
+        return changed;
     }
 
     /**

@@ -102,7 +102,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Retrieval and validation of the topology associated with the deployment.
     function checkTopology() {
 
-      $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
+      $scope.isTopologyValid($scope.topologyId, $scope.selectedEnvironment.id).$promise.then(function(validTopologyResult) {
         $scope.validTopologyDTO = validTopologyResult.data;
       });
 
@@ -381,6 +381,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         inputProperties: $scope.setup.inputProperties
       }), function() {
         refreshDeploymentSetup();
+        checkTopology();
       }).$promise;
     };
 

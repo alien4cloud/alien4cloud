@@ -22,12 +22,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
@@ -85,6 +91,15 @@ public class TopologyController {
 
     @Resource
     private IFileRepository artifactRepository;
+
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
+
+    @Resource
+    private ApplicationVersionService applicationVersionService;
+
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
@@ -563,11 +578,17 @@ public class TopologyController {
      */
     @ApiOperation(value = "Check if a topology is valid or not.", notes = "Returns true if valid, false if not. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId) {
+    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId, @RequestParam String environmentId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-        ValidTopologyDTO dto = topologyService.validateTopology(topology);
+        DeploymentSetup deploymentSetup = null;
+        if (environmentId != null) {
+            ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
+            ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
+            deploymentSetup = deploymentSetupService.get(version, environment);
+        }
+        ValidTopologyDTO dto = topologyService.validateTopology(topology, deploymentSetup.getInputProperties());
         return RestResponseBuilder.<ValidTopologyDTO> builder().data(dto).build();
     }
 
@@ -902,7 +923,7 @@ public class TopologyController {
 
         Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
-        
+
         StartEvent startEvent = new BuildPlanGenerator(true).generate(roots);
 
         return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
