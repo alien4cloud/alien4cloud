@@ -34,13 +34,16 @@ Feature: Topology inputs controller
     Then I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
       And I should receive a RestResponse with no error
     
-  Scenario: Associate the property of a relationship template to an input of the topology
+  Scenario: Associate the property of a relationship template to an input of the topology with different constraints must fail
     When I define the property "os_distribution" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
       And The topology should have the property "os_distribution" defined as input property
     Then I associate the property "password" of a relationship "HostedOn_Compute" for the node template "BlockStorage" to the input "os_distribution"
-      And I should receive a RestResponse with no error
+      And I should receive a RestResponse with an error code 500
 
+  # TODO add : Associate the property of a relationship template to an input of the topology
+  # on relationship hostedOn only password is defined in this test
+  
   Scenario: The input candidates are well managed    
     Given I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
     When I ask for the input candidate for the node template "Compute2" and property "os_distribution"
