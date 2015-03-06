@@ -13,6 +13,7 @@ import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -578,17 +579,20 @@ public class TopologyController {
      */
     @ApiOperation(value = "Check if a topology is valid or not.", notes = "Returns true if valid, false if not. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId, @RequestParam String environmentId) {
+    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-        DeploymentSetup deploymentSetup = null;
-        if (environmentId != null) {
+        Map<String, String> inputs = null;
+        if (StringUtils.isNotBlank(environmentId)) {
             ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
             ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
-            deploymentSetup = deploymentSetupService.get(version, environment);
+            DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
+            if (deploymentSetup != null) {
+                inputs = deploymentSetup.getInputProperties();
+            }
         }
-        ValidTopologyDTO dto = topologyService.validateTopology(topology, deploymentSetup.getInputProperties());
+        ValidTopologyDTO dto = topologyService.validateTopology(topology, inputs);
         return RestResponseBuilder.<ValidTopologyDTO> builder().data(dto).build();
     }
 

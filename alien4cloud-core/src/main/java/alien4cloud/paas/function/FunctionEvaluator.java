@@ -242,6 +242,11 @@ public final class FunctionEvaluator {
             throw new BadUsageKeywordException("The keyword <" + ToscaFunctionConstants.HOST + "> can only be used on a NodeTemplate level's parameter. Node<"
                     + basePaaSTemplate.getId() + ">");
         }
+        // TODO Must review this management of host
+        PaaSNodeTemplate parent = ((PaaSNodeTemplate) basePaaSTemplate).getParent();
+        if (parent == null) {
+            return new String[] { basePaaSTemplate.getId() };
+        }
         try {
             List<PaaSNodeTemplate> parentList = ToscaUtils.getParents((PaaSNodeTemplate) basePaaSTemplate);
             List<String> parentIdsList = Lists.newArrayList();
@@ -300,6 +305,9 @@ public final class FunctionEvaluator {
     }
 
     public static Map<String, String> getScalarValues(Map<String, AbstractPropertyValue> propertyValues) {
+        if (propertyValues == null) {
+            return null;
+        }
         Map<String, String> properties = Maps.newHashMap();
         for (Map.Entry<String, AbstractPropertyValue> propertyValueEntry : propertyValues.entrySet()) {
             properties.put(propertyValueEntry.getKey(), getScalarValue(propertyValueEntry.getValue()));
