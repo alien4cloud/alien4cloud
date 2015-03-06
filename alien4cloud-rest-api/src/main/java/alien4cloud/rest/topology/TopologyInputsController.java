@@ -237,7 +237,7 @@ public class TopologyInputsController {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
             propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
         } else {
-            inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
+            throw new NotFoundException("Input " + inputId + " is not found");
         }
 
         FunctionPropertyValue getInput = new FunctionPropertyValue();
@@ -332,21 +332,20 @@ public class TopologyInputsController {
      * Get the possible inputs candidates to be associated with this relationship property.
      */
     @ApiOperation(value = "Get the possible inputs candidates to be associated with this relationship property.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateName}/relationship/{relationshipTemplateId}/property/{propertyId}/inputcandidats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateName}/relationship/{relationshipId}/property/{propertyId}/inputcandidats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<List<String>> getRelationshipPropertyInputCandidate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId) {
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
-        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
 
         // search the property definition for this property
         IndexedRelationshipType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
-                relationshipTemplate.getType(),
-                topology.getDependencies());
+                relationshipTemplate.getType(), topology.getDependencies());
         PropertyDefinition pd = indexedNodeType.getProperties().get(propertyId);
         if (pd == null) {
             // throw 404
@@ -368,34 +367,34 @@ public class TopologyInputsController {
      * @param topologyId
      * @param inputId
      * @param nodeTemplateName
-     * @param relationshipTemplateId
+     * @param relationshipId
      * @param propertyId
      * @throws IncompatiblePropertyDefinitionException
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipTemplateId}/property/{propertyId}/input", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipId}/property/{propertyId}/input", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> setInputToRelationshipTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @RequestParam final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId)
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         Map<String, PropertyDefinition> inputProperties = getInputsOrCreateIt(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
-        IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
-                topology.getDependencies());
-        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
+        IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
+                relationshipTemplate.getType(), topology.getDependencies());
 
         if (inputProperties.containsKey(inputId)) {
             PropertyDefinition propertyDefinition = inputProperties.get(inputId);
-            if (indexedNodeType.getProperties() != null) {
-                propertyDefinition.checkIfCompatibleOrFail(indexedNodeType.getProperties().get(propertyId));
+            if (indexedRelationshipType.getProperties() != null) {
+                propertyDefinition.checkIfCompatibleOrFail(indexedRelationshipType.getProperties().get(propertyId));
             }
         } else {
-            inputProperties.put(inputId, indexedNodeType.getProperties().get(propertyId));
+            throw new NotFoundException("Input " + inputId + " is not found");
         }
 
         FunctionPropertyValue getInput = new FunctionPropertyValue();
@@ -403,8 +402,7 @@ public class TopologyInputsController {
         getInput.setParameters(Arrays.asList(inputId));
         relationshipTemplate.getProperties().put(propertyId, getInput);
 
-        log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipTemplateId,
-                topologyId);
+        log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
         topology.setInputs(inputProperties);
         alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
@@ -417,20 +415,20 @@ public class TopologyInputsController {
      * 
      * @param topologyId
      * @param nodeTemplateName
-     * @param relationshipTemplateId
+     * @param relationshipId
      * @param propertyId
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipTemplateId}/property/{propertyId}/input", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipId}/property/{propertyId}/input", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> unsetInputToRelationshipTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
-            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipTemplateId) {
+            @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
-        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipTemplateId);
+        RelationshipTemplate relationshipTemplate = nodeTemplate.getRelationships().get(relationshipId);
 
         if (relationshipTemplate.getProperties().containsKey(propertyId)) {
             // search the property definition for this property
@@ -447,6 +445,8 @@ public class TopologyInputsController {
             alienDAO.save(topology);
         }
 
+        log.debug("Disassociated the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
+        alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
 
