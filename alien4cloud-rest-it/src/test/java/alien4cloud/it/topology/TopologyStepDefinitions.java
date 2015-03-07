@@ -485,7 +485,7 @@ public class TopologyStepDefinitions {
         ARTIFACT_REFERENCE = artifactReference;
     }
 
-    @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID$")
+    @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID and name \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_an_artifact_with_the_specified_UID(String nodeTemplateName, String artifactId,
             String artifactName) throws Throwable {
         The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
