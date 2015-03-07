@@ -473,7 +473,7 @@ public class TopologyStepDefinitions {
         String topologyId = Context.getInstance().getTopologyId();
         String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId;
         InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, "file", artifactStream));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
     }
 
     private static String ARTIFACT_REFERENCE;

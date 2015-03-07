@@ -32,26 +32,28 @@ Feature: Deploy an application
     Then I should receive a RestResponse with no error
     And The application's deployment must finish with warning
 
-  Scenario: Create 4 applications without deploying and check application's statuses
-    Given I have an application with name "BAD APPLICATION"
-    And I have an application with name "ALIEN"
+  Scenario: Create 2 applications without deploying and check application's statuses
+    Given I have applications with names and descriptions
+      | BAD APPLICATION | This Application should be in FAILURE status...  |
+      | ALIEN           | This application should be in DEPLOYED status... |
     When I can get applications statuses
-    And I have expected applications statuses for "deployment" operation
+    Then I have expected applications statuses for "deployment" operation
       | BAD APPLICATION | UNDEPLOYED |
       | ALIEN           | UNDEPLOYED |
     And I should receive a RestResponse with no error
 
   Scenario: Create 4 applications, deploy all and final check statuses
-    Given I have an application with name "My Software Factory"
-    And I have an application with name "WARN APPLICATION"
-    And I have an application with name "BAD APPLICATION"
-    And I have an application with name "ALIEN"
+    Given I have applications with names and descriptions
+      | My Software Factory | This application should be in DEPLOYED status... |
+      | WARN-APPLICATION    | This application should be in WARNING status...  |
+      | BAD-APPLICATION     | This Application should be in FAILURE status...  |
+      | ALIEN               | This application should be in DEPLOYED status... |
     Then I can get applications statuses
     When I deploy all applications with cloud "Mount doom cloud"
     Then I have expected applications statuses for "deployment" operation
-      | BAD APPLICATION     | FAILURE  |
+      | BAD-APPLICATION     | FAILURE  |
       | ALIEN               | DEPLOYED |
-      | WARN APPLICATION    | WARNING  |
+      | WARN-APPLICATION    | WARNING  |
       | My Software Factory | DEPLOYED |
     And I should receive a RestResponse with no error
 
