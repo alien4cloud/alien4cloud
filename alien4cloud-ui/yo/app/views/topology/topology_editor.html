@@ -138,7 +138,7 @@
                       <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                       <li>
                         <a id="addToInputBtn_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
-                          <strong>Add To Input <i class="fa fa-plus"></i></strong>
+                          <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                         </a>
                       </li>
                       <li ng-repeat="inputId in currentInputCandidatesForProperty | orderBy:'toString()'">
@@ -428,7 +428,7 @@
                               <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                               <li>
                                 <a ng-click="createInputFromRelationshipProperty(relationshipEntry.key, propertyEntry.key)">
-                                  <strong>Add To Input <i class="fa fa-plus"></i></strong>
+                                  <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                                 </a>
                               </li>
                               <li ng-repeat="inputId in currentInputCandidatesForRelationshipProperty | orderBy:'toString()' ">
@@ -595,9 +595,9 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Constraint</th>
+            <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.NAME' | translate }}</th>
+            <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.TYPE' | translate }}</th>
+            <th>{{'APPLICATIONS.TOPOLOGY.INPUTS.CONSTRAINT' | translate }}</th>
             <th></th>
           </tr>
         </thead>

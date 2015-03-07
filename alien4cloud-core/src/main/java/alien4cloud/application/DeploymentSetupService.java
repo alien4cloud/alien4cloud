@@ -165,8 +165,7 @@ public class DeploymentSetupService {
                 inputProperties = Maps.newHashMap();
                 deploymentSetup.setInputProperties(inputProperties);
                 changed = true;
-            }
-            if (inputProperties != null) {
+            } else {
                 Iterator<Map.Entry<String, String>> inputPropertyEntryIterator = inputProperties.entrySet().iterator();
                 while (inputPropertyEntryIterator.hasNext()) {
                     Map.Entry<String, String> inputPropertyEntry = inputPropertyEntryIterator.next();

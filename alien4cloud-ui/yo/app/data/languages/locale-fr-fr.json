@@ -197,7 +197,6 @@
       "minLength": "La taille minimale de la valeur est {{reference}}",
       "pattern": "La valeur doit respecter le modèle {{reference}}"
     }
-
   },
   "USERS": {
     "NEW": "Nouvel Utilisateur",
@@ -356,6 +355,12 @@
       "PROPERTIES": "Propriétés",
       "ATTRIBUTES": "Attributs",
       "PROPERTIES_INPUTS": "Propriétés d'entrée",
+      "INPUTS": {
+        "ADD": "Ajouter aux Propriétés d'entrée",
+        "NAME": "Nom",
+        "TYPE": "Type",
+        "CONSTRAINT": "Contrainte"
+      },
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
       "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
       "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
