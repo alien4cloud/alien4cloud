@@ -184,6 +184,26 @@ public class ApplicationResourceMatcherStepDefinitions {
         Assert.assertEquals(expectedNetworksMatching, deploymentSetupMatchInfo.getNetworkMapping());
     }
 
+    @And("^The deployment setup of the application should contain following storage mapping:$")
+    public void The_deployment_setup_of_the_application_should_contain_following_storage_mapping(DataTable networksMatching) throws Throwable {
+        Map<String, StorageTemplate> expectedStoragesMatching = Maps.newHashMap();
+        for (List<String> rows : networksMatching.raw()) {
+            StorageTemplate storageTemplate = new StorageTemplate();
+            storageTemplate.setId(rows.get(1));
+            storageTemplate.setDevice(rows.get(2));
+            storageTemplate.setSize(Long.parseLong(rows.get(3)));
+            expectedStoragesMatching.put(rows.get(0), storageTemplate);
+        }
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertNotNull(deploymentSetupMatchInfo.getCloudResourcesMapping());
+        Assert.assertEquals(expectedStoragesMatching, deploymentSetupMatchInfo.getStorageMapping());
+    }
+
     @Then("^The deployment setup of the application should contain an empty network mapping$")
     public void The_deployment_setup_of_the_application_should_contain_an_empty_network_mapping() throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
@@ -193,6 +213,17 @@ public class ApplicationResourceMatcherStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
                 DeploymentSetupMatchInfo.class).getData();
         Assert.assertTrue(deploymentSetupMatchInfo.getNetworkMapping() == null || deploymentSetupMatchInfo.getNetworkMapping().isEmpty());
+    }
+
+    @Then("^The deployment setup of the application should contain an empty storage mapping$")
+    public void The_deployment_setup_of_the_application_should_contain_an_empty_storage_mapping() throws Throwable {
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertTrue(deploymentSetupMatchInfo.getStorageMapping() == null || deploymentSetupMatchInfo.getStorageMapping().isEmpty());
     }
 
     @Then("^I should receive a match result with (\\d+) storages for the node \"([^\"]*)\":$")
