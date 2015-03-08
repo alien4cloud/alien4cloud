@@ -13,11 +13,25 @@ import com.google.common.collect.Lists;
  */
 @Getter
 public class ParallelGateway extends AbstractWorkflowStep {
+    /** If closed then we should not add more steps but rather add the next one in next step. */
+    private boolean closed = false;
     /** The steps to be performed in parallel. */
     private List<WorkflowStep> parallelSteps = Lists.newArrayList();
+    private WorkflowStep lastInnerStep;
 
     public WorkflowStep addParallelStep(WorkflowStep step) {
+        if(this.closed) {
+            return this.setNextStep(step);
+        }
         this.parallelSteps.add(step);
         return step;
+    }
+    
+    public void setLastInnerStep(WorkflowStep lastInnerStep) {
+        this.lastInnerStep = lastInnerStep;
+    }
+    
+    public void close() {
+        this.closed = true;
     }
 }

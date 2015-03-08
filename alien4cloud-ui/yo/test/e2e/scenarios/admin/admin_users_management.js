@@ -1,5 +1,4 @@
 /* global by, element */
-
 'use strict';
 
 var common = require('../../common/common');
@@ -19,7 +18,7 @@ var assertUserHasNoRoles = function(username) {
   expect(element(by.id('user_' + username)).isElementPresent(by.css('ul.td_list'))).toBe(false);
 };
 
-describe('User management', function() {
+describe('User management :', function() {
   // Load up a view and wait for it to be done with its rendering and epicycles.
   beforeEach(function() {
     common.before();
@@ -92,7 +91,7 @@ describe('User management', function() {
   });
 
   it('should be able to edit user\'s properties and fields', function() {
-    console.log('should be able to edit user\'s properties and fields');
+    console.log('################# should be able to edit user\'s properties and fields');
     // login
     authentication.login('admin');
 

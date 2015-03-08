@@ -286,16 +286,15 @@ var expectDeploymentPropertyValue = function(id, value, editableBoolean) {
   var container = element(by.id(id));
   expect(container.isPresent()).toBe(true);
   expect(container.isDisplayed()).toBe(true);
-  var span = container.element(by.tagName('span'));
-  var editable = editableBoolean || true; // if editableBoolean not defined, true
-  var subSpanElement = span.element(by.tagName('span'));
+  var editable = (editableBoolean === undefined || editableBoolean === '' || editableBoolean === null) ? false : editableBoolean; // if editableBoolean not defined, false
+  var displayValue = {};
   if (editable) {
-    expect(subSpanElement.getAttribute('class')).toContain('editable');
+    displayValue = container.element(by.tagName('span'));
   } else {
-    expect(subSpanElement.getAttribute('class')).not.toContain('editable');
+    displayValue = container.element(by.tagName('em'));
   }
-  expect(span.isDisplayed()).toBe(true);
-  span.getText().then(function(spanText) {
+  expect(displayValue.isPresent()).toBeTruthy();
+  displayValue.getText().then(function(spanText) {
     expect(spanText.toLowerCase()).toContain(value.toString().toLowerCase());
   });
 };
@@ -309,7 +308,7 @@ var expectOutputValue = function expectOutputValue(appPageState, environmentName
   var targetedPageStateId = appPageState || 'deployment';
   navigation.go('applications', targetedPageStateId);
 
-  if ( outputType === 'property') {
+  if (outputType === 'property') {
     instance = null;
   }
 

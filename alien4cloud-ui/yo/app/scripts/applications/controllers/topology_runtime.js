@@ -3,19 +3,19 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyRuntimeCtrl', [ '$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments',
+  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments',
     function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
       $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
       // select current environment
-      if(UTILS.isDefinedAndNotNull(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
+      if (UTILS.isDefinedAndNotNull(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
         $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
       } else {
         $scope.selectedEnvironment = null;
-        for(var i=0; i < appEnvironments.deployEnvironments.length && $scope.selectedEnvironment === null; i++) {
-          if(appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
+        for (var i = 0; i < appEnvironments.deployEnvironments.length && $scope.selectedEnvironment === null; i++) {
+          if (appEnvironments.deployEnvironments[i].status !== 'UNDEPLOYED') {
             $scope.selectedEnvironment = appEnvironments.deployEnvironments[i];
           }
           appEnvironments.selectedEnvironment = $scope.selectedEnvironment;
@@ -23,8 +23,8 @@ angular.module('alienUiApp').controller(
       }
 
       // get the related cloud to display informations.
-      var refreshCloudInfo = function () {
-        cloudServices.get({ id: $scope.selectedEnvironment.cloudId }, function(response) {
+      var refreshCloudInfo = function() {
+        cloudServices.get({id: $scope.selectedEnvironment.cloudId}, function(response) {
           $scope.cloud = response.data.cloud;
         });
       };
@@ -39,11 +39,11 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [ { 'value': 'ALL' },
-        { 'value': 'paasdeploymentstatusmonitorevent' },
-        { 'value': 'paasinstancestatemonitorevent' },
-        { 'value': 'paasinstancestoragemonitorevent' },
-        { 'value': 'paasmessagemonitorevent' }];
+      $scope.eventTypeFilters = [{'value': 'ALL'},
+        {'value': 'paasdeploymentstatusmonitorevent'},
+        {'value': 'paasinstancestatemonitorevent'},
+        {'value': 'paasinstancestoragemonitorevent'},
+        {'value': 'paasmessagemonitorevent'}];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
@@ -93,7 +93,7 @@ angular.module('alienUiApp').controller(
             $scope.events = result.data;
           }
           // if we already have a listener then stop it
-          if(applicationEventServices !== null) {
+          if (applicationEventServices !== null) {
             applicationEventServices.stop();
           }
           applicationEventServices = applicationEventServicesFactory(applicationId, $scope.selectedEnvironment.id);
@@ -103,7 +103,7 @@ angular.module('alienUiApp').controller(
       }
 
       $scope.$on('$destroy', function() {
-        if(applicationEventServices!==null) {
+        if (applicationEventServices !== null) {
           applicationEventServices.stop();
         }
       });
@@ -237,10 +237,17 @@ angular.module('alienUiApp').controller(
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
           // Try to get properties from event which is not always available
-          if(UTILS.isDefinedAndNotNull(event.properties) && !UTILS.isObjectEmpty(event.properties)) {
+          if (UTILS.isDefinedAndNotNull(event.properties) && !UTILS.isObjectEmpty(event.properties)) {
             $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = event.properties;
-          } else {
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = $scope.topology.topology.nodeTemplates[event.nodeTemplateId].properties;
+          } else if (UTILS.isDefinedAndNotNull($scope.topology.topology.nodeTemplates[event.nodeTemplateId])) {
+            var nodePropertiesArray = $scope.topology.topology.nodeTemplates[event.nodeTemplateId].properties;
+            if (UTILS.isDefinedAndNotNull(nodePropertiesArray)) {
+              var nodePropertiesMap = {};
+              for (var i = 0; i < nodePropertiesArray.length; i++) {
+                nodePropertiesMap[nodePropertiesArray[i].key] = nodePropertiesArray[i].value;
+              }
+              $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = nodePropertiesMap;
+            }
           }
         }
         refreshSelectedNodeInstancesCount();

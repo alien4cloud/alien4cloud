@@ -4,11 +4,11 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;

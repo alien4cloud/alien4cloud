@@ -49,6 +49,14 @@ UTILS.arrayRemove = function(array, val) {
   array.splice(array.indexOf(val), 1);
 };
 
+UTILS.safePush = function(object, fieldName, value) {
+  if (object.hasOwnProperty(fieldName)) {
+    object[fieldName].push(value);
+  } else {
+    object[fieldName] = [value];
+  }
+};
+
 UTILS.isNotEmpty = function(array) {
   return (UTILS.isDefinedAndNotNull(array) && array.length > 0);
 };

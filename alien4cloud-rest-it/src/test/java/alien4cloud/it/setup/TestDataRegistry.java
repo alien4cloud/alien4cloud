@@ -42,6 +42,19 @@ public class TestDataRegistry {
         addConditionFolder("valid-csar-with-update3", "src/test/resources/data/csars/snapshot-test/snapshot-test-update3");
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
 
+        addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");
+        addConditionFolder("topology apache", "src/test/resources/data/csars/topology_template/topology-apache");
+        addConditionFolder("topology custom types", "src/test/resources/data/csars/topology_template/topology-custom-types");
+        addConditionFolder("topology-error-missingtype", "src/test/resources/data/csars/topology_template/topology-error-missingtype");
+        addConditionFolder("topology-unknown-req", "src/test/resources/data/csars/topology_template/topology-unknown-req");
+        addConditionFolder("topology-unknown-reqtarget", "src/test/resources/data/csars/topology_template/topology-unknown-reqtarget");
+        addConditionFolder("topology-unknown-capability", "src/test/resources/data/csars/topology_template/topology-unknown-capability");
+        addConditionFolder("topology-unknown-capability-short-notation",
+                "src/test/resources/data/csars/topology_template/topology-unknown-capability-short-notation");
+        addConditionFolder("topology-unknown-relationshiptype", "src/test/resources/data/csars/topology_template/topology-unknown-relationshiptype");
+        addConditionFolder("topology_inputs", "src/test/resources/data/csars/topology_template/topology_inputs");
+        addConditionFolder("topology_outputs", "src/test/resources/data/csars/topology_template/topology_outputs");
+
         // test uploading an unzipped file (do not zip it)
         CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));
         CONDITION_TO_PATH.put("alien-base-types",

@@ -8,9 +8,9 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
       isRuntime: false,
       width: 200,
       height: 50,
-      distanceBetweenBranchHorizontal: 80,
-      distanceBetweenNodeHorizontal: 40,
-      distanceBetweenNodeVertical: 60,
+      distanceBetweenBranchHorizontal: 40,
+      distanceBetweenNodeHorizontal: 20,
+      distanceBetweenNodeVertical: 20,
 
       setRuntime: function(isRuntime) {
         this.isRuntime = isRuntime;
@@ -22,7 +22,6 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
       },
 
       createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
-
         if (nodeType.tags) {
           var tags = UTILS.convertNameValueListToMap(nodeType.tags);
           if (tags.icon) {
@@ -53,10 +52,9 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
         // update version
         nodeGroup.select('.version').text(function() {
-          if (nodeTemplate.properties) {
-            if (typeof nodeTemplate.properties.version === 'string') {
-              return 'v' + nodeTemplate.properties.version;
-            }
+          if (UTILS.isDefinedAndNotNull(nodeTemplate.properties)
+            && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
+            return 'v' + nodeTemplate.properties.version.value;
           }
         });
 

@@ -1,7 +1,11 @@
 package alien4cloud.topology;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -13,9 +17,24 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
-import alien4cloud.model.topology.*;
+import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
@@ -169,15 +188,15 @@ public class TopologyServiceCore {
             IToscaElementFinder toscaElementFinder) {
         NodeTemplate nodeTemplate = new NodeTemplate();
         nodeTemplate.setType(indexedNodeType.getElementId());
-        Map<String, Capability> capabilities = Maps.newHashMap();
-        Map<String, Requirement> requirements = Maps.newHashMap();
-        Map<String, String> properties = Maps.newHashMap();
-        Map<String, String> attributes = Maps.newHashMap();
+        Map<String, Capability> capabilities = Maps.newLinkedHashMap();
+        Map<String, Requirement> requirements = Maps.newLinkedHashMap();
+        Map<String, AbstractPropertyValue> properties = Maps.newLinkedHashMap();
+        Map<String, String> attributes = Maps.newLinkedHashMap();
         Map<String, DeploymentArtifact> deploymentArtifacts = null;
         Map<String, DeploymentArtifact> deploymentArtifactsToMerge = templateToMerge != null ? templateToMerge.getArtifacts() : null;
         if (deploymentArtifactsToMerge != null) {
             if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
+                deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
                 for (Entry<String, DeploymentArtifact> entryArtifact : deploymentArtifactsToMerge.entrySet()) {
                     DeploymentArtifact existingArtifact = entryArtifact.getValue();
                     if (deploymentArtifacts.containsKey(entryArtifact.getKey())) {
@@ -185,10 +204,8 @@ public class TopologyServiceCore {
                     }
                 }
             }
-        } else {
-            if (indexedNodeType.getArtifacts() != null) {
-                deploymentArtifacts = Maps.newHashMap(indexedNodeType.getArtifacts());
-            }
+        } else if (indexedNodeType.getArtifacts() != null) {
+            deploymentArtifacts = Maps.newLinkedHashMap(indexedNodeType.getArtifacts());
         }
         fillCapabilitiesMap(capabilities, indexedNodeType.getCapabilities(), dependencies, templateToMerge != null ? templateToMerge.getCapabilities() : null,
                 toscaElementFinder);
@@ -208,26 +225,26 @@ public class TopologyServiceCore {
         return nodeTemplate;
     }
 
-    private static void fillAttributes(Map<String, String> attributes, Map<String, AttributeDefinition> attributes2) {
+    private static void fillAttributes(Map<String, String> attributes, Map<String, IAttributeValue> attributes2) {
         if (attributes2 == null || attributes == null) {
             return;
         }
-        for (Map.Entry<String, AttributeDefinition> entry : attributes2.entrySet()) {
+        for (Entry<String, IAttributeValue> entry : attributes2.entrySet()) {
             attributes.put(entry.getKey(), null);
         }
     }
 
-    public static void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions,
-            Map<String, String> propertiesToMerge) {
+    public static void fillProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> propertiesDefinitions,
+            Map<String, AbstractPropertyValue> map) {
         if (propertiesDefinitions == null || properties == null) {
             return;
         }
         for (Map.Entry<String, PropertyDefinition> entry : propertiesDefinitions.entrySet()) {
-            String existingValue = MapUtils.getObject(propertiesToMerge, entry.getKey());
+            AbstractPropertyValue existingValue = MapUtils.getObject(map, entry.getKey());
             if (existingValue == null) {
                 String defaultValue = entry.getValue().getDefault();
                 if (defaultValue != null && !defaultValue.trim().isEmpty()) {
-                    properties.put(entry.getKey(), defaultValue);
+                    properties.put(entry.getKey(), new ScalarPropertyValue(defaultValue));
                 } else {
                     properties.put(entry.getKey(), null);
                 }

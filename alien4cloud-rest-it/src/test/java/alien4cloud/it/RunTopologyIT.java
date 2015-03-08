@@ -10,7 +10,8 @@ import cucumber.api.junit.Cucumber;
 //
 "classpath:alien/rest/topology"
 // "classpath:alien/rest/topology/get_topology.feature"
-// "classpath:alien/rest/topology/inout_properties.feature"
+// "classpath:alien/rest/topology/out_properties.feature"
+// "classpath:alien/rest/topology/inputs_properties.feature"
 // "classpath:alien/rest/topology/mixing_component_versions.feature"
 // "classpath:alien/rest/topology/nodetemplate_constraint.feature"
 // "classpath:alien/rest/topology/nodetemplate.feature"

@@ -7,10 +7,6 @@ var navigation = require('./navigation');
 var authentication = require('../authentication/authentication');
 var SCREENSHOT = require('./screenshot');
 
-// protractor instance definition
-var ptor = protractor.getInstance();
-module.exports.ptor = ptor;
-
 var dismissAlert = function() { // toast-close-button
   element(by.css('.toast-close-button')).click();
   browser.waitForAngular();

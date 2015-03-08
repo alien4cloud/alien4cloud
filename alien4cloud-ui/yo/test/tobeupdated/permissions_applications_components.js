@@ -32,7 +32,6 @@ var badUser = {
   'username': 'bad',
   'password': 'user'
 };
-var ptor;
 
 // Tags definition
 var goodTag = {
@@ -73,7 +72,6 @@ describe('Permissions tests on APPLICATIONS', function() {
   beforeEach(function() {
     /* Go on home page */
     common.before();
-    ptor = protractor.getInstance();
   });
 
   /* After each spec in the tests suite(s) */

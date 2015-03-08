@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -31,9 +30,6 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @RestController
 @RequestMapping("/rest/properties")
 public class PropertiesController {
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
 
     @Resource
     private ConstraintPropertyService constraintPropertyService;

@@ -17,7 +17,7 @@
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
 - relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
-
+- outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -30,6 +30,7 @@
   imports:
     set: archive.dependencies
     type: import_definition
+  dsl_definitions: null # this means we take this node in charge but won't parse it's content
   node_types:
     map: nodeTypes
     key: elementId
@@ -54,17 +55,25 @@
     type: topology_template_type
 
 - topology_template_type: alien4cloud.model.topology.Topology|topologyChecker
-  description: .topologyTemplateDescription # mapped to a root's property 
-  node_templates: 
+  description: .topologyTemplateDescription # mapped to a root's property
+  inputs:
+    map: inputs
+    type: property_definition
+  node_templates:
     map: nodeTemplates
-    type: node_template  
-      
+    type: node_template
+  outputs:
+    inner: void # means : do the parsing but do not set anything
+    deferred: true
+    deferredOrder: 1001 # we want this to be the very last executed
+    type: outputs_type
+    
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type
   name: name
-  properties: 
+  properties:
     map: properties
-    type: scalar
+    type: node_template_property
   requirements:
     inner: relationships
     type: relationship_templates_type
@@ -110,7 +119,7 @@
     type: bound
   properties:
     map: properties
-    type: property_value
+    type: template_property
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
@@ -152,9 +161,31 @@
       list: parameters
       type: scalar
 
-# created using constructor(String)
-- scalar_property_input: alien4cloud.model.components.ScalarPropertyValue
+- template_property: __discriminator
+  keys:
+    type: property_definition
+    get_input: tosca_function
+    get_property: tosca_function
+    get_attribute: tosca_function
+  default: property_value
 
+- scalar_property_value: alien4cloud.model.components.ScalarPropertyValue
+
+- tosca_concat: alien4cloud.model.components.ConcatPropertyValue
+  __0:
+    key: function_concat
+    value:
+      list: parameters
+      type: input
+
+- node_template_property: __discriminator
+  keys:
+    type: property_definition
+    get_input: tosca_function
+    get_property: tosca_function
+    get_attribute: tosca_function
+  default: scalar_property_value
+  
 - input: __discriminator
   keys:
     type: property_definition
@@ -162,7 +193,13 @@
     get_property: tosca_function
     get_attribute: tosca_function
     get_operation_output: tosca_function
-  default: scalar_property_input
+  default: scalar_property_value
+
+- attribute: __discriminator
+  keys:
+    type: attribute_definition
+    concat: tosca_concat
+  default: attribute_definition
 
 - operation_definition: alien4cloud.model.components.Operation
   implementation:
@@ -190,7 +227,7 @@
     type: property_definition
   attributes:
     map: attributes
-    type: attribute_definition
+    type: attribute
   requirements:
     list: requirements
     key: id
@@ -233,7 +270,7 @@
     type: property_definition
   attributes:
     map: attributes
-    type: attribute_definition
+    type: attribute
   interfaces:
     reference: interfaces
     type: interfaces

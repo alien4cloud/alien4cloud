@@ -9,7 +9,7 @@
   "steps": [{
     "title": "Commencer la creation d'une topologie d'application",
     "content": "Depuis cet onglet vous allez pouvoir rechercher et filtrer les composants qui votn servir à la composition de votre application.",
-    "target": "components-search",
+    "target": "topology-components-search",
     "placement": "left"
   }, {
     "title": "Choisir les composants de l'application",

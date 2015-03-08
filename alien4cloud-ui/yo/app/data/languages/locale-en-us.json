@@ -82,13 +82,15 @@
       "ToscaPropertyConstraintDuplicate": "The constraint [ {{path}} ] already existed. The same constraint cannot be defined more than once.",
       "ToscaPropertyDefaultValueType": "The default value for the property [ {{path}} ] do not follow its type.",
       "ToscaPropertyDefaultValueConstraints": "The default value for the property [ {{path}} ] do not respect its constraint.",
-      "ToscaSequenceExpected": "A YAML sequence is expected.",
-      "ToscaMappingNodeExpected": "A mapping node is expected.",
-      "ToscaRequirementTargetNodeTemplateNameRequired": "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
-      "ToscaRelationshipNotBuilt": "Not able to build the relationship for the requirement [{{note}}] (please read errors)",
-      "ToscaRequirementNotFound": "Requirement definition for [{{note}}] was not found.",
-      "ToscaRequirementTargetNotFound": "The requirement's target for [{{note}}] doesn't exists.",
-      "ToscaRequirementCapabilityNotFound": "The capability corresponding to the requirement [{{note}}] can't be identified."
+      "YAML_SEQUENCE_EXPECTED": "A YAML sequence is expected.",
+      "YAML_MAPPING_NODE_EXPECTED": "A mapping node is expected.",
+      "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED": "Node template name is required for the requirement definition, it should be defined as the value of a node 'node'.",
+      "RELATIONSHIP_NOT_BUILT": "Not able to build the relationship for the requirement [{{note}}] (please read errors).",
+      "REQUIREMENT_NOT_FOUND": "Requirement definition for [{{note}}] was not found.",
+      "REQUIREMENT_TARGET_NOT_FOUND": "The requirement's target for [{{note}}] doesn't exists.",
+      "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified.",
+      "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
+      "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -345,6 +347,12 @@
       "ATTRIBUTES": "Attributes",
       "PROPERTIES": "Properties",
       "PROPERTIES_INPUTS": "Input properties",
+      "INPUTS": {
+        "ADD": "Add To Input",
+        "NAME": "Name",
+        "TYPE": "Type",
+        "CONSTRAINT": "Constraint"
+      },
       "PROPERTIES_OUTPUTS": "Output properties",
       "NO_OUTPUTS": "No output properties or attributes",
       "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
@@ -567,7 +575,8 @@
         "CONNECTION_CONFIGURATION": {
           "CLOUDIFY_URL": "Cloudify URL",
           "USER_NAME": "User name",
-          "PASSWORD": "Password"
+          "PASSWORD": "Password",
+          "TIMEOUT": "Connection timeout (Sec)"
         },
         "COMPUTE_TEMPLATES": "Compute templates",
         "COMPUTE_TEMPLATE": {

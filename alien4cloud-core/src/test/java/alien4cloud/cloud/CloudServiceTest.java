@@ -11,6 +11,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.paas.IConfigurablePaaSProvider;
+import alien4cloud.paas.IConfigurablePaaSProviderFactory;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
 import alien4cloud.paas.PaaSProviderFactoriesService;
@@ -20,6 +21,7 @@ import alien4cloud.paas.plan.MockPaaSProvider;
 
 public class CloudServiceTest {
 
+    public static final String DEFAULT_CLOUD_CONFIGURATION = "This is the cloud configuration";
     private PaaSProviderService paaSProviderService;
     private PaaSProviderFactoriesService paaSProviderFactoriesService;
     private IGenericSearchDAO alienDAO;
@@ -138,12 +140,12 @@ public class CloudServiceTest {
     public void testInitializeConfigurableCloudInvalidPlugin() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
         initializeMockedCloudService();
 
-        IPaaSProviderFactory paaSProviderFactory = Mockito.mock(IPaaSProviderFactory.class);
-        IPaaSProvider paaSProvider = Mockito.mock(IPaaSProvider.class, Mockito.withSettings().extraInterfaces(IConfigurablePaaSProvider.class));
+        IConfigurablePaaSProviderFactory<String> paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
+        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(IConfigurablePaaSProvider.class);
 
         GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
         Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), "This is the cloud configuration");
+        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
         initSearch(enabledClouds);
         Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
@@ -165,12 +167,12 @@ public class CloudServiceTest {
             PluginConfigurationException {
         initializeMockedCloudService();
 
-        IPaaSProviderFactory paaSProviderFactory = Mockito.mock(IPaaSProviderFactory.class);
-        IPaaSProvider paaSProvider = Mockito.mock(MockPaaSProvider.class);
+        IConfigurablePaaSProviderFactory paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
+        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(MockPaaSProvider.class);
 
         GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
         Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), "This is the cloud configuration");
+        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
         enabledClouds.setFrom(0);
         enabledClouds.setTotalResults(1);
 
@@ -178,12 +180,12 @@ public class CloudServiceTest {
 
         Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
+        Mockito.when(paaSProviderFactory.getConfigurationType()).thenReturn(String.class);
+        Mockito.when(paaSProviderFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
         cloudService.initialize();
 
-        IConfigurablePaaSProvider<String> cPaaSProvider = (IConfigurablePaaSProvider<String>) paaSProvider;
-
-        Mockito.verify(cPaaSProvider, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
+        Mockito.verify(paaSProvider, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
         Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
     }
 
@@ -193,23 +195,23 @@ public class CloudServiceTest {
             SecurityException, PluginConfigurationException {
         initializeMockedCloudService();
 
-        IPaaSProviderFactory paaSProviderFactory = Mockito.mock(IPaaSProviderFactory.class);
-        IPaaSProvider paaSProvider = Mockito.mock(MockPaaSProvider.class);
+        IConfigurablePaaSProviderFactory<String> paaSProviderFactory = Mockito.mock(IConfigurablePaaSProviderFactory.class);
+        IConfigurablePaaSProvider<String> paaSProvider = Mockito.mock(MockPaaSProvider.class);
 
         GetMultipleDataResult<Cloud> enabledClouds = searchCloud(true);
         Cloud cloud = enabledClouds.getData()[0];
-        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), "This is the cloud configuration");
+        CloudConfiguration configuration = new CloudConfiguration(cloud.getId(), DEFAULT_CLOUD_CONFIGURATION);
 
         initSearch(enabledClouds);
 
         Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
+        Mockito.when(paaSProviderFactory.getConfigurationType()).thenReturn(String.class);
+        Mockito.when(paaSProviderFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
 
-        IConfigurablePaaSProvider<String> cPaaSProvider = (IConfigurablePaaSProvider<String>) paaSProvider;
-
-        Mockito.doThrow(PluginConfigurationException.class).when(cPaaSProvider).setConfiguration((String) configuration.getConfiguration());
+        Mockito.doThrow(PluginConfigurationException.class).when(paaSProvider).setConfiguration((String) configuration.getConfiguration());
 
         cloudService.initialize();
 

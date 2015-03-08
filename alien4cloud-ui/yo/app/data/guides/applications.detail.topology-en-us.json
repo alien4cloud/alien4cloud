@@ -9,7 +9,7 @@
   "steps": [{
     "title": "Start application's topology creation",
     "content": "From this tab you will be ablme to search and filter components you want to build your application's topology.",
-    "target": "components-search",
+    "target": "topology-components-search",
     "placement": "left"
   }, {
     "title": "Choose application's components",

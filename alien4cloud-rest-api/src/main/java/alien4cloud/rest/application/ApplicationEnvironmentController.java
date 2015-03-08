@@ -35,7 +35,7 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -163,9 +163,9 @@ public class ApplicationEnvironmentController {
             appEnvironment.setCloudId(request.getCloudId());
             alienDAO.save(appEnvironment);
             try {
-                DeploymentSetup deploymentSetup = deploymentSetupService.getDeploymentSetup(applicationId, appEnvironment.getId());
-                deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-                alienDAO.save(deploymentSetup);
+                DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId, appEnvironment.getId());
+                deploymentSetupService.generatePropertyDefinition(deploymentSetupMatchInfo, cloud);
+                alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
             } catch (AlreadyExistException e) {
                 log.error("DeploymentSetup already exists");
             }
@@ -223,9 +223,9 @@ public class ApplicationEnvironmentController {
             AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
             // Update the linked deployment setup
-            DeploymentSetup deploymentSetup = deploymentSetupService.getDeploymentSetup(applicationId, applicationEnvironmentId);
-            deploymentSetupService.generatePropertyDefinition(deploymentSetup, cloud);
-            alienDAO.save(deploymentSetup);
+            DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId, applicationEnvironmentId);
+            deploymentSetupService.generatePropertyDefinition(deploymentSetupMatchInfo, cloud);
+            alienDAO.save(deploymentSetupMatchInfo.getDeploymentSetup());
         }
 
         applicationEnvironmentService.ensureNameUnicity(applicationEnvironment.getApplicationId(), request.getName());

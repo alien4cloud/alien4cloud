@@ -114,9 +114,6 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
       }
     });
 
-    // Cloud resource for the deployment
-    var cloudResourcesDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/cloud-resources', {}, {});
-
     // Handle roles on application
     var manageAppUserRoles = $resource('rest/applications/:applicationId/userRoles/:username/:role', {}, {
       'addUserRole': {
@@ -183,7 +180,6 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
       'groupRoles': manageAppGroupRoles,
       'applicationStatus': applicationStatus,
       'checkProperty': deploymentProperty.check,
-      'matchResources': cloudResourcesDAO.get,
       'getDeploymentSetup': applicationDeploymentSetupDAO.get,
       'updateDeploymentSetup': applicationDeploymentSetupDAO.update,
       'create': applicationCreate.create,

@@ -1,0 +1,29 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile including a topology using inputs.
+template_name: topology-inputs
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-base-types:1.0"
+
+dsl_definitions:
+
+  my_compute_node_props: &my_compute_node_props
+    os_type: { get_input: [ os_type ] }
+    
+topology_template:
+  description: A simple topology using inputs
+  inputs:
+    os_type:
+      type: string
+      constraints:
+        - valid_values: ["linux", "aix", "mac os", "windows"]
+      description: The host Operating System (OS) type.
+  node_templates:
+    compute1:
+      type: tosca.nodes.Compute
+      properties: *my_compute_node_props
+    compute2:
+      type: tosca.nodes.Compute
+      properties: *my_compute_node_props

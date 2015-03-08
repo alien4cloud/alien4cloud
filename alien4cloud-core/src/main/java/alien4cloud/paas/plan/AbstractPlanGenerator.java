@@ -77,12 +77,24 @@ public abstract class AbstractPlanGenerator {
         for (PaaSNodeTemplate node : nodes) {
             lastStep = gateway;
             generateNodeWorkflow(node);
+            gateway.setLastInnerStep(lastStep);
         }
+        gateway.close();
         if (gateway.getParallelSteps().size() > 1) {
-            lastStep = previousStep.setNextStep(gateway);
+            if (previousStep instanceof ParallelGateway) {
+                lastStep = ((ParallelGateway) previousStep).addParallelStep(gateway);
+            } else {
+                lastStep = previousStep.setNextStep(gateway);
+            }
         } else if (gateway.getParallelSteps().size() == 1) {
             // just skip the gateway
-            previousStep.setNextStep(gateway.getParallelSteps().get(0));
+            if (previousStep instanceof ParallelGateway) {
+                ((ParallelGateway) previousStep).addParallelStep(gateway.getParallelSteps().get(0));
+                lastStep = gateway.getLastInnerStep();
+            } else {
+                previousStep.setNextStep(gateway.getParallelSteps().get(0));
+                lastStep = gateway.getLastInnerStep();
+            }
         } else {
             lastStep = previousStep;
         }
@@ -107,7 +119,7 @@ public abstract class AbstractPlanGenerator {
      */
     protected void call(PaaSNodeTemplate nodeTemplate, String interfaceName, String operationName) {
         Interface lifecycle = getNodeInterface(nodeTemplate, interfaceName);
-        callOperation(nodeTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), null, interfaceName, operationName);
+        callOperation(nodeTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), null, null, interfaceName, operationName);
     }
 
     /**
@@ -120,7 +132,8 @@ public abstract class AbstractPlanGenerator {
      */
     protected void call(PaaSRelationshipTemplate relationshipTemplate, PaaSNodeTemplate nodeTemplate, String interfaceName, String operation) {
         Interface lifecycle = getRelationshipInterface(relationshipTemplate, interfaceName);
-        callOperation(relationshipTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), relationshipTemplate.getId(), interfaceName, operation);
+        callOperation(relationshipTemplate.getCsarPath(), lifecycle, nodeTemplate.getId(), relationshipTemplate.getId(), relationshipTemplate.getSource(),
+                interfaceName, operation);
     }
 
     /**
@@ -131,10 +144,11 @@ public abstract class AbstractPlanGenerator {
      * @param mainMember The main member of the relationship to process (source or target).
      * @param sideMember The other member of the relationship to process(target if the main is source, source if not)
      */
-    protected void trigger(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, RelationshipMember mainMember, RelationshipMember sideMember) {
+    protected void triggerRelation(PaaSRelationshipTemplate relationshipTemplate, String interfaceName, RelationshipMember mainMember,
+            RelationshipMember sideMember) {
         Interface interfaz = getRelationshipInterface(relationshipTemplate, interfaceName);
-        triggerOperation(relationshipTemplate.getCsarPath(), interfaz, interfaceName, relationshipTemplate.getId(), mainMember, sideMember);
-        // triggerOperation(relationshipTemplate.getCsarPath(), interfaz, nodeId, relationshipTemplate.getId(), interfaceName, operation, sideOperation);
+        triggerOperation(relationshipTemplate.getCsarPath(), interfaz, interfaceName, relationshipTemplate.getId(), relationshipTemplate.getSource(),
+                mainMember, sideMember);
     }
 
     /**
@@ -253,9 +267,9 @@ public abstract class AbstractPlanGenerator {
                 RelationshipMember source = new RelationshipMember(relationshipTemplate.getSource(), sourceOperation);
                 RelationshipMember target = new RelationshipMember(relationshipTemplate.getRelationshipTemplate().getTarget(), targetOperation);
                 if (source.nodeId.equals(nodeTemplate.getId())) {
-                    trigger(relationshipTemplate, interfaceName, source, target);
+                    triggerRelation(relationshipTemplate, interfaceName, source, target);
                 } else {
-                    trigger(relationshipTemplate, interfaceName, target, source);
+                    triggerRelation(relationshipTemplate, interfaceName, target, source);
                 }
             }
         }
@@ -280,7 +294,8 @@ public abstract class AbstractPlanGenerator {
         return new ParallelJoinStateGateway(MapUtil.newHashMap(keys, values));
     }
 
-    private void callOperation(Path csarPath, Interface interfaz, String nodeTemplateId, String relationshipId, String interfaceName, String operationName) {
+    private void callOperation(Path csarPath, Interface interfaz, String nodeTemplateId, String relationshipId, String sourceRelationshipId,
+            String interfaceName, String operationName) {
         Operation operation = operationName != null ? interfaz.getOperations().get(operationName) : null;
         if (operation == null || operation.getImplementationArtifact() == null) {
             // if there is no implementation for the requested operation we just don't generate a step.
@@ -288,12 +303,12 @@ public abstract class AbstractPlanGenerator {
         }
 
         OperationCallActivity activity = new OperationCallActivity();
-        fillOperationCallActivity(activity, csarPath, nodeTemplateId, relationshipId, interfaceName, operationName, operation);
+        fillOperationCallActivity(activity, csarPath, nodeTemplateId, relationshipId, sourceRelationshipId, interfaceName, operationName, operation);
         next(activity);
     }
 
     private void triggerOperation(final Path csarPath, final Interface interfaz, final String interfaceName, final String relationshipId,
-            final RelationshipMember mainMember, final RelationshipMember sideMember) {
+            final String sourceRelationshipId, final RelationshipMember mainMember, final RelationshipMember sideMember) {
 
         final Operation operation = interfaz.getOperations().get(mainMember.operation);
         final Operation sideOperation = interfaz.getOperations().get(sideMember.operation);
@@ -307,6 +322,7 @@ public abstract class AbstractPlanGenerator {
         RelationshipTriggerEvent activity = new RelationshipTriggerEvent();
         activity.setCsarPath(csarPath);
         activity.setRelationshipId(relationshipId);
+        activity.setSourceRelationshipId(sourceRelationshipId);
         activity.setInterfaceName(interfaceName);
         activity.setNodeTemplateId(mainMember.nodeId);
         activity.setSideNodeTemplateId(sideMember.nodeId);
@@ -324,13 +340,14 @@ public abstract class AbstractPlanGenerator {
         next(activity);
     }
 
-    private void fillOperationCallActivity(OperationCallActivity activity, Path csarPath, String nodeTemplateId, String relationshipId, String interfaceName,
-            String operationName, Operation operation) {
+    private void fillOperationCallActivity(OperationCallActivity activity, Path csarPath, String nodeTemplateId, String relationshipId,
+            String sourceRelationshipId, String interfaceName, String operationName, Operation operation) {
         activity.setCsarPath(csarPath);
         activity.setInterfaceName(interfaceName);
         activity.setOperationName(operationName);
         activity.setNodeTemplateId(nodeTemplateId);
         activity.setRelationshipId(relationshipId);
+        activity.setSourceRelationshipId(sourceRelationshipId);
         activity.setImplementationArtifact(operation.getImplementationArtifact());
         activity.setInputParameters(operation.getInputParameters());
     }

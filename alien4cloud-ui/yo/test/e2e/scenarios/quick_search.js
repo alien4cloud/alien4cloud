@@ -131,7 +131,7 @@ describe('Quick search', function() {
     authentication.login('applicationManager');
     qsInput.clear();
     qsInput.sendKeys(quicksearchWord);
-    common.ptor.sleep(1000);
+    browser.sleep(1000);
     item = typeaheadUl.element(by.tagName('li'));
     item.getText().then(function(text) {
       item.click();

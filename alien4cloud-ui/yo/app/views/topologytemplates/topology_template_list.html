@@ -1,10 +1,17 @@
 <div>
   <div class="row">
-    <div class="col-md-12" ng-if="isArchitect">
+    <div class="col-md-2" ng-if="isArchitect">
       <button class="btn btn-success" ng-click="openNewTopologyTemplate()" id="btn-add-template">
         <i class="fa fa fa-plus-circle"></i> {{ 'TEMPLATE.NEW' | translate}}
       </button>
     </div>
+	  <div id="upload-csar-topology" class="col-md-10" ng-if="isArchitect">
+	    <upload-directive
+	      target-url="'rest/csars'"
+	      drag-and-drop-message="'COMPONENTS.DRAG_DROP_UPLOAD'"
+	      button-message="'COMPONENTS.UPLOAD'"
+	      upload-success-callback="search()" />
+	  </div>    
   </div>
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-2 well">

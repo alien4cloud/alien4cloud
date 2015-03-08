@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
-  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
+  '$resource', '$http', '$q', '$translate', 'application', '$state', '$rootScope', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$timeout',
   function($scope, alienAuthService, $upload, applicationServices, topologyServices, $resource, $http, $q, $translate, applicationResult, $state, $rootScope, applicationEnvironmentServices, appEnvironments, toaster) {
     var pageStateId = $state.current.name;
 
@@ -13,10 +13,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.application = applicationResult.data;
     $scope.envs = appEnvironments.deployEnvironments;
     $scope.getResourceIcon = function(defaultImage, key) {
-      var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
-      if (UTILS.isDefinedAndNotNull(tags)) {
-        var icon = UTILS.getIcon(tags);
-        return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
+      if (UTILS.isDefinedAndNotNull($scope.topologyDTO) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology.nodeTemplates) &&
+        UTILS.isDefinedAndNotNull($scope.topologyDTO.topology.nodeTemplates[key])) {
+        var tags = $scope.topologyDTO.nodeTypes[$scope.topologyDTO.topology.nodeTemplates[key].type].tags;
+        if (UTILS.isDefinedAndNotNull(tags)) {
+          var icon = UTILS.getIcon(tags);
+          return 'img?id=' + (UTILS.isDefinedAndNotNull(icon) ? icon : defaultImage) + '&quality=QUALITY_64';
+        } else {
+          return null;
+        }
       } else {
         return null;
       }
@@ -25,7 +32,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // set the environment to the given one and update the related data on screen.
     function setEnvironment(environment) {
       $scope.selectedEnvironment = environment;
-      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function(result) {
+      $scope.setTopologyId($scope.application.id, $scope.selectedEnvironment.id, checkTopology).$promise.then(function() {
         refreshDeploymentSetup();
       });
     }
@@ -63,17 +70,17 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // refresh the actual selected cloud.
     function refreshSelectedCloud() {
 
-      delete $scope.selectedCloud;
       delete $scope.deploymentPropertyDefinitions;
 
-      var clouds = $scope.clouds;
-      if (UTILS.isDefinedAndNotNull(clouds)) {
+      // var clouds = $scope.clouds;
+      if (UTILS.isDefinedAndNotNull($scope.clouds)) {
         // select the cloud that is currently associated with the environment
         var found = false,
           i = 0;
-        while (!found && i < clouds.length) {
-          if (clouds[i].id === $scope.selectedEnvironment.cloudId) {
-            $scope.selectedCloud = clouds[i];
+        while (!found && i < $scope.clouds.length) {
+          if ($scope.clouds[i].id === $scope.selectedEnvironment.cloudId) {
+            delete $scope.selectedCloud;
+            $scope.selectedCloud = $scope.clouds[i];
             found = true;
           }
           i++;
@@ -95,7 +102,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     // Retrieval and validation of the topology associated with the deployment.
     function checkTopology() {
 
-      $scope.isTopologyValid($scope.topologyId).$promise.then(function(validTopologyResult) {
+      $scope.isTopologyValid($scope.topologyId, $scope.selectedEnvironment.id).$promise.then(function(validTopologyResult) {
         $scope.validTopologyDTO = validTopologyResult.data;
       });
 
@@ -126,7 +133,44 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
         refreshSelectedCloud();
-        refreshCloudResources();
+
+        // only an environment with an associated cloud can have resources
+        if (response.data.hasOwnProperty('matchResult')) {
+          $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
+          $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
+          $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
+          $scope.images = response.data.matchResult.images;
+          $scope.flavors = response.data.matchResult.flavors;
+        }
+
+        var key;
+        $scope.hasUnmatchedCompute = false;
+        for (key in $scope.matchedComputeResources) {
+          if ($scope.matchedComputeResources.hasOwnProperty(key)) {
+            if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+              $scope.hasUnmatchedCompute = true;
+              break;
+            }
+          }
+        }
+        $scope.hasUnmatchedNetwork = false;
+        for (key in $scope.matchedNetworkResources) {
+          if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
+            if (!$scope.selectedNetworks.hasOwnProperty(key)) {
+              $scope.hasUnmatchedNetwork = true;
+              break;
+            }
+          }
+        }
+        $scope.hasUnmatchedStorage = false;
+        for (key in $scope.matchedStorageResources) {
+          if ($scope.matchedStorageResources.hasOwnProperty(key)) {
+            if (!$scope.selectedStorages.hasOwnProperty(key)) {
+              $scope.hasUnmatchedStorage = true;
+              break;
+            }
+          }
+        }
       });
     }
 
@@ -139,7 +183,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     var changeCloud = function(switchToCloud) {
       if (UTILS.isDefinedAndNotNull(switchToCloud)) {
-        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id !== $scope.selectedCloud.id) {
+        if (UTILS.isDefinedAndNotNull($scope.selectedCloud) && switchToCloud.id === $scope.selectedCloud.id) {
           return;
         }
         $scope.selectedComputeTemplates = {};
@@ -258,7 +302,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isAllowedInputDeployment = function() {
-      return $scope.inputPropertiesSize > 0 && ($scope.isDeployer || $scope.isManager);
+      return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
     };
 
     $scope.isAllowedDeployment = function() {
@@ -320,33 +364,25 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     /* Handle properties inputs */
-    $scope.updateProperty = function(nodeTemplateName, propertyName, propertyValue) {
+    $scope.updateInputValue = function(definition, inputValue, inputId) {
       // No update if it's the same value
-      if (propertyValue === $scope.nodeTemplates[nodeTemplateName].properties[propertyName]) {
-        return;
+      if (UTILS.isUndefinedOrNull($scope.setup.inputProperties)) {
+        $scope.setup.inputProperties = {};
       }
-      var updatePropsObject = {
-        'propertyName': propertyName,
-        'propertyValue': propertyValue
-      };
-
-      var d = $q.defer();
-      topologyServices.nodeTemplate.updateProperty({
-        topologyId: $scope.topologyDTO.topology.id,
-        nodeTemplateName: nodeTemplateName
-      }, angular.toJson(updatePropsObject), function(data) {
-        if (data.error !== null) {
-          // Constraint error display + translation
-          var constraintInfo = data.data;
-          d.resolve($translate('ERRORS.' + data.error.code + '.' + constraintInfo.name, constraintInfo));
-        } else {
-          d.resolve();
-          if (UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName]) && UTILS.isDefinedAndNotNull($scope.outputPropertiesValue[nodeTemplateName][propertyName])) {
-            $scope.outputPropertiesValue[nodeTemplateName][propertyName] = propertyValue;
-          }
-        }
-      });
-      return d.promise;
+      if (inputValue === $scope.setup.inputProperties[inputId]) {
+        return;
+      } else {
+        $scope.setup.inputProperties[inputId] = inputValue;
+      }
+      return applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        inputProperties: $scope.setup.inputProperties
+      }), function() {
+        refreshDeploymentSetup();
+        checkTopology();
+      }).$promise;
     };
 
     // Artifact upload handler
@@ -378,52 +414,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.onArtifactSelected = function($files, nodeTemplateName, artifactName) {
       var file = $files[0];
       $scope.doUploadArtifact(file, nodeTemplateName, artifactName);
-    };
-
-    // DEPLOYMENT AND CLOUD MANAGEMENT
-
-    var refreshCloudResources = function() {
-      if ($scope.selectedCloud && $scope.selectedEnvironment.hasOwnProperty('cloudId')) {
-        // cleaning compute & network matching
-        delete $scope.currentMatchedComputeTemplates;
-        delete $scope.currentMatchedNetworks;
-        // get fresh matching resources
-        applicationServices.matchResources({
-          applicationId: $scope.application.id,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, undefined, function(response) {
-          $scope.matchedComputeResources = response.data.computeMatchResult;
-          $scope.matchedNetworkResources = response.data.networkMatchResult;
-          $scope.matchedStorageResources = response.data.storageMatchResult;
-          $scope.images = response.data.images;
-          $scope.flavors = response.data.flavors;
-          var key;
-          for (key in $scope.matchedComputeResources) {
-            if ($scope.matchedComputeResources.hasOwnProperty(key)) {
-              if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-                $scope.hasUnmatchedCompute = true;
-                break;
-              }
-            }
-          }
-          for (key in $scope.matchedNetworkResources) {
-            if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
-              if (!$scope.selectedNetworks.hasOwnProperty(key)) {
-                $scope.hasUnmatchedNetwork = true;
-                break;
-              }
-            }
-          }
-          for (key in $scope.matchedStorageResources) {
-            if ($scope.matchedStorageResources.hasOwnProperty(key)) {
-              if (!$scope.selectedStorages.hasOwnProperty(key)) {
-                $scope.hasUnmatchedStorage = true;
-                break;
-              }
-            }
-          }
-        });
-      }
     };
 
     /** Properties definition */

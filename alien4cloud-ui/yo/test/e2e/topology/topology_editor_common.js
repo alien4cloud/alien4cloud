@@ -47,10 +47,10 @@ var beforeTopologyTest = function() {
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.enableCloud();
   cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
-  cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
+  cloudsCommon.assignPaaSResourceToFlavor('medium', 'passIdFlavor1');
   cloudsCommon.selectAllImageOfCloud();
-  cloudsCommon.assignPaaSResourceToImage("Windows", "passIdImage1");
-  cloudsCommon.assignPaaSResourceToImage("Ubuntu", "passIdImage2");
+  cloudsCommon.assignPaaSResourceToImage('Windows', 'passIdImage1');
+  cloudsCommon.assignPaaSResourceToImage('Ubuntu', 'passIdImage2');
   cloudsCommon.goToCloudDetail('testcloud');
   cloudsCommon.disableCloud();
   cloudsCommon.enableCloud();
@@ -64,13 +64,32 @@ var beforeTopologyTest = function() {
 };
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
-// Show "Add node template" tab
-function showComponentsTab() {
-  var componentsSearchTab = element(by.id('components-search'));
-  expect(componentsSearchTab.isPresent()).toBe(true);
-  componentsSearchTab.click();
-  browser.waitForAngular();
+// Show tabs in the topology page
+
+function showTopologyTab(panel, btn) {
+  element(by.id(panel)).isDisplayed().then(function(isDisplay) {
+   if (!isDisplay) {
+     element(by.id(btn)).click();
+   }
+ });
+ browser.waitForAngular();
 }
+
+function showComponentsTab() {
+  showTopologyTab('slide-side-bar', 'topology-components-search');
+}
+module.exports.showComponentsTab = showComponentsTab;
+
+function showDependenciesTab() {
+  showTopologyTab('closeDependencies', 'topology-dependencies');
+}
+module.exports.showDependenciesTab = showDependenciesTab;
+
+function showInputsTab() {
+  showTopologyTab('closeInputs', 'topology-inputs');
+}
+module.exports.showInputsTab = showInputsTab;
+
 
 // Add a node template
 var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersion) {
@@ -98,11 +117,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-    '\
+      '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -285,7 +304,7 @@ module.exports.removeRelationship = removeRelationship;
 var replaceNodeTemplates = function(nodeName, replacementElementId) {
   var node = element(by.id('rect_' + nodeName));
   node.click();
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     element(by.css('.btn[ng-click^="getPossibleReplacements"]')).click();
     element(by.id('newnode_' + replacementElementId)).click();
   });
@@ -314,7 +333,7 @@ module.exports.addScalingPolicy = addScalingPolicy;
 
 var removeScalingPolicy = function(computeId) {
 
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     // Check properties edition on compute node template
     var nodeToEdit = browser.element(by.id(computeId));
     browser.actions().click(nodeToEdit).perform();
@@ -335,6 +354,8 @@ var selectNodeAndCheckProperty = function(nodeTemplateName, propertyName) {
 
 var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
 
+  // select "Add node tab"
+  showComponentsTab();
   selectNodeAndCheckProperty(nodeTemplateName, propertyName);
 
   var propertyElement = element(by.id('p_' + propertyName));
@@ -373,7 +394,7 @@ var beforeToggle = function(nodeTemplateName) {
   browser.waitForAngular();
 };
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType) {
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     beforeToggle(nodeTemplateName);
     var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
     browser.actions().click(ioButton).perform();
@@ -393,6 +414,8 @@ var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, che
 
 var togglePropertyInput = function(nodeTemplateName, propertyName) {
   toggleIOProperty(nodeTemplateName, propertyName, 'input');
+  browser.actions().click(browser.element(by.id('addToInputBtn_' + propertyName))).perform();
+  browser.waitForAngular();
 };
 
 module.exports.togglePropertyInput = togglePropertyInput;
@@ -405,7 +428,7 @@ module.exports.togglePropertyOutput = togglePropertyOutput;
 
 var toggleAttributeOutput = function(nodeTemplateName, attributeName) {
   beforeToggle(nodeTemplateName);
-  common.ptor.executeScript('window.scrollTo(0,0);').then(function() {
+  browser.executeScript('window.scrollTo(0,0);').then(function() {
     var ioButton = browser.element(by.id('a_output_' + attributeName));
     browser.actions().click(ioButton).perform();
   });

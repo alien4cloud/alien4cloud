@@ -1,4 +1,4 @@
-Feature: Set/Remove In/Out properties
+Feature: Set/Remove Out properties
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -11,17 +11,6 @@ Feature: Set/Remove In/Out properties
     And I create a new application with name "ioMan" and description "Yeo man!"
     And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I add a node template "Java" related to the "fastconnect.nodes.JavaChef:1.0" node type
-
-  Scenario: Define a property as input
-    When I define the property "os_arch" of the node "Compute" as input property
-    Then I should receive a RestResponse with no error
-    And The topology should have the property "os_arch" of the node "Compute" defined as input property
-
-  Scenario: Remove an input property
-    Given I define the property "os_arch" of the node "Compute" as input property
-    When I define the property "os_arch" of the node "Compute" as non input property
-    Then I should receive a RestResponse with no error
-    And The topology should not have the property "os_arch" of the node "Compute" defined as input property
 
   Scenario: Define a property as output
     When I define the property "os_arch" of the node "Compute" as output property

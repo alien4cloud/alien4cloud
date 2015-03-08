@@ -11,7 +11,6 @@ var rolesCommon = require('../../common/roles_common.js');
 var topologyTemplates = require('../../topology/topology_templates_common');
 var navigation = require('../../common/navigation');
 var users = require('../../admin/users');
-var componentData = require('../../topology/component_data');
 
 function assertUserOrGroupHasCloudRole(roleRepeater, targetedRole, userOrGroupName) {
   roleRepeater.each(function(cloudRole) {
@@ -86,7 +85,6 @@ describe('Cloud security and deployment capability per user/group', function() {
   });
 
   it('should add rights to a user and check that he can use this cloud', function() {
-
     console.log('################# should add rights to a user in check that he can use this cloud');
 
     createSimpleApp();

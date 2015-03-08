@@ -22,8 +22,6 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.application.InvalidDeploymentSetupException;
-import alien4cloud.cloud.CloudResourceMatcherService;
-import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
@@ -32,8 +30,8 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
@@ -41,6 +39,7 @@ import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -49,6 +48,9 @@ import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -79,8 +81,6 @@ public class ApplicationDeploymentController {
     private CloudService cloudService;
     @Resource
     private DeploymentService deploymentService;
-    @Resource
-    private CloudResourceMatcherService cloudResourceMatcherService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
@@ -131,7 +131,8 @@ public class ApplicationDeploymentController {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
         DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        if (!deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true)) {
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
+        if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
         }
@@ -354,43 +355,17 @@ public class ApplicationDeploymentController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Match the topology of a given application to a cloud, get all available resources for all matchable elements of the topology", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
-            + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/cloud-resources", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<CloudResourceTopologyMatchResult> matchCloudResources(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
-            throws CloudDisabledException {
-        Application application = applicationService.checkAndGetApplication(applicationId);
-
-        // get the topology from the version and the cloud from the environment
-        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
-        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
-            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
-        }
-        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(application.getId(), environment.getCurrentVersionId());
-
-        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-        if (environment.getCloudId() == null) {
-            throw new InvalidArgumentException("Environment [" + applicationEnvironmentId + "] for application [" + application.getName()
-                    + "] does not have any cloud assigned");
-        }
-        Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
-        CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
-        return RestResponseBuilder
-                .<CloudResourceTopologyMatchResult> builder()
-                .data(cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()), cloudResourceMatcherConfig,
-                        topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true))).build();
-    }
-
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<DeploymentSetup> get(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) throws CloudDisabledException {
+    public RestResponse<DeploymentSetupMatchInfo> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws CloudDisabledException {
         Application application = applicationService.checkAndGetApplication(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(application.getId(), applicationEnvironmentId);
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
-        return RestResponseBuilder.<DeploymentSetup> builder().data(deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId))
-                .build();
+        return RestResponseBuilder.<DeploymentSetupMatchInfo> builder()
+                .data(deploymentSetupService.getDeploymentSetupMatchInfo(application.getId(), applicationEnvironmentId)).build();
     }
 
     /**
@@ -401,7 +376,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+    public RestResponse<?> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateDeploymentSetupRequest updateRequest) throws CloudDisabledException {
 
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -410,11 +385,24 @@ public class ApplicationDeploymentController {
         if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
+        ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
+        Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
 
-        DeploymentSetup setup = deploymentSetupService.getDeploymentSetup(application.getId(), applicationEnvironmentId);
-        ReflectionUtil.mergeObject(updateRequest, setup);
-        alienDAO.save(setup);
+        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
+        ReflectionUtil.mergeObject(updateRequest, deploymentSetup);
+        if (deploymentSetup.getInputProperties() != null) {
+            // If someone modified the input properties, must validate them
+            try {
+                deploymentSetupService.validateInputProperties(deploymentSetup, topology);
+            } catch (ConstraintViolationException e) {
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                return RestResponseBuilder.<ConstraintUtil.ConstraintInformation> builder().data(e.getConstraintInformation())
+                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+            }
+        }
+        alienDAO.save(deploymentSetup);
         return RestResponseBuilder.<Void> builder().build();
     }
-
 }

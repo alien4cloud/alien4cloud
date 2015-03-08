@@ -72,10 +72,10 @@ describe('Topology input/output properties', function() {
     expect(outputTableText).toContain('10.52.0.');
 
 
-    var inputTable = browser.element(by.id('inputPropertiesTable'));
+    var inputTable = browser.element(by.id('inputsTable'));
     var inputTableText = inputTable.getText();
     expect(inputTableText).toContain('ip_address');
-    expect(inputTableText).toContain('192.168.1.1');
+    expect(inputTableText).toContain('');
 
     var undeployButton = browser.element(by.binding('APPLICATIONS.UNDEPLOY'));
     browser.sleep(1000);
