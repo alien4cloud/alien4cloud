@@ -68,11 +68,11 @@ module.exports.beforeTopologyTest = beforeTopologyTest;
 
 function showTopologyTab(panel, btn) {
   element(by.id(panel)).isDisplayed().then(function(isDisplay) {
-   if (!isDisplay) {
-     element(by.id(btn)).click();
-   }
- });
- browser.waitForAngular();
+    if (!isDisplay) {
+      element(by.id(btn)).click();
+    }
+  });
+  browser.waitForAngular();
 }
 
 function showComponentsTab() {
@@ -90,6 +90,14 @@ function showInputsTab() {
 }
 module.exports.showInputsTab = showInputsTab;
 
+function closeInputsTab() {
+  element(by.id('closeInputs')).isDisplayed().then(function(isDisplay) {
+    if (isDisplay) {
+      element(by.id('closeInputs')).click();
+    }
+  });
+  browser.waitForAngular();}
+module.exports.closeInputsTab = closeInputsTab;
 
 // Add a node template
 var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersion) {
@@ -412,13 +420,26 @@ var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, che
   }
 };
 
+var removeInput = function(inputName) {
+  showInputsTab();
+  common.deleteWithConfirm(inputName + '_delete', true);
+  closeInputsTab();
+};
+module.exports.removeInput = removeInput;
+
 var togglePropertyInput = function(nodeTemplateName, propertyName) {
   toggleIOProperty(nodeTemplateName, propertyName, 'input');
   browser.actions().click(browser.element(by.id('addToInputBtn_' + propertyName))).perform();
   browser.waitForAngular();
 };
-
 module.exports.togglePropertyInput = togglePropertyInput;
+
+var associatePropertyToInput = function(nodeTemplateName, propertyName, inputId) {
+  toggleIOProperty(nodeTemplateName, propertyName, 'input');
+  browser.actions().click(browser.element(by.id(nodeTemplateName + '_' + propertyName + '_toAssociate_' + inputId))).perform();
+  browser.waitForAngular();
+};
+module.exports.associatePropertyToInput = associatePropertyToInput;
 
 var togglePropertyOutput = function(nodeTemplateName, propertyName) {
   toggleIOProperty(nodeTemplateName, propertyName, 'output');

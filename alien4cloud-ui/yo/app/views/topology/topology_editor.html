@@ -142,7 +142,7 @@
                         </a>
                       </li>
                       <li ng-repeat="inputId in currentInputCandidatesForProperty | orderBy:'toString()'">
-                        <a ng-click="togglePropertyInput(propEntry.key, inputId)">
+                        <a id="{{selectedNodeTemplate.name}}_{{propEntry.key}}_toAssociate_{{inputId}}" ng-click="togglePropertyInput(propEntry.key, inputId)">
                           <i class="fa fa-fw"
                              ng-class="{'fa-check-square-o' : isPropertyAssociatedToInput(propEntry.key, inputId),  'fa-square-o': !isPropertyAssociatedToInput(propEntry.key, inputId)}"></i>
                           {{inputId}}
@@ -612,7 +612,7 @@
             <td>{{inputDefinition.type}}</td>
             <td>{{inputDefinition.constraints}}</td>
             <td>
-              <delete-confirm class="pull-right" func="removeInput(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+              <delete-confirm id="{{inputId}}_delete" class="pull-right" func="removeInput(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
               </delete-confirm>
             </td>
           </tr>
