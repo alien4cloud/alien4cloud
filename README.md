@@ -1,6 +1,8 @@
 alien4cloud
 ===========
 
+[![Join the chat at https://gitter.im/alien4cloud/alien4cloud](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/alien4cloud/alien4cloud?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ALIEN 4 Cloud stands for Application LIfecycle ENablement for Cloud.
 
 FastConnect started this project in order to help enterprises adopting the cloud for their new and existing applications in an Open way. A4C has an Open-Source model (Apache 2 License) and standardization support in mind.
