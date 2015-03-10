@@ -28,7 +28,5 @@ public class PaaSInstanceStateMonitorEvent extends AbstractMonitorEvent {
     /** The properties of the instance **/
     private Map<String, String> attributes;
 
-    private Map<String, String> properties;
-
     private Map<String, String> runtimeProperties;
 }

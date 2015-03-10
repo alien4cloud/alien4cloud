@@ -139,14 +139,13 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     private InstanceInformation newInstance(int i) {
-        Map<String, String> properties = Maps.newHashMap();
         Map<String, String> attributes = Maps.newHashMap();
         attributes.put(PUBLIC_IP, "10.52.0." + i);
         attributes.put(TOSCA_ID, "1.0-wd03");
         attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
-        return new InstanceInformation("init", InstanceStatus.PROCESSING, properties, attributes, runtimeProperties);
+        return new InstanceInformation("init", InstanceStatus.PROCESSING, attributes, runtimeProperties);
     }
 
     private ScalingPolicy getScalingPolicy(String id, Map<String, ScalingPolicy> policies, Map<String, NodeTemplate> nodeTemplates) {
@@ -274,7 +273,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         final InstanceInformation cloned = new InstanceInformation();
         cloned.setAttributes(information.getAttributes());
         cloned.setInstanceStatus(information.getInstanceStatus());
-        cloned.setProperties(information.getProperties());
         cloned.setRuntimeProperties(information.getRuntimeProperties());
         cloned.setState(information.getState());
         executorService.schedule(new Runnable() {
@@ -297,7 +295,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 event.setNodeTemplateId(nodeId);
                 event.setDate((new Date()).getTime());
                 event.setDeploymentId(deploymentId);
-                event.setProperties(cloned.getProperties());
                 event.setRuntimeProperties(cloned.getRuntimeProperties());
                 event.setAttributes(cloned.getAttributes());
                 event.setCloudId(cloudId);
