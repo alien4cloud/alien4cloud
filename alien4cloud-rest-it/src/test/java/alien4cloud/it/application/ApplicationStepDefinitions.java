@@ -69,7 +69,24 @@ public class ApplicationStepDefinitions {
     }
 
     @SuppressWarnings("rawtypes")
-    private void setAppEnvironmentIdToContext(String applicationName) throws JsonProcessingException, IOException {
+    @When("^I check if an application environment of \"([^\"]*)\" do not have cloudId$")
+    public void checkIfAnApplicationEnvironmentDoNotHaveCloudId(String applicationName) throws JsonProcessingException, IOException {
+        String applicationId = Context.getInstance().getApplicationId(applicationName);
+        SearchRequest request = new SearchRequest();
+        request.setFrom(0);
+        request.setSize(10);
+        String applicationEnvironmentsJson = Context.getRestClientInstance().postJSon("/rest/applications/" + applicationId + "/environments/search",
+                JsonUtil.toString(request));
+        RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(applicationEnvironmentsJson, GetMultipleDataResult.class);
+        GetMultipleDataResult searchResp = restResponse.getData();
+        assertNotNull(searchResp);
+        ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(JsonUtil.toString(searchResp.getData()[0]), ApplicationEnvironmentDTO.class);
+        assertNotNull(appEnvDTO);
+        assertNull(appEnvDTO.getCloudId());
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void setAppEnvironmentIdToContext(String applicationName) throws JsonProcessingException, IOException {
         String applicationId = Context.getInstance().getApplicationId(applicationName);
         SearchRequest request = new SearchRequest();
         request.setFrom(0);
