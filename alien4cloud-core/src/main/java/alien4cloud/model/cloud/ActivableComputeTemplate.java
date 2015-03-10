@@ -16,12 +16,16 @@ public class ActivableComputeTemplate extends ComputeTemplate {
 
     private boolean enabled = true;
 
-    public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId) {
+    private String description;
+
+    public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId, String description) {
         super(cloudImageId, cloudImageFlavorId);
+        this.description = description;
     }
 
-    public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId, boolean enabled) {
+    public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId, String description, boolean enabled) {
         super(cloudImageId, cloudImageFlavorId);
         this.enabled = enabled;
+        this.description = description;
     }
 }
