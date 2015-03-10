@@ -24,6 +24,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
@@ -181,11 +182,27 @@ public class CloudService {
     public synchronized boolean delete(String id) {
         // checks that the cloud is not used anymore
         if (disableCloud(id)) {
+            removeCloudIdInApplicationEnvironment(id);
             alienDAO.delete(Cloud.class, id);
             alienDAO.delete(CloudConfiguration.class, id);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Remove the reference to the deleted cloud id in {ApplicationEnvironment}.
+     *
+     * @param id
+     */
+    private void removeCloudIdInApplicationEnvironment(String id) {
+        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
+                MapUtil.newHashMap(new String[] { "cloudId" }, new String[][] { new String[] { id } }), Integer.MAX_VALUE);
+        for (ApplicationEnvironment env : result.getData()) {
+            env.setCloudId(null);
+            log.debug("The reference of cloud " + id + " has been deleted in application environment " + id);
+            alienDAO.save(env);
+        }
     }
 
     /**
