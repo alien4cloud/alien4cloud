@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = { "description" })
 @NoArgsConstructor
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
