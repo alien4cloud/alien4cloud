@@ -23,10 +23,12 @@ import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
@@ -139,14 +141,14 @@ public class FunctionEvaluatorTest {
         concatAttributeValue.getParameters().add(scalarParameter3);
         concatAttributeValue.getParameters().add(scalarParameter4);
 
-        String parsedConcatString = FunctionEvaluator.parseAttribute(null, concatAttributeValue, topology, runtimeInformations, "0", null);
+        String parsedConcatString = FunctionEvaluator.parseAttribute(null, concatAttributeValue, topology, runtimeInformations, "0", null, null);
         String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
         Assert.assertEquals(fullUrl, parsedConcatString);
 
     }
 
     @Test
-    public void getPropertySELFAndHOSTKeywordsSucessTest() throws Throwable {
+    public void nodeTemplatesGetPropertyKeywordsSucessTest() throws Throwable {
 
         String computeName = "comp_tomcat_war";
         PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
@@ -167,13 +169,16 @@ public class FunctionEvaluatorTest {
     }
 
     @Test
-    public void getPropertySOURCEAndTARGETKeywordsSucessTest() throws Throwable {
+    public void relationshipGetPropertyKeywordsSucessTest() throws Throwable {
 
         String warName = "war_1";
+        String warName_2 = "war_2";
         String tomcatName = "tomcat";
         PaaSNodeTemplate warPaaS = builtPaaSNodeTemplates.get(warName);
+        PaaSNodeTemplate warPaaS_2 = builtPaaSNodeTemplates.get(warName_2);
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
         PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat", "war_1");
+        PaaSRelationshipTemplate hostedOnRelTemp_2 = warPaaS_2.getRelationshipTemplate("hostedOnTomcat", "war_2");
 
         Operation configOp = hostedOnRelTemp.getIndexedToscaElement().getInterfaces().get(ToscaRelationshipLifecycleConstants.CONFIGURE).getOperations()
                 .get(ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE);
@@ -187,10 +192,19 @@ public class FunctionEvaluatorTest {
         param = configOp.getInputParameters().get("tomcatVersion");
         Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+
+        // test SELF keyword on relationship
+        param = configOp.getInputParameters().get("relName");
+        Assert.assertEquals(getPropertyValue(hostedOnRelTemp, "relName"),
+                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+
+        Assert.assertEquals(getPropertyValue(hostedOnRelTemp_2, "relName"),
+                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp_2, builtPaaSNodeTemplates));
+
     }
 
-    private String getPropertyValue(PaaSNodeTemplate paaSNodeTemplate, String propertyName) {
-        return ((ScalarPropertyValue) paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyName)).getValue();
+    private String getPropertyValue(IPaaSTemplate<? extends IndexedToscaElement> paaSTemplate, String propertyName) {
+        return ((ScalarPropertyValue) paaSTemplate.getTemplate().getProperties().get(propertyName)).getValue();
     }
 
     @Test(expected = BadUsageKeywordException.class)

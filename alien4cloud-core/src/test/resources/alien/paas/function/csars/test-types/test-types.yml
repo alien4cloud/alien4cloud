@@ -67,6 +67,10 @@ node_types:
 relationship_types:
   alien.test.relationships.cloudify.WarHostedOnTomcat:
     derived_from: alien.relationships.cloudify.WarHostedOnTomcat
+    properties:
+      relName:
+        type: string
+        default: relation
     interfaces:
       configure:
         post_configure_source:
@@ -75,4 +79,5 @@ relationship_types:
             tomcatVersion: { get_property: [TARGET, version] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
+            relName: { get_property: [SELF, relName] }
           implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
