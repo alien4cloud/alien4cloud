@@ -41,11 +41,13 @@ import alien4cloud.paas.IConfigurablePaaSProviderFactory;
 import alien4cloud.paas.IDeploymentParameterizablePaaSProviderFactory;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
+import alien4cloud.paas.ITemplateManagedPaaSProvider;
 import alien4cloud.paas.PaaSProviderFactoriesService;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.paas.model.PaaSComputeTemplate;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.MappingUtil;
@@ -571,9 +573,9 @@ public class CloudService {
      */
     public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) throws CloudDisabledException {
         IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
+        getComputeTemplates(cloud, cloudImageId, null, true);
         if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getImageMapping().remove(cloudImageId);
-            getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
             cloud.getImageMapping().put(cloudImageId, paaSResourceId);
             addComputeTemplatesForImage(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageId);
@@ -594,9 +596,22 @@ public class CloudService {
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the flavor
             String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
-            if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
-                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId()));
+            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+                if (paaSManagedTemplates != null) {
+                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                        if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                            computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), paaSManagedTemplate.getDescription()));
+                        }
+                    }
+                }
+            } else {
+                if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
+                        && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
+                    computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), "IaaS Image : [" + paaSImageId + "], IaaS Flavor : ["
+                            + paaSFlavorId + "]"));
+                }
             }
         }
     }
@@ -614,9 +629,9 @@ public class CloudService {
         if (cloudImageFlavor == null) {
             throw new NotFoundException("Cloud image flavor [" + flavorId + "] do not exist");
         }
+        getComputeTemplates(cloud, null, flavorId, true);
         if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getFlavorMapping().remove(flavorId);
-            getComputeTemplates(cloud, null, flavorId, true);
         } else {
             cloud.getFlavorMapping().put(flavorId, paaSResourceId);
             addComputeTemplatesForFlavor(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageFlavor);
@@ -636,11 +651,24 @@ public class CloudService {
             // Only add compute templates if it is matching image requirement and it exists mapping for the image
             CloudImage image = images.get(imageId);
             String paaSImageId = matcherConfig.getImageMapping().get(image);
-            String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
-            Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
-            if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
-                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                computes.add(new ActivableComputeTemplate(imageId, flavor.getId()));
+            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+                if (paaSManagedTemplates != null) {
+                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                        if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                            computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), paaSManagedTemplate.getDescription()));
+                        }
+                    }
+                }
+            } else {
+                String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
+                Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
+                if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
+                        && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
+                    computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), "IaaS Image : [" + paaSImageId + "], IaaS Flavor : [" + paaSFlavorId
+                            + "]"));
+                }
             }
         }
     }

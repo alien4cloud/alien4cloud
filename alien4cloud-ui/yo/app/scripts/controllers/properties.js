@@ -69,7 +69,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           // Here handle scalar value
           $scope.propertyValue = $scope.propertyValue.value;
         } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-          $scope.propertyValue = $scope.propertyValue.function + ' [ ' + $scope.propertyValue.parameters[0] + ' ] ';
+          $scope.propertyValue = $scope.propertyValue.function + ': ' + UTILS.array2csv($scope.propertyValue.parameters);
         }
       }
       var shownValue = $scope.propertyValue || $scope.definition.default;

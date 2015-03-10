@@ -385,6 +385,7 @@
                           <th class="col-md-2"></th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                          <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.DESCRIPTION' | translate}}</th>
                         </tr>
                       </thead>
                       <tbody ng-mouseleave="deleteTemplateSelection()">
@@ -399,6 +400,7 @@
                           </td>
                           <td>{{cloudImage.name}}</td>
                           <td>{{flavor.id}}</td>
+                          <td>{{template.description}}</td>
                         </tr>
                       </tbody>
                     </table>
