@@ -2,7 +2,9 @@ package alien4cloud.model.application;
 
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
@@ -22,6 +24,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeploymentSetup {
     @Id
     private String id;

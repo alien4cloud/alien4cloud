@@ -28,19 +28,25 @@ public abstract class AbstractTypeNodeParser {
     protected void parseAndSetValue(BeanWrapper target, String key, Node valueNode, ParsingContextExecution context, MappingTarget mappingTarget) {
         // let's store the parent in the context for future use
         context.setParent(target.getWrappedInstance());
-
+        if (mappingTarget.getPath().equals("null")) {
+            // if the path is null, we just to do nothing with the stuff
+            return;
+        }
         Entry<BeanWrapper, String> entry = findWrapperPropertyByPath(context.getRoot(), target, mappingTarget.getPath());
         BeanWrapper realTarget = entry.getKey();
         String propertyName = entry.getValue();
 
         Object value = ((INodeParser<?>) mappingTarget.getParser()).parse(valueNode, context);
-        try {
-            realTarget.setPropertyValue(propertyName, value);
-        } catch (NotWritablePropertyException e) {
-            log.warn("Error while setting property for yaml parsing.", e);
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
-                            valueNode.getEndMark(), toscaType));
+        if (!propertyName.equals("void")) {
+            // property named 'void' means : process the parsing but do not set anything
+            try {
+                realTarget.setPropertyValue(propertyName, value);
+            } catch (NotWritablePropertyException e) {
+                log.warn("Error while setting property for yaml parsing.", e);
+                context.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.ALIEN_MAPPING_ERROR, "Invalid definition for type", valueNode.getStartMark(), "",
+                                valueNode.getEndMark(), toscaType));
+            }
         }
 
         if (mappingTarget instanceof KeyValueMappingTarget) {

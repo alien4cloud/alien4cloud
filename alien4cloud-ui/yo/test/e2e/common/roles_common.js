@@ -61,21 +61,21 @@ function assertGroupChecked(appOrEnv, username, groupName, checked) {
 }
 
 module.exports.editUserRole = function(username, role) {
-  editRole("app", 'user', username, role);
+  editRole('app', 'user', username, role);
 };
 
 module.exports.editUserRoleForAnEnv = function(username, role) {
-  editRole("env", 'user', username, role);
+  editRole('env', 'user', username, role);
 };
 
 var editGroupRole = function(username, role) {
-  editRole("app", 'group', username, role);
+  editRole('app', 'group', username, role);
 };
 module.exports.editGroupRole = editGroupRole;
 module.exports.editGroupRoleForAnApp = editGroupRole;
 
 module.exports.editGroupRoleForAnEnv = function(username, role) {
-  editRole("env", 'group', username, role);
+  editRole('env', 'group', username, role);
 };
 
 var toggleUserGroup = function(appOrEnv, username, groupName) {

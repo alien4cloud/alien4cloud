@@ -12,7 +12,7 @@
 }
 
 .topology-details {
-  width: 450px;
+  min-width: 450px;
 }
 
 .topology-components {
@@ -77,4 +77,62 @@ h4 .editable-error {
 
 #relationshipProperties .form-editable {
   margin-top: 0px;
+}
+
+#topology #app-version-select {
+  padding: 0px 0px;
+  font-size: 12px;
+  border-color: #CCC;
+  background-color: white;
+  padding-bottom: 1px;
+}
+
+/*
+  Vertical menu
+*/
+.close-btn-panel {
+  border-color: white;
+}
+
+#topology-control-button {
+  margin-top: -22px;
+}
+
+.close-panel {
+  float: right;
+  cursor: pointer;
+}
+
+#slide-side-bar {
+  height: 100%;
+}
+
+#topology-vertical-menu {
+  position: fixed;
+  right: 55px;
+  line-height: 20px;
+  vertical-align: top;
+}
+
+#topology-vertical-menu, #topology-vertical-menu ul {
+  width: 0;
+  height: 0;
+}
+
+#topology-vertical-menu ul {
+  width: 0;
+  height: 0;
+}
+
+#topology-vertical-menu li {
+  display: inline-block;
+  list-style-position: outside;
+  list-style-type: none;
+}
+
+#topology-vertical-menu li span {
+  display: inline-block;
+  transform-origin: 0px 0px 0px;
+  white-space: nowrap;
+  cursor: pointer;
 }

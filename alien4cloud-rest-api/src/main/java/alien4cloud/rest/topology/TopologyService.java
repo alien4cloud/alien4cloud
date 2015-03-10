@@ -30,8 +30,10 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
@@ -39,6 +41,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -87,10 +90,6 @@ public class TopologyService {
 
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
-
-    public void fillProperties(Map<String, String> properties, Map<String, PropertyDefinition> propertiesDefinitions, Map<String, String> propertiesToMerge) {
-        topologyServiceCore.fillProperties(properties, propertiesDefinitions, propertiesToMerge);
-    }
 
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
@@ -275,7 +274,7 @@ public class TopologyService {
      * @param topology
      * @return
      */
-    public ValidTopologyDTO validateTopology(Topology topology) {
+    public ValidTopologyDTO validateTopology(Topology topology, Map<String, String> inputs) {
         ValidTopologyDTO dto = new ValidTopologyDTO();
         if (topology.getNodeTemplates() == null || topology.getNodeTemplates().size() < 1) {
             dto.setValid(false);
@@ -292,7 +291,7 @@ public class TopologyService {
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
         // validate required properties
-        dto.addToTaskList(validateProperties(topology));
+        dto.addToTaskList(validateProperties(topology, inputs));
 
         dto.setValid(CollectionUtils.isEmpty(dto.getTaskList()));
 
@@ -538,7 +537,7 @@ public class TopologyService {
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
-    private List<PropertiesTask> validateProperties(Topology topology) {
+    private List<PropertiesTask> validateProperties(Topology topology, Map<String, String> inputs) {
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
@@ -558,9 +557,17 @@ public class TopologyService {
             task.setComponent(relatedIndexedNodeType);
             task.setProperties(Lists.<String> newArrayList());
             Map<String, PropertyDefinition> relatedProperties = relatedIndexedNodeType.getProperties();
-            for (Entry<String, String> propertyEntry : nodeTemplate.getProperties().entrySet()) {
+            for (Entry<String, AbstractPropertyValue> propertyEntry : nodeTemplate.getProperties().entrySet()) {
                 PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
-                if (propertyDef.isRequired() && StringUtils.isBlank(propertyEntry.getValue())) {
+                // check value
+                AbstractPropertyValue value = propertyEntry.getValue();
+                String propertyValue = null;
+                if (value instanceof ScalarPropertyValue) {
+                    propertyValue = ((ScalarPropertyValue) value).getValue();
+                } else if (value instanceof FunctionPropertyValue && inputs != null) {
+                    propertyValue = inputs.get(((FunctionPropertyValue) value).getParameters().get(0));
+                }
+                if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                     task.getProperties().add(propertyEntry.getKey());
                 }
             }

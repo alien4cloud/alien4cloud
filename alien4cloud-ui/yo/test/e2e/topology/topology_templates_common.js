@@ -32,6 +32,8 @@ function createTopologyTemplate(newTemplateName, newTemplateDescription) {
 module.exports.createTopologyTemplate = createTopologyTemplate;
 
 function createTopologyTemplateWithNodes(nodeTemplateObj) {
+  // show components tab
+  topologyEditorCommon.showComponentsTab();
   // Adding node to the topology
   Object.keys(nodeTemplateObj).forEach(function(nodeKey) {
     topologyEditorCommon.addNodeTemplate(nodeTemplateObj[nodeKey].type, nodeTemplateObj[nodeKey].id, nodeTemplateObj[nodeKey].archiveVersion, nodeTemplateObj[nodeKey].selectedVersion);
@@ -40,6 +42,7 @@ function createTopologyTemplateWithNodes(nodeTemplateObj) {
 }
 
 module.exports.createTopologyTemplateWithNodesAndRelationships = function(topologyTemplateObj) {
+
   // create the topology template
   createTopologyTemplate(topologyTemplateObj.tName, topologyTemplateObj.tDescription);
 

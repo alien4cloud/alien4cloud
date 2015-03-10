@@ -209,7 +209,7 @@ var addNewFlavor = function(name, numCPUs, diskSize, memSize) {
   genericForm.sendValueToPrimitive('numCPUs', numCPUs, false, 'input');
   genericForm.sendValueToPrimitive('diskSize', diskSize, false, 'input');
   genericForm.sendValueToPrimitive('memSize', memSize, false, 'input');
-  browser.actions().click(element(by.id("new-flavor-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.actions().click(element(by.id('new-flavor-generic-form-id')).element(by.binding('GENERIC_FORM.SAVE'))).perform();
   browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
@@ -223,7 +223,7 @@ var addNewNetwork = function(name, cidr, isExternal, gateway, ipVersion) {
   genericForm.sendValueToPrimitive('isExternal', isExternal, false, 'radio');
   genericForm.sendValueToPrimitive('gatewayIp', gateway, false, 'input');
   genericForm.sendValueToPrimitive('ipVersion', ipVersion, false, 'select');
-  browser.actions().click(element(by.id("new-network-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.actions().click(element(by.id('new-network-generic-form-id')).element(by.binding('GENERIC_FORM.SAVE'))).perform();
   browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
@@ -240,7 +240,7 @@ var addNewStorage = function(id, device, size) {
   genericForm.sendValueToPrimitive('id', id, false, 'input');
   genericForm.sendValueToPrimitive('device', device, false, 'input');
   genericForm.sendValueToPrimitive('size', size, false, 'input');
-  browser.actions().click(element(by.id("new-storage-generic-form-id")).element(by.binding('GENERIC_FORM.SAVE'))).perform();
+  browser.actions().click(element(by.id('new-storage-generic-form-id')).element(by.binding('GENERIC_FORM.SAVE'))).perform();
   browser.waitForAngular();
   common.dismissAlertIfPresent();
 };
@@ -286,7 +286,7 @@ var addNewCloudImage = function(name, osType, osArch, osDistribution, osVersion,
   goToCloudDetailImage();
   element(by.id('clouds-image-create-button')).click();
   browser.waitForAngular();
-  cloudImagesCommon.fillCloudImageCreationForm(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize, "newCloudImageModal");
+  cloudImagesCommon.fillCloudImageCreationForm(name, osType, osArch, osDistribution, osVersion, numCPUs, diskSize, memSize, 'newCloudImageModal');
 };
 module.exports.addNewCloudImage = addNewCloudImage;
 

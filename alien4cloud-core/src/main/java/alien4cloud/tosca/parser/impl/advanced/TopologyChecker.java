@@ -1,7 +1,9 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -36,10 +38,11 @@ public class TopologyChecker implements IChecker<Topology> {
     @Override
     public void check(Topology instance, ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-        instance.setDependencies(archiveRoot.getArchive().getDependencies());
+        Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
         // this topology is in fact dependent on current archive
         CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
-        instance.getDependencies().add(selfDependency);
+        topologyDeps.add(selfDependency);
+        instance.setDependencies(topologyDeps);
         
         // we need that node types inherited stuffs have to be merged before we start parsing requirements
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);

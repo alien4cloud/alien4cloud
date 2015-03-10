@@ -26,7 +26,8 @@
 		alien4cloud.paas.plan,
 		alien4cloud.tosca,
 		alien4cloud.cloud,
-		alien4cloud.plugin">
+		alien4cloud.plugin,
+		alien4cloud.utils.services">
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap" />
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.DefaultGroup" />
   </context:component-scan>

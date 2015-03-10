@@ -31,13 +31,108 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var updateInputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyName/isInput', {}, {
+    var setInputToProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/input', {}, {
+      'set': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'unset': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var setInputToRelationshipProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/input', {}, {
+      'set': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'unset': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var getPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
+      'getCandidates': {
+        method: 'GET',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
+      'getCandidates': {
+        method: 'GET',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var updateInput = $resource('rest/topologies/:topologyId/inputs/:inputId', {}, {
       'add': {
         method: 'POST',
         params: {
           topologyId: '@topologyId',
-          nodeTemplateName: '@nodeTemplateName',
-          propertyName: '@propertyName'
+          inputId: '@inputId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'update': {
+        method: 'PUT',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          newInputId: '@newInputId'
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
@@ -45,6 +140,10 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       },
       'remove': {
         method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId'
+        },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
         }
@@ -201,21 +300,27 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
 
     return {
       'dao': topologyDAO,
+      'inputs': updateInput,
       'nodeTemplate': {
         'add': addNodeTemplate.add,
         'remove': addNodeTemplate.remove,
         'updateName': updateNodeTemplateName.updateName,
         'updateProperty': updateNodeProperty.update,
+        'setInputs': setInputToProperty,
+        'getInputCandidates': getPropertyInputCandidates,
         'getPossibleReplacements': replacements.get,
         'replace': replacements.replace,
-        'inputProperties': updateInputProperty,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
-        'artifactInput': updateInputArtifact
+        'artifactInput': updateInputArtifact,
+        'relationship': {
+          'getInputCandidates': getRelationshipPropertyInputCandidates,
+          'setInputs': setInputToRelationshipProperty
+        }
       },
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,
       'relationshipDAO': relationshipDAO,
-      'relationship':{
+      'relationship': {
         'updateName': updateRelationshipName.updateName,
         'updateProperty': updateRelationshipProperty.updateProperty
       },

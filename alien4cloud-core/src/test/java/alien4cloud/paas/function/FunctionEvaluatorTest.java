@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,9 +19,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.git.RepositoryManager;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.InstanceInformation;
@@ -101,23 +105,44 @@ public class FunctionEvaluatorTest {
     }
 
     @Test
-    public void testParseString() {
+    public void testParseAttributConcatScalar() {
+
         Map<String, NodeTemplate> nodeTemplates = Maps.newHashMap();
         NodeTemplate nodeTemplate1 = new NodeTemplate();
-        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new String[] { "the_property_value_1" }));
+        nodeTemplate1.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_1" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_1") }));
         nodeTemplates.put("the_node_tempalte_1", nodeTemplate1);
         NodeTemplate nodeTemplate2 = new NodeTemplate();
-        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new String[] { "the_property_value_2" }));
+        nodeTemplate2.setProperties(MapUtil.newHashMap(new String[] { "the_property_name_2" }, new AbstractPropertyValue[] { new ScalarPropertyValue(
+                "the_property_value_2") }));
         nodeTemplates.put("the_node_tempalte_2", nodeTemplate2);
         Topology topology = new Topology();
         topology.setNodeTemplates(nodeTemplates);
 
         Map<String, Map<String, InstanceInformation>> runtimeInformations = Maps.newHashMap();
 
-        String parsedString = FunctionEvaluator.parseString(
-                "http://get_property: [the_node_tempalte_1, the_property_name_1]:get_property: [the_node_tempalte_2, the_property_name_2 ]/super", topology,
-                runtimeInformations, "0");
-        Assert.assertEquals("http://the_property_value_1:the_property_value_2/super", parsedString);
+        // Create a IAttributeValue
+        ConcatPropertyValue concatAttributeValue = new ConcatPropertyValue();
+        ScalarPropertyValue scalarParameter1 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter2 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter3 = new ScalarPropertyValue();
+        ScalarPropertyValue scalarParameter4 = new ScalarPropertyValue();
+
+        scalarParameter1.setValue("http://");
+        scalarParameter2.setValue("mywebsiteurl");
+        scalarParameter3.setValue(":");
+        scalarParameter4.setValue("port");
+
+        concatAttributeValue.setParameters(new ArrayList<IOperationParameter>());
+        concatAttributeValue.getParameters().add(scalarParameter1);
+        concatAttributeValue.getParameters().add(scalarParameter2);
+        concatAttributeValue.getParameters().add(scalarParameter3);
+        concatAttributeValue.getParameters().add(scalarParameter4);
+
+        String parsedConcatString = FunctionEvaluator.parseAttribute(null, concatAttributeValue, topology, runtimeInformations, "0", null);
+        String fullUrl = scalarParameter1.getValue() + scalarParameter2.getValue() + scalarParameter3.getValue() + scalarParameter4.getValue();
+        Assert.assertEquals(fullUrl, parsedConcatString);
+
     }
 
     @Test
@@ -129,7 +154,7 @@ public class FunctionEvaluatorTest {
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);
         IOperationParameter param = configOp.getInputParameters().get("customHostName");
 
-        Assert.assertEquals(computePaaS.getNodeTemplate().getProperties().get("customHostName"),
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates));
 
         // HOST keyword
@@ -137,7 +162,7 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
         Operation customHelloOp = tomcatPaaS.getIndexedToscaElement().getInterfaces().get("custom").getOperations().get("helloCmd");
         param = customHelloOp.getInputParameters().get("customHostName");
-        Assert.assertEquals(computePaaS.getNodeTemplate().getProperties().get("customHostName"),
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, tomcatPaaS, builtPaaSNodeTemplates));
     }
 
@@ -148,21 +173,24 @@ public class FunctionEvaluatorTest {
         String tomcatName = "tomcat";
         PaaSNodeTemplate warPaaS = builtPaaSNodeTemplates.get(warName);
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
-        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat");
+        PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat", "war_1");
 
         Operation configOp = hostedOnRelTemp.getIndexedToscaElement().getInterfaces().get(ToscaRelationshipLifecycleConstants.CONFIGURE).getOperations()
                 .get(ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE);
 
         // test SOURCE keyword
         IOperationParameter param = configOp.getInputParameters().get("contextPath");
-        Assert.assertEquals(warPaaS.getNodeTemplate().getProperties().get("contextPath"),
+        Assert.assertEquals(getPropertyValue(warPaaS, "contextPath"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test TARGET keyword
         param = configOp.getInputParameters().get("tomcatVersion");
-        Assert.assertEquals(tomcatPaaS.getNodeTemplate().getProperties().get("version"),
+        Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+    }
 
+    private String getPropertyValue(PaaSNodeTemplate paaSNodeTemplate, String propertyName) {
+        return ((ScalarPropertyValue) paaSNodeTemplate.getNodeTemplate().getProperties().get(propertyName)).getValue();
     }
 
     @Test(expected = BadUsageKeywordException.class)

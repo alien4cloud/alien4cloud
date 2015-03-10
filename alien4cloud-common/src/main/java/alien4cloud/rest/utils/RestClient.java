@@ -83,7 +83,7 @@ public class RestClient {
         log.debug("Send post multipart request to [" + path + "], file [" + fileName + "]");
         HttpPost httpPost = new HttpPost(applicationUrl + path);
         MultipartEntityBuilder mpBuilder = MultipartEntityBuilder.create();
-        mpBuilder.addPart(fileName, new InputStreamBody(data, fileName));
+        mpBuilder.addPart("file", new InputStreamBody(data, fileName));
         httpPost.setEntity(mpBuilder.build());
         CloseableHttpResponse response = httpClient.execute(httpPost);
         return ResponseUtil.toString(response);

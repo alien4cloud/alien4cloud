@@ -14,6 +14,7 @@ import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.query.TermFilter;
 
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
@@ -55,8 +56,25 @@ public class Topology implements IManagedSecuredResource {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> nodeTemplates;
     private Map<String, ScalingPolicy> scalingPolicies;
-    private Map<String, Set<String>> inputProperties;
+    private Map<String, PropertyDefinition> inputs;
+
+    /**
+     * Outputs coming from node properties:
+     * <ul>
+     * <li>key is the node template name.
+     * <li>value is a list of node template property names. *
+     * </ul>
+     */
     private Map<String, Set<String>> outputProperties;
+
+    /**
+     * Outputs coming from node attributes:
+     * <ul>
+     * <li>key is the node template name.
+     * <li>value is a list of node template attribute names. *
+     * </ul>
+     */
     private Map<String, Set<String>> outputAttributes;
     private Map<String, Set<String>> inputArtifacts;
+
 }

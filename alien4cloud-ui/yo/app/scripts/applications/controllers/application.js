@@ -3,7 +3,7 @@
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
+           environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -137,10 +137,11 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
     // TOPOLOGY INFO CONCERNS
     // verify the topology validity
-    $scope.isTopologyValid = function isTopologyValid(topologyId) {
+    $scope.isTopologyValid = function isTopologyValid(topologyId, environmentId) {
       // validate the topology
       return topologyServices.isValid({
-        topologyId: topologyId
+        topologyId: topologyId,
+        environmentId: environmentId
       }, function(result) {
         return result.data;
       });
@@ -168,20 +169,20 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           $scope.storageImage = UTILS.getIcon($scope.topologyDTO.nodeTypes['tosca.nodes.BlockStorage'].tags);
         }
         // process topology data
-        $scope.inputProperties = result.data.topology.inputProperties;
+        $scope.inputs = result.data.topology.inputs;
         $scope.outputProperties = result.data.topology.outputProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
         $scope.nodeTypes = $scope.topologyDTO.nodeTypes;
         $scope.outputNodes = [];
-        $scope.inputPropertiesSize = 0;
+        $scope.inputsSize = 0;
         $scope.outputPropertiesSize = 0;
         $scope.outputAttributesSize = 0;
         $scope.inputArtifactsSize = 0;
 
-        if (angular.isDefined(result.data.topology.inputProperties)) {
-          $scope.inputPropertiesSize = Object.keys(result.data.topology.inputProperties).length;
+        if (angular.isDefined(result.data.topology.inputs)) {
+          $scope.inputsSize = Object.keys(result.data.topology.inputs).length;
         }
         if (angular.isDefined($scope.outputProperties)) {
           $scope.outputNodes = Object.keys($scope.outputProperties);
@@ -198,20 +199,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
 
       });
 
-    };
-
-    // get the property definition for the good (node, property)
-    $scope.getPropertyDefinition = function(nodeKey, propertyKey) {
-      var type = $scope.nodeTemplates[nodeKey].type;
-      var propertyDefinition = null;
-      var properties = $scope.topologyDTO.nodeTypes[type].properties;
-      for (var i = 0; i < properties.length; i++) {
-        if (properties[i].key === propertyKey) {
-          propertyDefinition = properties[i].value;
-          propertyDefinition.name = propertyKey;
-        }
-      }
-      return propertyDefinition;
     };
 
     // get a topologyId
@@ -253,6 +240,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           // start event listener on this new <app,env>
           $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
           $scope.applicationEventServices.start();
+          console.log('InstanceStatuses >', successResult.data);
           doSubscribe(successResult.data, pageStateId);
         });
       }
@@ -293,6 +281,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       } else {
         // Add modify event
         var allAttributes = event.attributes;
+        console.log('EVENTS > ', event);
         for (var attribute in allAttributes) {
           if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
             if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
@@ -309,10 +298,11 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.$apply();
     };
 
-    var doSubscribe = function doSubscribe(appRuntimeInformation, stateId)  {
+    var doSubscribe = function doSubscribe(appRuntimeInformation, stateId) {
       $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {
+          console.log('appRuntimeInfo >', appRuntimeInformation);
           if (appRuntimeInformation.hasOwnProperty(nodeId)) {
             $scope.outputAttributesValue[nodeId] = {};
             var nodeInformation = appRuntimeInformation[nodeId];

@@ -88,7 +88,9 @@
       "RELATIONSHIP_NOT_BUILT": "Not able to build the relationship for the requirement [{{note}}] (please read errors).",
       "REQUIREMENT_NOT_FOUND": "Requirement definition for [{{note}}] was not found.",
       "REQUIREMENT_TARGET_NOT_FOUND": "The requirement's target for [{{note}}] doesn't exists.",
-      "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified."
+      "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified.",
+      "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
+      "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -345,6 +347,12 @@
       "ATTRIBUTES": "Attributes",
       "PROPERTIES": "Properties",
       "PROPERTIES_INPUTS": "Input properties",
+      "INPUTS": {
+        "ADD": "Add To Input",
+        "NAME": "Name",
+        "TYPE": "Type",
+        "CONSTRAINT": "Constraint"
+      },
       "PROPERTIES_OUTPUTS": "Output properties",
       "NO_OUTPUTS": "No output properties or attributes",
       "ARTIFACTS_CHECK_INPUT": "Define artifact as input",

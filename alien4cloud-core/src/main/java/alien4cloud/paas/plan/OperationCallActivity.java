@@ -23,6 +23,8 @@ public class OperationCallActivity extends AbstractWorkflowStep {
     private String nodeTemplateId;
     /** If the operation is part of a relationship, the id of the relationship, null if not. */
     private String relationshipId;
+    /** The source id of the relationship **/
+    private String sourceRelationshipId;
     /** The name of the interface that contains the operation. */
     private String interfaceName;
     /** The name of the operation to call. */

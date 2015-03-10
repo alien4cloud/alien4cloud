@@ -206,7 +206,7 @@
           <h3><i class="fa fa-cog"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
           <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
             <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
-              <td id="p_{{propertyKey}}">
+              <td id="p_deployment_{{propertyKey}}">
                 <property-display
                   ng-init="condensed = true"
                   definition="propertyDefinition"
@@ -231,24 +231,19 @@
           <i class="fa fa-cogs"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
 
-        <div id="inputPropertiesTable" class="col-md-12" ng-repeat="(propertyKey,propertyValue) in inputProperties">
+        <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs">
           <hr/>
           <div class="col-md-4">
-            {{propertyKey}}
+            {{inputId}}
           </div>
           <div class="col-md-8">
-
-            <div id="p_input_{{propertyKey}}" class="row" ng-repeat="(inputPropertyKey,inputPropertyValue) in inputProperties[propertyKey]">
-
-              <property-display
-                definition="getPropertyDefinition(propertyKey,inputPropertyValue)"
-                property-value="nodeTemplates[propertyKey].propertiesMap[inputPropertyValue].value"
-                on-save="updateProperty(propertyKey,inputPropertyValue,propertyValue)"
-                editable="!(selectedEnvironment.status === 'DEPLOYED')"
-                condensed="true">
-              </property-display>
-
-            </div>
+            <property-display
+              definition="inputDefinition"
+              property-value="setup.inputProperties[inputId]"
+              on-save="updateInputValue(propertyDefinition, propertyValue, inputId)"
+              editable="!(selectedEnvironment.status === 'DEPLOYED')"
+              condensed="true">
+            </property-display>
           </div>
         </div>
 

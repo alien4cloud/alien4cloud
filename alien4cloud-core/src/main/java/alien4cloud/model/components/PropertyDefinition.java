@@ -1,5 +1,6 @@
 package alien4cloud.model.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -95,4 +96,38 @@ public class PropertyDefinition implements IOperationParameter {
     public boolean isDefinition() {
         return true;
     }
+
+    /**
+     * Check if all constraint are equals
+     *
+     * @param propertyDefinition
+     * @throws IncompatiblePropertyDefinitionException
+     */
+    public void checkIfCompatibleOrFail(final PropertyDefinition propertyDefinition) throws IncompatiblePropertyDefinitionException {
+        if (propertyDefinition == null) {
+            throw new IncompatiblePropertyDefinitionException();
+        } else if (!this.getType().equals(propertyDefinition.getType())) {
+            throw new IncompatiblePropertyDefinitionException();
+        } else if (this.getConstraints() == null && propertyDefinition.getConstraints() == null) {
+            return;
+        } else if (this.getConstraints() == null || propertyDefinition.getConstraints() == null
+                || this.getConstraints().size() != propertyDefinition.getConstraints().size()) {
+            throw new IncompatiblePropertyDefinitionException();
+        }
+
+        ArrayList<PropertyConstraint> copyOfOtherConstraints = new ArrayList<PropertyConstraint>(propertyDefinition.getConstraints());
+        for (PropertyConstraint constraint : this.getConstraints()) {
+            for (int i = 0; i <= copyOfOtherConstraints.size(); i++) {
+                if (copyOfOtherConstraints.size() == 0) { // If all elements are compatible
+                    return;
+                } else if (i == copyOfOtherConstraints.size()) { // If the constraint is not compatible with an constraint from the other PropertyDefinition
+                    throw new IncompatiblePropertyDefinitionException();
+                } else if (constraint.equals(copyOfOtherConstraints.get(i))) { // If the two constraints are compatible
+                    copyOfOtherConstraints.remove(i); // we remove the constraint in the copy of the other propertyDefinition constraints and continue
+                    break;
+                }
+            }
+        }
+    }
+
 }
