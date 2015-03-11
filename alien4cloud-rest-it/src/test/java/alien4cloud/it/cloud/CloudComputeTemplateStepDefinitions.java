@@ -58,7 +58,7 @@ public class CloudComputeTemplateStepDefinitions {
             throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
-        assertComputeTemplates(numberOfTemplate, cloudDTO.getCloud().getComputeTemplates(), expectedTemplatesTable);
+        assertComputeTemplates(numberOfTemplate, Sets.newHashSet(cloudDTO.getCloud().getComputeTemplates()), expectedTemplatesTable);
     }
 
     @And("^The cloud with name \"([^\"]*)\" should not have compute templates as resources$")
@@ -75,7 +75,7 @@ public class CloudComputeTemplateStepDefinitions {
                 String flavorName = rows.get(1);
                 if (rows.size() == 3) {
                     boolean enabled = "enabled".equals(rows.get(2));
-                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, "", enabled));
+                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, null, enabled));
                 } else {
                     expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName));
                 }
@@ -173,7 +173,7 @@ public class CloudComputeTemplateStepDefinitions {
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Map<String, String> actualImageMapping = cloudDTO.getCloud().getImageMapping();
         Map<String, String> actualFlavorMapping = cloudDTO.getCloud().getFlavorMapping();
-        Set<ActivableComputeTemplate> templates = cloudDTO.getCloud().getComputeTemplates();
+        List<ActivableComputeTemplate> templates = cloudDTO.getCloud().getComputeTemplates();
         Set<ComputeTemplate> actualTemplates = Sets.newHashSet();
         for (ActivableComputeTemplate template : templates) {
             actualTemplates.add(new ComputeTemplate(template.getCloudImageId(), template.getCloudImageFlavorId()));

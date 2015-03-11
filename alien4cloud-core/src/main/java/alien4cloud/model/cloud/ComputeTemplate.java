@@ -19,4 +19,9 @@ public class ComputeTemplate {
 
     private String cloudImageFlavorId;
 
+    private String description;
+
+    public ComputeTemplate(String cloudImageId, String cloudImageFlavorId) {
+        this(cloudImageId, cloudImageFlavorId, null);
+    }
 }

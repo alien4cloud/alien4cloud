@@ -329,6 +329,7 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Nom du réseau",
       "TITLE_STORAGE": "Nom du volume",
+      "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Réseau",
