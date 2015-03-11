@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+tosca_default_namespace: Tosca default namespace value
+template_name: topology-template-relationship-funtionprop
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: relationship with properties and specially get_input
+
+imports:
+  - "tosca-base-types:1.0"
+
+topology_template:
+  inputs:
+    pwd:
+      type: string
+      constraints:
+        - min_length: 6
+        - max_length: 10      
+  node_templates:
+    compute:
+      type: tosca.nodes.Compute
+    software:
+      type: tosca.nodes.SoftwareComponent
+      requirements:
+        - host: 
+            node: compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+            properties:
+              # the value of this property is given by the input named 'pwd'
+              password: { get_input: pwd }

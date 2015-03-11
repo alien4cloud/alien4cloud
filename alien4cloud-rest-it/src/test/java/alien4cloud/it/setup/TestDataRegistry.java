@@ -54,6 +54,11 @@ public class TestDataRegistry {
         addConditionFolder("topology-unknown-relationshiptype", "src/test/resources/data/csars/topology_template/topology-unknown-relationshiptype");
         addConditionFolder("topology_inputs", "src/test/resources/data/csars/topology_template/topology_inputs");
         addConditionFolder("topology_outputs", "src/test/resources/data/csars/topology_template/topology_outputs");
+        addConditionFolder("topology-capacility-prop", "src/test/resources/data/csars/topology_template/topology-capacility-prop");
+        addConditionFolder("topology-capacility-prop-unkown", "src/test/resources/data/csars/topology_template/topology-capacility-prop-unkown");
+        addConditionFolder("topology-capacility-unkown", "src/test/resources/data/csars/topology_template/topology-capacility-unkown");
+        addConditionFolder("topology-template-relationship-funtionprop",
+                "src/test/resources/data/csars/topology_template/topology-template-relationship-funtionprop");
 
         // test uploading an unzipped file (do not zip it)
         CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));

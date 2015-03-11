@@ -110,3 +110,33 @@ Scenario: Upload CSAR containing embeded topology template with outputs
   And The SPEL boolean expression "outputProperties['apache'].size() == 1" should return true
   And The SPEL expression "outputAttributes['compute'][0]" should return "ip_address"
   
+Scenario: Upload CSAR containing embeded topology template with capabilities properties
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology-capacility-prop"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  And If I search for topology templates I can find one with the name "topology-capacility-prop-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL expression "nodeTemplates['compute1'].capabilities['compute'].properties['containee_types'].value" should return "something"
+  And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].function" should return "get_input"
+  And The SPEL boolean expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size() == 1" should return true
+  And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters[0]" should return "an_input"     
+  
+Scenario: Upload CSAR containing embeded topology template with unknown capabilities
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology-capacility-unkown"
+  Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos  
+  And If I search for topology templates I can find one with the name "topology-capacility-unkown-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+ 
+Scenario: Upload CSAR containing embeded topology template with unknown capabilities property
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology-capacility-prop-unkown"
+  Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos  
+  And If I search for topology templates I can find one with the name "topology-capacility-prop-unkown-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+
+Scenario: Upload CSAR containing embeded topology template with relationship property using get_input
+  Given I upload the archive "tosca base types 1.0"
+  When I upload the archive "topology-template-relationship-funtionprop"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos 
+  And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
+  And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
+  

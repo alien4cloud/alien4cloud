@@ -17,6 +17,7 @@
 - interface: alien4cloud.tosca.parser.impl.advanced.InterfaceParser
 - interfaces: alien4cloud.tosca.parser.impl.advanced.InterfacesParser
 - relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
+- nodetemplate_capabilities_type: alien4cloud.tosca.parser.impl.advanced.NodeTemplateCapabilitiesParser
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 
 # declare standard mapping based parsers
@@ -77,7 +78,11 @@
   requirements:
     inner: relationships
     type: relationship_templates_type
-
+  capabilities:
+    inner: void
+    deferred: true
+    type: nodetemplate_capabilities_type
+    
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
