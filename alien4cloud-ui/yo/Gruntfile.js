@@ -484,8 +484,8 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            // baseUrl: 'http://localhost:9999',
-            baseUrl: 'http://localhost:8088',
+             baseUrl: 'http://localhost:9999',
+            // baseUrl: 'http://localhost:8088',
             specs: [
               // 'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
@@ -500,9 +500,9 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security.js',
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
+                              'test/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
-              //            'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
-                            'test/e2e/scenarios/unstable/application_topology_editor_input_output.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_multiplenodeversions.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_nodetemplate.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_plan.js',
@@ -517,6 +517,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security/security_groups.js',
               //              'test/e2e/scenarios/security/security_users.js',
               //              'test/e2e/scenarios/security/security_environments.js',
+              //              'test/e2e/scenarios/unstable/application_topology_editor_input_output.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',

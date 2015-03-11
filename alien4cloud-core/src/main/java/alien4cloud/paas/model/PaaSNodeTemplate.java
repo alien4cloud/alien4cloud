@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.paas.IPaaSTemplate;
@@ -67,5 +68,10 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
             }
         }
         return null;
+    }
+
+    @Override
+    public AbstractTemplate getTemplate() {
+        return nodeTemplate;
     }
 }

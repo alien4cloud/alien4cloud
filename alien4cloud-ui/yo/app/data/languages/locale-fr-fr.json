@@ -526,7 +526,8 @@
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit"
+      "FLAVOR_NAME": "Gabarit",
+      "DESCRIPTION": "Description"
     },
     "FLAVORS": {
       "ID": "Nom",

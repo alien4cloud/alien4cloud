@@ -5,7 +5,6 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.utils.jackson.ConditionalAttributes;
@@ -18,7 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Specifies a kind of a component making up the cloud application.
- * 
+ *
  * @author luc boutier
  */
 @Getter
@@ -30,14 +29,6 @@ public class NodeTemplate extends AbstractTemplate {
      * Id in the map is name.replaceAll(" ", "").toLowerCase();
      */
     private String name;
-
-    /**
-     * Properties of the node template
-     */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    private Map<String, AbstractPropertyValue> properties;
 
     /**
      * Attributes of the node template
@@ -80,7 +71,7 @@ public class NodeTemplate extends AbstractTemplate {
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
             Map<String, DeploymentArtifact> artifacts) {
         this.setType(type);
-        this.properties = properties;
+        this.setProperties(properties);
         this.attributes = attributes;
         this.relationships = relationships;
         this.requirements = requirements;

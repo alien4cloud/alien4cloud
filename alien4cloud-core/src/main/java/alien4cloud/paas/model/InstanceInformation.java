@@ -23,9 +23,7 @@ public class InstanceInformation {
      * The effective representation of the state of the instance (SUCCESS, PROCESSING, FAILURE)
      */
     private InstanceStatus instanceStatus;
-    
-    /** Values of attributes for this instance. */
-    private Map<String, String> properties;
+
     /** Values of attributes for this instance. */
     private Map<String, String> attributes;
     /** Additional properties specific from the container. */
