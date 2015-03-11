@@ -29,6 +29,8 @@ node_templates:
         requirement_name: host
         requirement_type: alien4cloud.capabilities.WarHosting
         targeted_capability_name: war_host
+        properties:
+          relName: war_1HostedOnTomcat
   war_2:
     type: alien.nodes.cloudify.War
     properties:
@@ -40,6 +42,8 @@ node_templates:
         requirement_name: host
         requirement_type: alien4cloud.capabilities.WarHosting
         targeted_capability_name: war_host
+        properties:
+          relName: war_2HostedOnTomcat        
 
 dependencies:
   - name: tosca-normative-types
