@@ -1,4 +1,4 @@
-package alien4cloud.documentation;
+package alien4cloud.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +25,7 @@ public class RestDocumentationConfig {
     }
 
     private ApiInfo apiInfo() {
-        ApiInfo apiInfo = new ApiInfo("ALIEN 4 Cloud API", "Welcome on the live documentation of ALIEN 4 Cloud Rest API.", "", "alien-support@fastconnect.fr",
+        ApiInfo apiInfo = new ApiInfo("ALIEN 4 Cloud API", "Welcome on the live configuration of ALIEN 4 Cloud Rest API.", "", "alien-support@fastconnect.fr",
                 "Licensed under the Apache License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0");
         return apiInfo;
     }
