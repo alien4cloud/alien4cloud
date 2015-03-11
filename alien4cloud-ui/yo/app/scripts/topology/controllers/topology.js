@@ -2,8 +2,8 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', '$window',
-  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService, $window) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService',
+  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService) {
     $scope.view = 'RENDERED';
 
     $scope.activeDisplays = [];
@@ -609,6 +609,16 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
+    $scope.createInputFromCapabilityProperty = function(capabilityName, propertyName) {
+      var selectedCapabilityType = $scope.topology.capabilityTypes[$scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.type];
+      var selectedCapabilityPropertyDefinition = selectedCapabilityType.propertiesMap[propertyName].value;
+      var inputId = generateInputIdFromPropertyName(propertyName);
+      createInput(inputId, selectedCapabilityPropertyDefinition, function() {
+        $scope.currentInputCandidatesForCapabilityProperty.push(inputId);
+        $scope.toggleCapabilityPropertyInput(capabilityName, propertyName, inputId);
+      });
+    };
+
     $scope.createInputFromProperty = function(propertyName) {
       var selectedNodeTemplateType = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
       var selectedPropertyDefinition = selectedNodeTemplateType.propertiesMap[propertyName].value;
@@ -639,6 +649,18 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         relationshipId: relationshipName
       }, function(success) {
         $scope.currentInputCandidatesForRelationshipProperty = success.data;
+      });
+    };
+
+    $scope.getInputCandidatesForCapabilityProperty = function(capabilityName, propertyName) {
+      $scope.currentInputCandidatesForCapabilityProperty = [];
+      topologyServices.nodeTemplate.capability.getInputCandidates.getCandidates({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        propertyId: propertyName,
+        capabilityId: capabilityName
+      }, function(success) {
+        $scope.currentInputCandidatesForCapabilityProperty = success.data;
       });
     };
 
@@ -700,6 +722,29 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
     };
 
+    $scope.toggleCapabilityPropertyInput = function(capabilityName, propertyName, inputId) {
+      if (!$scope.isCapabilityPropertyAssociatedToInput(capabilityName, propertyName, inputId)) {
+        topologyServices.nodeTemplate.capability.setInputs.set({
+          topologyId: $scope.topology.topology.id,
+          inputId: inputId,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          propertyId: propertyName,
+          capabilityId: capabilityName
+        }, function() {
+            updatePropertyInputIdChange(propertyName, inputId, $scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.properties, $scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.properties);
+        });
+      } else {
+        topologyServices.nodeTemplate.capability.setInputs.unset({
+          topologyId: $scope.topology.topology.id,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          propertyId: propertyName,
+          capabilityId: capabilityName
+        }, function() {
+          $scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.properties[propertyName].value = null;
+        });
+      }
+    };
+
     var isPropertyValueIsAssociatedToInput = function(propertyValue, inputId) {
       if (UTILS.isDefinedAndNotNull(propertyValue) && UTILS.isDefinedAndNotNull(propertyValue.parameters) && propertyValue.parameters.length > 0) {
         return propertyValue.parameters[0] === inputId;
@@ -714,6 +759,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.isRelationshipPropertyAssociatedToInput = function(relationshipName, propertyName, inputId) {
       var propertyValue = $scope.selectedNodeTemplate.relationshipsMap[relationshipName].value.propertiesMap[propertyName].value;
+      return isPropertyValueIsAssociatedToInput(propertyValue, inputId);
+    };
+
+    $scope.isCapabilityPropertyAssociatedToInput = function(capabilityName, propertyName, inputId) {
+      var propertyValue = $scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.properties[propertyName];
       return isPropertyValueIsAssociatedToInput(propertyValue, inputId);
     };
 
@@ -995,6 +1045,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       return isInputPropertyValue(propertyValue);
     };
 
+    $scope.isInputCapabilitiesProperty = function(capabilityName, propertyName) {
+      var propertyValue = $scope.selectedNodeTemplate.capabilitiesMap[capabilityName].value.properties[propertyName];
+      return isInputPropertyValue(propertyValue);
+    };
+
     $scope.isInputArtifact = function(artifactName) {
       if (UTILS.isUndefinedOrNull($scope.topology.topology.inputArtifacts)) {
         return false;
@@ -1075,17 +1130,35 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /* Update properties of a node template */
     $scope.updateRelationshipProperty = function(propertyDefinition, propertyValue, relationshipType, relationshipName) {
       var propertyName = propertyDefinition.name;
-      var updateRelationshipPropertyRequest = {
+      var updateIndexedTypePropertyRequest = {
         'propertyName': propertyName,
         'propertyValue': propertyValue,
-        'relationshipType': relationshipType
+        'type': relationshipType
       };
 
       return topologyServices.relationship.updateProperty({
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: $scope.selectedNodeTemplate.name,
         relationshipName: relationshipName
-      }, angular.toJson(updateRelationshipPropertyRequest), function() {
+      }, angular.toJson(updateIndexedTypePropertyRequest), function() {
+        // update the selectedNodeTemplate properties locally
+      }).$promise;
+    };
+
+    /* Update properties of a capability */
+    $scope.updateCapabilityProperty = function(propertyDefinition, propertyValue, capabilityType, capabilityId) {
+      var propertyName = propertyDefinition.name;
+      var updateIndexedTypePropertyRequest = {
+        'propertyName': propertyName,
+        'propertyValue': propertyValue,
+        'type': capabilityType
+      };
+
+      return topologyServices.capability.updateProperty({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        capabilityId: capabilityId
+      }, angular.toJson(updateIndexedTypePropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
       }).$promise;
     };

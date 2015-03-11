@@ -349,16 +349,47 @@
                    ng-if="!emptyProps"
                    collapse="isReqPropsCollapsed[capabilityEntry.key]">
                 <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-                  <tr ng-repeat="(propertyKey,propertyValue) in capabilityEntry.value.properties"
-                      ng-init="isPropertyRequired = isCapabilityPropertyRequired(propertyKey)">
-                    <td class="col-md-6" ng-class="{'property-required' : isPropertyRequired}">
-                    <span ng-if="isPropertyRequired" tooltip="{{'REQUIRED' | translate}}"
-                          tooltip-append-to-body="true">{{propertyKey}} *</span>
-                    <span ng-if="!isPropertyRequired" tooltip="{{'OPTIONAL' | translate}}"
-                          tooltip-append-to-body="true">{{propertyKey}}</span>
+                  <tr ng-repeat="(propertyKey, propertyValue) in capabilityEntry.value.properties">
+                    <td>
+                      <div class="btn-group" data-toggle="buttons">
+                        <a id="p_input_{{propertyKey}}"
+                           ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyKey)"
+                           class="btn btn-default btn-xs dropdown-toggle"
+                           ng-class="{'active' : isInputCapabilitiesProperty(capabilityEntry.key, propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-cogs"></i>
+                        </a>
+                        <a id="p_output_{{propertyKey}}" ng-click="toggleOutputProperty(propertyKey)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : isOutputProperty(propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-eye"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                          <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
+                          <li>
+                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyKey)">
+                              <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
+                            </a>
+                          </li>
+                          <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
+                            <a id="{{selectedNodeTemplate.name}}_{{propertyKey}}_toAssociate_{{inputId}}" ng-click="toggleCapabilityPropertyInput(capabilityEntry.key, propertyKey, inputId)">
+                              <i class="fa fa-fw"
+                                 ng-class="{'fa-check-square-o' : isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyKey, inputId),  'fa-square-o': !isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyKey, inputId)}"></i>
+                              {{inputId}}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
-                    <td class="col-md-6" id="p_capa_{{capabilityEntry.key}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                      <span> {{propertyValue.value}} </span>
+                    <td ng-init="propertyValue.name=propertyKey">
+                      <property-display
+                        ng-init="condensed = true"
+                        definition="propertyValue"
+                        property-value="capabilityEntry.value.properties[propertyKey].value"
+                        on-save="updateCapabilityProperty(propertyEntry.value, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        editable="true"
+                        condensed="condensed">
+                      </property-display>
                     </td>
                   </tr>
                 </table>
@@ -427,7 +458,7 @@
                             <ul class="dropdown-menu dropdown-menu-left" role="menu">
                               <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                               <li>
-                                <a ng-click="createInputFromRelationshipProperty(relationshipEntry.key, propertyEntry.key)">
+                                <a ng-click="createInputFromCapabilityProperty(relationshipEntry.key, propertyEntry.key)">
                                   <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                                 </a>
                               </li>

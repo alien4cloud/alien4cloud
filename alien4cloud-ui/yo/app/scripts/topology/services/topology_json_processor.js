@@ -13,6 +13,7 @@ angular.module('alienUiApp').factory('topologyJsonProcessor',
       process: function(topology) {
         orderedMapEnricher.processMap(topology.nodeTypes, 'properties');
         orderedMapEnricher.processMap(topology.relationshipTypes, 'properties');
+        orderedMapEnricher.processMap(topology.capabilityTypes, 'properties');
 
         this.postProcess(topology.topology.nodeTemplates, ['properties', 'attributes', 'requirements', 'relationships', 'capabilities']);
         for (var nodeTemplateName in topology.topology.nodeTemplates) {

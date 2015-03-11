@@ -18,11 +18,11 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class UpdateRelationshipPropertyRequest {
+public class UpdateIndexedTypePropertyRequest {
     @ApiModelProperty(required = true)
     private String propertyName;
     @ApiModelProperty(required = true)
     private String propertyValue;
     @ApiModelProperty(required = true)
-    private String relationshipType;
+    private String type;
 }
