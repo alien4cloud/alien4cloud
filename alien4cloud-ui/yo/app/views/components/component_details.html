@@ -43,8 +43,23 @@
               </div>
               <div class="col-md-4">{{component.lastUpdateDate | date:'medium'}}</div>
             </div>
+
+            <!-- derived from -->
+            <div class="row" style="margin-top: 10px;">
+              <div class="col-md-2">
+                <strong>{{'COMPONENTS.DERIVEDFROM' | translate }}</strong>
+              </div>
+              <div class="col-md-8">
+                <span ng-repeat="parent in component.derivedFrom" tooltip="{{parent}}">
+                  <i class="fa fa-long-arrow-right"></i> {{parent | splitAndGet:'.':'last'}}
+                </span>
+              </div>
+            </div>
+
           </fieldset>
+
         </div>
+
       </div>
       <div class="row">
         <div class="col-md-6">
@@ -182,6 +197,7 @@
               </table>
             </div>
           </fieldset>
+
         </div>
         <div class="col-md-6">
           <!-- Requirement display -->
