@@ -1,4 +1,4 @@
-package alien4cloud.documentation;
+package alien4cloud.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

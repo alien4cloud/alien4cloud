@@ -1,4 +1,4 @@
-package alien4cloud.documentation;
+package alien4cloud.configuration;
 
 import static com.codahale.metrics.MetricRegistry.name;
 
