@@ -1,8 +1,8 @@
 package alien4cloud.model.components;
 
-import alien4cloud.ui.form.annotation.FormProperties;
 import lombok.Getter;
 import lombok.Setter;
+import alien4cloud.ui.form.annotation.FormProperties;
 
 /**
  * Specifies an implementation artifact for interfaces or operations of a {@link NodeType node type} or {@link RelationshipType relation type}.
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
 @FormProperties({ "interfaceName", "operationName", "artifactType", "artifactRef" })
-public class ImplementationArtifact {
+public class ImplementationArtifact implements IArtifact {
     /**
      * <p>
      * Specifies the type of this artifact.
