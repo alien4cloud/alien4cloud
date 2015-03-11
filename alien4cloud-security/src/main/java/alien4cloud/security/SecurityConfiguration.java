@@ -121,6 +121,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/")
                 .deleteCookies("JSESSIONID");
         http.csrf().disable();
+
+        http.exceptionHandling().authenticationEntryPoint(new MyAuthenticationEntryPoint());
     }
 
     @Override

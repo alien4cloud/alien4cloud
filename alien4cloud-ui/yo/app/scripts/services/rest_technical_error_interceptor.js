@@ -35,6 +35,17 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
     };
 
     return {
+      'request': function(config) {
+
+        // alienAuthService.getStatus().$promise.then(function(status) {
+        //   console.log('');
+        // });
+
+        // do something on success
+        console.log('REQUEST config : ', config);
+        console.log('REQUEST config : ', config.cache);
+        return config;
+      },
       'responseError': function(rejection) {
         var error = extractErrorMessage(rejection);
         // Display the toaster message on top with 4000 ms display timeout
