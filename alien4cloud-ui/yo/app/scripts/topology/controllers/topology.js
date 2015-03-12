@@ -41,7 +41,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         active: true
       },
       catalog: {
-        active: false,
+        active: true,
         size: 500
       },
       dependencies: {
