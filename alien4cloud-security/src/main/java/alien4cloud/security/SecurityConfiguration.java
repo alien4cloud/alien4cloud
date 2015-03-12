@@ -117,9 +117,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
         http.authorizeRequests().anyRequest().denyAll();
 
-        http.formLogin().loginPage("/rest/auth/authenticationrequired").defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed")
-                .loginProcessingUrl("/login").usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/")
-                .deleteCookies("JSESSIONID");
+        http.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
+                .usernameParameter("username").passwordParameter("password").permitAll().and().logout().logoutSuccessUrl("/").deleteCookies("JSESSIONID");
         http.csrf().disable();
 
         // handle non authenticated request
