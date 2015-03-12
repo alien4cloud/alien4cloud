@@ -353,6 +353,7 @@
       "DEPENDENCY_VERSION": "Version",
       "SELECT_NODETYPE": "Sélectionner un Composant",
       "TOPOLOGY": "Topologie",
+      "NODE_INFO": "Noeud sélectionné",
       "TYPE": "Type",
       "ARCHIVE": "Archive",
       "PROPERTIES": "Propriétés",

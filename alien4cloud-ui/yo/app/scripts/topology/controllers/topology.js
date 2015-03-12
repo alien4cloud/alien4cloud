@@ -1,4 +1,4 @@
-/* global UTILS, jsyaml */
+/* global UTILS, jsyaml, $ */
 
 'use strict';
 
@@ -6,31 +6,62 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
   function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService) {
     $scope.view = 'RENDERED';
 
-    $scope.activeDisplays = [];
+    // Size management
+    var resizableSelectors = ['#nodetemplate-details', '#catalog-box', '#dependencies-box', '#inputs-box'];
+
+    for(var i=0; i < resizableSelectors.length; i++) {
+      var handlerSelector = resizableSelectors[i]+'-handler';
+      $(resizableSelectors[i]).resizable({
+        handles: {
+          w: $(handlerSelector)
+        }
+      });
+    }
+
+    function onResize(width, height) {
+      $scope.dimensions = {
+        width: width,
+        height: height
+      };
+      var maxWidth = (width - 100) / 2;
+      for(var i=0; i < resizableSelectors.length; i++) {
+        $(resizableSelectors[i]).resizable('option', 'maxWidth', maxWidth);
+      }
+      $scope.$apply();
+    }
+    resizeServices.registerContainer(onResize, '#topology-editor');
+    $scope.dimensions = {
+      height: 50,
+      width: 50
+    };
+    // end size management
 
     $scope.displays = {
-      displayTopology: {
-        active: false
+      topology: {
+        active: true
       },
-      displayAddNode: {
-        active: false
+      catalog: {
+        active: false,
+        size: 500
       },
-      displayDependencies: {
-        active: false
+      dependencies: {
+        active: false,
+        size: 400
       },
-      displayInputs: {
-        active: false
+      inputs: {
+        active: false,
+        size: 400
       },
-      displayDetailsComponent: {
-        active: false
+      component: {
+        active: false,
+        size: 400
       }
     };
 
-    var disableAllDisplayExcept = function(displays) {
-      $scope.activeDisplays = displays;
+    var displayOnly = function(displays) {
       for (var displayName in $scope.displays) {
         if ($scope.displays.hasOwnProperty(displayName)) {
-          $scope.displays[displayName].active = UTILS.arrayContains($scope.activeDisplays, displayName);
+          $scope.displays[displayName].active = UTILS.arrayContains(displays, displayName);
         }
       }
     };
@@ -45,60 +76,30 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.displays[displayName].active = !$scope.displays[displayName].active;
       // Specific rules for displays which are logically linked
       if ($scope.displays[displayName].active) {
-        $scope.activeDisplays.push(displayName);
         switch (displayName) {
-          case 'displayAddNode':
-            disableAllDisplayExcept(['displayTopology', 'displayAddNode']);
+          case 'catalog':
+            displayOnly(['topology', 'catalog']);
             break;
-          case 'displayDependencies':
-            disableAllDisplayExcept(['displayTopology', 'displayDependencies']);
+          case 'dependencies':
+            displayOnly(['topology', 'dependencies']);
             break;
-          case 'displayInputs':
-            if (!$scope.displays['displayDetailsComponent'].active) {
-              disableAllDisplayExcept(['displayTopology', 'displayInputs']);
+          case 'inputs':
+            if (!$scope.displays.component.active) {
+              displayOnly(['topology', 'inputs']);
             } else {
-              disableAllDisplayExcept(['displayDetailsComponent', 'displayInputs']);
+              displayOnly(['topology', 'component', 'inputs']);
             }
             break;
-          case 'displayDetailsComponent':
-            if (!$scope.displays['displayInputs'].active) {
-              disableAllDisplayExcept(['displayTopology', 'displayDetailsComponent']);
+          case 'component':
+            if (!$scope.displays.inputs.active) {
+              displayOnly(['topology', 'component']);
             } else {
-              disableAllDisplayExcept(['displayDetailsComponent', 'displayInputs']);
+              displayOnly(['topology', 'component', 'inputs']);
             }
             break;
-        }
-      } else {
-        UTILS.arrayRemove($scope.activeDisplays, displayName);
-      }
-      calculateDisplay();
-    };
-
-    var calculateDisplay = function() {
-      var maxDisplay = 2;
-      var numberOfColumn = 12;
-      // How many display that is asked to display
-      if ($scope.activeDisplays.length > maxDisplay) {
-        while ($scope.activeDisplays.length > maxDisplay) {
-          var removedDisplay = $scope.activeDisplays.shift();
-          $scope.displays[removedDisplay].active = false;
-        }
-      }
-      // If only one display is asked to be displayed, we show also the topology
-      // If no display is asked to be displayed, we show at least the topology
-      if (($scope.activeDisplays.length === 1 && $scope.activeDisplays[0] !== 'displayTopology') ||
-        $scope.activeDisplays.length === 0) {
-        $scope.displays.displayTopology.active = true;
-        $scope.activeDisplays.push('displayTopology');
-      }
-
-      for (var displayName in $scope.displays) {
-        if ($scope.displays.hasOwnProperty(displayName) && $scope.displays[displayName].active) {
-          $scope.displays[displayName].size = numberOfColumn / $scope.activeDisplays.length;
         }
       }
     };
-    calculateDisplay();
 
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
@@ -116,29 +117,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.editorContent = '';
     var outputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
     var regexPatternn = '^[\\w_]*$';
-
-    // Size management
-    var borderSpacing = 10;
-    var border = 2;
-    var detailDivWidth = 450;
-    var widthOffset = detailDivWidth + (3 * borderSpacing) + (2 * border);
-    var heightOffset = 156;
-
-    function onResize(width, height) {
-      $scope.dimensions = {
-        width: width,
-        height: height
-      };
-      $scope.$apply();
-    }
-
-    resizeServices.register(onResize, widthOffset, heightOffset);
-
-    $scope.dimensions = {
-      height: resizeServices.getHeight(heightOffset),
-      width: resizeServices.getWidth(widthOffset)
-    };
-    // end size management
 
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
 
@@ -251,7 +229,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         // for refreshing the ui
         refreshTopology(result.data, openedOnElementName);
       });
-      $scope.setDisplay('displayDetailsComponent', true);
+      $scope.setDisplay('component', true);
     };
 
     $scope.openSearchRelationshipModal = function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
@@ -379,7 +357,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
       // select the "Properties" <TAB> to see selected node details
-      // selectTab('nodetemplate-details');
       document.getElementById('nodetemplate-details').click();
 
       $timeout(function() {
@@ -394,7 +371,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         newSelected.selected = true;
 
         fillNodeSelectionVars(newSelected);
-        $scope.setDisplay('displayDetailsComponent', true);
+        $scope.setDisplay('component', true);
         $scope.$apply();
       });
     };
@@ -455,7 +432,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           $scope.nodeNameObj.val = $scope.selectedNodeTemplate.name;
         });
       } // if end
-      $scope.setDisplay('displayDetailsComponent', true);
+      $scope.setDisplay('component', true);
     };
 
     /* Update properties of a node template */
