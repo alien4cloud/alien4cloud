@@ -1,4 +1,4 @@
-package alien4cloud.configuration;
+package alien4cloud.webconfiguration;
 
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

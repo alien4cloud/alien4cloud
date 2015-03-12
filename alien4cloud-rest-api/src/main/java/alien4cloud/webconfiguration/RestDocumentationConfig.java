@@ -1,4 +1,4 @@
-package alien4cloud.configuration;
+package alien4cloud.webconfiguration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
