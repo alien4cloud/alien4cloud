@@ -122,7 +122,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .deleteCookies("JSESSIONID");
         http.csrf().disable();
 
-        http.exceptionHandling().authenticationEntryPoint(new MyAuthenticationEntryPoint());
+        // handle non authenticated request
+        http.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
     }
 
     @Override

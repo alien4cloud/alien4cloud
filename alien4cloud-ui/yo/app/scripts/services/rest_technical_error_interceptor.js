@@ -1,11 +1,10 @@
 /* global UTILS */
-
 'use strict';
 
-angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootScope', '$q', '$window', 'toaster', '$translate',
-  function($rootScope, $q, $window, toaster, $translate) {
+angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootScope', '$q', '$window', 'toaster', '$translate', '$timeout',
+  function ($rootScope, $q, $window, toaster, $translate, $timeout) {
 
-    var extractErrorMessage = function(rejection) {
+    var extractErrorMessage = function (rejection) {
       if (UTILS.isDefinedAndNotNull(rejection.data)) {
         if (UTILS.isDefinedAndNotNull(rejection.data.error)) {
           var error = rejection.data.error;
@@ -15,7 +14,7 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
           } else {
             return {
               status: rejection.status,
-              data: UTILS.isDefinedAndNotNull(error.code)?'ERRORS.' + error.code : 'ERRORS.UNKNOWN'
+              data: UTILS.isDefinedAndNotNull(error.code) ? 'ERRORS.' + error.code : 'ERRORS.UNKNOWN'
             };
           }
         } else {
@@ -35,23 +34,24 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
     };
 
     return {
-      'request': function(config) {
 
-        // alienAuthService.getStatus().$promise.then(function(status) {
-        //   console.log('');
-        // });
+      'responseError': function (rejection) {
 
-        // do something on success
-        console.log('REQUEST config : ', config);
-        console.log('REQUEST config : ', config.cache);
-        return config;
-      },
-      'responseError': function(rejection) {
-        var error = extractErrorMessage(rejection);
-        // Display the toaster message on top with 4000 ms display timeout
-        // Don't shot toaster for "tour" guides
-        if (rejection.config.url.indexOf('data/guides') < 0) {
-          toaster.pop('error', $translate('ERRORS.INTERNAL') + ' - ' + error.status, $translate(error.data), 4000, 'trustedHtml', null);
+        // case: authentication rejection error
+        if (rejection.status === 401) {
+          // full page reload (not only url change)
+          toaster.pop('error', $translate('ERRORS.100'), $translate('ERRORS.' + rejection.status), 6000, 'trustedHtml', null);
+          $timeout(function redirect() {
+            $window.location.href = '/';
+          }, 6000);
+        } else {
+          // case : backend specific error
+          var error = extractErrorMessage(rejection);
+          // Display the toaster message on top with 4000 ms display timeout
+          // Don't shot toaster for "tour" guides
+          if (rejection.config.url.indexOf('data/guides') < 0) {
+            toaster.pop('error', $translate('ERRORS.INTERNAL') + ' - ' + error.status, $translate(error.data), 4000, 'trustedHtml', null);
+          }
         }
         return $q.reject(rejection);
       }

@@ -11,17 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
+/**
+ * Triggered when the client makes a call to a resource without being authenticated
+ * (client not logged in)
+ * 
+ * @author mourouvi
+ *
+ */
 @Slf4j
-public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
+public class FailureAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-
-        log.info("+++++++++++++++++++++++++++++++++++++++++++++++++ LOGIN execption, {}", response.isCommitted());
-        // if ( response.) {
-        //
-        // }
-        // throw new AccessDeniedException("API ENTRE ERROR");
-
+        log.info("Authentication required for this request : {}", request.getRequestURL());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
     }
 }

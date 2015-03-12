@@ -643,6 +643,7 @@
       "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
     },
     "400": "Unexpected error happened while accessing to CSAR repository",
+    "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
     "501": "Illegal parameter",
     "502": "Object already exists",
