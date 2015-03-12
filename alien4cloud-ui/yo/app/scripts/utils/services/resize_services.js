@@ -1,35 +1,54 @@
 /* global $ */
 'use strict';
 
-angular.module('alienUiApp').factory('resizeServices', [ function() {
+angular.module('alienUiApp').factory('resizeServices', ['$timeout', function($timeout) {
   // the default min width and height for the application
   var minWidth = 640;
   var minHeight = 200;
 
   return {
+    registerContainer: function(callback, selector) {
+      var container = $(selector);
+      var instance = this;
+      window.onresize = function() {
+        if (container.size()) {
+          var offsets = container.offset();
+          if (offsets && offsets.top && offsets.left) {
+            callback(instance.getWidth(offsets.left), instance.getHeight(offsets.top));
+          }
+        }
+      };
+      this.initSize();
+    },
+
     register: function(callback, widthOffset, heightOffset) {
       var instance = this;
       window.onresize = function() {
         callback(instance.getWidth(widthOffset), instance.getHeight(heightOffset));
       };
+      this.initSize();
+    },
+
+    initSize: function() {
+      $timeout(function() {
+        window.onresize();
+      });
     },
 
     getHeight : function(offset){
-      var height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+      var height = $(window).height();
       if(height < minHeight) {
         height = minHeight;
       }
-      height = height - offset;
-      return height;
+      return height - offset;
     },
 
     getWidth  : function(offset) {
-      var width = $('.main-view').innerWidth();
+      var width = $(window).width();
       if(width < minWidth) {
         width = minWidth;
       }
-      width = width - offset;
-      return width;
+      return width - offset;
     }
   };
 }]);

@@ -1,32 +1,76 @@
+@import "bootstrap_variables";
+@import "alien-variables";
+
+.topology-editor {
+  margin-top: -10px;
+  overflow: hidden !important;
+}
+
+@media(min-width: $screen-sm-min) {
+  .topology-editor {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+
+@media(min-width: $screen-md-min) {
+  .topology-editor {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+}
+
 .topology-row {
   display: table;
-/*   margin-left: -10px; */
-/*   margin-right: -10px; */
-  border-spacing: 10px 0px;
+  table-layout: fixed;
   width: 100%;
 }
 
-.topology-columns {
+.topology-column {
   display: table-cell;
+  height: inherit;
   vertical-align: top;
 }
 
-.topology-details {
-  min-width: 450px;
+.topology-column-box {
+  height: inherit;
+  background-color: white;
+  position: relative;
 }
 
-.topology-components {
-  width: 500px;
+.topology-column-menu {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 20px;
+  height: inherit;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: whitesmoke;
+  text-align: center;
+  // color:
 }
 
-/* slide side bar*/
-.close-search{
-  margin-bottom:5px;
+.topology-column-content {
+  display: inline-block;
+  padding: 4px;
+  padding-left: 24px;
+  height: inherit;
+  width: 100%;
+  overflow-y: auto;
 }
 
-.well.topology {
+.topology-column-content-head {
+  font-weight: bold;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #428bca;
+  padding-bottom: 5px;
+}
+
+.topology {
+  background-color: white;
   padding: 0px;
-  margin-bottom: 4px;
+  margin: 0px;
   cursor: move;
 }
 
@@ -54,7 +98,7 @@
   box-shadow: none;
 }
 
-.cardinalities_show:HOVER, .cardinalities_show:FOCUS, .cardinalities_show:ACTIVE {
+.cardinalities_show:hover, .cardinalities_show:focus, .cardinalities_show:active {
   background-color: white;
   border-color: #cccccc;
 }
@@ -103,36 +147,47 @@ h4 .editable-error {
   cursor: pointer;
 }
 
-#slide-side-bar {
-  height: 100%;
-}
-
 #topology-vertical-menu {
-  position: fixed;
-  right: 55px;
-  line-height: 20px;
-  vertical-align: top;
+  width: 20px;
 }
 
-#topology-vertical-menu, #topology-vertical-menu ul {
-  width: 0;
-  height: 0;
-}
-
-#topology-vertical-menu ul {
-  width: 0;
-  height: 0;
+#topology-vertical-menu ul, #topology-vertical-menu li{
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 #topology-vertical-menu li {
+  font-size: 12px;
+  cursor: pointer;
   display: inline-block;
-  list-style-position: outside;
-  list-style-type: none;
+  line-height: 20px;
+  overflow: hidden;
+  width: 20px;
 }
 
-#topology-vertical-menu li span {
+#topology-vertical-menu span {
   display: inline-block;
-  transform-origin: 0px 0px 0px;
+  -moz-transform: translate(20px, 0) rotate(90deg);
+  -ms-transform: translate(20px, 0) rotate(90deg);
+  -o-transform: translate(20px, 0) rotate(90deg);
+  -webkit-transform: translate(20px, 0) rotate(90deg);
+  transform: translate(20px, 0) rotate(90deg);
+  -moz-transform-origin: 0 0;
+  -ms-transform-origin: 0 0;
+  -o-transform-origin: 0 0;
+  -webkit-transform-origin: 0 0;
+  transform-origin: 0 0;
   white-space: nowrap;
-  cursor: pointer;
+  margin: 10px 0;
+}
+
+#topology-vertical-menu span::after {
+  content: "";
+  float: left;
+  margin-top: 100%;
+}
+
+#topology-vertical-menu li:hover {
+  background-color: darken($btn-default-bg, 10%);;
 }
