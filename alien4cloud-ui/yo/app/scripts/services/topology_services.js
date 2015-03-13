@@ -305,6 +305,33 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var updateCapabilityOutputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/isOutput', {}, {
+      'add': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'remove': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var isValid = $resource('rest/topologies/:topologyId/isvalid', {}, {
       method: 'GET'
     });
@@ -375,7 +402,8 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         },
         'capability': {
           'getInputCandidates': getCapabilityPropertyInputCandidates,
-          'setInputs': setInputToCapabilityProperty
+          'setInputs': setInputToCapabilityProperty,
+          'outputProperties': updateCapabilityOutputProperty
         }
       },
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,

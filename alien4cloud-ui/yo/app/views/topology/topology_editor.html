@@ -350,10 +350,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="topology-level"
-                   ng-if="!emptyProps"
-                   collapse="isReqPropsCollapsed[capabilityEntry.key]">
                 <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
                   <tr ng-repeat="(propertyKey, propertyValue) in capabilityEntry.value.properties">
                     <td>
@@ -361,12 +357,12 @@
                         <a id="p_input_{{propertyKey}}"
                            ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyKey)"
                            class="btn btn-default btn-xs dropdown-toggle"
-                           ng-class="{'active' : isInputCapabilitiesProperty(capabilityEntry.key, propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           ng-class="{'active' : isInputPropertyValue(propertyValue)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
                         </a>
-                        <a id="p_output_{{propertyKey}}" ng-click="toggleOutputProperty(propertyKey)" class="btn btn-default btn-xs"
-                           ng-class="{'active' : isOutputProperty(propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                        <a id="p_output_{{propertyKey}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyKey)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-eye"></i>
                         </a>
@@ -389,9 +385,19 @@
                     </td>
                     <td ng-init="propertyValue.name=propertyKey">
                       <property-display
+                        ng-if="isInputPropertyValue(propertyValue)"
                         ng-init="condensed = true"
                         definition="propertyValue"
-                        property-value="capabilityEntry.value.properties[propertyKey].value"
+                        property-value="capabilityEntry.value.properties[propertyKey]"
+                        on-save="updateCapabilityProperty(propertyEntry.value, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        editable="false"
+                        condensed="condensed">
+                      </property-display>
+                      <property-display
+                        ng-if="!isInputPropertyValue(propertyValue)"
+                        ng-init="condensed = true"
+                        definition="propertyValue"
+                        property-value="capabilityEntry.value.properties[propertyKey]"
                         on-save="updateCapabilityProperty(propertyEntry.value, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="true"
                         condensed="condensed">
