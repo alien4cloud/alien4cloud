@@ -14,6 +14,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.utils.JsonUtil;
 
 /**
  * Triggered when the client makes a call to a resource without being authenticated
@@ -24,12 +25,18 @@ import alien4cloud.rest.model.RestResponseBuilder;
  */
 @Slf4j
 public class FailureAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.info("Authentication required for this request : {}", request.getRequestURL());
-
-        RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.UNAUTHORIZED_ERROR).message("Current user has no sufficient rights.").build()).build();
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication required");
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        // return a RestResponse json in the response
+        response.getOutputStream().println(
+                JsonUtil.toString(RestResponseBuilder
+                        .<Void> builder()
+                        .data(null)
+                        .error(RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_REQUIRED_ERROR)
+                                .message("Authentication required for this request : " + request.getRequestURI()).build()).build()));
     }
 }

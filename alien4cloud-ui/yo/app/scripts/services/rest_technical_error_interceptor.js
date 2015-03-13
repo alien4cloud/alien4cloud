@@ -1,8 +1,8 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootScope', '$q', '$window', 'toaster', '$translate', '$timeout',
-  function ($rootScope, $q, $window, toaster, $translate, $timeout) {
+angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootScope', '$q', '$window', 'toaster', '$translate', '$timeout', '$location',
+  function ($rootScope, $q, $window, toaster, $translate, $timeout, $location) {
 
     var extractErrorMessage = function (rejection) {
       if (UTILS.isDefinedAndNotNull(rejection.data)) {
@@ -40,6 +40,7 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
         // case: authentication rejection error
         if (rejection.status === 401) {
           // full page reload (not only url change)
+          $location.path('/restricted');
           toaster.pop('error', $translate('ERRORS.100'), $translate('ERRORS.' + rejection.status), 6000, 'trustedHtml', null);
           $timeout(function redirect() {
             $window.location.href = '/';

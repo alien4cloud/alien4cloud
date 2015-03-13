@@ -17,7 +17,7 @@ Scenario: Authenticate to alien with wrong password should fail
 Scenario: Accessing a service with no account should fail
   Given I am logged out
   When I create a new user with username "sauron" and password "thering" in the system
-  Then I should receive a RestResponse with an error code 401
+  Then I should receive a RestResponse with an error code 100
 
 Scenario: Accessing a service with no account should fail
   Given I am authenticated with "COMPONENTS_BROWSER" role
