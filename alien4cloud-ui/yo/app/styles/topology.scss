@@ -2,21 +2,21 @@
 @import "alien-variables";
 
 .topology-editor {
-  margin-top: -5px;
+  margin-top: -10px;
   overflow: hidden !important;
 }
 
 @media(min-width: $screen-sm-min) {
   .topology-editor {
-    margin-left: -15px;
-    margin-right: -15px;
+    margin-left: -20px;
+    margin-right: -20px;
   }
 }
 
 @media(min-width: $screen-md-min) {
   .topology-editor {
-    margin-left: -15px;
-    margin-right: -15px;
+    margin-left: -20px;
+    margin-right: -20px;
   }
 }
 
