@@ -602,7 +602,7 @@ public class CloudService {
     }
 
     private void addComputeTemplatesForImage(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, String cloudImageId) {
-        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
+        List<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
         String paaSImageId = matcherConfig.getImageMapping().get(cloudImage);
         if (paaSImageId == null) {
@@ -626,8 +626,7 @@ public class CloudService {
             } else {
                 if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
                         && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                    computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), "IaaS Image : [" + paaSImageId + "], IaaS Flavor : ["
-                            + paaSFlavorId + "]"));
+                    computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), null));
                 }
             }
         }
@@ -658,7 +657,7 @@ public class CloudService {
     }
 
     private void addComputeTemplatesForFlavor(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, CloudImageFlavor flavor) {
-        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
+        List<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
         if (paaSFlavorId == null) {
@@ -683,8 +682,7 @@ public class CloudService {
                 Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
                 if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
                         && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                    computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), "IaaS Image : [" + paaSImageId + "], IaaS Flavor : [" + paaSFlavorId
-                            + "]"));
+                    computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), null));
                 }
             }
         }

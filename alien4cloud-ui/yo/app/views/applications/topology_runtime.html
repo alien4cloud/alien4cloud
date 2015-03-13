@@ -188,9 +188,10 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr ng-repeat="(propKey, propVal) in selectedInstance.properties">
-                      <td>{{propKey}}</td>
-                      <td>{{propVal.value}}</td>
+                  <!-- properties are the same for all instances of a node template -->
+                    <tr ng-repeat="property in selectedNodeTemplate.properties">
+                      <td>{{property.key}}</td>
+                      <td>{{property.value.value}}</td>
                     </tr>
                   </tbody>
                 </table>

@@ -90,7 +90,9 @@
       "REQUIREMENT_TARGET_NOT_FOUND": "The requirement's target for [{{note}}] doesn't exists.",
       "REQUIREMENT_CAPABILITY_NOT_FOUND": "The capability corresponding to the requirement [{{note}}] can't be identified.",
       "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
-      "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]"
+      "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
+      "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
+      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -321,6 +323,7 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Network's name",
       "TITLE_STORAGE": "Block storage's name",
+      "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Network",
@@ -342,6 +345,7 @@
       "DEPENDENCY_VERSION": "Version",
       "SELECT_NODETYPE": "Select a Node Type",
       "TOPOLOGY": "Topology",
+      "NODE_INFO": "Selected node",
       "TYPE": "Type",
       "ARCHIVE": "Archive",
       "ATTRIBUTES": "Attributes",

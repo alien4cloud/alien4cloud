@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true, exclude = { "description" })
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
@@ -16,16 +16,12 @@ public class ActivableComputeTemplate extends ComputeTemplate {
 
     private boolean enabled = true;
 
-    private String description;
-
     public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId, String description) {
-        super(cloudImageId, cloudImageFlavorId);
-        this.description = description;
+        super(cloudImageId, cloudImageFlavorId, description);
     }
 
     public ActivableComputeTemplate(String cloudImageId, String cloudImageFlavorId, String description, boolean enabled) {
-        super(cloudImageId, cloudImageFlavorId);
+        super(cloudImageId, cloudImageFlavorId, description);
         this.enabled = enabled;
-        this.description = description;
     }
 }

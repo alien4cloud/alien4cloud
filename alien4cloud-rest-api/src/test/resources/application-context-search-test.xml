@@ -11,7 +11,7 @@
 		alien4cloud.*,
 		org.elasticsearch.mapping">
     <!-- alien4cloud.security.* to exclude ldap package is not working in component-scan -->
-    <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.documentation.*" />
+    <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.webconfiguration.*" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration" />
   </context:component-scan>
 

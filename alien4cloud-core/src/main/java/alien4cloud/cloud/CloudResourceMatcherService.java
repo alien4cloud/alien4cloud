@@ -114,7 +114,14 @@ public class CloudResourceMatcherService {
                 for (CloudImageFlavor flavor : flavors) {
                     imageIds.add(eligibleImage.getId());
                     flavorMap.put(flavor.getId(), flavor);
-                    eligibleTemplates.add(new ComputeTemplate(eligibleImage.getId(), flavor.getId()));
+                    List<ActivableComputeTemplate> computeTemplates = cloud.getComputeTemplates();
+                    for (ActivableComputeTemplate computeTemplate : computeTemplates) {
+                        if (computeTemplate.isEnabled() && computeTemplate.getCloudImageId().equals(eligibleImage.getId())
+                                && computeTemplate.getCloudImageFlavorId().equals(flavor.getId())) {
+                            eligibleTemplates.add(new ComputeTemplate(computeTemplate.getCloudImageId(), computeTemplate.getCloudImageFlavorId(),
+                                    computeTemplate.getDescription()));
+                        }
+                    }
                 }
             }
             templateMatchResult.put(computeTemplateEntry.getKey(), eligibleTemplates);
@@ -247,7 +254,7 @@ public class CloudResourceMatcherService {
                 }
             }
         } else {
-            Set<ActivableComputeTemplate> allTemplates = cloud.getComputeTemplates();
+            List<ActivableComputeTemplate> allTemplates = cloud.getComputeTemplates();
             Map<String, CloudImageFlavor> allFlavors = Maps.newHashMap();
             for (CloudImageFlavor flavor : cloud.getFlavors()) {
                 allFlavors.put(flavor.getId(), flavor);

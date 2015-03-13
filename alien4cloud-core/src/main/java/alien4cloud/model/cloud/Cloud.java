@@ -2,6 +2,7 @@ package alien4cloud.model.cloud;
 
 import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,12 +20,17 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiModel;
@@ -104,7 +110,7 @@ public class Cloud implements ISecuredResource {
 
     private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
 
-    private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
+    private List<ActivableComputeTemplate> computeTemplates = Lists.newArrayList();
 
     private Map<String, String> imageMapping = Maps.newHashMap();
 

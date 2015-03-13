@@ -97,7 +97,9 @@
       "REQUIREMENT_TARGET_NOT_FOUND": "La cible du requirement [{{note}}] n'exite pas.",
       "REQUIREMENT_CAPABILITY_NOT_FOUND": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
       "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
-      "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte"
+      "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
+      "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
+      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -327,6 +329,7 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Nom du réseau",
       "TITLE_STORAGE": "Nom du volume",
+      "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Réseau",
@@ -350,6 +353,7 @@
       "DEPENDENCY_VERSION": "Version",
       "SELECT_NODETYPE": "Sélectionner un Composant",
       "TOPOLOGY": "Topologie",
+      "NODE_INFO": "Noeud sélectionné",
       "TYPE": "Type",
       "ARCHIVE": "Archive",
       "PROPERTIES": "Propriétés",

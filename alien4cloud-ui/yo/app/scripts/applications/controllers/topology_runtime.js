@@ -236,17 +236,6 @@ angular.module('alienUiApp').controller(
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
-          // fill properties from nodetemplates
-          if (UTILS.isDefinedAndNotNull($scope.topology.topology.nodeTemplates[event.nodeTemplateId])) {
-            var nodePropertiesArray = $scope.topology.topology.nodeTemplates[event.nodeTemplateId].properties;
-            if (UTILS.isDefinedAndNotNull(nodePropertiesArray)) {
-              var nodePropertiesMap = {};
-              for (var i = 0; i < nodePropertiesArray.length; i++) {
-                nodePropertiesMap[nodePropertiesArray[i].key] = nodePropertiesArray[i].value;
-              }
-              $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = nodePropertiesMap;
-            }
-          }
         }
         refreshSelectedNodeInstancesCount();
         $scope.$apply();

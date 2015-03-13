@@ -377,6 +377,7 @@
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -392,6 +393,7 @@
                       <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
                       <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
                       <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
+                      <td>{{template.description}}</td>
                     </tr>
                   </tbody>
                 </table>

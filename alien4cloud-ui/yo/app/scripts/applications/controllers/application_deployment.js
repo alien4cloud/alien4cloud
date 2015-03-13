@@ -276,7 +276,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.isSelectedCompute = function(template) {
       var selected = $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId];
-      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId;
+      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId && template.description === selected.description;
     };
 
     $scope.isSelectedComputeTemplate = function(key) {
