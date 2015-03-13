@@ -96,7 +96,8 @@ function closeInputsTab() {
       element(by.id('closeInputs')).click();
     }
   });
-  browser.waitForAngular();}
+  browser.waitForAngular();
+}
 module.exports.closeInputsTab = closeInputsTab;
 
 // Add a node template
@@ -511,3 +512,22 @@ var expectDeploymentWork = function(goToAppDetail, work) {
   }
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
+
+var nodeDetailsOpenOnly = function nodeDetailsOpenOnly(blocName) {
+
+  // var blocs = element(by.className('topology-node-expand clickable'));
+  console.log('nodeDetailsOpenOnly > ', blocName);
+  element.all(by.className('topology-node-expand')).then(function(elements) {
+    console.log('Number of blocks >', elements.length);
+    for (var i = 0; i < elements.length; i++) {
+      // console.log('ELEMENT FOUND >', elements[i]);
+      var element = elements[i];
+      element.getCssValue().then(function(css) {
+        console.log('CSSSSS >', css);
+      });
+    }
+    // elements is an array of ElementFinders.
+  });
+
+};
+module.exports.nodeDetailsOpenOnly = nodeDetailsOpenOnly;

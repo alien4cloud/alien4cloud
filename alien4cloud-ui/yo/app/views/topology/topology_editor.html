@@ -123,7 +123,7 @@
           </div>
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-properties" class="topology-node-expand clickable"
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
@@ -200,7 +200,7 @@
           </div>
           <!-- Attributes -->
           <div ng-if="selectedNodeTemplate.attributes.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-attributes" class="topology-node-expand clickable"
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
@@ -228,7 +228,7 @@
           </div>
           <!-- Requirements -->
           <div ng-if="selectedNodeTemplate.requirements.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-requirements" class="topology-node-expand clickable"
                  ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
@@ -304,7 +304,7 @@
           </div>
           <!-- Capabilities -->
           <div ng-if="selectedNodeTemplate.capabilities.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-capabilities" class="topology-node-expand clickable"
                  ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
@@ -373,7 +373,7 @@
           </div>
           <!-- Relationships -->
           <div ng-if="selectedNodeTemplate.relationships.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-relationships" class="topology-node-expand clickable"
                  ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
