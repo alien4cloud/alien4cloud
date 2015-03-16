@@ -336,6 +336,10 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       method: 'GET'
     });
 
+    var yaml = $resource('rest/topologies/:topologyId/yaml', {}, {
+      method: 'GET'
+    });
+    
     var replacements = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/replace', {}, {
       'get': {
         method: 'GET'
@@ -416,6 +420,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'updateProperty': updateRelationshipProperty.updateProperty
       },
       'isValid': isValid.get,
+      'getYaml': yaml.get,
       'cloud': cloudResource
     };
   }

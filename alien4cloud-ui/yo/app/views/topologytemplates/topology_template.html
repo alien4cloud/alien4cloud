@@ -10,7 +10,7 @@
     </span>
   </div>
   <div class="col-md-8" id="template_{{topologyTemplate.name}}_description">
-    <label>{{'APPLICATIONS.DESC' | translate }} :</label>
+    <div class="horizontal-panel-label">{{'APPLICATIONS.DESC' | translate }} :</div>
     <span editable-text="topologyTemplate.description"
       buttons="no"
       e-class="input-sm"
@@ -20,6 +20,4 @@
     </span>
   </div>
 </div>
-<div class="row">
-  <ui-view />
-</div>
+<div class="vertical-panel-shift" ui-view></div>
