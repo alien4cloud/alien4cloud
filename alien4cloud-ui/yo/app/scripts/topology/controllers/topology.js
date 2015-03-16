@@ -551,7 +551,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.toggleCapabilityOutput = function(capabilityId, propertyId) {
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
-      var inputIndex = topology.outputCapabilityProperties[nodeTemplateName][capabilityId].indexOf(propertyId);
+      var inputIndex  = -1;
+
+      if (UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties)) {
+        inputIndex = topology.outputCapabilityProperties[nodeTemplateName][capabilityId].indexOf(propertyId);
+      }
+
       var params = {
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: nodeTemplateName,
@@ -1081,7 +1086,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     $scope.isOutputCapabilityProperty = function(capabilityId, propertyId) {
-      if (UTILS.isUndefinedOrNull($scope.topology.topology.outputCapabilityProperties) || UTILS.isUndefinedOrNull($scope.topology.topology.outputCapabilityProperties[$scope.selectedNodeTemplate.name][capabilityId])) {
+      if (UTILS.isUndefinedOrNull($scope.topology.topology.outputCapabilityProperties) || UTILS.isUndefinedOrNull($scope.topology.topology.outputCapabilityProperties[$scope.selectedNodeTemplate.name]) || UTILS.isUndefinedOrNull($scope.topology.topology.outputCapabilityProperties[$scope.selectedNodeTemplate.name][capabilityId])) {
         return false;
       }
       return $scope.topology.topology.outputCapabilityProperties[$scope.selectedNodeTemplate.name][capabilityId].indexOf(propertyId) >= 0;
