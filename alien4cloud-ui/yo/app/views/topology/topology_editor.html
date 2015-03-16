@@ -351,54 +351,54 @@
                   </div>
                 </div>
                 <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-                  <tr ng-repeat="(propertyKey, propertyValue) in capabilityEntry.value.properties">
+                  <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
                     <td>
                       <div class="btn-group" data-toggle="buttons">
-                        <a id="p_input_{{propertyKey}}"
-                           ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyKey)"
+                        <a id="p_input_{{propertyEntry.key}}"
+                           ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                            class="btn btn-default btn-xs dropdown-toggle"
-                           ng-class="{'active' : isInputPropertyValue(propertyValue)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
                         </a>
-                        <a id="p_output_{{propertyKey}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyKey)" class="btn btn-default btn-xs"
-                           ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyKey)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                        <a id="p_output_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-eye"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                           <li>
-                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyKey)">
+                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
                               <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                             </a>
                           </li>
                           <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
-                            <a id="{{selectedNodeTemplate.name}}_{{propertyKey}}_toAssociate_{{inputId}}" ng-click="toggleCapabilityPropertyInput(capabilityEntry.key, propertyKey, inputId)">
+                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="toggleCapabilityPropertyInput(capabilityEntry.key, propertyEntry.key, inputId)">
                               <i class="fa fa-fw"
-                                 ng-class="{'fa-check-square-o' : isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyKey, inputId),  'fa-square-o': !isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyKey, inputId)}"></i>
+                                 ng-class="{'fa-check-square-o' : isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId),  'fa-square-o': !isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId)}"></i>
                               {{inputId}}
                             </a>
                           </li>
                         </ul>
                       </div>
                     </td>
-                    <td ng-init="propertyValue.name=propertyKey">
+                    <td>
                       <property-display
-                        ng-if="isInputPropertyValue(propertyValue)"
+                        ng-if="isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
-                        definition="propertyValue"
-                        property-value="capabilityEntry.value.properties[propertyKey]"
-                        on-save="updateCapabilityProperty(propertyEntry.value, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-value="propertyEntry.value"
+                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="false"
                         condensed="condensed">
                       </property-display>
                       <property-display
-                        ng-if="!isInputPropertyValue(propertyValue)"
+                        ng-if="!isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
-                        definition="propertyValue"
-                        property-value="capabilityEntry.value.properties[propertyKey]"
-                        on-save="updateCapabilityProperty(propertyEntry.value, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-value="propertyEntry.value"
+                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="true"
                         condensed="condensed">
                       </property-display>
