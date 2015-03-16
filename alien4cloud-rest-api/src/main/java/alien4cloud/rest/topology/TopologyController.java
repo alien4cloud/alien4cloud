@@ -119,6 +119,16 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    @RequestMapping(value = "/{topologyId}/yaml", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<String> getYaml(@PathVariable String topologyId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService
+                .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
+
+        String yaml = topologyService.getYaml(topology);
+        return RestResponseBuilder.<String> builder().data(yaml).build();
+    }
+
     /**
      * Add a node template to a topology based on a node type
      *

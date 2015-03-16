@@ -100,6 +100,16 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       }
     };
+    
+    // get the yaml from backend for the Ace editor
+    $scope.displayYaml = function() {
+      var currentTopologyId = ($scope.selectedVersion) ? $scope.selectedVersion.topologyId : $scope.topologyId;
+      topologyServices.getYaml({
+        topologyId: currentTopologyId}, function(result) {
+          $scope.editorContent = result.data;
+          $scope.view = 'YAML';
+      });
+    }
 
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
@@ -174,12 +184,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         }
       }
-      $scope.editorContent = jsyaml.safeDump($scope.topology.topology);
+      $scope.editorContent = $scope.topology.yaml;
       if (UTILS.isDefinedAndNotNull(selectedNodeTemplate)) {
         fillNodeSelectionVars($scope.topology.topology.nodeTemplates[selectedNodeTemplate]);
       } else {
         $scope.selectedNodeTemplate = null;
       }
+      
     };
 
     // Topology can comes from application OR topology template
