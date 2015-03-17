@@ -100,7 +100,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       }
     };
-    
+
     // get the yaml from backend for the Ace editor
     $scope.displayYaml = function() {
       var currentTopologyId = ($scope.selectedVersion) ? $scope.selectedVersion.topologyId : $scope.topologyId;
@@ -190,7 +190,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       } else {
         $scope.selectedNodeTemplate = null;
       }
-      
+
     };
 
     // Topology can comes from application OR topology template
@@ -564,7 +564,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       var topology = $scope.topology.topology;
       var inputIndex  = -1;
 
-      if (UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties)) {
+      if (UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties)
+          && UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName])
+          && UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName][capabilityId])) {
         inputIndex = topology.outputCapabilityProperties[nodeTemplateName][capabilityId].indexOf(propertyId);
       }
 
