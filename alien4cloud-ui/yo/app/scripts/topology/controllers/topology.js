@@ -302,14 +302,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         var node = $scope.topology.topology.nodeTemplates[nodeName];
         var relationships = node.relationships;
         if (UTILS.isDefinedAndNotNull(relationships)) {
-          for (var relationshipId in relationships) {
-
-            var rel = relationships[relationshipId];
+          for(var i=0; i< relationships.length; i++) {
+            var rel = relationships[i].value;
+            var relationshipId = relationships[i].key;
             var oldRelationshipId = toscaService.generateRelationshipName(rel.type, oldNodeName);
             if (relationshipId === oldRelationshipId) {
               var newRelationshipId = toscaService.generateRelationshipName(rel.type, newName);
-              delete relationships[relationshipId];
-              relationships[newRelationshipId] = rel;
+              relationships[i].key = newRelationshipId;
+              delete node.relationshipsMap[relationshipId];
+              node.relationshipsMap[newRelationshipId] = rel;
             }
 
             if (rel.target === oldNodeName) {
