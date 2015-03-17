@@ -2,7 +2,6 @@ package alien4cloud.rest.topology;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -655,8 +654,8 @@ public class TopologyService {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-		String yaml = getYaml(topology);
-		Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        String yaml = getYaml(topology);
 		return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
     }
 
@@ -808,11 +807,11 @@ public class TopologyService {
         if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
             String applicationId = topology.getDelegateId();
             Application application = appService.getOrFail(applicationId);
-            ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
             velocityCtx.put("template_name", application.getName());
             velocityCtx.put("application_description", application.getDescription());
-            if (version != null)  {
-            	velocityCtx.put("template_version", version.getVersion());
+            ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
+            if (version != null) {
+                velocityCtx.put("template_version", version.getVersion());
             }
         } else if (topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
             String topologyTemplateId = topology.getDelegateId();
@@ -823,7 +822,7 @@ public class TopologyService {
 
         try {
             StringWriter writer = new StringWriter();
-            VelocityUtil.generate(Paths.get(ClassLoader.getSystemResource("templates/topology.yml.vm").toURI()), writer, velocityCtx);
+            VelocityUtil.generate("templates/topology-1_0_0_wd03.yml.vm", writer, velocityCtx);
             return writer.toString();
         } catch (Exception e) {
             log.error("Exception while templating YAML for topology " + topology.getId(), e);

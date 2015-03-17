@@ -3,7 +3,6 @@ package alien4cloud.tosca.serializer;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,9 +105,7 @@ public class ToscaSerializerTest {
         velocityCtx.put("application_description", "Here is a \nmultiline description");
 
         StringWriter writer = new StringWriter();
-        // ClassPathResource resource = new ClassPathResource("velocity/topology.yml.vm");
-
-        VelocityUtil.generate(Paths.get(ClassLoader.getSystemResource("templates/topology.yml.vm").toURI()), writer, velocityCtx);
+        VelocityUtil.generate("templates/topology-1_0_0_wd03.yml.vm", writer, velocityCtx);
         System.out.println(writer.toString());
     }
 
