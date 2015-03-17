@@ -171,6 +171,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         // process topology data
         $scope.inputs = result.data.topology.inputs;
         $scope.outputProperties = result.data.topology.outputProperties;
+        $scope.outputCapabilityProperties = result.data.topology.outputCapabilityProperties;
         $scope.outputAttributes = result.data.topology.outputAttributes;
         $scope.inputArtifacts = result.data.topology.inputArtifacts;
         $scope.nodeTemplates = $scope.topologyDTO.topology.nodeTemplates;
@@ -187,6 +188,10 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
         if (angular.isDefined($scope.outputProperties)) {
           $scope.outputNodes = Object.keys($scope.outputProperties);
           $scope.outputPropertiesSize = Object.keys($scope.outputProperties).length;
+          refreshOutputProperties();
+        }
+        if (angular.isDefined($scope.outputCapabilityProperties)) {
+          $scope.outputNodes = UTILS.arrayUnique(UTILS.concat($scope.outputNodes, Object.keys($scope.outputCapabilityProperties)));
           refreshOutputProperties();
         }
         if (angular.isDefined($scope.outputAttributes)) {
@@ -219,6 +224,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.stopEvent = function stopEvent() {
       $scope.outputAttributesValue = {};
       $scope.outputPropertiesValue = {};
+      $scope.outputCapabilityPropertiesValue = {};
       $scope.outputNodes = [];
       if ($scope.applicationEventServices !== null) {
         $scope.applicationEventServices.stop();
@@ -229,6 +235,7 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
     $scope.applicationEventServices = null;
     $scope.outputAttributesValue = {};
     $scope.outputPropertiesValue = {};
+    $scope.outputCapabilityPropertiesValue = {};
     $scope.outputNodes = [];
 
     $scope.refreshInstancesStatuses = function refreshInstancesStatuses(applicationId, environmentId, pageStateId) {
@@ -264,6 +271,23 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
             var outputPropertyName = $scope.outputProperties[nodeId][i];
             $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].propertiesMap[outputPropertyName].value;
+          }
+        }
+      }
+
+      if (!UTILS.isUndefinedOrNull($scope.outputCapabilityProperties)) {
+        for (var nodeId in $scope.outputCapabilityProperties) {
+          if ($scope.outputCapabilityProperties.hasOwnProperty(nodeId)) {
+            $scope.outputCapabilityPropertiesValue[nodeId] = {};
+            for (var capabilityId in $scope.outputCapabilityProperties[nodeId]) {
+              if ($scope.outputCapabilityProperties[nodeId].hasOwnProperty(capabilityId)) {
+                $scope.outputCapabilityPropertiesValue[nodeId][capabilityId] = {};
+                for (var i = 0; i < $scope.outputCapabilityProperties[nodeId][capabilityId].length; i++) {
+                  var outputCapabilityPropertyName = $scope.outputCapabilityProperties[nodeId][capabilityId][i];
+                  $scope.outputCapabilityPropertiesValue[nodeId][capabilityId][outputCapabilityPropertyName] = $scope.nodeTemplates[nodeId].capabilitiesMap[capabilityId].value.propertiesMap[outputCapabilityPropertyName].value;
+                }
+              }
+            }
           }
         }
       }

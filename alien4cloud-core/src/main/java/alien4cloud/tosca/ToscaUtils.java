@@ -32,16 +32,27 @@ public class ToscaUtils {
      * @param paaSNodeTemplate
      * @return
      */
-    public static PaaSNodeTemplate getHostTemplate(final PaaSNodeTemplate paaSNodeTemplate) {
-        PaaSNodeTemplate parent = paaSNodeTemplate;
-        while (parent != null) {
-            if (isFromType(NormativeComputeConstants.COMPUTE_TYPE, parent.getIndexedToscaElement())) {
-                return parent;
-            }
-            parent = parent.getParent();
+    public static PaaSNodeTemplate getMandatoryHostTemplate(final PaaSNodeTemplate paaSNodeTemplate) {
+        PaaSNodeTemplate nodeTemplate = getHostTemplate(paaSNodeTemplate);
+        if (nodeTemplate == null) {
+            throw new PaaSTechnicalException("Cannot get the service name: The node template <" + paaSNodeTemplate.getId()
+                    + "> is not declared as hosted on a compute.");
+        } else {
+            return nodeTemplate;
         }
-        throw new PaaSTechnicalException("Cannot get the service name: The node template <" + paaSNodeTemplate.getId()
-                + "> is not declared as hosted on a compute.");
+    }
+
+    public static PaaSNodeTemplate getHostTemplate(PaaSNodeTemplate paaSNodeTemplate) {
+        while (paaSNodeTemplate != null) {
+            if (isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement())) {
+                // Found the compute
+                return paaSNodeTemplate;
+            } else {
+                // Not found then go to the parent
+                paaSNodeTemplate = paaSNodeTemplate.getParent();
+            }
+        }
+        return null;
     }
 
     /**

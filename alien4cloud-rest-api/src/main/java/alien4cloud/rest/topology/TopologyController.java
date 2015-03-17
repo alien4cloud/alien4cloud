@@ -845,7 +845,7 @@ public class TopologyController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Activate a property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @ApiOperation(value = "Activate a capability property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String propertyId, @PathVariable String capabilityId) {
@@ -854,6 +854,10 @@ public class TopologyController {
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+
+        if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
+            throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
+        }
 
         Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
         IndexedCapabilityType indexedCapabilityType = csarRepoSearch.getRequiredElementInDependencies(IndexedCapabilityType.class,
@@ -890,7 +894,7 @@ public class TopologyController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Remove a property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @ApiOperation(value = "Remove a capability property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> removeOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String capabilityId, @PathVariable String propertyId) {
@@ -899,6 +903,10 @@ public class TopologyController {
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+
+        if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
+            throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
+        }
 
         Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
         IndexedCapabilityType indexedCapabilityType = csarRepoSearch.getRequiredElementInDependencies(IndexedCapabilityType.class,

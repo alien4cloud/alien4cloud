@@ -22,6 +22,18 @@ public class DeploymentArtifact implements IArtifact {
     @Getter
     private String artifactRepository;
 
+    /**
+     * The name of the archive in which the original artifact lies.
+     */
+    @Getter
+    private String archiveName;
+
+    /**
+     * The version of the archive in which the original artifact lies.
+     */
+    @Getter
+    private String archiveVersion;
+
     public String getArtifactName() {
         return artifactName != null ? artifactName : artifactRef;
     }
