@@ -94,11 +94,10 @@
 			<artifactId>javax.el</artifactId>
 		</dependency>
 		<!-- Templating -->
-    <dependency>
-      <groupId>org.apache.velocity</groupId>
-      <artifactId>velocity</artifactId>
-      <version>1.7</version>
-    </dependency>		
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+		</dependency>		
 		<!-- tests -->
 		<dependency>
 			<groupId>junit</groupId>
