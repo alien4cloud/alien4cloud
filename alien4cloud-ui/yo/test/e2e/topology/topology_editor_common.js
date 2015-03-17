@@ -40,7 +40,9 @@ var nodeDetailsBlocsIds = {
   att: 'node-details-attributes',
   req: 'node-details-requirements',
   cap: 'node-details-capabilities',
-  rel: 'node-details-relationships'
+  rel: 'node-details-relationships',
+  art: 'node-details-artifacts',
+  sca: 'node-details-scaling'
 };
 module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
 
@@ -258,6 +260,9 @@ function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, r
   var sourceNode = element(by.id('rect_' + sourceNodeTemplateName));
   sourceNode.click();
 
+  // display only one bloc in node details : requirements
+  openOnlyOneBloc(nodeDetailsBlocsIds.req);
+
   // select the requirement type
   var btnAddRelationship = browser.element(by.id(btnRelationshipNameBaseId + requirementName));
   browser.actions().click(btnAddRelationship).perform();
@@ -340,6 +345,9 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
+
+  // display only one bloc in node details : scaling
+  openOnlyOneBloc(nodeDetailsBlocsIds.sca);
 
   common.sendValueToXEditable('maxInstances', max, false);
   common.sendValueToXEditable('initialInstances', init, false);
@@ -522,13 +530,18 @@ module.exports.expectDeploymentWork = expectDeploymentWork;
 
 /** Close or open a specific node template details bloc */
 var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
-  var myBlock = element(by.id(blocId)).element(by.tagName('i'));
-  var ngClass = myBlock.getAttribute('class');
-  ngClass.then(function(classes) {
-    // test if the bloc is opened and then close it
-    if (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1) {
-      myBlock.click();
-      browser.waitForAngular();
+  var myBlock = element(by.id(blocId));
+  myBlock.isPresent().then(function isBlockPresent(present) {
+    if (present) {
+      var myBlockIcon = myBlock.element(by.tagName('i'));
+      var ngClass = myBlockIcon.getAttribute('class');
+      ngClass.then(function(classes) {
+        // test if the bloc is opened and then close it
+        if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
+          myBlockIcon.click();
+          browser.waitForAngular();
+        }
+      });
     }
   });
 };

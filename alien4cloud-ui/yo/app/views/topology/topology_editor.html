@@ -475,7 +475,7 @@
           </div>
           <!-- Artifacts -->
           <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-artifacts" class="topology-node-expand clickable"
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
@@ -523,7 +523,7 @@
           </div>
           <!-- Scaling -->
           <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-              <div class="topology-node-expand clickable"
+              <div id="node-details-scaling" class="topology-node-expand clickable"
                    ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
                 <h4>
                   <i class="pull-left fa"
