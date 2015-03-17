@@ -92,13 +92,13 @@ public final class FunctionEvaluator {
                 List<? extends IPaaSTemplate> paasTemplates = null;
                 String propertyOrAttributeName = null;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
-                paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getEntityName(), builtPaaSTemplates);
+                paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(), builtPaaSTemplates);
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
                     evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates, propertyOrAttributeName));
                     break;
                 case ToscaFunctionConstants.GET_PROPERTY:
-                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementName(), paasTemplates));
+                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getPropertyOrAttributeName(), paasTemplates));
                     break;
                 default:
                     log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
@@ -201,11 +201,11 @@ public final class FunctionEvaluator {
      */
     public static String evaluateGetPropertyFuntion(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
-        List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getEntityName(), builtPaaSTemplates);
-        String propertyId = functionParam.getElementName();
+        List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
+        String propertyId = functionParam.getPropertyOrAttributeName();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
-                    functionParam.getElementName());
+                    functionParam.getPropertyOrAttributeName());
             // return the first value found
             if (propertyValue != null) {
                 if (propertyValue instanceof ScalarPropertyValue) {

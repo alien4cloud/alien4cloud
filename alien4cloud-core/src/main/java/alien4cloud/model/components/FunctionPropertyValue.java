@@ -21,17 +21,17 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
 
     /** Get the modelable entity's (node or relationship template) name related to the function, represented by the first parameter. */
     @JsonIgnore
-    public String getEntityName() {
+    public String getTemplateName() {
         return parameters.get(0);
     }
 
-    /** get the name of the element we want to retrieve (property or attribute name) represented by the last parameter in the list */
+    /** get the name of the property or attribute we want to retrieve, represented by the last parameter in the list */
     @JsonIgnore
-    public String getElementName() {
+    public String getPropertyOrAttributeName() {
         return parameters.get(parameters.size() - 1);
     }
 
-    /** Get, if provided, the capability/requirement name within the modelable entity which contains the element */
+    /** Get, if provided, the capability/requirement name within the template which contains the prop or attr to retrieve */
     @JsonIgnore
     public String getCapabilityOrRequirementName() {
         return parameters.size() > 2 ? parameters.get(1) : null;

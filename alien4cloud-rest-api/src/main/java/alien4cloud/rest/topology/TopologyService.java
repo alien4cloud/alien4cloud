@@ -569,7 +569,7 @@ public class TopologyService {
                 if (value instanceof ScalarPropertyValue) {
                     propertyValue = ((ScalarPropertyValue) value).getValue();
                 } else if (value instanceof FunctionPropertyValue && inputs != null) {
-                    propertyValue = inputs.get(((FunctionPropertyValue) value).getEntityName());
+                    propertyValue = inputs.get(((FunctionPropertyValue) value).getTemplateName());
                 }
                 if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                     task.getProperties().add(propertyEntry.getKey());

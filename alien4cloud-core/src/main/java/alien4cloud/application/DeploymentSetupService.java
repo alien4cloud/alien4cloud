@@ -273,7 +273,7 @@ public class DeploymentSetupService {
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         ScalarPropertyValue value;
                         if (inputs != null) {
-                            value = new ScalarPropertyValue(inputs.get(function.getEntityName()));
+                            value = new ScalarPropertyValue(inputs.get(function.getTemplateName()));
                         } else {
                             value = new ScalarPropertyValue(null);
                         }

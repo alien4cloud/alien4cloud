@@ -93,12 +93,12 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
                 DeploymentSetup deploymentSetup = deploymentSetupService.get(applicationVersion, applicationEnvironment);
-                String volumeIds = deploymentSetup.getInputProperties().get(function.getEntityName());
+                String volumeIds = deploymentSetup.getInputProperties().get(function.getTemplateName());
                 volumeIds = getAggregatedVolumeIds(volumeIds, storageEvent);
                 if (volumeIds == null) {
                     return;
                 }
-                deploymentSetup.getInputProperties().put(function.getEntityName(), volumeIds);
+                deploymentSetup.getInputProperties().put(function.getTemplateName(), volumeIds);
                 alienDAO.save(deploymentSetup);
             } else {
                 // this is not supported / print a warning
