@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.ConcatPropertyValue;
@@ -13,7 +16,9 @@ import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.NotSupportedException;
@@ -87,15 +92,13 @@ public final class FunctionEvaluator {
                 List<? extends IPaaSTemplate> paasTemplates = null;
                 String propertyOrAttributeName = null;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
-                List<String> parameters = functionPropertyValue.getParameters();
-                propertyOrAttributeName = parameters.get(1);
-                paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, parameters.get(0), builtPaaSTemplates);
+                paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getEntityName(), builtPaaSTemplates);
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
                     evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates, propertyOrAttributeName));
                     break;
                 case ToscaFunctionConstants.GET_PROPERTY:
-                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, propertyOrAttributeName, paasTemplates));
+                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementName(), paasTemplates));
                     break;
                 default:
                     log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
@@ -198,20 +201,67 @@ public final class FunctionEvaluator {
      */
     public static String evaluateGetPropertyFuntion(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
-        List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getParameters().get(0), builtPaaSTemplates);
-        String propertyId = functionParam.getParameters().get(1);
-        for (IPaaSTemplate paaSNodeTemplate : paaSTemplates) {
-            // the first nodeTemplate with the required propertyId is returned
-            if (paaSNodeTemplate.getTemplate().getProperties().containsKey(propertyId)) {
-                AbstractPropertyValue propertyValue = paaSNodeTemplate.getTemplate().getProperties().get(propertyId);
+        List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getEntityName(), builtPaaSTemplates);
+        String propertyId = functionParam.getElementName();
+        for (IPaaSTemplate paaSTemplate : paaSTemplates) {
+            AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
+                    functionParam.getElementName());
+            // return the first value found
+            if (propertyValue != null) {
                 if (propertyValue instanceof ScalarPropertyValue) {
                     return ((ScalarPropertyValue) propertyValue).getValue();
                 } else {
                     throw new FunctionEvaluationException("Failed to evaluate the property <" + propertyId + "> of node <" + basePaaSTemplate.getId()
-                            + ">. 'get_property' / 'get_attribute' fucntions are not supported on node's entities' prperties definition.");
+                            + ">. 'get_property' / 'get_attribute' functions are not supported on node's entities' properties definition.");
                 }
             }
         }
+        return null;
+    }
+
+    /**
+     * Find a property from a template or capability / requirement if a name is provided
+     * first find in capability, and then in requirement if no found.
+     *
+     * @param paaSTemplate
+     * @param capabilityOrRequirementName
+     * @param elementName
+     * @return
+     */
+    private static AbstractPropertyValue getPropertyFromTemplateOrCapability(IPaaSTemplate paaSTemplate, String capabilityOrRequirementName, String elementName) {
+
+        // if no capability or requirement provided, return the value from the template property
+        if (StringUtils.isBlank(capabilityOrRequirementName)) {
+            return paaSTemplate.getTemplate().getProperties().get(elementName);
+        } else if (paaSTemplate instanceof PaaSNodeTemplate) {
+            // if capability or requirement name provided:
+            // FIXME how should I know that the provided name is capability or a requirement name?
+            NodeTemplate nodeTemplate = (NodeTemplate) paaSTemplate.getTemplate();
+            AbstractPropertyValue propertyValue = null;
+
+            Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
+            Map<String, Requirement> requirements = nodeTemplate.getRequirements();
+
+            // Find in capability first
+            if (capabilities != null && capabilities.get(capabilityOrRequirementName) != null
+                    && capabilities.get(capabilityOrRequirementName).getProperties() != null) {
+                propertyValue = capabilities.get(capabilityOrRequirementName).getProperties().get(elementName);
+            }
+
+            // if not found in capability, find in requirement
+            if (propertyValue == null) {
+                if (requirements != null && requirements.containsKey(capabilityOrRequirementName)
+                        && requirements.get(capabilityOrRequirementName).getProperties() != null) {
+                    propertyValue = requirements.get(capabilityOrRequirementName).getProperties().get(elementName);
+                }
+            }
+
+            return propertyValue;
+        }
+
+        log.warn("The keyword <" + ToscaFunctionConstants.SELF
+                + "> can not be used on a Relationship Template level's parameter when trying to retrieve capability / requiement properties. Node<"
+                + paaSTemplate.getId() + ">");
         return null;
     }
 
@@ -259,18 +309,6 @@ public final class FunctionEvaluator {
                 + basePaaSTemplate.getId() + ">.");
     }
 
-    public static String getEntityName(FunctionPropertyValue function) {
-        return function.getParameters().get(0);
-    }
-
-    public static String getElementName(FunctionPropertyValue function) {
-        return function.getParameters().get(1);
-    }
-
-    public static boolean isGetAttribute(FunctionPropertyValue function) {
-        return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
-    }
-
     /**
      * Get the scalar value
      *
@@ -297,5 +335,9 @@ public final class FunctionEvaluator {
             properties.put(propertyValueEntry.getKey(), getScalarValue(propertyValueEntry.getValue()));
         }
         return properties;
+    }
+
+    public static boolean isGetAttribute(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
     }
 }

@@ -90,7 +90,7 @@ public class TopologyInputsController {
 
     /**
      * Update the inputId for the {@link FunctionPropertyValue} of a Map of properties.
-     * 
+     *
      * @param properties
      * @param oldInputId
      * @param newInputId
@@ -109,7 +109,7 @@ public class TopologyInputsController {
 
     /**
      * Change the name of an input parameter. This will update all the get_input function used in node templates and relationship template to set the new value.
-     * 
+     *
      * @param inputId
      * @param newInputId
      */
@@ -149,7 +149,7 @@ public class TopologyInputsController {
 
     /**
      * Remove the inputId for the {@link FunctionPropertyValue} of a Map of properties.
-     * 
+     *
      * @param properties
      * @param inputId
      */
@@ -160,8 +160,7 @@ public class TopologyInputsController {
         for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
-                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
-                        && functionPropertyValue.getParameters().get(0).equals(inputId)) {
+                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getEntityName().equals(inputId)) {
                     propertyEntry.setValue(null);
                 }
             }
@@ -171,7 +170,7 @@ public class TopologyInputsController {
     /**
      * Remove an input from a topology. This will reset the properties set the get_input(given input id) to null in all node templates and relationship
      * templates.
-     * 
+     *
      * @param topologyId
      * @param inputId
      */
@@ -214,7 +213,7 @@ public class TopologyInputsController {
      * If the input already exists in the topology then we validate that the property definition (PD) of the property to associate with the input is compatible
      * with the property definition currently set on the input. If so we also improve the input's PD with the constraints from the associated property.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param inputId
      * @param nodeTemplateName
@@ -257,7 +256,7 @@ public class TopologyInputsController {
      * <p>
      * Disassociated the property of a node template to an input of the topology.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param nodeTemplateName
      * @param propertyId
@@ -390,7 +389,7 @@ public class TopologyInputsController {
      * If the input already exists in the topology then we validate that the property definition (PD) of the property to associate with the input is compatible
      * with the property definition currently set on the input. If so we also improve the input's PD with the constraints from the associated property.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param inputId
      * @param nodeTemplateName
@@ -445,7 +444,7 @@ public class TopologyInputsController {
      * <p>
      * Disassociated the property of a relationship template to an input of the topology.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param nodeTemplateName
      * @param relationshipId
@@ -493,7 +492,7 @@ public class TopologyInputsController {
      * <p>
      * Associate the property of a capability template to an input of the topology.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param inputId
      * @param nodeTemplateName
@@ -550,7 +549,7 @@ public class TopologyInputsController {
      * <p>
      * Disassociated the property of a capability template to an input of the topology.
      * </p>
-     * 
+     *
      * @param topologyId
      * @param nodeTemplateName
      * @param capabilityId
@@ -585,8 +584,7 @@ public class TopologyInputsController {
             } else {
                 capabilityTemplate.getProperties().put(propertyId, null);
             }
-            log.debug("Disassociated the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId,
-                    topologyId);
+            log.debug("Disassociated the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId, topologyId);
         } else {
             throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
         }

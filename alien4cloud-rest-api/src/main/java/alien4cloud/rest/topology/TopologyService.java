@@ -570,7 +570,7 @@ public class TopologyService {
                 if (value instanceof ScalarPropertyValue) {
                     propertyValue = ((ScalarPropertyValue) value).getValue();
                 } else if (value instanceof FunctionPropertyValue && inputs != null) {
-                    propertyValue = inputs.get(((FunctionPropertyValue) value).getParameters().get(0));
+                    propertyValue = inputs.get(((FunctionPropertyValue) value).getEntityName());
                 }
                 if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                     task.getProperties().add(propertyEntry.getKey());
@@ -655,9 +655,9 @@ public class TopologyService {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-		String yaml = getYaml(topology);
-		Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
-		return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
+        String yaml = getYaml(topology);
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
     }
 
     /**
@@ -742,7 +742,7 @@ public class TopologyService {
 
     /**
      * Throw an UpdateTopologyException if the topology is released
-     * 
+     *
      * @param topology
      */
     public void throwsErrorIfReleased(Topology topology) {

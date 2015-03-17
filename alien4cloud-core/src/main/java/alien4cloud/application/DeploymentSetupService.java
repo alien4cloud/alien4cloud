@@ -87,7 +87,7 @@ public class DeploymentSetupService {
 
     /**
      * Create a deployment setup with a failure when the composed key (version.id, environment.id) already exists
-     * 
+     *
      * @param version
      * @param environment
      * @return the created deployment setup
@@ -111,7 +111,7 @@ public class DeploymentSetupService {
     /**
      * Get the deployment setup
      * (environment right check done before method call)
-     * 
+     *
      * @param applicationId
      * @param applicationEnvironmentId
      * @return
@@ -205,7 +205,7 @@ public class DeploymentSetupService {
      * Try to generate resources mapping for deployment setup from the topology and the cloud.
      * If no value has been chosen this method will generate default value.
      * If existing configuration is no longer valid for the topology and the cloud, this method will correct incompatibility
-     * 
+     *
      * @param deploymentSetup the deployment setup to generate configuration for
      * @param topology the topology
      * @param cloud the cloud
@@ -248,7 +248,7 @@ public class DeploymentSetupService {
 
     /**
      * Update the topology to inject the values of the inputs from the deploymentSetup.
-     * 
+     *
      * @param deploymentSetup The deployment setup that contains the input values.
      * @param topology The topology to process.
      */
@@ -273,7 +273,7 @@ public class DeploymentSetupService {
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         ScalarPropertyValue value;
                         if (inputs != null) {
-                            value = new ScalarPropertyValue(inputs.get(function.getParameters().get(0)));
+                            value = new ScalarPropertyValue(inputs.get(function.getEntityName()));
                         } else {
                             value = new ScalarPropertyValue(null);
                         }
@@ -328,7 +328,7 @@ public class DeploymentSetupService {
 
     /**
      * Try to generate a default deployment properties
-     * 
+     *
      * @param deploymentSetup the deployment setup to generate configuration for
      * @param cloud the cloud
      */
@@ -379,7 +379,7 @@ public class DeploymentSetupService {
 
     /**
      * Get a topology Id for a deploymentSetup
-     * 
+     *
      * @param deploymentSetupId
      * @return a topology id
      */
@@ -395,7 +395,7 @@ public class DeploymentSetupService {
 
     /**
      * Get the linked application environment
-     * 
+     *
      * @param deploymentSetupId
      * @return an application environment
      */
@@ -410,7 +410,7 @@ public class DeploymentSetupService {
 
     /**
      * Get the linked application version
-     * 
+     *
      * @param deploymentSetupId
      * @return an application version
      */
