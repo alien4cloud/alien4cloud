@@ -811,7 +811,9 @@ public class TopologyService {
             ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
             velocityCtx.put("template_name", application.getName());
             velocityCtx.put("application_description", application.getDescription());
-            velocityCtx.put("template_version", version.getVersion());
+            if (version != null)  {
+            	velocityCtx.put("template_version", version.getVersion());
+            }
         } else if (topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
             String topologyTemplateId = topology.getDelegateId();
             TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
