@@ -2,6 +2,7 @@ package alien4cloud.model.topology;
 
 import java.util.Map;
 
+import alien4cloud.model.components.DeploymentArtifact;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,4 +45,9 @@ public abstract class AbstractTemplate {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, AbstractPropertyValue> properties;
+
+    /**
+     * The deployment artifacts
+     */
+    private Map<String, DeploymentArtifact> artifacts;
 }

@@ -7,4 +7,6 @@ public interface IArtifact {
     String getArtifactRef();
 
     String getArchiveName();
+
+    String getArtifactRepository();
 }
