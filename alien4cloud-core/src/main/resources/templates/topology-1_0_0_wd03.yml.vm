@@ -106,7 +106,7 @@ topology_template:
 #end## of artifactEntry iteration
 #end## if artifacts map not empty
 #end## of nodeTemplateEntry iteration
-#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes)  || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputCapabilityProperties))
   outputs:
 #foreach($outputPropertyEntry in ${topology.outputProperties.entrySet()})
 #foreach($outputProperty in ${outputPropertyEntry.value})
@@ -120,4 +120,12 @@ topology_template:
       value: { get_attribute: [ ${outputAttributeEntry.key}, ${outputAttribute} ] }
 #end## of outputProperty iteration
 #end## of outputAttributeEntry iteration   
-#end## if
+#foreach($outputCapaPropEntry in ${topology.outputCapabilityProperties.entrySet()})
+#foreach($outputCapaPropSubEntry in ${outputCapaPropEntry.value.entrySet()})
+#foreach($outputCapaProp in ${outputCapaPropSubEntry.value})
+    ${outputCapaPropEntry.key}_${outputCapaPropSubEntry.key}_${outputCapaProp}:
+      value: { get_property: [ ${outputCapaPropEntry.key}, ${outputCapaPropSubEntry.key}, ${outputCapaProp} ] }
+#end## of outputCapaProp iteration
+#end## of outputCapaPropSubEntry iteration
+#end## of outputCapaPropEntry iteration   
+#end## if maps are not empty

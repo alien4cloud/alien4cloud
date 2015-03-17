@@ -43,7 +43,9 @@ public class VelocitySupport {
      * Render the scalar: when it contain '[' or ']' or '{' or '}' or ':' or '-', then quote the scalar.
      */
     public String renderScalar(String scalar) {
-        if (ESCAPE_PATTERN.matcher(scalar).matches()) {
+        if (scalar == null) {
+            return null;
+        } else if (ESCAPE_PATTERN.matcher(scalar).matches()) {
             return "\"" + escapeDoubleQuote(scalar) + "\"";
         } else if (scalar.startsWith(" ") || scalar.endsWith(" ")) {
             return "\"" + escapeDoubleQuote(scalar) + "\"";
@@ -53,7 +55,7 @@ public class VelocitySupport {
     }
 
     private static String escapeDoubleQuote(String scalar) {
-        if (scalar.contains("\"")) {
+        if (scalar != null && scalar.contains("\"")) {
             // escape double quote
             return scalar.replaceAll("\"", "\\\\\"");
         }
@@ -64,7 +66,7 @@ public class VelocitySupport {
      * Render a description. If the string contain CRLF, then render a multiline literal preserving indentation.
      */
     public String renderDescription(String description, String identation) throws IOException {
-        if (description.contains("\n")) {
+        if (description != null && description.contains("\n")) {
             BufferedReader br = new BufferedReader(new StringReader(description));
             StringWriter sw = new StringWriter();
             sw.write("|");
@@ -89,12 +91,27 @@ public class VelocitySupport {
 
     /**
      * Check if the map is not null, not empty and contains at least one not null value.
+     * This function is recursive:
+     * <ul>
+     * <li>if a map entry is a also a map, then we'll look for non null values in it (recursively).
+     * <li>if a map entry is a collection, then will return true if the collection is not empty.
+     * </ul>
      */
     public boolean mapIsNotEmptyAndContainsNotnullValues(Map<?, ?> m) {
         if (mapIsNotEmpty(m)) {
             for (Object o : m.values()) {
                 if (o != null) {
-                    return true;
+                    if (o instanceof Map<?, ?>) {
+                        if (mapIsNotEmptyAndContainsNotnullValues((Map<?, ?>) o)) {
+                            return true;
+                        }
+                    } else if (o instanceof Collection<?>) {
+                        if (!((Collection<?>) o).isEmpty()) {
+                            return true;
+                        }
+                    } else {
+                        return true;
+                    }
                 }
             }
         }
