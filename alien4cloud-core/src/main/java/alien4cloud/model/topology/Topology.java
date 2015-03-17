@@ -72,11 +72,11 @@ public class Topology implements IManagedSecuredResource {
     private Map<String, Set<String>> outputProperties;
 
     /**
-     * Outputs coming from node properties:
+     * Outputs coming from node template capability properties:
      * <ul>
-     * <li>key is the node template name :
+     * <li>key is the node template name.
      * <li>key is the capability name.
-     * <li>value is a list of output property names. *
+     * <li>value is a list of output property names.
      * </ul>
      */
     private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
