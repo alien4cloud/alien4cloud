@@ -282,6 +282,10 @@ module.exports.addRelationship = function(relationshipDescription) {
 
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
+
+  // display only one bloc in node details : relationship
+  openOnlyOneBloc(nodeDetailsBlocsIds.rel);
+
   var countRelationship = 0;
   var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
