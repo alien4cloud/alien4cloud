@@ -35,6 +35,14 @@ var topologyTemplates = {
 };
 module.exports.topologyTemplates = topologyTemplates;
 
+var nodeDetailsBlocsIds = {
+  pro: 'node-details-properties',
+  att: 'node-details-attributes',
+  req: 'node-details-requirements',
+  cap: 'node-details-capabilities',
+  rel: 'node-details-relationships'
+};
+module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
 
 // Action to be executed before each topology test
 var beforeTopologyTest = function() {
@@ -65,18 +73,17 @@ var beforeTopologyTest = function() {
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show tabs in the topology page
-
 function showTopologyTab(panel, btn) {
   element(by.id(panel)).isDisplayed().then(function(isDisplay) {
     if (!isDisplay) {
-      element(by.id(btn)).click();
+      browser.actions().click(element(by.id(btn)).element(by.tagName('i'))).perform();
     }
   });
   browser.waitForAngular();
 }
 
 function showComponentsTab() {
-  showTopologyTab('slide-side-bar', 'topology-components-search');
+  showTopologyTab('closeComponentsSearch', 'topology-components-search');
 }
 module.exports.showComponentsTab = showComponentsTab;
 
@@ -513,21 +520,25 @@ var expectDeploymentWork = function(goToAppDetail, work) {
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
 
-var nodeDetailsOpenOnly = function nodeDetailsOpenOnly(blocName) {
-
-  // var blocs = element(by.className('topology-node-expand clickable'));
-  console.log('nodeDetailsOpenOnly > ', blocName);
-  element.all(by.className('topology-node-expand')).then(function(elements) {
-    console.log('Number of blocks >', elements.length);
-    for (var i = 0; i < elements.length; i++) {
-      // console.log('ELEMENT FOUND >', elements[i]);
-      var element = elements[i];
-      element.getCssValue().then(function(css) {
-        console.log('CSSSSS >', css);
-      });
+/** Close or open a specific node template details bloc */
+var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
+  var myBlock = element(by.id(blocId)).element(by.tagName('i'));
+  var ngClass = myBlock.getAttribute('class');
+  ngClass.then(function(classes) {
+    // test if the bloc is opened and then close it
+    if (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1) {
+      myBlock.click();
+      browser.waitForAngular();
     }
-    // elements is an array of ElementFinders.
   });
-
 };
-module.exports.nodeDetailsOpenOnly = nodeDetailsOpenOnly;
+module.exports.nodeDetailsCollapse = nodeDetailsCollapse;
+
+/** Open only one bloc in the node template details */
+var openOnlyOneBloc = function openOnlyOneBloc(blocId) {
+  for (var bloc in nodeDetailsBlocsIds) {
+    var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
+    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
+  }
+};
+module.exports.openOnlyOneBloc = openOnlyOneBloc;
