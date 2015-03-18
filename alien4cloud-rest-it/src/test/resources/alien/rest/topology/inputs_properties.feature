@@ -42,51 +42,61 @@ Feature: Topology inputs controller
     Then I should receive a RestResponse with an error code 502
 
   Scenario: Rename a property input
-    When I define the property "os_arch" of the node "Compute" as input property
-    Then I should receive a RestResponse with no error
-    And The topology should have the property "os_arch" defined as input property
-    When I rename the property "os_arch" to "os_arch_new_name"
-    Then I should receive a RestResponse with no error
+    Given I define the property "os_arch" of the node "Compute" as input property
+      Then I should receive a RestResponse with no error
+    When The topology should have the property "os_arch" defined as input property
+    And I rename the property "os_arch" to "os_arch_new_name"
+      Then I should receive a RestResponse with no error
 
   Scenario: Rename property input to an already existing name hould failed
-    When I define the property "os_arch" of the node "Compute" as input property
+    Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_arch" defined as input property
     When I rename the property "os_arch" to "os_arch"
     Then I should receive a RestResponse with an error code 502
 
   Scenario: Rename a non existing property input should failed
-    When I define the property "os_arch" of the node "Compute" as input property
-    Then I should receive a RestResponse with no error
-    And The topology should have the property "os_arch" defined as input property
-    When I rename the property "os_arch_should_failed" to "os_arch_new_name"
-    Then I should receive a RestResponse with an error code 504
+    Given I define the property "os_arch" of the node "Compute" as input property
+      Then I should receive a RestResponse with no error
+    When The topology should have the property "os_arch" defined as input property
+    And I rename the property "os_arch_should_failed" to "os_arch_new_name"
+      Then I should receive a RestResponse with an error code 504
 
   Scenario: Associate the property of a node template to an input of the topology
+    Given I define the property "os_distribution" of the node "Compute" as input property
+    And I should receive a RestResponse with no error
+      Then The topology should have the property "os_distribution" defined as input property
+    When I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
+      Then I should receive a RestResponse with no error
+
+  Scenario: Associate the property of a node template to an input of the topology and rename the topology input
     When I define the property "os_distribution" of the node "Compute" as input property
-    Then I should receive a RestResponse with no error
-      And The topology should have the property "os_distribution" defined as input property
+    And I should receive a RestResponse with no error
+      Then The topology should have the property "os_distribution" defined as input property
     Then I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
-      And I should receive a RestResponse with no error
+      Then I should receive a RestResponse with no error
+    And I rename the property "os_distribution" to "os_distribution_new_name"
+       Then I should receive a RestResponse with no error
 
   Scenario: Unset the property of a node template to an input of the topology
     When I define the property "os_distribution" of the node "Compute" as input property
-    Then I should receive a RestResponse with no error
-      And The topology should have the property "os_distribution" defined as input property
-    When I unset the property "os_distribution" of the node "Compute" as input property
-      And I should receive a RestResponse with no error
-
-  Scenario: Unset the non existing property of a node template to an input of the topology should failed
-    When I unset the property "os_distribution" of the node "Compute" as input property
-      And I should receive a RestResponse with an error code 504
+    And I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
+      Then I should receive a RestResponse with no error
+    When I unset the property "os_version" of the node "Compute" as input property
+      Then I should receive a RestResponse with no error
 
 ###
 # Tests on the relationships properties inputs
 ###
  Scenario: Set the property of a relationship template to an input of the topology
     Given I define the property "fake_password" of the node "BlockStorage" as input property
-    Then I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2" to the input "fake_password"
-    Then I should receive a RestResponse with no error
+    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2" to the input "fake_password"
+      Then I should receive a RestResponse with no error
+
+ Scenario: Set the property of a relationship template of non existing node should failed
+    Given I define the property "fake_password" of the node "BlockStorage" as input property
+    And I set the property "fake_password" of a relationship "HostedOn_Compute" for the node template "BlockStorage_2_should_failed" to the input "fake_password"
+      Then I should receive a RestResponse with an error code 504
 
  Scenario: Set the property of a relationship template to an input of the topology with different constraints must fail
     Given I define the property "os_distribution" of the node "Compute" as input property
@@ -116,8 +126,13 @@ Feature: Topology inputs controller
 ###
  Scenario: Set the property of a capability template to an input of the topology
     Given I define the property "os_arch" of the node "Compute" as input property
-    When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
+    And I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
       Then I should receive a RestResponse with no error
+
+ Scenario: Set the property of a capability template of non existing node should failed
+    Given I define the property "os_arch" of the node "Compute" as input property
+    And I set the property "containee_types" of capability "compute" the node "Compute_should_failed" as input property name "os_arch"
+      Then I should receive a RestResponse with an error code 504
 
  Scenario: Set the property of a capability template to an input of the topology with different constraints must fail
     Given I define the property "os_arch" of the node "Compute" as input int property
