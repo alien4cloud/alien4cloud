@@ -168,6 +168,33 @@ public class TopologyServiceCore {
         return relationshipTypes;
     }
 
+    /**
+     * Get IndexedRelationshipType in a topology
+     *
+     * @param topology the topology to find all relationship types
+     * @return the map containing rel
+     */
+    public Map<String, IndexedCapabilityType> getIndexedCapabilityTypesFromTopology(Topology topology) {
+        Map<String, IndexedCapabilityType> capabilityTypes = Maps.newHashMap();
+        if (topology.getNodeTemplates() == null) {
+            return capabilityTypes;
+        }
+        for (Map.Entry<String, NodeTemplate> templateEntry : topology.getNodeTemplates().entrySet()) {
+            NodeTemplate template = templateEntry.getValue();
+            if (template.getCapabilities() != null) {
+                for (Map.Entry<String, Capability> capabilityEntry : template.getCapabilities().entrySet()) {
+                    Capability capability = capabilityEntry.getValue();
+                    if (!capabilityTypes.containsKey(capability.getType())) {
+                        IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+                                capability.getType(), topology.getDependencies());
+                        capabilityTypes.put(capability.getType(), capabilityType);
+                    }
+                }
+            }
+        }
+        return capabilityTypes;
+    }
+
     public IndexedNodeType getRelatedIndexedNodeType(NodeTemplate nodeTemplate, Topology topology) {
         return csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
     }

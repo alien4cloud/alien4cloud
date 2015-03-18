@@ -26,6 +26,7 @@ import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
@@ -201,10 +202,37 @@ public class FunctionEvaluatorTest {
         Assert.assertEquals(getPropertyValue(hostedOnRelTemp_2, "relName"),
                 FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp_2, builtPaaSNodeTemplates));
 
+        // getting capability properties
+        param = configOp.getInputParameters().get("valid_node_types");
+        Assert.assertEquals(getCapabilityPropertyValue(tomcatPaaS, "war_host", "valid_node_types"),
+                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+
+        // capabilities not existing in the node
+        param = configOp.getInputParameters().get("null_capa_prop1");
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        // property not existing in the capability
+        param = configOp.getInputParameters().get("null_capa_prop2");
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        // using SELF keywork to get a capability's property on a relationship should return null
+        param = configOp.getInputParameters().get("bad_valid_node_types");
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
     }
 
     private String getPropertyValue(IPaaSTemplate<? extends IndexedToscaElement> paaSTemplate, String propertyName) {
         return ((ScalarPropertyValue) paaSTemplate.getTemplate().getProperties().get(propertyName)).getValue();
+    }
+
+    private String getCapabilityPropertyValue(PaaSNodeTemplate paaSTemplate, String capaName, String propertyName) {
+        Map<String, Capability> capabilities = paaSTemplate.getNodeTemplate().getCapabilities();
+        if (capabilities != null) {
+            if (capabilities.get(capaName) != null && capabilities.get(capaName).getProperties() != null) {
+                AbstractPropertyValue capa = capabilities.get(capaName).getProperties().get(propertyName);
+                if (capa != null && capa instanceof ScalarPropertyValue) {
+                    return ((ScalarPropertyValue) capa).getValue();
+                }
+            }
+        }
+        return null;
     }
 
     @Test(expected = BadUsageKeywordException.class)

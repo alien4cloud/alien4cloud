@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.ui.form.annotation.FormProperties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Specifies an implementation artifact for interfaces or operations of a {@link NodeType node type} or {@link RelationshipType relation type}.
  * 
@@ -47,4 +49,10 @@ public class ImplementationArtifact implements IArtifact {
      * The version of the archive in which the artifact lies.
      */
     private String archiveVersion;
+
+    @Override
+    @JsonIgnore
+    public String getArtifactRepository() {
+        return null;
+    }
 }

@@ -5,4 +5,8 @@ public interface IArtifact {
     String getArtifactType();
 
     String getArtifactRef();
+
+    String getArchiveName();
+
+    String getArtifactRepository();
 }

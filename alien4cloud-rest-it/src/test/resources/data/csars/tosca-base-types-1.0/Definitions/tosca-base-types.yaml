@@ -296,6 +296,10 @@ relationship_types:
         constraints:
           - min_length: 6
           - max_length: 10
+      fake_password:
+        type: string
+        description: user_pass
+        required: false
   tosca.relationships.ConnectsTo:
     derived_from: tosca.relationships.DependsOn
     valid_sources: [ tosca.capabilities.Endpoint ]

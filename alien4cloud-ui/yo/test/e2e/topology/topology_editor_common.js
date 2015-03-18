@@ -35,6 +35,16 @@ var topologyTemplates = {
 };
 module.exports.topologyTemplates = topologyTemplates;
 
+var nodeDetailsBlocsIds = {
+  pro: 'node-details-properties',
+  att: 'node-details-attributes',
+  req: 'node-details-requirements',
+  cap: 'node-details-capabilities',
+  rel: 'node-details-relationships',
+  art: 'node-details-artifacts',
+  sca: 'node-details-scaling'
+};
+module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
 
 // Action to be executed before each topology test
 var beforeTopologyTest = function() {
@@ -65,18 +75,17 @@ var beforeTopologyTest = function() {
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show tabs in the topology page
-
 function showTopologyTab(panel, btn) {
   element(by.id(panel)).isDisplayed().then(function(isDisplay) {
     if (!isDisplay) {
-      element(by.id(btn)).click();
+      browser.actions().click(element(by.id(btn)).element(by.tagName('i'))).perform();
     }
   });
   browser.waitForAngular();
 }
 
 function showComponentsTab() {
-  showTopologyTab('slide-side-bar', 'topology-components-search');
+  showTopologyTab('closeComponentsSearch', 'topology-components-search');
 }
 module.exports.showComponentsTab = showComponentsTab;
 
@@ -96,7 +105,8 @@ function closeInputsTab() {
       element(by.id('closeInputs')).click();
     }
   });
-  browser.waitForAngular();}
+  browser.waitForAngular();
+}
 module.exports.closeInputsTab = closeInputsTab;
 
 // Add a node template
@@ -250,6 +260,9 @@ function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, r
   var sourceNode = element(by.id('rect_' + sourceNodeTemplateName));
   sourceNode.click();
 
+  // display only one bloc in node details : requirements
+  openOnlyOneBloc(nodeDetailsBlocsIds.req);
+
   // select the requirement type
   var btnAddRelationship = browser.element(by.id(btnRelationshipNameBaseId + requirementName));
   browser.actions().click(btnAddRelationship).perform();
@@ -269,6 +282,10 @@ module.exports.addRelationship = function(relationshipDescription) {
 
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
+
+  // display only one bloc in node details : relationship
+  openOnlyOneBloc(nodeDetailsBlocsIds.rel);
+
   var countRelationship = 0;
   var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
@@ -332,6 +349,9 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
+
+  // display only one bloc in node details : scaling
+  openOnlyOneBloc(nodeDetailsBlocsIds.sca);
 
   common.sendValueToXEditable('maxInstances', max, false);
   common.sendValueToXEditable('initialInstances', init, false);
@@ -511,3 +531,31 @@ var expectDeploymentWork = function(goToAppDetail, work) {
   }
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
+
+/** Close or open a specific node template details bloc */
+var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
+  var myBlock = element(by.id(blocId));
+  myBlock.isPresent().then(function isBlockPresent(present) {
+    if (present) {
+      var myBlockIcon = myBlock.element(by.tagName('i'));
+      var ngClass = myBlockIcon.getAttribute('class');
+      ngClass.then(function(classes) {
+        // test if the bloc is opened and then close it
+        if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
+          myBlockIcon.click();
+          browser.waitForAngular();
+        }
+      });
+    }
+  });
+};
+module.exports.nodeDetailsCollapse = nodeDetailsCollapse;
+
+/** Open only one bloc in the node template details */
+var openOnlyOneBloc = function openOnlyOneBloc(blocId) {
+  for (var bloc in nodeDetailsBlocsIds) {
+    var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
+    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
+  }
+};
+module.exports.openOnlyOneBloc = openOnlyOneBloc;

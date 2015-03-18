@@ -62,20 +62,15 @@ public class NodeTemplate extends AbstractTemplate {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
 
-    /**
-     * The deployment artifacts
-     */
-    private Map<String, DeploymentArtifact> artifacts;
-
     public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, String> attributes,
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
             Map<String, DeploymentArtifact> artifacts) {
         this.setType(type);
         this.setProperties(properties);
+        this.setArtifacts(artifacts);
         this.attributes = attributes;
         this.relationships = relationships;
         this.requirements = requirements;
         this.capabilities = capabilities;
-        this.artifacts = artifacts;
     }
 }

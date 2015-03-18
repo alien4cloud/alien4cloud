@@ -39,9 +39,6 @@ public class TopologyChecker implements IChecker<Topology> {
     public void check(Topology instance, ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
-        // this topology is in fact dependent on current archive
-        CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
-        topologyDeps.add(selfDependency);
         instance.setDependencies(topologyDeps);
         
         // we need that node types inherited stuffs have to be merged before we start parsing requirements

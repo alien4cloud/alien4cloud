@@ -7,6 +7,7 @@
           <div class="btn-group">
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="displayYaml()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" ng-options="appVersion.version for appVersion in appVersions"
                     class="btn" ng-change="changeVersion(selectedVersion)">
@@ -24,7 +25,7 @@
     <div id="nodetemplate-details" ng-show="selectedNodeTemplate && displays.component.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
-          <i id="nodetemplate-details-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w"></i>
+          <i id="nodetemplate-details-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
           <div class="topology-column-content-head">
@@ -123,7 +124,7 @@
           </div>
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-properties" class="topology-node-expand clickable"
                  ng-click="isPropertiesCollapsed = !isPropertiesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesCollapsed, 'fa-chevron-right': isPropertiesCollapsed}"></i>
@@ -200,7 +201,7 @@
           </div>
           <!-- Attributes -->
           <div ng-if="selectedNodeTemplate.attributes.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-attributes" class="topology-node-expand clickable"
                  ng-click="isAttributesCollapsed = !isAttributesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isAttributesCollapsed, 'fa-chevron-right': isAttributesCollapsed}"></i>
@@ -228,7 +229,7 @@
           </div>
           <!-- Requirements -->
           <div ng-if="selectedNodeTemplate.requirements.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-requirements" class="topology-node-expand clickable"
                  ng-click="isRequirementsCollapsed = !isRequirementsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequirementsCollapsed, 'fa-chevron-right': isRequirementsCollapsed}"></i>
@@ -304,7 +305,7 @@
           </div>
           <!-- Capabilities -->
           <div ng-if="selectedNodeTemplate.capabilities.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-capabilities" class="topology-node-expand clickable"
                  ng-click="isCapabilitiesCollapsed = !isCapabilitiesCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isCapabilitiesCollapsed, 'fa-chevron-right': isCapabilitiesCollapsed}"></i>
@@ -350,30 +351,67 @@
                     </div>
                   </div>
                 </div>
-                <div class="topology-level"
-                     ng-if="!emptyProps"
-                     collapse="isReqPropsCollapsed[capabilityEntry.key]">
-                  <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
-                    <tr ng-repeat="(propertyKey,propertyValue) in capabilityEntry.value.properties"
-                        ng-init="isPropertyRequired = isCapabilityPropertyRequired(propertyKey)">
-                      <td class="col-md-6" ng-class="{'property-required' : isPropertyRequired}">
-                      <span ng-if="isPropertyRequired" tooltip="{{'REQUIRED' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}} *</span>
-                      <span ng-if="!isPropertyRequired" tooltip="{{'OPTIONAL' | translate}}"
-                            tooltip-append-to-body="true">{{propertyKey}}</span>
-                      </td>
-                      <td class="col-md-6" id="p_capa_{{capabilityEntry.key}}_{{propertyKey}}" ng-class="{'property-required' : isPropertyRequired}">
-                        <span> {{propertyValue.value}} </span>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
+                <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+                  <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
+                    <td>
+                      <div class="btn-group" data-toggle="buttons">
+                        <a id="p_input_{{propertyEntry.key}}"
+                           ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                           class="btn btn-default btn-xs dropdown-toggle"
+                           ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-cogs"></i>
+                        </a>
+                        <a id="p_output_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                           tooltip-append-to-body="true">
+                          <i class="fa fa-eye"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                          <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
+                          <li>
+                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                              <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
+                            </a>
+                          </li>
+                          <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
+                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="toggleCapabilityPropertyInput(capabilityEntry.key, propertyEntry.key, inputId)">
+                              <i class="fa fa-fw"
+                                 ng-class="{'fa-check-square-o' : isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId),  'fa-square-o': !isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId)}"></i>
+                              {{inputId}}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                    <td>
+                      <property-display
+                        ng-if="isInputPropertyValue(propertyEntry.value)"
+                        ng-init="condensed = true"
+                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-value="propertyEntry.value"
+                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        editable="false"
+                        condensed="condensed">
+                      </property-display>
+                      <property-display
+                        ng-if="!isInputPropertyValue(propertyEntry.value)"
+                        ng-init="condensed = true"
+                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        property-value="propertyEntry.value"
+                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        editable="true"
+                        condensed="condensed">
+                      </property-display>
+                    </td>
+                  </tr>
+                </table>
               </div>
             </div>
           </div>
           <!-- Relationships -->
           <div ng-if="selectedNodeTemplate.relationships.length > 0">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-relationships" class="topology-node-expand clickable"
                  ng-click="isRelationshipsCollapsed = !isRelationshipsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRelationshipsCollapsed, 'fa-chevron-right': isRelationshipsCollapsed}"></i>
@@ -475,7 +513,7 @@
           </div>
           <!-- Artifacts -->
           <div ng-if="checkMapSize(selectedNodeTemplate.artifacts)">
-            <div class="topology-node-expand clickable"
+            <div id="node-details-artifacts" class="topology-node-expand clickable"
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
@@ -523,7 +561,7 @@
           </div>
           <!-- Scaling -->
           <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-              <div class="topology-node-expand clickable"
+              <div id="node-details-scaling" class="topology-node-expand clickable"
                    ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
                 <h4>
                   <i class="pull-left fa"
@@ -554,7 +592,7 @@
     <div id="catalog-box" ng-show="displays.catalog.active" class="topology-column" style="width: {{displays.catalog.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
-          <i id="catalog-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w"></i>
+          <i id="catalog-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
           <div class="topology-column-content-head">
@@ -582,7 +620,7 @@
     <div id="dependencies-box" ng-show="displays.dependencies.active" class="topology-column" style="width: {{displays.dependencies.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
-          <i id="dependencies-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w"></i>
+          <i id="dependencies-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
           <div class="topology-column-content-head">
@@ -616,7 +654,7 @@
     <div id="inputs-box" ng-show="displays.inputs.active" class="topology-column ui-resizable" style="width: {{displays.inputs.size}}px;">
       <div class="topology-column-box">
         <div class="topology-column-menu">
-          <i id="inputs-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w"></i>
+          <i id="inputs-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
         </div>
         <div class="topology-column-content">
           <div class="topology-column-content-head">

@@ -5,13 +5,13 @@
     </span>
     <table class="table table-condensed" id="outputPropertiesTable">
       <span ng-if="isMapEmpty(outputPropertiesValue) || isMapEmpty(outputAttributesValue)">
-        <i class="fa fa-eye"></i>
+        <i class="fa fa-eye padding-right"> </i>
         <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}</strong>
       </span>
       <tr>
         <td colspan="2"></td>
       </tr>
-      <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId]">
+      <tr ng-repeat="nodeId in outputNodes" ng-if="outputAttributesValue[nodeId] || outputPropertiesValue[nodeId] || outputCapabilityPropertiesValue[nodeId]">
         <td>
           <span>{{nodeId}}</span>
         </td>
@@ -24,6 +24,25 @@
                 <li ng-repeat="(outputPropertyKey, outputPropertyValue) in outputPropertiesValue[nodeId]">
                   {{outputPropertyKey}} :
                   <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="outputPropertyValue.value | linky:'_blank'"></span>
+                </li>
+              </ul>
+            </li>
+
+            <!-- Properties output properties list -->
+            <li ng-repeat="(capabilityId, outputCapabilityPropertyValue) in outputCapabilityPropertiesValue[nodeId]">
+              <strong>{{ 'capabilities' | translate }} :</strong>
+              <ul>
+                <li><strong>{{capabilityId}} :</strong>
+                  <ul>
+                    <li><strong>{{ 'properties' | translate }} :</strong>
+                      <ul>
+                        <li ng-repeat="(propertyId, propertyValue) in outputCapabilityPropertiesValue[nodeId][capabilityId]">
+                          {{propertyId}} :
+                          <span class="text-primary" id="property-{{nodeId}}-{{outputPropertyKey}}" ng-bind-html="propertyValue.value | linky:'_blank'"></span>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </li>

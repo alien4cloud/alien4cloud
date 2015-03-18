@@ -7,9 +7,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -31,6 +34,8 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
+import alien4cloud.it.setup.PrepareTestData;
+import alien4cloud.it.setup.TestDataRegistry;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.DeploymentArtifact;
@@ -47,11 +52,12 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
+import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.rest.topology.UpdateRelationshipPropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -655,10 +661,10 @@ public class TopologyStepDefinitions {
             String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
 
-        UpdateRelationshipPropertyRequest updatePropertyRequest = new UpdateRelationshipPropertyRequest();
+        UpdateIndexedTypePropertyRequest updatePropertyRequest = new UpdateIndexedTypePropertyRequest();
         updatePropertyRequest.setPropertyName(propertyName);
         updatePropertyRequest.setPropertyValue(newValue);
-        updatePropertyRequest.setRelationshipType("tosca.relationships.HostedOn");
+        updatePropertyRequest.setType("tosca.relationships.HostedOn");
         String json = jsonMapper.writeValueAsString(updatePropertyRequest);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(
@@ -679,6 +685,14 @@ public class TopologyStepDefinitions {
 
     @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" and store the related topology as a SPEL context$")
     public void searchForTopologyTemplateByName(String topologyTemplateName) throws Throwable {
+        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName);
+        assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
+        String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
+        RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
+        Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
+    }
+
+    private String getTopologyIdFromTemplateName(String topologyTemplateName) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
         String topologyId = null;
@@ -688,10 +702,24 @@ public class TopologyStepDefinitions {
                 topologyId = map.get("topologyId").toString();
             }
         }
+        return topologyId;
+    }
+
+    @And("^I export the YAML from topology template named \"([^\"]*)\" and build a test dataset named \"([^\"]*)\"$")
+    public void exportTopologyYamlAndAddItInTestData(String topologyTemplateName, String testDataName) throws Throwable {
+        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName);
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
-        response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
-        RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
-        Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
+        String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/yaml");
+        RestResponse<String> restResponse = alien4cloud.it.utils.JsonTestUtil.read(response, String.class);
+        String yaml = restResponse.getData();
+        Path dir = Files.createTempDirectory("yamlTopo");
+        Path filePath = Files.createFile(Paths.get(dir.toAbsolutePath() + File.separator + "service-template.yaml"));
+        FileUtils.writeStringToFile(filePath.toFile(), yaml);
+        Path csarPath = Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH, testDataName + ".csar");
+        FileUtil.zip(dir, csarPath);
+        FileUtil.delete(dir);
+        TestDataRegistry.CONDITION_TO_PATH.put(testDataName, csarPath);
+
     }
 
 }
