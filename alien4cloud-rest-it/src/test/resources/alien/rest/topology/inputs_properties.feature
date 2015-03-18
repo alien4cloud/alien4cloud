@@ -14,19 +14,52 @@ Feature: Topology inputs controller
     When I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_arch" defined as input property
-    
+
+  Scenario: Define a property as input when the input already exist should failed
+    When I define the property "os_arch" of the node "Compute" as input property
+    Then I should receive a RestResponse with no error
+    And The topology should have the property "os_arch" defined as input property
+    When I define the property "os_arch" of the node "Compute" as input property
+    Then I should receive a RestResponse with an error code 502
+
   Scenario: Remove an input property
     Given I define the property "os_arch" of the node "Compute" as input property
     When I remove the input property "os_arch"
     Then I should receive a RestResponse with no error
     And The topology should not have the property "os_arch" defined as input property
-    
-  Scenario: Define a property as input with an alreading existing name
+
+  Scenario: Remove an non existing input property should failed
+    Given I define the property "os_arch" of the node "Compute" as input property
+    When I remove the input property "os_arch_should-failed"
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Define a property as input with an alreading existing name should failed
     Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with an error code 502
-    
+
+  Scenario: Rename a property input
+    When I define the property "os_arch" of the node "Compute" as input property
+    Then I should receive a RestResponse with no error
+    And The topology should have the property "os_arch" defined as input property
+    When I rename the property "os_arch" to "os_arch_new_name"
+    Then I should receive a RestResponse with no error
+
+  Scenario: Rename property input to an already existing name hould failed
+    When I define the property "os_arch" of the node "Compute" as input property
+    Then I should receive a RestResponse with no error
+    And The topology should have the property "os_arch" defined as input property
+    When I rename the property "os_arch" to "os_arch"
+    Then I should receive a RestResponse with an error code 502
+
+  Scenario: Rename a non existing property input should failed
+    When I define the property "os_arch" of the node "Compute" as input property
+    Then I should receive a RestResponse with no error
+    And The topology should have the property "os_arch" defined as input property
+    When I rename the property "os_arch_should_failed" to "os_arch_new_name"
+    Then I should receive a RestResponse with an error code 504
+
   Scenario: Associate the property of a node template to an input of the topology
     When I define the property "os_distribution" of the node "Compute" as input property
     Then I should receive a RestResponse with no error

@@ -35,6 +35,14 @@ public class InputPropertiesStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
+    @When("^I rename the property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_rename_the_property_to(String oldInputId, String newInputId) throws Throwable {
+        String url = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), oldInputId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("newInputId", newInputId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().putUrlEncoded(url, nvps));
+    }
+
     @Then("^The topology should have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_have_the_property_of_the_node_defined_as_input_property(String inputId) throws Throwable {
         TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
