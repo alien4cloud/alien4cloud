@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: topology-capability-io
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+topology_template:
+  description: |
+    A node template has a capability with input/ouput
+    import/export feature
+  inputs:
+    valid_node_types:
+      type: string
+      required: true
+  node_templates:
+    Compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        host:
+          properties:
+            valid_node_types: { get_input: valid_node_types }
+        scalable:
+          properties:
+            max_intances: 1
+            default_instances: 1
+            min_intances: 1
+  outputs:
+    Compute_host_valid_node_types:
+      value: { get_property: [ Compute, host, valid_node_types ] }

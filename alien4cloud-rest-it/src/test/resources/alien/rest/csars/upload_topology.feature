@@ -140,3 +140,13 @@ Scenario: Upload CSAR containing embeded topology template with relationship pro
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
   
+Scenario: Upload CSAR containing embeded topology template with capability property using inputs and ouputs
+  Given I upload the archive "tosca-normative-types"
+  When I upload the archive "topology-capability-io"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos 
+  And If I search for topology templates I can find one with the name "topology-capability-io-0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL expression "outputCapabilityProperties['Compute']['host'][0]" should return "valid_node_types"
+  And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].function" should return "get_input"
+  And The SPEL boolean expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size() == 1" should return true
+  And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters[0]" should return "valid_node_types"     
+  

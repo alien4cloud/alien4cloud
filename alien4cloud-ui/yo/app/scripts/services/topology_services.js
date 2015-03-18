@@ -87,6 +87,35 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var setInputToCapabilityProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/input', {}, {
+      'set': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'unset': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          inputId: '@inputId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var getPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/property/:propertyId/inputcandidats', {}, {
       'getCandidates': {
         method: 'GET',
@@ -109,6 +138,21 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
           nodeTemplateName: '@nodeTemplateName',
           propertyId: '@propertyId',
           relationshipId: '@relationshipId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var getCapabilityPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/inputcandidats', {}, {
+      'getCandidates': {
+        method: 'GET',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
         },
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
@@ -244,7 +288,46 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
           topologyId: '@topologyId',
           nodeTemplateName: '@nodeTemplateName',
           relationshipName: '@relationshipName',
-          updateRelationshipPropertyRequest: '@updateRelationshipPropertyRequest'
+          updateIndexedTypePropertyRequest: '@updateIndexedTypePropertyRequest'
+        }
+      }
+    });
+
+    var updateCapabilityProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/updateProperty', {}, {
+      'updateProperty': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          capabilityId: '@capabilityId',
+          updateIndexedTypePropertyRequest: '@updateIndexedTypePropertyRequest'
+        }
+      }
+    });
+
+    var updateCapabilityOutputProperty = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/capability/:capabilityId/property/:propertyId/isOutput', {}, {
+      'add': {
+        method: 'POST',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      },
+      'remove': {
+        method: 'DELETE',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          propertyId: '@propertyId',
+          capabilityId: '@capabilityId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
         }
       }
     });
@@ -253,6 +336,10 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       method: 'GET'
     });
 
+    var yaml = $resource('rest/topologies/:topologyId/yaml', {}, {
+      method: 'GET'
+    });
+    
     var replacements = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/replace', {}, {
       'get': {
         method: 'GET'
@@ -316,15 +403,24 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'relationship': {
           'getInputCandidates': getRelationshipPropertyInputCandidates,
           'setInputs': setInputToRelationshipProperty
+        },
+        'capability': {
+          'getInputCandidates': getCapabilityPropertyInputCandidates,
+          'setInputs': setInputToCapabilityProperty,
+          'outputProperties': updateCapabilityOutputProperty
         }
       },
       'topologyScalingPoliciesDAO': topologyScalingPoliciesDAO,
       'relationshipDAO': relationshipDAO,
+      'capability': {
+        'updateProperty': updateCapabilityProperty.updateProperty
+      },
       'relationship': {
         'updateName': updateRelationshipName.updateName,
         'updateProperty': updateRelationshipProperty.updateProperty
       },
       'isValid': isValid.get,
+      'getYaml': yaml.get,
       'cloud': cloudResource
     };
   }

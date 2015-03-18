@@ -19,6 +19,11 @@ public class OutputPropertiesStepDefinitions {
         return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/property/" + propertyName + "/" + propertyType;
     }
 
+    private String getCapabilityPropertyUrl(String propertyName, String capabilityId, String nodeName) {
+        return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/capability/" + capabilityId + "/property/"
+                + propertyName + "/isOutput";
+    }
+
     private String getAttributesUrl(String attributeName, String nodeName) {
         return "/rest/topologies/" + Context.getInstance().getTopologyId() + "/nodetemplates/" + nodeName + "/attributes/" + attributeName + "/output";
     }
@@ -38,6 +43,34 @@ public class OutputPropertiesStepDefinitions {
         Set<String> outputPropertiesOfNode = outputProperties.get(nodeName);
         Assert.assertNotNull(outputPropertiesOfNode);
         Assert.assertTrue(outputPropertiesOfNode.contains(propertyName));
+    }
+
+    @Then("^The topology should have the capability property \"([^\"]*)\" of the capability \"([^\"]*)\" for the node \"([^\"]*)\" defined as output property$")
+    public void The_topology_should_have_the_capability_property_of_the_capability_for_the_node_defined_as_output_property(String propertyName,
+            String capabilityId, String nodeName) throws Throwable {
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+                TopologyDTO.class).getData();
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topologyDTO.getTopology().getOutputCapabilityProperties();
+        Assert.assertNotNull(outputCapabilityProperties);
+        Map<String, Set<String>> outputPropertiesOfNode = outputCapabilityProperties.get(nodeName);
+        Assert.assertNotNull(outputPropertiesOfNode);
+        Set<String> outputPropertiesOfCapability = outputPropertiesOfNode.get(capabilityId);
+        Assert.assertNotNull(outputPropertiesOfCapability);
+        Assert.assertTrue(outputPropertiesOfCapability.contains(propertyName));
+    }
+
+    @Then("^The topology should not have the capability property \"([^\"]*)\" of the capability \"([^\"]*)\" for the node \"([^\"]*)\" defined as output property$")
+    public void The_topology_should_not_have_the_capability_property_of_the_capability_for_the_node_defined_as_output_property(String propertyName,
+            String capabilityId, String nodeName) throws Throwable {
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+                TopologyDTO.class).getData();
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topologyDTO.getTopology().getOutputCapabilityProperties();
+        Assert.assertNotNull(outputCapabilityProperties);
+        Map<String, Set<String>> outputPropertiesOfNode = outputCapabilityProperties.get(nodeName);
+        Assert.assertNotNull(outputPropertiesOfNode);
+        Set<String> outputPropertiesOfCapability = outputPropertiesOfNode.get(capabilityId);
+        Assert.assertNotNull(outputPropertiesOfCapability);
+        Assert.assertFalse(outputPropertiesOfCapability.contains(propertyName));
     }
 
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as non output property$")
@@ -91,5 +124,18 @@ public class OutputPropertiesStepDefinitions {
                 Assert.assertFalse(outputAttributesOfNode.contains(attributeName));
             }
         }
+    }
+
+    @When("^I define the property \"([^\"]*)\" of the capability \"([^\"]*)\" of the node \"([^\"]*)\" as output property$")
+    public void I_define_the_property_of_the_capability_of_the_node_as_output_property(String propertyName, String capabilityId, String nodeName)
+            throws Throwable {
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded(getCapabilityPropertyUrl(propertyName, capabilityId, nodeName), new ArrayList<NameValuePair>()));
+    }
+
+    @When("^I define the property \"([^\"]*)\" of the capability \"([^\"]*)\" of the node \"([^\"]*)\" as non output property$")
+    public void I_define_the_property_of_the_capability_of_the_node_as_non_output_property(String propertyName, String capabilityId, String nodeName)
+            throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(getCapabilityPropertyUrl(propertyName, capabilityId, nodeName)));
     }
 }

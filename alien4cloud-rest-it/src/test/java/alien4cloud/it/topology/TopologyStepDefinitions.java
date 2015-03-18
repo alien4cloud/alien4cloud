@@ -47,8 +47,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
+import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.rest.topology.UpdateRelationshipPropertyRequest;
 import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -655,10 +655,10 @@ public class TopologyStepDefinitions {
             String nodeTemplateName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
 
-        UpdateRelationshipPropertyRequest updatePropertyRequest = new UpdateRelationshipPropertyRequest();
+        UpdateIndexedTypePropertyRequest updatePropertyRequest = new UpdateIndexedTypePropertyRequest();
         updatePropertyRequest.setPropertyName(propertyName);
         updatePropertyRequest.setPropertyValue(newValue);
-        updatePropertyRequest.setRelationshipType("tosca.relationships.HostedOn");
+        updatePropertyRequest.setType("tosca.relationships.HostedOn");
         String json = jsonMapper.writeValueAsString(updatePropertyRequest);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(
