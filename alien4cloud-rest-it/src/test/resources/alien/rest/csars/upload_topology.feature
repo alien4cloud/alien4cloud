@@ -39,7 +39,7 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementName" should return "host"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
-  And The SPEL boolean expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size() == 1" should return true
+  And The SPEL boolean expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size() == 2" should return true
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "unfuckingbelievable"
 
 Scenario: Re-Upload CSAR containing apache types and embeded topology template
@@ -71,7 +71,7 @@ Scenario: Re-Upload CSAR containing apache types and embeded topology template
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementName" should return "host"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].requirementType" should return "tosca.capabilities.Container"
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].targetedCapabilityName" should return "compute"
-  And The SPEL boolean expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size() == 1" should return true
+  And The SPEL boolean expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties.size() == 2" should return true
   And The SPEL expression "nodeTemplates['apache'].relationships['hostedOnCompute'].properties['password'].value" should return "unfuckingbelievable"
 
   
