@@ -97,7 +97,7 @@ topology_template:
 #end## of capabilityEntry iteration
 #end## if hasCapabilitiesContainingNotNullProperties
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($nodeTemplateEntry.value.artifacts))
-#      artifacts:
+      artifacts:
 #foreach($artifactEntry in ${nodeTemplateEntry.value.artifacts.entrySet()})
         ${artifactEntry.key}:
           implementation: ${artifactEntry.value.artifactRef}
