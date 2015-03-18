@@ -261,7 +261,7 @@ function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, r
   sourceNode.click();
 
   // display only one bloc in node details : requirements
-  openOnlyOneBloc(nodeDetailsBlocsIds.req);
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.req);
 
   // select the requirement type
   var btnAddRelationship = browser.element(by.id(btnRelationshipNameBaseId + requirementName));
@@ -284,7 +284,7 @@ module.exports.addRelationship = function(relationshipDescription) {
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
 
   // display only one bloc in node details : relationship
-  openOnlyOneBloc(nodeDetailsBlocsIds.rel);
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.rel);
 
   var countRelationship = 0;
   var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
@@ -349,9 +349,9 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
-
+  browser.waitForAngular();
   // display only one bloc in node details : scaling
-  openOnlyOneBloc(nodeDetailsBlocsIds.sca);
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
 
   common.sendValueToXEditable('maxInstances', max, false);
   common.sendValueToXEditable('initialInstances', init, false);
@@ -385,7 +385,7 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
   // select "Add node tab"
   showComponentsTab();
   selectNodeAndCheckProperty(nodeTemplateName, propertyName);
-
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.pro);
   var propertyElement = element(by.id('p_' + propertyName));
   var spanPropertyValue = propertyElement.element(by.tagName('span'));
   spanPropertyValue.click();
@@ -552,10 +552,10 @@ var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
 module.exports.nodeDetailsCollapse = nodeDetailsCollapse;
 
 /** Open only one bloc in the node template details */
-var openOnlyOneBloc = function openOnlyOneBloc(blocId) {
+var collapseNodeDetailsBloc = function collapseNodeDetailsBloc(blocId) {
   for (var bloc in nodeDetailsBlocsIds) {
     var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
     nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
   }
 };
-module.exports.openOnlyOneBloc = openOnlyOneBloc;
+module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;

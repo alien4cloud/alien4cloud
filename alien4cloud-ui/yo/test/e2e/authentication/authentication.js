@@ -71,7 +71,7 @@ function logout() {
     // Logout action
     var btnLogout = browser.element(by.name('btn-logout'));
     browser.actions().click(btnLogout).perform();
-    browser.waitForAngular();
+//    browser.waitForAngular();
   });
 
 }

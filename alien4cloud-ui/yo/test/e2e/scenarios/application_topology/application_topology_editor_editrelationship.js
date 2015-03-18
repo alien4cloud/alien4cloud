@@ -28,7 +28,7 @@ describe('Editing Relationship name', function() {
     nodeToEdit.click();
 
     // display only one bloc in node details : relationships
-    topologyEditorCommon.openOnlyOneBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
+    topologyEditorCommon.collapseNodeDetailsBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
 
     var relashionshipDiv = element(by.id('relationship_hostedOnCompute'));
     var relNameSpan = relashionshipDiv.element(by.css('span[editable-text]'));
@@ -70,7 +70,7 @@ describe('Editing Relationship name', function() {
     browser.waitForAngular();
 
     // display only one bloc in node details : relationships
-    topologyEditorCommon.openOnlyOneBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
+    topologyEditorCommon.collapseNodeDetailsBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
 
     var relashionshipPropertyDiv = element(by.id('relationshipProperties_hostedOnCompute'));
     expect(relashionshipPropertyDiv.isDisplayed()).toBe(true);
