@@ -51,6 +51,10 @@ Feature: Set/Remove Out properties
     Then I should receive a RestResponse with no error
     And The topology should not have the capability property "containee_types" of the capability "compute" for the node "Compute" defined as output property
 
-   Scenario: Define an non existing capability property as output
+  Scenario: Define an non existing capability property as output should failed
     When I define the property "containee_types_should-failed" of the capability "compute" of the node "Compute" as output property
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Define an existing property of non existing capability as output should failed
+    When I define the property "containee_types" of the capability "compute_should_failed" of the node "Compute" as output property
     Then I should receive a RestResponse with an error code 504

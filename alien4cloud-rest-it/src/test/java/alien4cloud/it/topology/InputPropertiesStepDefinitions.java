@@ -88,4 +88,21 @@ public class InputPropertiesStepDefinitions {
         Context.getInstance().buildEvaluationContext(candidates);
     }
 
+    @When("^I set the property \"([^\"]*)\" of capability \"([^\"]*)\" the node \"([^\"]*)\" as input property name \"([^\"]*)\"$")
+    public void I_define_the_property_of_capability_the_node_as_input_property(String propertyId, String capabilityId, String nodeTemplateId, String inputId)
+            throws Throwable {
+        String url = String.format("/rest/topologies/%s/nodetemplates/%s/capability/%s/property/%s/input", Context.getInstance().getTopologyId(),
+                nodeTemplateId, capabilityId, propertyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("inputId", inputId));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postUrlEncoded(url, nvps));
+    }
+
+    @When("^I unset the property \"([^\"]*)\" of capability \"([^\"]*)\" the node \"([^\"]*)\" as input property$")
+    public void I_define_the_property_of_capability_the_node_as_input_property(String propertyId, String capabilityId, String nodeTemplateId)
+            throws Throwable {
+        String url = String.format("/rest/topologies/%s/nodetemplates/%s/capability/%s/property/%s/input", Context.getInstance().getTopologyId(),
+                nodeTemplateId, capabilityId, propertyId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(url));
+    }
 }

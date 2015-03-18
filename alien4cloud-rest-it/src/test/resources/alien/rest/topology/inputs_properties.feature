@@ -33,7 +33,7 @@ Feature: Topology inputs controller
       And The topology should have the property "os_distribution" defined as input property
     Then I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
       And I should receive a RestResponse with no error
-    
+
   Scenario: Associate the property of a relationship template to an input of the topology with different constraints must fail
     When I define the property "os_distribution" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
@@ -43,7 +43,23 @@ Feature: Topology inputs controller
 
   # TODO add : Associate the property of a relationship template to an input of the topology
   # on relationship hostedOn only password is defined in this test
-  
+
+ Scenario: Set the property of a capability template to an input of the topology
+    Given I define the property "os_arch" of the node "Compute" as input property
+    When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
+    Then I should receive a RestResponse with no error
+
+ Scenario: Set the property of a capability template to an non input of the topology should failed
+    Given I define the property "os_arch" of the node "Compute" as input property
+    When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch2"
+    Then I should receive a RestResponse with an error code 504
+
+ Scenario: Unset the property of a capability template to an input of the topology
+    Given I define the property "os_arch" of the node "Compute" as input property
+    When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
+    When I unset the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
+    Then I should receive a RestResponse with no error
+
   Scenario: The input candidates are well managed    
     Given I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
     When I ask for the input candidate for the node template "Compute2" and property "os_distribution"

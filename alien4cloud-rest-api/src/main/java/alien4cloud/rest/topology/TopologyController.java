@@ -845,15 +845,13 @@ public class TopologyController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Activate a capability property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String propertyId, @PathVariable String capabilityId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-
+    /*
+     * Get the output capability properties of an topology or throw an exception if an element is not found
+     */
+    private Map<String, Map<String, Set<String>>> getOutputCapabilityPropertiesOrThrowException(Topology topology, String nodeTemplateName, String propertyId,
+            String capabilityId) {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topology.getId(), nodeTemplateName, nodeTemplates);
 
         if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
             throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
@@ -866,7 +864,18 @@ public class TopologyController {
             throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
         }
 
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        return topology.getOutputCapabilityProperties();
+    }
+
+    @ApiOperation(value = "Activate a capability property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String propertyId, @PathVariable String capabilityId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
+                capabilityId);
         if (outputCapabilityProperties == null) {
             Set<String> outputProperties = Sets.newHashSet(propertyId);
             Map<String, Set<String>> capabilityOutputProperties = Maps.newHashMap();
@@ -886,7 +895,8 @@ public class TopologyController {
         } else if (!outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
             outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).add(propertyId);
         } else {
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
+            // the property is already set as an output property
+            return RestResponseBuilder.<Void> builder().build();
         }
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
@@ -901,31 +911,18 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
-
-        if (nodeTemplate.getCapabilities() == null || nodeTemplate.getCapabilities().get(capabilityId) == null) {
-            throw new NotFoundException("Capability " + capabilityId + " do not exist for the node " + nodeTemplateName);
-        }
-
-        Capability capabilityTemplate = nodeTemplate.getCapabilities().get(capabilityId);
-        IndexedCapabilityType indexedCapabilityType = csarRepoSearch.getRequiredElementInDependencies(IndexedCapabilityType.class,
-                capabilityTemplate.getType(), topology.getDependencies());
-        if (indexedCapabilityType.getProperties() == null || !indexedCapabilityType.getProperties().containsKey(propertyId)) {
-            throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
-        }
-
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
+                capabilityId);
         if (outputCapabilityProperties == null || !outputCapabilityProperties.containsKey(nodeTemplateName)
                 || !outputCapabilityProperties.get(nodeTemplateName).containsKey(capabilityId)
                 || !outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
             return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
-        } else {
-            outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).remove(propertyId);
-            topology.setOutputCapabilityProperties(outputCapabilityProperties);
-            alienDAO.save(topology);
         }
 
+        outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).remove(propertyId);
+
+        topology.setOutputCapabilityProperties(outputCapabilityProperties);
+        alienDAO.save(topology);
         return RestResponseBuilder.<Void> builder().build();
     }
 
