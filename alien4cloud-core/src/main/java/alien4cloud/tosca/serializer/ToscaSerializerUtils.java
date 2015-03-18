@@ -30,7 +30,7 @@ import alien4cloud.model.topology.NodeTemplate;
 /**
  * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
  */
-public class VelocitySupport {
+public class ToscaSerializerUtils {
 
     private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
 

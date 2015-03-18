@@ -41,7 +41,7 @@ public class VelocityUtil {
         for (Entry<String, ?> contextEntry : properties.entrySet()) {
             context.put(contextEntry.getKey(), contextEntry.getValue());
         }
-        context.put("utils", new VelocitySupport());
+        context.put("utils", new ToscaSerializerUtils());
 
         try {
             template.merge(context, outputWriter);
