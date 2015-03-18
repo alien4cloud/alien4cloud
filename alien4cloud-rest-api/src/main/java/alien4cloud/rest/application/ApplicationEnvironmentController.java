@@ -53,7 +53,7 @@ import alien4cloud.security.Role;
 import alien4cloud.security.UserService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;

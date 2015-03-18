@@ -19,12 +19,9 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
+import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
-import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
+import alien4cloud.utils.jackson.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -119,4 +116,9 @@ public class Cloud implements ISecuredResource {
     private Map<String, String> networkMapping = Maps.newHashMap();
 
     private Map<String, String> storageMapping = Maps.newHashMap();
+
+    @Override
+    public Class<CloudRole> roleEnum() {
+        return CloudRole.class;
+    }
 }

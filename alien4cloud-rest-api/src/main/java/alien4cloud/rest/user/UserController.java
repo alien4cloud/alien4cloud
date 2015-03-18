@@ -30,7 +30,7 @@ import alien4cloud.security.Role;
 import alien4cloud.security.UpdateUserRequest;
 import alien4cloud.security.User;
 import alien4cloud.security.UserService;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;

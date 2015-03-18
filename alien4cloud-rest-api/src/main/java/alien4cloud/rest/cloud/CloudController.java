@@ -41,7 +41,7 @@ import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;

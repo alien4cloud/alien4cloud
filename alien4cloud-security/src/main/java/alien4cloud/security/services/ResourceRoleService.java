@@ -1,4 +1,4 @@
-package alien4cloud.utils.services;
+package alien4cloud.security.services;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,12 +13,6 @@ import org.springframework.stereotype.Service;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.security.ApplicationEnvironmentRole;
-import alien4cloud.security.ApplicationRole;
-import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.utils.TypeScanner;
 
@@ -56,7 +50,7 @@ public class ResourceRoleService {
         }
 
         // Perform some verification and format the role
-        role = formatRole(resource.getClass(), role);
+        role = formatRole(resource, role);
         Set<String> userRoles = userRolesMap.get(username);
         if (userRoles == null) {
             userRoles = Sets.newHashSet();
@@ -86,7 +80,7 @@ public class ResourceRoleService {
             Set<String> userRoles = userRolesMap.get(username);
             if (userRoles != null) {
                 // Perform some verification and format the role
-                role = formatRole(resource.getClass(), role);
+                role = formatRole(resource, role);
                 if (userRoles.remove(role)) {
                     if (userRoles.isEmpty()) {
                         // If an user does not have any more role, we remove it from the resource
@@ -146,7 +140,7 @@ public class ResourceRoleService {
             Set<String> groupRoles = groupRolesMap.get(groupId);
             if (groupRoles != null) {
                 // Perform some verification and format the role
-                role = formatRole(resource.getClass(), role);
+                role = formatRole(resource, role);
                 if (groupRoles.remove(role)) {
                     if (groupRoles.isEmpty()) {
                         // If a group do not have any more role, we remove it from the resource
@@ -166,24 +160,18 @@ public class ResourceRoleService {
     /**
      * Clean the role string
      *
-     * @param role
-     * @return
+     * @param resource The resource for which to format a role string.
+     * @param role The role string to check and format.
+     * @return The formatted and checked role string. An exception is thrown in case the role is not a valid role for the given resource.
      */
-    private String formatRole(Class<?> resource, String role) {
+    private String formatRole(ISecuredResource resource, String role) {
         if (role == null || role.toString().trim().isEmpty()) {
             throw new NotFoundException("Resource Role [" + role + "] is empty");
         }
+
         String goodRoleToAdd = role.toString().toUpperCase();
         try {
-            if (resource.equals(Application.class)) {
-                ApplicationRole.valueOf(goodRoleToAdd);
-            } else if (resource.equals(Cloud.class)) {
-                CloudRole.valueOf(goodRoleToAdd);
-            } else if (resource.equals(ApplicationEnvironment.class)) {
-                ApplicationEnvironmentRole.valueOf(goodRoleToAdd);
-            } else {
-                throw new NotFoundException("Resource type [" + resource + "] is not handled yet");
-            }
+            Enum.valueOf(resource.roleEnum(), goodRoleToAdd);
 
         } catch (IllegalArgumentException e) {
             throw new NotFoundException("Resource role [" + role + "] cannot be found", e);

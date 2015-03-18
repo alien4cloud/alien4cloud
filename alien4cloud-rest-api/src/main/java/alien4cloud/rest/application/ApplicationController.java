@@ -56,7 +56,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMa
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;

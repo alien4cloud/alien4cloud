@@ -29,7 +29,7 @@ import alien4cloud.security.groups.Group;
 import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.groups.UpdateGroupRequest;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 
