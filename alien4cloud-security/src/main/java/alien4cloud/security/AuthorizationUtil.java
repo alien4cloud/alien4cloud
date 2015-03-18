@@ -182,7 +182,15 @@ public final class AuthorizationUtil {
      */
     public static User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) auth.getPrincipal();
+        User user = null;
+        if (auth != null) {
+            if (auth.getPrincipal() instanceof String) {
+                user = new User();
+                user.setUsername(auth.getPrincipal().toString());
+            } else {
+                user = (User) auth.getPrincipal();
+            }
+        }
         return user;
     }
 
