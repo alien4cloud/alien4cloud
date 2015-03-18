@@ -27,9 +27,12 @@ import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 
+/**
+ * Tools for serializing in YAML/TOSCA. ALl methods should be static but did not found how to use statics from velocity.
+ */
 public class VelocitySupport {
 
-    private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[:\\[\\]\\{\\}-].*");
+    private static Pattern ESCAPE_PATTERN = Pattern.compile(".*[,:\\[\\]\\{\\}-].*");
 
     public boolean collectionIsNotEmpty(Collection<?> c) {
         return c != null && !c.isEmpty();
@@ -40,7 +43,7 @@ public class VelocitySupport {
     }
 
     /**
-     * Render the scalar: when it contain '[' or ']' or '{' or '}' or ':' or '-', then quote the scalar.
+     * Render the scalar: when it contain '[' or ']' or '{' or '}' or ':' or '-' or ',', then quote the scalar.
      */
     public String renderScalar(String scalar) {
         if (scalar == null) {
@@ -130,7 +133,7 @@ public class VelocitySupport {
         return getCsvToString(list, false);
     }
 
-    private String getCsvToString(List<?> list, boolean renderScalar) {
+    public String getCsvToString(List<?> list, boolean renderScalar) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         if (list != null) {
@@ -191,20 +194,20 @@ public class VelocitySupport {
             builder.append(((MinLengthConstraint) c).getMinLength());
         } else if (c instanceof PatternConstraint) {
             builder.append("pattern: ");
-            builder.append(((PatternConstraint) c).getPattern());
+            builder.append(renderScalar(((PatternConstraint) c).getPattern()));
         } else if (c instanceof EqualConstraint) {
             builder.append("equal: ");
             builder.append(renderScalar(((EqualConstraint) c).getEqual()));
         } else if (c instanceof InRangeConstraint) {
             builder.append("in_range: ");
-            builder.append("[ ");
+            builder.append("[");
             builder.append(getCsvToString(((InRangeConstraint) c).getInRange(), true));
-            builder.append(" ]");
+            builder.append("]");
         } else if (c instanceof ValidValuesConstraint) {
             builder.append("valid_values: ");
-            builder.append("[ ");
+            builder.append("[");
             builder.append(getCsvToString(((ValidValuesConstraint) c).getValidValues(), true));
-            builder.append(" ]");
+            builder.append("]");
         }
         return builder.toString();
     }
