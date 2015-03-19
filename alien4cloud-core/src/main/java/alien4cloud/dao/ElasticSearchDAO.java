@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.application.Application;
@@ -40,7 +41,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Component("alien-es-dao")
 public class ElasticSearchDAO extends ESGenericSearchDAO {
+
     public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
+    public static final String ALIEN_AUDIT_INDEX = "alienaudit";
 
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
@@ -58,6 +61,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
 
         initIndices(TOSCA_ELEMENT_INDEX, false, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
         initIndices(TOSCA_ELEMENT_INDEX, false, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
+        initIndices(ALIEN_AUDIT_INDEX, false, AuditTrace.class);
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);

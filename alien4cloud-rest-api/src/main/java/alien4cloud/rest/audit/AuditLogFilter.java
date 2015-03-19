@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import alien4cloud.rest.audit.model.AuditTrace;
+import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.User;
 
