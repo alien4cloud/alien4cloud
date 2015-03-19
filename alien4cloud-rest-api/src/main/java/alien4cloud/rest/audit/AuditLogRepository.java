@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
 
-import alien4cloud.rest.audit.model.AuditTrace;
+import alien4cloud.audit.model.AuditTrace;
 
 import com.google.common.collect.Lists;
 
