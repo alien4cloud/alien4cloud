@@ -294,7 +294,7 @@ public class TopologyService {
         // validate requirements lowerBounds
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
-        // validate required properties
+        // validate required properties (properties of NodeTemplate, Relationship and Capability)
         dto.addToTaskList(validateProperties(topology, inputs));
 
         dto.setValid(CollectionUtils.isEmpty(dto.getTaskList()));
@@ -560,26 +560,83 @@ public class TopologyService {
             task.setCode(TaskCode.PROPERTY_REQUIRED);
             task.setComponent(relatedIndexedNodeType);
             task.setProperties(Lists.<String> newArrayList());
-            Map<String, PropertyDefinition> relatedProperties = relatedIndexedNodeType.getProperties();
-            for (Entry<String, AbstractPropertyValue> propertyEntry : nodeTemplate.getProperties().entrySet()) {
-                PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
-                // check value
-                AbstractPropertyValue value = propertyEntry.getValue();
-                String propertyValue = null;
-                if (value instanceof ScalarPropertyValue) {
-                    propertyValue = ((ScalarPropertyValue) value).getValue();
-                } else if (value instanceof FunctionPropertyValue && inputs != null) {
-                    propertyValue = inputs.get(((FunctionPropertyValue) value).getTemplateName());
-                }
-                if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
-                    task.getProperties().add(propertyEntry.getKey());
+
+            // Check the properties of node template
+            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), inputs, task);
+
+            // Check relationships PD
+            if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
+                Collection<RelationshipTemplate> relationships = nodeTemplate.getRelationships().values();
+                for (RelationshipTemplate relationship : relationships) {
+                    if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+                        continue;
+                    }
+                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), inputs, task);
                 }
             }
+
+            // Check capabilities PD
+            if (nodeTemplate.getCapabilities() != null && !nodeTemplate.getCapabilities().isEmpty()) {
+                Collection<Capability> capabilities = nodeTemplate.getCapabilities().values();
+                for (Capability capability : capabilities) {
+                    if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
+                        continue;
+                    }
+                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), inputs, task);
+                }
+            }
+
             if (CollectionUtils.isNotEmpty(task.getProperties())) {
                 toReturnTaskList.add(task);
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
+    }
+
+    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
+            Map<String, String> inputs, PropertiesTask task) {
+        for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+            PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
+            // check value
+            AbstractPropertyValue value = propertyEntry.getValue();
+            String propertyValue = null;
+            if (value instanceof ScalarPropertyValue) {
+                propertyValue = ((ScalarPropertyValue) value).getValue();
+            } else if (value instanceof FunctionPropertyValue && inputs != null) {
+                propertyValue = inputs.get(((FunctionPropertyValue) value).getTemplateName());
+            }
+            if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
+                task.getProperties().add(propertyEntry.getKey());
+            }
+        }
+    }
+
+    private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
+
+        for (Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
+            IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityEntry
+                    .getValue().getType(), topology.getDependencies());
+            if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
+                relatedProperties.putAll(indexedCapabilityType.getProperties());
+            }
+        }
+
+        return relatedProperties;
+    }
+
+    private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
+
+        for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
+            IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
+                    relationshipTemplateEntry.getValue().getType(), topology.getDependencies());
+            if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
+                relatedProperties.putAll(indexedRelationshipType.getProperties());
+            }
+        }
+
+        return relatedProperties;
     }
 
     private int countRelationshipsForRequirement(String requirementName, String requirementType, Map<String, RelationshipTemplate> relationships) {
