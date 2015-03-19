@@ -257,11 +257,8 @@ function addRelationshipSelectCapability(targetNumber, targetNodeTemplateName, t
 
 function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, requirementName, relationshipTypeId, relationName, targetedCapabilityName, newVersion, newId) {
   // select the node template
-  var sourceNode = element(by.id('rect_' + sourceNodeTemplateName));
-  sourceNode.click();
-
   // display only one bloc in node details : requirements
-  collapseNodeDetailsBloc(nodeDetailsBlocsIds.req);
+  selectNodeAndGoToDetailBloc(sourceNodeTemplateName, nodeDetailsBlocsIds.req);
 
   // select the requirement type
   var btnAddRelationship = browser.element(by.id(btnRelationshipNameBaseId + requirementName));
@@ -372,20 +369,21 @@ var removeScalingPolicy = function(computeId) {
 
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
-var selectNodeAndCheckProperty = function(nodeTemplateName, propertyName) {
+var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
-
-  var propertyElement = element(by.id('p_' + propertyName));
-  expect(propertyElement.isPresent()).toBe(true);
+  browser.waitForAngular();
+  if(blocId){
+    collapseNodeDetailsBloc(blocId);
+  }
 };
+module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
 
 var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
 
   // select "Add node tab"
   showComponentsTab();
-  selectNodeAndCheckProperty(nodeTemplateName, propertyName);
-  collapseNodeDetailsBloc(nodeDetailsBlocsIds.pro);
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
   var propertyElement = element(by.id('p_' + propertyName));
   var spanPropertyValue = propertyElement.element(by.tagName('span'));
   spanPropertyValue.click();
@@ -416,22 +414,16 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
-var beforeToggle = function(nodeTemplateName) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
-  browser.waitForAngular();
-};
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType) {
   browser.executeScript('window.scrollTo(0,0);').then(function() {
-    beforeToggle(nodeTemplateName);
+    selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
     var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
     browser.actions().click(ioButton).perform();
   });
 };
 
 var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
   var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
   if (checked) {
     expect(ioButton.getAttribute('class')).toContain('active');
@@ -468,7 +460,7 @@ var togglePropertyOutput = function(nodeTemplateName, propertyName) {
 module.exports.togglePropertyOutput = togglePropertyOutput;
 
 var toggleAttributeOutput = function(nodeTemplateName, attributeName) {
-  beforeToggle(nodeTemplateName);
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.att);
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     var ioButton = browser.element(by.id('a_output_' + attributeName));
     browser.actions().click(ioButton).perform();
