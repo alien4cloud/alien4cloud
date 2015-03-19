@@ -559,3 +559,19 @@ var openOnlyOneBloc = function openOnlyOneBloc(blocId) {
   }
 };
 module.exports.openOnlyOneBloc = openOnlyOneBloc;
+
+var checkCountInputs = function(valueExpected) {
+  showInputsTab();
+  element.all(by.repeater('(inputId, inputDefinition) in topology.topology.inputs')).then(function(inputs) {
+    expect(inputs.length).toEqual(valueExpected);
+  });
+  closeInputsTab();
+};
+module.exports.checkCountInputs = checkCountInputs;
+
+var checkNumberOfPropertiesForACapability = function(expectedCount) {
+  var relationships = element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
+  browser.waitForAngular();
+  expect(relationships.count()).toBe(expectedCount);
+};
+module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesForACapability;

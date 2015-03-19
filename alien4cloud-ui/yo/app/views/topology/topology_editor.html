@@ -351,7 +351,7 @@
                     </div>
                   </div>
                 </div>
-                <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+                <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
                   <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
                     <td>
                       <div class="btn-group" data-toggle="buttons">
@@ -370,7 +370,7 @@
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                           <li>
-                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                            <a id="addToInputBtn_{{propertyEntry.key}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
                               <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                             </a>
                           </li>
