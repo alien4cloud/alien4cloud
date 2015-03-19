@@ -1,7 +1,6 @@
 package alien4cloud.rest.audit;
 
 import java.io.IOException;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
@@ -9,17 +8,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.elasticsearch.common.collect.Maps;
 import org.springframework.core.Ordered;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import alien4cloud.rest.audit.model.AuditTrace;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.User;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.base.Charsets;
 
 @Component
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
@@ -42,49 +43,41 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
      * @throws JsonProcessingException
      */
     private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response) throws JsonProcessingException, IOException {
+        // user details
+        User user = AuthorizationUtil.getCurrentUser();
+        if (user == null) {
+            return null;
+        }
+        // trace user info only when he is logged
         AuditTrace auditTrace = new AuditTrace();
+        auditTrace.setUserName(user.getUsername());
+        auditTrace.setUserFirstName(user.getFirstName());
+        auditTrace.setUserLastName(user.getLastName());
+        auditTrace.setUserEmail(user.getEmail());
 
         // request details
         auditTrace.setMethod(request.getMethod());
         auditTrace.setPath(request.getRequestURI());
 
-        // user details
-        User user = AuthorizationUtil.getCurrentUser();
-        // trace user info only when he is logged
-        if (user != null) {
-            auditTrace.setUserName(user.getUsername());
-            auditTrace.setUserFirstName(user.getFirstName());
-            auditTrace.setUserLastName(user.getLastName());
-            auditTrace.setUserEmail(user.getEmail());
-        }
-
         // response details
         auditTrace.setResponseStatus(response.getStatus());
-        // WIP : recover the body multi time
-        auditTrace.setRequestBody(JsonUtil.toString(request.getInputStream().toString()));
-        // auditTrace.setRequestParameters(getRequestParams(request));
 
-        return auditTrace;
-    }
-
-    private Map<String, String> getRequestParams(HttpServletRequest request) {
-        Map<String, String> parameters = Maps.newHashMap();
-        while (request.getParameterNames().hasMoreElements()) {
-            String paramterName = request.getParameterNames().nextElement();
-            parameters.put(paramterName, request.getParameter(paramterName));
+        String contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
+        if (contentType != null && contentType.startsWith(MediaType.APPLICATION_JSON_VALUE)) {
+            auditTrace.setRequestBody(StreamUtils.copyToString(request.getInputStream(), Charsets.UTF_8));
         }
-        return parameters;
+        auditTrace.setRequestParameters(request.getParameterMap());
+        return auditTrace;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         try {
             filterChain.doFilter(request, response);
         } finally {
             AuditTrace auditTrace = getAuditTrace(request, response);
             // username exists only if it's real service (not css, js, html files)
-            if (auditTrace.getUserName() != null) {
+            if (auditTrace != null) {
                 this.logRepository.add(auditTrace);
             }
         }

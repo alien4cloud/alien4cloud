@@ -11,6 +11,8 @@ import lombok.ToString;
 @ToString
 public class AuditTrace {
 
+    private String category;
+
     private String userName;
 
     private String userEmail;
@@ -23,11 +25,13 @@ public class AuditTrace {
 
     private String method;
 
-    private Map<String, String> requestParameters;
+    private Map<String, String[]> requestParameters;
 
     private String requestBody;
 
     private int responseStatus;
 
     private String responseBody;
+
+    private String sourceIp;
 }
