@@ -43,8 +43,9 @@
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Méta-propriétés",
     "MENU_CLOUDS": "Clouds",
-    "MENU_METRICS": "Métriques d'Alien 4 Cloud",
-    "MENU_CLOUD_IMAGES": "Cloud Images"
+    "MENU_METRICS": "Métriques",
+    "MENU_CLOUD_IMAGES": "Cloud Images",
+    "MENU_AUDIT": "Audit"
   },
   "MAIN": {
     "WELCOME": "Bienvenue sur",

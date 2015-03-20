@@ -43,6 +43,13 @@ angular.module('alienUiApp').factory('adminMenu', function() {
       key: 'NAVADMIN.MENU_METRICS',
       icon: 'fa fa-tachometer',
       show: true
+    },
+    {
+      id: 'am.admin.audit',
+      state: 'admin.audit',
+      key: 'NAVADMIN.MENU_AUDIT',
+      icon: 'fa fa-eye',
+      show: true
     }
   ];
 });

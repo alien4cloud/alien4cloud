@@ -249,6 +249,10 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         url: '/metrics',
         templateUrl: 'views/admin/metrics.html',
         controller: 'MetricsController'
+      }).state('admin.audit', {
+        url: '/audit',
+        templateUrl: 'views/admin/metrics.html',
+        controller: 'MetricsController'
       }).state('admin.cloud-images', {
         url: '/cloud-images',
         template: '<ui-view/>'
