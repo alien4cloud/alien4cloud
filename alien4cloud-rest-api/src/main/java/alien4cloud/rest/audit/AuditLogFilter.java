@@ -1,6 +1,7 @@
 package alien4cloud.rest.audit;
 
 import java.io.IOException;
+import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
@@ -83,6 +84,8 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         // request details
         auditTrace.setMethod(request.getMethod());
         auditTrace.setPath(request.getRequestURI());
+        auditTrace.setTimestamp((new Date()).getTime());
+        auditTrace.setSourceIp(request.getRemoteAddr());
 
         // response details
         auditTrace.setResponseStatus(response.getStatus());

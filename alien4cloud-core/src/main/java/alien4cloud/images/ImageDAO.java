@@ -41,7 +41,7 @@ public class ImageDAO extends ESGenericIdDAO implements IImageDAO {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indexes and mapped classes
-        initIndices(ImageData.class.getSimpleName().toLowerCase(), false, new Class<?>[] { ImageData.class });
+        initIndices(ImageData.class.getSimpleName().toLowerCase(), null, new Class<?>[] { ImageData.class });
         initCompleted();
     }
 

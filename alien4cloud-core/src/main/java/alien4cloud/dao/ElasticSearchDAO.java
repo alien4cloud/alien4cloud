@@ -45,6 +45,14 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
     public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
     public static final String ALIEN_AUDIT_INDEX = "alienaudit";
 
+    // TODO : change this to real configuration name (default true)
+    // @Value("${audit.audit_enabled}")
+    private Boolean auditEnabled = true;
+
+    // TODO : change this to real configuration name (default true)
+    // @Value("${audit.audit_ttl}")
+    private String auditTtl = "2m";
+
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
      */
@@ -59,9 +67,15 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
 
-        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
-        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
-        initIndices(ALIEN_AUDIT_INDEX, false, AuditTrace.class);
+        // Enable audit in alien
+        if (Boolean.TRUE.equals(auditEnabled)) {
+            // audit trace index
+            initIndices(ALIEN_AUDIT_INDEX, auditTtl, AuditTrace.class);
+        }
+
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
+
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);
@@ -80,7 +94,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
     }
 
     private void initIndice(Class<?> clazz) {
-        initIndices(clazz.getSimpleName().toLowerCase(), false, clazz);
+        initIndices(clazz.getSimpleName().toLowerCase(), null, clazz);
     }
 
     public static class ElasticSearchMapper extends ObjectMapper {
