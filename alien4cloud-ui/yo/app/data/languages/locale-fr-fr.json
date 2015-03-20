@@ -560,9 +560,9 @@
     "STORAGE": "Volumes",
     "STORAGES": {
       "ID": "Id",
-      "DEVICE": "Volume",
+      "DEVICE": "Périphérique",
       "LOCATION": "Point de montage",
-      "SIZE": "Size",
+      "SIZE": "Taille",
       "NEW_MODAL_TITLE": "Créer un nouveau volume"
     },
     "IAAS": {
@@ -639,7 +639,8 @@
       "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
     "ENABLED_true": "Activé",
-    "ENABLED_false": "Désactivé"
+    "ENABLED_false": "Désactivé",
+    "DESCRIPTION": "Description"
   },
   "ERRORS": {
     "INTERNAL": "Erreur interne",

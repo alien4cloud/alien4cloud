@@ -632,7 +632,8 @@
       "352": "Invalid cloud configuration. Please change it and retry."
     },
     "ENABLED_true": "Enabled",
-    "ENABLED_false": "Disabled"
+    "ENABLED_false": "Disabled",
+    "DESCRIPTION": "Description"
   },
   "ERRORS": {
     "INTERNAL": "Internal error",
