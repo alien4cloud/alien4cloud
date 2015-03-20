@@ -35,6 +35,7 @@ describe('Manually match resources for cloud', function() {
     });
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
   });
 
   afterEach(function() {
