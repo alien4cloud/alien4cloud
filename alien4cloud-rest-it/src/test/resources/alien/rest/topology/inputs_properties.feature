@@ -52,7 +52,8 @@ Feature: Topology inputs controller
     Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_arch" defined as input property
-    When I rename the property "os_arch" to "os_arch"
+    And I define the property "os_distribution" of the node "Compute" as input property
+    When I rename the property "os_arch" to "os_distribution"
     Then I should receive a RestResponse with an error code 502
 
   Scenario: Rename a non existing property input should failed

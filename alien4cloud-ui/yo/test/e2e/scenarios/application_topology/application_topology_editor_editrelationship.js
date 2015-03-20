@@ -67,7 +67,7 @@ describe('Editing Relationship name', function() {
 
     var relashionshipPropertyDiv = element(by.id('relationshipProperties_hostedOnCompute'));
     expect(relashionshipPropertyDiv.isDisplayed()).toBe(true);
-    expect(element(by.id('p_name_password')).isPresent()).toBe(true);
+    expect(element(by.id('node-details-relationships-panel')).element(by.id('p_name_password')).isPresent()).toBe(true);
 
     var relPropertySpan = relashionshipPropertyDiv.element(by.css('span[editable-text]'));
     expect(relPropertySpan.isDisplayed()).toBe(true);

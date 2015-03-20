@@ -35,6 +35,8 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyServiceCore;
@@ -69,7 +71,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Activate a property as an input property.", notes = "Activate a property as an input property. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/inputs/{inputId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<TopologyDTO> addInput(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of new input.", required = true) @NotBlank @PathVariable final String inputId,
             @ApiParam(value = "The property definition of the new input.", required = true) @RequestBody PropertyDefinition newPropertyDefinition) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -85,7 +87,7 @@ public class TopologyInputsController {
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -125,7 +127,14 @@ public class TopologyInputsController {
         if (inputs == null || !inputs.containsKey(inputId)) {
             throw new NotFoundException("Input " + inputId + " not found");
         }
-
+        if (inputId.equals(newInputId)) {
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        }
+        if (!newInputId.matches("\\w+")) {
+            RestError e = new RestError();
+            e.setCode(RestErrorCode.ELEMENT_NAME_PATTERN_CONSTRAINT.getCode());
+            return RestResponseBuilder.<TopologyDTO> builder().error(e).build();
+        }
         if (inputs.containsKey(newInputId)) {
             throw new AlreadyExistException("Input " + newInputId + " already existed");
         }
@@ -222,7 +231,8 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Associate the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateName}/property/{propertyId}/input", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> setInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<TopologyDTO> setInputToNodeTemplate(
+            @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @RequestParam final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId)
@@ -249,7 +259,7 @@ public class TopologyInputsController {
 
         log.debug("Associate the property <{}> of the node template <{}> to an input of the topology <{}>.", propertyId, nodeTemplateName, topologyId);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -263,7 +273,8 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Disassociated the property of a node template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId}/nodetemplates/{nodeTemplateName}/property/{propertyId}/input", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> unsetInputToNodeTemplate(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
+    public RestResponse<TopologyDTO> unsetInputToNodeTemplate(
+            @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -285,7 +296,7 @@ public class TopologyInputsController {
             alienDAO.save(topology);
         }
 
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -399,7 +410,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Associate the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipId}/property/{propertyId}/input", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> setInputToRelationshipTemplate(
+    public RestResponse<TopologyDTO> setInputToRelationshipTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @RequestParam final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
@@ -437,7 +448,7 @@ public class TopologyInputsController {
 
         log.debug("Associate the property <{}> of the relationship template <{}> to an input of the topology <{}>.", propertyId, relationshipId, topologyId);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -452,7 +463,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Disassociated the property of a relationship template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationship/{relationshipId}/property/{propertyId}/input", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> unsetInputToRelationshipTemplate(
+    public RestResponse<TopologyDTO> unsetInputToRelationshipTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
@@ -485,7 +496,7 @@ public class TopologyInputsController {
             throw new NotFoundException("Property " + propertyId + " do not exist for relationship " + relationshipId + " of node " + nodeTemplateName);
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -502,7 +513,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/input", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> setInputToCapabilityTemplate(
+    public RestResponse<TopologyDTO> setInputToCapabilityTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @RequestParam final String inputId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
@@ -542,7 +553,7 @@ public class TopologyInputsController {
 
         log.debug("Associate the property <{}> of the capability template <{}> to an input of the topology <{}>.", propertyId, capabilityId, topologyId);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -557,7 +568,7 @@ public class TopologyInputsController {
      */
     @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/input", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> unsetInputToCapabilityTemplate(
+    public RestResponse<TopologyDTO> unsetInputToCapabilityTemplate(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The node temlate id.", required = true) @NotBlank @PathVariable final String nodeTemplateName,
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId,
@@ -589,7 +600,7 @@ public class TopologyInputsController {
             throw new NotFoundException("Property " + propertyId + " do not exist for capability " + capabilityId + " of node " + nodeTemplateName);
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     private Map<String, PropertyDefinition> getInputs(Topology topology, boolean create) {

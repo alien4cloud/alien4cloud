@@ -14,7 +14,7 @@
             </select>
           </div>
         </div>
-        <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{mode: 'yaml'}" style="height: {{dimensions.height}}px;"></div>
+        <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{dimensions.height}}px;"></div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="dimensions" topology="topology"
                             callback="selectNodeTemplate(newSelectedName, oldSelectedName)" simple="simple" runtime="false"></topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology" dimensions="dimensions" topology="topology" id="plan-graph-container"></topology-plan>
@@ -131,12 +131,12 @@
                 {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
               </h4>
             </div>
-            <div collapse="isPropertiesCollapsed" class="topology-level">
+            <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
                 <tr ng-repeat="propEntry in selectedProperties">
                   <td>
                     <div class="btn-group" data-toggle="buttons">
-                      <a id="p_input_{{propEntry.key}}"
+                      <a id="p_input_pro_{{propEntry.key}}"
                          ng-click="getInputCandidatesForProperty(propEntry.key)"
                          class="btn btn-default btn-xs dropdown-toggle"
                          ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
@@ -146,7 +146,7 @@
                       <ul class="dropdown-menu dropdown-menu-left" role="menu">
                         <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                         <li>
-                          <a id="addToInputBtn_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
+                          <a id="addToInputBtn_pro_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
                             <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                           </a>
                         </li>
@@ -158,7 +158,7 @@
                           </a>
                         </li>
                       </ul>
-                      <a id="p_output_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
+                      <a id="p_output_pro_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
                          ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
                         <i class="fa fa-eye"></i>
@@ -208,7 +208,7 @@
                 {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
               </h4>
             </div>
-            <div collapse="isAttributesCollapsed" class="topology-level">
+            <div id="node-details-attributes-panel" collapse="isAttributesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateAttributes">
                 <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
                   <td class="col-md-2">
@@ -236,7 +236,7 @@
                 {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
               </h4>
             </div>
-            <div collapse="isRequirementsCollapsed" class="topology-level">
+            <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
               <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
                 <div class="topology-node-expand" style="font-weight: normal"
@@ -312,7 +312,7 @@
                 {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
               </h4>
             </div>
-            <div collapse="isCapabilitiesCollapsed" class="topology-level">
+            <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
               <div ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
                 <div class="topology-node-expand" style="font-weight: normal"
@@ -351,18 +351,18 @@
                     </div>
                   </div>
                 </div>
-                <table class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
+                <table ng-if="!isReqPropsCollapsed[capabilityEntry.key]" class="table table-condensed" id="capability_{{capabilityEntry.key}}_properties">
                   <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
                     <td>
                       <div class="btn-group" data-toggle="buttons">
-                        <a id="p_input_{{propertyEntry.key}}"
+                        <a id="p_input_cap_{{propertyEntry.key}}"
                            ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                            class="btn btn-default btn-xs dropdown-toggle"
                            ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
                         </a>
-                        <a id="p_output_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                        <a id="p_output_pro_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
                            ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-eye"></i>
@@ -370,7 +370,7 @@
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                           <li>
-                            <a id="addToInputBtn_{{propertyKey}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
                               <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                             </a>
                           </li>
@@ -418,7 +418,7 @@
                 {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
               </h4>
             </div>
-            <div collapse="isRelationshipsCollapsed">
+            <div id="node-details-relationships-panel" collapse="isRelationshipsCollapsed">
               <div class="topology-level"
                    ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
                 <div class="topology-node-expand clickable editable-small"
@@ -458,7 +458,7 @@
                         <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
                           <td class="col-md-1">
                             <div class="btn-group" data-toggle="buttons">
-                              <a id="p_rel_input_{{propertyEntry.key}}"
+                              <a id="p_input_rel_{{propertyEntry.key}}"
                                  ng-click="getInputCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                                  class="btn btn-default btn-xs dropdown-toggle"
                                  ng-class="{'active' : isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"
@@ -520,7 +520,7 @@
                 {{'APPLICATIONS.TOPOLOGY.ARTIFACTS' | translate}}
               </h4>
             </div>
-            <div collapse="isArtifactsCollapsed">
+            <div id="node-details-artifacts-panel" collapse="isArtifactsCollapsed">
               <div class="topology-level"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="topology-node-expand clickable"
@@ -568,7 +568,7 @@
                      ng-class="{'fa-chevron-down' : !isScalingPolicyCollapsed, 'fa-chevron-right': isScalingPolicyCollapsed}"></i>
                   <span>{{'APPLICATIONS.TOPOLOGY.SCALING_POLICY' | translate}}</span></h4>
               </div>
-              <div collapse="isScalingPolicyCollapsed">
+              <div id="node-details-scaling-panel" collapse="isScalingPolicyCollapsed">
                 <table class="table table-condensed">
                   <tr
                     ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">
@@ -678,7 +678,7 @@
             <tbody>
               <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
                 <td>
-                  <span editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId)" blur="submit">
+                  <span editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
                     {{inputDefinition.inputId}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>

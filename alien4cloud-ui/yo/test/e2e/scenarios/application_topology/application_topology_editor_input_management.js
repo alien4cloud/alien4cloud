@@ -33,34 +33,26 @@ describe('Topology input/output properties', function() {
     }
   });
 
-  var checkCountInputs = function(valueExpected) {
-    topologyEditorCommon.showInputsTab();
-    element.all(by.repeater('(inputId, inputDefinition) in topology.topology.inputs')).then(function(inputs) {
-      expect(inputs.length).toEqual(valueExpected);
-    });
-    topologyEditorCommon.closeInputsTab();
-  };
-
   it('should be able to define properties as input', function() {
     console.log('################# should be able to define properties as input');
-    checkCountInputs(0);
+    topologyEditorCommon.checkCountInputs(0);
     topologyEditorCommon.togglePropertyInput('Compute', 'ip_address');
-    checkCountInputs(1);
+    topologyEditorCommon.checkCountInputs(1);
     topologyEditorCommon.togglePropertyInput('Compute', 'os_arch');
-    checkCountInputs(2);
+    topologyEditorCommon.checkCountInputs(2);
   });
 
   it('should be able to remove an input', function() {
     console.log('################# should be able to remove an input.');
     topologyEditorCommon.removeInput('ip_address');
-    checkCountInputs(1);
+    topologyEditorCommon.checkCountInputs(1);
   });
 
   it('should be able associate a property to an already existing input', function() {
     after = true;
     console.log('################# should be able associate a property to an already existing input.');
     topologyEditorCommon.associatePropertyToInput('Compute_2', 'os_arch', 'os_arch');
-    checkCountInputs(1);
+    topologyEditorCommon.checkCountInputs(1);
   });
 
   //TODO: Check value of inputs, rename...

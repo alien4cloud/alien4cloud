@@ -26,12 +26,14 @@ describe('Editing required properties and checking for topolgy validation', func
     var node = element(by.id('rect_Compute'));
     node.click();
 
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('Compute', topologyEditorCommon.nodeDetailsBlocsIds.pro);
     expect(element(by.id('p_name_os_arch')).getAttribute('class')).toContain('property-required');
     expect(element(by.id('p_name_os_type')).getAttribute('class')).toContain('property-required');
 
     //edit the required properties and check again
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.checkTodoList(false);
   });
 });

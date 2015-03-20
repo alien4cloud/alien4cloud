@@ -178,7 +178,8 @@ public class TopologyController {
 
     @ApiOperation(value = "Add a new scaling policy for a node template in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId, @RequestBody @Valid ScalingPolicy policy) {
+    public RestResponse<TopologyDTO> addScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId,
+            @RequestBody @Valid ScalingPolicy policy) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -190,12 +191,12 @@ public class TopologyController {
         }
         policies.put(nodeTemplateId, policy);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Remove scaling policy from a compute in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> deleteScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId) {
+    public RestResponse<TopologyDTO> deleteScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -209,7 +210,7 @@ public class TopologyController {
             }
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -222,7 +223,7 @@ public class TopologyController {
      */
     @ApiOperation(value = "Change the name of a node template in a topology.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+    public RestResponse<TopologyDTO> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String newNodeTemplateName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -240,7 +241,7 @@ public class TopologyController {
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -674,11 +675,7 @@ public class TopologyController {
     }
 
     /**
-     * Get possible replacement indexedNodeTypes for a node template
-     *
-     * @param topologyId The id of the topology to check.
-     * @param nodeTemplateName The name of the node template to check for replacement.
-     * @return The details of the new node template (computed from it's type).
+     * Replace a node template
      */
     @ApiOperation(value = "Replace a node template possible with another one.", notes = "Returns the details of the new node template (computed from it's type). Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/replace", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -723,7 +720,7 @@ public class TopologyController {
      */
     @ApiOperation(value = "Updates the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> updateDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+    public RestResponse<TopologyDTO> updateDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String artifactId, @RequestParam("file") MultipartFile artifactFile) throws IOException {
         // Perform check that authorization's ok
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -752,7 +749,7 @@ public class TopologyController {
             artifact.setArtifactRef(artifactFileId);
             artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
             alienDAO.save(topology);
-            return RestResponseBuilder.<String> builder().data(artifactFileId).build();
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
         } finally {
             Closeables.close(artifactStream, true);
         }
@@ -828,7 +825,7 @@ public class TopologyController {
 
     @ApiOperation(value = "Activate a property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
+    public RestResponse<TopologyDTO> addOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
@@ -839,10 +836,10 @@ public class TopologyController {
             topology.setOutputProperties(addToMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
         } else {
             // attributeName does not exists in the node template
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
+            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /*
@@ -869,7 +866,7 @@ public class TopologyController {
 
     @ApiOperation(value = "Activate a capability property as an output property.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+    public RestResponse<TopologyDTO> addOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String propertyId, @PathVariable String capabilityId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -896,17 +893,17 @@ public class TopologyController {
             outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).add(propertyId);
         } else {
             // the property is already set as an output property
-            return RestResponseBuilder.<Void> builder().build();
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
         }
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Remove a capability property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/capability/{capabilityId}/property/{propertyId}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+    public RestResponse<TopologyDTO> removeOutputCapabilityProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String capabilityId, @PathVariable String propertyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -916,19 +913,20 @@ public class TopologyController {
         if (outputCapabilityProperties == null || !outputCapabilityProperties.containsKey(nodeTemplateName)
                 || !outputCapabilityProperties.get(nodeTemplateName).containsKey(capabilityId)
                 || !outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
+            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).build()).build();
         }
 
         outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).remove(propertyId);
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Activate an attribute as an output attribute.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/attributes/{attributeName}/output", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String attributeName) {
+    public RestResponse<TopologyDTO> addOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String attributeName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
@@ -939,37 +937,38 @@ public class TopologyController {
             topology.setOutputAttributes(addToMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
         } else {
             // attributeName does not exists in the node template
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
+            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Remove a property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
+    public RestResponse<TopologyDTO> removeOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
         topology.setOutputProperties(removeValueFromMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Remove an attribute from the output attributes list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/attributes/{attributeName}/output", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String attributeName) {
+    public RestResponse<TopologyDTO> removeOutputAttribute(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String attributeName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
         topology.setOutputAttributes(removeValueFromMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Add an artifact in the input artifact list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> addInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactName) {
+    public RestResponse<TopologyDTO> addInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
@@ -980,21 +979,22 @@ public class TopologyController {
             topology.setInputArtifacts(addToMap(topology.getInputArtifacts(), nodeTemplateName, artifactName));
         } else {
             // attributeName does not exists in the node template
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
+            return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     @ApiOperation(value = "Remove an artifact from the input artifact list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> removeInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactName) {
+    public RestResponse<TopologyDTO> removeInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String artifactName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
         topology.setInputArtifacts(removeValueFromMap(topology.getInputArtifacts(), nodeTemplateName, artifactName));
         alienDAO.save(topology);
-        return RestResponseBuilder.<Void> builder().build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     /**
@@ -1008,7 +1008,7 @@ public class TopologyController {
      */
     @ApiOperation(value = "Change the name of a node template in a topology.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/relationships/{relationshipName}/updateName", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> updateRelationshipName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+    public RestResponse<TopologyDTO> updateRelationshipName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String relationshipName, @RequestParam(value = "newName") String newRelationshipName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -1031,7 +1031,7 @@ public class TopologyController {
                 nodeTemplateName, topologyId);
 
         alienDAO.save(topology);
-        return RestResponseBuilder.<String> builder().data(newRelationshipName).build();
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
     private Map<String, Set<String>> addToMap(Map<String, Set<String>> map, String key, String value) {

@@ -484,8 +484,8 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-             baseUrl: 'http://localhost:9999',
-            // baseUrl: 'http://localhost:8088',
+            // baseUrl: 'http://localhost:9999',
+             baseUrl: 'http://localhost:8088',
             specs: [
               // 'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
@@ -500,7 +500,8 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security.js',
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
-                              'test/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_capabilities.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrequiredprops.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_multiplenodeversions.js',

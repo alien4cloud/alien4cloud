@@ -102,6 +102,8 @@ describe('Topology scaling feature', function() {
     // Change scaling policy
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
+    topologyEditorCommon.editNodeProperty('Ubuntu', 'containee_types', 'test', 'cap');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
   });

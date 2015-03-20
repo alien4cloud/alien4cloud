@@ -59,6 +59,7 @@ describe('Topology node template edition :', function() {
   });
 
   it('should be able to edit a node template name', function() {
+    console.log('################# should be able to edit a node template name');
     var nodeToEdit = element(by.id('rect_Compute_2'));
     nodeToEdit.click();
 
@@ -155,6 +156,7 @@ describe('Topology node template edition :', function() {
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.checkTodoList(false);
   });
 });
