@@ -158,7 +158,7 @@
                           </a>
                         </li>
                       </ul>
-                      <a id="p_output_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
+                      <a id="p_output_pro_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
                          ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
                         <i class="fa fa-eye"></i>
@@ -362,7 +362,7 @@
                            tooltip-append-to-body="true">
                           <i class="fa fa-cogs"></i>
                         </a>
-                        <a id="p_output_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                        <a id="p_output_pro_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
                            ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-eye"></i>

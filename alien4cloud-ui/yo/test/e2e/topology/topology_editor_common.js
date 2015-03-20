@@ -420,9 +420,10 @@ var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componen
   });
 };
 
-var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked) {
+var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
-  var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
+  var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
   if (checked) {
     expect(ioButton.getAttribute('class')).toContain('active');
   } else {
