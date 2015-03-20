@@ -6,9 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.elasticsearch.annotation.DateField;
 import org.elasticsearch.annotation.ESObject;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
+import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 
 @Getter
@@ -18,7 +20,12 @@ import org.elasticsearch.mapping.IndexType;
 public class AuditTrace {
 
     @TermFilter
+    @DateField(includeInAll = false, index = IndexType.no)
+    private long timestamp;
+
+    @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
     private String category;
 
     @TermFilter
@@ -43,16 +50,19 @@ public class AuditTrace {
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
     private String method;
 
     @TermFilter
     @StringField(indexType = IndexType.analyzed)
     private Map<String, String[]> requestParameters;
 
+    @StringField(indexType = IndexType.analyzed)
     private String requestBody;
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
     private int responseStatus;
 
     private String responseBody;
@@ -60,4 +70,5 @@ public class AuditTrace {
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
     private String sourceIp;
+
 }
