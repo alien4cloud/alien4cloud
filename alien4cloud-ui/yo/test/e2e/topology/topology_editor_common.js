@@ -380,8 +380,6 @@ var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
 module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
 
 var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
-
-  // select "Add node tab"
   showComponentsTab();
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
   var propertyElement = element(by.id('p_' + propertyName));
@@ -395,7 +393,6 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
   inputValue.sendKeys(propertyValue);
   editForm.submit();
   browser.waitForAngular();
-
 };
 module.exports.editNodeProperty = editNodeProperty;
 
@@ -414,10 +411,10 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
-var toggleIOProperty = function(nodeTemplateName, propertyName, ioType) {
+var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componentType) {
   browser.executeScript('window.scrollTo(0,0);').then(function() {
-    selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
-    var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
+    selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
+    var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
     browser.actions().click(ioButton).perform();
   });
 };
@@ -439,22 +436,25 @@ var removeInput = function(inputName) {
 };
 module.exports.removeInput = removeInput;
 
-var togglePropertyInput = function(nodeTemplateName, propertyName) {
-  toggleIOProperty(nodeTemplateName, propertyName, 'input');
-  browser.actions().click(browser.element(by.id('addToInputBtn_' + propertyName))).perform();
+var togglePropertyInput = function(nodeTemplateName, propertyName, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
+  browser.actions().click(browser.element(by.id('addToInputBtn_' + componentType + '_' + propertyName))).perform();
   browser.waitForAngular();
 };
 module.exports.togglePropertyInput = togglePropertyInput;
 
-var associatePropertyToInput = function(nodeTemplateName, propertyName, inputId) {
-  toggleIOProperty(nodeTemplateName, propertyName, 'input');
+var associatePropertyToInput = function(nodeTemplateName, propertyName, inputId, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
   browser.actions().click(browser.element(by.id(nodeTemplateName + '_' + propertyName + '_toAssociate_' + inputId))).perform();
   browser.waitForAngular();
 };
 module.exports.associatePropertyToInput = associatePropertyToInput;
 
-var togglePropertyOutput = function(nodeTemplateName, propertyName) {
-  toggleIOProperty(nodeTemplateName, propertyName, 'output');
+var togglePropertyOutput = function(nodeTemplateName, propertyName, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'output', componentType);
 };
 
 module.exports.togglePropertyOutput = togglePropertyOutput;
@@ -550,7 +550,7 @@ var collapseNodeDetailsBloc = function collapseNodeDetailsBloc(blocId) {
     nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
   }
 };
-module.exports.openOnlyOneBloc = openOnlyOneBloc;
+module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
 
 var checkCountInputs = function(valueExpected) {
   showInputsTab();

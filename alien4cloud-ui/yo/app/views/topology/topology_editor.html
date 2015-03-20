@@ -136,7 +136,7 @@
                 <tr ng-repeat="propEntry in selectedProperties">
                   <td>
                     <div class="btn-group" data-toggle="buttons">
-                      <a id="p_input_{{propEntry.key}}"
+                      <a id="p_input_pro_{{propEntry.key}}"
                          ng-click="getInputCandidatesForProperty(propEntry.key)"
                          class="btn btn-default btn-xs dropdown-toggle"
                          ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
@@ -146,7 +146,7 @@
                       <ul class="dropdown-menu dropdown-menu-left" role="menu">
                         <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                         <li>
-                          <a id="addToInputBtn_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
+                          <a id="addToInputBtn_pro_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
                             <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                           </a>
                         </li>
@@ -355,7 +355,7 @@
                   <tr ng-repeat="propertyEntry in capabilityEntry.value.properties">
                     <td>
                       <div class="btn-group" data-toggle="buttons">
-                        <a id="p_input_{{propertyEntry.key}}"
+                        <a id="p_input_cap_{{propertyEntry.key}}"
                            ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                            class="btn btn-default btn-xs dropdown-toggle"
                            ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
@@ -370,7 +370,7 @@
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                           <li>
-                            <a id="addToInputBtn_{{propertyEntry.key}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
                               <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                             </a>
                           </li>
@@ -458,7 +458,7 @@
                         <tr ng-repeat="propertyEntry in topology.relationshipTypes[relationshipEntry.value.type].properties">
                           <td class="col-md-1">
                             <div class="btn-group" data-toggle="buttons">
-                              <a id="p_rel_input_{{propertyEntry.key}}"
+                              <a id="p_input_rel_{{propertyEntry.key}}"
                                  ng-click="getInputCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                                  class="btn btn-default btn-xs dropdown-toggle"
                                  ng-class="{'active' : isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"

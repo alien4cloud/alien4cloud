@@ -19,7 +19,7 @@ describe('NodeTemplate relationships edition', function() {
     common.after();
   });
 
-  xit('should be able display the capability properties', function() {
+  it('should be able display the capability properties', function() {
     console.log('################# should be able display the capability properties');
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
@@ -30,15 +30,15 @@ describe('NodeTemplate relationships edition', function() {
     topologyEditorCommon.checkNumberOfPropertiesForACapability(5);
   });
 
-  xit('should be able to define a capability property as input', function() {
+  it('should be able to define a capability property as input', function() {
     console.log('################# should be able to define a capability property as input');
     var nodeToEdit = element(by.id('rect_JavaRPM'));
     nodeToEdit.click();
 
     topologyEditorCommon.checkCountInputs(0);
-    topologyEditorCommon.togglePropertyInput('JavaRPM', 'update');
+    topologyEditorCommon.togglePropertyInput('JavaRPM', 'update', 'cap');
     topologyEditorCommon.checkCountInputs(1);
-    topologyEditorCommon.togglePropertyInput('JavaRPM', 'vendor');
+    topologyEditorCommon.togglePropertyInput('JavaRPM', 'vendor', 'cap');
     topologyEditorCommon.checkCountInputs(2);
   });
 
@@ -47,8 +47,8 @@ describe('NodeTemplate relationships edition', function() {
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
 
-    topologyEditorCommon.togglePropertyInput('Compute', 'containee_types');
-    topologyEditorCommon.associatePropertyToInput('Compute_2', 'containee_types', 'containee_types');
+    topologyEditorCommon.togglePropertyInput('Compute', 'containee_types', 'cap');
+    topologyEditorCommon.associatePropertyToInput('Compute_2', 'containee_types', 'containee_types', 'cap');
     topologyEditorCommon.checkCountInputs(1);
   });
 });
