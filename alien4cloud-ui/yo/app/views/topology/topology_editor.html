@@ -131,7 +131,7 @@
                 {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}
               </h4>
             </div>
-            <div collapse="isPropertiesCollapsed" class="topology-level">
+            <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
                 <tr ng-repeat="propEntry in selectedProperties">
                   <td>
@@ -208,7 +208,7 @@
                 {{'APPLICATIONS.TOPOLOGY.ATTRIBUTES' | translate}}
               </h4>
             </div>
-            <div collapse="isAttributesCollapsed" class="topology-level">
+            <div id="node-details-attributes-panel" collapse="isAttributesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateAttributes">
                 <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
                   <td class="col-md-2">
@@ -236,7 +236,7 @@
                 {{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}
               </h4>
             </div>
-            <div collapse="isRequirementsCollapsed" class="topology-level">
+            <div id="node-details-requirements-panel" collapse="isRequirementsCollapsed" class="topology-level">
               <div ng-repeat="requirementEntry in selectedNodeTemplate.requirements"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(requirementEntry.value.properties)">
                 <div class="topology-node-expand" style="font-weight: normal"
@@ -312,7 +312,7 @@
                 {{'APPLICATIONS.TOPOLOGY.CAPABILITIES' | translate}}
               </h4>
             </div>
-            <div collapse="isCapabilitiesCollapsed" class="topology-level">
+            <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
               <div ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
                 <div class="topology-node-expand" style="font-weight: normal"
@@ -418,7 +418,7 @@
                 {{'APPLICATIONS.TOPOLOGY.RELATIONSHIPS' | translate}}
               </h4>
             </div>
-            <div collapse="isRelationshipsCollapsed">
+            <div id="node-details-relationships-panel" collapse="isRelationshipsCollapsed">
               <div class="topology-level"
                    ng-repeat="relationshipEntry in selectedNodeTemplate.relationships">
                 <div class="topology-node-expand clickable editable-small"
@@ -520,7 +520,7 @@
                 {{'APPLICATIONS.TOPOLOGY.ARTIFACTS' | translate}}
               </h4>
             </div>
-            <div collapse="isArtifactsCollapsed">
+            <div id="node-details-artifacts-panel" collapse="isArtifactsCollapsed">
               <div class="topology-level"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="topology-node-expand clickable"
@@ -568,7 +568,7 @@
                      ng-class="{'fa-chevron-down' : !isScalingPolicyCollapsed, 'fa-chevron-right': isScalingPolicyCollapsed}"></i>
                   <span>{{'APPLICATIONS.TOPOLOGY.SCALING_POLICY' | translate}}</span></h4>
               </div>
-              <div collapse="isScalingPolicyCollapsed">
+              <div id="node-details-scaling-panel" collapse="isScalingPolicyCollapsed">
                 <table class="table table-condensed">
                   <tr
                     ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">

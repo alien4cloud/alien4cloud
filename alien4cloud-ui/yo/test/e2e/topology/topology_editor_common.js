@@ -379,10 +379,11 @@ var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
 };
 module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
 
-var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
+var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   showComponentsTab();
-  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
-  var propertyElement = element(by.id('p_' + propertyName));
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
+  var propertyElement = element(by.id(nodeDetailsBlocsIds[componentType] + '-panel')).element(by.id('p_' + propertyName));
   var spanPropertyValue = propertyElement.element(by.tagName('span'));
   spanPropertyValue.click();
 

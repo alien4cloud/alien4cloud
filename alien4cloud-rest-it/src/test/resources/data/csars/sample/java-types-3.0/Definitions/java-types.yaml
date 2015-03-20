@@ -100,11 +100,16 @@ capability_types:
     properties:
       version:
         type: string
+        required: false
       update:
         type: string
+        required: false
       vendor:
         type: string
+        required: false
       os_name:
         type: string
+        required: false
       os_arch:
         type: string
+        required: false
