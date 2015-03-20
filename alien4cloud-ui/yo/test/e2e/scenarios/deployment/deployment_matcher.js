@@ -61,6 +61,7 @@ describe('Application Deployment matcher :', function() {
     applications.goToApplicationTopologyPage();
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'linux');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     applications.goToApplicationDeploymentPage();
     cloudsCommon.selectApplicationCloud('testcloud');
     expect(element(by.id("div-deployment-matcher")).isPresent()).toBe(true);
