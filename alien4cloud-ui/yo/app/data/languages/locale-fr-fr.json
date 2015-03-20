@@ -651,7 +651,7 @@
     "300": "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
     "371": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
-      "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalid"
+      "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide"
     },
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
@@ -685,7 +685,8 @@
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
     },
-    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée"
+    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
+    "808": "Le nom ne respecte pas le format attendu"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

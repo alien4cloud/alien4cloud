@@ -35,6 +35,8 @@ import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyServiceCore;
@@ -125,7 +127,14 @@ public class TopologyInputsController {
         if (inputs == null || !inputs.containsKey(inputId)) {
             throw new NotFoundException("Input " + inputId + " not found");
         }
-
+        if (inputId.equals(newInputId)) {
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        }
+        if (!newInputId.matches("\\w+")) {
+            RestError e = new RestError();
+            e.setCode(RestErrorCode.ELEMENT_NAME_PATTERN_CONSTRAINT.getCode());
+            return RestResponseBuilder.<TopologyDTO> builder().error(e).build();
+        }
         if (inputs.containsKey(newInputId)) {
             throw new AlreadyExistException("Input " + newInputId + " already existed");
         }

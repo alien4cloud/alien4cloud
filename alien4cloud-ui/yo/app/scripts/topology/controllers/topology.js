@@ -2,8 +2,8 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService',
-  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster',
+  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster) {
     $scope.view = 'RENDERED';
 
     // Size management
@@ -798,7 +798,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
-    $scope.updateInput = function(oldInput, newInput) {
+    $scope.updateInput = function(oldInput, newInput, inputDefinition) {
+      if (newInput === oldInput) {
+        return;
+      }
       topologyServices.inputs.update({
         topologyId: $scope.topology.topology.id,
         inputId: oldInput,
@@ -806,6 +809,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(success) {
         if (!success.error) {
           refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        } else {
+          inputDefinition.inputId = oldInput;
+          var msg = $translate('ERRORS.' + success.error.code);
+          toaster.pop('error', $translate(msg), $translate(msg), 6000, 'trustedHtml', null);
         }
       });
     };
