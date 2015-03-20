@@ -23,7 +23,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import com.google.common.collect.Lists;
 
@@ -117,6 +116,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/alienEndPoint/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/passprovider").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
+        http.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
         http.authorizeRequests().anyRequest().denyAll();
 
         http.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")

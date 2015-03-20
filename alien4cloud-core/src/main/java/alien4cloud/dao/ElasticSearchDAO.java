@@ -51,7 +51,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
 
     // TODO : change this to real configuration name (default true)
     // @Value("${audit.audit_ttl}")
-    private String auditTtl = "2m";
+    private String auditTtl = "1h";
 
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
