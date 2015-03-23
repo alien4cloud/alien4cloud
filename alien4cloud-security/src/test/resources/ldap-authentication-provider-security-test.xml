@@ -13,6 +13,7 @@
     <context:exclude-filter type="regex" expression="alien4cloud.security.ElasticSearchUserDao" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.groups.ElasticSearchGroupDao" />
     <context:exclude-filter type="regex" expression="alien4cloud.rest.security.GroupController" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.services.ResourceRoleService" />
   </context:component-scan>
 
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
