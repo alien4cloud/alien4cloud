@@ -262,4 +262,14 @@ public class ToscaSerializerUtilsTest {
         }));
     }
 
+    @Test
+    public void testIsAbstractPropertyValueNotNull() {
+        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(null));
+        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue()));
+        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue("value")));
+        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new FunctionPropertyValue()));
+        Assert.assertFalse(utils.isFunctionPropertyValue(new AbstractPropertyValue() {
+        }));
+    }
+
 }

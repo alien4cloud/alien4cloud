@@ -57,6 +57,16 @@ public class ToscaSerializerUtils {
         }
     }
 
+    public boolean isAbstractPropertyValueNotNull(AbstractPropertyValue value) {
+        if (value == null) {
+            return false;
+        } else if (value instanceof ScalarPropertyValue) {
+            return ((ScalarPropertyValue) value).getValue() != null;
+        } else {
+            return true;
+        }
+    }
+
     private static String escapeDoubleQuote(String scalar) {
         if (scalar != null && scalar.contains("\"")) {
             // escape double quote

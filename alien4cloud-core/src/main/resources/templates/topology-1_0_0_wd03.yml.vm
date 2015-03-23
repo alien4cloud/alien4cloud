@@ -22,7 +22,7 @@ $utils.renderScalar($v.value)
 ## -- Serialize an AbstractPropertyValue map
 #macro(serializeAbtractPropertyValues $map $tab)
 #foreach($mapEntry in $map.entrySet())
-#if($mapEntry.value)
+#if($utils.isAbstractPropertyValueNotNull($mapEntry.value))
 $tab${mapEntry.key}: #serializeAbtractPropertyValue(${mapEntry.value})
 #end## if
 #end## of mapEntry iteration  
