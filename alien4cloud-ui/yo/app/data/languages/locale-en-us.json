@@ -578,7 +578,7 @@
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Connection configuration",
         "CONNECTION_CONFIGURATION": {
-          "CLOUDIFY_URL": "Cloudify URL",
+          "CLOUDIFY_URLS": "Cloudify URL (Many URLs in case of HA)",
           "USER_NAME": "User name",
           "PASSWORD": "Password",
           "TIMEOUT": "Connection timeout (Sec)"
@@ -601,7 +601,6 @@
           "SIZE": "Size (Gb)",
           "FS": "File system"
         },
-        "SYNCHRONOUS_DEPLOYMENT": "Synchronous deployment",
         "PE": {
           "MAIL_CONFIGURATION": "Mail configuration",
           "MAIL": {

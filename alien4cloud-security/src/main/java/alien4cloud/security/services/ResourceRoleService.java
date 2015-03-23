@@ -164,6 +164,7 @@ public class ResourceRoleService {
      * @param role The role string to check and format.
      * @return The formatted and checked role string. An exception is thrown in case the role is not a valid role for the given resource.
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     private String formatRole(ISecuredResource resource, String role) {
         if (role == null || role.toString().trim().isEmpty()) {
             throw new NotFoundException("Resource Role [" + role + "] is empty");
@@ -171,8 +172,8 @@ public class ResourceRoleService {
 
         String goodRoleToAdd = role.toString().toUpperCase();
         try {
-            Enum.valueOf(resource.roleEnum(), goodRoleToAdd);
-
+            Class enumClass = resource.roleEnum();
+            Enum.valueOf(enumClass, goodRoleToAdd);
         } catch (IllegalArgumentException e) {
             throw new NotFoundException("Resource role [" + role + "] cannot be found", e);
         }
