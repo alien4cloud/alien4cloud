@@ -525,6 +525,20 @@ var expectDeploymentWork = function(goToAppDetail, work) {
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
 
+var expectShowTodoList = function(goToAppDetail, isDisplay) {
+  if (goToAppDetail) {
+    authentication.reLogin('applicationManager');
+    applications.goToApplicationDetailPage('Alien', false);
+    navigation.go('applications', 'deployment');
+  }
+  if (isDisplay) {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(true);
+  } else {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(false);
+  }
+};
+module.exports.expectShowTodoList = expectShowTodoList;
+
 /** Close or open a specific node template details bloc */
 var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
   var myBlock = element(by.id(blocId));
