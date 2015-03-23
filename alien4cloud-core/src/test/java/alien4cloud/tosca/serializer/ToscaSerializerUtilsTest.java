@@ -128,6 +128,14 @@ public class ToscaSerializerUtilsTest {
         filledSet = Sets.newHashSet("something");
         innerMap2.put("key22", filledSet);
         Assert.assertTrue(utils.mapIsNotEmptyAndContainsNotnullValues(mapOfmap));
+
+        // ScalarPropertyValue
+        ScalarPropertyValue spv = new ScalarPropertyValue();
+        Map<String, AbstractPropertyValue> apvMap = new HashMap<String, AbstractPropertyValue>();
+        apvMap.put("key1", spv);
+        Assert.assertFalse(utils.mapIsNotEmptyAndContainsNotnullValues(apvMap));
+        spv.setValue("value");
+        Assert.assertTrue(utils.mapIsNotEmptyAndContainsNotnullValues(apvMap));
     }
 
     @Test

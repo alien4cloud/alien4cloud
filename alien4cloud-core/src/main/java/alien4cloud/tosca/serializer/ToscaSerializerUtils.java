@@ -108,6 +108,7 @@ public class ToscaSerializerUtils {
      * <ul>
      * <li>if a map entry is a also a map, then we'll look for non null values in it (recursively).
      * <li>if a map entry is a collection, then will return true if the collection is not empty.
+     * <li>if a map entry is a ScalarPropertyValue, then will return true if the value is not null.
      * </ul>
      */
     public boolean mapIsNotEmptyAndContainsNotnullValues(Map<?, ?> m) {
@@ -120,6 +121,10 @@ public class ToscaSerializerUtils {
                         }
                     } else if (o instanceof Collection<?>) {
                         if (!((Collection<?>) o).isEmpty()) {
+                            return true;
+                        }
+                    } else if (o instanceof ScalarPropertyValue) {
+                        if (((ScalarPropertyValue) o).getValue() != null) {
                             return true;
                         }
                     } else {
