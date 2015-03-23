@@ -515,6 +515,7 @@ var expectDeploymentWork = function(goToAppDetail, work) {
     navigation.go('applications', 'deployment');
   }
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
+  browser.waitForAngular();
   if (work) {
     expect(deployButton.getAttribute('disabled')).toBeNull();
     expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
@@ -549,6 +550,7 @@ var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
       ngClass.then(function(classes) {
         // test if the bloc is opened and then close it
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
+          browser.waitForAngular();
           myBlockIcon.click();
           browser.waitForAngular();
         }
