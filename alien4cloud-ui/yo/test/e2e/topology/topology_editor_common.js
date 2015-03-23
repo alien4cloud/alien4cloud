@@ -503,8 +503,7 @@ var checkNumberOfRelationship = function(expectedCount) {
 module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
 
 var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
-  element(by.id(nodeName)).click();
-  browser.waitForAngular();
+  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.req);
   checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
