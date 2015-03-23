@@ -31,4 +31,6 @@ public class NetworkTemplate implements ICloudResourceTemplate {
     private String cidr;
 
     private String gatewayIp;
+
+    private String description;
 }

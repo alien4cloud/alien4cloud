@@ -14,21 +14,22 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
           } else {
             return {
               status: rejection.status,
-              data: UTILS.isDefinedAndNotNull(error.code) ? 'ERRORS.' + error.code : 'ERRORS.UNKNOWN'
+              data: UTILS.isDefinedAndNotNull(error.code) ? 'ERRORS.' + error.code : 'ERRORS.UNKNOWN',
+              code: error.code 
             };
           }
         } else {
           // Error not defined ==> return the data part
           return {
             status: rejection.status,
-            data: rejection.data
+            data: rejection.data,
           };
         }
       } else {
         // rejection.data not defined ==> unknown error
         return {
           status: rejection.status,
-          data: 'ERRORS.UNKNOWN'
+          data: 'ERRORS.UNKNOWN',
         };
       }
     };
@@ -36,9 +37,12 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
     return {
 
       'responseError': function (rejection) {
+        
+        var error = extractErrorMessage(rejection);
 
         // case: authentication rejection error
-        if (rejection.status === 401) {
+        // NOTE: separate simple unauthorized from authentication failure (wrong login provided)
+        if (rejection.status === 401 && error.code !== 101) {
           // full page reload (not only url change)
           $location.path('/restricted');
           toaster.pop('error', $translate('ERRORS.100'), $translate('ERRORS.' + rejection.status), 6000, 'trustedHtml', null);
@@ -47,7 +51,6 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
           }, 6000);
         } else {
           // case : backend specific error
-          var error = extractErrorMessage(rejection);
           // Display the toaster message on top with 4000 ms display timeout
           // Don't shot toaster for "tour" guides
           if (rejection.config.url.indexOf('data/guides') < 0) {

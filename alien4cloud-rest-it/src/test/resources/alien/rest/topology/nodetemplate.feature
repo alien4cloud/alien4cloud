@@ -55,7 +55,6 @@ Feature: Manage Nodetemplates of a topology
     Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
     When I update the node template "Template1"'s artifact "war" with "myWar.war"
     Then I should receive a RestResponse with no error
-    And the response should contain the artifact reference
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"

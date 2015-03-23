@@ -482,15 +482,6 @@ public class TopologyStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
     }
 
-    private static String ARTIFACT_REFERENCE;
-
-    @Then("^the response should contain the artifact reference$")
-    public void the_response_should_contain_the_artifact_reference() throws Throwable {
-        String artifactReference = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
-        Assert.assertNotNull(artifactReference);
-        ARTIFACT_REFERENCE = artifactReference;
-    }
-
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID and name \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_an_artifact_with_the_specified_UID(String nodeTemplateName, String artifactId,
             String artifactName) throws Throwable {
@@ -503,7 +494,6 @@ public class TopologyStepDefinitions {
         DeploymentArtifact deploymentArtifact = nodeTemp.getArtifacts().get(artifactId);
         Assert.assertNotNull(deploymentArtifact);
         Assert.assertNotNull(deploymentArtifact.getArtifactType());
-        Assert.assertEquals(ARTIFACT_REFERENCE, deploymentArtifact.getArtifactRef());
         Assert.assertEquals(artifactName, deploymentArtifact.getArtifactName());
     }
 

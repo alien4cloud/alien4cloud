@@ -24,11 +24,8 @@ describe('Editing Relationship name', function() {
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
 
-    var nodeToEdit = element(by.id('rect_JavaRPM'));
-    nodeToEdit.click();
-
     // display only one bloc in node details : relationships
-    topologyEditorCommon.openOnlyOneBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('JavaRPM',topologyEditorCommon.nodeDetailsBlocsIds.rel);
 
     var relashionshipDiv = element(by.id('relationship_hostedOnCompute'));
     var relNameSpan = relashionshipDiv.element(by.css('span[editable-text]'));
@@ -65,16 +62,12 @@ describe('Editing Relationship name', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
 
-    var javaNode = element(by.id('rect_JavaRPM'));
-    javaNode.click();
-    browser.waitForAngular();
-
     // display only one bloc in node details : relationships
-    topologyEditorCommon.openOnlyOneBloc(topologyEditorCommon.nodeDetailsBlocsIds.rel);
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('JavaRPM',topologyEditorCommon.nodeDetailsBlocsIds.rel);
 
     var relashionshipPropertyDiv = element(by.id('relationshipProperties_hostedOnCompute'));
     expect(relashionshipPropertyDiv.isDisplayed()).toBe(true);
-    expect(element(by.id('p_name_password')).isPresent()).toBe(true);
+    expect(element(by.id('node-details-relationships-panel')).element(by.id('p_name_password')).isPresent()).toBe(true);
 
     var relPropertySpan = relashionshipPropertyDiv.element(by.css('span[editable-text]'));
     expect(relPropertySpan.isDisplayed()).toBe(true);

@@ -440,6 +440,7 @@
                       <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
                       <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
                       <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -448,6 +449,7 @@
                       <td>{{network.cidr}}</td>
                       <td>{{network.gatewayIp || '---'}}</td>
                       <td>{{network.ipVersion}}</td>
+                      <td>{{network.description || '---'}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -494,6 +496,7 @@
                       <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
                       <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
                       <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -502,6 +505,7 @@
                       <td>{{storage.device || '---'}}</td>
                       <td>{{storage.location || '---'}}</td>
                       <td>{{storage.size}} GB</td>
+                      <td>{{storage.description || '---'}}</td>
                     </tr>
                   </tbody>
                 </table>

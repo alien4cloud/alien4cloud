@@ -26,9 +26,15 @@ public class InputPropertiesStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
+    @When("^I remove the input property \"([^\"]*)\"$")
+    public void I_remove_the_input_property(String inputId) throws Throwable {
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(fullUrl));
+    }
+
     @When("^I unset the property \"([^\"]*)\" of the node \"([^\"]*)\" as input property$")
-    public void I_unset_the_property_of_the_node_as_input_property(String inputId, String nodeName) throws Throwable {
-        String url = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
+    public void I_unset_the_property_of_the_node_as_input_property(String propertyId, String nodeName) throws Throwable {
+        String url = String.format("/rest/topologies/%s/nodetemplates/%s/property/%s/input", Context.getInstance().getTopologyId(), nodeName, propertyId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(url));
     }
 
@@ -57,12 +63,6 @@ public class InputPropertiesStepDefinitions {
         Assert.assertNotNull(inputProperties);
         PropertyDefinition inputPropertieDefinition = inputProperties.get(inputId);
         Assert.assertNotNull(inputPropertieDefinition);
-    }
-
-    @When("^I remove the input property \"([^\"]*)\"$")
-    public void I_remove_the_input_property(String inputId) throws Throwable {
-        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(fullUrl));
     }
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
