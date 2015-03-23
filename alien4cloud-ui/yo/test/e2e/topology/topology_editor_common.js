@@ -256,8 +256,6 @@ function addRelationshipSelectCapability(targetNumber, targetNodeTemplateName, t
 }
 
 function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, requirementName, relationshipTypeId, relationName, targetedCapabilityName, newVersion, newId) {
-  // select the node template
-  // display only one bloc in node details : requirements
   selectNodeAndGoToDetailBloc(sourceNodeTemplateName, nodeDetailsBlocsIds.req);
 
   // select the requirement type
@@ -346,7 +344,6 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
-  browser.waitForAngular();
   // display only one bloc in node details : scaling
   collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
 
@@ -372,7 +369,6 @@ module.exports.removeScalingPolicy = removeScalingPolicy;
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
-  browser.waitForAngular();
   if(blocId){
     collapseNodeDetailsBloc(blocId);
   }
@@ -503,7 +499,7 @@ var checkNumberOfRelationship = function(expectedCount) {
 module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
 
 var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
-  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.req);
+  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.rel);
   checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
