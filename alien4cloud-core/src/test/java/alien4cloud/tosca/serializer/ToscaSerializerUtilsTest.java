@@ -128,6 +128,14 @@ public class ToscaSerializerUtilsTest {
         filledSet = Sets.newHashSet("something");
         innerMap2.put("key22", filledSet);
         Assert.assertTrue(utils.mapIsNotEmptyAndContainsNotnullValues(mapOfmap));
+
+        // ScalarPropertyValue
+        ScalarPropertyValue spv = new ScalarPropertyValue();
+        Map<String, AbstractPropertyValue> apvMap = new HashMap<String, AbstractPropertyValue>();
+        apvMap.put("key1", spv);
+        Assert.assertFalse(utils.mapIsNotEmptyAndContainsNotnullValues(apvMap));
+        spv.setValue("value");
+        Assert.assertTrue(utils.mapIsNotEmptyAndContainsNotnullValues(apvMap));
     }
 
     @Test
@@ -258,6 +266,16 @@ public class ToscaSerializerUtilsTest {
     public void testIsFunctionPropertyValue() {
         Assert.assertFalse(utils.isFunctionPropertyValue(new ScalarPropertyValue()));
         Assert.assertTrue(utils.isFunctionPropertyValue(new FunctionPropertyValue()));
+        Assert.assertFalse(utils.isFunctionPropertyValue(new AbstractPropertyValue() {
+        }));
+    }
+
+    @Test
+    public void testIsAbstractPropertyValueNotNull() {
+        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(null));
+        Assert.assertFalse(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue()));
+        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new ScalarPropertyValue("value")));
+        Assert.assertTrue(utils.isAbstractPropertyValueNotNull(new FunctionPropertyValue()));
         Assert.assertFalse(utils.isFunctionPropertyValue(new AbstractPropertyValue() {
         }));
     }
