@@ -8,7 +8,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,8 +34,6 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Component
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
-    public static final String CONTROLLER_SUFFIX = "Controller";
-
     @Resource
     private AuditService auditService;
 
@@ -61,28 +58,6 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return handlerMethod;
     }
 
-    private String getCategory(HandlerMethod method, Audit audit) {
-        if (audit != null && StringUtils.isNotBlank(audit.category())) {
-            return audit.category();
-        }
-        Object controllerBean = method.getBean();
-        if (controllerBean == null) {
-            return null;
-        }
-        String auditCategory = controllerBean.getClass().getSimpleName();
-        if (auditCategory.endsWith(CONTROLLER_SUFFIX) && auditCategory.length() > CONTROLLER_SUFFIX.length()) {
-            auditCategory = auditCategory.substring(0, auditCategory.length() - CONTROLLER_SUFFIX.length());
-        }
-        return auditCategory;
-    }
-
-    private String getAction(HandlerMethod method, Audit audit) {
-        if (audit != null && StringUtils.isNotBlank(audit.action())) {
-            return audit.action();
-        }
-        return method.getMethod().getName();
-    }
-
     private ApiOperation getApiDoc(HandlerMethod method) {
         return method.getMethodAnnotation(ApiOperation.class);
     }
@@ -92,19 +67,6 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return contentType != null && contentType.startsWith(MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private Audit getAudit(HandlerMethod method) {
-        Audit audit = method.getMethodAnnotation(Audit.class);
-        if (audit == null) {
-            Object controllerBean = method.getBean();
-            if (controllerBean == null) {
-                return null;
-            } else {
-                controllerBean.getClass().getAnnotation(Audit.class);
-            }
-        }
-        return audit;
-    }
-
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE - 10;
@@ -112,16 +74,16 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
     private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response, HandlerMethod method, User user, boolean requestContainsJson)
             throws IOException {
-        Audit audit = getAudit(method);
+        Audit audit = auditService.getAuditAnnotation(method);
         // trace user info only when he is logged
         AuditTrace auditTrace = new AuditTrace();
         auditTrace.setTimestamp(System.currentTimeMillis());
-        auditTrace.setAction(getAction(method, audit));
+        auditTrace.setAction(auditService.getAuditActionName(method, audit));
         ApiOperation apiDoc = getApiDoc(method);
         if (apiDoc != null) {
             auditTrace.setActionDescription(apiDoc.value());
         }
-        auditTrace.setCategory(getCategory(method, audit));
+        auditTrace.setCategory(auditService.getAuditCategoryName(method, audit));
         auditTrace.setUserName(user.getUsername());
         auditTrace.setUserFirstName(user.getFirstName());
         auditTrace.setUserLastName(user.getLastName());
@@ -157,7 +119,7 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
             filterChain.doFilter(request, response);
             return;
         }
-        if (!auditService.isMethodAudited(configuration, method.getMethod())) {
+        if (!auditService.isMethodAudited(configuration, method)) {
             filterChain.doFilter(request, response);
             return;
         }

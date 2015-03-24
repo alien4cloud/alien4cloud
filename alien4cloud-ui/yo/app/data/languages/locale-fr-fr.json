@@ -851,5 +851,16 @@
   "HOPSCOTCH_MISSING": {
     "TITLE": "Tour de présentation",
     "CONTENT": "Aucun tour de présentation pour cette page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Activé",
+        "ON": "Oui",
+        "OFF": "Non"
+      },
+      "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
+      "LABEL": "Configuration d'Audit"
+    }
   }
 }

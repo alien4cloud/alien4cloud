@@ -843,5 +843,16 @@
   "HOPSCOTCH_MISSING": {
     "TITLE": "Tour guide",
     "CONTENT": "The guide tour is missing for page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Enabled",
+        "ON": "Yes",
+        "OFF": "No"
+      },
+      "BACK_TO_AUDIT_LOG": "Back to audit logs",
+      "LABEL": "Audit Configuration"
+    }
   }
 }

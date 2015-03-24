@@ -1,6 +1,8 @@
 package alien4cloud.rest.audit;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -29,6 +31,7 @@ import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -55,7 +58,7 @@ public class AuditController {
             Map<Method, Boolean> existingMethodsMap = auditConfiguration.getAuditedMethodsMap();
             for (Map.Entry<Method, Boolean> methodEntry : allAvailableMethodsForAudit.entrySet()) {
                 Boolean existingMethodEnabled = existingMethodsMap.get(methodEntry.getKey());
-                if (existingMethodEnabled != null && !existingMethodEnabled.equals(methodEntry.getValue())) {
+                if (existingMethodEnabled != null) {
                     methodEntry.setValue(existingMethodEnabled);
                 }
             }
@@ -64,17 +67,30 @@ public class AuditController {
         auditService.saveAuditConfiguration(auditConfiguration);
     }
 
+    private static interface IAuditedMethodFactory<T extends Method> {
+        T buildAuditedMethod(Method auditedMethod, HandlerMethod method);
+    }
+
     private Map<Method, Boolean> getAllAvailableMethodsForAudit() {
+        return getAllAvailableMethodsForAudit(new IAuditedMethodFactory<Method>() {
+            @Override
+            public Method buildAuditedMethod(Method auditedMethod, HandlerMethod method) {
+                return auditedMethod;
+            }
+        });
+    }
+
+    private <T extends Method> Map<T, Boolean> getAllAvailableMethodsForAudit(IAuditedMethodFactory<T> methodFactory) {
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = this.requestMappingHandlerMapping.getHandlerMethods();
-        Map<Method, Boolean> allMethods = Maps.newHashMap();
+        Map<T, Boolean> allMethods = Maps.newHashMap();
         for (Map.Entry<RequestMappingInfo, HandlerMethod> handlerMethodEntry : handlerMethods.entrySet()) {
             HandlerMethod method = handlerMethodEntry.getValue();
-            Method auditedMethod = auditService.getAuditedMethod(method.getMethod());
+            Method auditedMethod = auditService.getAuditedMethod(method);
             if (auditedMethod != null) {
                 Audit audit = method.getMethodAnnotation(Audit.class);
                 boolean enabledByDefault = (audit != null && audit.enabledByDefault());
                 log.info("Audit method found {}, enabled by default {}", auditedMethod, enabledByDefault);
-                allMethods.put(new Method(auditedMethod.getPath(), auditedMethod.getMethod()), enabledByDefault);
+                allMethods.put(methodFactory.buildAuditedMethod(auditedMethod, method), enabledByDefault);
             } else {
                 log.info("Audit ignore mapping {} for method {}", handlerMethodEntry.getKey(), method);
             }
@@ -98,9 +114,31 @@ public class AuditController {
 
     @ApiOperation(value = "Get audit configuration", notes = "Get the audit configuration object. Audit configuration is only accessible to user with role [ ADMIN ]")
     @RequestMapping(value = "/configuration", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<AuditConfiguration> getAuditConfiguration() {
-        AuditConfiguration auditConfiguration = auditService.getMandatoryAuditConfiguration();
-        return RestResponseBuilder.<AuditConfiguration> builder().data(auditConfiguration).build();
+    public RestResponse<AuditConfigurationDTO> getAuditConfiguration() {
+        AuditConfiguration currentConfiguration = auditService.getMandatoryAuditConfiguration();
+        boolean auditEnabled = currentConfiguration.isEnabled();
+        final Map<Method, Boolean> currentMethodsConfigurationMap = currentConfiguration.getAuditedMethodsMap();
+        Map<String, List<AuditConfigurationDTO.AuditedMethodDTO>> methodsConfigurationDTO = Maps.newHashMap();
+        Set<AuditConfigurationDTO.AuditedMethodDTO> methodsDTOs = getAllAvailableMethodsForAudit(
+                new IAuditedMethodFactory<AuditConfigurationDTO.AuditedMethodDTO>() {
+                    @Override
+                    public AuditConfigurationDTO.AuditedMethodDTO buildAuditedMethod(Method auditedMethod, HandlerMethod method) {
+                        Audit auditAnnotation = auditService.getAuditAnnotation(method);
+                        return new AuditConfigurationDTO.AuditedMethodDTO(auditedMethod.getPath(), auditedMethod.getMethod(), currentMethodsConfigurationMap
+                                .get(auditedMethod), auditService.getAuditCategoryName(method, auditAnnotation), auditService.getAuditActionName(method,
+                                auditAnnotation));
+                    }
+                }).keySet();
+        for (AuditConfigurationDTO.AuditedMethodDTO methodDTO : methodsDTOs) {
+            List<AuditConfigurationDTO.AuditedMethodDTO> currentMethodsForCategory = methodsConfigurationDTO.get(methodDTO.getCategory());
+            if (currentMethodsForCategory == null) {
+                currentMethodsForCategory = Lists.newArrayList();
+                methodsConfigurationDTO.put(methodDTO.getCategory(), currentMethodsForCategory);
+            }
+            currentMethodsForCategory.add(methodDTO);
+        }
+        AuditConfigurationDTO auditConfigurationDTO = new AuditConfigurationDTO(auditEnabled, methodsConfigurationDTO);
+        return RestResponseBuilder.<AuditConfigurationDTO> builder().data(auditConfigurationDTO).build();
     }
 
     @ApiOperation(value = "Enable/Disable audit", notes = "Audit configuration update is only accessible to user with role [ ADMIN ]")

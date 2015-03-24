@@ -6,12 +6,15 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.audit.model.AuditConfiguration;
 import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.audit.model.Method;
@@ -23,6 +26,8 @@ import alien4cloud.security.AuthorizationUtil;
 @Component
 @Slf4j
 public class AuditService {
+
+    public static final String CONTROLLER_SUFFIX = "Controller";
 
     @Resource(name = "alien-audit-dao")
     private IGenericSearchDAO alienDAO;
@@ -90,12 +95,12 @@ public class AuditService {
         return methods[0].toString();
     }
 
-    public Method getAuditedMethod(java.lang.reflect.Method controllerMethod) {
-        RequestMapping methodMapping = AnnotationUtils.findAnnotation(controllerMethod, RequestMapping.class);
+    public Method getAuditedMethod(HandlerMethod controllerMethod) {
+        RequestMapping methodMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod(), RequestMapping.class);
         if (methodMapping == null) {
             return null;
         }
-        RequestMapping controllerMapping = AnnotationUtils.findAnnotation(controllerMethod.getDeclaringClass(), RequestMapping.class);
+        RequestMapping controllerMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod().getDeclaringClass(), RequestMapping.class);
         String contextPath = null;
         String httpMethod = null;
         if (controllerMapping != null) {
@@ -125,11 +130,44 @@ public class AuditService {
         return new Method(contextPath, httpMethod);
     }
 
-    public boolean isMethodAudited(AuditConfiguration auditConfiguration, java.lang.reflect.Method javaMethod) {
-        Method method = getAuditedMethod(javaMethod);
+    public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {
+        Method method = getAuditedMethod(controllerMethod);
         if (method == null) {
             return false;
         }
         return Boolean.TRUE.equals(auditConfiguration.getAuditedMethodsMap().get(method));
+    }
+
+    public String getAuditCategoryName(HandlerMethod method, Audit audit) {
+        if (audit != null && StringUtils.isNotBlank(audit.category())) {
+            return audit.category();
+        }
+        Object controllerBean = method.getBean();
+        if (controllerBean == null) {
+            return null;
+        }
+        String auditCategory = controllerBean.getClass().getSimpleName();
+        if (auditCategory.endsWith(CONTROLLER_SUFFIX) && auditCategory.length() > CONTROLLER_SUFFIX.length()) {
+            auditCategory = auditCategory.substring(0, auditCategory.length() - CONTROLLER_SUFFIX.length());
+        }
+        return auditCategory;
+    }
+
+    public String getAuditActionName(HandlerMethod method, Audit audit) {
+        if (audit != null && StringUtils.isNotBlank(audit.action())) {
+            return audit.action();
+        }
+        return method.getMethod().getName();
+    }
+
+    public Audit getAuditAnnotation(HandlerMethod method) {
+        Audit audit = method.getMethodAnnotation(Audit.class);
+        if (audit == null) {
+            Object controllerBean = method.getBean();
+            if (controllerBean != null) {
+                audit = AnnotationUtils.findAnnotation(controllerBean.getClass(), Audit.class);
+            }
+        }
+        return audit;
     }
 }

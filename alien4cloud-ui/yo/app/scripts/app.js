@@ -3,8 +3,8 @@
 'use strict';
 
 var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'ngSanitize', 'ui.router', 'alienAuth', 'searchServices',
-    'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl', 'ngTable',
-  ])
+  'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl', 'ngTable',
+])
   .config(function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
     $parseProvider.unwrapPromises(true);
     $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
@@ -20,52 +20,52 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       templateUrl: 'views/restricted.html'
     })
 
-    .state('home', {
-      url: '/',
-      templateUrl: 'views/main.html'
-    })
+      .state('home', {
+        url: '/',
+        templateUrl: 'views/main.html'
+      })
 
-    .state('home_user', {
-      templateUrl: 'views/main.html'
-    })
+      .state('home_user', {
+        templateUrl: 'views/main.html'
+      })
 
-    .state('user_home_admin', {
-      templateUrl: 'views/admin/home.html',
-      controller: 'AdminHomeCtrl'
-    })
+      .state('user_home_admin', {
+        templateUrl: 'views/admin/home.html',
+        controller: 'AdminHomeCtrl'
+      })
 
-    // components states
-    .state('components', {
-      url: '/components',
-      templateUrl: 'views/common/vertical_menu_layout.html',
-      controller: 'ComponentCtrl'
-    }).state('components.list', {
-      url: '/list',
-      templateUrl: 'views/components/component_list.html',
-      controller: 'SearchComponentCtrl'
-    }).state('components.detail', {
-      url: '/component/:id',
-      templateUrl: 'views/components/component_details.html',
-      controller: 'ComponentDetailsCtrl'
-    }).state('components.csars', {
-      url: '/csars',
-      template: '<ui-view/>'
-    }).state('components.csars.list', {
-      url: '/list',
-      templateUrl: 'views/components/csar_list.html',
-      controller: 'CsarListCtrl'
-    }).state('components.csars.csardetail', {
-      url: '/:csarId',
-      templateUrl: 'views/components/csar_details.html',
-      controller: 'CsarDetailsCtrl'
-    }).state('components.csars.csardetailnode', {
-      url: '/:csarId/node/:nodeTypeId',
-      templateUrl: 'views/csar_components/component_details.html',
-      controller: 'CsarComponentDetailsCtrl'
-    })
+      // components states
+      .state('components', {
+        url: '/components',
+        templateUrl: 'views/common/vertical_menu_layout.html',
+        controller: 'ComponentCtrl'
+      }).state('components.list', {
+        url: '/list',
+        templateUrl: 'views/components/component_list.html',
+        controller: 'SearchComponentCtrl'
+      }).state('components.detail', {
+        url: '/component/:id',
+        templateUrl: 'views/components/component_details.html',
+        controller: 'ComponentDetailsCtrl'
+      }).state('components.csars', {
+        url: '/csars',
+        template: '<ui-view/>'
+      }).state('components.csars.list', {
+        url: '/list',
+        templateUrl: 'views/components/csar_list.html',
+        controller: 'CsarListCtrl'
+      }).state('components.csars.csardetail', {
+        url: '/:csarId',
+        templateUrl: 'views/components/csar_details.html',
+        controller: 'CsarDetailsCtrl'
+      }).state('components.csars.csardetailnode', {
+        url: '/:csarId/node/:nodeTypeId',
+        templateUrl: 'views/csar_components/component_details.html',
+        controller: 'CsarComponentDetailsCtrl'
+      })
 
-    // applications states
-    .state('applications', {
+      // applications states
+      .state('applications', {
         url: '/applications',
         template: '<ui-view/>'
       }).state('applications.list', {
@@ -100,8 +100,8 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               return applicationVersionServices.searchVersion({
                 applicationId: application.data.id
               }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
-                return result.data.data;
-              });
+                  return result.data.data;
+                });
             }
           ]
         },
@@ -251,8 +251,15 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         controller: 'MetricsController'
       }).state('admin.audit', {
         url: '/audit',
+        template: '<ui-view/>'
+      }).state('admin.audit.log', {
+        url: '/log',
         templateUrl: 'views/admin/audit.html',
         controller: 'AuditController'
+      }).state('admin.audit.conf', {
+        url: '/conf',
+        templateUrl: 'views/admin/audit_conf.html',
+        controller: 'AuditConfController'
       }).state('admin.cloud-images', {
         url: '/cloud-images',
         template: '<ui-view/>'
@@ -268,21 +275,21 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               return cloudImageServices.get({
                 id: $stateParams.id
               }).$promise.then(function(success) {
-                var cloudImage = success.data;
-                if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
-                  cloudImage.numCPUs = cloudImage.requirement.numCPUs;
-                  cloudImage.diskSize = cloudImage.requirement.diskSize;
-                  cloudImage.memSize = cloudImage.requirement.memSize;
-                }
-                return cloudImage;
-              });
+                  var cloudImage = success.data;
+                  if (UTILS.isDefinedAndNotNull(cloudImage.requirement)) {
+                    cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                    cloudImage.diskSize = cloudImage.requirement.diskSize;
+                    cloudImage.memSize = cloudImage.requirement.memSize;
+                  }
+                  return cloudImage;
+                });
             }
           ]
         },
         templateUrl: 'views/cloud-images/cloud_image_detail.html',
         controller: 'CloudImageDetailController'
       });
-    });
+  });
 
 /* i18n : angular-translate configuration */
 alien4cloudApp.config(['$translateProvider',
@@ -332,7 +339,7 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     // state routing
     $rootScope.$on('$stateChangeSuccess', function(event, toState) {
       var forward = stateForward[toState.name];
-      if(UTILS.isDefinedAndNotNull(forward)) {
+      if (UTILS.isDefinedAndNotNull(forward)) {
         $state.go(forward);
       }
     });
@@ -374,16 +381,16 @@ alien4cloudApp.run(['alienNavBarService', 'editableOptions', 'editableThemes', '
     editableThemes.bs3.inputClass = 'input-sm';
     editableThemes.bs3.buttonsClass = 'btn-sm';
     editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
-      ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
-      ' confirm-title="{{\'CONFIRM\' | translate }}"' +
-      ' confirm-placement="left"' +
-      ' cancel-handler="$form.$cancel()"' +
-      ' ng-click="$event.stopPropagation();">' +
-      '<span class="fa fa-check"></span>' +
-      '</button>';
+    ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
+    ' confirm-title="{{\'CONFIRM\' | translate }}"' +
+    ' confirm-placement="left"' +
+    ' cancel-handler="$form.$cancel()"' +
+    ' ng-click="$event.stopPropagation();">' +
+    '<span class="fa fa-check"></span>' +
+    '</button>';
     editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
-      '<span class="fa fa-times"></span>' +
-      '</button>';
+    '<span class="fa fa-times"></span>' +
+    '</button>';
     editableOptions.theme = 'bs3';
   }
 ]);

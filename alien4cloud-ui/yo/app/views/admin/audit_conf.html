@@ -1,0 +1,25 @@
+<div ng-controller="AuditConfController">
+  <div class="row">
+    <div class="col-md-12">
+      <a id="backToAuditLogButton" type="button" class="btn btn-default btn-sm" href="">
+        <i class="fa fa-arrow-left"></i> {{'AUDIT.CONFIGURATION.BACK_TO_AUDIT_LOG' | translate}}
+      </a>
+
+      <h3><i class="fa fa-wrench"></i> {{ 'AUDIT.CONFIGURATION.LABEL' | translate }}</h3>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 20px;">
+    <label class="control-label col-md-2">{{ 'AUDIT.CONFIGURATION.ENABLED.LABEL' | translate }}</label>
+
+    <div class="col-md-10">
+      <div class="btn-group" data-toggle="buttons">
+        <label class="btn btn-default btn-xs">
+          <input type="radio" name="enabledOptions" id="enabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.ON' | translate }}
+        </label>
+        <label class="btn btn-default btn-xs">
+          <input type="radio" name="enabledOptions" id="disabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.OFF' | translate }}
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
