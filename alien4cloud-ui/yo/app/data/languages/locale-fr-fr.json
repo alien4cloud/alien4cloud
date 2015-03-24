@@ -268,6 +268,7 @@
     "UNDEPLOYED": "Non déployé",
     "DEPLOYMENT_IN_PROGRESS": "Déploiement en cours",
     "UNDEPLOYMENT_IN_PROGRESS": "Arrêt en cours",
+    "UNKNOWN": "Inconnu",
     "WARNING": "Alerte",
     "FAILURE": "Echoué",
     "DEPLOY": "Déployer",
@@ -668,6 +669,7 @@
     "607": "Un environnement déployé ne peut être supprimé",
     "605": "Le format de version saisie est invalide",
     "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
+    "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",

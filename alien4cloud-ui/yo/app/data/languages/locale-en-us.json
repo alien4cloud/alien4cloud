@@ -262,6 +262,7 @@
     "UNDEPLOYED": "Undeployed",
     "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
     "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
+    "UNKNOWN": "Unknwon",
     "WARNING": "Warning",
     "FAILURE": "Failed",
     "DEPLOY": "Deploy",
@@ -660,6 +661,8 @@
     "604": "An application must necessarily have at least one environment",
     "605": "Invalid format version",
     "607": "A deployed environment can not be deleted",
+    "608": "Only SNAPSHOT applications can be modified",
+    "609": "PaaS provider unreachable after triggering the deployment",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
