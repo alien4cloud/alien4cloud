@@ -24,7 +24,7 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       visible: true
     },{
       title: 'Action',
-      field: 'category', // TODO: change for action
+      field: 'action',
       visible: true
     },{
       title: 'Method',
