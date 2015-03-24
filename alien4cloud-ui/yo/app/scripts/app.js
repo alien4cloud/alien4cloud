@@ -3,7 +3,7 @@
 'use strict';
 
 var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'ngSanitize', 'ui.router', 'alienAuth', 'searchServices',
-    'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl'
+    'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl', 'ngTable',
   ])
   .config(function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
     $parseProvider.unwrapPromises(true);
@@ -251,8 +251,8 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         controller: 'MetricsController'
       }).state('admin.audit', {
         url: '/audit',
-        templateUrl: 'views/admin/metrics.html',
-        controller: 'MetricsController'
+        templateUrl: 'views/admin/audit.html',
+        controller: 'AuditController'
       }).state('admin.cloud-images', {
         url: '/cloud-images',
         template: '<ui-view/>'
