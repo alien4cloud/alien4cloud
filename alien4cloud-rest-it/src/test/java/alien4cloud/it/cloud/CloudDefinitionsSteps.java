@@ -210,8 +210,12 @@ public class CloudDefinitionsSteps {
         String restResponse = Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp));
         Context.getInstance().registerRestResponse(restResponse);
         RestResponse<Cloud> response = JsonUtil.read(Context.getInstance().getRestResponse(), Cloud.class);
-        String cloudId = response.getData().getId();
-        Context.getInstance().registerCloud(cloudId, name);
+        if (response != null && response.getData() != null) {
+            String cloudId = response.getData().getId();
+            if (cloudId != null) {
+                Context.getInstance().registerCloud(cloudId, name);
+            }
+        }
     }
 
     @When("^I get the cloud \"([^\"]*)\"$")

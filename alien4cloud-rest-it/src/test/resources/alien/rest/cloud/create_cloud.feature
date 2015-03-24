@@ -83,3 +83,10 @@ Scenario: Clone a cloud
   And The SPEL expression "firstArgument" should return "firstArgument"
   And The SPEL expression "secondArgument" should return "secondArgument"
   
+Scenario: Clone a cloud twice
+  Given I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+  And I clone the cloud with name "Mount doom cloud"
+  When I clone the cloud with name "Mount doom cloud"
+  Then I should receive a RestResponse with no error  
+  When I get the cloud by name "Mount doom cloud-2"
+  Then I should receive a RestResponse with no error  
