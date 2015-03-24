@@ -256,8 +256,6 @@ function addRelationshipSelectCapability(targetNumber, targetNodeTemplateName, t
 }
 
 function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, requirementName, relationshipTypeId, relationName, targetedCapabilityName, newVersion, newId) {
-  // select the node template
-  // display only one bloc in node details : requirements
   selectNodeAndGoToDetailBloc(sourceNodeTemplateName, nodeDetailsBlocsIds.req);
 
   // select the requirement type
@@ -346,7 +344,6 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
-  browser.waitForAngular();
   // display only one bloc in node details : scaling
   collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
 
@@ -372,7 +369,6 @@ module.exports.removeScalingPolicy = removeScalingPolicy;
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
-  browser.waitForAngular();
   if(blocId){
     collapseNodeDetailsBloc(blocId);
   }
@@ -503,7 +499,7 @@ var checkNumberOfRelationship = function(expectedCount) {
 module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
 
 var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
-  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.req);
+  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.rel);
   checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
@@ -515,6 +511,7 @@ var expectDeploymentWork = function(goToAppDetail, work) {
     navigation.go('applications', 'deployment');
   }
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
+  browser.waitForAngular();
   if (work) {
     expect(deployButton.getAttribute('disabled')).toBeNull();
     expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
@@ -524,6 +521,20 @@ var expectDeploymentWork = function(goToAppDetail, work) {
   }
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
+
+var expectShowTodoList = function(goToAppDetail, isDisplay) {
+  if (goToAppDetail) {
+    authentication.reLogin('applicationManager');
+    applications.goToApplicationDetailPage('Alien', false);
+    navigation.go('applications', 'deployment');
+  }
+  if (isDisplay) {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(true);
+  } else {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(false);
+  }
+};
+module.exports.expectShowTodoList = expectShowTodoList;
 
 /** Close or open a specific node template details bloc */
 var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
@@ -535,6 +546,7 @@ var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
       ngClass.then(function(classes) {
         // test if the bloc is opened and then close it
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
+          browser.waitForAngular();
           myBlockIcon.click();
           browser.waitForAngular();
         }
