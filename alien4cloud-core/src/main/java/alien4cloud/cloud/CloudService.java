@@ -806,4 +806,35 @@ public class CloudService {
         initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
         alienDAO.save(cloud);
     }
+
+    /**
+     * Clone the cloud, the config will also been cloned.
+     */
+    public String clone(String id) {
+        Cloud cloud = getMandatoryCloud(id);
+        Object cloudConfig = getConfiguration(id);
+        cloud.setName(getUniqueCloudName(cloud.getName(), 0));
+        String cloudId = create(cloud);
+        if (cloudConfig != null) {
+            // we apply the previous config to this new created cloud
+            updateConfiguration(cloudId, cloudConfig);
+        }
+        return cloudId;
+    }
+
+    /**
+     * Recursively find a unique cloud name composed of the baseName eventually followed by an index.
+     */
+    private String getUniqueCloudName(String baseName, int attemptCount) {
+        String name = baseName;
+        if (attemptCount > 0) {
+            name += "-" + attemptCount;
+        }
+        if (alienDAO.count(Cloud.class, QueryBuilders.termQuery("name", name)) > 0) {
+            return getUniqueCloudName(baseName, ++attemptCount);
+        } else {
+            return name;
+        }
+    }
+
 }

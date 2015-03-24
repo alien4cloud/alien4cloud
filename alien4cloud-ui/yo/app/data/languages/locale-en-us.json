@@ -6,6 +6,7 @@
   "CODE": "en-us",
   "CANCEL": "Cancel",
   "CREATE": "Create",
+  "CLONE": "Clone",
   "DELETE": "Delete",
   "DELETE_CONFIRM": "Do you really want to remove this element ?",
   "CONFIRM_MESSAGE": "Do you really want to perfom this action?",

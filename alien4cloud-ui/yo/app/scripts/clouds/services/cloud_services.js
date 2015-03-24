@@ -143,7 +143,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
 
     var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
-
+    
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
         method: 'POST',
@@ -235,6 +235,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       }
     });
 
+    var cloneCloud = $resource('rest/clouds/:id/clone');    
+    
     return {
       'create': crudCloud.create,
       'get': crudCloud.get,
@@ -259,7 +261,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'setCloudNetworkResource': cloudNetworkResource.save,
       'setCloudImageResource' : cloudImageResource.save,
       'setCloudFlavorResource' : cloudFlavorResource.save,
-      'setCloudStorageResource' : cloudStorageResource.save
+      'setCloudStorageResource' : cloudStorageResource.save,
+      'cloneCloud' : cloneCloud.save
     };
   }
 ]);

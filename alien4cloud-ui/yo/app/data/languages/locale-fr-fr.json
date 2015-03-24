@@ -6,6 +6,7 @@
   "CODE": "fr-fr",
   "CANCEL": "Annuler",
   "CREATE": "Créer",
+  "CLONE": "Cloner",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
   "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
