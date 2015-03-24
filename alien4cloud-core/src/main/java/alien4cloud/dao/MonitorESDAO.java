@@ -9,16 +9,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Elastic Search DAO for Monitor events in Alien application.
@@ -38,7 +34,7 @@ public class MonitorESDAO extends ESGenericSearchDAO {
     public void initEnvironment() {
         // init ES annotation scanning
         try {
-            getMappingBuilder().initialize("alien4cloud");
+            getMappingBuilder().initialize("alien4cloud.paas.model");
         } catch (IntrospectionException | IOException e) {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
@@ -50,16 +46,5 @@ public class MonitorESDAO extends ESGenericSearchDAO {
         initIndices("deployedtopologies", null, Topology.class);
         initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initCompleted();
-    }
-
-    public static class ElasticSearchMapper extends ObjectMapper {
-        private static final long serialVersionUID = 1L;
-
-        public ElasticSearchMapper() {
-            super();
-            this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-        }
     }
 }

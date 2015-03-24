@@ -15,7 +15,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 @Slf4j
 public class AuditLogRepository {
 
-    @Resource(name = "alien-es-dao")
+    @Resource(name = "alien-audit-dao")
     private IGenericSearchDAO alienDAO;
 
     public List<AuditTrace> findAll() {

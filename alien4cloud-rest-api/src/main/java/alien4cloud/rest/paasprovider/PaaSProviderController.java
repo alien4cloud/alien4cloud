@@ -21,7 +21,6 @@ import alien4cloud.plugin.PluginDescriptor;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.TopologyService;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -36,8 +35,6 @@ public class PaaSProviderController {
     private PaaSProviderFactoriesService paaSProviderFactoriesService;
     @Resource
     private PluginManager pluginManager;
-    @Resource
-    private TopologyService topologyService;
 
     @ApiOperation(value = "Retrieve a list of available PaaSProvider .", notes = "")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

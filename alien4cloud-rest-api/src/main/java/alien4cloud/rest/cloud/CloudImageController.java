@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.DeleteReferencedObjectException;
@@ -54,6 +55,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Create a new cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<String> create(
             @ApiParam(value = "The instance of cloud image to add.", required = true) @Valid @RequestBody CloudImageCreateRequest request) {
         CloudImage cloudImage = new CloudImage();
@@ -82,6 +84,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Update an existing cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> update(@ApiParam(value = "The cloud image id to update.", required = true) @PathVariable String id,
             @ApiParam(value = "The update request.", required = true) @Valid @RequestBody CloudImageUpdateRequest request) {
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(id);
@@ -112,6 +115,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Delete an existing cloud image. The operation fails in case a cloud is still using the image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> delete(@ApiParam(value = "Id of the cloud image to delete.", required = true) @PathVariable String id) {
         String[] cloudsUsingImage = cloudImageService.getCloudsUsingImage(id);
         if (cloudsUsingImage.length > 0) {
@@ -156,6 +160,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Updates the icon for the cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/icon", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<String> updateImage(@PathVariable String id, @RequestParam("file") MultipartFile image) {
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(id);
         String iconId;
