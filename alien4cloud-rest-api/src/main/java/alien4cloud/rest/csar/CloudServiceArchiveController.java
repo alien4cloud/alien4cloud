@@ -15,6 +15,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.audit.annotation.Audit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,6 +113,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<CsarUploadResult> uploadCSAR(@RequestParam("file") MultipartFile csar) throws IOException {
         Path csarPath = null;
         try {
@@ -180,6 +182,7 @@ public class CloudServiceArchiveController {
     @ApiOperation(value = "Create a CSAR in SNAPSHOT version.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
+    @Audit
     public RestResponse<String> createSnapshot(@Valid @RequestBody CreateCsarRequest request) {
         // new csar instance to save
         Csar csar = new Csar();
@@ -202,6 +205,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Add dependency to the csar with given id.")
     @RequestMapping(value = "/{csarId:.+?}/dependencies", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Boolean> addDependency(@PathVariable String csarId, @Valid @RequestBody CSARDependency dependency) {
         Csar csar = csarDAO.findById(Csar.class, csarId);
         if (csar == null) {
@@ -219,6 +223,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Delete a CSAR given its id.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
 
@@ -265,6 +270,7 @@ public class CloudServiceArchiveController {
     @ApiIgnore
     // @ApiOperation(value = "Create or update a node type in the given cloud service archive.")
     @RequestMapping(value = "/{csarId:.+?}/nodetypes", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> saveNodeType(@PathVariable String csarId, @RequestBody IndexedNodeType nodeType) {
         Csar csar = csarService.getMandatoryCsar(csarId);
         // check that the csar version is snapshot.
@@ -316,6 +322,7 @@ public class CloudServiceArchiveController {
 
     @ApiOperation(value = "Deploy snapshot archive on a given cloud.")
     @RequestMapping(value = "/{csarName:.+?}/version/{csarVersion:.+?}/cloudid/{cloudId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<String> deploySnapshot(@PathVariable String csarName, @PathVariable String csarVersion, @PathVariable String cloudId)
             throws CSARVersionNotFoundException, IOException {
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);

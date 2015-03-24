@@ -89,3 +89,7 @@ documentation:
   services:
     version: 1.0
     basePath: rest
+
+audit:
+  ttl: 1d
+  enabled: true

@@ -30,6 +30,14 @@ public class AuditTrace {
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
+    @TermsFacet
+    private String action;
+
+    @StringField(indexType = IndexType.analyzed)
+    private String actionDescription;
+
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String userName;
 
     @TermFilter
@@ -64,8 +72,6 @@ public class AuditTrace {
     @StringField(indexType = IndexType.not_analyzed)
     @TermsFacet
     private int responseStatus;
-
-    private String responseBody;
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)

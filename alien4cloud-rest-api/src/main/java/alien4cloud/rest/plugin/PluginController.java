@@ -16,16 +16,32 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.plugin.*;
-import alien4cloud.rest.model.*;
+import alien4cloud.plugin.IPluginConfigurator;
+import alien4cloud.plugin.Plugin;
+import alien4cloud.plugin.PluginConfiguration;
+import alien4cloud.plugin.PluginLoadingException;
+import alien4cloud.plugin.PluginManager;
+import alien4cloud.plugin.PluginUsage;
+import alien4cloud.rest.model.BasicSearchRequest;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
@@ -54,6 +70,7 @@ public class PluginController {
 
     @ApiOperation(value = "Upload a plugin archive.", notes = "Error code can be 300 (INDEXING_SERVICE_ERROR) in case of a backend IO issue.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> upload(@RequestParam("file") MultipartFile pluginArchive) {
         Path pluginPath = null;
         try {
@@ -125,6 +142,7 @@ public class PluginController {
 
     @ApiOperation(value = "Enable a plugin.", notes = "Enable and load a plugin. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/enable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> enablePlugin(@PathVariable String pluginId) {
         try {
             this.pluginManager.enablePlugin(pluginId);
@@ -137,6 +155,7 @@ public class PluginController {
 
     @ApiOperation(value = "Disable a plugin.", notes = "Disable a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/disable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<List<PluginUsage>> disablePlugin(@PathVariable String pluginId) {
         List<PluginUsage> usages = this.pluginManager.disablePlugin(pluginId, false);
         if (usages == null || usages.isEmpty()) {
@@ -151,6 +170,7 @@ public class PluginController {
 
     @ApiOperation(value = "Remove a plugin.", notes = "Remove a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<List<PluginUsage>> removePlugin(@PathVariable String pluginId) {
         List<PluginUsage> usages = this.pluginManager.disablePlugin(pluginId, true);
         if (usages == null || usages.isEmpty()) {
@@ -197,6 +217,7 @@ public class PluginController {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @ApiOperation(value = "Save a configuration object for a plugin.", notes = "Save a configuration object for a plugin. Returns the newly saved configuration.  Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Object> savePluginConfiguration(@PathVariable String pluginId, @RequestBody Object configObjectRequest) {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();
 
