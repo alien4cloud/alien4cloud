@@ -14,7 +14,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -27,10 +26,12 @@ import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.User;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Charsets;
 import com.wordnik.swagger.annotations.ApiOperation;
 
+/**
+ * This filter is used to intercept all rest call that need to be audited
+ */
 @Component
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
@@ -38,9 +39,6 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
     @Resource
     private AuditService auditService;
-
-    @Resource
-    private AuditLogRepository logRepository;
 
     @Resource
     private HandlerMapping mapping;
@@ -112,15 +110,6 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return Ordered.LOWEST_PRECEDENCE - 10;
     }
 
-    /**
-     * Construct audit trace
-     * 
-     * @param request
-     * @param response
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
     private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response, HandlerMethod method, User user, boolean requestContainsJson)
             throws IOException {
         Audit audit = getAudit(method);
@@ -154,14 +143,21 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         AuditConfiguration configuration = auditService.getAuditConfiguration();
-        User user = AuthorizationUtil.getCurrentUser();
-        HandlerMethod method = getHandlerMethod(request);
-        if (configuration == null || !configuration.isEnabled() || user == null || method == null) {
+        if (configuration == null || !configuration.isEnabled()) {
             filterChain.doFilter(request, response);
             return;
         }
-        RequestMapping requestMapping = method.getMethodAnnotation(RequestMapping.class);
-        if (!auditService.isMethodAudited(configuration, requestMapping)) {
+        User user = AuthorizationUtil.getCurrentUser();
+        if (user == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        HandlerMethod method = getHandlerMethod(request);
+        if (method == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (!auditService.isMethodAudited(configuration, method.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -179,8 +175,11 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
                 logger.warn("Unable to construct audit trace", e);
             }
             if (auditTrace != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(auditTrace.toString());
+                }
                 try {
-                    this.logRepository.add(auditTrace);
+                    auditService.saveAuditTrace(auditTrace);
                 } catch (Exception e) {
                     logger.warn("Unable to save audit trace " + auditTrace, e);
                 }
