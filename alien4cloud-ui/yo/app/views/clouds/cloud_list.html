@@ -41,8 +41,8 @@
               <td>{{cloud.name  || '---' }}</td>
               <td>{{cloud.paasProviderName || '---' }}</td>
               <td>
-                <a class="btn btn-success">
-                  <i class="fa fa-copy" tooltip="{{'CLONE' | translate }}" ng-click="$event.stopPropagation(); cloneCloud(cloud.id)"></i>
+                <a class="btn btn-success" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); cloneCloud(cloud.id)">
+                  <i class="fa fa-copy" tooltip="{{'CLONE' | translate }}" ></i>
                 </a>
               </td>
             </tr>

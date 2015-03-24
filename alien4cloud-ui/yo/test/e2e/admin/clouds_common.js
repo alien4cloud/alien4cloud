@@ -51,6 +51,13 @@ var goToCloudDetail = function(cloudName) {
 };
 module.exports.goToCloudDetail = goToCloudDetail;
 
+var cloneCloud = function(cloudName) {
+  goToCloudList();
+  browser.element(by.id('clone_cloud_' + cloudName)).click();
+  browser.waitForAngular();
+};
+module.exports.cloneCloud = cloneCloud;
+
 var enableCloud = function() {
   browser.element(by.id('cloud-enable-button')).click();
   browser.waitForAngular();

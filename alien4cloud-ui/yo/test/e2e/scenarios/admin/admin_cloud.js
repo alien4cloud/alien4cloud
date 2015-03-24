@@ -39,6 +39,18 @@ describe('Test the cloud management: ', function() {
     expect(browser.isElementPresent(by.name('testcloud'))).toBe(true);
   });
 
+  it('should clone a cloud.', function() {
+    console.log('################# should clone a cloud.');
+    cloudsCommon.cloneCloud('testcloud');
+    cloudsCommon.goToCloudList();
+    expect(browser.isElementPresent(by.name('testcloud-1'))).toBe(true);
+    expect(cloudsCommon.countCloud()).toBe(2);
+    cloudsCommon.goToCloudDetail('testcloud-1');
+    cloudsCommon.deleteCloud();
+    cloudsCommon.goToCloudList();
+    expect(cloudsCommon.countCloud()).toBe(1);
+  });  
+  
   it('should create network', function() {
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.addNewNetwork('private', '192.168.0.0/24', false, '192.168.0.1', '4');
