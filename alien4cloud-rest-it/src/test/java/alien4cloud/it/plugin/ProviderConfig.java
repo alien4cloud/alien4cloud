@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.common.Tag;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.ui.form.annotation.FormProperties;
 import alien4cloud.ui.form.annotation.FormPropertyConstraint;
 import alien4cloud.ui.form.annotation.FormPropertyDefinition;
@@ -36,4 +36,6 @@ public class ProviderConfig {
     private String javaVersion;
 
     private boolean provideResourceIds;
+
+    private int resourceIdsCount;
 }

@@ -27,6 +27,7 @@
               <th>{{ 'CLOUDS.STATE' | translate}}</th>
               <th>{{ 'CLOUDS.NAME' | translate}}</th>
               <th>{{ 'CLOUDS.PAAS_PROVIDER' | translate}}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -39,6 +40,11 @@
                 tooltip="{{'CLOUDS.ENABLED_' + cloud.enabled | translate }}"></i></td>
               <td>{{cloud.name  || '---' }}</td>
               <td>{{cloud.paasProviderName || '---' }}</td>
+              <td>
+                <a class="btn btn-success">
+                  <i class="fa fa-copy" tooltip="{{'CLONE' | translate }}" ng-click="$event.stopPropagation(); cloneCloud(cloud.id)"></i>
+                </a>
+              </td>
             </tr>
           </tbody>
         </table>

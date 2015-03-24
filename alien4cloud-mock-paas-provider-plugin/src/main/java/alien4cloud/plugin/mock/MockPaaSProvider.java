@@ -491,8 +491,12 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     @Override
     public String[] getAvailableResourceIds(CloudResourceType resourceType) {
         if (providerConfiguration != null && providerConfiguration.isProvideResourceIds()) {
-            String[] ids = new String[10];
-            for (int i = 0; i < 10; i++) {
+            int idCount = providerConfiguration.getResourceIdsCount();
+            if (idCount == 0) {
+                idCount = 10;
+            }
+            String[] ids = new String[idCount];
+            for (int i = 0; i < idCount; i++) {
                 ids[i] = "yetAnotherResourceId-" + resourceType.name() + "-" + i;
             }
             return ids;

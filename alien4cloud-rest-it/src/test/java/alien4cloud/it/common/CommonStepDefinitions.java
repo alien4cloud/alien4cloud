@@ -39,6 +39,7 @@ import alien4cloud.security.groups.Group;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 
 @Slf4j
 public class CommonStepDefinitions {
@@ -187,6 +188,12 @@ public class CommonStepDefinitions {
         String result = exp.getValue(context).toString();
         Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
         Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+    }
+
+    @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")
+    public void I_register_the_rest_response_data_as_SPEL_context(String type) throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        Context.getInstance().buildEvaluationContext(response.getData());
     }
 
 }
