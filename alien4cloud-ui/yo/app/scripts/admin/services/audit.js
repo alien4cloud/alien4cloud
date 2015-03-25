@@ -13,8 +13,12 @@ angular.module('alienUiApp').factory('auditService', ['$resource', function($res
     }
   });
 
+  var auditConfiguration = $resource('/rest/audit/configuration/:field');
+
   return {
-    'search': auditSearch.search
+    'search': auditSearch.search,
+    'getConfiguration': auditConfiguration.get,
+    'saveConfiguration': auditConfiguration.save
   };
 
 }]);

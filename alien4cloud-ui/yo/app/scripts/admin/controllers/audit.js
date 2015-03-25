@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditService', 'ngTableParams', '$filter', '$timeout',
-  function($scope, auditService, ngTableParams, $filter, $timeout) {
+angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditService', 'ngTableParams', '$filter', '$timeout', '$state',
+  function($scope, auditService, ngTableParams, $filter, $timeout, $state) {
 
     // display configuration
     var timestampFormat = 'medium';
@@ -77,6 +77,10 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       } else {
         return value;
       }
+    };
+
+    $scope.goToAuditConfiguration = function() {
+      $state.go('admin.audit.conf');
     };
 
     //////////////////////////////////

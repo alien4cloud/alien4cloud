@@ -1,5 +1,11 @@
-<div ng-controller="AuditController" class="search-row">
+<div class="search-row">
 
+  <h2>
+    {{ 'AUDIT.LOG' | translate }}
+    <a id="configureAuditButton" type="button" tooltip="{{'AUDIT.CONFIGURATION.LABEL' | translate}}" class="btn btn-default btn-xs" href="" ng-click="goToAuditConfiguration()">
+      <i class="fa fa-wrench"></i>
+    </a>
+  </h2>
   <div id="comp-search-side-pannel" class="search-columns search-filter-side">
 
     <!-- Search result column -->

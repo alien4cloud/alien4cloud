@@ -6,11 +6,15 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.FilterBuilder;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.audit.model.AuditConfiguration;
 import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.audit.model.Method;
@@ -22,6 +26,8 @@ import alien4cloud.security.AuthorizationUtil;
 @Component
 @Slf4j
 public class AuditService {
+
+    public static final String CONTROLLER_SUFFIX = "Controller";
 
     @Resource(name = "alien-audit-dao")
     private IGenericSearchDAO alienDAO;
@@ -37,15 +43,19 @@ public class AuditService {
      * @return the audit configuration
      */
     public synchronized AuditConfiguration getAuditConfiguration() {
-        if (auditConfiguration == null) {
+        if (this.auditConfiguration == null) {
             this.auditConfiguration = alienDAO.customFind(AuditConfiguration.class, null);
         }
         return this.auditConfiguration;
     }
 
     public synchronized void saveAuditConfiguration(AuditConfiguration auditConfiguration) {
-        this.auditConfiguration = auditConfiguration;
         alienDAO.save(auditConfiguration);
+        this.auditConfiguration = auditConfiguration;
+    }
+
+    public void saveAuditTrace(AuditTrace auditTrace) {
+        alienDAO.save(auditTrace);
     }
 
     public AuditConfiguration getMandatoryAuditConfiguration() {
@@ -61,27 +71,96 @@ public class AuditService {
         return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size);
     }
 
-    public Method getAuditedMethod(RequestMapping requestMapping) {
-        if (requestMapping == null) {
+    private String getRequestMappingPath(RequestMapping requestMapping) {
+        String[] paths = requestMapping.value();
+        if (paths.length == 0) {
             return null;
         }
-        String[] requestMappingPaths = requestMapping.value();
-        RequestMethod[] requestMethods = requestMapping.method();
-        if (requestMappingPaths.length == 0 || requestMethods.length == 0) {
+        if (paths.length > 1) {
+            log.error("Audit does not support mapping http path more than once to the same Spring Controller method");
             return null;
         }
-        if (requestMappingPaths.length > 1 || requestMethods.length > 1) {
-            log.error("Audit does not support mapping http path more than once to the same Spring Controller method " + requestMapping.value());
-            return null;
-        }
-        return new Method(requestMappingPaths[0], requestMethods[0].name());
+        return paths[0];
     }
 
-    public boolean isMethodAudited(AuditConfiguration auditConfiguration, RequestMapping requestMapping) {
-        Method method = getAuditedMethod(requestMapping);
+    private String getRequestMappingMethod(RequestMapping requestMapping) {
+        RequestMethod[] methods = requestMapping.method();
+        if (methods.length == 0) {
+            return null;
+        }
+        if (methods.length > 1) {
+            log.error("Audit does not support mapping http method more than once to the same Spring Controller method");
+            return null;
+        }
+        return methods[0].toString();
+    }
+
+    public Method getAuditedMethod(HandlerMethod controllerMethod) {
+        RequestMapping methodMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod(), RequestMapping.class);
+        if (methodMapping == null) {
+            return null;
+        }
+        RequestMapping controllerMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod().getDeclaringClass(), RequestMapping.class);
+        String contextPath = null;
+        String httpMethod = null;
+        if (controllerMapping != null) {
+            httpMethod = getRequestMappingMethod(controllerMapping);
+            contextPath = getRequestMappingPath(controllerMapping);
+            if (methodMapping != null) {
+                String methodContextPath = getRequestMappingPath(methodMapping);
+                String methodHttpMethod = getRequestMappingMethod(methodMapping);
+                if (contextPath == null) {
+                    contextPath = methodContextPath;
+                } else if (methodContextPath != null) {
+                    // Concatenate controller context path to the method context path
+                    contextPath += methodContextPath;
+                }
+                if (httpMethod == null) {
+                    // Controller http method override method http method
+                    httpMethod = methodHttpMethod;
+                }
+            }
+        } else if (methodMapping != null) {
+            contextPath = getRequestMappingPath(methodMapping);
+            httpMethod = getRequestMappingMethod(methodMapping);
+        }
+        if (contextPath == null || httpMethod == null) {
+            return null;
+        }
+        return new Method(contextPath, httpMethod);
+    }
+
+    public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {
+        Method method = getAuditedMethod(controllerMethod);
         if (method == null) {
             return false;
         }
         return Boolean.TRUE.equals(auditConfiguration.getAuditedMethodsMap().get(method));
+    }
+
+    public String getAuditCategoryName(HandlerMethod method, Audit audit) {
+        if (audit != null && StringUtils.isNotBlank(audit.category())) {
+            return audit.category();
+        }
+        String auditCategory = method.getMethod().getDeclaringClass().getSimpleName();
+        if (auditCategory.endsWith(CONTROLLER_SUFFIX) && auditCategory.length() > CONTROLLER_SUFFIX.length()) {
+            auditCategory = auditCategory.substring(0, auditCategory.length() - CONTROLLER_SUFFIX.length());
+        }
+        return auditCategory;
+    }
+
+    public String getAuditActionName(HandlerMethod method, Audit audit) {
+        if (audit != null && StringUtils.isNotBlank(audit.action())) {
+            return audit.action();
+        }
+        return method.getMethod().getName();
+    }
+
+    public Audit getAuditAnnotation(HandlerMethod method) {
+        Audit audit = method.getMethodAnnotation(Audit.class);
+        if (audit == null) {
+            audit = AnnotationUtils.findAnnotation(method.getMethod().getDeclaringClass(), Audit.class);
+        }
+        return audit;
     }
 }

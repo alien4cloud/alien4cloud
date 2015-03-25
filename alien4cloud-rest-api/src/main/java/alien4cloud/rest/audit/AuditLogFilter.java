@@ -8,13 +8,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -27,20 +25,17 @@ import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.User;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Charsets;
 import com.wordnik.swagger.annotations.ApiOperation;
 
+/**
+ * This filter is used to intercept all rest call that need to be audited
+ */
 @Component
 public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
 
-    public static final String CONTROLLER_SUFFIX = "Controller";
-
     @Resource
     private AuditService auditService;
-
-    @Resource
-    private AuditLogRepository logRepository;
 
     @Resource
     private HandlerMapping mapping;
@@ -63,28 +58,6 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return handlerMethod;
     }
 
-    private String getCategory(HandlerMethod method, Audit audit) {
-        if (audit != null && StringUtils.isNotBlank(audit.category())) {
-            return audit.category();
-        }
-        Object controllerBean = method.getBean();
-        if (controllerBean == null) {
-            return null;
-        }
-        String auditCategory = controllerBean.getClass().getSimpleName();
-        if (auditCategory.endsWith(CONTROLLER_SUFFIX) && auditCategory.length() > CONTROLLER_SUFFIX.length()) {
-            auditCategory = auditCategory.substring(0, auditCategory.length() - CONTROLLER_SUFFIX.length());
-        }
-        return auditCategory;
-    }
-
-    private String getAction(HandlerMethod method, Audit audit) {
-        if (audit != null && StringUtils.isNotBlank(audit.action())) {
-            return audit.action();
-        }
-        return method.getMethod().getName();
-    }
-
     private ApiOperation getApiDoc(HandlerMethod method) {
         return method.getMethodAnnotation(ApiOperation.class);
     }
@@ -94,45 +67,23 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
         return contentType != null && contentType.startsWith(MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private Audit getAudit(HandlerMethod method) {
-        Audit audit = method.getMethodAnnotation(Audit.class);
-        if (audit == null) {
-            Object controllerBean = method.getBean();
-            if (controllerBean == null) {
-                return null;
-            } else {
-                controllerBean.getClass().getAnnotation(Audit.class);
-            }
-        }
-        return audit;
-    }
-
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE - 10;
     }
 
-    /**
-     * Construct audit trace
-     * 
-     * @param request
-     * @param response
-     * @return
-     * @throws IOException
-     * @throws JsonProcessingException
-     */
     private AuditTrace getAuditTrace(HttpServletRequest request, HttpServletResponse response, HandlerMethod method, User user, boolean requestContainsJson)
             throws IOException {
-        Audit audit = getAudit(method);
+        Audit audit = auditService.getAuditAnnotation(method);
         // trace user info only when he is logged
         AuditTrace auditTrace = new AuditTrace();
         auditTrace.setTimestamp(System.currentTimeMillis());
-        auditTrace.setAction(getAction(method, audit));
+        auditTrace.setAction(auditService.getAuditActionName(method, audit));
         ApiOperation apiDoc = getApiDoc(method);
         if (apiDoc != null) {
             auditTrace.setActionDescription(apiDoc.value());
         }
-        auditTrace.setCategory(getCategory(method, audit));
+        auditTrace.setCategory(auditService.getAuditCategoryName(method, audit));
         auditTrace.setUserName(user.getUsername());
         auditTrace.setUserFirstName(user.getFirstName());
         auditTrace.setUserLastName(user.getLastName());
@@ -154,14 +105,21 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         AuditConfiguration configuration = auditService.getAuditConfiguration();
-        User user = AuthorizationUtil.getCurrentUser();
-        HandlerMethod method = getHandlerMethod(request);
-        if (configuration == null || !configuration.isEnabled() || user == null || method == null) {
+        if (configuration == null || !configuration.isEnabled()) {
             filterChain.doFilter(request, response);
             return;
         }
-        RequestMapping requestMapping = method.getMethodAnnotation(RequestMapping.class);
-        if (!auditService.isMethodAudited(configuration, requestMapping)) {
+        User user = AuthorizationUtil.getCurrentUser();
+        if (user == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        HandlerMethod method = getHandlerMethod(request);
+        if (method == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (!auditService.isMethodAudited(configuration, method)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -179,8 +137,11 @@ public class AuditLogFilter extends OncePerRequestFilter implements Ordered {
                 logger.warn("Unable to construct audit trace", e);
             }
             if (auditTrace != null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(auditTrace.toString());
+                }
                 try {
-                    this.logRepository.add(auditTrace);
+                    auditService.saveAuditTrace(auditTrace);
                 } catch (Exception e) {
                     logger.warn("Unable to save audit trace " + auditTrace, e);
                 }
