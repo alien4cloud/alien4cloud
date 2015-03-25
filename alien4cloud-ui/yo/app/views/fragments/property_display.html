@@ -1,7 +1,7 @@
 <div ng-class="{'row':condensed, 'form-group': !condensed}" ng-controller="PropertiesCtrl" id="meta_properties">
   <!-- Property Name -->
 
-  <label id="p_name_{{definition.name}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{definition.name}}" tooltip-append-to-body="true">
+  <label id="p_name_{{definition.name}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{definition.name | translate}}" tooltip-append-to-body="true">
     {{definition.name | translate}}
   </label>
 

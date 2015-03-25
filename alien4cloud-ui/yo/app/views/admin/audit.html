@@ -1,0 +1,144 @@
+<div class="search-row">
+
+
+  <h2>
+    {{ 'AUDIT.LOG' | translate }}
+    <a id="configureAuditButton" type="button" tooltip="{{'AUDIT.CONFIGURATION.LABEL' | translate}}" class="btn btn-default btn-xs" href="" ng-click="goToAuditConfiguration()">
+      <i class="fa fa-wrench"></i>
+    </a>
+  </h2>
+
+  <div class="row">
+
+    <div id="comp-search-side-pannel" class="search-columns search-filter-side">
+
+      <!-- Search result column -->
+      <div class="well">
+        <div style="margin-bottom: 10px;">
+          <form role="search" ng-submit="doSearch()">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="..."
+                ng-model="searchedKeyword"> <span class="input-group-btn">
+                <button type="submit" class="btn btn-default"
+                  data-loading-text="Loading..." id="btn-search-component">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Displaying facetes -->
+        <div>
+
+          <!-- Display selected facets / filters -->
+          <div ng-show="facetFilters.length>0" class="filter-category">
+            <div>
+              {{ 'AUDIT.ACTIVE_FILTERS' | translate }}
+              <span class="badge" ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
+              <button type="button" class="btn btn-default btn-xs" ng-click="reset()"
+                  ng-disabled="facetFilters.length<=0">
+                  <i class="fa fa-trash-o"></i>
+              </button>
+            </div>
+            <div class="facet-choice" collapse="isFacetCollapsed">
+              <ul class="nav facet-choice">
+                <li ng-repeat="filter in facetFilters">
+                  <a href="" ng-click="removeFilter(filter)">
+                    {{'AUDIT.COLUMNS.'+(filter.term | uppercase) | translate}}:
+                    <span class="label label-primary">
+                    {{ getFormatedFacetValue(filter.term, filter.facet) }}
+                    </span><i class="fa fa-times"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Displaying all terms and its facets -->
+          <div ng-repeat="(term, termFacets) in facets">
+            <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+              <span>{{'AUDIT.COLUMNS.'+(term | uppercase) | translate}}</span>
+              <i class="pull-right fa" ng-class="{'fa-chevron-down' : !isFacetCollapsed, 'fa-chevron-right': isFacetCollapsed}"></i>
+            </div>
+            <div class="facet-option" collapse="isFacetCollapsed">
+              <ul class="nav facet-option">
+                <li ng-repeat="facet in termFacets">
+                  <a href="" ng-click="addFilter(term,facet.facetValue)">
+                    {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+        <!-- END : Displaying active filters -->
+
+      </div>
+    </div>
+
+
+    <div class="search-columns" id="audit-search-result-panel">
+
+      <table ng-table="auditTableParam" show-filter="true" template-pagination="custom/pager" class="table">
+
+        <thead>
+          <tr>
+            <td colspan="{{columns.length}}" class="bg-info">
+
+              <div class="form-horizontal">
+                <div class="form-group">
+                  <div class="col-sm-12  center-block">
+
+                      <label class="checkbox-inline" ng-repeat="column in columns">
+                        <input type="checkbox" ng-model="column.visible" /> {{'AUDIT.COLUMNS.'+(column.field | uppercase) | translate}}
+                      </label>
+
+                  </div>
+                </div>
+              </div>
+
+            </td>
+          </tr>
+
+          <tr>
+            <th ng-repeat="column in columns" ng-show="column.visible" class="text-center sortable" ng-class="{
+                      'sort-asc': auditTableParam.isSortBy(column.field, 'asc'),
+                      'sort-desc': auditTableParam.isSortBy(column.field, 'desc')
+                    }" ng-click="auditTableParam.sorting(column.field, tableParams.isSortBy(column.field, 'asc') ? 'desc' : 'asc')">
+              {{'AUDIT.COLUMNS.'+(column.field | uppercase) | translate}}
+            </th>
+          </tr>
+        </thead>
+
+        <tr ng-repeat="trace in $data">
+          <td class="text-center" ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">
+            {{trace[column.field]}}
+          </td>
+        </tr>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- custom pager -->
+<script type="text/ng-template" id="custom/pager">
+  <ul class="pager ng-cloak">
+    <li ng-repeat="page in pages" ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}" ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
+      <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
+      <a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
+    </li>
+    <li>
+      <div class="btn-group">
+        <button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
+        <button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
+        <button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
+      </div>
+    </li>
+  </ul>
+</script>

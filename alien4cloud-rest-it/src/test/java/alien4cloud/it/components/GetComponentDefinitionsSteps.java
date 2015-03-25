@@ -15,6 +15,7 @@ import java.util.Map;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
+import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.exception.IndexingServiceException;
@@ -31,7 +32,7 @@ import cucumber.api.java.en.When;
 
 public class GetComponentDefinitionsSteps {
 
-    private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
+    private final ObjectMapper jsonMapper = new ElasticSearchMapper();
     private final Client esClient = Context.getEsClientInstance();
 
     @Given("^I have a component with uuid \"([^\"]*)\"$")

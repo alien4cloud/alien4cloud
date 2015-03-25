@@ -22,6 +22,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
@@ -89,6 +90,7 @@ public class RuntimeController {
     @ApiOperation(value = "Trigger a custom command on a specific node template of a topology .", authorizations = { @Authorization("APPLICATION_MANAGER") }, notes = "Returns a response with no errors and the command response as data in success case. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+?}/operations", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
+    @Audit
     public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
         final DeferredResult<RestResponse<Object>> result = new DeferredResult<>();
         Application application = applicationService.getOrFail(applicationId);

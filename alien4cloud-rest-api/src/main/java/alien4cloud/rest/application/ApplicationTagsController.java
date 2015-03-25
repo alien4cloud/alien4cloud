@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.application.ApplicationService;
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.common.TagService;
 import alien4cloud.model.application.Application;
 import alien4cloud.rest.component.UpdateTagRequest;
@@ -37,6 +38,7 @@ public class ApplicationTagsController {
      */
     @ApiOperation(value = "Update/Create a tag for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> upsertTag(@PathVariable String applicationId, @RequestBody UpdateTagRequest updateApplicationTagRequest) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
@@ -55,6 +57,7 @@ public class ApplicationTagsController {
      */
     @ApiOperation(value = "Delete a tag for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{tagId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> deleteTag(@PathVariable String applicationId, @PathVariable String tagId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);

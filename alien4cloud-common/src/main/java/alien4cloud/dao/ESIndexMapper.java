@@ -25,7 +25,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.elasticsearch.util.MapUtil;
-import org.springframework.beans.factory.annotation.Value;
 
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.rest.utils.JsonUtil;
@@ -63,9 +62,6 @@ public abstract class ESIndexMapper {
     @Setter
     private ObjectMapper jsonMapper = new ObjectMapper();
 
-    @Value("${paas_monitor.events_lifetime}")
-    private String eventMonitoringTtl;
-
     /**
      * Initialize the array of all indices managed by this dao.
      */
@@ -77,12 +73,13 @@ public abstract class ESIndexMapper {
 
     /**
      * Create if not exist indices.
-     *
+     * A TTL can be defined for all indices under this index (ESearch TTL notation)
+     * 
      * @param indexName The index to initialize
      * @param classes An array of classes to map to this index.
      */
     @SneakyThrows({ IOException.class, IntrospectionException.class })
-    public void initIndices(String indexName, boolean ttlEnabled, Class<?>... classes) {
+    public void initIndices(String indexName, String ttl, Class<?>... classes) {
         if (indexExist(indexName)) {
             addToMappedClasses(indexName, classes);
         } else {
@@ -93,13 +90,12 @@ public abstract class ESIndexMapper {
                 String typeMapping = mappingBuilder.getMapping(clazz);
 
                 // Adding TTL for a type
-                if (ttlEnabled) {
+                if (ttl != null) {
                     Map<String, Object> typeMap = JsonUtil.toMap(typeMapping);
                     for (Object typeMappingObject : typeMap.values()) {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> typeMappingMap = (Map<String, Object>) typeMappingObject;
-                        Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" },
-                                new String[] { "true", eventMonitoringTtl + "h" });
+                        Map<String, Object> ttlMapping = MapUtil.getMap(new String[] { "enabled", "default" }, new String[] { "true", ttl });
                         typeMappingMap.put("_ttl", ttlMapping);
                     }
                     String mapping = jsonMapper.writeValueAsString(typeMap);

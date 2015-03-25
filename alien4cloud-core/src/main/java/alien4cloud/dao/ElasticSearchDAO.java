@@ -8,7 +8,6 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -29,9 +28,6 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -40,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Component("alien-es-dao")
 public class ElasticSearchDAO extends ESGenericSearchDAO {
+
     public static final String TOSCA_ELEMENT_INDEX = "toscaelement";
 
     /**
@@ -56,8 +53,9 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
 
-        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
-        initIndices(TOSCA_ELEMENT_INDEX, false, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedCapabilityType.class, IndexedArtifactType.class, IndexedRelationshipType.class, IndexedNodeType.class);
+        initIndices(TOSCA_ELEMENT_INDEX, null, IndexedArtifactToscaElement.class, IndexedToscaElement.class);
+
         initIndice(Application.class);
         initIndice(ApplicationVersion.class);
         initIndice(ApplicationEnvironment.class);
@@ -76,17 +74,6 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
     }
 
     private void initIndice(Class<?> clazz) {
-        initIndices(clazz.getSimpleName().toLowerCase(), false, clazz);
-    }
-
-    public static class ElasticSearchMapper extends ObjectMapper {
-        private static final long serialVersionUID = 1L;
-
-        public ElasticSearchMapper() {
-            super();
-            this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-        }
+        initIndices(clazz.getSimpleName().toLowerCase(), null, clazz);
     }
 }

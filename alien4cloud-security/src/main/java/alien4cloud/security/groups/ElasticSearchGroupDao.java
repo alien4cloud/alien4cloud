@@ -30,7 +30,7 @@ public class ElasticSearchGroupDao extends ESGenericSearchDAO implements IAlienG
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indexes and mapped classes
-        initIndices(Group.class.getSimpleName().toLowerCase(), false, new Class<?>[] { Group.class });
+        initIndices(Group.class.getSimpleName().toLowerCase(), null, new Class<?>[] { Group.class });
         initCompleted();
     }
 

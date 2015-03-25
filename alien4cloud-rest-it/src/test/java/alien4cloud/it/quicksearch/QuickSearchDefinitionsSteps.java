@@ -1,8 +1,6 @@
 package alien4cloud.it.quicksearch;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
+import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.ElasticSearchMapper;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.it.Context;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.dao.ElasticSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.it.Context;
 import alien4cloud.rest.component.QueryComponentType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -37,7 +36,7 @@ import cucumber.api.java.en.When;
 @Slf4j
 public class QuickSearchDefinitionsSteps {
 
-    private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
+    private final ObjectMapper jsonMapper = new ElasticSearchMapper();
 
     private static final String DEFAULT_ARCHIVE_VERSION = "1.0";
     private static Map<String, String> indexedTypes = Maps.newHashMap();

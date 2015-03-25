@@ -44,8 +44,9 @@
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Méta-propriétés",
     "MENU_CLOUDS": "Clouds",
-    "MENU_METRICS": "Métriques d'Alien 4 Cloud",
-    "MENU_CLOUD_IMAGES": "Cloud Images"
+    "MENU_METRICS": "Métriques",
+    "MENU_CLOUD_IMAGES": "Cloud Images",
+    "MENU_AUDIT": "Audit"
   },
   "MAIN": {
     "WELCOME": "Bienvenue sur",
@@ -854,5 +855,37 @@
   "HOPSCOTCH_MISSING": {
     "TITLE": "Tour de présentation",
     "CONTENT": "Aucun tour de présentation pour cette page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Activé",
+        "ON": "Oui",
+        "OFF": "Non"
+      },
+      "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
+      "LABEL": "Configuration d'Audit",
+      "ACTION_NAME": "Nom de l'action",
+      "RESET": "Réinitialiser",
+      "CONFIGURATION_IS_RESETED": "Configuration d'audit a été réinitialisé avec succès"
+    },
+    "LOG": "Audit des opérations",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Catégorie",
+      "ACTION": "Opération",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Identifiant",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "Prénom",
+      "USERLASTNAME": "Nom",
+      "PATH": "Appel",
+      "METHOD": "Méthode",
+      "REQUESTPARAMETERS": "Paramètres d'entrée",
+      "REQUESTBODY": "Corps des paramètres",
+      "RESPONSESTATUS": "Code réponse",
+      "SOURCEIP": "IP source"
+    }
   }
 }

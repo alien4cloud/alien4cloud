@@ -35,8 +35,9 @@
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Meta-properties",
     "MENU_CLOUDS": "Clouds",
-    "MENU_METRICS": "Alien 4 Cloud's Metrics",
-    "MENU_CLOUD_IMAGES": "Cloud Images"
+    "MENU_METRICS": "Metrics",
+    "MENU_CLOUD_IMAGES": "Cloud Images",
+    "MENU_AUDIT": "Audit"
   },
   "MAIN": {
     "WELCOME": "Welcome on",
@@ -847,5 +848,37 @@
   "HOPSCOTCH_MISSING": {
     "TITLE": "Tour guide",
     "CONTENT": "The guide tour is missing for page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Enabled",
+        "ON": "Yes",
+        "OFF": "No"
+      },
+      "BACK_TO_AUDIT_LOG": "Back to audit logs",
+      "LABEL": "Audit Configuration",
+      "ACTION_NAME": "Action's name",
+      "RESET": "Reset",
+      "CONFIGURATION_IS_RESETED": "Audit configuration has been reseted with success"
+    },
+    "LOG": "Operations Audit",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Category",
+      "ACTION": "Operation",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Username",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "First name",
+      "USERLASTNAME": "Last name",
+      "PATH": "Call",
+      "METHOD": "Method",
+      "REQUESTPARAMETERS": "Request parameters",
+      "REQUESTBODY": "Request body",
+      "RESPONSESTATUS": "Response status",
+      "SOURCEIP": "Source IP"
+    }
   }
 }
