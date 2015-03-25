@@ -854,6 +854,7 @@
       "BACK_TO_AUDIT_LOG": "Back to audit logs",
       "LABEL": "Audit Configuration",
       "ACTION_NAME": "Action's name"
-    }
+    },
+    "LOG": "Audit Log"
   }
 }

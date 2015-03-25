@@ -862,6 +862,7 @@
       "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
       "LABEL": "Configuration d'Audit",
       "ACTION_NAME": "Nom de l'action"
-    }
+    },
+    "LOG": "Log d'Audit"
   }
 }
