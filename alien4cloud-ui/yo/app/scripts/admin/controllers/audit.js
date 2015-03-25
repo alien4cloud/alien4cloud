@@ -16,6 +16,14 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       field: 'userName',
       visible: true
     }, {
+      title: 'First Name',
+      field: 'userFirstName',
+      visible: false
+    }, {
+      title: 'Last Name',
+      field: 'userLastName',
+      visible: false
+    }, {
       title: 'Category',
       field: 'category',
       visible: true
@@ -31,6 +39,18 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       title: 'Response status',
       field: 'responseStatus',
       visible: true
+    }, {
+      title: 'Action description',
+      field: 'actionDescription',
+      visible: false
+    }, {
+      title: 'Path',
+      field: 'path',
+      visible: false
+    },  {
+      title: 'Request Body',
+      field: 'requestBody',
+      visible: false
     }];
 
     //////////////////////////////////
@@ -125,14 +145,14 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
         // configure the ng-table
         $scope.auditTableParam = new ngTableParams({
           page: 1, // show first page
-          count: data.length // count per page
+          count: 5 // count per page
         }, {
           total: data.length, // length of data
           getData: function($defer, params) {
             $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
           }
         });
-        // console.log('RELOAD THE DATA >', data, data.length, $scope.auditTableParam, $scope.auditTableParam.total());
+        console.log('RELOAD THE DATA >', data, data.length, $scope.auditTableParam, $scope.auditTableParam.total(), $scope.auditTableParam.count());
 
       });
     }
