@@ -142,7 +142,7 @@ public class AuditController {
     }
 
     @ApiOperation(value = "Enable/Disable audit", notes = "Audit configuration update is only accessible to user with role [ ADMIN ]")
-    @RequestMapping(value = "/configuration/enabled", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/configuration/enabled", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<Void> enableAudit(@RequestParam boolean enabled) {
         AuditConfiguration auditConfiguration = auditService.getMandatoryAuditConfiguration();
         auditConfiguration.setEnabled(enabled);
@@ -150,9 +150,7 @@ public class AuditController {
         return RestResponseBuilder.<Void> builder().build();
     }
 
-    @ApiOperation(value = "Enable/Disable audit on a particular method", notes = "Audit configuration update is only accessible to user with role [ ADMIN ]")
-    @RequestMapping(value = "/configuration/audited-methods", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Void> enableMethodAudit(@RequestBody AuditedMethod method) {
+    private void enableMethodAudit(AuditedMethod method) {
         AuditConfiguration auditConfiguration = auditService.getMandatoryAuditConfiguration();
         if (method.getMethod() == null || method.getPath() == null) {
             throw new InvalidArgumentException("Method's path or http method is null");
@@ -165,6 +163,14 @@ public class AuditController {
         auditedMethodsMap.put(auditedMethodKey, method.isEnabled());
         auditConfiguration.setAuditedMethodsMap(auditedMethodsMap);
         auditService.saveAuditConfiguration(auditConfiguration);
+    }
+
+    @ApiOperation(value = "Enable/Disable audit on a list of methods", notes = "Audit configuration update is only accessible to user with role [ ADMIN ]")
+    @RequestMapping(value = "/configuration/audited-methods", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<Void> enableMethodAudit(@RequestBody AuditedMethod[] methods) {
+        for (AuditedMethod method : methods) {
+            enableMethodAudit(method);
+        }
         return RestResponseBuilder.<Void> builder().build();
     }
 }

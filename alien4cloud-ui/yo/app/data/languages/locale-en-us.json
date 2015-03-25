@@ -852,7 +852,8 @@
         "OFF": "No"
       },
       "BACK_TO_AUDIT_LOG": "Back to audit logs",
-      "LABEL": "Audit Configuration"
+      "LABEL": "Audit Configuration",
+      "ACTION_NAME": "Action's name"
     }
   }
 }

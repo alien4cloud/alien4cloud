@@ -259,6 +259,11 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       }).state('admin.audit.conf', {
         url: '/conf',
         templateUrl: 'views/admin/audit_conf.html',
+        resolve: {
+          auditConfiguration: ['auditService', function(auditService) {
+            return auditService.getConfiguration({}, undefined).$promise;
+          }]
+        },
         controller: 'AuditConfController'
       }).state('admin.cloud-images', {
         url: '/cloud-images',

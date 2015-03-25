@@ -142,11 +142,7 @@ public class AuditService {
         if (audit != null && StringUtils.isNotBlank(audit.category())) {
             return audit.category();
         }
-        Object controllerBean = method.getBean();
-        if (controllerBean == null) {
-            return null;
-        }
-        String auditCategory = controllerBean.getClass().getSimpleName();
+        String auditCategory = method.getMethod().getDeclaringClass().getSimpleName();
         if (auditCategory.endsWith(CONTROLLER_SUFFIX) && auditCategory.length() > CONTROLLER_SUFFIX.length()) {
             auditCategory = auditCategory.substring(0, auditCategory.length() - CONTROLLER_SUFFIX.length());
         }
@@ -163,10 +159,7 @@ public class AuditService {
     public Audit getAuditAnnotation(HandlerMethod method) {
         Audit audit = method.getMethodAnnotation(Audit.class);
         if (audit == null) {
-            Object controllerBean = method.getBean();
-            if (controllerBean != null) {
-                audit = AnnotationUtils.findAnnotation(controllerBean.getClass(), Audit.class);
-            }
+            audit = AnnotationUtils.findAnnotation(method.getMethod().getDeclaringClass(), Audit.class);
         }
         return audit;
     }

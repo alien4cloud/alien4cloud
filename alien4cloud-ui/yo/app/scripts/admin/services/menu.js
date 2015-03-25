@@ -46,7 +46,7 @@ angular.module('alienUiApp').factory('adminMenu', function() {
     },
     {
       id: 'am.admin.audit',
-      state: 'admin.audit',
+      state: 'admin.audit.log',
       key: 'NAVADMIN.MENU_AUDIT',
       icon: 'fa fa-eye',
       show: true
