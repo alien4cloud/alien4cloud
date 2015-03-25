@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-  xmlns:mockito="http://www.mockito.org/spring/mockito"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mockito="http://www.mockito.org/spring/mockito"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
            http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd">
 
-  <context:annotation-config />
+    <context:annotation-config/>
 
-  <context:component-scan base-package="
+    <context:component-scan base-package="
 		alien4cloud.*,
 		org.elasticsearch.mapping">
-    <!-- alien4cloud.security.* to exclude ldap package is not working in component-scan -->
-    <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.webconfiguration.*" />
-    <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration" />
-  </context:component-scan>
+        <!-- alien4cloud.security.* to exclude ldap package is not working in component-scan -->
+        <context:exclude-filter type="regex" expression="alien4cloud\.ldap.*|alien4cloud\.initialization.*|alien4cloud\.webconfiguration.*"/>
+        <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration"/>
+    </context:component-scan>
 
-  <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory" />
-  <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get" />
-  <alias name="alienconfig" alias="elasticsearchConfig" />
-  <context:property-placeholder properties-ref="alienconfig" />
+    <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory"/>
+    <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get"/>
+    <alias name="alienconfig" alias="elasticsearchConfig"/>
+    <context:property-placeholder properties-ref="alienconfig"/>
 
-  <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
-  <mockito:mock id="wstemplate" class="org.springframework.messaging.simp.SimpMessagingTemplate" />
+    <mockito:mock id="wstemplate" class="org.springframework.messaging.simp.SimpMessagingTemplate"/>
+
+    <mockito:mock id="requestMappingHandlerMapping" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
 </beans>
