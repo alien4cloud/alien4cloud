@@ -1,109 +1,129 @@
-<div ng-controller="AuditController">
+<div ng-controller="AuditController" class="search-row">
 
-  <h2>Application Audit</h2>
+  <div id="comp-search-side-pannel" class="search-columns search-filter-side">
 
-  <p>
-
-    <!-- <button type="button" class="btn btn-primary" ng-click="refreshAuditTraces()">
-      <span class="fa fa-refresh"></span>&nbsp;{{'metrics.refresh.button' | translate}}
-    </button> -->
-
-    <form class="form-horizontal">
-      <div class="form-group">
-        <label class="col-sm-2 control-label">Group by</label>
-        <div class="col-sm-10">
-          <select class="form-control" name="grouping" ng-model="groupby" ng-options="c as c for c in categories">
-            <option value=""></option>
-          </select>
-        </div>
+    <!-- Search result column -->
+    <div class="well">
+      <div style="margin-bottom: 10px;">
+        <form role="search" ng-submit="doSearch()">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="..."
+              ng-model="searchedKeyword"> <span class="input-group-btn">
+              <button type="submit" class="btn btn-default"
+                data-loading-text="Loading..." id="btn-search-component">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </form>
       </div>
-      <div class="form-group">
-        <label class="col-sm-2 control-label">Visible column</label>
-        <div class="col-sm-10">
-          <p class="form-control-static">
-            <label class="checkbox-inline" ng-repeat="column in columns">
-                <input type="checkbox" ng-model="column.visible" /> {{column.title}}
-            </label>
-          </p>
+
+      <!-- Displaying facetes -->
+      <div>
+
+        <!-- Display selected facets / filters -->
+        <div ng-show="facetFilters.length>0" class="filter-category">
+          <div>
+            {{ 'AUDIT.ACTIVE_FILTERS' | translate }}
+            <span class="badge" ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
+            <button type="button" class="btn btn-default btn-xs" ng-click="reset()"
+                ng-disabled="facetFilters.length<=0">
+                <i class="fa fa-trash-o"></i>
+            </button>
+          </div>
+          <div class="facet-choice" collapse="isFacetCollapsed">
+            <ul class="nav facet-choice">
+              <li ng-repeat="filter in facetFilters">
+                <a href="" ng-click="removeFilter(filter)">{{'AUDIT.'+(filter.term | uppercase) | translate}}: <span class="label label-primary">
+                  {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
+
+        <!-- Displaying all terms and its facets -->
+        <div ng-repeat="(term, termFacets) in facets">
+          <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+            <span>{{'AUDIT.'+(term | uppercase) | translate}}</span>
+            <i class="pull-right fa" ng-class="{'fa-chevron-down' : !isFacetCollapsed, 'fa-chevron-right': isFacetCollapsed}"></i>
+          </div>
+          <div class="facet-option" collapse="isFacetCollapsed">
+            <ul class="nav facet-option">
+              <li ng-repeat="facet in termFacets">
+                <a href="" ng-click="addFilter(term,facet.facetValue)">
+                  {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
       </div>
-    </form>
+      <!-- END : Displaying active filters -->
+
+    </div>
+  </div>
+
+
+  <div class="search-columns" id="comp-search-result-panel">
 
     <table ng-table="auditTableParam" show-filter="true" template-pagination="custom/pager" class="table">
 
       <thead>
         <tr>
-          <th ng-repeat="column in columns" ng-show="column.visible"
-              class="text-center sortable" ng-class="{
-                  'sort-asc': auditTableParam.isSortBy(column.field, 'asc'),
-                  'sort-desc': auditTableParam.isSortBy(column.field, 'desc')
-                }"
-              ng-click="auditTableParam.sorting(column.field, tableParams.isSortBy(column.field, 'asc') ? 'desc' : 'asc')">
-              {{column.title}}
+          <td colspan="{{columns.length}}">
+            <div class="form-horizontal">
+              <div class="form-group">
+                <div class="col-sm-10">
+                  <p class="form-control-static">
+                    <label class="checkbox-inline" ng-repeat="column in columns">
+                      <input type="checkbox" ng-model="column.visible" /> {{column.title}}
+                    </label>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <th ng-repeat="column in columns" ng-show="column.visible" class="text-center sortable" ng-class="{
+                    'sort-asc': auditTableParam.isSortBy(column.field, 'asc'),
+                    'sort-desc': auditTableParam.isSortBy(column.field, 'desc')
+                  }" ng-click="auditTableParam.sorting(column.field, tableParams.isSortBy(column.field, 'asc') ? 'desc' : 'asc')">
+            {{column.title}}
           </th>
         </tr>
       </thead>
 
-      <tbody ng-repeat="group in $groups">
-        <tr class="ng-table-group">
-            <td colspan="{{$columns.length}}">
-                <a href="" ng-click="group.$hideRows = !group.$hideRows">
-                    <i class="pull-left fa" ng-class="{'fa-chevron-down' : !group.$hideRows, 'fa-chevron-right': group.$hideRows}"></i>
-                    <strong>{{ group.value }}</strong>
-                </a>
-            </td>
-        </tr>
-
-        <tr ng-hide="group.$hideRows" ng-repeat="trace in group.data">
-            <td ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">
-                {{trace[column.field]}}
-            </td>
-            <!-- <td sortable="timestamp" data-title="'Date'">
-              {{trace.timestamp | date:'dd-MM-yyyy HH:mm:ss Z' }}
-            </td>
-            <td sortable="userName" data-title="'User Name'">
-              {{trace.userName}}
-            </td>
-            <td sortable="category" data-title="'Category'">
-              {{trace.category}}
-            </td>
-            <td sortable="action" data-title="'Action'">
-              {{trace.category}}
-            </td>
-            <td sortable="method" data-title="'Method'">
-              {{trace.method}}
-            </td>
-            <td sortable="responseStatus" data-title="'Response status'">
-              {{trace.responseStatus}}
-            </td> -->
-        </tr>
-
-      </tbody>
-
-      <tfoo></tfoo>
+      <tr ng-repeat="trace in $data">
+        <td class="text-center" ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">
+          {{trace[column.field]}}
+        </td>
+      </tr>
 
     </table>
 
-  </p>
+  </div>
 
-  <!-- custom pager -->
-  <script type="text/ng-template" id="custom/pager">
-      <ul class="pager ng-cloak">
-        <li ng-repeat="page in pages"
-              ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}"
-              ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
-          <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
-          <a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
-        </li>
-          <li>
-          <div class="btn-group">
-              <button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
-              <button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
-              <button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
-              <button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
-          </div>
-          </li>
-      </ul>
-  </script>
 
 </div>
+
+<!-- custom pager -->
+<script type="text/ng-template" id="custom/pager">
+  <ul class="pager ng-cloak">
+    <li ng-repeat="page in pages" ng-class="{'disabled': !page.active, 'previous': page.type == 'prev', 'next': page.type == 'next'}" ng-show="page.type == 'prev' || page.type == 'next'" ng-switch="page.type">
+      <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo; Previous</a>
+      <a ng-switch-when="next" ng-click="params.page(page.number)" href="">Next &raquo;</a>
+    </li>
+    <li>
+      <div class="btn-group">
+        <button type="button" ng-class="{'active':params.count() == 10}" ng-click="params.count(10)" class="btn btn-default">10</button>
+        <button type="button" ng-class="{'active':params.count() == 25}" ng-click="params.count(25)" class="btn btn-default">25</button>
+        <button type="button" ng-class="{'active':params.count() == 50}" ng-click="params.count(50)" class="btn btn-default">50</button>
+        <button type="button" ng-class="{'active':params.count() == 100}" ng-click="params.count(100)" class="btn btn-default">100</button>
+      </div>
+    </li>
+  </ul>
+</script>
