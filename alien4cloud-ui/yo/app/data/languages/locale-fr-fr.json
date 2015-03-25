@@ -861,7 +861,9 @@
       },
       "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
       "LABEL": "Configuration d'Audit",
-      "ACTION_NAME": "Nom de l'action"
+      "ACTION_NAME": "Nom de l'action",
+      "RESET": "Réinitialiser",
+      "CONFIGURATION_IS_RESETED": "Configuration d'audit a été réinitialisé avec succès"
     },
     "LOG": "Audit des opérations",
     "ACTIVE_FILTERS": "Filtres actifs",

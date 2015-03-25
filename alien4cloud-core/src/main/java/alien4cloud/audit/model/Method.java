@@ -18,4 +18,8 @@ public class Method {
     private String path;
 
     private String method;
+
+    private String category;
+
+    private String action;
 }

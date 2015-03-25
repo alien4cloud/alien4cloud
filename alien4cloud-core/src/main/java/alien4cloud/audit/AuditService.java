@@ -127,7 +127,8 @@ public class AuditService {
         if (contextPath == null || httpMethod == null) {
             return null;
         }
-        return new Method(contextPath, httpMethod);
+        Audit audit = getAuditAnnotation(controllerMethod);
+        return new Method(contextPath, httpMethod, getAuditCategoryName(controllerMethod, audit), getAuditActionName(controllerMethod, audit));
     }
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {

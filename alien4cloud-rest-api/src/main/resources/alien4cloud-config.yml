@@ -92,4 +92,3 @@ documentation:
 
 audit:
   ttl: 1d
-  enabled: true

@@ -5,7 +5,10 @@
         <i class="fa fa-arrow-left"></i> {{'AUDIT.CONFIGURATION.BACK_TO_AUDIT_LOG' | translate}}
       </a>
 
-      <h3><i class="fa fa-wrench"></i> {{ 'AUDIT.CONFIGURATION.LABEL' | translate }}</h3>
+      <h3>
+        <i class="fa fa-wrench"></i> {{ 'AUDIT.CONFIGURATION.LABEL' | translate }}
+        <button class="btn btn-warning btn-sm" ng-click="reset()">{{ 'AUDIT.CONFIGURATION.RESET' | translate }} <i class="fa fa-eraser"></i></button>
+      </h3>
     </div>
   </div>
   <div class="row" style="margin-top: 20px;">
@@ -49,7 +52,8 @@
               <tr ng-repeat="method in methods | orderBy:'action'">
                 <td class="col-md-1">
                   <a ng-click="toggleAuditMethod(method)" href="" class="btn" ng-class="{'disabled': !configuration.enabled}">
-                    <i ng-disabled="!configuration.enabled" class="fa fa-fw" ng-class="{'fa-check-square-o' : method.enabled,  'fa-square-o': !method.enabled}"></i>
+                    <i ng-disabled="!configuration.enabled" class="fa fa-fw"
+                       ng-class="{'fa-check-square-o' : method.enabled,  'fa-square-o': !method.enabled}"></i>
                   </a>
                 </td>
                 <td class="col-md-11">

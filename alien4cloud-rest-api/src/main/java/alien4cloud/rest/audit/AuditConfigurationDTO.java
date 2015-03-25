@@ -17,21 +17,6 @@ public class AuditConfigurationDTO {
 
     private boolean enabled;
 
-    private Map<String, List<AuditedMethodDTO>> methodsConfiguration;
+    private Map<String, List<AuditedMethod>> methodsConfiguration;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public static class AuditedMethodDTO extends AuditedMethod {
-
-        private String category;
-
-        private String action;
-
-        public AuditedMethodDTO(String path, String method, boolean enabled, String category, String action) {
-            super(path, method, enabled);
-            this.category = category;
-            this.action = action;
-        }
-    }
 }

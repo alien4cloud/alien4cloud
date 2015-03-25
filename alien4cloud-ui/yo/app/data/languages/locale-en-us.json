@@ -853,7 +853,9 @@
       },
       "BACK_TO_AUDIT_LOG": "Back to audit logs",
       "LABEL": "Audit Configuration",
-      "ACTION_NAME": "Action's name"
+      "ACTION_NAME": "Action's name",
+      "RESET": "Reset",
+      "CONFIGURATION_IS_RESETED": "Audit configuration has been reseted with success"
     },
     "LOG": "Operations Audit",
     "ACTIVE_FILTERS": "Filtres actifs",
