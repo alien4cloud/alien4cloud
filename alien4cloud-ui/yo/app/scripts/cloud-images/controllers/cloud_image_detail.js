@@ -5,7 +5,7 @@ angular.module('alienUiApp').controller(
     function($scope, $state, cloudImageServices, cloudImage, $upload, $stateParams) {
       $scope.cloudImage = cloudImage;
       // if we are coming from create form, the stateParam mode='edit'
-      $scope.isEditModeActive = UTILS.isDefinedAndNotNull($stateParams.mode) ? $stateParams.mode == 'edit' : false;
+      $scope.isEditModeActive = UTILS.isDefinedAndNotNull($stateParams.mode) ? $stateParams.mode === 'edit' : false;
       $scope.isLinkedToMoreThanOneCloud = false;
       var isReadOnly = !$scope.isEditModeActive;
       $scope.cloudImageFormDescriptor = cloudImageServices.getFormDescriptor();
