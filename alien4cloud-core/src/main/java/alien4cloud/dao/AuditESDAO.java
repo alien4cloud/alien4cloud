@@ -18,7 +18,7 @@ public class AuditESDAO extends ESGenericSearchDAO {
     public static final String ALIEN_AUDIT_INDEX = "alienaudit";
 
     @Value("${audit.ttl}")
-    private String auditTtl = "2m";
+    private String auditTtl;
 
     @PostConstruct
     public void init() {

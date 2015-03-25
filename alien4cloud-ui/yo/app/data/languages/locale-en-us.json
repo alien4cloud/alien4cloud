@@ -855,6 +855,23 @@
       "LABEL": "Audit Configuration",
       "ACTION_NAME": "Action's name"
     },
-    "LOG": "Audit Log"
+    "LOG": "Operations Audit",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Category",
+      "ACTION": "Operation",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Username",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "First name",
+      "USERLASTNAME": "Last name",
+      "PATH": "Call",
+      "METHOD": "Method",
+      "REQUESTPARAMETERS": "Request parameters",
+      "REQUESTBODY": "Request body",
+      "RESPONSESTATUS": "Response status",
+      "SOURCEIP": "Source IP"
+    }
   }
 }

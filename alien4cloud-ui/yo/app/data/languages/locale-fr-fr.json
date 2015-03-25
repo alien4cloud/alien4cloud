@@ -863,6 +863,23 @@
       "LABEL": "Configuration d'Audit",
       "ACTION_NAME": "Nom de l'action"
     },
-    "LOG": "Log d'Audit"
+    "LOG": "Audit des opérations",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Catégorie",
+      "ACTION": "Opération",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Identifiant",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "Prénom",
+      "USERLASTNAME": "Nom",
+      "PATH": "Appel",
+      "METHOD": "Méthode",
+      "REQUESTPARAMETERS": "Paramètres d'entrée",
+      "REQUESTBODY": "Corps des paramètres",
+      "RESPONSESTATUS": "Code réponse",
+      "SOURCEIP": "IP source"
+    }
   }
 }

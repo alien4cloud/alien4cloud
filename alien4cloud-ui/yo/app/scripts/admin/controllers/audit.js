@@ -24,6 +24,10 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       field: 'userLastName',
       visible: false
     }, {
+      title: 'Email',
+      field: 'userEmail',
+      visible: false
+    }, {
       title: 'Category',
       field: 'category',
       visible: true
@@ -47,11 +51,42 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       title: 'Path',
       field: 'path',
       visible: false
-    },  {
+    }, {
       title: 'Request Body',
       field: 'requestBody',
       visible: false
+    }, {
+      title: 'Source IP',
+      field: 'sourceIp',
+      visible: false
     }];
+
+    var searchRequestObject = {
+      'query': '',
+      'filters': undefined,
+      'from': 0,
+      'size': 1000
+    };
+
+    $scope.auditTableParam = new ngTableParams({
+      page: 1, // show first page
+      count: 10 // count per page
+    }, {
+      total: 0, // length of data
+      getData: function($defer, params) {
+        auditService.search([], angular.toJson(searchRequestObject), function(successResult) {
+          // get facets
+          var data = successResult.data.data;
+          $scope.facets = successResult.data.facets;
+
+          // prepare to dysplay
+          prepareTraces(data);
+          params.total(data.length);
+          $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+
+        });
+      }
+    });
 
     //////////////////////////////////
     // UI utils methods
@@ -90,14 +125,9 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       // prepare filters
       var allFacetFilters = [];
       allFacetFilters.push.apply(allFacetFilters, $scope.facetFilters);
-      if (angular.isDefined($scope.hiddenFilters)) {
-        allFacetFilters.push.apply(allFacetFilters, $scope.hiddenFilters);
-      }
       updateSearch($scope.searchedKeyword, allFacetFilters);
     };
 
-    // initial search
-    doSearch();
     $scope.doSearch = doSearch;
 
     // update search result table
@@ -127,43 +157,15 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
         }
       });
 
-      var searchRequestObject = {
-        'query': keyword,
-        'filters': objectFilters,
-        'from': 0,
-        'size': 1000
-      };
+      searchRequestObject.query = keyword;
+      searchRequestObject.filters = objectFilters;
 
-      console.log('Query OBJECT >', searchRequestObject);
-
-      // recover audit search results
-      $scope.rows = auditService.search([], angular.toJson(searchRequestObject), function(successResult) {
-        // get facets
-        $scope.facets = successResult.data.facets;
-        return successResult.data.data;
-      });
-
-      $scope.rows.$promise.then(function handleData(rows) {
-        var data = rows.data.data;
-        prepareTraces(data);
-        // configure the ng-table
-        $scope.auditTableParam = new ngTableParams({
-          page: 1, // show first page
-          count: 5 // count per page
-        }, {
-          total: data.length, // length of data
-          getData: function($defer, params) {
-            $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-          }
-        });
-        console.log('RELOAD THE DATA >', data, data.length, $scope.auditTableParam, $scope.auditTableParam.total(), $scope.auditTableParam.count());
-
-      });
+      // reload traces table
+      $scope.auditTableParam.reload();
     }
 
     /* Add a facet Filters*/
     $scope.addFilter = function(termId, facetId) {
-      console.log('add filter >', termId, facetId);
       $scope.facetFilters = $scope.facetFilters || [];
       // Test if the filter exists : [term:facet]
       var termIndex = -1;
@@ -187,7 +189,6 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
 
     /*Remove a facet filter*/
     $scope.removeFilter = function(filterToRemove) {
-      console.log('Remove filter >', filterToRemove);
       // Remove the selected filter
       var index = $scope.facetFilters.indexOf(filterToRemove);
       if (index >= 0) {
@@ -204,7 +205,6 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       $scope.facetFilters.splice(0, $scope.facetFilters.length);
       $scope.doSearch();
     };
-
 
   }
 ]);
