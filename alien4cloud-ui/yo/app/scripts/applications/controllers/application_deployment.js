@@ -146,29 +146,23 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         var key;
         $scope.hasUnmatchedCompute = false;
         for (key in $scope.matchedComputeResources) {
-          if ($scope.matchedComputeResources.hasOwnProperty(key)) {
-            if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-              $scope.hasUnmatchedCompute = true;
-              break;
-            }
+          if ($scope.matchedComputeResources.hasOwnProperty(key) && !$scope.selectedComputeTemplates.hasOwnProperty(key)) {
+            $scope.hasUnmatchedCompute = true;
+            break;
           }
         }
         $scope.hasUnmatchedNetwork = false;
         for (key in $scope.matchedNetworkResources) {
-          if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
-            if (!$scope.selectedNetworks.hasOwnProperty(key)) {
-              $scope.hasUnmatchedNetwork = true;
-              break;
-            }
+          if ($scope.matchedNetworkResources.hasOwnProperty(key) && !$scope.selectedNetworks.hasOwnProperty(key)) {
+            $scope.hasUnmatchedNetwork = true;
+            break;
           }
         }
         $scope.hasUnmatchedStorage = false;
         for (key in $scope.matchedStorageResources) {
-          if ($scope.matchedStorageResources.hasOwnProperty(key)) {
-            if (!$scope.selectedStorages.hasOwnProperty(key)) {
-              $scope.hasUnmatchedStorage = true;
-              break;
-            }
+          if ($scope.matchedStorageResources.hasOwnProperty(key) && !$scope.selectedStorages.hasOwnProperty(key)) {
+            $scope.hasUnmatchedStorage = true;
+            break;
           }
         }
       });

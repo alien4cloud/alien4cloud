@@ -421,7 +421,7 @@ angular.module('alienUiApp').controller(
 
           } else if (!UTILS.isUndefinedOrNull(successResult.data)) {
 
-            var title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
+            title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
               'operation': operationName
             });
             // Toaster HTML result preview for all instances

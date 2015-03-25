@@ -23,7 +23,7 @@ angular.module('alienUiApp').factory('topologyJsonProcessor',
                 orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].relationships[i].value, 'properties');
               }
             } else if (UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].capabilities)) {
-              for (var i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; i++) {
+              for (i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; i++) {
                 orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].capabilities[i].value, 'properties');
               }
             }

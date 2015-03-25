@@ -63,7 +63,7 @@ angular.module('alienUiApp').controller('ApplicationUsersCtrl', ['$scope', 'alie
       }
       // get group ids from environment group roles
       if ($scope.selectedEnvironment.groupRoles) {
-        for (var groupId in $scope.selectedEnvironment.groupRoles) {
+        for (groupId in $scope.selectedEnvironment.groupRoles) {
           if ($scope.selectedEnvironment.groupRoles.hasOwnProperty(groupId)) {
             groupIds.push(groupId);
           }

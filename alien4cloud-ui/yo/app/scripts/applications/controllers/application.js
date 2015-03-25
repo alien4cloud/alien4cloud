@@ -276,13 +276,13 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       }
 
       if (!UTILS.isUndefinedOrNull($scope.outputCapabilityProperties)) {
-        for (var nodeId in $scope.outputCapabilityProperties) {
+        for (nodeId in $scope.outputCapabilityProperties) {
           if ($scope.outputCapabilityProperties.hasOwnProperty(nodeId)) {
             $scope.outputCapabilityPropertiesValue[nodeId] = {};
             for (var capabilityId in $scope.outputCapabilityProperties[nodeId]) {
               if ($scope.outputCapabilityProperties[nodeId].hasOwnProperty(capabilityId)) {
                 $scope.outputCapabilityPropertiesValue[nodeId][capabilityId] = {};
-                for (var i = 0; i < $scope.outputCapabilityProperties[nodeId][capabilityId].length; i++) {
+                for (i = 0; i < $scope.outputCapabilityProperties[nodeId][capabilityId].length; i++) {
                   var outputCapabilityPropertyName = $scope.outputCapabilityProperties[nodeId][capabilityId][i];
                   $scope.outputCapabilityPropertiesValue[nodeId][capabilityId][outputCapabilityPropertyName] = $scope.nodeTemplates[nodeId].capabilitiesMap[capabilityId].value.propertiesMap[outputCapabilityPropertyName].value;
                 }
