@@ -103,7 +103,7 @@ public class CloudController {
      */
     @ApiOperation(value = "Clone a cloud.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/clone", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<String> clone(@ApiParam(value = "Id of the cloud to delete.", required = true) @Valid @NotBlank @PathVariable String id) {
+    public RestResponse<String> clone(@ApiParam(value = "Id of the cloud to clone.", required = true) @Valid @NotBlank @PathVariable String id) {
         String cloudId = cloudService.clone(id);
         return RestResponseBuilder.<String> builder().data(cloudId).build();
     }

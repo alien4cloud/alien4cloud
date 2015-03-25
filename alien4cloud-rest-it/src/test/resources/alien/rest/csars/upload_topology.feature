@@ -4,7 +4,7 @@ Background:
   Given I am authenticated with "ADMIN" role
 
 # In this file, some scenari are duplicated and prefixed with 'Re-'
-# The aim such kind of duplicated scenario is to test the export YAML/TOSCA feature like this :
+# The aim for such kind of duplicated scenario is to test the export YAML/TOSCA feature like this :
 # - a first scenario tests the import feature (a CSAR s upladed, then the topology is explored in order to check that it looks as expected)
 # - the 'Re-' scenario upload the same CSAR and then export the YAML
 # - a new CSAR is created with this exported YAML
@@ -273,3 +273,24 @@ Scenario: Re-Upload CSAR containing embeded topology template with capability pr
   And The SPEL boolean expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size() == 1" should return true
   And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters[0]" should return "valid_node_types"     
     
+Scenario: Upload and delete CSAR containing only topology
+  Given I upload the archive "tosca base types 1.0"
+  And I upload the archive "topology_inputs"
+  And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  When I delete a CSAR with id "topology-inputs:1.0.0-SNAPSHOT"
+  Then I should receive a RestResponse with no error
+  And I have no CSAR created with id "topology-inputs:1.0.0-SNAPSHOT"   
+
+# When the CSAR contains both topology and type, the topology has a dependency to the CSAR
+# (since it may embed types contained in this CSAR)
+# so we need to delete the topology template before deleting the CSAR   
+Scenario: Upload and delete CSAR containing types and topology
+  Given I upload the archive "tosca base types 1.0"
+  And I upload the archive "topology apache"
+  And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
+  And I delete the topology template with name "apache-type-1.1.0-SNAPSHOT"
+  And I should receive a RestResponse with no error
+  When I delete a CSAR with id "apache-type:1.1.0-SNAPSHOT"
+  Then I should receive a RestResponse with no error 
+  And I have no CSAR created with id "apache-type:1.1.0-SNAPSHOT"   
+   
