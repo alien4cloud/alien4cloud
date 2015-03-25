@@ -105,9 +105,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.displayYaml = function() {
       $scope.view = 'YAML';
       refreshYaml();
-    }
+    };
     var refreshYaml = function() {
-      if ($scope.view != 'YAML') {
+      if ($scope.view !== 'YAML') {
         return;
       }
       var currentTopologyId = ($scope.selectedVersion) ? $scope.selectedVersion.topologyId : $scope.topologyId;
@@ -115,10 +115,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         topologyId: currentTopologyId}, function(result) {
           updateAceEditorContent(result.data);
       });
-    }
+    };
     $scope.aceLoaded = function(editor) {
       $scope.aceEditor = editor;
-    }
+    };
     var updateAceEditorContent = function(content) {
       var firstVisibleRow = ($scope.aceEditor) ? $scope.aceEditor.getFirstVisibleRow() : undefined;
       $scope.editorContent = content;
@@ -127,8 +127,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           $scope.aceEditor.scrollToLine(firstVisibleRow);
         }
       });
-    }
-    
+    };
+
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions)) {
       // default version loading
@@ -202,7 +202,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         }
       }
-      
+
       // update the editor content
       updateAceEditorContent($scope.topology.yaml);
 
@@ -760,7 +760,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }, function(success) {
           if (!success.error) {
             refreshTopology(success.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-          }          
+          }
         });
       }
     };
@@ -984,7 +984,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, angular.toJson(newScalingPolicy), function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-        }        
+        }
       });
     };
 
@@ -1043,7 +1043,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-        }         
+        }
       });
     };
 

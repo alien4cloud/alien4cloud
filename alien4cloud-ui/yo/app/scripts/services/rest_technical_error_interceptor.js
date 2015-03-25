@@ -15,21 +15,21 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
             return {
               status: rejection.status,
               data: UTILS.isDefinedAndNotNull(error.code) ? 'ERRORS.' + error.code : 'ERRORS.UNKNOWN',
-              code: error.code 
+              code: error.code
             };
           }
         } else {
           // Error not defined ==> return the data part
           return {
             status: rejection.status,
-            data: rejection.data,
+            data: rejection.data
           };
         }
       } else {
         // rejection.data not defined ==> unknown error
         return {
           status: rejection.status,
-          data: 'ERRORS.UNKNOWN',
+          data: 'ERRORS.UNKNOWN'
         };
       }
     };
@@ -37,7 +37,7 @@ angular.module('alienUiApp').factory('restTechnicalErrorInterceptor', ['$rootSco
     return {
 
       'responseError': function (rejection) {
-        
+
         var error = extractErrorMessage(rejection);
 
         // case: authentication rejection error
