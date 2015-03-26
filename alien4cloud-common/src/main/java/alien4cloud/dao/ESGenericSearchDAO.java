@@ -190,7 +190,7 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
     @Override
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements) {
-        return facetedSearch(clazz, searchText, filters, null, fetchContext, from, maxElements, null, false);
+        return facetedSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
     }
 
     @SuppressWarnings("unchecked")
