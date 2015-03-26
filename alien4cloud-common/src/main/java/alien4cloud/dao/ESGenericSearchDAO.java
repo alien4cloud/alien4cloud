@@ -152,7 +152,13 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
     @Override
     public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
             String fetchContext, int from, int maxElements) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, false);
+        return search(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, null, false);
+    }
+
+    @Override
+    public <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
+        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, false, fieldSort, sortOrder);
         return toGetMultipleDataResult(clazz, searchResponse, from);
     }
 
@@ -181,12 +187,18 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         return facetedSearch(clazz, searchText, filters, null, fetchContext, from, maxElements);
     }
 
+    @Override
+    public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
+            String fetchContext, int from, int maxElements) {
+        return facetedSearch(clazz, searchText, filters, null, fetchContext, from, maxElements, null, false);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     @SneakyThrows({ IOException.class })
     public <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter,
-            String fetchContext, int from, int maxElements) {
-        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true);
+            String fetchContext, int from, int maxElements, String fieldSort, boolean sortOrder) {
+        SearchResponse searchResponse = doSearch(clazz, searchText, filters, customFilter, fetchContext, from, maxElements, true, fieldSort, sortOrder);
 
         // check something found
         // return an empty object if nothing found
@@ -296,13 +308,17 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
     }
 
     private <T> SearchResponse doSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
-            int from, int maxElements, boolean enableFacets) {
+            int from, int maxElements, boolean enableFacets, String fieldSort, boolean sortOrder) {
         String[] searchIndexes = clazz == null ? getAllIndexes() : new String[] { getIndexForType(clazz) };
         Class<?>[] requestedTypes = getRequestedTypes(clazz);
 
         // we use for now a generic score computation based on a alienScore field.
-        return this.queryHelper.buildSearchQuery(searchIndexes, searchText).types(requestedTypes).fetchContext(fetchContext).filters(filters)
-                .customFilter(customFilter).functionScore(ESGenericSearchDAO.SCORE_SCRIPT).facets(enableFacets).search(from, maxElements);
+        SearchQueryHelperBuilder query = this.queryHelper.buildSearchQuery(searchIndexes, searchText).types(requestedTypes).fetchContext(fetchContext)
+                .filters(filters).customFilter(customFilter).functionScore(ESGenericSearchDAO.SCORE_SCRIPT).facets(enableFacets);
+        if (fieldSort != null) {
+            query.fieldSort(fieldSort, sortOrder);
+        }
+        return query.search(from, maxElements);
     }
 
     private boolean somethingFound(final SearchResponse searchResponse) {

@@ -9,55 +9,45 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
 
     // displayed column
     $scope.columns = [{
-      title: 'Date',
       field: 'timestamp',
       visible: true
     }, {
-      title: 'Username',
       field: 'userName',
       visible: true
     }, {
-      title: 'First Name',
       field: 'userFirstName',
       visible: false
     }, {
-      title: 'Last Name',
       field: 'userLastName',
       visible: false
     }, {
-      title: 'Email',
       field: 'userEmail',
       visible: false
     }, {
-      title: 'Category',
       field: 'category',
       visible: true
     }, {
-      title: 'Action',
       field: 'action',
       visible: true
     }, {
-      title: 'Method',
       field: 'method',
       visible: true
     }, {
-      title: 'Response status',
       field: 'responseStatus',
       visible: true
     }, {
-      title: 'Action description',
       field: 'actionDescription',
       visible: false
     }, {
-      title: 'Path',
       field: 'path',
       visible: false
     }, {
-      title: 'Request Body',
       field: 'requestBody',
       visible: false
     }, {
-      title: 'Source IP',
+      field: 'requestParameters',
+      visible: false
+    }, {
       field: 'sourceIp',
       visible: false
     }];

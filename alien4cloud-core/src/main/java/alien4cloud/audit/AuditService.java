@@ -68,7 +68,7 @@ public class AuditService {
 
     public FacetedSearchResult searchAuditTrace(String query, Map<String, String[]> filters, int from, int size) {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
-        return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size);
+        return alienDAO.facetedSearch(AuditTrace.class, query, filters, authorizationFilter, null, from, size, "timestamp", true);
     }
 
     private String getRequestMappingPath(RequestMapping requestMapping) {

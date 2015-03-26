@@ -19,8 +19,7 @@ import org.elasticsearch.mapping.IndexType;
 @ESObject
 public class AuditTrace {
 
-    @TermFilter
-    @DateField(includeInAll = false, index = IndexType.no)
+    @DateField
     private long timestamp;
 
     @TermFilter

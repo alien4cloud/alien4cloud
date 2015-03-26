@@ -863,7 +863,7 @@
       "CONFIGURATION_IS_RESETED": "Audit configuration has been reseted with success"
     },
     "LOG": "Operations Audit",
-    "ACTIVE_FILTERS": "Filtres actifs",
+    "ACTIVE_FILTERS": "Active filters",
     "COLUMNS": {
       "TIMESTAMP": "Date",
       "CATEGORY": "Category",
