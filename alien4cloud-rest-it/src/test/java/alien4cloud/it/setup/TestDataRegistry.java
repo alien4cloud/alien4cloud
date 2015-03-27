@@ -60,6 +60,7 @@ public class TestDataRegistry {
         addConditionFolder("topology-template-relationship-funtionprop",
                 "src/test/resources/data/csars/topology_template/topology-template-relationship-funtionprop");
         addConditionFolder("topology-capability-io", "src/test/resources/data/csars/topology_template/topology-capability-io");
+        addConditionFolder("topology_artifact", "src/test/resources/data/csars/topology_template/topology_artifact");
 
         // test uploading an unzipped file (do not zip it)
         CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));
