@@ -152,6 +152,24 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @param clazz The type of data to query.
      * @param searchText The search text if any.
      * @param filters The filters for the search or null if no filters.
+     * @param fetchContext A fetch context to define a partial response.
+     * @param from Offset from the first result you want to fetch.
+     * @param maxElements The maximum number of elements to return.
+     * @param fieldSort field to sort on
+     * @param sortOrder order for the sort (false = ascending or true = descending)
+     * @return A {@link GetMultipleDataResult} instance that contains the result data. Empty instance if no data found.
+     */
+    <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
+            int from, int maxElements, String fieldSort, boolean sortOrder);
+
+    /**
+     * Same as {@link IGenericSearchDAO#search(Class, String, Map, int)}, but with pagination supported.
+     *
+     * @see IGenericSearchDAO#search(Class, String, Map, int)
+     *
+     * @param clazz The type of data to query.
+     * @param searchText The search text if any.
+     * @param filters The filters for the search or null if no filters.
      * @param customFilter The custom defined filter
      * @param fetchContext A fetch context to define a partial response.
      * @param from Offset from the first result you want to fetch.
@@ -232,6 +250,24 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      */
     <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
             int from, int maxElements);
+
+    /**
+     * Same as {@link IGenericSearchDAO#facetedSearch(String, String, Map, int)}, but with pagination supported.
+     *
+     * @param clazz The type of data to query.
+     * @param searchText The search text if any.
+     * @param filters The filters for the search.
+     * @param customFilter The custom defined filter.
+     * @param fetchContext A fetch context to define a partial response.
+     * @param from Offset from the first result you want to fetch.
+     * @param maxElements The maximum number of elements to return.
+     * @param fieldSort field to sort on
+     * @param sortOrder order for the sort (false = ascending or true = descending)
+     * @return A {@link FacetedSearchResult} instance that contains the result data and associated facets. Empty instance if no data found.
+     * @see IGenericSearchDAO#facetedSearch(String, String, Map, int)
+     */
+    <T> FacetedSearchResult facetedSearch(Class<T> clazz, String searchText, Map<String, String[]> filters, FilterBuilder customFilter, String fetchContext,
+            int from, int maxElements, String fieldSort, boolean sortOrder);
 
     /**
      * Perform a suggestion search on a specific field.

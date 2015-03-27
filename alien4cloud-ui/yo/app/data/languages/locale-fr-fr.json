@@ -883,7 +883,7 @@
       "PATH": "Appel",
       "METHOD": "Méthode",
       "REQUESTPARAMETERS": "Paramètres d'entrée",
-      "REQUESTBODY": "Corps des paramètres",
+      "REQUESTBODY": "Contenu de la requête",
       "RESPONSESTATUS": "Code réponse",
       "SOURCEIP": "IP source"
     }

@@ -5,58 +5,49 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
 
     // display configuration
     var timestampFormat = 'medium';
+    var DEFAULT_AUDIT_PAGE_SIZE = 10;
 
     // displayed column
     $scope.columns = [{
-      title: 'Date',
       field: 'timestamp',
       visible: true
     }, {
-      title: 'Username',
       field: 'userName',
       visible: true
     }, {
-      title: 'First Name',
       field: 'userFirstName',
       visible: false
     }, {
-      title: 'Last Name',
       field: 'userLastName',
       visible: false
     }, {
-      title: 'Email',
       field: 'userEmail',
       visible: false
     }, {
-      title: 'Category',
       field: 'category',
       visible: true
     }, {
-      title: 'Action',
       field: 'action',
       visible: true
     }, {
-      title: 'Method',
       field: 'method',
       visible: true
     }, {
-      title: 'Response status',
       field: 'responseStatus',
       visible: true
     }, {
-      title: 'Action description',
       field: 'actionDescription',
       visible: false
     }, {
-      title: 'Path',
       field: 'path',
       visible: false
     }, {
-      title: 'Request Body',
       field: 'requestBody',
       visible: false
     }, {
-      title: 'Source IP',
+      field: 'requestParameters',
+      visible: false
+    }, {
       field: 'sourceIp',
       visible: false
     }];
@@ -65,25 +56,31 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
       'query': '',
       'filters': undefined,
       'from': 0,
-      'size': 1000
+      'size': DEFAULT_AUDIT_PAGE_SIZE
     };
 
     $scope.auditTableParam = new ngTableParams({
       page: 1, // show first page
-      count: 10 // count per page
+      count: DEFAULT_AUDIT_PAGE_SIZE // count per page
     }, {
       total: 0, // length of data
       getData: function($defer, params) {
+
+        // getting the exact page
+        searchRequestObject.from = ($scope.auditTableParam.page() - 1) * $scope.auditTableParam.count();
+        searchRequestObject.size = $scope.auditTableParam.count();
+
+        // audit search
         auditService.search([], angular.toJson(searchRequestObject), function(successResult) {
-          // get facets
+          // get data & facets
           var data = successResult.data.data;
+          var total = successResult.data.totalResults;
           $scope.facets = successResult.data.facets;
 
           // prepare to dysplay
           prepareTraces(data);
-          params.total(data.length);
-          $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-
+          params.total(total);
+          $defer.resolve(data);
         });
       }
     });
@@ -159,6 +156,8 @@ angular.module('alienUiApp').controller('AuditController', ['$scope', 'auditServ
 
       searchRequestObject.query = keyword;
       searchRequestObject.filters = objectFilters;
+      console.log('PAGE NUMBER >', $scope.auditTableParam.page());
+      console.log('PAGE COUNT >', $scope.auditTableParam.count());
 
       // reload traces table
       $scope.auditTableParam.reload();

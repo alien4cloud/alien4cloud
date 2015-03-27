@@ -103,10 +103,10 @@
           </tr>
 
           <tr>
-            <th ng-repeat="column in columns" ng-show="column.visible" class="text-center sortable" ng-class="{
+            <th ng-repeat="column in columns" show-filter="true" ng-show="column.visible" class="text-center sortable" ng-class="{
                       'sort-asc': auditTableParam.isSortBy(column.field, 'asc'),
                       'sort-desc': auditTableParam.isSortBy(column.field, 'desc')
-                    }" ng-click="auditTableParam.sorting(column.field, tableParams.isSortBy(column.field, 'asc') ? 'desc' : 'asc')">
+                    }" ng-click="auditTableParam.sorting(column.field, auditTableParam.isSortBy(column.field, 'asc') ? 'desc' : 'asc')">
               {{'AUDIT.COLUMNS.'+(column.field | uppercase) | translate}}
             </th>
           </tr>
