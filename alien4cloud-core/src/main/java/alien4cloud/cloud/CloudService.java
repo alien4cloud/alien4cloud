@@ -73,6 +73,8 @@ public class CloudService {
     private CloudImageService cloudImageService;
 
     public void initialize() {
+        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+
         int from = 0;
         long totalResult;
         do {
@@ -81,13 +83,20 @@ public class CloudService {
                 return;
             }
 
-            for (Cloud cloud : enabledCloudResult.getData()) {
-                try {
-                    initCloud(cloud);
-                } catch (Throwable t) {
-                    // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
-                    disableOnInitFailure(cloud, t);
-                }
+            for (final Cloud cloud : enabledCloudResult.getData()) {
+                // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            initCloud(cloud);
+                        } catch (Throwable t) {
+                            // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
+                            disableOnInitFailure(cloud, t);
+                        }
+                    }
+                });
+                thread.start();
             }
             from += enabledCloudResult.getData().length;
             totalResult = enabledCloudResult.getTotalResults();
