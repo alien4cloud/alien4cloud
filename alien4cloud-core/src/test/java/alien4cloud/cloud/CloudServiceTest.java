@@ -111,7 +111,7 @@ public class CloudServiceTest {
         Mockito.when(paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean())).thenReturn(paaSProviderFactory);
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
 
-        cloudService.initialize();
+        cloudService.initializeAndWait();
 
         Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
     }
@@ -131,7 +131,7 @@ public class CloudServiceTest {
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(null);
 
-        cloudService.initialize();
+        cloudService.initializeAndWait();
 
         Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
     }
@@ -152,7 +152,7 @@ public class CloudServiceTest {
         Mockito.when(paaSProviderFactory.newInstance()).thenReturn(paaSProvider);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
 
-        cloudService.initialize();
+        cloudService.initializeAndWait();
 
         Mockito.verify(paaSProviderService, Mockito.times(0)).register(cloud.getId(), paaSProvider);
         Mockito.verify(paaSProviderService, Mockito.times(1)).unregister(cloud.getId());
@@ -183,7 +183,7 @@ public class CloudServiceTest {
         Mockito.when(paaSProviderFactory.getConfigurationType()).thenReturn(String.class);
         Mockito.when(paaSProviderFactory.getDefaultConfiguration()).thenReturn(DEFAULT_CLOUD_CONFIGURATION);
         Mockito.when(alienDAO.findById(CloudConfiguration.class, cloud.getId())).thenReturn(configuration);
-        cloudService.initialize();
+        cloudService.initializeAndWait();
 
         Mockito.verify(paaSProvider, Mockito.times(1)).setConfiguration((String) configuration.getConfiguration());
         Mockito.verify(paaSProviderService, Mockito.times(1)).register(cloud.getId(), paaSProvider);
@@ -213,7 +213,7 @@ public class CloudServiceTest {
 
         Mockito.doThrow(PluginConfigurationException.class).when(paaSProvider).setConfiguration((String) configuration.getConfiguration());
 
-        cloudService.initialize();
+        cloudService.initializeAndWait();
 
         Mockito.verify(paaSProviderService, Mockito.times(0)).register(cloud.getId(), paaSProvider);
         Mockito.verify(paaSProviderService, Mockito.times(1)).unregister(cloud.getId());
