@@ -4,7 +4,6 @@
 
 angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$q',
   function($scope, propertiesServices, $translate, $q) {
-    var initialValue = $scope.propertyValue;
 
     $scope.propertySave = function(data) {
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
@@ -57,22 +56,33 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
      */
     $scope.definitionObject = {};
 
-    $scope.initScope = function() {
+    $scope.init = function() {
+      $scope.$watch('propertyValue', function() {
+        $scope.initScope();
+      }, true);
 
+      $scope.$watch('definition', function() {
+        $scope.initScope();
+      }, true);
+      $scope.initScope();
+    };
+
+    $scope.initScope = function() {
       // Define properties
       if (!UTILS.isDefinedAndNotNull($scope.definition)) {
         return;
       }
       // Now a property is an AbstractPropertyValue : (Scalar or Function)
+      var shownValue = $scope.propertyValue;
       if (UTILS.isDefinedAndNotNull($scope.propertyValue) && $scope.propertyValue.definition === false) {
         if ($scope.propertyValue.hasOwnProperty('value')) {
           // Here handle scalar value
-          $scope.propertyValue = $scope.propertyValue.value;
+          shownValue = $scope.propertyValue.value;
         } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-          $scope.propertyValue = $scope.propertyValue.function + ' [ ' + $scope.propertyValue.parameters[0] + ' ] ';
+          shownValue = $scope.propertyValue.function + ': ' + UTILS.array2csv($scope.propertyValue.parameters);
         }
       }
-      var shownValue = $scope.propertyValue || $scope.definition.default;
+      var shownValue = shownValue || $scope.definition.default;
 
       // Second phase : regarding constraints
       if (UTILS.isDefinedAndNotNull($scope.definition.constraints)) {
@@ -122,6 +132,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     };
 
     // Init managed property
-    $scope.initScope();
+    $scope.init();
   }
 ]);

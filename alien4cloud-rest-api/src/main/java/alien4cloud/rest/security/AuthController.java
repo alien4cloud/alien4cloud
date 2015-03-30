@@ -35,7 +35,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * Authentication service manages security related operations including Authentication and Authorization management.
- * 
+ *
  * @author luc boutier
  */
 @RestController
@@ -47,7 +47,7 @@ public class AuthController {
 
     /**
      * Get the current user's status (login, roles etc.).
-     * 
+     *
      * @return The current user's status wrapped in a {@link RestResponse} object.
      */
     @ApiOperation(value = "Get the current authentication status and user's roles.", notes = "Return the current user's status and it's roles.")
@@ -70,14 +70,6 @@ public class AuthController {
         }
 
         return RestResponseBuilder.<UserStatus> builder().data(userStatus).build();
-    }
-
-    @ApiIgnore
-    @RequestMapping(value = "/authenticationrequired", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public RestResponse<Void> authenticationRequired() {
-        return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.AUTHENTICATION_REQUIRED_ERROR).message("Authentication is required.").build()).build();
     }
 
     @ApiIgnore

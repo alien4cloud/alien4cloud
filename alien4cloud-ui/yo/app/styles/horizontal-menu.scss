@@ -12,6 +12,7 @@
   width: auto;
   right: 0px;
   z-index: 300;
+  overflow: hidden;
 }
 
 .horizontal-panel-text {
@@ -32,4 +33,9 @@
 .horizontal-panel-text-light:hover {
   color: white;
   font-weight: normal;
+}
+
+.horizontal-panel-label {
+  display: inline-block;
+  font-weight: bold;
 }

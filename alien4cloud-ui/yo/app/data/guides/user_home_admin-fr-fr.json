@@ -49,5 +49,10 @@
     "content": "Visualisez ici des informations techniques concernant votre instance d'Alien 4 Cloud (mémoire, processeur,...)",
     "target": "homepage.am.admin.metrics",
     "placement": "left"
+  }, {
+    "title": "Optionnel : A4C audit",
+    "content": "Activité d'audit des utilisateurs A4C",
+    "target": "homepage.am.admin.audit",
+    "placement": "right"
   }]
 }

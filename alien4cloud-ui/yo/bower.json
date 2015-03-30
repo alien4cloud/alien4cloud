@@ -6,6 +6,7 @@
     "json3": "~3.2.6",
     "es5-shim": "~2.1.0",
     "jquery": "~2.1.1",
+    "jquery-ui": "~1.11.3",
     "bootstrap-sass-official": "3.2.0",
     "angular-resource": "1.2.21",
     "angular-cookies": "1.2.21",
@@ -34,7 +35,8 @@
     "angular-tree-control": "0.2.2",
     "hopscotch": "git://github.com/alien4cloud/hopscotch.git#master",
     "roboto-fontface": "~0.2.5",
-    "d3pie": "~0.1.5"
+    "d3pie": "~0.1.5",
+    "ng-table": "~0.5.4"
   },
   "devDependencies": {
     "angular-mocks": "1.2.12",

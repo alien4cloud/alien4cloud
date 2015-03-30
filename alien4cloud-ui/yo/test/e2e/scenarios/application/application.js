@@ -46,9 +46,9 @@ describe('Applications management', function() {
     applications.goToApplicationDetailPage('JavaTomcatWarApplication', true);
 
     // check relationship count
-    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaRPM', 2);
-    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute_2', 0);
-    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute', 0);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('JavaRPM', 2);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('Compute_2', 0);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('Compute', 0);
   });
 
   it('should be able to delete an application from the search list and the application\'s detail page', function() {

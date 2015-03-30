@@ -385,6 +385,7 @@
                           <th class="col-md-2"></th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
                           <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                          <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.DESCRIPTION' | translate}}</th>
                         </tr>
                       </thead>
                       <tbody ng-mouseleave="deleteTemplateSelection()">
@@ -399,6 +400,7 @@
                           </td>
                           <td>{{cloudImage.name}}</td>
                           <td>{{flavor.id}}</td>
+                          <td>{{template.description}}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -551,6 +553,7 @@
                           <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
                           <th>{{ 'CLOUDS.NETWORKS.IS_EXTERNAL' | translate}}</th>
                           <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -588,6 +591,7 @@
 	                              </ul>
 	                            </div>
                             </div>
+                          </td>{{network.description || '---'}}<td>
                           </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network)" id="cloud_delete_network_{{network.id}}"><i class="fa fa-trash-o"></i>
@@ -637,6 +641,7 @@
                           <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
                           <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
                           <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                           <th></th>
                         </tr>
                       </thead>
@@ -673,6 +678,7 @@
 	                            </div>
                             </div>
                           </td>
+                          <td>{{storage.description || '---'}}</td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage)" id="cloud_delete_storage_{{storage.id}}"><i class="fa fa-trash-o"></i>
                             </button>

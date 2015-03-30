@@ -15,7 +15,7 @@ describe('Topology node template edition :', function() {
   var isBeforeAllDone = false;
 
   beforeEach(function() {
-    if(isBeforeAllDone) {
+    if (isBeforeAllDone) {
       authentication.login('applicationManager');
       navigation.go('main', 'applications');
       browser.element(by.binding('application.name')).click();
@@ -36,14 +36,16 @@ describe('Topology node template edition :', function() {
     console.log('################# should be able to see topology details');
 
     expect(element(by.id('topology')).isPresent()).toBe(true);
-    expect(element(by.css('div.topology-details')).isPresent()).toBe(true);
+    expect(element(by.id('nodetemplate-details')).isPresent()).toBe(true);
   });
 
   it('should be able to add a node templates to a topology and see the node details', function() {
     console.log('################# should be able to add a node templates to a topology and see the node details');
 
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
-    topologyEditorCommon.addNodeTemplatesCenterAndZoom({ war: componentData.fcTypes.war() });
+    topologyEditorCommon.addNodeTemplatesCenterAndZoom({
+      war: componentData.fcTypes.war()
+    });
 
     // should be display the link to the node detail
     expect(element(by.id('btn-tosca.nodes.Compute')).isPresent()).toBe(true);
@@ -52,21 +54,22 @@ describe('Topology node template edition :', function() {
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
 
-    var nameSpan = element(by.css('div.topology-details h3 span[editable-text]'));
+    var nameSpan = element(by.id('nodetemplate-details')).element(by.css('h3 span[editable-text]'));
     expect(nameSpan.isDisplayed()).toBe(true);
   });
 
   it('should be able to edit a node template name', function() {
+    console.log('################# should be able to edit a node template name');
     var nodeToEdit = element(by.id('rect_Compute_2'));
     nodeToEdit.click();
 
-    var nameSpan = element(by.css('div.topology-details h3 span[editable-text]'));
+    var nameSpan = element(by.id('nodetemplate-details')).element(by.css('h3 span[editable-text]'));
 
     var editForm;
     var editInput;
     // success update
     nameSpan.click();
-    editForm = element(by.css('div.topology-details h3 form'));
+    editForm = element(by.id('nodetemplate-details')).element(by.css('h3 form'));
     editInput = editForm.element(by.tagName('input'));
     editInput.clear();
     editInput.sendKeys('Compute_new_NAME');
@@ -76,7 +79,7 @@ describe('Topology node template edition :', function() {
 
     // fail update
     nameSpan.click();
-    editForm = element(by.css('div.topology-details h3 form'));
+    editForm = element(by.id('nodetemplate-details')).element(by.css('h3 form'));
     editInput = editForm.element(by.tagName('input'));
     editInput.clear();
     editInput.sendKeys('JavaRPM');
@@ -153,6 +156,7 @@ describe('Topology node template edition :', function() {
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.checkTodoList(false);
   });
 });

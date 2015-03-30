@@ -41,3 +41,6 @@ elasticSearch:
   client: false
   resetData: false
   prefix_max_expansions: 10
+
+audit:
+  ttl: 1d

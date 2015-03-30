@@ -29,6 +29,7 @@ import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
+import alien4cloud.paas.exception.PaaSDeploymentIOException;
 import alien4cloud.paas.exception.PaaSUndeploymentException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -179,6 +180,17 @@ public class RestTechnicalExceptionHandler {
                 .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR).message("Application cannot be deployed " + e.getMessage()).build())
                 .build();
+    }
+
+    @ExceptionHandler(value = PaaSDeploymentIOException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentIOErrorHandler(PaaSDeploymentIOException e) {
+        log.warn("Error in PaaS Deployment", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_IO_ERROR)
+                        .message("Cannot reach the PaaS Manager endpoint " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = PaaSUndeploymentException.class)

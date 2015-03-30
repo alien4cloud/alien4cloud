@@ -28,7 +28,6 @@ public class PaaSInstanceStorageMonitorEvent extends PaaSInstanceStateMonitorEve
     public PaaSInstanceStorageMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String volumeId) {
         super();
         setAttributes(instanceStateMonitorEvent.getAttributes());
-        setProperties(instanceStateMonitorEvent.getProperties());
         setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
         setInstanceId(instanceStateMonitorEvent.getInstanceId());
         setNodeTemplateId(instanceStateMonitorEvent.getNodeTemplateId());

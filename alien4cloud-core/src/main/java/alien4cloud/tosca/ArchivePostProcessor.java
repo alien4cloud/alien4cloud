@@ -5,12 +5,13 @@ import java.util.Map.Entry;
 
 import org.springframework.stereotype.Component;
 
+import alien4cloud.model.components.DeploymentArtifact;
+import alien4cloud.model.components.ImplementationArtifact;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.tosca.model.ArchiveRoot;
-import alien4cloud.model.components.ImplementationArtifact;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.tosca.parser.impl.ErrorCode;
@@ -22,7 +23,7 @@ public class ArchivePostProcessor {
     /**
      * Post process the archive: For every definition of the model it fills the id fields in the TOSCA elements from the key of the elements map.
      * 
-     * @param archive The archive to post process
+     * @param parsedArchive The archive to post process
      */
     public void postProcess(ParsingResult<ArchiveRoot> parsedArchive) {
         doPostProcess(parsedArchive);
@@ -76,7 +77,18 @@ public class ArchivePostProcessor {
             return;
         }
         for (IndexedArtifactToscaElement element : elements.values()) {
+            postProcessDeploymentArtifacts(archive, element);
             postProcessInterfaces(archive, element);
+        }
+    }
+
+    private void postProcessDeploymentArtifacts(ArchiveRoot archive, IndexedArtifactToscaElement element) {
+        if (element.getArtifacts() == null) {
+            return;
+        }
+
+        for (DeploymentArtifact artifact : element.getArtifacts().values()) {
+            postProcessDeploymentArtifact(archive, artifact);
         }
     }
 
@@ -89,6 +101,13 @@ public class ArchivePostProcessor {
             for (Operation operation : interfaz.getOperations().values()) {
                 postProcessImplementationArtifact(archive, operation.getImplementationArtifact());
             }
+        }
+    }
+
+    private void postProcessDeploymentArtifact(ArchiveRoot archive, DeploymentArtifact artifact) {
+        if (artifact != null) {
+            artifact.setArchiveName(archive.getArchive().getName());
+            artifact.setArchiveVersion(archive.getArchive().getVersion());
         }
     }
 

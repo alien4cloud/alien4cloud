@@ -1,6 +1,6 @@
 /**
-* Module that exposes functions to login - logout and re-login with various users.
-*/
+ * Module that exposes functions to login - logout and re-login with various users.
+ */
 
 /* global by, element */
 
@@ -67,12 +67,13 @@ function logout() {
   // Right dropdown menu
   var navBarRightDrop = browser.element(by.id('navbar-rightdrop'));
   browser.actions().click(navBarRightDrop).perform();
-  browser.waitForAngular();
+  browser.waitForAngular().then(function wait() {
+    // Logout action
+    var btnLogout = browser.element(by.name('btn-logout'));
+    browser.actions().click(btnLogout).perform();
+//    browser.waitForAngular();
+  });
 
-  // Logout action
-  var btnLogout = browser.element(by.name('btn-logout'));
-  browser.actions().click(btnLogout).perform();
-  browser.waitForAngular();
 }
 
 function login(username) {

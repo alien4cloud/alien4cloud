@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.paas.IPaaSTemplate;
 
@@ -35,5 +36,10 @@ public class PaaSRelationshipTemplate implements IPaaSTemplate<IndexedRelationsh
             return type.equals(indexedToscaElement.getElementId());
         }
         return type.equals(indexedToscaElement.getElementId()) || indexedToscaElement.getDerivedFrom().contains(type);
+    }
+
+    @Override
+    public AbstractTemplate getTemplate() {
+        return relationshipTemplate;
     }
 }

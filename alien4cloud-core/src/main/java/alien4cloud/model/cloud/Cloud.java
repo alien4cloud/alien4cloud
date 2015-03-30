@@ -2,6 +2,7 @@ package alien4cloud.model.cloud;
 
 import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
+import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.utils.jackson.*;
 
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiModel;
@@ -104,7 +107,7 @@ public class Cloud implements ISecuredResource {
 
     private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
 
-    private Set<ActivableComputeTemplate> computeTemplates = Sets.newLinkedHashSet();
+    private List<ActivableComputeTemplate> computeTemplates = Lists.newArrayList();
 
     private Map<String, String> imageMapping = Maps.newHashMap();
 
@@ -113,4 +116,9 @@ public class Cloud implements ISecuredResource {
     private Map<String, String> networkMapping = Maps.newHashMap();
 
     private Map<String, String> storageMapping = Maps.newHashMap();
+
+    @Override
+    public Class<CloudRole> roleEnum() {
+        return CloudRole.class;
+    }
 }

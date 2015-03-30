@@ -28,7 +28,7 @@ describe('Topology input/output properties', function() {
     topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
   };
 
-  it('should be able to define properties as input or output and see their values in application details view', function() {
+  xit('should be able to define properties as input or output and see their values in application details view', function() {
     console.log('################# should be able to define properties as input or output and see their values in application details view');
     cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
     navigation.go('main', 'applications');
@@ -39,6 +39,7 @@ describe('Topology input/output properties', function() {
     });
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
     topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
 

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import alien4cloud.component.repository.ICsarRepositry;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.csar.services.CsarService;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
@@ -99,6 +101,15 @@ public class ArchiveUploadService {
         
         // if a topology has been added we want to notify the user
         if (parsingResult.getResult().getTopology() != null) {
+            Topology topology = parsingResult.getResult().getTopology();
+            if (archiveRoot.hasToscaTypes()) {
+                // the archive contains types
+                // we assume those types are used in the embedded topology
+                // so we add the dependency to this CSAR
+                CSARDependency selfDependency = new CSARDependency(archiveRoot.getArchive().getName(), archiveRoot.getArchive().getVersion());
+                topology.getDependencies().add(selfDependency);
+            }
+
             String topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
             simpleResult
                     .getContext()
@@ -106,8 +117,7 @@ public class ArchiveUploadService {
                     .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
                             topologyTemplateName));
 
-            topologyServiceCore.createTopologyTemplate(parsingResult.getResult().getTopology(), topologyTemplateName, parsingResult.getResult()
-                    .getTopologyTemplateDescription());
+            topologyServiceCore.createTopologyTemplate(topology, topologyTemplateName, parsingResult.getResult().getTopologyTemplateDescription());
         }
 
         return simpleResult;

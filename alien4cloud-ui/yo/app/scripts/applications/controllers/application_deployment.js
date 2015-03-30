@@ -71,6 +71,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     function refreshSelectedCloud() {
 
       delete $scope.deploymentPropertyDefinitions;
+      delete $scope.selectedCloud;
 
       // var clouds = $scope.clouds;
       if (UTILS.isDefinedAndNotNull($scope.clouds)) {
@@ -79,7 +80,6 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           i = 0;
         while (!found && i < $scope.clouds.length) {
           if ($scope.clouds[i].id === $scope.selectedEnvironment.cloudId) {
-            delete $scope.selectedCloud;
             $scope.selectedCloud = $scope.clouds[i];
             found = true;
           }
@@ -123,8 +123,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         applicationId: $scope.application.id,
         applicationEnvironmentId: $scope.selectedEnvironment.id
       }, undefined, function(response) {
+        $scope.hasUnmatchedCompute = false;
+        delete $scope.currentMatchedStorages;
+        delete $scope.currentMatchedNetworks;
+        delete $scope.currentMatchedComputeTemplates;
         $scope.setup = response.data;
-
         // update resource matching data.
         $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
         $scope.selectedNetworks = $scope.setup.networkMapping;
@@ -141,34 +144,34 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
           $scope.images = response.data.matchResult.images;
           $scope.flavors = response.data.matchResult.flavors;
+        } else {
+          delete $scope.matchedComputeResources;
+          delete $scope.matchedNetworkResources;
+          delete $scope.matchedStorageResources;
+          delete $scope.images;
+          delete $scope.flavors;
+          return;
         }
 
         var key;
-        $scope.hasUnmatchedCompute = false;
         for (key in $scope.matchedComputeResources) {
-          if ($scope.matchedComputeResources.hasOwnProperty(key)) {
-            if (!$scope.selectedComputeTemplates.hasOwnProperty(key)) {
-              $scope.hasUnmatchedCompute = true;
-              break;
-            }
+          if ($scope.matchedComputeResources.hasOwnProperty(key) && !($scope.selectedComputeTemplates && $scope.selectedComputeTemplates.hasOwnProperty(key))) {
+            $scope.hasUnmatchedCompute = true;
+            break;
           }
         }
         $scope.hasUnmatchedNetwork = false;
         for (key in $scope.matchedNetworkResources) {
-          if ($scope.matchedNetworkResources.hasOwnProperty(key)) {
-            if (!$scope.selectedNetworks.hasOwnProperty(key)) {
-              $scope.hasUnmatchedNetwork = true;
-              break;
-            }
+          if ($scope.matchedNetworkResources.hasOwnProperty(key) && !($scope.selectedNetworks && $scope.selectedNetworks.hasOwnProperty(key))) {
+            $scope.hasUnmatchedNetwork = true;
+            break;
           }
         }
         $scope.hasUnmatchedStorage = false;
         for (key in $scope.matchedStorageResources) {
-          if ($scope.matchedStorageResources.hasOwnProperty(key)) {
-            if (!$scope.selectedStorages.hasOwnProperty(key)) {
-              $scope.hasUnmatchedStorage = true;
-              break;
-            }
+          if ($scope.matchedStorageResources.hasOwnProperty(key) && !($scope.selectedStorages && $scope.selectedStorages.hasOwnProperty(key))) {
+            $scope.hasUnmatchedStorage = true;
+            break;
           }
         }
       });
@@ -276,7 +279,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.isSelectedCompute = function(template) {
       var selected = $scope.selectedComputeTemplates[$scope.currentComputeNodeTemplateId];
-      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId;
+      return template.cloudImageId === selected.cloudImageId && template.cloudImageFlavorId === selected.cloudImageFlavorId && template.description === selected.description;
     };
 
     $scope.isSelectedComputeTemplate = function(key) {

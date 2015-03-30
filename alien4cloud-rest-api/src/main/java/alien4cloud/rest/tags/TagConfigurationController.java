@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
@@ -39,6 +40,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Save tag configuration.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TagConfigurationSaveResponse> saveConfiguration(@RequestBody MetaPropConfiguration configuration) {
         if (configuration.getId() == null) {
             // Save or update
@@ -71,6 +73,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Remove tag configuration.")
     @RequestMapping(value = "/{tagConfigurationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> removeConfiguration(@PathVariable String tagConfigurationId) {
         dao.delete(MetaPropConfiguration.class, tagConfigurationId);
         return RestResponseBuilder.<Void> builder().build();

@@ -25,7 +25,7 @@ angular.module('alienUiApp').factory('applicationEnvironmentServices', ['$resour
       }, angular.toJson(searchRequestObject), function updateAppEnvSearchResult(result) {
         return result.data.data;
       }).$promise;
-    }
+    };
 
     var applicationEnvironmentResource = $resource('rest/applications/:applicationId/environments', {}, {
       'create': {

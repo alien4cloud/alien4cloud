@@ -18,6 +18,7 @@ import org.elasticsearch.mapping.IndexType;
 import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.utils.jackson.*;
 
@@ -80,4 +81,8 @@ public class Application implements ISecuredResource, IDeploymentSource, ITaggab
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
+    @Override
+    public Class<ApplicationRole> roleEnum() {
+        return ApplicationRole.class;
+    }
 }

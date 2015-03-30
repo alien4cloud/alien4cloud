@@ -207,7 +207,15 @@ public class CloudDefinitionsSteps {
     @When("^I get the cloud by name \"([^\"]*)\"$")
     public void I_get_the_cloud_by_name(String name) throws Throwable {
         NameValuePair nvp = new BasicNameValuePair("cloudName", name);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp)));
+        String restResponse = Context.getRestClientInstance().getUrlEncoded("/rest/clouds/getByName", Lists.newArrayList(nvp));
+        Context.getInstance().registerRestResponse(restResponse);
+        RestResponse<Cloud> response = JsonUtil.read(Context.getInstance().getRestResponse(), Cloud.class);
+        if (response != null && response.getData() != null) {
+            String cloudId = response.getData().getId();
+            if (cloudId != null) {
+                Context.getInstance().registerCloud(cloudId, name);
+            }
+        }
     }
 
     @When("^I get the cloud \"([^\"]*)\"$")
@@ -256,6 +264,12 @@ public class CloudDefinitionsSteps {
                 assertEquals(expectedProperty.getValue(), propValue);
             }
         }
+    }
+
+    @When("^I clone the cloud with name \"([^\"]*)\"$")
+    public void I_clone_the_cloud_with_name(String cloudName) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/clone", "{}"));
     }
 
 }

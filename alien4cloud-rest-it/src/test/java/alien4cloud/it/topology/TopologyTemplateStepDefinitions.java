@@ -8,11 +8,13 @@ import java.util.Map;
 
 import org.elasticsearch.common.collect.Maps;
 
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.Entry;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.template.CreateTopologyTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.TopologyDTO;
@@ -99,6 +101,26 @@ public class TopologyTemplateStepDefinitions {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
         assertNotNull(topologyTemplate);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplate.getId()));
+    }
+
+    @When("^I delete the topology template with name \"([^\"]*)\"$")
+    public void I_delete_topology_template(String topologyTemplateName) throws Throwable {
+        String topologyTemplateId = getTopologyTemplateIdFromName(topologyTemplateName);
+        assertNotNull(topologyTemplateId);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplateId));
+    }
+
+    private String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
+        String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        String topologyTemplateId = null;
+        for (Object singleResult : restResponse.getData().getData()) {
+            Map map = (Map) singleResult;
+            if (topologyTemplateName.equals(map.get("name"))) {
+                topologyTemplateId = map.get("id").toString();
+            }
+        }
+        return topologyTemplateId;
     }
 
     @Then("^The related topology shouldn't exist anymore$")

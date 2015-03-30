@@ -52,7 +52,7 @@ module.exports.createTopologyTemplateWithNodesAndRelationships = function(topolo
   topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.dependsOnCompute2);
 
   // check relationship count
-  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaRPM', 2);
-  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute_2', 0);
-  topologyEditorCommon.checkNumberOfRelationshipForANode('rect_Compute', 0);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('JavaRPM', 2);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('Compute_2', 0);
+  topologyEditorCommon.checkNumberOfRelationshipForANode('Compute', 0);
 };

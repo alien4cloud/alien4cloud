@@ -35,6 +35,16 @@ var topologyTemplates = {
 };
 module.exports.topologyTemplates = topologyTemplates;
 
+var nodeDetailsBlocsIds = {
+  pro: 'node-details-properties',
+  att: 'node-details-attributes',
+  req: 'node-details-requirements',
+  cap: 'node-details-capabilities',
+  rel: 'node-details-relationships',
+  art: 'node-details-artifacts',
+  sca: 'node-details-scaling'
+};
+module.exports.nodeDetailsBlocsIds = nodeDetailsBlocsIds;
 
 // Action to be executed before each topology test
 var beforeTopologyTest = function() {
@@ -65,18 +75,17 @@ var beforeTopologyTest = function() {
 module.exports.beforeTopologyTest = beforeTopologyTest;
 
 // Show tabs in the topology page
-
 function showTopologyTab(panel, btn) {
   element(by.id(panel)).isDisplayed().then(function(isDisplay) {
-   if (!isDisplay) {
-     element(by.id(btn)).click();
-   }
- });
- browser.waitForAngular();
+    if (!isDisplay) {
+      browser.actions().click(element(by.id(btn)).element(by.tagName('i'))).perform();
+    }
+  });
+  browser.waitForAngular();
 }
 
 function showComponentsTab() {
-  showTopologyTab('slide-side-bar', 'topology-components-search');
+  showTopologyTab('closeComponentsSearch', 'topology-components-search');
 }
 module.exports.showComponentsTab = showComponentsTab;
 
@@ -90,6 +99,15 @@ function showInputsTab() {
 }
 module.exports.showInputsTab = showInputsTab;
 
+function closeInputsTab() {
+  element(by.id('closeInputs')).isDisplayed().then(function(isDisplay) {
+    if (isDisplay) {
+      element(by.id('closeInputs')).click();
+    }
+  });
+  browser.waitForAngular();
+}
+module.exports.closeInputsTab = closeInputsTab;
 
 // Add a node template
 var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersion) {
@@ -238,9 +256,7 @@ function addRelationshipSelectCapability(targetNumber, targetNodeTemplateName, t
 }
 
 function addRelationshipToNode(sourceNodeTemplateName, targetNodeTemplateName, requirementName, relationshipTypeId, relationName, targetedCapabilityName, newVersion, newId) {
-  // select the node template
-  var sourceNode = element(by.id('rect_' + sourceNodeTemplateName));
-  sourceNode.click();
+  selectNodeAndGoToDetailBloc(sourceNodeTemplateName, nodeDetailsBlocsIds.req);
 
   // select the requirement type
   var btnAddRelationship = browser.element(by.id(btnRelationshipNameBaseId + requirementName));
@@ -261,6 +277,10 @@ module.exports.addRelationship = function(relationshipDescription) {
 
 // check if a text is present in a repeater list
 var checkCreatedRelationship = function(relationshipsNameStart, relationshipsCount) {
+
+  // display only one bloc in node details : relationship
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.rel);
+
   var countRelationship = 0;
   var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
   browser.waitForAngular();
@@ -324,6 +344,8 @@ var addScalingPolicy = function(computeId, min, init, max) {
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
+  // display only one bloc in node details : scaling
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
 
   common.sendValueToXEditable('maxInstances', max, false);
   common.sendValueToXEditable('initialInstances', init, false);
@@ -344,21 +366,20 @@ var removeScalingPolicy = function(computeId) {
 
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
-var selectNodeAndCheckProperty = function(nodeTemplateName, propertyName) {
+var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
-
-  var propertyElement = element(by.id('p_' + propertyName));
-  expect(propertyElement.isPresent()).toBe(true);
+  if(blocId){
+    collapseNodeDetailsBloc(blocId);
+  }
 };
+module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
 
-var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
-
-  // select "Add node tab"
+var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   showComponentsTab();
-  selectNodeAndCheckProperty(nodeTemplateName, propertyName);
-
-  var propertyElement = element(by.id('p_' + propertyName));
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
+  var propertyElement = element(by.id(nodeDetailsBlocsIds[componentType] + '-panel')).element(by.id('p_' + propertyName));
   var spanPropertyValue = propertyElement.element(by.tagName('span'));
   spanPropertyValue.click();
 
@@ -369,7 +390,6 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue) {
   inputValue.sendKeys(propertyValue);
   editForm.submit();
   browser.waitForAngular();
-
 };
 module.exports.editNodeProperty = editNodeProperty;
 
@@ -388,23 +408,18 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
-var beforeToggle = function(nodeTemplateName) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
-  browser.waitForAngular();
-};
-var toggleIOProperty = function(nodeTemplateName, propertyName, ioType) {
+var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componentType) {
   browser.executeScript('window.scrollTo(0,0);').then(function() {
-    beforeToggle(nodeTemplateName);
-    var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
+    selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
+    var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
     browser.actions().click(ioButton).perform();
   });
 };
 
-var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
-  var ioButton = browser.element(by.id('p_' + ioType + '_' + propertyName));
+var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.pro);
+  var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
   if (checked) {
     expect(ioButton.getAttribute('class')).toContain('active');
   } else {
@@ -412,22 +427,38 @@ var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, che
   }
 };
 
-var togglePropertyInput = function(nodeTemplateName, propertyName) {
-  toggleIOProperty(nodeTemplateName, propertyName, 'input');
-  browser.actions().click(browser.element(by.id('addToInputBtn_' + propertyName))).perform();
+var removeInput = function(inputName) {
+  showInputsTab();
+  common.deleteWithConfirm(inputName + '_delete', true);
+  closeInputsTab();
+};
+module.exports.removeInput = removeInput;
+
+var togglePropertyInput = function(nodeTemplateName, propertyName, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
+  browser.actions().click(browser.element(by.id('addToInputBtn_' + componentType + '_' + propertyName))).perform();
   browser.waitForAngular();
 };
-
 module.exports.togglePropertyInput = togglePropertyInput;
 
-var togglePropertyOutput = function(nodeTemplateName, propertyName) {
-  toggleIOProperty(nodeTemplateName, propertyName, 'output');
+var associatePropertyToInput = function(nodeTemplateName, propertyName, inputId, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
+  browser.actions().click(browser.element(by.id(nodeTemplateName + '_' + propertyName + '_toAssociate_' + inputId))).perform();
+  browser.waitForAngular();
+};
+module.exports.associatePropertyToInput = associatePropertyToInput;
+
+var togglePropertyOutput = function(nodeTemplateName, propertyName, componentType) {
+  componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
+  toggleIOProperty(nodeTemplateName, propertyName, 'output', componentType);
 };
 
 module.exports.togglePropertyOutput = togglePropertyOutput;
 
 var toggleAttributeOutput = function(nodeTemplateName, attributeName) {
-  beforeToggle(nodeTemplateName);
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds.att);
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     var ioButton = browser.element(by.id('a_output_' + attributeName));
     browser.actions().click(ioButton).perform();
@@ -468,8 +499,7 @@ var checkNumberOfRelationship = function(expectedCount) {
 module.exports.checkNumberOfRelationship = checkNumberOfRelationship;
 
 var checkNumberOfRelationshipForANode = function(nodeName, expectedCount) {
-  element(by.id(nodeName)).click();
-  browser.waitForAngular();
+  selectNodeAndGoToDetailBloc(nodeName, nodeDetailsBlocsIds.rel);
   checkNumberOfRelationship(expectedCount);
 };
 module.exports.checkNumberOfRelationshipForANode = checkNumberOfRelationshipForANode;
@@ -481,6 +511,7 @@ var expectDeploymentWork = function(goToAppDetail, work) {
     navigation.go('applications', 'deployment');
   }
   var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
+  browser.waitForAngular();
   if (work) {
     expect(deployButton.getAttribute('disabled')).toBeNull();
     expect(element(by.id('div-deployment-matcher')).element(by.tagName('legend')).element(by.tagName('i')).getAttribute('class')).not.toContain('text-danger');
@@ -490,3 +521,62 @@ var expectDeploymentWork = function(goToAppDetail, work) {
   }
 };
 module.exports.expectDeploymentWork = expectDeploymentWork;
+
+var expectShowTodoList = function(goToAppDetail, isDisplay) {
+  if (goToAppDetail) {
+    authentication.reLogin('applicationManager');
+    applications.goToApplicationDetailPage('Alien', false);
+    navigation.go('applications', 'deployment');
+  }
+  if (isDisplay) {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(true);
+  } else {
+    expect(element(by.id('deploymentTodoList')).isPresent()).toBe(false);
+  }
+};
+module.exports.expectShowTodoList = expectShowTodoList;
+
+/** Close or open a specific node template details bloc */
+var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
+  var myBlock = element(by.id(blocId));
+  myBlock.isPresent().then(function isBlockPresent(present) {
+    if (present) {
+      var myBlockIcon = myBlock.element(by.tagName('i'));
+      var ngClass = myBlockIcon.getAttribute('class');
+      ngClass.then(function(classes) {
+        // test if the bloc is opened and then close it
+        if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
+          browser.waitForAngular();
+          myBlockIcon.click();
+          browser.waitForAngular();
+        }
+      });
+    }
+  });
+};
+module.exports.nodeDetailsCollapse = nodeDetailsCollapse;
+
+/** Open only one bloc in the node template details */
+var collapseNodeDetailsBloc = function collapseNodeDetailsBloc(blocId) {
+  for (var bloc in nodeDetailsBlocsIds) {
+    var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
+    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
+  }
+};
+module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
+
+var checkCountInputs = function(valueExpected) {
+  showInputsTab();
+  element.all(by.repeater('(inputId, inputDefinition) in topology.topology.inputs')).then(function(inputs) {
+    expect(inputs.length).toEqual(valueExpected);
+  });
+  closeInputsTab();
+};
+module.exports.checkCountInputs = checkCountInputs;
+
+var checkNumberOfPropertiesForACapability = function(expectedCount) {
+  var relationships = element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
+  browser.waitForAngular();
+  expect(relationships.count()).toBe(expectedCount);
+};
+module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesForACapability;

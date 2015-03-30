@@ -148,6 +148,7 @@ module.exports.deploy = function(applicationName, nodeTemplates, cloudName, envi
     if (nodeTemplates.compute) {
       topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
       topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+      topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     }
   }
 

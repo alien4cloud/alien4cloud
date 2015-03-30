@@ -1,7 +1,9 @@
 package alien4cloud.rest.topology;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +15,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
@@ -60,6 +63,7 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.container.ToscaTypeLoader;
+import alien4cloud.tosca.serializer.VelocityUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.VersionUtil;
 
@@ -290,7 +294,7 @@ public class TopologyService {
         // validate requirements lowerBounds
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
-        // validate required properties
+        // validate required properties (properties of NodeTemplate, Relationship and Capability)
         dto.addToTaskList(validateProperties(topology, inputs));
 
         dto.setValid(CollectionUtils.isEmpty(dto.getTaskList()));
@@ -556,26 +560,83 @@ public class TopologyService {
             task.setCode(TaskCode.PROPERTY_REQUIRED);
             task.setComponent(relatedIndexedNodeType);
             task.setProperties(Lists.<String> newArrayList());
-            Map<String, PropertyDefinition> relatedProperties = relatedIndexedNodeType.getProperties();
-            for (Entry<String, AbstractPropertyValue> propertyEntry : nodeTemplate.getProperties().entrySet()) {
-                PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
-                // check value
-                AbstractPropertyValue value = propertyEntry.getValue();
-                String propertyValue = null;
-                if (value instanceof ScalarPropertyValue) {
-                    propertyValue = ((ScalarPropertyValue) value).getValue();
-                } else if (value instanceof FunctionPropertyValue && inputs != null) {
-                    propertyValue = inputs.get(((FunctionPropertyValue) value).getParameters().get(0));
-                }
-                if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
-                    task.getProperties().add(propertyEntry.getKey());
+
+            // Check the properties of node template
+            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), inputs, task);
+
+            // Check relationships PD
+            if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
+                Collection<RelationshipTemplate> relationships = nodeTemplate.getRelationships().values();
+                for (RelationshipTemplate relationship : relationships) {
+                    if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
+                        continue;
+                    }
+                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), inputs, task);
                 }
             }
+
+            // Check capabilities PD
+            if (nodeTemplate.getCapabilities() != null && !nodeTemplate.getCapabilities().isEmpty()) {
+                Collection<Capability> capabilities = nodeTemplate.getCapabilities().values();
+                for (Capability capability : capabilities) {
+                    if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
+                        continue;
+                    }
+                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), inputs, task);
+                }
+            }
+
             if (CollectionUtils.isNotEmpty(task.getProperties())) {
                 toReturnTaskList.add(task);
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
+    }
+
+    private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
+            Map<String, String> inputs, PropertiesTask task) {
+        for (Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
+            PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
+            // check value
+            AbstractPropertyValue value = propertyEntry.getValue();
+            String propertyValue = null;
+            if (value instanceof ScalarPropertyValue) {
+                propertyValue = ((ScalarPropertyValue) value).getValue();
+            } else if (value instanceof FunctionPropertyValue && inputs != null) {
+                propertyValue = inputs.get(((FunctionPropertyValue) value).getTemplateName());
+            }
+            if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
+                task.getProperties().add(propertyEntry.getKey());
+            }
+        }
+    }
+
+    private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
+
+        for (Entry<String, Capability> capabilityEntry : nodeTemplate.getCapabilities().entrySet()) {
+            IndexedCapabilityType indexedCapabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class, capabilityEntry
+                    .getValue().getType(), topology.getDependencies());
+            if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
+                relatedProperties.putAll(indexedCapabilityType.getProperties());
+            }
+        }
+
+        return relatedProperties;
+    }
+
+    private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
+        Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
+
+        for (Entry<String, RelationshipTemplate> relationshipTemplateEntry : nodeTemplate.getRelationships().entrySet()) {
+            IndexedRelationshipType indexedRelationshipType = csarRepoSearchService.getRequiredElementInDependencies(IndexedRelationshipType.class,
+                    relationshipTemplateEntry.getValue().getType(), topology.getDependencies());
+            if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
+                relatedProperties.putAll(indexedRelationshipType.getProperties());
+            }
+        }
+
+        return relatedProperties;
     }
 
     private int countRelationshipsForRequirement(String requirementName, String requirementType, Map<String, RelationshipTemplate> relationships) {
@@ -650,7 +711,9 @@ public class TopologyService {
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
         Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
         Map<String, IndexedCapabilityType> capabilityTypes = getIndexedCapabilityTypes(nodeTypes.values(), topology.getDependencies());
-        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes);
+        String yaml = getYaml(topology);
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        return new TopologyDTO(topology, nodeTypes, relationshipTypes, capabilityTypes, outputCapabilityProperties, yaml);
     }
 
     /**
@@ -735,7 +798,7 @@ public class TopologyService {
 
     /**
      * Throw an UpdateTopologyException if the topology is released
-     * 
+     *
      * @param topology
      */
     public void throwsErrorIfReleased(Topology topology) {
@@ -789,6 +852,40 @@ public class TopologyService {
             throw new NotFoundException("Topology template with id [" + topologyTemplateId + "] cannot be found");
         }
         return topologyTemplate;
+    }
+
+    public String getYaml(Topology topology) {
+        Map<String, Object> velocityCtx = new HashMap<String, Object>();
+        velocityCtx.put("topology", topology);
+        velocityCtx.put("template_name", "template-id");
+        velocityCtx.put("template_version", "1.0.0-SNAPSHOT");
+        velocityCtx.put("template_author", AuthorizationUtil.getCurrentUser().getUsername());
+
+        if (topology.getDelegateType().equals(Application.class.getSimpleName().toLowerCase())) {
+            String applicationId = topology.getDelegateId();
+            Application application = appService.getOrFail(applicationId);
+            velocityCtx.put("template_name", application.getName());
+            velocityCtx.put("application_description", application.getDescription());
+            ApplicationVersion version = applicationVersionService.getByTopologyId(topology.getId());
+            if (version != null) {
+                velocityCtx.put("template_version", version.getVersion());
+            }
+        } else if (topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
+            String topologyTemplateId = topology.getDelegateId();
+            TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
+            velocityCtx.put("template_name", template.getName());
+            velocityCtx.put("application_description", template.getDescription());
+        }
+
+        try {
+            StringWriter writer = new StringWriter();
+            VelocityUtil.generate("templates/topology-1_0_0_wd03.yml.vm", writer, velocityCtx);
+            return writer.toString();
+        } catch (Exception e) {
+            log.error("Exception while templating YAML for topology " + topology.getId(), e);
+            return ExceptionUtils.getFullStackTrace(e);
+        }
+
     }
 
 }

@@ -5,7 +5,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var networkFormDescriptor = {
       "_type": "complex",
-      "_order": [ "networkName", "ipVersion", "isExternal", "cidr", "gatewayIp"],
+      "_order": [ "networkName", "ipVersion", "isExternal", "cidr", "gatewayIp", "description"],
       "_propertyType": {
         "networkName": {
           "_label": "CLOUDS.NETWORKS.NAME",
@@ -32,13 +32,18 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           "_label": "CLOUDS.NETWORKS.GATEWAY_IP",
           "_type": "string",
           "_notNull": false
+        },
+        "description": {
+          "_label": "CLOUDS.DESCRIPTION",
+          "_type": "string",
+          "_notNull": false
         }
       }
     };
 
     var storageFormDescriptor = {
         "_type": "complex",
-        "_order": [ "id", "device", "size"],
+        "_order": [ "id", "device", "size", "description"],
         "_propertyType": {
           "id": {
             "_label": "CLOUDS.STORAGES.ID",
@@ -61,6 +66,11 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
                 "greaterThan": 0
               }
             ]
+          },
+          "description": {
+            "_label": "CLOUDS.DESCRIPTION",
+            "_type": "string",
+            "_notNull": false
           }
         }
       };
@@ -225,6 +235,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       }
     });
 
+    var cloneCloud = $resource('rest/clouds/:id/clone');
+
     return {
       'create': crudCloud.create,
       'get': crudCloud.get,
@@ -249,7 +261,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'setCloudNetworkResource': cloudNetworkResource.save,
       'setCloudImageResource' : cloudImageResource.save,
       'setCloudFlavorResource' : cloudFlavorResource.save,
-      'setCloudStorageResource' : cloudStorageResource.save
+      'setCloudStorageResource' : cloudStorageResource.save,
+      'cloneCloud' : cloneCloud.save
     };
   }
 ]);

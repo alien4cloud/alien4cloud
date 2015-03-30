@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -30,7 +31,7 @@ import alien4cloud.security.Role;
 import alien4cloud.security.UpdateUserRequest;
 import alien4cloud.security.User;
 import alien4cloud.security.UserService;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -59,6 +60,7 @@ public class UserController {
      */
     @ApiOperation(value = "Create a new user in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> create(@Valid @RequestBody CreateUserRequest request) {
         userService.createUser(request.getUsername(), request.getEmail(), request.getFirstName(), request.getLastName(), request.getRoles(),
                 request.getPassword());
@@ -67,6 +69,7 @@ public class UserController {
 
     @ApiOperation("Update an user by merging the userUpdateRequest into the existing user")
     @RequestMapping(value = "/{username}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> update(@PathVariable String username, @RequestBody UpdateUserRequest userUpdateRequest) {
         userService.updateUser(username, userUpdateRequest);
         return RestResponseBuilder.<Void> builder().build();
@@ -118,6 +121,7 @@ public class UserController {
      */
     @ApiOperation(value = "Delete an existing user from the internal user's repository.")
     @RequestMapping(value = "/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> deleteUser(@PathVariable String username) throws IOException, ClassNotFoundException {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()
@@ -150,6 +154,7 @@ public class UserController {
      */
     @ApiOperation(value = "Add a role to a user.")
     @RequestMapping(value = "/{username}/roles/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> addRole(@PathVariable String username, @PathVariable String role) {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()
@@ -175,6 +180,7 @@ public class UserController {
      */
     @ApiOperation(value = "Remove a role from a user.")
     @RequestMapping(value = "/{username}/roles/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> removeRole(@PathVariable String username, @PathVariable String role) {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()

@@ -39,5 +39,15 @@ angular.module('alienUiApp').controller('CloudListController', ['$scope', '$reso
     $scope.openCloud = function(id) {
       $state.go('admin.clouds.detail', {id : id});
     };
+
+    $scope.cloneCloud = function(id) {
+      cloudServices.cloneCloud({
+        id: id
+      }, {}, function(response) {
+        if (UTILS.isDefinedAndNotNull(response.data)) {
+          $scope.openCloud(response.data);
+        }
+      });
+    };
   }
 ]);

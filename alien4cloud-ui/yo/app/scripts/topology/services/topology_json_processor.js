@@ -13,12 +13,19 @@ angular.module('alienUiApp').factory('topologyJsonProcessor',
       process: function(topology) {
         orderedMapEnricher.processMap(topology.nodeTypes, 'properties');
         orderedMapEnricher.processMap(topology.relationshipTypes, 'properties');
+        orderedMapEnricher.processMap(topology.capabilityTypes, 'properties');
 
         this.postProcess(topology.topology.nodeTemplates, ['properties', 'attributes', 'requirements', 'relationships', 'capabilities']);
         for (var nodeTemplateName in topology.topology.nodeTemplates) {
-          if (topology.topology.nodeTemplates.hasOwnProperty(nodeTemplateName) && UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].relationships)) {
-            for (var i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].relationships.length; i++) {
-              orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].relationships[i].value, 'properties');
+          if (topology.topology.nodeTemplates.hasOwnProperty(nodeTemplateName)) {
+            if (UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].relationships)) {
+              for (var i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].relationships.length; i++) {
+                orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].relationships[i].value, 'properties');
+              }
+            } else if (UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].capabilities)) {
+              for (i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; i++) {
+                orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].capabilities[i].value, 'properties');
+              }
             }
           }
         }

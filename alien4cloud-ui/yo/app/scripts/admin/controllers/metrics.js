@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module('alienUiApp').controller('MetricsController', [
-  '$scope', 'MetricsService', 'HealthCheckService', 'ThreadDumpService',
-  function ($scope, MetricsService, HealthCheckService, ThreadDumpService) {
+  '$scope', 'metricsService', 'healthCheckService', 'threadDumpService',
+  function ($scope, metricsService, healthCheckService, threadDumpService) {
 
     $scope.refresh = function() {
-      HealthCheckService.check().then(function(promise) {
+      healthCheckService.check().then(function(promise) {
         $scope.healthCheck = promise;
       },function(promise) {
         $scope.healthCheck = promise.data;
       });
 
-      $scope.metrics = MetricsService.get();
+      $scope.metrics = metricsService.get();
 
-      $scope.metrics.$get({}, function(items) {        
+      $scope.metrics.$get({}, function(items) {
         $scope.servicesStats = {};
         $scope.cachesStats = {};
         angular.forEach(items.timers, function(value, key) {
@@ -40,7 +40,7 @@ angular.module('alienUiApp').controller('MetricsController', [
     $scope.refresh();
 
     $scope.threadDump = function() {
-      ThreadDumpService.dump().then(function(data) {
+      threadDumpService.dump().then(function(data) {
         $scope.threadDump = data;
 
         $scope.threadDumpRunnable = 0;

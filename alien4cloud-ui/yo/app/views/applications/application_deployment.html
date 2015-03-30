@@ -56,7 +56,7 @@
   <div class="col-md-6">
     <!-- todo list -->
     <div class="row" ng-if="showTodoList()">
-      <div class="col-md-12">
+      <div id="deploymentTodoList" class="col-md-12">
         <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i>
       {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
 
@@ -233,10 +233,10 @@
 
         <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs">
           <hr/>
-          <div class="col-md-4">
+          <div id="app_deployment_id_{{inputId}}" class="col-md-4">
             {{inputId}}
           </div>
-          <div class="col-md-8">
+          <div id="app_deployment_value_{{inputId}}" class="col-md-8">
             <property-display
               definition="inputDefinition"
               property-value="setup.inputProperties[inputId]"
@@ -377,6 +377,7 @@
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
                       <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -392,6 +393,7 @@
                       <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
                       <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
                       <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
+                      <td>{{template.description}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -438,6 +440,7 @@
                       <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
                       <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
                       <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -446,6 +449,7 @@
                       <td>{{network.cidr}}</td>
                       <td>{{network.gatewayIp || '---'}}</td>
                       <td>{{network.ipVersion}}</td>
+                      <td>{{network.description || '---'}}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -492,6 +496,7 @@
                       <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
                       <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
                       <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -500,6 +505,7 @@
                       <td>{{storage.device || '---'}}</td>
                       <td>{{storage.location || '---'}}</td>
                       <td>{{storage.size}} GB</td>
+                      <td>{{storage.description || '---'}}</td>
                     </tr>
                   </tbody>
                 </table>

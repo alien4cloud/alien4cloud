@@ -236,19 +236,6 @@ angular.module('alienUiApp').controller(
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
-          // Try to get properties from event which is not always available
-          if (UTILS.isDefinedAndNotNull(event.properties) && !UTILS.isObjectEmpty(event.properties)) {
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = event.properties;
-          } else if (UTILS.isDefinedAndNotNull($scope.topology.topology.nodeTemplates[event.nodeTemplateId])) {
-            var nodePropertiesArray = $scope.topology.topology.nodeTemplates[event.nodeTemplateId].properties;
-            if (UTILS.isDefinedAndNotNull(nodePropertiesArray)) {
-              var nodePropertiesMap = {};
-              for (var i = 0; i < nodePropertiesArray.length; i++) {
-                nodePropertiesMap[nodePropertiesArray[i].key] = nodePropertiesArray[i].value;
-              }
-              $scope.topology.instances[event.nodeTemplateId][event.instanceId].properties = nodePropertiesMap;
-            }
-          }
         }
         refreshSelectedNodeInstancesCount();
         $scope.$apply();
@@ -434,7 +421,7 @@ angular.module('alienUiApp').controller(
 
           } else if (!UTILS.isUndefinedOrNull(successResult.data)) {
 
-            var title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
+            title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
               'operation': operationName
             });
             // Toaster HTML result preview for all instances

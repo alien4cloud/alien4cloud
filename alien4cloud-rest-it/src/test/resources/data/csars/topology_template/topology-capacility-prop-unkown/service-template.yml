@@ -1,0 +1,19 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile with Apache.
+template_name: topology-capacility-prop-unkown
+template_version: 1.1.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-base-types:1.0"
+
+topology_template:
+  description: A simple topology template created directly from a CSAR archive
+  node_templates:
+    compute:
+      type: tosca.nodes.Compute
+      capabilities:
+        compute: 
+          properties:
+            # this capability property is not known
+            stuff: something

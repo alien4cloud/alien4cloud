@@ -120,7 +120,7 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
           $scope.tempGroups.forEach(function(group) {
             $scope.groupsMap[group.id] = group;
             // remove UTILS.ALL_USERS_GROUP
-            if (group.name != UTILS.ALL_USERS_GROUP) {
+            if (group.name !== UTILS.ALL_USERS_GROUP) {
               $scope.groups.push(group);
             }
           });

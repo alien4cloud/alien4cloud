@@ -5,15 +5,16 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.exception.IndexingServiceException;
-import alien4cloud.json.serializer.BoundSerializer;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.model.*;
-import alien4cloud.utils.jackson.ConditionalAttributes;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 
 /**
  * Elastic Search DAO for Monitor events in Alien application.
@@ -23,6 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Component("alien-monitor-es-dao")
 public class MonitorESDAO extends ESGenericSearchDAO {
 
+    @Value("${paas_monitor.events_lifetime}")
+    private String eventMonitoringTtl;
+
     /**
      * Initialize the dao after being loaded by spring (Create the indexes).
      */
@@ -30,27 +34,17 @@ public class MonitorESDAO extends ESGenericSearchDAO {
     public void initEnvironment() {
         // init ES annotation scanning
         try {
-            getMappingBuilder().initialize("alien4cloud");
+            getMappingBuilder().initialize("alien4cloud.paas.model");
         } catch (IntrospectionException | IOException e) {
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indices and mapped classes
         setJsonMapper(new ElasticSearchMapper());
+
         Class<?>[] classes = new Class<?>[] { AbstractMonitorEvent.class, PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class,
                 PaaSMessageMonitorEvent.class, PaaSInstanceStorageMonitorEvent.class };
-        initIndices("deployedtopologies", false, Topology.class);
-        initIndices("deploymentmonitorevents", true, classes);
+        initIndices("deployedtopologies", null, Topology.class);
+        initIndices("deploymentmonitorevents", eventMonitoringTtl, classes);
         initCompleted();
-    }
-
-    public static class ElasticSearchMapper extends ObjectMapper {
-        private static final long serialVersionUID = 1L;
-
-        public ElasticSearchMapper() {
-            super();
-            this._serializationConfig = this._serializationConfig.withAttribute(BoundSerializer.BOUND_SERIALIZER_AS_NUMBER, "true");
-            this._serializationConfig = this._serializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-            this._deserializationConfig = this._deserializationConfig.withAttribute(ConditionalAttributes.ES, "true");
-        }
     }
 }

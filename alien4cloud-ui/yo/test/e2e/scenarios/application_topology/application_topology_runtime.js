@@ -24,6 +24,7 @@ var goToAlienAppAndSelectApachelbOperations = function() {
   topologyEditorCommon.addNodeTemplatesCenterAndZoom(operationNodeTemplates);
   topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
   topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+  topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
   topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     topologyEditorCommon.addRelationshipToNode('apacheLBGroovy', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
@@ -70,6 +71,7 @@ describe('Topology runtime view', function() {
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
     browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');

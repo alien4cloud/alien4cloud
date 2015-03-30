@@ -1,6 +1,7 @@
 package alien4cloud.rest.topology;
 
 import java.util.Map;
+import java.util.Set;
 
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
@@ -14,7 +15,6 @@ import lombok.Setter;
 /**
  * Topology DTO contains the topology and a map of the types used in the topology.
  * 
- * @author luc boutier
  */
 @Getter
 @Setter
@@ -26,4 +26,10 @@ public class TopologyDTO {
     private Map<String, IndexedNodeType> nodeTypes;
     private Map<String, IndexedRelationshipType> relationshipTypes;
     private Map<String, IndexedCapabilityType> capabilityTypes;
+    private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
+
+    /**
+     * The TOSCA as a YAML content.
+     */
+    private String yaml;
 }

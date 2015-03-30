@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -62,6 +63,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Create a new empty topology template.", notes = "Returns the id of the created topology template. Role required [ ARCHITECT ]")
     @RequestMapping(value = "/topology", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<String> create(@RequestBody @Valid CreateTopologyTemplateRequest createTopologyTemplateRequest) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
 
@@ -129,6 +131,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Delete a topology template given an id. Alse delete the related topology", notes = "Role required [ Role.ARCHITECT ]")
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
@@ -146,6 +149,7 @@ public class TopologyTemplateController {
      */
     @ApiOperation(value = "Update an user by merging the userUpdateRequest into the existing user", authorizations = { @Authorization("ARCHITECT") })
     @RequestMapping(value = "/topology/{topologyTemplateId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> update(@ApiParam(value = " Id of the topology template", required = true) @PathVariable String topologyTemplateId,
             @ApiIgnore @RequestBody UpdateTopologyTemplateRequest updateTopologyTemplateRequest) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);

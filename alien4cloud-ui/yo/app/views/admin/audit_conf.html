@@ -1,0 +1,69 @@
+<div>
+  <div class="row">
+    <div class="col-md-12">
+      <a id="backToAuditLogButton" type="button" class="btn btn-default btn-sm" href="" ng-click="goBackToLog()">
+        <i class="fa fa-arrow-left"></i> {{'AUDIT.CONFIGURATION.BACK_TO_AUDIT_LOG' | translate}}
+      </a>
+
+      <h3>
+        <i class="fa fa-wrench"></i> {{ 'AUDIT.CONFIGURATION.LABEL' | translate }}
+        <button class="btn btn-warning btn-sm" ng-click="reset()">{{ 'AUDIT.CONFIGURATION.RESET' | translate }} <i class="fa fa-eraser"></i></button>
+      </h3>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 20px;">
+    <label class="control-label col-md-2">{{ 'AUDIT.CONFIGURATION.ENABLED.LABEL' | translate }}</label>
+
+    <div class="col-md-10">
+      <div class="btn-group" data-toggle="buttons">
+        <label class="btn btn-default btn-xs" ng-class="{'active' : configuration.enabled}" ng-click="toggleAudit(true)">
+          <input type="radio" name="enabledOptions" id="enabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.ON' |
+          translate }}
+        </label>
+        <label class="btn btn-default btn-xs" ng-class="{'active' : !configuration.enabled}" ng-click="toggleAudit(false)">
+          <input type="radio" name="enabledOptions" id="disabledOption" autocomplete="off">{{ 'AUDIT.CONFIGURATION.ENABLED.OFF' |
+          translate }}
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 20px;">
+    <div class="col-md-12">
+      <accordion close-others="oneAtATime">
+        <accordion-group is-open="status.open" ng-repeat="(category, methods) in configuration.methodsConfiguration">
+          <accordion-heading>
+            <a ng-click="toggleAuditCategory(category); $event.stopPropagation();" href="" class="btn" ng-class="{'disabled': !configuration.enabled}">
+              <i class="fa fa-fw"
+                 ng-class="{
+                 'fa-check-square-o' : categories[category].enabledCount >= categories[category].totalCount ,
+                 'fa-square-o': categories[category].enabledCount == 0 && categories[category].totalCount > 0,
+                 'fa-minus-square-o': categories[category].enabledCount < categories[category].totalCount && categories[category].enabledCount > 0
+                 }"></i>
+            </a> {{category}} <i class="pull-right fa" ng-class="{'fa-chevron-down': status.open, 'fa-chevron-right': !status.open}"></i>
+          </accordion-heading>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{{ 'AUDIT.CONFIGURATION.ENABLED.LABEL' | translate }}</th>
+                <th>{{ 'AUDIT.CONFIGURATION.ACTION_NAME' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="method in methods | orderBy:'action'">
+                <td class="col-md-1">
+                  <a ng-click="toggleAuditMethod(method)" href="" class="btn" ng-class="{'disabled': !configuration.enabled}">
+                    <i ng-disabled="!configuration.enabled" class="fa fa-fw"
+                       ng-class="{'fa-check-square-o' : method.enabled,  'fa-square-o': !method.enabled}"></i>
+                  </a>
+                </td>
+                <td class="col-md-11">
+                  {{method.action}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </accordion-group>
+      </accordion>
+    </div>
+  </div>
+</div>

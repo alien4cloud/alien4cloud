@@ -101,6 +101,9 @@ public class UserService {
     public void updateUser(String userName, UpdateUserRequest userUpdateRequest) {
         User user = retrieveUser(userName);
         ReflectionUtil.mergeObject(userUpdateRequest, user);
+        if (userUpdateRequest.getPassword() != null) {
+            user.setPassword(BCrypt.hashpw(userUpdateRequest.getPassword(), BCrypt.gensalt()));
+        }
         alienUserDao.save(user);
     }
 

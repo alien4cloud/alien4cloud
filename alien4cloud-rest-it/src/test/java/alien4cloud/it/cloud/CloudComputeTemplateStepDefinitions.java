@@ -34,7 +34,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[]{cloudImageId})));
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/images", JsonUtil.toString(new String[] { cloudImageId })));
     }
 
     @Then("^I should receive a RestResponse with (\\d+) compute templates:$")
@@ -58,7 +58,7 @@ public class CloudComputeTemplateStepDefinitions {
             throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
-        assertComputeTemplates(numberOfTemplate, cloudDTO.getCloud().getComputeTemplates(), expectedTemplatesTable);
+        assertComputeTemplates(numberOfTemplate, Sets.newHashSet(cloudDTO.getCloud().getComputeTemplates()), expectedTemplatesTable);
     }
 
     @And("^The cloud with name \"([^\"]*)\" should not have compute templates as resources$")
@@ -75,7 +75,7 @@ public class CloudComputeTemplateStepDefinitions {
                 String flavorName = rows.get(1);
                 if (rows.size() == 3) {
                     boolean enabled = "enabled".equals(rows.get(2));
-                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, enabled));
+                    expectedTemplates.add(new ActivableComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName, null, enabled));
                 } else {
                     expectedTemplates.add(new ComputeTemplate(Context.getInstance().getCloudImageId(imageName), flavorName));
                 }
@@ -86,7 +86,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
-                                                                                                 String cloudName) throws Throwable {
+            String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
         cloudImageFlavor.setId(flavorId);
@@ -134,7 +134,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 
     @When("^I remove the cloud image \"([^\"]*)\" from the cloud \"([^\"]*)\"$")
@@ -156,7 +156,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @When("^I match the flavor \"([^\"]*)\" of the cloud \"([^\"]*)\" to the PaaS resource \"([^\"]*)\"$")
@@ -164,7 +164,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have resources mapping configuration as below:$")
@@ -173,7 +173,7 @@ public class CloudComputeTemplateStepDefinitions {
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Map<String, String> actualImageMapping = cloudDTO.getCloud().getImageMapping();
         Map<String, String> actualFlavorMapping = cloudDTO.getCloud().getFlavorMapping();
-        Set<ActivableComputeTemplate> templates = cloudDTO.getCloud().getComputeTemplates();
+        List<ActivableComputeTemplate> templates = cloudDTO.getCloud().getComputeTemplates();
         Set<ComputeTemplate> actualTemplates = Sets.newHashSet();
         for (ActivableComputeTemplate template : templates) {
             actualTemplates.add(new ComputeTemplate(template.getCloudImageId(), template.getCloudImageFlavorId()));
@@ -202,7 +202,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/resource",
-                        Lists.<NameValuePair>newArrayList()));
+                        Lists.<NameValuePair> newArrayList()));
     }
 
     @When("^I delete the mapping for the image \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
@@ -211,7 +211,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/images/" + cloudImageId + "/resource",
-                        Lists.<NameValuePair>newArrayList()));
+                        Lists.<NameValuePair> newArrayList()));
     }
 
     @And("^The cloud \"([^\"]*)\" should have empty resources mapping configuration$")
@@ -226,7 +226,7 @@ public class CloudComputeTemplateStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/flavors/" + flavorId + "/resource",
-                        Lists.<NameValuePair>newArrayList()));
+                        Lists.<NameValuePair> newArrayList()));
     }
 
     @And("^I add the cloud image \"([^\"]*)\" to the cloud \"([^\"]*)\" and match it to paaS image \"([^\"]*)\"$")
@@ -236,7 +236,8 @@ public class CloudComputeTemplateStepDefinitions {
     }
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\" and match it to paaS flavor \"([^\"]*)\"$")
-    public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud_and_match_it_to_paaS_flavor(String flavorId, int nbCPUs, long diskSize, int memSize, String cloudName, String paaSResourceId) throws Throwable {
+    public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud_and_match_it_to_paaS_flavor(String flavorId, int nbCPUs,
+            long diskSize, int memSize, String cloudName, String paaSResourceId) throws Throwable {
         I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(flavorId, nbCPUs, diskSize, memSize, cloudName);
         I_match_the_flavor_of_the_cloud_to_the_PaaS_resource(flavorId, cloudName, paaSResourceId);
     }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.Constants;
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.rest.model.FilteredSearchRequest;
@@ -29,7 +30,7 @@ import alien4cloud.security.groups.Group;
 import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.groups.IAlienGroupDao;
 import alien4cloud.security.groups.UpdateGroupRequest;
-import alien4cloud.utils.services.ResourceRoleService;
+import alien4cloud.security.services.ResourceRoleService;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -66,6 +67,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Create a new group in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<String> create(@Valid @RequestBody CreateGroupRequest request) {
         String groupId = groupService.createGroup(request.getName(), request.getEmail(), request.getDescription(), request.getRoles(), request.getUsers());
         return RestResponseBuilder.<String> builder().data(groupId).build();
@@ -73,6 +75,7 @@ public class GroupController {
 
     @RequestMapping(value = "/{groupId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Update a group by merging the groupUpdateRequest into the existing group")
+    @Audit
     public RestResponse<Void> update(@PathVariable String groupId, @RequestBody UpdateGroupRequest groupUpdateRequest) {
         if (!isInternalAllUserGroup(groupId)) {
             groupService.updateGroup(groupId, groupUpdateRequest);
@@ -119,6 +122,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Delete an existing group from the repository.")
     @RequestMapping(value = "/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> deleteGroup(@PathVariable String groupId) throws ClassNotFoundException, IOException {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("Group with id <" + groupId + "> does not exist");
@@ -167,6 +171,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Add a role to a group.")
     @RequestMapping(value = "/{groupId}/roles/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> addRoleToGroup(@PathVariable String groupId, @PathVariable String role) {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
@@ -186,6 +191,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Remove a role from a group.")
     @RequestMapping(value = "/{groupId}/roles/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> removeRoleFromGroup(@PathVariable String groupId, @PathVariable String role) {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
@@ -205,6 +211,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Add a user to a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<User> addUserToGroup(@PathVariable String groupId, @PathVariable String username) {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");
@@ -237,6 +244,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Remove a user from a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<User> removeUserFromGroup(@PathVariable String groupId, @PathVariable String username) {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("groupId cannot be null or empty");

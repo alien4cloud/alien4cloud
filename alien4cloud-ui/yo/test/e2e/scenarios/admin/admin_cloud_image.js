@@ -26,6 +26,16 @@ describe('List and creation of cloud image', function() {
     }
   });
 
+  it('should not be able to create a cloud image with invalid version.', function() {
+    console.log('################# should not be able to create a cloud image with invalid version.');
+    expect(cloudImagesCommon.countCloudImages()).toBe(0);
+    // 'zzzz' is not a valid version
+    cloudImagesCommon.addNewCloudImage('test-add', 'linux', 'x86_64', 'Ubuntu', 'zzzz', '8', '320', '4096');
+    genericForm.expectConstraintAlertPresent('osVersion');
+    genericForm.cancelForm();
+    expect(cloudImagesCommon.countCloudImages()).toBe(0);
+  });
+  
   it('should be able to create a cloud image.', function() {
     console.log('################# should be able to create a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(0);
@@ -62,6 +72,29 @@ describe('List and creation of cloud image', function() {
     expect(cloudImagesCommon.countCloudImages()).toBe(1);
   });
 
+  it('should not be able to edit details of a cloud image if verion is invalid.', function() {
+    console.log('################# should not be able to edit details of a cloud image if verion is invalid.');
+    expect(cloudImagesCommon.countCloudImages()).toBe(1);
+    element.all(by.repeater('cloudImage in data.data')).first().click();
+    element(by.id('btn-edit-cloud-image')).click();
+    genericForm.sendValueToPrimitive('osType', 'windows', false, 'select');
+    genericForm.sendValueToPrimitive('osArch', 'x86_32', false, 'select');
+    genericForm.sendValueToPrimitive('osDistribution', 'XP', false, 'xeditable');
+    genericForm.sendValueToPrimitive('osVersion', 'zzzzz', false, 'xeditable');
+    genericForm.sendValueToPrimitive('numCPUs', '4', false, 'xeditable');
+    genericForm.sendValueToPrimitive('diskSize', '640', false, 'xeditable');
+    genericForm.sendValueToPrimitive('memSize', '1024', false, 'xeditable');
+    cloudImagesCommon.goToCloudImageList();
+    element.all(by.repeater('cloudImage in data.data')).first().click();
+    genericForm.expectValueFromPrimitive('osType', 'windows', 'xeditable');
+    genericForm.expectValueFromPrimitive('osArch', 'x86_32', 'xeditable');
+    genericForm.expectValueFromPrimitive('osDistribution', 'XP', 'xeditable');
+    genericForm.expectValueFromPrimitive('osVersion', '14.04', 'xeditable');
+    genericForm.expectValueFromPrimitive('numCPUs', '4', 'xeditable');
+    genericForm.expectValueFromPrimitive('diskSize', '640', 'xeditable');
+    genericForm.expectValueFromPrimitive('memSize', '1024', 'xeditable');
+  });
+  
   it('should be able to edit details of a cloud image.', function() {
     console.log('################# should be able to edit details of a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(1);

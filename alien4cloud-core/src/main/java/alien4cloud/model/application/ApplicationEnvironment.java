@@ -5,6 +5,7 @@ import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.security.ApplicationEnvironmentRole;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -66,4 +67,8 @@ public class ApplicationEnvironment implements ISecuredResource, IDeploymentSour
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
+    @Override
+    public Class<ApplicationEnvironmentRole> roleEnum() {
+        return ApplicationEnvironmentRole.class;
+    }
 }

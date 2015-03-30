@@ -1,18 +1,7 @@
 package alien4cloud.model.topology;
 
-import java.util.Map;
-
-import alien4cloud.utils.jackson.ConditionalAttributes;
-import alien4cloud.utils.jackson.ConditionalOnAttribute;
-import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
-import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.json.deserializer.PropertyValueDeserializer;
-import alien4cloud.model.components.AbstractPropertyValue;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * <p>
@@ -21,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * <p>
  * For each specified Relationship Template the source element and target element MUST be specified in the Topology Template.
  * </p>
- * 
+ *
  * @author luc boutier
  */
 @Getter
@@ -56,12 +45,4 @@ public class RelationshipTemplate extends AbstractTemplate {
     private String requirementType;
 
     private String targetedCapabilityName;
-
-    /**
-     * Properties of the relationship template
-     */
-    @ConditionalOnAttribute(ConditionalAttributes.REST)
-    @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class, contentUsing = PropertyValueDeserializer.class)
-    @JsonSerialize(using = JSonMapEntryArraySerializer.class)
-    private Map<String, AbstractPropertyValue> properties;
 }

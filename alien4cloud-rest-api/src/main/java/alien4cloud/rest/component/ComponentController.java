@@ -9,9 +9,15 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.Constants;
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -19,7 +25,11 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -127,6 +137,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Set the given node type as default for the given capability.")
     @RequestMapping(value = "/recommendation", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<IndexedNodeType> recommendComponentForCapability(@RequestBody RecommendationRequest recommendationRequest) {
 
         removeFromDefaultCapabilities(recommendationRequest.getCapability());
@@ -151,6 +162,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Remove a recommendation for a node type.", notes = "If a node type is set as default for a given capability, you can remove this setting by calling this operation with the right request parameters.")
     @RequestMapping(value = "/unflag", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<IndexedNodeType> unflagAsDefaultForCapability(@RequestBody RecommendationRequest recommendationRequest) {
         IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
         if (component != null && component.getDefaultCapabilities() != null) {
@@ -170,6 +182,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Update or insert a tag for a component (tosca element).")
     @RequestMapping(value = "/{componentId:.+}/tags", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> upsertTag(@PathVariable String componentId, @RequestBody UpdateTagRequest updateTagRequest) {
         RestError updateComponantTagError = null;
         IndexedNodeType component = dao.findById(IndexedNodeType.class, componentId);
@@ -199,6 +212,7 @@ public class ComponentController {
 
     @ApiOperation(value = "Delete a tag for a component (tosca element).")
     @RequestMapping(value = "/{componentId:.+}/tags/{tagId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<Void> deleteTag(@PathVariable String componentId, @PathVariable String tagId) {
 
         RestError deleteComponantTagError = null;

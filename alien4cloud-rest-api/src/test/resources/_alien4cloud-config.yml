@@ -81,4 +81,6 @@ ldap:
 # configuration for the upload module.
 upload:
   max_archive_size: 52428800
-  
+
+audit:
+  ttl: 1d

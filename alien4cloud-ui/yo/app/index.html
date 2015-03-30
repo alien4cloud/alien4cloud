@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control-attribute.css" type="text/css" />
     <link rel="stylesheet" href="bower_components/angularjs-toaster/toaster.css" type="text/css" />
     <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.css" type="text/css" />
     <link rel="stylesheet" href="styles/main.css" type="text/css" />
     <!-- endbuild -->
   </head>
@@ -41,6 +42,10 @@
 
     <!-- build:js scripts/plugins.js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/jquery-ui/ui/core.js"></script>
+    <script src="bower_components/jquery-ui/ui/widget.js"></script>
+    <script src="bower_components/jquery-ui/ui/mouse.js"></script>
+    <script src="bower_components/jquery-ui/ui/resizable.js"></script>
     <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/d3-tip/index.js"></script>
@@ -50,6 +55,7 @@
 
     <script src="bower_components/ng-file-upload/angular-file-upload-shim.js"></script>
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/ng-table/dist/ng-table.js"></script>
 
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
     <script src="scripts/app.js"></script>
@@ -72,7 +78,10 @@
     <script src="scripts/admin/controllers/admin_layout.js"></script>
     <script src="scripts/admin/controllers/admin_home_layout.js"></script>
     <script src="scripts/admin/controllers/metrics.js"></script>
+    <script src="scripts/admin/controllers/audit.js"></script>
+    <script src="scripts/admin/controllers/audit_conf.js"></script>
     <script src="scripts/admin/services/metrics.js"></script>
+    <script src="scripts/admin/services/audit.js"></script>
     <script src="scripts/admin/services/menu.js"></script>
 
     <script src="scripts/applications/controllers/application.js"></script>

@@ -1,8 +1,6 @@
 package alien4cloud.it.components;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,11 +11,12 @@ import java.util.List;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.mapping.MappingBuilder;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
+import alien4cloud.dao.ElasticSearchMapper;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.it.Context;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.utils.JsonUtil;
 
@@ -31,7 +30,7 @@ import cucumber.api.java.en.When;
 
 public class UpdateDeleteTagDefinitionsSteps {
 
-    private final ObjectMapper jsonMapper = new ElasticSearchDAO.ElasticSearchMapper();
+    private final ObjectMapper jsonMapper = new ElasticSearchMapper();
     private final Client esClient = Context.getEsClientInstance();
 
     @Given("^I have a component with id \"([^\"]*)\"$")

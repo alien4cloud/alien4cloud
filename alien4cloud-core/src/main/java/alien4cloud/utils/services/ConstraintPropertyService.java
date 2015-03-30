@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;
@@ -23,7 +23,7 @@ import alien4cloud.utils.version.ApplicationVersionException;
  * @author mourouvi
  *
  */
-
+// FIXME: why is this a service ? It looks like a util (with static methods) rather than a service !
 @Slf4j
 @Service
 public class ConstraintPropertyService {
@@ -37,7 +37,8 @@ public class ConstraintPropertyService {
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
-    public void checkPropertyConstraint(String propertyName, String propertyValue, PropertyDefinition propertyDefinition) throws ConstraintViolationException,
+    public void checkPropertyConstraint(final String propertyName, final String propertyValue, final PropertyDefinition propertyDefinition)
+            throws ConstraintViolationException,
             ConstraintValueDoNotMatchPropertyTypeException {
 
         // get property definition
@@ -79,7 +80,7 @@ public class ConstraintPropertyService {
      * @param propertyValue
      * @throws Exception
      */
-    private void checkBasicType(PropertyDefinition propertyDefinition, String propertyName, String propertyValue) {
+    private void checkBasicType(final PropertyDefinition propertyDefinition, final String propertyName, final String propertyValue) {
 
         // check basic type value : "boolean" (not handled, no exception thrown)
         // "string" (basic case, no exception), "float", "integer", "version"

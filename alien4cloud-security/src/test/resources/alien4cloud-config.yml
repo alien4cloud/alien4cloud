@@ -42,3 +42,6 @@ ldap:
       #key: description
       #mapping: ROLE_CLOUDADMINS=ADMIN
 ### End Ldap Configuration
+
+audit:
+  ttl: 1d

@@ -1,5 +1,5 @@
 <div class="horizontal-panel">
-  <div class="col-md-4" id="template_{{topologyTemplate.name}}_name">
+  <div class="col-md-4" style="overflow: hidden" id="template_{{topologyTemplate.name}}_name">
     <span editable-text="topologyTemplate.name"
       buttons="no"
       e-required
@@ -9,8 +9,8 @@
       {{topologyTemplate.name}} <i class="fa fa-edit"></i>
     </span>
   </div>
-  <div class="col-md-8" id="template_{{topologyTemplate.name}}_description">
-    <label>{{'APPLICATIONS.DESC' | translate }} :</label>
+  <div class="col-md-8" style="overflow: hidden" id="template_{{topologyTemplate.name}}_description">
+    <div class="horizontal-panel-label">{{'APPLICATIONS.DESC' | translate }} :</div>
     <span editable-text="topologyTemplate.description"
       buttons="no"
       e-class="input-sm"
@@ -20,6 +20,4 @@
     </span>
   </div>
 </div>
-<div class="row">
-  <ui-view />
-</div>
+<div class="vertical-panel-shift" ui-view></div>

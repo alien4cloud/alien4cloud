@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class DeploymentArtifact {
+public class DeploymentArtifact implements IArtifact {
     /** This attribute specifies the type of this artifact. */
     @Getter
     private String artifactType;
@@ -21,6 +21,18 @@ public class DeploymentArtifact {
      */
     @Getter
     private String artifactRepository;
+
+    /**
+     * The name of the archive in which the original artifact lies.
+     */
+    @Getter
+    private String archiveName;
+
+    /**
+     * The version of the archive in which the original artifact lies.
+     */
+    @Getter
+    private String archiveVersion;
 
     public String getArtifactName() {
         return artifactName != null ? artifactName : artifactRef;

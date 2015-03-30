@@ -167,6 +167,19 @@ function expectValueFromRadioPrimitive(path, value) {
 
 module.exports.expectValueFromSelectPrimitive = expectValueFromSelectPrimitive;
 
+function abortInput(path) {
+  var input = element(by.id('primitiveTypeFormLabel' + path + 'input')).element(by.tagName('input'));
+  input.sendKeys(protractor.Key.ESCAPE);
+  browser.waitForAngular();
+}
+module.exports.abortInput = abortInput;
+
+function expectConstraintAlertPresent(path) {
+  var warnElement = element(by.id('primitiveTypeFormLabel' + path + 'input')).element(by.css('.text-danger'));
+  expect(warnElement.isPresent()).toBe(true);
+}
+module.exports.expectConstraintAlertPresent = expectConstraintAlertPresent;
+
 function saveForm() {
   browser.actions().click(browser.element(by.binding('GENERIC_FORM.SAVE'))).perform();
   common.dismissAlertIfPresent();

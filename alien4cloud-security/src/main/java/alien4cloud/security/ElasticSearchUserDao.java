@@ -33,7 +33,7 @@ public class ElasticSearchUserDao extends ESGenericSearchDAO implements IAlienUs
             throw new IndexingServiceException("Could not initialize elastic search mapping builder", e);
         }
         // init indexes and mapped classes
-        initIndices(User.class.getSimpleName().toLowerCase(), false, new Class<?>[] { User.class });
+        initIndices(User.class.getSimpleName().toLowerCase(), null, new Class<?>[] { User.class });
         initCompleted();
     }
 

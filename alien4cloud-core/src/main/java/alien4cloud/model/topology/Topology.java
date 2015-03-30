@@ -55,6 +55,10 @@ public class Topology implements IManagedSecuredResource {
     @JsonDeserialize(using = JSonMapEntryArrayDeSerializer.class)
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> nodeTemplates;
+
+    /**
+     * Scaling policies are defined by node (key is the node name).
+     */
     private Map<String, ScalingPolicy> scalingPolicies;
     private Map<String, PropertyDefinition> inputs;
 
@@ -62,16 +66,26 @@ public class Topology implements IManagedSecuredResource {
      * Outputs coming from node properties:
      * <ul>
      * <li>key is the node template name.
-     * <li>value is a list of node template property names. *
+     * <li>value is a list of node template property names.
      * </ul>
      */
     private Map<String, Set<String>> outputProperties;
 
     /**
+     * Outputs coming from node template capability properties:
+     * <ul>
+     * <li>key is the node template name.
+     * <li>key is the capability name.
+     * <li>value is a list of output property names.
+     * </ul>
+     */
+    private Map<String, Map<String, Set<String>>> outputCapabilityProperties;
+
+    /**
      * Outputs coming from node attributes:
      * <ul>
      * <li>key is the node template name.
-     * <li>value is a list of node template attribute names. *
+     * <li>value is a list of node template attribute names.
      * </ul>
      */
     private Map<String, Set<String>> outputAttributes;

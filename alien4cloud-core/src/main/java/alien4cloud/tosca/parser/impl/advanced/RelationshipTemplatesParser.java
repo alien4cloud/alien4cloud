@@ -103,8 +103,8 @@ public class RelationshipTemplatesParser extends DefaultDeferredParser<Map<Strin
                     if (mappingValueNodeChilds.getKeyNode() instanceof ScalarNode
                             && ((ScalarNode) mappingValueNodeChilds.getKeyNode()).getValue().equals("properties")
                             && (mappingValueNodeChilds.getValueNode() instanceof MappingNode)) {
-                        INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("scalar_property_value");
-                        MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "scalar_property_value");
+                        INodeParser<AbstractPropertyValue> propertyValueParser = context.getRegistry().get("node_template_property");
+                        MapParser<AbstractPropertyValue> mapParser = new MapParser<AbstractPropertyValue>(propertyValueParser, "node_template_property");
                         relationshipProperties = mapParser.parse(mappingValueNodeChilds.getValueNode(), context);
                     }
                 }

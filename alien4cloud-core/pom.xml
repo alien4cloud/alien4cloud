@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>alien4cloud</groupId>
 		<artifactId>alien4cloud-parent</artifactId>
-		<version>1.0.0-SM22</version>
+		<version>1.0.0-SM23</version>
 	</parent>
 	<artifactId>alien4cloud-core</artifactId>
 	<name>Alien 4 Cloud Core</name>
@@ -93,6 +93,11 @@
 			<groupId>org.glassfish.web</groupId>
 			<artifactId>javax.el</artifactId>
 		</dependency>
+		<!-- Templating -->
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+		</dependency>		
 		<!-- tests -->
 		<dependency>
 			<groupId>junit</groupId>

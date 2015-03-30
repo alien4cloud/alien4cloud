@@ -31,25 +31,18 @@ describe('Replacing a node template', function() {
     topologyEditorCommon.replaceNodeTemplates('Java', javaPuppet);
     topologyEditorCommon.checkNodeWasReplaced('Java', 'JavaPuppet');
     // check on relationships count
-    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaPuppet', 1);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('JavaPuppet', 1);
 
     // add a relationship with Compute_2, replace JavaPuppet and check
-    topologyEditorCommon.addRelationship({
-      name: 'dependsOnJava',
-      source: 'Compute_2',
-      requirement: 'dependency',
-      target: 'JavaPuppet',
-      type: 'tosca.relationships.DependsOn:2.0'
-    });
+    topologyEditorCommon.addRelationshipToNode('Compute_2', 'JavaPuppet', 'dependency', 'tosca.relationships.DependsOn:2.0', 'dependsOnJavaPuppet');
+
     topologyEditorCommon.replaceNodeTemplates('JavaPuppet', javaRPM);
     topologyEditorCommon.checkNodeWasReplaced('JavaPuppet', 'JavaRPM');
-    topologyEditorCommon.checkNumberOfRelationshipForANode('rect_JavaRPM', 1);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('JavaRPM', 1);
 
     // check if the target name have been changed in the source of the relationship (Compute_2)
-    element(by.id('rect_Compute_2')).click();
-    browser.waitForAngular();
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('Compute_2', topologyEditorCommon.nodeDetailsBlocsIds.rel);
     var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
-    browser.waitForAngular();
     expect(relationships.first().element(by.binding('relationshipEntry.value.target')).getText()).toContain('JavaRPM');
   });
 });

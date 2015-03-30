@@ -6,6 +6,7 @@
   "CODE": "fr-fr",
   "CANCEL": "Annuler",
   "CREATE": "Créer",
+  "CLONE": "Cloner",
   "DELETE": "Supprimer",
   "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
   "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
@@ -43,8 +44,9 @@
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Méta-propriétés",
     "MENU_CLOUDS": "Clouds",
-    "MENU_METRICS": "Métriques d'Alien 4 Cloud",
-    "MENU_CLOUD_IMAGES": "Cloud Images"
+    "MENU_METRICS": "Métriques",
+    "MENU_CLOUD_IMAGES": "Cloud Images",
+    "MENU_AUDIT": "Audit"
   },
   "MAIN": {
     "WELCOME": "Bienvenue sur",
@@ -97,7 +99,9 @@
       "REQUIREMENT_TARGET_NOT_FOUND": "La cible du requirement [{{note}}] n'exite pas.",
       "REQUIREMENT_CAPABILITY_NOT_FOUND": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
       "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
-      "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte"
+      "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
+      "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
+      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -265,6 +269,7 @@
     "UNDEPLOYED": "Non déployé",
     "DEPLOYMENT_IN_PROGRESS": "Déploiement en cours",
     "UNDEPLOYMENT_IN_PROGRESS": "Arrêt en cours",
+    "UNKNOWN": "Inconnu",
     "WARNING": "Alerte",
     "FAILURE": "Echoué",
     "DEPLOY": "Déployer",
@@ -327,6 +332,7 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Nom du réseau",
       "TITLE_STORAGE": "Nom du volume",
+      "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
       "COMPUTE_RESOURCES": "Machine",
       "NETWORK_RESOURCES": "Réseau",
@@ -350,6 +356,7 @@
       "DEPENDENCY_VERSION": "Version",
       "SELECT_NODETYPE": "Sélectionner un Composant",
       "TOPOLOGY": "Topologie",
+      "NODE_INFO": "Noeud sélectionné",
       "TYPE": "Type",
       "ARCHIVE": "Archive",
       "PROPERTIES": "Propriétés",
@@ -526,7 +533,8 @@
       "ENABLED": "Activé(s)",
       "FILTERED": "Filtré(s)",
       "IMAGE_NAME": "Image",
-      "FLAVOR_NAME": "Gabarit"
+      "FLAVOR_NAME": "Gabarit",
+      "DESCRIPTION": "Description"
     },
     "FLAVORS": {
       "ID": "Nom",
@@ -555,9 +563,9 @@
     "STORAGE": "Volumes",
     "STORAGES": {
       "ID": "Id",
-      "DEVICE": "Volume",
+      "DEVICE": "Périphérique",
       "LOCATION": "Point de montage",
-      "SIZE": "Size",
+      "SIZE": "Taille",
       "NEW_MODAL_TITLE": "Créer un nouveau volume"
     },
     "IAAS": {
@@ -580,7 +588,7 @@
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Configuration de la connexion",
         "CONNECTION_CONFIGURATION": {
-          "CLOUDIFY_URL": "L'URL de Cloudify",
+          "CLOUDIFY_URLS": "URL de Cloudify (plusieurs URLs en cas de HA)",
           "USER_NAME": "Nom d'utilisateur",
           "PASSWORD": "Mot de passe",
           "TIMEOUT": "Délai de connexion (Sec)"
@@ -603,7 +611,6 @@
           "SIZE": "Taille (Gb)",
           "FS": "Système de fichier"
         },
-        "SYNCHRONOUS_DEPLOYMENT": "Déploiement synchrone",
         "PE": {
           "MAIL_CONFIGURATION": "Configuration mail",
           "MAIL": {
@@ -634,7 +641,8 @@
       "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
     "ENABLED_true": "Activé",
-    "ENABLED_false": "Désactivé"
+    "ENABLED_false": "Désactivé",
+    "DESCRIPTION": "Description"
   },
   "ERRORS": {
     "INTERNAL": "Erreur interne",
@@ -646,9 +654,10 @@
     "300": "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
     "371": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
-      "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalid"
+      "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide"
     },
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
+    "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",
     "501": "Paramètre illégal",
     "502": "Cet objet existe déjà sur le serveur",
@@ -661,6 +670,7 @@
     "607": "Un environnement déployé ne peut être supprimé",
     "605": "Le format de version saisie est invalide",
     "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
+    "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
@@ -679,7 +689,8 @@
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
     },
-    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée"
+    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
+    "808": "Le nom ne respecte pas le format attendu"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",
@@ -844,5 +855,37 @@
   "HOPSCOTCH_MISSING": {
     "TITLE": "Tour de présentation",
     "CONTENT": "Aucun tour de présentation pour cette page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Activé",
+        "ON": "Oui",
+        "OFF": "Non"
+      },
+      "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
+      "LABEL": "Configuration d'Audit",
+      "ACTION_NAME": "Nom de l'action",
+      "RESET": "Réinitialiser",
+      "CONFIGURATION_IS_RESETED": "Configuration d'audit a été réinitialisé avec succès"
+    },
+    "LOG": "Audit des opérations",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Catégorie",
+      "ACTION": "Opération",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Identifiant",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "Prénom",
+      "USERLASTNAME": "Nom",
+      "PATH": "Appel",
+      "METHOD": "Méthode",
+      "REQUESTPARAMETERS": "Paramètres d'entrée",
+      "REQUESTBODY": "Contenu de la requête",
+      "RESPONSESTATUS": "Code réponse",
+      "SOURCEIP": "IP source"
+    }
   }
 }

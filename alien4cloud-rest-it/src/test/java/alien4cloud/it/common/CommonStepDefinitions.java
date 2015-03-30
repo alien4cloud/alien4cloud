@@ -1,9 +1,7 @@
 package alien4cloud.it.common;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +14,7 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
+import alien4cloud.dao.AuditESDAO;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.it.Context;
 import alien4cloud.model.application.Application;
@@ -39,6 +38,7 @@ import alien4cloud.security.groups.Group;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 
 @Slf4j
 public class CommonStepDefinitions {
@@ -63,10 +63,11 @@ public class CommonStepDefinitions {
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
         indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
+        indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }
 
     @Before
-    public void beforeScenario() throws IOException, InterruptedException, ExecutionException {
+    public void beforeScenario() throws Throwable {
         if (log.isDebugEnabled()) {
             log.debug("Before scenario, clean up elastic search and alien repositories from {}", Context.getInstance().getAlienPath());
         }
@@ -187,6 +188,12 @@ public class CommonStepDefinitions {
         String result = exp.getValue(context).toString();
         Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
         Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+    }
+
+    @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")
+    public void I_register_the_rest_response_data_as_SPEL_context(String type) throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        Context.getInstance().buildEvaluationContext(response.getData());
     }
 
 }

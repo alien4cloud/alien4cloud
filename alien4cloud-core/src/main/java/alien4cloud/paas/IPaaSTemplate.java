@@ -3,6 +3,7 @@ package alien4cloud.paas;
 import java.nio.file.Path;
 
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 
@@ -17,6 +18,13 @@ public interface IPaaSTemplate<V extends IndexedToscaElement> {
      * Get the unique Id of the PaaSTemplate
      */
     String getId();
+
+    /**
+     * get the template (nodetemplate or relationship template) for the PaaSTemplate {@link PaaSNodeTemplate} or {@link PaaSRelationshipTemplate}.
+     *
+     * @return The AbstractTemplate bind to this PaasTemplate.
+     */
+    AbstractTemplate getTemplate();
 
     /**
      * Set the indexed tosca element (type) for the PaaSTemplate {@link PaaSNodeTemplate} or {@link PaaSRelationshipTemplate}.

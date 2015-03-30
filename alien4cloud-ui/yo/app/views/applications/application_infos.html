@@ -72,8 +72,13 @@
           <tr ng-repeat="definition in configurationProperties">
             <!-- Obliged to put <td> to give definition value -->
             <td>
-              <property-display ng-init="condensed = true" ng-if="application.metaProperties && configurationProperties" definition="definition" property-value="application.metaProperties[definition.id]" on-save="updateProperties(propertyDefinition,propertyValue)"
-              editable="true" condensed="condensed">
+              <property-display ng-init="condensed = true" 
+                ng-if="application.metaProperties && configurationProperties"
+                definition="definition"
+                property-value="application.metaProperties[definition.id]"
+                on-save="updateProperties(propertyDefinition,propertyValue)"
+                editable="true"
+                condensed="condensed">
               </property-display>
             </td>
           </tr>

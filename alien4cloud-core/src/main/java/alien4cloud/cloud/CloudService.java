@@ -24,6 +24,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
@@ -41,11 +42,13 @@ import alien4cloud.paas.IConfigurablePaaSProviderFactory;
 import alien4cloud.paas.IDeploymentParameterizablePaaSProviderFactory;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.IPaaSProviderFactory;
+import alien4cloud.paas.ITemplateManagedPaaSProvider;
 import alien4cloud.paas.PaaSProviderFactoriesService;
 import alien4cloud.paas.PaaSProviderService;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.paas.model.PaaSComputeTemplate;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.MappingUtil;
@@ -70,6 +73,8 @@ public class CloudService {
     private CloudImageService cloudImageService;
 
     public void initialize() {
+        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+
         int from = 0;
         long totalResult;
         do {
@@ -78,13 +83,20 @@ public class CloudService {
                 return;
             }
 
-            for (Cloud cloud : enabledCloudResult.getData()) {
-                try {
-                    initCloud(cloud);
-                } catch (Throwable t) {
-                    // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
-                    disableOnInitFailure(cloud, t);
-                }
+            for (final Cloud cloud : enabledCloudResult.getData()) {
+                // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            initCloud(cloud);
+                        } catch (Throwable t) {
+                            // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
+                            disableOnInitFailure(cloud, t);
+                        }
+                    }
+                });
+                thread.start();
             }
             from += enabledCloudResult.getData().length;
             totalResult = enabledCloudResult.getTotalResults();
@@ -179,11 +191,27 @@ public class CloudService {
     public synchronized boolean delete(String id) {
         // checks that the cloud is not used anymore
         if (disableCloud(id)) {
+            removeCloudIdInApplicationEnvironment(id);
             alienDAO.delete(Cloud.class, id);
             alienDAO.delete(CloudConfiguration.class, id);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Remove the reference to the deleted cloud id in {ApplicationEnvironment}.
+     *
+     * @param id
+     */
+    private void removeCloudIdInApplicationEnvironment(String id) {
+        GetMultipleDataResult<ApplicationEnvironment> result = alienDAO.find(ApplicationEnvironment.class,
+                MapUtil.newHashMap(new String[] { "cloudId" }, new String[][] { new String[] { id } }), Integer.MAX_VALUE);
+        for (ApplicationEnvironment env : result.getData()) {
+            env.setCloudId(null);
+            log.debug("The reference of cloud " + id + " has been deleted in application environment " + id);
+            alienDAO.save(env);
+        }
     }
 
     /**
@@ -571,9 +599,9 @@ public class CloudService {
      */
     public void setCloudImageResourceId(Cloud cloud, String cloudImageId, String paaSResourceId) throws CloudDisabledException {
         IPaaSProvider paaSProvider = getPaaSProvider(cloud.getId());
+        getComputeTemplates(cloud, cloudImageId, null, true);
         if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getImageMapping().remove(cloudImageId);
-            getComputeTemplates(cloud, cloudImageId, null, true);
         } else {
             cloud.getImageMapping().put(cloudImageId, paaSResourceId);
             addComputeTemplatesForImage(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageId);
@@ -583,7 +611,7 @@ public class CloudService {
     }
 
     private void addComputeTemplatesForImage(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, String cloudImageId) {
-        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
+        List<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(cloudImageId);
         String paaSImageId = matcherConfig.getImageMapping().get(cloudImage);
         if (paaSImageId == null) {
@@ -594,9 +622,21 @@ public class CloudService {
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the flavor
             String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
-            if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
-                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId()));
+            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+                if (paaSManagedTemplates != null) {
+                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                        if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                            computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), paaSManagedTemplate.getDescription()));
+                        }
+                    }
+                }
+            } else {
+                if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
+                        && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
+                    computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), null));
+                }
             }
         }
     }
@@ -614,9 +654,9 @@ public class CloudService {
         if (cloudImageFlavor == null) {
             throw new NotFoundException("Cloud image flavor [" + flavorId + "] do not exist");
         }
+        getComputeTemplates(cloud, null, flavorId, true);
         if (StringUtils.isEmpty(paaSResourceId)) {
             cloud.getFlavorMapping().remove(flavorId);
-            getComputeTemplates(cloud, null, flavorId, true);
         } else {
             cloud.getFlavorMapping().put(flavorId, paaSResourceId);
             addComputeTemplatesForFlavor(cloud, paaSProvider, getCloudResourceMatcherConfig(cloud), cloudImageFlavor);
@@ -626,7 +666,7 @@ public class CloudService {
     }
 
     private void addComputeTemplatesForFlavor(Cloud cloud, IPaaSProvider paaSProvider, CloudResourceMatcherConfig matcherConfig, CloudImageFlavor flavor) {
-        Set<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
+        List<ActivableComputeTemplate> computes = cloud.getComputeTemplates();
         Map<String, CloudImage> images = cloudImageService.getMultiple(cloud.getImages());
         String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
         if (paaSFlavorId == null) {
@@ -636,11 +676,23 @@ public class CloudService {
             // Only add compute templates if it is matching image requirement and it exists mapping for the image
             CloudImage image = images.get(imageId);
             String paaSImageId = matcherConfig.getImageMapping().get(image);
-            String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
-            Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
-            if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
-                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                computes.add(new ActivableComputeTemplate(imageId, flavor.getId()));
+            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+                if (paaSManagedTemplates != null) {
+                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                        if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                            computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), paaSManagedTemplate.getDescription()));
+                        }
+                    }
+                }
+            } else {
+                String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
+                Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
+                if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null
+                        && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
+                    computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), null));
+                }
             }
         }
     }
@@ -763,4 +815,35 @@ public class CloudService {
         initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
         alienDAO.save(cloud);
     }
+
+    /**
+     * Clone the cloud, the config will also been cloned.
+     */
+    public String clone(String id) {
+        Cloud cloud = getMandatoryCloud(id);
+        Object cloudConfig = getConfiguration(id);
+        cloud.setName(getUniqueCloudName(cloud.getName(), 0));
+        String cloudId = create(cloud);
+        if (cloudConfig != null) {
+            // we apply the previous config to this new created cloud
+            updateConfiguration(cloudId, cloudConfig);
+        }
+        return cloudId;
+    }
+
+    /**
+     * Recursively find a unique cloud name composed of the baseName eventually followed by an index.
+     */
+    private String getUniqueCloudName(String baseName, int attemptCount) {
+        String name = baseName;
+        if (attemptCount > 0) {
+            name += "-" + attemptCount;
+        }
+        if (alienDAO.count(Cloud.class, QueryBuilders.termQuery("name", name)) > 0) {
+            return getUniqueCloudName(baseName, ++attemptCount);
+        } else {
+            return name;
+        }
+    }
+
 }

@@ -70,7 +70,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var nodeRenderer = this.nodeRenderer;
         var nodeSize = {
           width: nodeRenderer.width,
-          height: nodeRenderer.height,
+          height: nodeRenderer.height
         };
         var spacing = {
           rootBranch: {x: nodeRenderer.distanceBetweenBranchHorizontal},
