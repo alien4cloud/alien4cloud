@@ -62,7 +62,7 @@
                    ng-click="getPossibleReplacements(selectedNodeTemplate)">
                   <i class="fa fa-exchange"></i>
                 </a>
-                <ul class="dropdown-menu " role="menu" data-placement="left">
+                <ul class="dropdown-menu " role="menu" data-placement="right">
                   <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
                   <li ng-repeat="suggestedNode in suggestedReplacements">
                     <a id="newnode_{{suggestedNode.elementId}}"
