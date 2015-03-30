@@ -1,0 +1,15 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile including a topology
+template_name: topology_artifact
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+imports:
+  - "tosca-base-types:1.0"
+  - "apacheLB:0.1"
+
+topology_template:
+  description: A simple topology using a type declaring an artifact
+  node_templates:
+    apache:
+      type: fastconnect.nodes.apacheLBGroovy

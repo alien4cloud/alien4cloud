@@ -105,6 +105,9 @@ public class AuditController {
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
         FacetedSearchResult searchResult = auditService.searchAuditTrace(searchRequest.getQuery(), searchRequest.getFilters(), searchRequest.getFrom(),
                 searchRequest.getSize());
+        if (searchRequest.getFilters() == null || !searchRequest.getFilters().containsKey("category")) {
+            searchResult.getFacets().remove("action");
+        }
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 

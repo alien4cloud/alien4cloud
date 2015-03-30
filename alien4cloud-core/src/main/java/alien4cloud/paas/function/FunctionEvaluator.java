@@ -89,13 +89,13 @@ public final class FunctionEvaluator {
                 evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
             } else if (concatParam instanceof FunctionPropertyValue) {
                 // Function case
-                List<? extends IPaaSTemplate> paasTemplates = null;
-                String propertyOrAttributeName = null;
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
-                paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(), builtPaaSTemplates);
+                List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(),
+                        builtPaaSTemplates);
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
-                    evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates, propertyOrAttributeName));
+                    evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
+                            functionPropertyValue.getPropertyOrAttributeName()));
                     break;
                 case ToscaFunctionConstants.GET_PROPERTY:
                     evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getPropertyOrAttributeName(), paasTemplates));

@@ -88,7 +88,7 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
         instance.setCapabilities(tempObject.getCapabilities());
         instance.setProperties(tempObject.getProperties());
         instance.setRequirements(tempObject.getRequirements());
-
+        instance.setArtifacts(tempObject.getArtifacts());
     }
 
 }

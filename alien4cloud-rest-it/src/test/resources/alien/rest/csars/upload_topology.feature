@@ -294,3 +294,12 @@ Scenario: Upload and delete CSAR containing types and topology
   Then I should receive a RestResponse with no error 
   And I have no CSAR created with id "apache-type:1.1.0-SNAPSHOT"   
    
+Scenario: Upload CSAR containing a type declaring an artifact
+  Given I upload the archive "tosca base types 1.0"
+  And I upload the archive "sample apache lb types 0.1"
+  When I upload the archive "topology_artifact"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  And If I search for topology templates I can find one with the name "topology_artifact-1.0.0-SNAPSHOT" and store the related topology as a SPEL context   
+  And The SPEL boolean expression "nodeTemplates['apache'].artifacts.size() == 1" should return true 
+  And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactType" should return "fastconnect.artifacts.ResourceDirectory"
+  And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactRef" should return "scripts"
