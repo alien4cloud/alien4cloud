@@ -1,12 +1,16 @@
 package alien4cloud.cloud;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
@@ -72,20 +76,39 @@ public class CloudService {
     @Resource
     private CloudImageService cloudImageService;
 
-    public void initialize() {
-        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+    public void initializeAndWait() {
+        Iterator<Future<?>> futureIt = initialize().iterator();
+        while (futureIt.hasNext()) {
+            try {
+                futureIt.next().get();
+            } catch (Exception e) {
+                log.error("Exception thrown by init task exec", e);
+            } finally {
+                futureIt.remove();
+            }
+        }
+    }
 
+    /**
+     * Each cloud initialization is down in it's own thread.
+     * 
+     * @return a list of futures for those who want to wait for task to be done.
+     */
+    public List<Future<?>> initialize() {
+        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        List<Future<?>> futures = new ArrayList<Future<?>>();
         int from = 0;
         long totalResult;
         do {
             GetMultipleDataResult<Cloud> enabledCloudResult = get(null, true, from, 20, null);
             if (enabledCloudResult.getData() == null) {
-                return;
+                return futures;
             }
 
             for (final Cloud cloud : enabledCloudResult.getData()) {
                 // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
-                Thread thread = new Thread(new Runnable() {
+                Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -96,11 +119,12 @@ public class CloudService {
                         }
                     }
                 });
-                thread.start();
+                futures.add(future);
             }
             from += enabledCloudResult.getData().length;
             totalResult = enabledCloudResult.getTotalResults();
         } while (from < totalResult);
+        return futures;
     }
 
     private void disableOnInitFailure(Cloud cloud, Throwable t) {
