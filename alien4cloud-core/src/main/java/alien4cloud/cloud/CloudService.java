@@ -1,12 +1,16 @@
 package alien4cloud.cloud;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
@@ -73,8 +77,16 @@ public class CloudService {
     private CloudImageService cloudImageService;
 
     public void initialize() {
-        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+        initialize(false);
+    }
 
+    public void initialize(boolean sync) {
+        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        List<Future<?>> futures = null;
+        if (sync) {
+            futures = new ArrayList<Future<?>>();
+        }
         int from = 0;
         long totalResult;
         do {
@@ -85,7 +97,7 @@ public class CloudService {
 
             for (final Cloud cloud : enabledCloudResult.getData()) {
                 // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
-                Thread thread = new Thread(new Runnable() {
+                Future<?> future = executorService.submit(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -96,11 +108,25 @@ public class CloudService {
                         }
                     }
                 });
-                thread.start();
+                if (sync) {
+                    futures.add(future);
+                }
             }
             from += enabledCloudResult.getData().length;
             totalResult = enabledCloudResult.getTotalResults();
         } while (from < totalResult);
+        if (sync) {
+            Iterator<Future<?>> futureIt = futures.iterator();
+            while (futureIt.hasNext()) {
+                try {
+                    futureIt.next().get();
+                } catch (Exception e) {
+                    log.error("Exception thrown by init task exec", e);
+                } finally {
+                    futureIt.remove();
+                }
+            }
+        }
     }
 
     private void disableOnInitFailure(Cloud cloud, Throwable t) {
