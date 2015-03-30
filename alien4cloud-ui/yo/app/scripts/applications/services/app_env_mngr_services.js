@@ -36,7 +36,7 @@ function(applicationEnvironmentServices) {
         this.deployEnvironments.push(environment);
       }
       isDeployer = isDeployer || isEnvDeployer;
-    }
+    },
     close: function() {
       for(var i=0; i < this.eventRegistrations.length; i++) {
         this.eventRegistrations[i].close();
