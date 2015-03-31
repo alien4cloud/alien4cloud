@@ -339,14 +339,12 @@ var checkNodeWasReplaced = function(nodeName, newNodeName) {
 module.exports.checkNodeWasReplaced = checkNodeWasReplaced;
 
 var addScalingPolicy = function(computeId, min, init, max) {
-
   var nodeToEdit = browser.element(by.id(computeId));
   browser.actions().click(nodeToEdit).perform();
   var scaleButton = browser.element(by.id('scaleButton'));
   browser.actions().click(scaleButton).perform();
-  // display only one bloc in node details : scaling
-  collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
 
+  collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
   common.sendValueToXEditable('maxInstances', max, false);
   common.sendValueToXEditable('initialInstances', init, false);
   common.sendValueToXEditable('minInstances', min, false);
@@ -354,7 +352,6 @@ var addScalingPolicy = function(computeId, min, init, max) {
 module.exports.addScalingPolicy = addScalingPolicy;
 
 var removeScalingPolicy = function(computeId) {
-
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     // Check properties edition on compute node template
     var nodeToEdit = browser.element(by.id(computeId));
@@ -369,7 +366,7 @@ module.exports.removeScalingPolicy = removeScalingPolicy;
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
-  if(blocId){
+  if (blocId) {
     collapseNodeDetailsBloc(blocId);
   }
 };
@@ -537,7 +534,7 @@ var expectShowTodoList = function(goToAppDetail, isDisplay) {
 module.exports.expectShowTodoList = expectShowTodoList;
 
 /** Close or open a specific node template details bloc */
-var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
+var nodeDetailsCollapse = function(blocId, opened) {
   var myBlock = element(by.id(blocId));
   myBlock.isPresent().then(function isBlockPresent(present) {
     if (present) {
@@ -548,19 +545,18 @@ var nodeDetailsCollapse = function nodeDetailsCollapse(blocId, opened) {
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
           browser.waitForAngular();
           myBlockIcon.click();
-          browser.waitForAngular();
         }
       });
     }
   });
 };
-module.exports.nodeDetailsCollapse = nodeDetailsCollapse;
 
 /** Open only one bloc in the node template details */
-var collapseNodeDetailsBloc = function collapseNodeDetailsBloc(blocId) {
+var collapseNodeDetailsBloc = function(blocId) {
   for (var bloc in nodeDetailsBlocsIds) {
     var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
     nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
+    browser.sleep(500); // Make sure that the collapse is complete
   }
 };
 module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
