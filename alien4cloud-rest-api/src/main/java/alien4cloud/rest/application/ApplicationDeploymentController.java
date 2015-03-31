@@ -132,14 +132,13 @@ public class ApplicationDeploymentController {
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(deployApplicationRequest.getApplicationId(), deployApplicationRequest.getApplicationEnvironmentId());
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
         }
         try {
-            deploymentService.deployTopology(topology, application, deploymentSetup, environment.getCloudId());
+            deploymentService.deployTopology(topology, application, deploymentSetupMatchInfo, environment.getCloudId());
         } catch (CloudDisabledException e) {
             return RestResponseBuilder
                     .<Void> builder()

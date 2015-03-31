@@ -78,8 +78,8 @@ public interface IPaaSProvider {
      * @param operationResultCallback the callback that will be triggered when the operation's result become available
      * @throws OperationExecutionException
      */
-    void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> operationResultCallback)
-            throws OperationExecutionException;
+    void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
+            IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException;
 
     /**
      * Call to determine available ids for the given resource type

@@ -22,12 +22,14 @@ import org.springframework.web.context.request.async.DeferredResult;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
@@ -68,10 +70,16 @@ public class RuntimeController {
 
     @Resource
     private DeploymentService deploymentService;
+
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
+
     @Resource
     private ApplicationService applicationService;
+
     @Resource
     private ApplicationVersionService applicationVersionService;
+
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
 
@@ -94,11 +102,16 @@ public class RuntimeController {
     public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
         final DeferredResult<RestResponse<Object>> result = new DeferredResult<>();
         Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
+                operationRequest.getApplicationEnvironmentId());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
+        }
 
+        Topology topology = deploymentService.getRuntimeTopology(operationRequest.getApplicationEnvironmentId());
         // validate the operation request
         try {
-            validateCommand(operationRequest);
+            validateCommand(operationRequest, topology);
         } catch (ConstraintViolationException e) {
             result.setErrorResult(RestResponseBuilder.<Object> builder().data(e.getConstraintInformation())
                     .error(new RestError(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR.getCode(), e.getMessage())).build());
@@ -116,10 +129,11 @@ public class RuntimeController {
                     .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build());
             return result;
         }
-
+        DeploymentSetupMatchInfo deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId,
+                operationRequest.getApplicationEnvironmentId());
         // try to trigger the execution of the operation
         try {
-            deploymentService.triggerOperationExecution(operationRequest, new IPaaSCallback<Map<String, String>>() {
+            deploymentService.triggerOperationExecution(operationRequest, topology, deploymentSetup, new IPaaSCallback<Map<String, String>>() {
                 @Override
                 public void onSuccess(Map<String, String> data) {
                     result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
@@ -169,17 +183,8 @@ public class RuntimeController {
                 .build();
     }
 
-    private void validateCommand(OperationExecRequest operationRequest) throws ConstraintFunctionalException {
-
-        // get the targeted environment
-        ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(operationRequest.getApplicationEnvironmentId());
-        String cloudId = applicationEnvironment.getCloudId();
-        String topologyId = applicationEnvironmentService.getTopologyId(operationRequest.getApplicationEnvironmentId());
-
-        // get if exists the runtime version of the topology
-        Topology topology = deploymentService.getRuntimeTopology(topologyId, cloudId);
-
-        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, operationRequest.getNodeTemplateName(),
+    private void validateCommand(OperationExecRequest operationRequest, Topology topology) throws ConstraintFunctionalException {
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topology.getId(), operationRequest.getNodeTemplateName(),
                 topologyServiceCore.getNodeTemplates(topology));
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
                 topology.getDependencies());
