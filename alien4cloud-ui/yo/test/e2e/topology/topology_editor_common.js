@@ -545,6 +545,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
           browser.waitForAngular();
           myBlockIcon.click();
+          browser.waitForAngular();
         }
       });
     }
@@ -553,11 +554,12 @@ var nodeDetailsCollapse = function(blocId, opened) {
 
 /** Open only one bloc in the node template details */
 var collapseNodeDetailsBloc = function(blocId) {
+  // Close all details
   for (var bloc in nodeDetailsBlocsIds) {
-    var open = nodeDetailsBlocsIds[bloc] === blocId ? true : false;
-    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], open);
-    browser.sleep(500); // Make sure that the collapse is complete
+    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], false);
   }
+  // Open the required bloc
+  nodeDetailsCollapse(blocId, true);
 };
 module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
 
