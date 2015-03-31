@@ -27,7 +27,7 @@ describe('Initialize test environment', function() {
   });
 
   it('Setups test environment to be fully cleaned up', function() {
-    // browser.driver.manage().window().setSize(1920, 1080); // bad setting for containers virtual screen
+    browser.driver.manage().window().setSize(1280, 720); // setting for dockers container
     browser.driver.manage().window().maximize();
     browser.driver.manage().window().getSize().then(function(size) {
       console.log('################# Window\'s size  [' + size.width + ', ' + size.height + ']');
