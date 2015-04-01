@@ -1,5 +1,6 @@
 package alien4cloud.cloud;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +15,16 @@ import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -29,7 +33,18 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSTopology;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.utils.MapUtil;
 
@@ -50,6 +65,8 @@ public class DeploymentService {
     private IGenericSearchDAO alienMonitorDao;
     @Resource
     private CloudService cloudService;
+    @Resource
+    private ApplicationService applicationService;
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
@@ -131,7 +148,7 @@ public class DeploymentService {
         // create a deployment object for the given cloud.
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
-        deployment.setId(UUID.randomUUID().toString());
+        deployment.setId(generateDeploymentId(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -160,6 +177,26 @@ public class DeploymentService {
         return deployment.getId();
     }
 
+    private String generateDeploymentId(String envId, String cloudId) {
+        Cloud cloud = cloudService.get(cloudId);
+        ApplicationEnvironment env = applicationEnvironmentService.getOrFail(envId);
+        String id = cloud.getDeploymentIdPattern();
+
+        if (id.contains("%t")) {
+            SimpleDateFormat ft = new SimpleDateFormat("yyyyMMddHHmm");
+            id = id.replace("%t", ft.format(new Date()));
+        }
+        if (id.contains("%e")) {
+            id = id.replace("%e", env.getName());
+        }
+        if (id.contains("%a") && cloud.getDeploymentIdPattern().contains("%a")) {
+            Application app = applicationService.getOrFail(env.getApplicationId());
+            id = id.replace("%a", app.getName());
+        }
+
+        return id;
+    }
+
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext();
         buildDeploymentContext(deploymentContext, deployment);
@@ -168,8 +205,7 @@ public class DeploymentService {
 
     private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
         deploymentContext.setDeploymentId(deployment.getId());
-        deploymentContext.setRecipeId((deployment.getSourceName() + "_" + deployment.getDeploymentSetup().getEnvironmentId() + "_" + deployment
-                .getDeploymentSetup().getVersionId()).replaceAll("[^\\p{Alnum}]", "_"));
+        deploymentContext.setRecipeId(deployment.getId());
     }
 
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {

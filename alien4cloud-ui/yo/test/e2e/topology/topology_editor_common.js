@@ -543,9 +543,9 @@ var nodeDetailsCollapse = function(blocId, opened) {
       ngClass.then(function(classes) {
         // test if the bloc is opened and then close it
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
-          browser.waitForAngular();
-          myBlockIcon.click();
-          browser.waitForAngular();
+          browser.executeScript('window.scrollTo(0,' + myBlockIcon.getLocation().y + ');').then(function() {
+            browser.actions().click(myBlockIcon).perform();
+          });
         }
       });
     }

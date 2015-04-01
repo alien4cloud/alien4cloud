@@ -2,7 +2,6 @@ package alien4cloud.model.deployment;
 
 import java.util.Date;
 
-import alien4cloud.paas.model.DeploymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +16,7 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.paas.model.DeploymentStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -36,6 +36,10 @@ public class Deployment {
     /** Id of the deployment */
     @Id
     private String id;
+
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private String name;
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
