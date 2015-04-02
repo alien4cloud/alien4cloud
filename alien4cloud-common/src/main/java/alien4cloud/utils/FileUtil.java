@@ -7,7 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.CopyOption;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -127,28 +135,47 @@ public final class FileUtil {
      * @throws IOException In case something fails.
      */
     public static void unzip(final Path zipFile, final Path destination) throws IOException {
+        try (FileSystem zipFS = FileSystems.newFileSystem(zipFile, null)) {
+            final Path root = zipFS.getPath("/");
+            copy(root, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    private static String relativizePath(Path root, Path child) {
+        String childPath = child.toAbsolutePath().toString();
+        String rootPath = root.toAbsolutePath().toString();
+        if (childPath.equals(rootPath)) {
+            return "";
+        }
+        int indexOfRootInChild = childPath.indexOf(rootPath);
+        if (indexOfRootInChild != 0) {
+            throw new IllegalArgumentException("Child path " + childPath + "is not beginning with root path " + rootPath);
+        }
+        return childPath.substring(rootPath.length() + 1, childPath.length());
+    }
+
+    public static void copy(final Path source, final Path destination, final CopyOption... options) throws IOException {
         if (Files.notExists(destination)) {
             Files.createDirectories(destination);
         }
 
-        try (FileSystem zipFS = FileSystems.newFileSystem(zipFile, null)) {
-            final Path root = zipFS.getPath("/");
-            Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    final Path destFile = Paths.get(destination.toString(), file.toString());
-                    Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
-                    return FileVisitResult.CONTINUE;
-                }
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                String fileRelativePath = relativizePath(source, file);
+                Path destFile = destination.resolve(fileRelativePath);
+                Files.copy(file, destFile, options);
+                return FileVisitResult.CONTINUE;
+            }
 
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    final Path destDir = Paths.get(destination.toString(), dir.toString());
-                    Files.createDirectories(destDir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        }
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                String dirRelativePath = relativizePath(source, dir);
+                Path destDir = destination.resolve(dirRelativePath);
+                Files.createDirectories(destDir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     private static class EraserWalker extends SimpleFileVisitor<Path> {
