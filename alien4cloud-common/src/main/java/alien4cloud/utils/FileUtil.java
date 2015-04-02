@@ -2,6 +2,7 @@ package alien4cloud.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -151,7 +152,11 @@ public final class FileUtil {
         if (indexOfRootInChild != 0) {
             throw new IllegalArgumentException("Child path " + childPath + "is not beginning with root path " + rootPath);
         }
-        return childPath.substring(rootPath.length() + 1, childPath.length());
+        String relativizedPath = childPath.substring(rootPath.length(), childPath.length());
+        while (relativizedPath.startsWith(File.separator)) {
+            relativizedPath = relativizedPath.substring(1);
+        }
+        return relativizedPath;
     }
 
     public static void copy(final Path source, final Path destination, final CopyOption... options) throws IOException {
