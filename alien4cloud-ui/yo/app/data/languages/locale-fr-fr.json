@@ -584,6 +584,19 @@
       "PRE_PRODUCTION": "Pré-production",
       "PRODUCTION": "production"
     },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "Configuration globale",
+        "DEPLOYMENT_NAME": "Nomenclature des noms de déploiement"
+      },
+      "DRIVER": {
+        "TITLE": "Configuration du driver"
+      },
+      "HELP": {
+        "TITLE": "Aide concernant la nomenclature des noms de déploiement",
+        "CONTENT": "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est SpEL, assurez-vous de définir une expression correcte."
+      }
+    },
     "DRIVER": {
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Configuration de la connexion",

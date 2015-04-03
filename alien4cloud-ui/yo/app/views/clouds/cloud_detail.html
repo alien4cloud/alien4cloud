@@ -699,30 +699,25 @@
         </div>
       </tab>
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
-        <div class="alert alert-info">
-          {{'CLOUDS.CONFIGURATION_REQUIRES_DISABLE' | translate}}
-        </div>
         <div class="row" style="margin-bottom:20px;">
           <div class=col-md-12>
             <div class="form-horizontal" role="form">
               <div class="panel panel-default form-panel">
                 <div class="panel-heading">
-                  <h4 class="ng-binding" style="display: inline;">Configuration globale</h4>
+                  <h4 class="ng-binding" style="display: inline;">{{'CLOUDS.ADMINISTRATION.GLOBAL.TITLE' | translate}}</h4>
                 </div>
                 <div class="panel-body">
-                  <label class="ng-scope ng-binding" tooltip="URL" tooltip-trigger="mouseenter">
-                    Nomenclature des noms de déploiement
-                  </label>
-                  <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-required e-class="input-lg" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
+                  <div class="">
+                    <label class="ng-scope ng-binding" tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
+                      {{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}
+                    </label>
+                    <button class="btn btn-primary btn-xs ng-scope pull-right" data-toggle="modal" ng-click="openSimpleModal()" tooltip="{{'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" tooltip-append-to-body="true" position="right">
+                      <i class="fa fa-question-circle"></i>
+                    </button>
+                  </div>
+                  <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-required e-class="input-sm" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
                     {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
                   </div>
-                  <p>
-                    You can use
-                    the <b>environment</b>,
-                    the <b>application</b>,
-                    the <b>meta properties</b> of the application and
-                    the <b>time</b>.
-                  </p>
                 </div>
               </div>
             </div>
@@ -730,7 +725,7 @@
         </div>
         <div class="row">
           <div class=col-md-12>
-            <generic-form ng-if="cloudConfig && cloudConfigDefinition" root-object="cloudConfig" form-title="Configuration du driver" type="cloudConfigDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)">
+            <generic-form ng-if="cloudConfig && cloudConfigDefinition" root-object="cloudConfig" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="cloudConfigDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
             </generic-form>
           </div>
         </div>
