@@ -76,7 +76,7 @@ public class Cloud implements ISecuredResource {
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     @TermFilter
-    private String deploymentIdPattern = "%a-%e-%t";
+    private String deploymentNamePattern = "environment.name + application.name";
     /**
      * Type of environment for the cloud.
      */

@@ -711,14 +711,17 @@
                 </div>
                 <div class="panel-body">
                   <label class="ng-scope ng-binding" tooltip="URL" tooltip-trigger="mouseenter">
-                    Nomenclature des DeploymentID
+                    Nomenclature des noms de déploiement
                   </label>
-                  <input class="form-control ng-pristine ng-animate ng-invalid ng-invalid-required ng-valid-pattern" id="deploymentIdRegex" ng-model="$data" name="deploymentIdRegex" required="" placeholder="%a-%e-%t" type="text">
-                  </input>
+                  <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-required e-class="input-lg" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
+                    {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
+                  </div>
                   <p>
-                    <b>%a =</b> application name ||
-                    <b>%e =</b> environment ||
-                    <b>%t =</b> time
+                    You can use
+                    the <b>environment</b>,
+                    the <b>application</b>,
+                    the <b>meta properties</b> of the application and
+                    the <b>time</b>.
                   </p>
                 </div>
               </div>

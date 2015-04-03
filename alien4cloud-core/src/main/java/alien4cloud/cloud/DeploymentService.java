@@ -2,16 +2,21 @@ package alien4cloud.cloud;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
@@ -19,12 +24,14 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -148,7 +155,8 @@ public class DeploymentService {
         // create a deployment object for the given cloud.
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
-        deployment.setId(generateDeploymentId(deploymentSetup.getEnvironmentId(), cloudId));
+        deployment.setId(UUID.randomUUID().toString());
+        deployment.setName(generateDeploymentName(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -177,24 +185,45 @@ public class DeploymentService {
         return deployment.getId();
     }
 
-    private String generateDeploymentId(String envId, String cloudId) {
-        Cloud cloud = cloudService.get(cloudId);
+
+
+    private String generateDeploymentName(String envId, String cloudId) {
+        // Inner class to get value from multiples objects
+        @Getter
+        class ContextObjectToParse {
+            private ApplicationEnvironment environment;
+            private Application application;
+            private Map<String, String> metaProperties;
+            private String time;
+
+            private Map<String, String> constructMapOfMetaProperties(final Application app) {
+                Map<String, String[]> filters = new HashMap<String, String[]>();
+                filters.put("application", new String[] { "id" });
+                FacetedSearchResult result = alienDao.facetedSearch(MetaPropConfiguration.class, null, filters, null, 0, 20);
+                MetaPropConfiguration metaProp;
+                Map<String, String> metaProperties = Maps.newHashMap();
+                for (int i = 0; i < result.getData().length; i++) {
+                    metaProp = (MetaPropConfiguration) result.getData()[i];
+                    metaProperties.put(metaProp.getName(), app.getMetaProperties().get(metaProp.getId()));
+                }
+                return metaProperties;
+            }
+
+            public ContextObjectToParse(ApplicationEnvironment env, Application app) {
+                this.environment = env;
+                this.application = app;
+                SimpleDateFormat ft = new SimpleDateFormat("yyyyMMddHHmm");
+                this.time = ft.format(new Date());
+                this.metaProperties = constructMapOfMetaProperties(app);
+            }
+        }
+
         ApplicationEnvironment env = applicationEnvironmentService.getOrFail(envId);
-        String id = cloud.getDeploymentIdPattern();
-
-        if (id.contains("%t")) {
-            SimpleDateFormat ft = new SimpleDateFormat("yyyyMMddHHmm");
-            id = id.replace("%t", ft.format(new Date()));
-        }
-        if (id.contains("%e")) {
-            id = id.replace("%e", env.getName());
-        }
-        if (id.contains("%a") && cloud.getDeploymentIdPattern().contains("%a")) {
-            Application app = applicationService.getOrFail(env.getApplicationId());
-            id = id.replace("%a", app.getName());
-        }
-
-        return id;
+        Cloud cloud = cloudService.get(cloudId);
+        String namePattern = cloud.getDeploymentNamePattern();
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression exp = parser.parseExpression(namePattern);
+        return (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId())));
     }
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
