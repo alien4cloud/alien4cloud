@@ -13,10 +13,15 @@ import org.elasticsearch.annotation.ESObject;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSDeploymentContext {
     /**
-     * Id of an deployment (install/uninstall operation)
+     * Id of an deployment (to manage the events)
      * For the same recipe, we might have multiple deployment ids.
      */
     private String deploymentId;
+
+    /**
+     * Name of an deployment (install/uninstall operation)
+     */
+    private String deploymentName;
 
     /**
      * A recipe's id represents in general the topology + setup in alien's term.

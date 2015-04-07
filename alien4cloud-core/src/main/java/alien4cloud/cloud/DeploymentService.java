@@ -129,7 +129,7 @@ public class DeploymentService {
                 .buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstanceStorageMonitorEvent.class)
-                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
+                .filters(MapUtil.newHashMap(new String[] { "deploymentName" }, new String[][] { new String[] { deployment.getName() } }))
                 .fieldSort("_timestamp", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
     }
@@ -185,8 +185,6 @@ public class DeploymentService {
         return deployment.getId();
     }
 
-
-
     private String generateDeploymentName(String envId, String cloudId) {
         // Inner class to get value from multiples objects
         @Getter
@@ -233,8 +231,8 @@ public class DeploymentService {
     }
 
     private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
-        deploymentContext.setDeploymentId(deployment.getId());
-        deploymentContext.setRecipeId(deployment.getId());
+        deploymentContext.setDeploymentId(deployment.getName());
+        deploymentContext.setRecipeId(deployment.getName());
     }
 
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
@@ -245,6 +243,8 @@ public class DeploymentService {
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
         topologyDeploymentContext.setTopology(topology);
         topologyDeploymentContext.setDeploymentSetup(deploymentSetup);
+        topologyDeploymentContext.setDeploymentName(deployment.getName());
+        topologyDeploymentContext.setDeploymentId(deployment.getId());
         return topologyDeploymentContext;
     }
 
@@ -278,6 +278,7 @@ public class DeploymentService {
         log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), cloudId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        deploymentContext.setDeploymentId(deployment.getId());
         paaSProvider.undeploy(deploymentContext, null);
         deployment.setDeploymentStatus(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
         alienDao.save(deployment);
@@ -531,6 +532,33 @@ public class DeploymentService {
             return deployment.getTopologyId();
         }
         return null;
+    }
+
+    /**
+     * Get a topology Id for a deployment (through deploymentSetup object)
+     * 
+     * @param deploymentName
+     * @return a topology id
+     */
+    public String getTopologyIdByDeploymentByName(String deploymentName) {
+        Deployment deployment = getDeploymentByName(deploymentName);
+        // WARNING : topologyId may disappear from deployment object and would be accessible only through environment linked to the deployment
+        if (deployment != null) {
+            return deployment.getTopologyId();
+        }
+        return null;
+    }
+
+    /**
+     * Get all deployments for a given deployment setup id
+     *
+     * @param deploymentSetupId deployment setup's id
+     * @return deployment which have the given deployment setup id
+     */
+    public Deployment getDeploymentByName(String deploymentName) {
+        GetMultipleDataResult<Deployment> res = alienDao.find(Deployment.class,
+                MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { deploymentName } }), Integer.MAX_VALUE);
+        return res.getData()[0];
     }
 
     /**

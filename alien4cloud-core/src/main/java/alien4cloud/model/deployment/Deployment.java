@@ -38,7 +38,6 @@ public class Deployment {
     private String id;
 
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
     private String name;
 
     @TermFilter
