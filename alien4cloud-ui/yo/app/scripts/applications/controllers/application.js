@@ -3,7 +3,7 @@
 
 angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scope', 'alienAuthService', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'environmentEventServicesFactory', 'topologyServices', 'applicationServices', 'applicationEventServicesFactory', 'topologyJsonProcessor',
   function($rootScope, $scope, alienAuthService, applicationResult, $state, applicationEnvironmentServices, appEnvironments,
-           environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
+    environmentEventServicesFactory, topologyServices, applicationServices, applicationEventServicesFactory, topologyJsonProcessor) {
     var application = applicationResult.data;
     $scope.application = application;
 
@@ -247,7 +247,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
           // start event listener on this new <app,env>
           $scope.applicationEventServices = applicationEventServicesFactory(applicationId, environmentId);
           $scope.applicationEventServices.start();
-          console.log('InstanceStatuses >', successResult.data);
           doSubscribe(successResult.data, pageStateId);
         });
       }
@@ -305,7 +304,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       } else {
         // Add modify event
         var allAttributes = event.attributes;
-        console.log('EVENTS > ', event);
         for (var attribute in allAttributes) {
           if (allAttributes.hasOwnProperty(attribute) && isOutput(event.nodeTemplateId, attribute, 'outputAttributes')) {
             if (UTILS.isUndefinedOrNull($scope.outputAttributesValue[event.nodeTemplateId])) {
@@ -326,7 +324,6 @@ angular.module('alienUiApp').controller('ApplicationCtrl', ['$rootScope', '$scop
       $scope.applicationEventServices.subscribeToInstanceStateChange(stateId, onInstanceStateChange);
       if (UTILS.isDefinedAndNotNull(appRuntimeInformation)) {
         for (var nodeId in appRuntimeInformation) {
-          console.log('appRuntimeInfo >', appRuntimeInformation);
           if (appRuntimeInformation.hasOwnProperty(nodeId)) {
             $scope.outputAttributesValue[nodeId] = {};
             var nodeInformation = appRuntimeInformation[nodeId];

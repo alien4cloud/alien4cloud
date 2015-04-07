@@ -24,7 +24,9 @@ angular.module('alienUiApp').controller(
 
       // get the related cloud to display informations.
       var refreshCloudInfo = function() {
-        cloudServices.get({id: $scope.selectedEnvironment.cloudId}, function(response) {
+        cloudServices.get({
+          id: $scope.selectedEnvironment.cloudId
+        }, function(response) {
           $scope.cloud = response.data.cloud;
         });
       };
@@ -39,11 +41,17 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [{'value': 'ALL'},
-        {'value': 'paasdeploymentstatusmonitorevent'},
-        {'value': 'paasinstancestatemonitorevent'},
-        {'value': 'paasinstancestoragemonitorevent'},
-        {'value': 'paasmessagemonitorevent'}];
+      $scope.eventTypeFilters = [{
+        'value': 'ALL'
+      }, {
+        'value': 'paasdeploymentstatusmonitorevent'
+      }, {
+        'value': 'paasinstancestatemonitorevent'
+      }, {
+        'value': 'paasinstancestoragemonitorevent'
+      }, {
+        'value': 'paasmessagemonitorevent'
+      }];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
