@@ -1,100 +1,51 @@
 package alien4cloud.tosca.normative;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.Locale;
+import java.util.Map;
 
-import alien4cloud.utils.VersionUtil;
+import com.google.common.collect.Maps;
 
 /**
  * The primitive type that TOSCA YAML supports.
  * 
  * @author mkv
  */
-public enum ToscaType {
-    STRING, INTEGER, FLOAT, BOOLEAN, TIMESTAMP, VERSION;
+public class ToscaType {
 
-    // private static final Pattern TIMESTAMP_REGEX = Pattern
-    // .compile("[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]|[0-9][0-9][0-9][0-9]-[0-9][0-9]?-[0-9][0-9]?([Tt]|[ \\t]+)[0-9][0-9]?:[0-9][0-9]:[0-9][0-9](\\.[0-9]*)?(([ \\t]*)Z|([ \\t]*)[-+][0-9][0-9]?(:[0-9][0-9])?)?");
+    public static final IPropertyType<?> BOOLEAN_TYPE = new BooleanType();
+    public static final IPropertyType<?> INTEGER_TYPE = new IntegerType();
+    public static final IPropertyType<?> FLOAT_TYPE = new FloatType();
+    public static final IPropertyType<?> STRING_TYPE = new StringType();
+    public static final IPropertyType<?> TIMESTAMP_TYPE = new TimestampType();
+    public static final IPropertyType<?> SIZE_TYPE = new SizeType();
+    public static final IPropertyType<?> TIME_TYPE = new TimeType();
+    public static final IPropertyType<?> VERSION_TYPE = new VersionType();
 
-    public static ToscaType fromYamlTypeName(String typeName) {
+    public static final String BOOLEAN = BooleanType.NAME;
+    public static final String INTEGER = IntegerType.NAME;
+    public static final String FLOAT = FloatType.NAME;
+    public static final String STRING = StringType.NAME;
+    public static final String TIMESTAMP = TimestampType.NAME;
+    public static final String SIZE = SizeType.NAME;
+    public static final String TIME = TimeType.NAME;
+    public static final String VERSION = VersionType.NAME;
+
+    private static final Map<String, IPropertyType<?>> TYPES_MAP = Maps.newHashMap();
+
+    static {
+        TYPES_MAP.put(BOOLEAN, BOOLEAN_TYPE);
+        TYPES_MAP.put(INTEGER, INTEGER_TYPE);
+        TYPES_MAP.put(FLOAT, FLOAT_TYPE);
+        TYPES_MAP.put(STRING, STRING_TYPE);
+        TYPES_MAP.put(TIMESTAMP, TIMESTAMP_TYPE);
+        TYPES_MAP.put(SIZE, SIZE_TYPE);
+        TYPES_MAP.put(TIME, TIME_TYPE);
+        TYPES_MAP.put(VERSION, VERSION_TYPE);
+    }
+
+    public static IPropertyType<?> fromYamlTypeName(String typeName) {
         if (typeName == null) {
             return null;
         }
-        try {
-            return ToscaType.valueOf(typeName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    public boolean isValidValue(String value) {
-        switch (this) {
-        case BOOLEAN:
-            return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
-        case FLOAT:
-            return isFloat(value);
-        case INTEGER:
-            return isInteger(value);
-        case STRING:
-            return true;
-        case TIMESTAMP:
-            try {
-                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US).parse(value);
-                return true;
-            } catch (ParseException e) {
-                return false;
-            }
-        case VERSION:
-            return VersionUtil.isValid(value);
-        default:
-            return false;
-        }
-    }
-
-    private boolean isFloat(String value) {
-        try {
-            Float.valueOf(value);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isInteger(String value) {
-        try {
-            Long.valueOf(value);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public Object convert(String value) {
-        switch (this) {
-        case STRING:
-            return value;
-        case BOOLEAN:
-            return Boolean.valueOf(value);
-        case FLOAT:
-            return Double.valueOf(value);
-        case INTEGER:
-            return Long.valueOf(value);
-        case TIMESTAMP:
-            try {
-                return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.US).parse(value);
-            } catch (ParseException e) {
-                throw new IllegalArgumentException("Value must be a valid timestamp", e);
-            }
-        case VERSION:
-            return VersionUtil.parseVersion(value);
-        default:
-            return null;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return name().toLowerCase();
+        return TYPES_MAP.get(typeName);
     }
 }

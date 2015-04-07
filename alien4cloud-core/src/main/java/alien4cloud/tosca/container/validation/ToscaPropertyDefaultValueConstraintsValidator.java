@@ -4,8 +4,10 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.normative.InvalidPropertyValueException;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 public class ToscaPropertyDefaultValueConstraintsValidator implements ConstraintValidator<ToscaPropertyDefaultValueConstraints, PropertyDefinition> {
@@ -17,7 +19,7 @@ public class ToscaPropertyDefaultValueConstraintsValidator implements Constraint
     @Override
     public boolean isValid(PropertyDefinition value, ConstraintValidatorContext context) {
         // validate that the default value matches the defined constraints.
-        ToscaType toscaType = ToscaType.fromYamlTypeName(value.getType());
+        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(value.getType());
         if (toscaType == null) {
             return false;
         }
@@ -28,7 +30,12 @@ public class ToscaPropertyDefaultValueConstraintsValidator implements Constraint
             return true;
         }
 
-        Object defaultValue = toscaType.convert(defaultAsString);
+        Object defaultValue = null;
+        try {
+            defaultValue = toscaType.parse(defaultAsString);
+        } catch (InvalidPropertyValueException e) {
+            return false;
+        }
         for (PropertyConstraint constraint : value.getConstraints()) {
             try {
                 constraint.validate(defaultValue);

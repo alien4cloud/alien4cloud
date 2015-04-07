@@ -37,7 +37,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.topology.UpdateTopologyException;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
-import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
 
 import com.google.common.collect.Lists;
@@ -220,10 +220,10 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.UNCATEGORIZED_ERROR).message("Uncategorized error " + e.getMessage()).build()).build();
     }
 
-    @ExceptionHandler(value = ApplicationVersionException.class)
+    @ExceptionHandler(value = InvalidVersionException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public RestResponse<Void> applicationVersionErrorHandler(ApplicationVersionException e) {
+    public RestResponse<Void> applicationVersionErrorHandler(InvalidVersionException e) {
         log.error("Application version error", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())

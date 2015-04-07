@@ -28,7 +28,7 @@ import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
@@ -56,7 +56,7 @@ public class ToscaSerializerUtilsTest {
     public void testMapIsNotEmpty() {
         Assert.assertFalse(utils.mapIsNotEmpty(null));
         Assert.assertFalse(utils.mapIsNotEmpty(Maps.newHashMap()));
-        Map<String, Object> map = Maps.newHashMap(); 
+        Map<String, Object> map = Maps.newHashMap();
         map.put("key1", null);
         Assert.assertTrue(utils.mapIsNotEmpty(map));
         map = Maps.newHashMap();
@@ -171,11 +171,11 @@ public class ToscaSerializerUtilsTest {
 
     @Test
     public void testRenderConstraint() {
-        GreaterOrEqualConstraint greaterOrEqualConstraint = new GreaterOrEqualConstraint(); 
+        GreaterOrEqualConstraint greaterOrEqualConstraint = new GreaterOrEqualConstraint();
         Assert.assertEquals("greater_or_equal: null", utils.renderConstraint(greaterOrEqualConstraint));
         greaterOrEqualConstraint.setGreaterOrEqual("1");
         Assert.assertEquals("greater_or_equal: 1", utils.renderConstraint(greaterOrEqualConstraint));
-        
+
         GreaterThanConstraint greaterThanConstraint = new GreaterThanConstraint();
         Assert.assertEquals("greater_than: null", utils.renderConstraint(greaterThanConstraint));
         greaterThanConstraint.setGreaterThan("1");
@@ -247,8 +247,9 @@ public class ToscaSerializerUtilsTest {
             @Override
             public void validate(Object propertyValue) throws ConstraintViolationException {
             }
+
             @Override
-            public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+            public void initialize(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
             }
         };
         Assert.assertEquals("", utils.renderConstraint(abstractPropertyConstraint));

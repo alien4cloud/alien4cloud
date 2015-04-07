@@ -2,7 +2,7 @@ package alien4cloud.utils;
 
 import java.util.regex.Pattern;
 
-import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.Version;
 
 public final class VersionUtil {
@@ -43,11 +43,11 @@ public final class VersionUtil {
      * 
      * @param version version text to parse
      * @return a comparable version object
-     * @throws ApplicationVersionException if the version text is not following the defined version pattern
+     * @throws alien4cloud.utils.version.InvalidVersionException if the version text is not following the defined version pattern
      */
     public static Version parseVersion(String version) {
         if (!isValid(version)) {
-            throw new ApplicationVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
+            throw new InvalidVersionException("This version is not valid [" + version + "] as it does not match [" + VERSION_PATTERN + "]");
         } else {
             return new Version(version);
         }

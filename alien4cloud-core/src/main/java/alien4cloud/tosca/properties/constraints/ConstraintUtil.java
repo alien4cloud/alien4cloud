@@ -5,11 +5,14 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 
-import alien4cloud.tosca.normative.ToscaType;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import alien4cloud.tosca.normative.IComparablePropertyType;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.normative.InvalidPropertyValueException;
+import alien4cloud.tosca.normative.StringType;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 
 /**
  * Utility class to validate constraints types.
@@ -20,37 +23,29 @@ public final class ConstraintUtil {
     }
 
     /**
-     * Validates that the {@link ToscaType} specified is a {@link ToscaType#STRING}.
+     * Validates that the {@link alien4cloud.tosca.normative.IPropertyType} specified is a {@link alien4cloud.tosca.normative.StringType}.
      * 
      * @param propertyType The property tosca type.
-     * @throws ConstraintValueDoNotMatchPropertyTypeException In case the type is not {@link ToscaType#STRING}.
+     * @throws ConstraintValueDoNotMatchPropertyTypeException In case the type is not {@link alien4cloud.tosca.normative.StringType}.
      */
-    public static void checkStringType(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
-        if (!ToscaType.STRING.equals(propertyType)) {
-            throw new ConstraintValueDoNotMatchPropertyTypeException("Invalid property type <" + propertyType.toString() + ">");
+    public static void checkStringType(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+        if (!StringType.NAME.equals(propertyType.getTypeName())) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("Only string property type is accepted but found <" + propertyType.getTypeName() + ">");
         }
     }
 
     /**
      * Verify that the given tosca type is supported for comparison
-     * 
+     *
      * @param propertyType the tosca type to check
      * @throws ConstraintValueDoNotMatchPropertyTypeException if the property type cannot be compared
      */
-    public static void checkComparableType(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+    public static void checkComparableType(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         // The validity of the value is already assured by us with our ToscaType.convert() method
         // here we just want to check that the constraint is not used on unsupported type as boolean
-        switch (propertyType) {
-        case FLOAT:
-        case INTEGER:
-        case TIMESTAMP:
-        case VERSION:
-            break;
-        case STRING:
-        case BOOLEAN:
-            throw new ConstraintValueDoNotMatchPropertyTypeException("Constraint is invalid for property type <" + propertyType.toString() + ">");
-        default:
-            throw new ConstraintValueDoNotMatchPropertyTypeException("Invalid property type <" + propertyType.toString() + ">");
+        if (!(propertyType instanceof IComparablePropertyType)) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("Constraint is invalid for property type <" + propertyType.getTypeName()
+                    + ">, as it's not comparable");
         }
     }
 
@@ -63,12 +58,24 @@ public final class ConstraintUtil {
      * @throws ConstraintValueDoNotMatchPropertyTypeException if the converted value is not a comparable
      */
     @SuppressWarnings("rawtypes")
-    public static Comparable convertToComparable(ToscaType propertyType, String value) throws ConstraintValueDoNotMatchPropertyTypeException {
-        Object comparableObj = propertyType.convert(value);
-        if (!(comparableObj instanceof Comparable)) {
-            throw new IllegalArgumentException("Try to convert a value of a type which is not comparable [" + propertyType + "] to Comparable");
-        } else {
-            return (Comparable) comparableObj;
+    public static Comparable convertToComparable(IPropertyType<?> propertyType, String value) throws ConstraintValueDoNotMatchPropertyTypeException {
+        if (!(propertyType instanceof IComparablePropertyType)) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("Constraint is invalid for property type <" + propertyType.getTypeName()
+                    + ">, as it's not comparable");
+        }
+        IComparablePropertyType<?> comparablePropertyType = (IComparablePropertyType) propertyType;
+        try {
+            return comparablePropertyType.parse(value);
+        } catch (InvalidPropertyValueException e) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("Unable to parse value <" + value + "> of type <" + propertyType.getTypeName() + ">", e);
+        }
+    }
+
+    public static Object convert(IPropertyType<?> propertyType, String value) throws ConstraintValueDoNotMatchPropertyTypeException {
+        try {
+            return propertyType.parse(value);
+        } catch (InvalidPropertyValueException e) {
+            throw new ConstraintValueDoNotMatchPropertyTypeException("Unable to parse value <" + value + "> of type <" + propertyType.getTypeName() + ">", e);
         }
     }
 

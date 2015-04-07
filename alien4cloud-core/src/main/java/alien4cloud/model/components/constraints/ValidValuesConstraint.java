@@ -8,7 +8,8 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.ui.form.annotation.FormProperties;
@@ -27,19 +28,14 @@ public class ValidValuesConstraint extends AbstractPropertyConstraint {
     private Set<Object> validValuesTyped;
 
     @Override
-    public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+    public void initialize(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         validValuesTyped = Sets.newHashSet();
         if (validValues == null) {
             throw new ConstraintValueDoNotMatchPropertyTypeException("validValues constraint has invalid value <> property type is <" + propertyType.toString()
                     + ">");
         }
         for (String value : validValues) {
-            if (!propertyType.isValidValue(value)) {
-                throw new ConstraintValueDoNotMatchPropertyTypeException("validValues constraint has invalid value <" + value + "> property type is <"
-                        + propertyType.toString() + ">");
-            } else {
-                validValuesTyped.add(propertyType.convert(value));
-            }
+            validValuesTyped.add(ConstraintUtil.convert(propertyType, value));
         }
     }
 

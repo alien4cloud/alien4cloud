@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
@@ -18,7 +18,7 @@ public class GreaterOrEqualConstraint extends AbstractComparablePropertyConstrai
     private String greaterOrEqual;
 
     @Override
-    public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+    public void initialize(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         initialize(greaterOrEqual, propertyType);
     }
 
