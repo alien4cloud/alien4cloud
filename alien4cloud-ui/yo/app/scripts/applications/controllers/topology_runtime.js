@@ -364,6 +364,7 @@ angular.module('alienUiApp').controller(
       $scope.selectInstance = function(id) {
         $scope.selectedInstance = $scope.topology.instances[$scope.selectedNodeTemplate.name][id];
         $scope.selectedInstance.id = id;
+        console.log('SELECT INSTANCE to >', id);
       };
 
       $scope.clearInstanceSelection = function() {
@@ -371,6 +372,7 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.scale = function(newValue) {
+        console.log('SCALA to >', newValue);
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
             applicationId: applicationId,
