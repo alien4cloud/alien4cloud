@@ -24,9 +24,7 @@ angular.module('alienUiApp').controller(
 
       // get the related cloud to display informations.
       var refreshCloudInfo = function() {
-        cloudServices.get({
-          id: $scope.selectedEnvironment.cloudId
-        }, function(response) {
+        cloudServices.get({id: $scope.selectedEnvironment.cloudId}, function(response) {
           $scope.cloud = response.data.cloud;
         });
       };
@@ -41,17 +39,11 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [{
-        'value': 'ALL'
-      }, {
-        'value': 'paasdeploymentstatusmonitorevent'
-      }, {
-        'value': 'paasinstancestatemonitorevent'
-      }, {
-        'value': 'paasinstancestoragemonitorevent'
-      }, {
-        'value': 'paasmessagemonitorevent'
-      }];
+      $scope.eventTypeFilters = [{'value': 'ALL'},
+        {'value': 'paasdeploymentstatusmonitorevent'},
+        {'value': 'paasinstancestatemonitorevent'},
+        {'value': 'paasinstancestoragemonitorevent'},
+        {'value': 'paasmessagemonitorevent'}];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
@@ -197,7 +189,6 @@ angular.module('alienUiApp').controller(
           if (!angular.equals($scope.topology.instances, successResult.data)) {
             getPAASEvents();
             $scope.topology.instances = successResult.data;
-            console.log('INSTANCES >', successResult.data);
             refreshSelectedNodeInstancesCount();
           }
         });
@@ -213,7 +204,6 @@ angular.module('alienUiApp').controller(
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
-          console.log('LOAD TOPOLOGY RUNTIME >', successResult.data);
           refreshInstancesStatuses(); // update instance states
           refreshCloudInfo(); // cloud info for deployment view
         });
@@ -224,38 +214,28 @@ angular.module('alienUiApp').controller(
         event.rawType = type;
         enrichPAASEvent(event);
         $scope.events.data.push(event);
-        console.log('EVENT >', event, (event.instanceState === 'PROCESSING' && (event.state !== 'stopped' || event.state !== 'deleted')));
-        if (UTILS.isUndefinedOrNull(event.instanceState) || (event.instanceState === 'PROCESSING' && (event.state !== 'stopped' || event.state !== 'deleted'))) {
+        if (UTILS.isUndefinedOrNull(event.instanceState)) {
           // Delete event
-          console.log('DELETE EVENT>');
           if ($scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
             if ($scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-              console.log('Instances COUNT BEFORE remove >', Object.keys($scope.topology.instances[event.nodeTemplateId]).length, $scope.topology.instances);
               delete $scope.topology.instances[event.nodeTemplateId][event.instanceId];
-              console.log('Instances COUNT AFTER remove >', Object.keys($scope.topology.instances[event.nodeTemplateId]).length, $scope.topology.instances);
               if (Object.keys($scope.topology.instances[event.nodeTemplateId]).length === 0) {
                 delete $scope.topology.instances[event.nodeTemplateId];
               }
             }
           }
         } else {
-          console.log(' AAAA >', $scope.topology.instances[event.nodeTemplateId][event.instanceId]);
-          var instance = $scope.topology.instances[event.nodeTemplateId][event.instanceId];
-          if (instance !== null && instance.state !== 'stopped' && instance.state !== 'deleted') {
-            // Add or modify event
-            if (!$scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
-              $scope.topology.instances[event.nodeTemplateId] = {};
-            }
-            if (!$scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-              $scope.topology.instances[event.nodeTemplateId][event.instanceId] = {};
-            }
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].state = event.instanceState;
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
-          } else {
-            console.log('ELSE >', instance);
+          // Add or modify event
+          if (!$scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
+            $scope.topology.instances[event.nodeTemplateId] = {};
           }
+          if (!$scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
+            $scope.topology.instances[event.nodeTemplateId][event.instanceId] = {};
+          }
+          $scope.topology.instances[event.nodeTemplateId][event.instanceId].state = event.instanceState;
+          $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
+          $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
+          $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
         }
         refreshSelectedNodeInstancesCount();
         $scope.$apply();
