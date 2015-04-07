@@ -208,7 +208,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     @Override
-    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
+    public void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
             throws OperationExecutionException {
         try {
             String deploymentId = deploymentContext.getDeploymentId();

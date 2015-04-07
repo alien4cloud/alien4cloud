@@ -132,14 +132,13 @@ public class ApplicationDeploymentController {
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
-        DeploymentSetup deploymentSetup = deploymentSetupService.getOrFail(version, environment);
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(deployApplicationRequest.getApplicationId(), deployApplicationRequest.getApplicationEnvironmentId());
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
         }
         try {
-            deploymentService.deployTopology(topology, application, deploymentSetup, environment.getCloudId());
+            deploymentService.deployTopology(topology, application, deploymentSetupMatchInfo.getDeploymentSetup(), environment.getCloudId());
         } catch (CloudDisabledException e) {
             return RestResponseBuilder
                     .<Void> builder()
@@ -211,7 +210,7 @@ public class ApplicationDeploymentController {
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public DeferredResult<RestResponse<DeploymentStatus>> getDeploymentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
-        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
+        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>(5L * 60L * 1000L);
         Futures.addCallback(getApplicationDeploymentStatus(application, applicationEnvironmentId), new FutureCallback<DeploymentStatus>() {
             @Override
             public void onSuccess(DeploymentStatus result) {
@@ -304,7 +303,7 @@ public class ApplicationDeploymentController {
         }
 
         Deployment deployment = applicationEnvironmentService.getActiveDeployment(environment.getId());
-        final DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> instancesDeferredResult = new DeferredResult<>();
+        final DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> instancesDeferredResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment == null) { // if there is no topology associated with the version it could not have been deployed.
             instancesDeferredResult.setResult(RestResponseBuilder.<Map<String, Map<String, InstanceInformation>>> builder().build());
         } else {

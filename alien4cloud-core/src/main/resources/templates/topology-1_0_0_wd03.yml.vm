@@ -78,7 +78,7 @@ topology_template:
 #foreach($relationship in ${nodeTemplateEntry.value.relationships.values()})
         - ${relationship.requirementName}:
             node: ${relationship.target}
-            capability: ${relationship.requirementType}
+            capability: $topology.nodeTemplates[$relationship.target].capabilities[$relationship.targetedCapabilityName].type
             relationship: ${relationship.type}
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($relationship.properties))
             properties:

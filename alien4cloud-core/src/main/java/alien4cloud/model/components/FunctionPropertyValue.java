@@ -2,7 +2,9 @@ package alien4cloud.model.components;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.ui.form.annotation.FormProperties;
 
@@ -13,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @FormProperties({ "function", "parameters" })
 public class FunctionPropertyValue extends AbstractPropertyValue {
     private String function;

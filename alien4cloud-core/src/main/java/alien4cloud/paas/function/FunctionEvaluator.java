@@ -199,8 +199,8 @@ public final class FunctionEvaluator {
      *            {@link PaaSNodeTemplate}s should have been built, thus referencing their related parents and relationships.
      * @return the String result of the function evalutation
      */
-    public static String evaluateGetPropertyFuntion(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
-            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+    public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+                                                     Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         String propertyId = functionParam.getPropertyOrAttributeName();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {

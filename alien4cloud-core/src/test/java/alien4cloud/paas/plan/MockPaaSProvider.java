@@ -56,7 +56,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request,
+    public void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
             IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException {
 
     }
