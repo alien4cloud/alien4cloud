@@ -181,6 +181,22 @@ angular.module('alienUiApp').controller(
         }
       }
 
+      var refreshNodeInstanceInMaintenanceMode = function() {
+        var hasNOdeInstanceInMaintenanceMode = false;
+        if (UTILS.isDefinedAndNotNull($scope.topology.instances)) {
+          angular.forEach($scope.topology.instances, function (v, k) {
+            if (UTILS.isDefinedAndNotNull(v)) {
+              angular.forEach(v, function (vv, kk) {
+                if (UTILS.isDefinedAndNotNull(vv) && vv.instanceStatus === 'MAINTENANCE') {
+                  hasNOdeInstanceInMaintenanceMode = true;
+                }
+              });
+            }
+          });
+        }
+        $scope.hasNOdeInstanceInMaintenanceMode = hasNOdeInstanceInMaintenanceMode;
+      }
+      
       function refreshInstancesStatuses() {
         applicationServices.runtime.get({
           applicationId: applicationId,
@@ -190,6 +206,7 @@ angular.module('alienUiApp').controller(
             getPAASEvents();
             $scope.topology.instances = successResult.data;
             refreshSelectedNodeInstancesCount();
+            refreshNodeInstanceInMaintenanceMode();
           }
         });
       }
@@ -238,6 +255,7 @@ angular.module('alienUiApp').controller(
           $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
         }
         refreshSelectedNodeInstancesCount();
+        refreshNodeInstanceInMaintenanceMode();
         $scope.$apply();
       };
 
@@ -458,6 +476,39 @@ angular.module('alienUiApp').controller(
         return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
       };
 
+      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
+        deploymentServices.nodeInstanceMaintenanceOn({
+          applicationId: applicationId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id,
+          nodeTemplateId: $scope.selectedNodeTemplate.name,
+          instanceId: nodeInstanceId
+        }, {}, function(response) {
+        });
+      };
+      $scope.switchNodeInstanceMaintenanceModeOff = function(nodeInstanceId) {
+        deploymentServices.nodeInstanceMaintenanceOff({
+          applicationId: applicationId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id,
+          nodeTemplateId: $scope.selectedNodeTemplate.name,
+          instanceId: nodeInstanceId
+        }, {}, function(response) {
+        });
+      };   
+      $scope.switchDeployementMaintenanceModeOn = function() {
+        deploymentServices.deploymentMaintenance.on({
+          applicationId: applicationId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
+        }, {}, function(response) {
+        });
+      };
+      $scope.switchDeployementMaintenanceModeOff = function() {
+        deploymentServices.deploymentMaintenance.off({
+          applicationId: applicationId,
+          applicationEnvironmentId: $scope.selectedEnvironment.id
+        }, {}, function(response) {
+        });
+      };       
+      
       // first topology load
       $scope.loadTopologyRuntime();
     }

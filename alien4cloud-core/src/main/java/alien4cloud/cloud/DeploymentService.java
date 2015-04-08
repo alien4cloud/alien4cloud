@@ -257,6 +257,21 @@ public class DeploymentService {
         paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
     }
 
+    public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
+            throws CloudDisabledException {
+        Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
+        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn);
+    }
+
+    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException {
+        Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
+        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.switchMaintenanceMode(deploymentContext, maintenanceModeOn);
+    }
+
     /**
      * Get the current deployment status for a topology.
      *

@@ -280,6 +280,7 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
+      "MAINTENANCE_BUTTON": { "ON": "Activate maintenance mode", "OFF": "Deactivate maintenance mode"},
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Application name",
@@ -767,7 +768,8 @@
     "uninstalled": "Uninstalled",
     "initial": "Initial",
     "available": "Available",
-    "uninitialized": "Uninitialized"
+    "uninitialized": "Uninitialized",
+    "maintenance": "Maintenance"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",
