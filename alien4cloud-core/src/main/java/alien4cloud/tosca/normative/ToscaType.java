@@ -1,6 +1,9 @@
 package alien4cloud.tosca.normative;
 
+import java.util.Date;
 import java.util.Map;
+
+import alien4cloud.utils.version.Version;
 
 import com.google.common.collect.Maps;
 
@@ -11,14 +14,14 @@ import com.google.common.collect.Maps;
  */
 public class ToscaType {
 
-    public static final IPropertyType<?> BOOLEAN_TYPE = new BooleanType();
-    public static final IPropertyType<?> INTEGER_TYPE = new IntegerType();
-    public static final IPropertyType<?> FLOAT_TYPE = new FloatType();
-    public static final IPropertyType<?> STRING_TYPE = new StringType();
-    public static final IPropertyType<?> TIMESTAMP_TYPE = new TimestampType();
-    public static final IPropertyType<?> SIZE_TYPE = new SizeType();
-    public static final IPropertyType<?> TIME_TYPE = new TimeType();
-    public static final IPropertyType<?> VERSION_TYPE = new VersionType();
+    public static final IPropertyType<Boolean> BOOLEAN_TYPE = new BooleanType();
+    public static final IPropertyType<Long> INTEGER_TYPE = new IntegerType();
+    public static final IPropertyType<Double> FLOAT_TYPE = new FloatType();
+    public static final IPropertyType<String> STRING_TYPE = new StringType();
+    public static final IPropertyType<Date> TIMESTAMP_TYPE = new TimestampType();
+    public static final IPropertyType<Size> SIZE_TYPE = new SizeType();
+    public static final IPropertyType<Time> TIME_TYPE = new TimeType();
+    public static final IPropertyType<Version> VERSION_TYPE = new VersionType();
 
     public static final String BOOLEAN = BooleanType.NAME;
     public static final String INTEGER = IntegerType.NAME;

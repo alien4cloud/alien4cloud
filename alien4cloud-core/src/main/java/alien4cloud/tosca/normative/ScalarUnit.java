@@ -3,6 +3,7 @@ package alien4cloud.tosca.normative;
 import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
 @AllArgsConstructor
 public abstract class ScalarUnit<T extends Unit> implements Comparable<ScalarUnit<T>> {
 

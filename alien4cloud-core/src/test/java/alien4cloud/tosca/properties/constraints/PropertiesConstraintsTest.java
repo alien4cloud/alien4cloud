@@ -3,6 +3,7 @@ package alien4cloud.tosca.properties.constraints;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import alien4cloud.model.components.constraints.EqualConstraint;
@@ -257,7 +258,7 @@ public class PropertiesConstraintsTest {
     }
 
     @Test
-    public void testValidValuesConstraintStatisfied() throws Exception {
+    public void testValidValuesConstraintSatisfied() throws Exception {
         ValidValuesConstraint constraint = new ValidValuesConstraint();
         constraint.setValidValues(Lists.newArrayList("1", "2", "3", "4"));
         constraint.initialize(ToscaType.INTEGER_TYPE);
@@ -273,5 +274,37 @@ public class PropertiesConstraintsTest {
         constraint.setValidValues(Lists.newArrayList("1", "2", "3", "4"));
         constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(5l);
+    }
+
+    @Test
+    public void testTimeSizeInRangeConstraint() throws Exception {
+        InRangeConstraint inRangeConstraint = new InRangeConstraint();
+        inRangeConstraint.setInRange(Lists.newArrayList("1 MB", "2 GB"));
+        inRangeConstraint.initialize(ToscaType.SIZE_TYPE);
+        inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("1 GB"));
+        try {
+            inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("1 TB"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        try {
+            inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("100 B"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        inRangeConstraint = new InRangeConstraint();
+        inRangeConstraint.setInRange(Lists.newArrayList("1 m", "2 d"));
+        inRangeConstraint.initialize(ToscaType.TIME_TYPE);
+        inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("1 h"));
+        try {
+            inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("5 d"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        try {
+            inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("1 s"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
     }
 }
