@@ -86,4 +86,14 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     public void updateMatcherConfig(CloudResourceMatcherConfig config) {
 
     }
+
+    @Override
+    public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
+
+    }
+
+    @Override
+    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn) {
+
+    }
 }

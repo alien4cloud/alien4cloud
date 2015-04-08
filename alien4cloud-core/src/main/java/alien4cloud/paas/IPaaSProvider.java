@@ -105,4 +105,15 @@ public interface IPaaSProvider {
      * @param config the config to take into account
      */
     void updateMatcherConfig(CloudResourceMatcherConfig config);
+
+    /**
+     * Switch the maintenance mode for this deployed topology.
+     */
+    void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn);
+
+    /**
+     * Switch the maintenance mode for a given node instance of this deployed topology.
+     */
+    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn);
+
 }
