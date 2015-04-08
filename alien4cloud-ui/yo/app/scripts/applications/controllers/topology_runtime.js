@@ -344,7 +344,6 @@ angular.module('alienUiApp').controller(
       $scope.selectInstance = function(id) {
         $scope.selectedInstance = $scope.topology.instances[$scope.selectedNodeTemplate.name][id];
         $scope.selectedInstance.id = id;
-        console.log('SELECT INSTANCE to >', id);
       };
 
       $scope.clearInstanceSelection = function() {
@@ -352,14 +351,17 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.scale = function(newValue) {
-        console.log('SCALA to >', newValue);
+        console.log('SCALA to >', newValue, $scope.topology);
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
             applicationId: applicationId,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
             applicationEnvironmentId: $scope.selectedEnvironment.id
-          }, undefined);
+          }, undefined, function success (scaleResult) {
+            console.log('SCALE SUCCESS >', scaleResult);
+            $scope.loadTopologyRuntime();
+          });
         }
       };
 

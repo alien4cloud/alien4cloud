@@ -236,8 +236,8 @@ public class DeploymentService {
     }
 
     /**
-     * Scale up/down a node in a topology.
-     *
+     * Scale up/down a node in a topology
+     * 
      * @param applicationEnvironmentId id of the targeted environment
      * @param nodeTemplateId id of the compute node to scale up
      * @param instances the number of instances to be added (if positive) or removed (if negative)
@@ -247,9 +247,10 @@ public class DeploymentService {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
         // change the initial instance to the current instances for the runtime topology.
-        topology.getScalingPolicies().get(nodeTemplateId)
-                .setInitialInstances(topology.getScalingPolicies().get(nodeTemplateId).getInitialInstances() + instances);
+        int initialInstances = topology.getScalingPolicies().get(nodeTemplateId).getInitialInstances();
+        topology.getScalingPolicies().get(nodeTemplateId).setInitialInstances(initialInstances + instances);
         alienMonitorDao.save(topology);
+        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances, instances);
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);

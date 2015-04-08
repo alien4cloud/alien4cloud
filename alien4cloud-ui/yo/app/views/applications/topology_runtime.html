@@ -152,11 +152,9 @@
                       <td class="col-md-2">{{id}}</td>
                       <td class="col-md-8">{{'STATES.'+info.state | translate}}</td>
                       <td class="col-md-2">
-                        <div ng-switch="info.instanceStatus">
-                          <i class="fa fa-check text-success" ng-switch-when="SUCCESS"></i>
-                          <i class="fa fa-spinner fa-spin" ng-switch-when="PROCESSING"></i>
-                          <i class="fa fa-times text-danger" ng-switch-when="FAILURE"></i>
-                        </div>
+                        <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
+                        'fa-times text-danger': info.instanceStatus === 'FAILURE',
+                        'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING'}"></i>
                       </td>
                     </tr>
                   </tbody>

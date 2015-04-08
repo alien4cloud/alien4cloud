@@ -47,6 +47,7 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -145,7 +146,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
-        return new InstanceInformation("init", InstanceStatus.PROCESSING, attributes, runtimeProperties);
+        return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties);
     }
 
     private ScalingPolicy getScalingPolicy(String id, Map<String, ScalingPolicy> policies, Map<String, NodeTemplate> nodeTemplates) {
@@ -361,7 +362,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     private String getNextState(String currentState) {
         switch (currentState) {
-        case "init":
+        case ToscaNodeLifecycleConstants.INITIAL:
             return "creating";
         case "creating":
             return "created";
