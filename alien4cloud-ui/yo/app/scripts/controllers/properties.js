@@ -19,7 +19,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         data += " " + unit;
       }
       // check constraint here
-      var saveDefer = $q.defer();
       var propertyRequest = {
         propertyDefinition: $scope.definition,
         propertyValue: data
@@ -27,36 +26,37 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       var saveResult = $scope.onSave(propertyRequest);
       // If the callback return a promise
       if (UTILS.isDefinedAndNotNull(saveResult) && UTILS.isDefinedAndNotNull(saveResult.then)) {
-        saveResult.then(function(saveResult) {
+        var deferred = $q.defer();
+        return saveResult.then(function(saveResult) {
           if (saveResult.error !== null) {
             // Constraint error display + translation
             var constraintInfo = saveResult.data;
             // Error message handled by x-editable
             if (saveResult.error.code === 800) {
-              saveDefer.resolve($translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo));
+              return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
             } else {
-              saveDefer.resolve($translate('ERRORS.' + saveResult.error.code, constraintInfo));
+              return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
             }
-          } else {
-            saveDefer.resolve(null); // no errors, check then on the promise
           }
         });
-      } else {
-        saveDefer.resolve(null);
       }
-      var errorPromise = saveDefer.promise;
-      return errorPromise;
     };
 
     $scope.saveUnit = function(unit) {
-      $scope.propertySave($scope.definitionObject.uiValue, unit).then(function(error) {
-        if (UTILS.isDefinedAndNotNull(error)) {
-          $scope.unitError = error;
-        } else {
-          delete $scope.unitError;
-          $scope.definitionObject.uiUnit = unit;
-        }
-      });
+      $scope.definitionObject.uiUnit = unit;
+      var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
+      if (UTILS.isDefinedAndNotNull(savePromise)) {
+        savePromise.then(function(error) {
+          if (UTILS.isDefinedAndNotNull(error)) {
+            $scope.unitError = error;
+          } else {
+            delete $scope.unitError;
+          }
+        });
+      } else {
+        delete $scope.unitError;
+        $scope.definitionObject.uiUnit = unit;
+      }
     };
 
     // specific wrapper for boolean type to handle "css checkbox"

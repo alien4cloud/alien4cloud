@@ -43,7 +43,7 @@
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
 
-      <span ng-switch-default id="p_{{definition.name}}">
+      <span ng-switch-default id="p_{{definition.name}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
         <!-- Default case : string -->
         <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue}}
@@ -51,7 +51,7 @@
         </span>
         <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
-          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="clickable-media">
+          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
             {{definitionObject.uiValue}}
           </span>
           <span ng-if="definitionObject.units && definitionObject.uiValue" ng-hide="scalarForm.$visible" class="btn-group btn-group-xs">
@@ -65,7 +65,9 @@
               </li>
             </ul>
           </span>
-          <i class="fa fa-pencil-square-o clickable-media" ng-click="scalarForm.$show()" ng-hide="scalarForm.$visible"></i>
+          <span class="editable editable-click">
+            <i class="fa fa-pencil-square-o" ng-click="scalarForm.$show()" ng-hide="scalarForm.$visible"></i>
+          </span>
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
         <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
