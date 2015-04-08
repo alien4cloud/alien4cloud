@@ -15,12 +15,12 @@ import lombok.Setter;
 public class InstanceInformation {
 
     /**
-     * The textual representation of the state of the instance
+     * The textual representation of the state of the instance.
      */
     private String state;
 
     /**
-     * The effective representation of the state of the instance (SUCCESS, PROCESSING, FAILURE)
+     * The effective representation of the state of the instance (SUCCESS, PROCESSING, FAILURE).
      */
     private InstanceStatus instanceStatus;
 
