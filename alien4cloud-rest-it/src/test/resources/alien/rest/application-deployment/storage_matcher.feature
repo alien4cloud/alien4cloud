@@ -29,7 +29,7 @@ Feature: Match topology's storage to cloud's storage.
     Then I should receive a match result with 2 storages for the node "ConfigurableBlockStorage":
       | STORAGE1 | /etc/dev1 | 1024 |
       | STORAGE2 | /etc/dev2 | 2048 |
-    When I update the node template "ConfigurableBlockStorage"'s property "size" to "2048"
+    When I update the node template "ConfigurableBlockStorage"'s property "size" to "2048 B"
     When I match for resources for my application on the cloud
     Then I should receive a match result with 1 storages for the node "ConfigurableBlockStorage":
       | STORAGE2 | /etc/dev2 | 2048 |
