@@ -1,5 +1,7 @@
 package alien4cloud.tosca.normative;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +20,8 @@ public abstract class ScalarUnit<T extends Unit> implements Comparable<ScalarUni
 
     @Override
     public int compareTo(ScalarUnit<T> o) {
-        Double thisValue = ((double) value * unit.getMultiplier());
-        Double otherValue = ((double) value * unit.getMultiplier());
+        BigDecimal thisValue = new BigDecimal(value).multiply(new BigDecimal(unit.getMultiplier()));
+        BigDecimal otherValue = new BigDecimal(o.value).multiply(new BigDecimal(o.unit.getMultiplier()));
         return thisValue.compareTo(otherValue);
     }
 }

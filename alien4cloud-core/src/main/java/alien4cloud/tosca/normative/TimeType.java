@@ -10,7 +10,7 @@ public class TimeType extends ScalarType<Time, TimeUnit> {
     @Override
     protected Time doParse(Long value, String unitText) throws InvalidPropertyValueException {
         try {
-            return new Time(value, TimeUnit.valueOf(unitText));
+            return new Time(value, TimeUnit.valueOf(unitText.toUpperCase()));
         } catch (IllegalArgumentException e) {
             throw new InvalidPropertyValueException("Could not parse time scalar unit from value " + unitText, e);
         }

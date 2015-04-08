@@ -10,7 +10,7 @@ public class SizeType extends ScalarType<Size, SizeUnit> {
     @Override
     protected Size doParse(Long value, String unitText) throws InvalidPropertyValueException {
         try {
-            return new Size(value, SizeUnit.valueOf(unitText));
+            return new Size(value, SizeUnit.valueOf(unitText.toUpperCase()));
         } catch (IllegalArgumentException e) {
             throw new InvalidPropertyValueException("Could not parse size scalar unit from value " + unitText, e);
         }

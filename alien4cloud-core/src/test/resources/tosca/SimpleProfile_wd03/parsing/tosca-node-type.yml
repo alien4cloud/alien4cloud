@@ -8,7 +8,7 @@ template_version:          # Optional version of this service template
 description: This is an example of a single line description (no folding).
 
 imports:
-  - tosca-normative-types:1.0.0-SNAPSHOT-wd03
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
 
 dsl_definitions:
   # list of YAML alias anchors (or macros)
@@ -34,17 +34,19 @@ node_types:
         constraints:
           - min_length: 6
           - max_length: 10
+      my_app_duration:
+        type: scalar-unit.time
+        default: 1 d
+        constraints:
+          - greater_than: 1 h
+      my_app_size:
+        type: scalar-unit.size
+        default: 1 GB
+        constraints:
+          - less_than: 1 TB
       my_app_port:
         type: integer
         description: application port number
-    capabilities:
-      some_capability: mytypes.mycapabilities.MyCapabilityTypeName
-      some_other_capability:
-        type: tosca.capabilities.Endpoint
-        description: this is a capability
-        properties:
-          port: 8080
-          range_sample: [8080, 9000]
     requirements:
       - host: tosca.nodes.Compute
         relationship_type: tosca.relationships.HostedOn

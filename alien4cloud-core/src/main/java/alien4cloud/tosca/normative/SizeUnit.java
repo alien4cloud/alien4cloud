@@ -8,14 +8,14 @@ import lombok.Getter;
 public enum SizeUnit implements Unit {
 
     B(1L),
-    kB(1000L),
-    KiB(1024),
+    KB(1000L),
+    KIB(1024),
     MB(1000L * 1000L),
-    MiB(1024L * 1024L),
+    MIB(1024L * 1024L),
     GB(1000L * 1000L * 1000L),
-    GiB(1024L * 1024L * 1024L),
+    GIB(1024L * 1024L * 1024L),
     TB(1000L * 1000L * 1000L * 1000L),
-    TiB(1024L * 1024L * 1024L * 1024L);
+    TIB(1024L * 1024L * 1024L * 1024L);
 
     /**
      * Multiplier if convert to base unit which is byte (B)

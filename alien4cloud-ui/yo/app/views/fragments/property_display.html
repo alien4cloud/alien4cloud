@@ -45,8 +45,28 @@
 
       <span ng-switch-default id="p_{{definition.name}}">
         <!-- Default case : string -->
-        <span ng-if="!definitionObject.uiPassword && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
-          {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
+        <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
+          {{definitionObject.uiValue}}
+          <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
+          <!-- Property with unit -->
+          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="clickable-media">
+            {{definitionObject.uiValue}}
+          </span>
+          <span ng-if="definitionObject.units && definitionObject.uiValue" ng-hide="scalarForm.$visible" class="btn-group btn-group-xs">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+              {{definitionObject.uiUnit}}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              <li ng-repeat="unit in definitionObject.units" ng-class="{'option-selected selected': definitionObject.uiUnit === unit}">
+                <a ng-click="saveUnit(unit)">{{unit}}</a>
+              </li>
+            </ul>
+          </span>
+          <i class="fa fa-pencil-square-o clickable-media" ng-click="scalarForm.$show()" ng-hide="scalarForm.$visible"></i>
+          <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
         <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
 
@@ -55,6 +75,8 @@
           {{ definitionObject.uiValue | password:'*' }} <i class="fa fa-pencil-square-o"></i>
         </span>
         <em ng-if="definitionObject.uiPassword && !editable">{{ definitionObject.uiValue | password:'*' }}</em>
+
+        <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       </span>
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
     </div>
