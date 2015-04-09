@@ -35,6 +35,16 @@ var topologyTemplates = {
 };
 module.exports.topologyTemplates = topologyTemplates;
 
+var nodeDetailsBlockList = [
+  'node-details-properties',
+  'node-details-attributes',
+  'node-details-requirements',
+  'node-details-capabilities',
+  'node-details-relationships',
+  'node-details-artifacts',
+  'node-details-scaling'
+];
+
 var nodeDetailsBlocsIds = {
   pro: 'node-details-properties',
   att: 'node-details-attributes',
@@ -135,11 +145,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-      '\
+    '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -363,7 +373,7 @@ var removeScalingPolicy = function(computeId) {
 
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
-var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId){
+var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
   if (blocId) {
@@ -392,7 +402,6 @@ module.exports.editNodeProperty = editNodeProperty;
 
 // check if a text is present in the error message while editing a property
 var checkPropertyEditionError = function(nodeTemplateName, propertyName, containedInErrorText) {
-  browser.waitForAngular();
   var propertyElement = element(by.id('p_' + propertyName));
   var formElement = propertyElement.element(by.tagName('form'));
 
@@ -401,6 +410,8 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
   expect(divError.isDisplayed()).toBe(true);
   expect(divError.getText()).not.toEqual('');
   expect(divError.getText()).toContain(containedInErrorText);
+  var input = propertyElement.element(by.tagName('input'));
+  input.sendKeys(protractor.Key.ESCAPE);
   common.dismissAlertIfPresent();
 };
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
@@ -544,7 +555,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
         // test if the bloc is opened and then close it
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
           browser.waitForAngular();
-          myBlock.click();
+          myBlockIcon.click();
           browser.waitForAngular();
         }
       });
@@ -555,8 +566,8 @@ var nodeDetailsCollapse = function(blocId, opened) {
 /** Open only one bloc in the node template details */
 var collapseNodeDetailsBloc = function(blocId) {
   // Close all details
-  for (var bloc in nodeDetailsBlocsIds) {
-    nodeDetailsCollapse(nodeDetailsBlocsIds[bloc], false);
+  for(var i = 0; i < nodeDetailsBlockList.length; i++) {
+    nodeDetailsCollapse(nodeDetailsBlockList[i], false);
   }
   // Open the required bloc
   nodeDetailsCollapse(blocId, true);

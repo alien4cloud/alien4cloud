@@ -74,7 +74,6 @@ describe('Topology node template edition :', function() {
     editInput.clear();
     editInput.sendKeys('Compute_new_NAME');
     editForm.submit();
-    browser.waitForAngular();
     expect(nameSpan.getText()).toContain('Compute_new_NAME');
 
     // fail update
@@ -84,45 +83,33 @@ describe('Topology node template edition :', function() {
     editInput.clear();
     editInput.sendKeys('JavaRPM');
     editForm.submit();
-    browser.waitForAngular();
+    common.expectErrors();
+    common.dismissAlert();
     expect(nameSpan.getText()).toContain('Compute_new');
   });
 
-  // TODO : randomly fails
-  xit('should be able to edit a compute node template properties disk_size with constraint', function() {
+  it('should be able to edit a compute node template properties disk_size with constraint', function() {
     console.log('################# should be able to edit a compute node template properties disk_size with constraint');
     // Edit property disk_size with bad value
     var propertyName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + propertyName));
     topologyEditorCommon.editNodeProperty('Compute', propertyName, 'E');
-    browser.waitForAngular();
-
     // getting error div under the input
     topologyEditorCommon.checkPropertyEditionError('Compute', propertyName, '>');
-
     // Editing with a correct value
     topologyEditorCommon.editNodeProperty('Compute', propertyName, '50');
-    browser.waitForAngular();
-
     // edition OK, no more <form>
     expect(diskSizeElement.isElementPresent(by.tagName('form'))).toBe(false);
   });
 
-  // TODO : randomly fails
-  xit('should be able to edit a JAVA node template properties version with constraint', function() {
+  it('should be able to edit a JAVA node template properties version with constraint', function() {
     console.log('################# should be able to edit a JAVA node template properties version with constraint');
-
     var propertyName = 'version';
     var versionElement = element(by.id('p_' + propertyName));
     topologyEditorCommon.editNodeProperty('JavaRPM', propertyName, '1.2');
-    browser.waitForAngular();
-
     topologyEditorCommon.checkPropertyEditionError('JavaRPM', propertyName, '>=');
-
     // Editing with a correct value
     topologyEditorCommon.editNodeProperty('JavaRPM', propertyName, '1.6');
-    browser.waitForAngular();
-
     expect(versionElement.isElementPresent(by.tagName('form'))).toBe(false);
   });
 

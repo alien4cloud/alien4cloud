@@ -2,19 +2,15 @@
 
 'use strict';
 
-angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$q',
-  function($scope, propertiesServices, $translate, $q) {
+angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate',
+  function($scope, propertiesServices, $translate) {
 
     $scope.propertySave = function(data, unit) {
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
       } else if (UTILS.isDefinedAndNotNull($scope.definitionObject.units)) {
         if (UTILS.isUndefinedOrNull(unit)) {
-          if (UTILS.isUndefinedOrNull($scope.definitionObject.uiUnit)) {
-            unit = $scope.definitionObject.units[0];
-          } else {
-            unit = $scope.definitionObject.uiUnit;
-          }
+          unit = $scope.definitionObject.uiUnit;
         }
         data += " " + unit;
       }
@@ -55,7 +51,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           });
         } else {
           delete $scope.unitError;
-          $scope.definitionObject.uiUnit = unit;
         }
       }
     };
@@ -173,8 +168,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       if (!UTILS.isObjectEmpty($scope.definitionObject)) {
         return $scope.definitionObject;
       }
-
-      return null;
     };
 
     // Init managed property

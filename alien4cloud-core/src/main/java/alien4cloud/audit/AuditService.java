@@ -97,15 +97,12 @@ public class AuditService {
 
     public Method getAuditedMethod(HandlerMethod controllerMethod) {
         RequestMapping methodMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod(), RequestMapping.class);
-        if (methodMapping == null) {
-            return null;
-        }
         RequestMapping controllerMapping = AnnotationUtils.findAnnotation(controllerMethod.getMethod().getDeclaringClass(), RequestMapping.class);
         String contextPath = null;
         String httpMethod = null;
         if (controllerMapping != null) {
-            httpMethod = getRequestMappingMethod(controllerMapping);
             contextPath = getRequestMappingPath(controllerMapping);
+            httpMethod = getRequestMappingMethod(controllerMapping);
             if (methodMapping != null) {
                 String methodContextPath = getRequestMappingPath(methodMapping);
                 String methodHttpMethod = getRequestMappingMethod(methodMapping);
@@ -133,10 +130,7 @@ public class AuditService {
 
     public boolean isMethodAudited(AuditConfiguration auditConfiguration, HandlerMethod controllerMethod) {
         Method method = getAuditedMethod(controllerMethod);
-        if (method == null) {
-            return false;
-        }
-        return Boolean.TRUE.equals(auditConfiguration.getAuditedMethodsMap().get(method));
+        return method != null && Boolean.TRUE.equals(auditConfiguration.getAuditedMethodsMap().get(method));
     }
 
     public String getAuditCategoryName(HandlerMethod method, Audit audit) {

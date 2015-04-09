@@ -5,7 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -13,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.io.IOUtils;
-
-import com.google.common.collect.Lists;
 
 public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
@@ -52,8 +49,6 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
         private ByteArrayInputStream input;
 
-        private List<ReadListener> readListeners = Lists.newArrayList();
-
         public CachedServletInputStream() {
             /* create a new input stream from the cached request body */
             input = new ByteArrayInputStream(cachedBytes);
@@ -61,14 +56,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
         @Override
         public int read() throws IOException {
-            int readData = input.read();
-            if (isFinished()) {
-                for (ReadListener listener : readListeners) {
-                    // Notify that there's nothing more to read
-                    listener.onAllDataRead();
-                }
-            }
-            return readData;
+            return input.read();
         }
 
         @Override
@@ -83,12 +71,7 @@ public class MultiReadHttpServletRequest extends HttpServletRequestWrapper {
 
         @Override
         public void setReadListener(ReadListener readListener) {
-            try {
-                readListener.onDataAvailable();
-            } catch (IOException e) {
-                // Data is always available as it has already been cached
-            }
-            readListeners.add(readListener);
+            throw new UnsupportedOperationException("Unsupported in the current implementation");
         }
 
     }
