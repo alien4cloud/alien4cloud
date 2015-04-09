@@ -129,7 +129,7 @@ public class DeploymentService {
                 .buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstanceStorageMonitorEvent.class)
-                .filters(MapUtil.newHashMap(new String[] { "deploymentName" }, new String[][] { new String[] { deployment.getName() } }))
+                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
     }
@@ -156,7 +156,7 @@ public class DeploymentService {
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
         deployment.setId(UUID.randomUUID().toString());
-        deployment.setName(generateDeploymentName(deploymentSetup.getEnvironmentId(), cloudId));
+        deployment.setPaasId(generateDeploymentName(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -226,13 +226,13 @@ public class DeploymentService {
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext();
+        deploymentContext.setDeployment(deployment);
         buildDeploymentContext(deploymentContext, deployment);
         return deploymentContext;
     }
 
     private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
-        deploymentContext.setDeploymentId(deployment.getName());
-        deploymentContext.setRecipeId(deployment.getName());
+        deploymentContext.setDeployment(deployment);
     }
 
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
@@ -243,8 +243,7 @@ public class DeploymentService {
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
         topologyDeploymentContext.setTopology(topology);
         topologyDeploymentContext.setDeploymentSetup(deploymentSetup);
-        topologyDeploymentContext.setDeploymentName(deployment.getName());
-        topologyDeploymentContext.setDeploymentId(deployment.getId());
+        topologyDeploymentContext.setDeployment(deployment);
         return topologyDeploymentContext;
     }
 
@@ -272,13 +271,13 @@ public class DeploymentService {
         Deployment deployment = getMandatoryDeployment(deploymentId);
         undeploy(deployment);
     }
-    
+
     private void undeploy(Deployment deployment) throws CloudDisabledException {
         String cloudId = deployment.getCloudId();
         log.info("Un-deploying deployment [{}] on cloud [{}]", deployment.getId(), cloudId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(cloudId);
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        deploymentContext.setDeploymentId(deployment.getId());
+        deploymentContext.setDeployment(deployment);
         paaSProvider.undeploy(deploymentContext, null);
         deployment.setDeploymentStatus(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
         alienDao.save(deployment);
@@ -535,30 +534,19 @@ public class DeploymentService {
     }
 
     /**
-     * Get a topology Id for a deployment (through deploymentSetup object)
-     * 
-     * @param deploymentName
-     * @return a topology id
-     */
-    public String getTopologyIdByDeploymentByName(String deploymentName) {
-        Deployment deployment = getDeploymentByName(deploymentName);
-        // WARNING : topologyId may disappear from deployment object and would be accessible only through environment linked to the deployment
-        if (deployment != null) {
-            return deployment.getTopologyId();
-        }
-        return null;
-    }
-
-    /**
-     * Get all deployments for a given deployment setup id
+     * Find the unique active deployment from it's deployment name.
      *
-     * @param deploymentSetupId deployment setup's id
+     * @param deploymentName The deployment name (must be unique for an active deployment.
      * @return deployment which have the given deployment setup id
      */
     public Deployment getDeploymentByName(String deploymentName) {
-        GetMultipleDataResult<Deployment> res = alienDao.find(Deployment.class,
-                MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { deploymentName } }), Integer.MAX_VALUE);
-        return res.getData()[0];
+        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class,
+                MapUtil.newHashMap(new String[] { "name", "endDate" }, new String[][] { new String[] { deploymentName }, new String[] { null } }),
+                Integer.MAX_VALUE);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return dataResult.getData()[0];
+        }
+        return null;
     }
 
     /**

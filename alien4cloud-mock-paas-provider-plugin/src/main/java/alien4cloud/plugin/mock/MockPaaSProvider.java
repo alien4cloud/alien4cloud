@@ -19,8 +19,6 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -47,6 +45,7 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -119,23 +118,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     public DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed) {
         if (deploymentsMap.containsKey(deploymentId)) {
             return deploymentsMap.get(deploymentId);
-        } else {
-            Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-            if (deployment == null) {
-                return DeploymentStatus.UNDEPLOYED;
-            }
-            QueryBuilder matchTopologyIdQueryBuilder = QueryBuilders.termQuery("topologyId", deploymentService.getTopologyIdByDeployment(deploymentId));
-            final Application application = alienDAO.customFind(Application.class, matchTopologyIdQueryBuilder);
-            if (application != null && UNKNOWN_APPLICATION_THAT_NEVER_WORKS.equals(application.getName())) {
-                return DeploymentStatus.UNKNOWN;
-            } else {
-                // application is not deployed and but there is a deployment in alien so trigger the undeployed event to update status.
-                if (triggerEventIfUndeployed) {
-                    doChangeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
-                }
-                return DeploymentStatus.UNDEPLOYED;
-            }
         }
+        return DeploymentStatus.UNDEPLOYED;
     }
 
     private InstanceInformation newInstance(int i) {
@@ -162,12 +146,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    protected synchronized void doDeploy(final String deploymentId) {
-        final Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        log.info("Deploying deployment [" + deploymentId + "]");
-        changeStatus(deploymentId, DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
-        if (deploymentId != null) {
-            Topology topology = alienDAO.findById(Topology.class, deploymentService.getTopologyIdByDeployment(deploymentId));
+    protected synchronized void doDeploy(final PaaSTopologyDeploymentContext deploymentContext) {
+        log.info("Deploying deployment [" + deploymentContext.getDeploymentId() + "]");
+        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
+        if (deploymentContext.getDeploymentId() != null) {
+            Topology topology = deploymentContext.getTopology();
             Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
             if (policies == null) {
                 policies = Maps.newHashMap();
@@ -185,30 +168,30 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 for (int i = 1; i <= initialInstances; i++) {
                     InstanceInformation newInstanceInformation = newInstance(i);
                     instanceInformations.put(String.valueOf(i), newInstanceInformation);
-                    notifyInstanceStateChanged(deploymentId, nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
+                    notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
                 }
             }
-            instanceInformationsMap.put(deploymentId, currentInformations);
+            instanceInformationsMap.put(deploymentContext.getDeploymentId(), currentInformations);
         }
         executorService.schedule(new Runnable() {
 
             @Override
             public void run() {
-                Application application = alienDAO.findById(Application.class, deployment.getSourceId());
+                Application application = alienDAO.findById(Application.class, deploymentContext.getDeployment().getSourceId());
                 // To bluff the product owner, we must do as if it's deploying something, but in fact it's not
                 if (application == null) {
-                    changeStatus(deploymentId, DeploymentStatus.DEPLOYED);
+                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYED);
                     return;
                 }
                 switch (application.getName()) {
                 case BAD_APPLICATION_THAT_NEVER_WORKS:
-                    changeStatus(deploymentId, DeploymentStatus.FAILURE);
+                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.FAILURE);
                     break;
                 case WARN_APPLICATION_THAT_NEVER_WORKS:
-                    changeStatus(deploymentId, DeploymentStatus.WARNING);
+                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.WARNING);
                     break;
                 default:
-                    changeStatus(deploymentId, DeploymentStatus.DEPLOYED);
+                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYED);
                 }
             }
 
@@ -216,24 +199,23 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    protected synchronized void doUndeploy(final String deploymentId) {
-        log.info("Undeploying deployment [" + deploymentId + "]");
-        changeStatus(deploymentId, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
-        if (instanceInformationsMap.containsKey(deploymentId)) {
-            Map<String, Map<String, InstanceInformation>> appInfo = instanceInformationsMap.get(deploymentId);
+    protected synchronized void doUndeploy(final PaaSDeploymentContext deploymentContext) {
+        log.info("Undeploying deployment [" + deploymentContext.getDeploymentId() + "]");
+        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
+        if (instanceInformationsMap.containsKey(deploymentContext.getDeploymentId())) {
+            Map<String, Map<String, InstanceInformation>> appInfo = instanceInformationsMap.get(deploymentContext.getDeploymentId());
             for (Map.Entry<String, Map<String, InstanceInformation>> nodeEntry : appInfo.entrySet()) {
                 for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
                     instanceEntry.getValue().setInstanceStatus(InstanceStatus.PROCESSING);
-                    notifyInstanceStateChanged(deploymentId, nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
+                    notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
                 }
             }
         }
         executorService.schedule(new Runnable() {
-
             @Override
             public void run() {
-                changeStatus(deploymentId, DeploymentStatus.UNDEPLOYED);
+                changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYED);
             }
         }, 5, TimeUnit.SECONDS);
     }
