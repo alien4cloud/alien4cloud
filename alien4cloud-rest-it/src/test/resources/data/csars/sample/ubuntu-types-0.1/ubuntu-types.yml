@@ -11,12 +11,12 @@ node_types:
     tags:
       icon: /images/ubuntu_trusty.png
     properties:
-      disk_size:
+      u_disk_size:
         type: scalar-unit.size
         default: 20 GiB
         constraints:
           - greater_than: 1 GiB
-      disk_read_access_time:
+      u_disk_read_access_time:
         type: scalar-unit.time
         constraints:
           - greater_than: 1 ms
