@@ -15,9 +15,10 @@ angular.module('alienUiApp').factory('deploymentEventServicesFactory', ['webSock
 
       var listenerFactory = function(type, listeners) {
         return function(event) {
+          var parsedEvent = JSON.parse(event.body);
           for (var listenerId in listeners) {
             if (listeners.hasOwnProperty(listenerId)) {
-              listeners[listenerId](type, JSON.parse(event.body));
+              listeners[listenerId](type, parsedEvent);
             }
           }
         };

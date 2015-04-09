@@ -3,8 +3,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments) {
+  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments', '$interval',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments, $interval) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
@@ -24,7 +24,9 @@ angular.module('alienUiApp').controller(
 
       // get the related cloud to display informations.
       var refreshCloudInfo = function() {
-        cloudServices.get({id: $scope.selectedEnvironment.cloudId}, function(response) {
+        cloudServices.get({
+          id: $scope.selectedEnvironment.cloudId
+        }, function(response) {
           $scope.cloud = response.data.cloud;
         });
       };
@@ -39,11 +41,17 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [{'value': 'ALL'},
-        {'value': 'paasdeploymentstatusmonitorevent'},
-        {'value': 'paasinstancestatemonitorevent'},
-        {'value': 'paasinstancestoragemonitorevent'},
-        {'value': 'paasmessagemonitorevent'}];
+      $scope.eventTypeFilters = [{
+        'value': 'ALL'
+      }, {
+        'value': 'paasdeploymentstatusmonitorevent'
+      }, {
+        'value': 'paasinstancestatemonitorevent'
+      }, {
+        'value': 'paasinstancestoragemonitorevent'
+      }, {
+        'value': 'paasmessagemonitorevent'
+      }];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
@@ -214,31 +222,14 @@ angular.module('alienUiApp').controller(
         event.rawType = type;
         enrichPAASEvent(event);
         $scope.events.data.push(event);
-        if (UTILS.isUndefinedOrNull(event.instanceState)) {
-          // Delete event
-          if ($scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
-            if ($scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-              delete $scope.topology.instances[event.nodeTemplateId][event.instanceId];
-              if (Object.keys($scope.topology.instances[event.nodeTemplateId]).length === 0) {
-                delete $scope.topology.instances[event.nodeTemplateId];
-              }
-            }
-          }
-        } else {
-          // Add or modify event
-          if (!$scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
-            $scope.topology.instances[event.nodeTemplateId] = {};
-          }
-          if (!$scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId] = {};
-          }
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].state = event.instanceState;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
+        if (!$scope.isWaitingForRefresh) {
+          $scope.isWaitingForRefresh = true;
+          $interval(function() {
+            $scope.isWaitingForRefresh = false;
+            refreshInstancesStatuses();
+          }, 1000, 1);
+          $scope.$apply();
         }
-        refreshSelectedNodeInstancesCount();
-        $scope.$apply();
       };
 
       $scope.$on('$destroy', function() {
@@ -358,8 +349,7 @@ angular.module('alienUiApp').controller(
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
             applicationEnvironmentId: $scope.selectedEnvironment.id
-          }, undefined, function success (scaleResult) {
-            console.log('SCALE SUCCESS >', scaleResult);
+          }, undefined, function success(scaleResult) {
             $scope.loadTopologyRuntime();
           });
         }

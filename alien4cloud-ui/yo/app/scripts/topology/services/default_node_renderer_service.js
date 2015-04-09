@@ -52,8 +52,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
         // update version
         nodeGroup.select('.version').text(function() {
-          if (UTILS.isDefinedAndNotNull(nodeTemplate.properties)
-            && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
+          if (UTILS.isDefinedAndNotNull(nodeTemplate.properties) && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
             return 'v' + nodeTemplate.properties.version.value;
           }
         });
@@ -64,13 +63,30 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
           var nodeInstances = null;
           var nodeInstancesCount = null;
+          var scalingPolicy = null;
 
           if (UTILS.isDefinedAndNotNull(topology.instances)) {
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
-              nodeInstancesCount = Object.keys(nodeInstances).length;
+              scalingPolicy = topology.topology.scalingPolicies[node.id];
+              var currentInstanceCount = Object.keys(nodeInstances).length;
+              nodeInstancesCount = currentInstanceCount;
+              if (UTILS.isDefinedAndNotNull(scalingPolicy)) {
+                nodeInstancesCount = (scalingPolicy.initialInstances !== currentInstanceCount) ? scalingPolicy.initialInstances : currentInstanceCount;
+              }
             }
           }
+
+          // var nodeInstances = null;
+          // var nodeInstancesCount = null;
+          //
+          // if (UTILS.isDefinedAndNotNull(topology.instances)) {
+          //   nodeInstances = topology.instances[node.id];
+          //   if (UTILS.isDefinedAndNotNull(nodeInstances)) {
+          //     nodeInstancesCount = Object.keys(nodeInstances).length;
+          //   }
+          // }
+
           // TODO better draw network node
           if (nodeType.elementId !== 'tosca.nodes.Network') {
             this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
@@ -89,6 +105,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
           var processingCount = this.getNumberOfInstanceByStatus(nodeInstances, 'PROCESSING');
           var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
           deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null);
+          // console.log('drawRuntimeInfos >', successCount, processingCount, failureCount, deletedCount);
           if (successCount > 0) {
             this.drawRuntimeCount(runtimeGroup, 'runtime-count-success', rectOriginX, currentY, '\uf00c', successCount, nodeInstancesCount);
             currentY += 20;
@@ -128,6 +145,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
         }
 
         // draw the instance count at good size
+        // console.log('runtime count >', 'Instances count >', nodeInstancesCount, 'Deleted >', deletedCount);
         runtimeGroup = commonNodeRendererService.appendCount(runtimeGroup, nodeInstancesCount, deletedCount, rectOriginX, rectOriginY, 20, 20, this.width);
       },
 
@@ -135,6 +153,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
         var groupSelection = runtimeGroup.select('#' + id);
         // improve that...
         var counter = (count || '?') + '/' + (instanceCount || '?');
+        // console.log('drawRuntimeCount >', count, instanceCount, counter);
         if (groupSelection.empty()) {
           groupSelection = runtimeGroup.append('g').attr('id', id);
           groupSelection.append('text').attr('class', 'topology-svg-icon').attr('text-anchor', 'start').attr('x', rectOriginX + 60).attr('y', currentY).text(iconCode);
