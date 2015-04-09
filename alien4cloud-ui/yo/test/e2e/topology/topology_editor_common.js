@@ -544,7 +544,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
         // test if the bloc is opened and then close it
         if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
           browser.waitForAngular();
-          myBlockIcon.click();
+          myBlock.click();
           browser.waitForAngular();
         }
       });

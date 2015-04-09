@@ -26,7 +26,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       var saveResult = $scope.onSave(propertyRequest);
       // If the callback return a promise
       if (UTILS.isDefinedAndNotNull(saveResult) && UTILS.isDefinedAndNotNull(saveResult.then)) {
-        var deferred = $q.defer();
         return saveResult.then(function(saveResult) {
           if (saveResult.error !== null) {
             // Constraint error display + translation
@@ -37,6 +36,8 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
             } else {
               return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
             }
+          } else {
+            delete $scope.unitError;
           }
         });
       }
@@ -50,8 +51,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           savePromise.then(function(error) {
             if (UTILS.isDefinedAndNotNull(error)) {
               $scope.unitError = error;
-            } else {
-              delete $scope.unitError;
             }
           });
         } else {
