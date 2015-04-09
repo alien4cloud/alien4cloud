@@ -37,9 +37,6 @@ var goToAlienAppAndSelectApachelbOperations = function() {
   // go to operations tab on apacheLBGroovy node
   var apacheNode = element(by.id('rect_apacheLBGroovy'));
   apacheNode.click();
-  var operationsTab = element(by.id('operations-tab'));
-  expect(operationsTab.isPresent()).toBe(true);
-  operationsTab.click();
 
 };
 
@@ -79,7 +76,7 @@ describe('Topology runtime view', function() {
 
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
     navigation.go('applications', 'runtime');
-
+    element(by.id('events-tab')).click();
     // Wait for mock deployment to finish
     browser.sleep(10000);
     element.all(by.repeater('event in events.data | orderBy:\'date\':true')).then(function(allEvents) {
@@ -106,7 +103,7 @@ describe('Topology runtime view', function() {
     nodeToView.click();
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
       expect(states.length).toEqual(2);
-      states[0].click();
+      states[0].element(by.css('.btn-default')).click(); // the view instance details button
       expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(1);
       var backButton = browser.element(by.id('backToInstanceListButton'));
       browser.actions().click(backButton).perform();
@@ -152,9 +149,6 @@ describe('Topology runtime view', function() {
     // check operation result in <Details> tab
     element(by.id('details-tab')).click();
     element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).first();
-    expect(browser.isElementPresent(by.id('operations-tab'))).toBe(true);
-    element(by.id('operations-tab')).click();
-    expect(browser.isElementPresent(by.id('backToInstanceListButton'))).toBe(true);
 
   });
 

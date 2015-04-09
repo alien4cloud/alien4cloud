@@ -367,6 +367,11 @@ angular.module('alienUiApp').controller(
       $scope.clearInstanceSelection = function() {
         delete $scope.selectedInstance;
       };
+      
+      $scope.clearNodeSelection = function() {
+        $scope.clearInstanceSelection();
+        delete $scope.selectedNodeTemplate;
+      };      
 
       $scope.scale = function(newValue) {
         console.log('SCALA to >', newValue, $scope.topology);
