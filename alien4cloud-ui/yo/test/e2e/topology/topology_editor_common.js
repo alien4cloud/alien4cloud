@@ -377,7 +377,7 @@ var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
   var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
   browser.actions().click(nodeToEdit).perform();
   if (blocId) {
-    collapseNodeDetailsBloc(blocId);
+    return collapseNodeDetailsBloc(blocId);
   }
 };
 module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
@@ -568,19 +568,25 @@ var nodeDetailsCollapse = function(blocId, opened) {
   });
 };
 
+var doCollapseNodeDetailBlock = function(blocId, nextBlocIndex) {
+  if (nextBlocIndex >= nodeDetailsBlockList.length) {
+    // End of the node details block list
+    return;
+  } else if (blocId === nodeDetailsBlockList[nextBlocIndex]) {
+    // Required bloc found do not loop anymore
+    return nodeDetailsCollapse(blocId, true);
+  } else {
+    // Continue to collapse until we found the block
+    return nodeDetailsCollapse(nodeDetailsBlockList[nextBlocIndex], false).then(function() {
+      return doCollapseNodeDetailBlock(blocId, nextBlocIndex + 1);
+    });
+  }
+};
+
 /** Open only one bloc in the node template details */
 var collapseNodeDetailsBloc = function(blocId) {
   // Close all details
-  for (var i = 0; i < nodeDetailsBlockList.length; i++) {
-    if (blocId === nodeDetailsBlockList[i]) {
-      // Open the required bloc
-      nodeDetailsCollapse(blocId, true);
-      break;
-    } else {
-      // Close the others
-      nodeDetailsCollapse(nodeDetailsBlockList[i], false);
-    }
-  }
+  return doCollapseNodeDetailBlock(blocId, 0);
 };
 module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
 
