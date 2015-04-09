@@ -44,18 +44,20 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
 
     $scope.saveUnit = function(unit) {
       $scope.definitionObject.uiUnit = unit;
-      var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
-      if (UTILS.isDefinedAndNotNull(savePromise)) {
-        savePromise.then(function(error) {
-          if (UTILS.isDefinedAndNotNull(error)) {
-            $scope.unitError = error;
-          } else {
-            delete $scope.unitError;
-          }
-        });
-      } else {
-        delete $scope.unitError;
-        $scope.definitionObject.uiUnit = unit;
+      if (UTILS.isDefinedAndNotNull($scope.definitionObject.uiValue)) {
+        var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
+        if (UTILS.isDefinedAndNotNull(savePromise)) {
+          savePromise.then(function(error) {
+            if (UTILS.isDefinedAndNotNull(error)) {
+              $scope.unitError = error;
+            } else {
+              delete $scope.unitError;
+            }
+          });
+        } else {
+          delete $scope.unitError;
+          $scope.definitionObject.uiUnit = unit;
+        }
       }
     };
 
@@ -127,11 +129,17 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         }
       }
 
-      var splitScalarUnitValue = function() {
+      var splitScalarUnitValue = function(upperCase) {
         if (UTILS.isDefinedAndNotNull(shownValue)) {
           var shownValueTokens = shownValue.split(/\s+/);
           $scope.definitionObject.uiValue = shownValueTokens[0];
-          $scope.definitionObject.uiUnit = shownValueTokens[1];
+          if (upperCase) {
+            $scope.definitionObject.uiUnit = shownValueTokens[1].toUpperCase();
+          } else {
+            $scope.definitionObject.uiUnit = shownValueTokens[1].toLowerCase();
+          }
+        } else {
+          $scope.definitionObject.uiUnit = $scope.definitionObject.units[0];
         }
       };
 
@@ -148,12 +156,12 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         case 'scalar-unit.size':
           $scope.definitionObject.uiName = 'scalar-unit';
           $scope.definitionObject.units = ['B', 'KB', 'KIB', 'MB', 'MIB', 'GB', 'GIB', 'TB', 'TIB'];
-          splitScalarUnitValue();
+          splitScalarUnitValue(true);
           break;
         case 'scalar-unit.time':
           $scope.definitionObject.uiName = 'scalar-unit';
           $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
-          splitScalarUnitValue();
+          splitScalarUnitValue(false);
           break;
         default:
           $scope.definitionObject.uiName = 'string';

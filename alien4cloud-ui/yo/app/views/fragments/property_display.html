@@ -52,9 +52,9 @@
         <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
           <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
-            {{definitionObject.uiValue}}
+            {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
           </span>
-          <span ng-if="definitionObject.units && definitionObject.uiValue" ng-hide="scalarForm.$visible" class="btn-group btn-group-xs">
+          <span ng-if="definitionObject.units" class="btn-group btn-group-xs">
             <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
               {{definitionObject.uiUnit}}
               <span class="caret"></span>
@@ -64,9 +64,6 @@
                 <a ng-click="saveUnit(unit)">{{unit}}</a>
               </li>
             </ul>
-          </span>
-          <span class="editable editable-click">
-            <i class="fa fa-pencil-square-o" ng-click="scalarForm.$show()" ng-hide="scalarForm.$visible"></i>
           </span>
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
