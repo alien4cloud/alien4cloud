@@ -5,12 +5,20 @@
 angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate', '$q',
   function($scope, propertiesServices, $translate, $q) {
 
-    $scope.propertySave = function(data) {
+    $scope.propertySave = function(data, unit) {
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
+      } else if (UTILS.isDefinedAndNotNull($scope.definitionObject.units)) {
+        if (UTILS.isUndefinedOrNull(unit)) {
+          if (UTILS.isUndefinedOrNull($scope.definitionObject.uiUnit)) {
+            unit = $scope.definitionObject.units[0];
+          } else {
+            unit = $scope.definitionObject.uiUnit;
+          }
+        }
+        data += " " + unit;
       }
       // check constraint here
-      var saveDefer = $q.defer();
       var propertyRequest = {
         propertyDefinition: $scope.definition,
         propertyValue: data
@@ -18,24 +26,39 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       var saveResult = $scope.onSave(propertyRequest);
       // If the callback return a promise
       if (UTILS.isDefinedAndNotNull(saveResult) && UTILS.isDefinedAndNotNull(saveResult.then)) {
-        saveResult.then(function(saveResult) {
+        var deferred = $q.defer();
+        return saveResult.then(function(saveResult) {
           if (saveResult.error !== null) {
             // Constraint error display + translation
             var constraintInfo = saveResult.data;
             // Error message handled by x-editable
             if (saveResult.error.code === 800) {
-              saveDefer.resolve($translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo));
+              return $translate('ERRORS.' + saveResult.error.code + '.' + constraintInfo.name, constraintInfo);
             } else {
-              saveDefer.resolve($translate('ERRORS.' + saveResult.error.code, constraintInfo));
+              return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
             }
-          } else {
-            saveDefer.resolve(null); // no errors, check then on the promise
           }
         });
-      } else {
-        saveDefer.resolve(null);
       }
-      return saveDefer.promise;
+    };
+
+    $scope.saveUnit = function(unit) {
+      $scope.definitionObject.uiUnit = unit;
+      if (UTILS.isDefinedAndNotNull($scope.definitionObject.uiValue)) {
+        var savePromise = $scope.propertySave($scope.definitionObject.uiValue, unit);
+        if (UTILS.isDefinedAndNotNull(savePromise)) {
+          savePromise.then(function(error) {
+            if (UTILS.isDefinedAndNotNull(error)) {
+              $scope.unitError = error;
+            } else {
+              delete $scope.unitError;
+            }
+          });
+        } else {
+          delete $scope.unitError;
+          $scope.definitionObject.uiUnit = unit;
+        }
+      }
     };
 
     // specific wrapper for boolean type to handle "css checkbox"
@@ -82,7 +105,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           shownValue = $scope.propertyValue.function + ': ' + UTILS.array2csv($scope.propertyValue.parameters);
         }
       }
-      var shownValue = shownValue || $scope.definition.default;
+      shownValue = shownValue || $scope.definition.default;
 
       // Second phase : regarding constraints
       if (UTILS.isDefinedAndNotNull($scope.definition.constraints)) {
@@ -106,15 +129,39 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         }
       }
 
+      var splitScalarUnitValue = function(upperCase) {
+        if (UTILS.isDefinedAndNotNull(shownValue)) {
+          var shownValueTokens = shownValue.split(/\s+/);
+          $scope.definitionObject.uiValue = shownValueTokens[0];
+          if (upperCase) {
+            $scope.definitionObject.uiUnit = shownValueTokens[1].toUpperCase();
+          } else {
+            $scope.definitionObject.uiUnit = shownValueTokens[1].toLowerCase();
+          }
+        } else {
+          $scope.definitionObject.uiUnit = $scope.definitionObject.units[0];
+        }
+      };
+
       // Second phase : regardless constraints
       switch ($scope.definition.type) {
         case 'boolean':
           $scope.definitionObject.uiName = 'checkbox';
-          $scope.definitionObject.uiValue = shownValue === 'true' ? true : false;
+          $scope.definitionObject.uiValue = shownValue === 'true';
           break;
         case 'timestamp':
           $scope.definitionObject.uiName = 'date';
           $scope.definitionObject.uiValue = shownValue;
+          break;
+        case 'scalar-unit.size':
+          $scope.definitionObject.uiName = 'scalar-unit';
+          $scope.definitionObject.units = ['B', 'KB', 'KIB', 'MB', 'MIB', 'GB', 'GIB', 'TB', 'TIB'];
+          splitScalarUnitValue(true);
+          break;
+        case 'scalar-unit.time':
+          $scope.definitionObject.uiName = 'scalar-unit';
+          $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
+          splitScalarUnitValue(false);
           break;
         default:
           $scope.definitionObject.uiName = 'string';

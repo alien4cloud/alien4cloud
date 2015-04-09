@@ -33,6 +33,8 @@ import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
 import alien4cloud.model.components.constraints.MaxLengthConstraint;
 import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
@@ -275,7 +277,8 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals("My company’s custom applicaton", nodeType.getDescription());
 
         // validate properties parsing
-        Assert.assertEquals(2, nodeType.getProperties().size());
+        Assert.assertEquals(4, nodeType.getProperties().size());
+
         PropertyDefinition def1 = new PropertyDefinition();
         def1.setType("string");
         def1.setDefault("default");
@@ -284,11 +287,30 @@ public class ToscaParserSimpleProfileWd03Test {
         constraints.add(new MinLengthConstraint(6));
         constraints.add(new MaxLengthConstraint(10));
         def1.setConstraints(constraints);
+
         PropertyDefinition def2 = new PropertyDefinition();
         def2.setType("integer");
         def2.setDescription("application port number");
-        Assert.assertEquals(MapUtil.newHashMap(new String[] { "my_app_password", "my_app_port" }, new PropertyDefinition[] { def1, def2 }),
-                nodeType.getProperties());
+
+        PropertyDefinition def3 = new PropertyDefinition();
+        def3.setType("scalar-unit.size");
+        def3.setDefault("1 GB");
+        LessThanConstraint ltConstraint = new LessThanConstraint();
+        ltConstraint.setLessThan("1 TB");
+        constraints = Lists.<PropertyConstraint> newArrayList(ltConstraint);
+        def3.setConstraints(constraints);
+
+        PropertyDefinition def4 = new PropertyDefinition();
+        def4.setType("scalar-unit.time");
+        def4.setDefault("1 d");
+        GreaterThanConstraint gtConstraint = new GreaterThanConstraint();
+        gtConstraint.setGreaterThan("1 h");
+        constraints = Lists.<PropertyConstraint> newArrayList(gtConstraint);
+        def4.setConstraints(constraints);
+
+        Assert.assertEquals(
+                MapUtil.newHashMap(new String[] { "my_app_password", "my_app_duration", "my_app_size", "my_app_port" }, new PropertyDefinition[] { def1, def4,
+                        def3, def2 }), nodeType.getProperties());
 
         // validate attributes parsing
 

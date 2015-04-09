@@ -9,8 +9,8 @@ import javax.validation.Validator;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.normative.ToscaType;
 
 public class TocsaPropertyTypeValidatorTest {
     private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();;
@@ -32,6 +32,6 @@ public class TocsaPropertyTypeValidatorTest {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("unknwon type");
         Set<ConstraintViolation<PropertyDefinition>> violations = validator.validate(propertyDefinition);
-        Assert.assertEquals(1, violations.size());
+        Assert.assertEquals(2, violations.size());
     }
 }

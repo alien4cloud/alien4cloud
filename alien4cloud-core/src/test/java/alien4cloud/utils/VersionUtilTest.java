@@ -3,8 +3,7 @@ package alien4cloud.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.InvalidVersionException;
 
 public class VersionUtilTest {
 
@@ -25,12 +24,12 @@ public class VersionUtilTest {
     }
 
     @Test
-    public void testParseVersionSuccess() throws ApplicationVersionException {
+    public void testParseVersionSuccess() throws InvalidVersionException {
         Assert.assertNotNull(VersionUtil.parseVersion("1.0"));
     }
 
-    @Test(expected = ApplicationVersionException.class)
-    public void testParseVersionFailed() throws ApplicationVersionException {
+    @Test(expected = InvalidVersionException.class)
+    public void testParseVersionFailed() throws InvalidVersionException {
         VersionUtil.parseVersion("BIG-RELEASE");
     }
     

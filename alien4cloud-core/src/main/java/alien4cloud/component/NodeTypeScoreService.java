@@ -13,9 +13,9 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.version.Version;
@@ -30,7 +30,6 @@ import com.google.common.collect.Maps;
 public class NodeTypeScoreService implements Runnable {
     /** Every hours. TODO This should be a configuration param. */
     private static final long SCORE_RATE_MILLISECONDS = 1000 * 60 * 60;
-    private static final long SCORE_INITIAL_DELAY_MILLISECONDS = 1000 * 60;
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienESDAO;
@@ -47,7 +46,7 @@ public class NodeTypeScoreService implements Runnable {
     /** Refresh boost for all indexed node types in the system. */
     @PostConstruct
     public void refreshBoostCompute() {
-        Date date = new Date(System.currentTimeMillis() + SCORE_INITIAL_DELAY_MILLISECONDS);
+        Date date = new Date(System.currentTimeMillis() + SCORE_RATE_MILLISECONDS);
         scheduler.scheduleAtFixedRate(this, date, SCORE_RATE_MILLISECONDS);
     }
 

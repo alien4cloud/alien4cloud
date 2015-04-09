@@ -104,7 +104,7 @@ Scenario: Match a topology for computes, with filters
     | medium | 4 | 64 | 4096 |
 
     # Update to disk size 33 make Alien drop the small flavor
-  When I update the node template "Compute"'s property "disk_size" to "33"
+  When I update the node template "Compute"'s property "disk_size" to "33 B"
   And I match for resources for my application on the cloud
   Then I should receive a match result with 1 compute templates for the node "Compute":
     | Ubuntu Trusty | medium |
@@ -114,7 +114,7 @@ Scenario: Match a topology for computes, with filters
     | medium | 4 | 64 | 4096 |
 
     # Update to disk size 32 make small flavor available again in matching result
-  When I update the node template "Compute"'s property "disk_size" to "32"
+  When I update the node template "Compute"'s property "disk_size" to "32 B"
   And I match for resources for my application on the cloud
   Then I should receive a match result with 2 compute templates for the node "Compute":
     | Ubuntu Trusty | small  |
@@ -148,7 +148,7 @@ Scenario: Match a topology for computes, with filters
     | medium | 4 | 64 | 4096 |
 
     # Update to memory 3000 make Alien drop the small flavor
-  When I update the node template "Compute"'s property "mem_size" to "3000"
+  When I update the node template "Compute"'s property "mem_size" to "3000 B"
   And I match for resources for my application on the cloud
   Then I should receive a match result with 1 compute templates for the node "Compute":
     | Ubuntu Trusty | medium |
@@ -158,7 +158,7 @@ Scenario: Match a topology for computes, with filters
     | medium | 4 | 64 | 4096 |
 
     # Update to memory 2000 make small flavor available again in matching result
-  When I update the node template "Compute"'s property "mem_size" to "2000"
+  When I update the node template "Compute"'s property "mem_size" to "2000 B"
   And I match for resources for my application on the cloud
   Then I should receive a match result with 2 compute templates for the node "Compute":
     | Ubuntu Trusty | small  |
@@ -170,7 +170,7 @@ Scenario: Match a topology for computes, with filters
     | medium | 4 | 64 | 4096 |
 
     # Update memory size too big --> empty result
-  When I update the node template "Compute"'s property "mem_size" to "9999999999"
+  When I update the node template "Compute"'s property "mem_size" to "9999999999 B"
   And I match for resources for my application on the cloud
   Then I should receive an empty match result
 
@@ -190,7 +190,7 @@ Scenario: Find a matching resource for a type derived from Compute
     | small  | 2 | 32 | 2048 |
     | medium | 4 | 64 | 4096 |
 
-  When I update the node template "Ubuntu"'s property "mem_size" to "3000"
+  When I update the node template "Ubuntu"'s property "mem_size" to "3000 B"
   And I match for resources for my application on the cloud
   Then I should receive a match result with 1 compute templates for the node "Ubuntu":
     | Ubuntu Trusty | medium |

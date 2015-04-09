@@ -78,8 +78,8 @@ public interface IPaaSProvider {
      * @param operationResultCallback the callback that will be triggered when the operation's result become available
      * @throws OperationExecutionException
      */
-    void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> operationResultCallback)
-            throws OperationExecutionException;
+    void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
+            IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException;
 
     /**
      * Call to determine available ids for the given resource type
@@ -105,4 +105,15 @@ public interface IPaaSProvider {
      * @param config the config to take into account
      */
     void updateMatcherConfig(CloudResourceMatcherConfig config);
+
+    /**
+     * Switch the maintenance mode for this deployed topology.
+     */
+    void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn);
+
+    /**
+     * Switch the maintenance mode for a given node instance of this deployed topology.
+     */
+    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn);
+
 }

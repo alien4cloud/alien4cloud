@@ -1,11 +1,22 @@
 package alien4cloud.tosca.properties.constraints;
 
-import alien4cloud.model.components.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.junit.Assert;
 import org.junit.Test;
 
+import alien4cloud.model.components.constraints.EqualConstraint;
+import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
+import alien4cloud.model.components.constraints.GreaterThanConstraint;
+import alien4cloud.model.components.constraints.InRangeConstraint;
+import alien4cloud.model.components.constraints.LengthConstraint;
+import alien4cloud.model.components.constraints.LessOrEqualConstraint;
+import alien4cloud.model.components.constraints.LessThanConstraint;
+import alien4cloud.model.components.constraints.MaxLengthConstraint;
+import alien4cloud.model.components.constraints.MinLengthConstraint;
+import alien4cloud.model.components.constraints.PatternConstraint;
+import alien4cloud.model.components.constraints.ValidValuesConstraint;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -32,13 +43,13 @@ public class PropertiesConstraintsTest {
     public void testEqualConstraintSatisfied() throws Exception {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(1l);
         constraint.setEqual("toto");
-        constraint.initialize(ToscaType.STRING);
+        constraint.initialize(ToscaType.STRING_TYPE);
         constraint.validate("toto");
         constraint.setEqual("1.6");
-        constraint.initialize(ToscaType.VERSION);
+        constraint.initialize(ToscaType.VERSION_TYPE);
         constraint.validate(VersionUtil.parseVersion("1.6"));
     }
 
@@ -46,19 +57,14 @@ public class PropertiesConstraintsTest {
     public void testEqualConstraintFailed() throws Exception {
         EqualConstraint constraint = new EqualConstraint();
         constraint.setEqual("1");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(2l);
     }
 
     @Test(expected = ConstraintViolationException.class)
     public void testComplexEqualConstraintFailed() throws Exception {
         EqualConstraint constraint = new EqualConstraint();
-        constraint.setEqual(
-                "toto:\n" +
-                        "  tata: tata\n" +
-                        "  titi:\n" +
-                        "    - titi1\n" +
-                        "    - titi2\n");
+        constraint.setEqual("toto:\n" + "  tata: tata\n" + "  titi:\n" + "    - titi1\n" + "    - titi2\n");
         TestClass testClass = new TestClass();
         testClass.setToto(new Toto());
         testClass.getToto().setTata("tata");
@@ -70,9 +76,9 @@ public class PropertiesConstraintsTest {
     public void testInRangeConstraintSatisfied() throws Exception {
         InRangeConstraint constraint = new InRangeConstraint();
         constraint.setInRange(Lists.newArrayList("1", "4"));
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.setInRange(Lists.newArrayList("1.6", "1.8"));
-        constraint.initialize(ToscaType.VERSION);
+        constraint.initialize(ToscaType.VERSION_TYPE);
         constraint.validate(VersionUtil.parseVersion("1.7"));
     }
 
@@ -80,7 +86,7 @@ public class PropertiesConstraintsTest {
     public void testInRangeConstraintFailed() throws Exception {
         InRangeConstraint constraint = new InRangeConstraint();
         constraint.setInRange(Lists.newArrayList("1", "4"));
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(0l);
     }
 
@@ -88,7 +94,7 @@ public class PropertiesConstraintsTest {
     public void testVersionInRangeConstraintFailed() throws Exception {
         InRangeConstraint constraint = new InRangeConstraint();
         constraint.setInRange(Lists.newArrayList("1.6", "1.8"));
-        constraint.initialize(ToscaType.VERSION);
+        constraint.initialize(ToscaType.VERSION_TYPE);
         constraint.validate(VersionUtil.parseVersion("1.9"));
     }
 
@@ -132,17 +138,17 @@ public class PropertiesConstraintsTest {
     public void testGeConstraintSatisfied() throws Exception {
         GreaterOrEqualConstraint constraint = new GreaterOrEqualConstraint();
         constraint.setGreaterOrEqual("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(2l);
         constraint.validate(3l);
         constraint.validate(Long.MAX_VALUE);
         constraint.setGreaterOrEqual("5");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(5l);
         constraint.validate(6l);
         constraint.validate(7l);
         constraint.setGreaterOrEqual("1.6.1");
-        constraint.initialize(ToscaType.VERSION);
+        constraint.initialize(ToscaType.VERSION_TYPE);
         constraint.validate(VersionUtil.parseVersion("1.6.1"));
         constraint.validate(VersionUtil.parseVersion("1.6.1.1"));
     }
@@ -151,7 +157,7 @@ public class PropertiesConstraintsTest {
     public void testGeConstraintFailed() throws Exception {
         GreaterOrEqualConstraint constraint = new GreaterOrEqualConstraint();
         constraint.setGreaterOrEqual("1.6.1");
-        constraint.initialize(ToscaType.VERSION);
+        constraint.initialize(ToscaType.VERSION_TYPE);
         constraint.validate(VersionUtil.parseVersion("1.6.0"));
     }
 
@@ -159,7 +165,7 @@ public class PropertiesConstraintsTest {
     public void testGeConstraintStringFailed() throws Exception {
         GreaterOrEqualConstraint constraint = new GreaterOrEqualConstraint();
         constraint.setGreaterOrEqual("b");
-        constraint.initialize(ToscaType.STRING);
+        constraint.initialize(ToscaType.STRING_TYPE);
         constraint.validate("a");
     }
 
@@ -167,7 +173,7 @@ public class PropertiesConstraintsTest {
     public void testGeConstraintVersionFailed() throws Exception {
         GreaterOrEqualConstraint constraint = new GreaterOrEqualConstraint();
         constraint.setGreaterOrEqual("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(1l);
     }
 
@@ -175,12 +181,12 @@ public class PropertiesConstraintsTest {
     public void testLeConstraintSatisfied() throws Exception {
         LessOrEqualConstraint constraint = new LessOrEqualConstraint();
         constraint.setLessOrEqual("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(2l);
         constraint.validate(1l);
         constraint.validate(Long.MIN_VALUE);
         constraint.setLessOrEqual("5");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(5l);
         constraint.validate(4l);
         constraint.validate(3l);
@@ -190,7 +196,7 @@ public class PropertiesConstraintsTest {
     public void testLeConstraintFailed() throws Exception {
         LessOrEqualConstraint constraint = new LessOrEqualConstraint();
         constraint.setLessOrEqual("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(3l);
     }
 
@@ -198,11 +204,11 @@ public class PropertiesConstraintsTest {
     public void testGtConstraintSatisfied() throws Exception {
         GreaterThanConstraint constraint = new GreaterThanConstraint();
         constraint.setGreaterThan("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(3l);
         constraint.validate(Long.MAX_VALUE);
         constraint.setGreaterThan("5");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(6l);
         constraint.validate(7l);
     }
@@ -211,7 +217,7 @@ public class PropertiesConstraintsTest {
     public void testGtConstraintFailed() throws Exception {
         GreaterThanConstraint constraint = new GreaterThanConstraint();
         constraint.setGreaterThan("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(1l);
     }
 
@@ -219,11 +225,11 @@ public class PropertiesConstraintsTest {
     public void testLtConstraintSatisfied() throws Exception {
         LessThanConstraint constraint = new LessThanConstraint();
         constraint.setLessThan("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(1l);
         constraint.validate(Long.MIN_VALUE);
         constraint.setLessThan("5");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(4l);
         constraint.validate(3l);
     }
@@ -232,14 +238,14 @@ public class PropertiesConstraintsTest {
     public void testLtConstraintFailed() throws Exception {
         LessThanConstraint constraint = new LessThanConstraint();
         constraint.setLessThan("2");
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(3l);
     }
 
     @Test
     public void testRegexpConstraintSatisfied() throws Exception {
         PatternConstraint constraint = new PatternConstraint();
-        constraint.initialize(ToscaType.STRING);
+        constraint.initialize(ToscaType.STRING_TYPE);
         constraint.setPattern("\\d+");
         constraint.validate("123456");
     }
@@ -252,10 +258,10 @@ public class PropertiesConstraintsTest {
     }
 
     @Test
-    public void testValidValuesConstraintStatisfied() throws Exception {
+    public void testValidValuesConstraintSatisfied() throws Exception {
         ValidValuesConstraint constraint = new ValidValuesConstraint();
         constraint.setValidValues(Lists.newArrayList("1", "2", "3", "4"));
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(1l);
         constraint.validate(2l);
         constraint.validate(3l);
@@ -266,7 +272,39 @@ public class PropertiesConstraintsTest {
     public void testValidValuesConstraintFailed() throws Exception {
         ValidValuesConstraint constraint = new ValidValuesConstraint();
         constraint.setValidValues(Lists.newArrayList("1", "2", "3", "4"));
-        constraint.initialize(ToscaType.INTEGER);
+        constraint.initialize(ToscaType.INTEGER_TYPE);
         constraint.validate(5l);
+    }
+
+    @Test
+    public void testTimeSizeInRangeConstraint() throws Exception {
+        InRangeConstraint inRangeConstraint = new InRangeConstraint();
+        inRangeConstraint.setInRange(Lists.newArrayList("1 MB", "2 GB"));
+        inRangeConstraint.initialize(ToscaType.SIZE_TYPE);
+        inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("1 GB"));
+        try {
+            inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("1 TB"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        try {
+            inRangeConstraint.validate(ToscaType.SIZE_TYPE.parse("100 B"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        inRangeConstraint = new InRangeConstraint();
+        inRangeConstraint.setInRange(Lists.newArrayList("1 m", "2 d"));
+        inRangeConstraint.initialize(ToscaType.TIME_TYPE);
+        inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("1 h"));
+        try {
+            inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("5 d"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
+        try {
+            inRangeConstraint.validate(ToscaType.TIME_TYPE.parse("1 s"));
+            Assert.fail("Value not in range, validation must fail");
+        } catch (ConstraintViolationException e) {
+        }
     }
 }

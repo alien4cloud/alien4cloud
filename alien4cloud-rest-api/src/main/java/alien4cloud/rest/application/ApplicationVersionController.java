@@ -33,7 +33,7 @@ import alien4cloud.security.Role;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
-import alien4cloud.utils.version.ApplicationVersionException;
+import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
 
 import com.google.common.collect.Lists;
@@ -139,7 +139,7 @@ public class ApplicationVersionController {
         if (appVersion.isReleased()) {
             throw new UpdateApplicationVersionException("The application version " + appVersion.getId() + " is released and cannot be update.");
         } else if (request.getVersion() != null && !VersionUtil.isValid(request.getVersion())) {
-            throw new ApplicationVersionException(request.getVersion() + "is not a valid version name");
+            throw new InvalidVersionException(request.getVersion() + "is not a valid version name");
         } else if (request.getVersion() != null && !appVersion.getVersion().equals(request.getVersion())
                 && appVersionService.isApplicationVersionNameExist(appVersion.getApplicationId(), request.getVersion())) {
             throw new AlreadyExistException("An application version already exist for this application with the version :" + applicationVersionId);

@@ -148,7 +148,7 @@ public class DeploymentController {
             @ApiParam(value = "Deployment id.", required = true) @Valid @NotBlank @PathVariable String deploymentId) {
 
         Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>();
+        final DeferredResult<RestResponse<DeploymentStatus>> statusResult = new DeferredResult<>(5L * 60L * 1000L);
         if (deployment != null) {
             try {
                 deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {

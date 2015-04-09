@@ -85,12 +85,25 @@
                       <!-- TODO: add trad -->
                       <th>Name</th>
                       <th>Value</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
-                      <td class="col-md-8">{{application.name}}</td>
+                      <td class="col-md-7">{{application.name}}</td>
+                      <td class="col-md-1">
+                        <button ng-if="!hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-success btn-xs"
+                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
+                                ng-click="switchDeployementMaintenanceModeOn()" >
+                          <i class="fa fa-wrench"></i>
+                        </button>                          
+                        <button ng-if="hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-danger btn-xs"
+                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
+                                ng-click="switchDeployementMaintenanceModeOff()">
+                          <i class="fa fa-wrench"></i>
+                        </button>                       
+                      </td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>Nom du déploiement</strong></td>
@@ -98,15 +111,18 @@
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
-                      <td class="col-md-8">{{topology.topology.id}}</td>
+                      <td class="col-md-7">{{topology.topology.id}}</td>
+                      <td class="col-md-1"></td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_NAME' | translate}}</strong></td>
-                      <td class="col-md-8">{{cloud.name}}</td>
+                      <td class="col-md-7">{{cloud.name}}</td>
+                      <td class="col-md-1"></td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.CLOUD_ID' | translate}}</strong></td>
-                      <td class="col-md-8">{{cloud.id}}</td>
+                      <td class="col-md-7">{{cloud.id}}</td>
+                      <td class="col-md-1"></td>
                     </tr>
                   </tbody>
                 </table>
@@ -150,18 +166,37 @@
                       <th>{{ 'APPLICATIONS.RUNTIME.INSTANCE' | translate }}</th>
                       <th>{{ 'APPLICATIONS.RUNTIME.STATE' | translate }}</th>
                       <th>{{ 'APPLICATIONS.RUNTIME.STATUS' | translate }}</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr ng-repeat="(id, info) in topology.instances[selectedNodeTemplate.name]" class="clickable-media" ng-click="selectInstance(id)">
                       <td class="col-md-2">{{id}}</td>
-                      <td class="col-md-8">{{'STATES.'+info.state | translate}}</td>
+                      <td class="col-md-7">{{'STATES.'+info.state | translate}}</td>
                       <td class="col-md-2">
-                        <div ng-switch="info.instanceStatus">
-                          <i class="fa fa-check text-success" ng-switch-when="SUCCESS"></i>
-                          <i class="fa fa-spinner fa-spin" ng-switch-when="PROCESSING"></i>
-                          <i class="fa fa-times text-danger" ng-switch-when="FAILURE"></i>
-                        </div>
+                        <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
+                        'fa-times text-danger': info.instanceStatus === 'FAILURE',
+                        'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING',
+                        'fa fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
+                      </td>
+                      <td class="col-md-1">
+                        <div ng-if="isComputeType(selectedNodeTemplate)" ng-switch="info.instanceStatus">
+			                    <button ng-switch-when="SUCCESS" id="instanceMaintenanceButton" class="btn btn-success btn-xs"
+			                            tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
+			                            ng-click="$event.stopPropagation(); switchNodeInstanceMaintenanceModeOn(id)" >
+			                      <i class="fa fa-wrench"></i>
+			                    </button>       
+	                        <button ng-switch-when="MAINTENANCE" id="instanceMaintenanceButton" class="btn btn-danger btn-xs"
+	                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
+	                                ng-click="$event.stopPropagation(); switchNodeInstanceMaintenanceModeOff(id)" >
+	                          <i class="fa fa-wrench"></i>
+	                        </button> 		
+	                        <button ng-switch-default disabled="true" id="instanceMaintenanceButton" class="btn btn-default btn-xs"
+	                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
+	                                ng-click="$event.stopPropagation();" >
+	                          <i class="fa fa-wrench"></i>
+	                        </button>                                                            
+                        </div>                      
                       </td>
                     </tr>
                   </tbody>

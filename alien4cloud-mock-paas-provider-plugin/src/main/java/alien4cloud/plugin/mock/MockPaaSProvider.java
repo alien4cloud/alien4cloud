@@ -19,6 +19,8 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -45,7 +47,6 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -77,6 +78,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+
+    @Resource
+    private ICSARRepositorySearchService csarRepoSearchService;
 
     private static final String UNKNOWN_APPLICATION_THAT_NEVER_WORKS = "UNKNOWN-APPLICATION";
 
@@ -129,7 +133,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
-        return new InstanceInformation("init", InstanceStatus.PROCESSING, attributes, runtimeProperties);
+        return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties);
     }
 
     private ScalingPolicy getScalingPolicy(String id, Map<String, ScalingPolicy> policies, Map<String, NodeTemplate> nodeTemplates) {
@@ -343,7 +347,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     private String getNextState(String currentState) {
         switch (currentState) {
-        case "init":
+        case ToscaNodeLifecycleConstants.INITIAL:
             return "creating";
         case "creating":
             return "created";
@@ -491,4 +495,62 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     public String[] getAvailableResourceIds(CloudResourceType resourceType, String imageId) {
         return null;
     }
+
+    @Override
+    public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
+        String deploymentId = deploymentContext.getDeploymentId();
+        Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
+        Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
+        Map<String, Map<String, InstanceInformation>> nodes = instanceInformationsMap.get(deploymentId);
+        if (nodes == null || nodes.isEmpty()) {
+            return;
+        }
+        for (Entry<String, Map<String, InstanceInformation>> nodeEntry : nodes.entrySet()) {
+            String nodeTemplateId = nodeEntry.getKey();
+            Map<String, InstanceInformation> nodeInstances = nodeEntry.getValue();
+            if (nodeInstances != null && !nodeInstances.isEmpty()) {
+                NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateId);
+                IndexedNodeType nodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+                        topology.getDependencies());
+                if (ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, nodeType)) {
+                    for (Entry<String, InstanceInformation> nodeInstanceEntry : nodeInstances.entrySet()) {
+                        String instanceId = nodeInstanceEntry.getKey();
+                        InstanceInformation instanceInformation = nodeInstanceEntry.getValue();
+                        if (instanceInformation != null) {
+                            switchInstanceMaintenanceMode(deploymentId, nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void switchInstanceMaintenanceMode(String deploymentId, String nodeTemplateId, String instanceId, InstanceInformation instanceInformation,
+            boolean maintenanceModeOn) {
+        if (maintenanceModeOn && instanceInformation.getInstanceStatus() == InstanceStatus.SUCCESS) {
+            log.info(String.format("switching instance MaintenanceMode ON for node <%s>, instance <%s>", nodeTemplateId, instanceId));
+            instanceInformation.setInstanceStatus(InstanceStatus.MAINTENANCE);
+            instanceInformation.setState("maintenance");
+            notifyInstanceStateChanged(deploymentId, nodeTemplateId, instanceId, instanceInformation, 2);
+        } else if (!maintenanceModeOn && instanceInformation.getInstanceStatus() == InstanceStatus.MAINTENANCE) {
+            log.info(String.format("switching instance MaintenanceMode OFF for node <%s>, instance <%s>", nodeTemplateId, instanceId));
+            instanceInformation.setInstanceStatus(InstanceStatus.SUCCESS);
+            instanceInformation.setState("started");
+            notifyInstanceStateChanged(deploymentId, nodeTemplateId, instanceId, instanceInformation, 2);
+        }
+    }
+
+    @Override
+    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn) {
+        log.info(String.format("switchInstanceMaintenanceMode order received for node <%s>, instance <%s>, mode <%s>", nodeTemplateId, instanceId,
+                maintenanceModeOn));
+        String deploymentId = deploymentContext.getDeploymentId();
+        final Map<String, Map<String, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
+        if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)
+                && existingInformations.get(nodeTemplateId).containsKey(instanceId)) {
+            InstanceInformation instanceInformation = existingInformations.get(nodeTemplateId).get(instanceId);
+            switchInstanceMaintenanceMode(deploymentId, nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
+        }
+    }
+
 }

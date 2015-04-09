@@ -1,37 +1,26 @@
 package alien4cloud.cloud;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -40,18 +29,7 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.AbstractMonitorEvent;
-import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.paas.model.OperationExecRequest;
-import alien4cloud.paas.model.PaaSDeploymentContext;
-import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
-import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.paas.model.PaaSTopology;
-import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.model.*;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.utils.MapUtil;
 
@@ -293,7 +271,7 @@ public class DeploymentService {
     }
 
     /**
-     * Scale up/down a node in a topology.
+     * Scale up/down a node in a topology
      *
      * @param applicationEnvironmentId id of the targeted environment
      * @param nodeTemplateId id of the compute node to scale up
@@ -304,13 +282,29 @@ public class DeploymentService {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
         // change the initial instance to the current instances for the runtime topology.
-        topology.getScalingPolicies().get(nodeTemplateId)
-                .setInitialInstances(topology.getScalingPolicies().get(nodeTemplateId).getInitialInstances() + instances);
+        int initialInstances = topology.getScalingPolicies().get(nodeTemplateId).getInitialInstances();
+        topology.getScalingPolicies().get(nodeTemplateId).setInitialInstances(initialInstances + instances);
         alienMonitorDao.save(topology);
+        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances, instances);
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
         paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
+    }
+
+    public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
+            throws CloudDisabledException {
+        Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
+        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn);
+    }
+
+    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException {
+        Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
+        IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
+        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        paaSProvider.switchMaintenanceMode(deploymentContext, maintenanceModeOn);
     }
 
     /**
@@ -373,11 +367,12 @@ public class DeploymentService {
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      * @throws OperationExecutionException runtime exception during an operation
      */
-    public void triggerOperationExecution(OperationExecRequest request, IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException,
-            OperationExecutionException {
-        Deployment activeDeployment = this.getActiveDeploymentFailIfNotExists(request.getApplicationEnvironmentId());
+    public void triggerOperationExecution(OperationExecRequest request, Topology topology, DeploymentSetup deploymentSetup,
+            IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException, OperationExecutionException {
+        Deployment activeDeployment = getActiveDeploymentFailIfNotExists(request.getApplicationEnvironmentId());
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(activeDeployment.getCloudId());
-        paaSProvider.executeOperation(buildDeploymentContext(activeDeployment), request, callback);
+        // It's a little bit ugly to let deployment setup to null but we do not need this information
+        paaSProvider.executeOperation(buildTopologyDeploymentContext(activeDeployment, topology, deploymentSetup), request, callback);
     }
 
     /**

@@ -62,20 +62,20 @@ node_types:
       icon: /images/compute.png
     properties:
       disk_size:
-        type: integer
+        type: scalar-unit.size
         required: false
         constraints:
-          - greater_than: 0
+          - greater_than: 0 B
       num_cpus:
         type: integer
         required: false
         constraints:
           -  greater_than: 0
       mem_size:
-        type: integer
+        type: scalar-unit.size
         required: false
         constraints:
-          - greater_than: 0
+          - greater_than: 0 B
       os_arch:
         type: string
       os_type:
