@@ -6,6 +6,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
   function($scope, propertiesServices, $translate) {
 
     $scope.propertySave = function(data, unit) {
+      delete $scope.unitError;
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
       } else if (UTILS.isDefinedAndNotNull($scope.definitionObject.units)) {
@@ -32,8 +33,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
             } else {
               return $translate('ERRORS.' + saveResult.error.code, constraintInfo);
             }
-          } else {
-            delete $scope.unitError;
           }
         });
       }
@@ -49,8 +48,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
               $scope.unitError = error;
             }
           });
-        } else {
-          delete $scope.unitError;
         }
       }
     };

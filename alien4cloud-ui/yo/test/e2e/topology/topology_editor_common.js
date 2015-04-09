@@ -382,21 +382,25 @@ var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
 };
 module.exports.selectNodeAndGoToDetailBloc = selectNodeAndGoToDetailBloc;
 
-var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, componentType) {
+var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, componentType, unit) {
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   showComponentsTab();
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
   var propertyElement = element(by.id(nodeDetailsBlocsIds[componentType] + '-panel')).element(by.id('p_' + propertyName));
   var spanPropertyValue = propertyElement.element(by.tagName('span'));
+  if (unit) {
+    var unitSelect = spanPropertyValue.element(by.tagName('div'));
+    unitSelect.click();
+    propertyElement.element(by.id('p_' + propertyName + '_unit_' + unit)).click();
+    spanPropertyValue = spanPropertyValue.element(by.tagName('span'));
+  }
   spanPropertyValue.click();
-
   var editForm = propertyElement.element(by.tagName('form'));
   var inputValue = editForm.element(by.tagName('input'));
 
   inputValue.clear();
   inputValue.sendKeys(propertyValue);
   editForm.submit();
-  browser.waitForAngular();
 };
 module.exports.editNodeProperty = editNodeProperty;
 
@@ -547,18 +551,19 @@ module.exports.expectShowTodoList = expectShowTodoList;
 /** Close or open a specific node template details bloc */
 var nodeDetailsCollapse = function(blocId, opened) {
   var myBlock = element(by.id(blocId));
-  myBlock.isPresent().then(function isBlockPresent(present) {
-    if (present) {
+  return myBlock.isPresent().then(function(blockPresent) {
+    if (blockPresent) {
       var myBlockIcon = myBlock.element(by.tagName('i'));
       var ngClass = myBlockIcon.getAttribute('class');
-      ngClass.then(function(classes) {
-        // test if the bloc is opened and then close it
-        if ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1)) {
-          browser.waitForAngular();
-          myBlockIcon.click();
-          browser.waitForAngular();
-        }
-      });
+      return ngClass;
+    }
+  }).then(function(classes) {
+    // test if the bloc is opened and then close it
+    if (classes && ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1))) {
+      myBlock.click();
+      return true;
+    } else {
+      return false;
     }
   });
 };
@@ -566,11 +571,16 @@ var nodeDetailsCollapse = function(blocId, opened) {
 /** Open only one bloc in the node template details */
 var collapseNodeDetailsBloc = function(blocId) {
   // Close all details
-  for(var i = 0; i < nodeDetailsBlockList.length; i++) {
-    nodeDetailsCollapse(nodeDetailsBlockList[i], false);
+  for (var i = 0; i < nodeDetailsBlockList.length; i++) {
+    if (blocId === nodeDetailsBlockList[i]) {
+      // Open the required bloc
+      nodeDetailsCollapse(blocId, true);
+      break;
+    } else {
+      // Close the others
+      nodeDetailsCollapse(nodeDetailsBlockList[i], false);
+    }
   }
-  // Open the required bloc
-  nodeDetailsCollapse(blocId, true);
 };
 module.exports.collapseNodeDetailsBloc = collapseNodeDetailsBloc;
 
