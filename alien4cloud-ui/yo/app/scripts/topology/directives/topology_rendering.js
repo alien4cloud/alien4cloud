@@ -29,7 +29,7 @@ angular.module('alienUiApp').directive(
           var topologySvg = topologySvgFactory.create(scope.callback, topologyElement, scope.runtime, nodeRenderer);
 
           scope.$watch('topology', function(topology) {
-            // console.log('Topology >', topology);
+            console.log('Topology >', topology);
             topologySvg.reset(topology);
           }, true);
 
