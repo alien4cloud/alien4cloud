@@ -58,11 +58,13 @@ angular.module('alienUiApp').factory('commonNodeRendererService', [
           });
       },
 
-      getNumberOfInstanceByStatus: function(nodeInstances, status) {
+      getNumberOfInstanceByStatus: function(nodeInstances, instanceStatus, state) {
         var count = 0;
         for (var instanceId in nodeInstances) {
-          if (nodeInstances.hasOwnProperty(instanceId) && nodeInstances[instanceId].instanceStatus === status) {
-            count++;
+          if (nodeInstances.hasOwnProperty(instanceId)) {
+            if (nodeInstances[instanceId].instanceStatus === instanceStatus || nodeInstances[instanceId].state === state) {
+              count++;
+            }
           }
         }
         return count;
