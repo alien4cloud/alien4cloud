@@ -181,7 +181,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
         this.nodeRenderer.createNode(nodeGroup, node, nodeTemplate, nodeType, oX, oY);
         // specific to networks
-        if (nodeType.elementId === 'tosca.nodes.Network') {
+        if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
           var netX = oX + this.nodeRenderer.width;
           var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
           var netY = oY + (this.nodeRenderer.height/2) - 2;
@@ -213,6 +213,14 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var scalingPolicySelection, scalingPolicy = null;
         if(UTILS.isDefinedAndNotNull(this.topology.topology.scalingPolicies)) {
           scalingPolicy = this.topology.topology.scalingPolicies[node.id];
+        }
+
+        if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
+          var netX = oX + this.nodeRenderer.width;
+          var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
+          var netY = oY + (this.nodeRenderer.height/2) - 2;
+          var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
+          nodeGroup.select('.link-network').attr('d', path);
         }
 
         if(UTILS.isDefinedAndNotNull(scalingPolicy)) {
