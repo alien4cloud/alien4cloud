@@ -69,7 +69,9 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
               nodeInstancesCount = Object.keys(nodeInstances).length;
-              nodeScalingPolicies = topology.topology.scalingPolicies[node.id];
+              if (topology.topology.hasOwnProperty('scalingPolicies')) {
+                nodeScalingPolicies = topology.topology.scalingPolicies[node.id];
+              }
             }
           }
 
