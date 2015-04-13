@@ -342,14 +342,13 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.scale = function(newValue) {
-        console.log('SCALA to >', newValue, $scope.topology);
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
             applicationId: applicationId,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
             applicationEnvironmentId: $scope.selectedEnvironment.id
-          }, undefined, function success(scaleResult) {
+          }, undefined, function success() {
             $scope.loadTopologyRuntime();
           });
         }
