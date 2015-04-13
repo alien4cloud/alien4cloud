@@ -18,6 +18,7 @@ node_types:
           - greater_than: 1 GiB
       u_disk_read_access_time:
         type: scalar-unit.time
+        required: false
         constraints:
           - greater_than: 1 ms
       os_arch:
