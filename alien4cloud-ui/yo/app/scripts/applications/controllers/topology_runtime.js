@@ -246,6 +246,7 @@ angular.module('alienUiApp').controller(
             $scope.isWaitingForRefresh = false;
             refreshInstancesStatuses();
           }, 1000, 1);
+          refreshNodeInstanceInMaintenanceMode();
           $scope.$apply();
         }
       };
