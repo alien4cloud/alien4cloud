@@ -48,16 +48,15 @@
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
                       <td class="col-md-7">{{application.name}}</td>
                       <td class="col-md-1">
-                        <button ng-if="!hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-success btn-xs"
-                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                ng-click="switchDeployementMaintenanceModeOn()" >
-                          <i class="fa fa-wrench"></i>
-                        </button>
-                        <button ng-if="hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-danger btn-xs"
-                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
-                                ng-click="switchDeployementMaintenanceModeOff()">
-                          <i class="fa fa-wrench"></i>
-                        </button>
+												<a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
+												   id="appMaintenanceButton"
+												   confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
+												   confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+												   confirm-placement="left"
+												   confirm-handler="switchDeployementMaintenanceMode()"
+												   ng-click="$event.stopPropagation();">
+												  <i class="fa fa-wrench"></i>
+												</a>  
                       </td>
                     </tr>
                     <tr>
@@ -86,18 +85,19 @@
           </div>
           <!-- Node -->
           <div ng-show="selectedNodeTemplate && !selectedInstance">
-            <div class="row">
-              <div class="col-md-10">
+            <div>
+              <div class="pull-left">
                 <h5>
                   <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
                   <span class="text-primary"> / {{selectedNodeTemplate.name | split:39}}</span>
                 </h5>
               </div>
-              <div class="col-md-2">
+              <div class="pull-right">
                 <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
                   <i class="fa fa-arrow-left"></i>
                 </button>
-              </div>
+              </div>    
+              <span class="clearfix"></span>          
             </div>
             <div id="scaleEditableInput" ng-show="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
               <div id="node-scale-command" class="clickable"
@@ -163,23 +163,17 @@
                           'fa fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
                         </td>
                         <td class="col-md-1">
-                          <div ng-if="isComputeType(selectedNodeTemplate)" ng-switch="info.instanceStatus">
-                            <button ng-switch-when="SUCCESS" id="instanceMaintenanceButton" class="btn btn-success btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                    ng-click="switchNodeInstanceMaintenanceModeOn(id)" >
-                              <i class="fa fa-wrench"></i>
-                            </button>
-                            <button ng-switch-when="MAINTENANCE" id="instanceMaintenanceButton" class="btn btn-danger btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
-                                    ng-click="$event.stopPropagation(); switchNodeInstanceMaintenanceModeOff(id)" >
-                              <i class="fa fa-wrench"></i>
-                            </button>
-                            <button ng-switch-default disabled="true" id="instanceMaintenanceButton" class="btn btn-default btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                    ng-click="$event.stopPropagation();" >
-                              <i class="fa fa-wrench"></i>
-                            </button>
-                          </div>
+                          <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
+		                        <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
+		                           id="instanceMaintenanceButton"
+		                           confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
+		                           confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+		                           confirm-placement="left"
+		                           confirm-handler="switchNodeInstanceMaintenanceMode(id)"
+		                           ng-click="$event.stopPropagation();">
+		                          <i class="fa fa-wrench"></i>
+		                        </a>              
+                          </div>                      
                         </td>
                       </tr>
                     </tbody>
