@@ -119,15 +119,20 @@ describe('Topology runtime view', function() {
     // jump to Apache LB operations tab
     goToAlienAppAndSelectApachelbOperations();
 
+    element.all(by.repeater('(operationName, operation) in interface.operations')).then(function(allOperations) {
+      // all operations for all interfaces that are not standard tosca lifecycle should appear here
+      expect(allOperations.length).toEqual(11);
+    });
+    
     // trigger operation without params: removeNode
-    var operationDiv = element(by.id('operation_removeNode'));
-    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-removeNode'));
+    var operationDiv = element(by.id('operation_custom_removeNode'));
+    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-custom-removeNode'));
     submitOperationBtn.click();
     browser.sleep(1000);
     common.dismissAlert();
 
     // trigger operation with params: addNode
-    operationDiv = element(by.id('operation_addNode'));
+    operationDiv = element(by.id('operation_custom_addNode'));
     operationDiv.element(by.css('div.clickable')).click();
     browser.sleep(1000);
     // enter 2 values befor execute
@@ -135,7 +140,7 @@ describe('Topology runtime view', function() {
     common.sendValueToXEditable('p_node', 'MyNodeName', false);
 
     // exdecute the addNode operation
-    submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-addNode'));
+    submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-custom-addNode'));
     submitOperationBtn.click();
     browser.sleep(1000);
 
@@ -159,12 +164,12 @@ describe('Topology runtime view', function() {
     goToAlienAppAndSelectApachelbOperations();
 
     // go on add operation details
-    var operationDiv = element(by.id('operation_addNode'));
+    var operationDiv = element(by.id('operation_custom_addNode'));
     operationDiv.element(by.css('div.clickable')).click();
 
     // trigger operation addNode : 2 params required
-    operationDiv = element(by.id('operation_addNode'));
-    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-addNode'));
+    operationDiv = element(by.id('operation_custom_addNode'));
+    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-custom-addNode'));
     submitOperationBtn.click();
 
     // should have error toaster
@@ -182,8 +187,8 @@ describe('Topology runtime view', function() {
     goToAlienAppAndSelectApachelbOperations();
 
     // trigger operation without params: removeNode
-    var operationDiv = element(by.id('operation_removeNode'));
-    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-removeNode'));
+    var operationDiv = element(by.id('operation_custom_removeNode'));
+    var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-custom-removeNode'));
     submitOperationBtn.click();
 
     // should have error toaster

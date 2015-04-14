@@ -1,8 +1,8 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeRendererService',
-  function(commonNodeRendererService) {
+angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeRendererService', 'toscaService',
+  function(commonNodeRendererService, toscaService) {
     return {
 
       isRuntime: false,
@@ -76,7 +76,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
           }
 
           // TODO better draw network node
-          if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
+          if (!toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
             this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY, nodeScalingPolicies);
           }
         }
