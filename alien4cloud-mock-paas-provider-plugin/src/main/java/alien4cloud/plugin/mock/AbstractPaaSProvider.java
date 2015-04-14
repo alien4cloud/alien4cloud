@@ -191,7 +191,6 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     public void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
             throws OperationExecutionException {
         try {
-            String deploymentId = deploymentContext.getDeploymentId();
             providerLock.writeLock().lock();
             String doExecuteOperationResult = doExecuteOperation(request);
             String resultException = null;

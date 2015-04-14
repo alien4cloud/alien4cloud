@@ -27,7 +27,11 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
-import alien4cloud.security.*;
+import alien4cloud.security.ApplicationEnvironmentRole;
+import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.Role;
+import alien4cloud.security.User;
 import alien4cloud.topology.TopologyServiceCore;
 
 @Slf4j
@@ -66,7 +70,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         template.convertAndSend(topicName, event);
 
         if (event instanceof PaaSDeploymentStatusMonitorEvent) {
-            Deployment deployment = alienDAO.findById(Deployment.class, event.getDeploymentId());
+            Deployment deployment = deploymentService.getDeploymentByName(event.getDeploymentId());
 
             if (deployment != null) {
                 updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());

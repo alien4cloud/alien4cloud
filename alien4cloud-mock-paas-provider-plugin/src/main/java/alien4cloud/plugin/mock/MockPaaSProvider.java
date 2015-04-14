@@ -19,17 +19,15 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.cloud.DeploymentService;
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.Application;
+import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -47,7 +45,11 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.tosca.ToscaUtils;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -55,29 +57,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class MockPaaSProvider extends AbstractPaaSProvider {
-
     public static final String PUBLIC_IP = "ip_address";
     public static final String TOSCA_ID = "tosca_id";
     public static final String TOSCA_NAME = "tosca_name";
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    private final Map<String, DeploymentStatus> deploymentsMap = Maps.newConcurrentMap();
-
     @Resource
     private DeploymentService deploymentService;
 
     private ProviderConfig providerConfiguration;
 
-    /**
-     * A little bit scary isn't it ? It's just a mock man.
-     */
-    private final Map<String, Map<String, Map<String, InstanceInformation>>> instanceInformationsMap = Maps.newConcurrentMap();
+    private final Map<String, MockRuntimeDeploymentInfo> runtimeDeploymentInfos = Maps.newConcurrentMap();
 
     private final List<AbstractMonitorEvent> toBeDeliveredEvents = Collections.synchronizedList(new ArrayList<AbstractMonitorEvent>());
-
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
 
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
@@ -92,12 +85,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     public MockPaaSProvider() {
         executorService.scheduleWithFixedDelay(new Runnable() {
-
             @Override
             public void run() {
-                for (Map.Entry<String, Map<String, Map<String, InstanceInformation>>> topologyInfo : instanceInformationsMap.entrySet()) {
-                    // Call this just to change instance state and push to client
-                    doChangeInstanceInformations(topologyInfo.getKey(), topologyInfo.getValue());
+                for (Map.Entry<String, MockRuntimeDeploymentInfo> runtimeDeloymentInfoEntry : runtimeDeploymentInfos.entrySet()) {
+                    // Call this just to change update every deployment instance state so it performs simulation of deployment.
+                    doChangeInstanceInformations(runtimeDeloymentInfoEntry.getKey(), runtimeDeloymentInfoEntry.getValue().getInstanceInformations());
                 }
             }
         }, 1L, 1L, TimeUnit.SECONDS);
@@ -120,10 +112,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed) {
-        if (deploymentsMap.containsKey(deploymentId)) {
-            return deploymentsMap.get(deploymentId);
+        MockRuntimeDeploymentInfo deploymentInfo = runtimeDeploymentInfos.get(deploymentId);
+        if (deploymentInfo == null) {
+            return DeploymentStatus.UNDEPLOYED;
         }
-        return DeploymentStatus.UNDEPLOYED;
+        return deploymentInfo.getStatus();
     }
 
     private InstanceInformation newInstance(int i) {
@@ -152,42 +145,38 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     @Override
     protected synchronized void doDeploy(final PaaSTopologyDeploymentContext deploymentContext) {
         log.info("Deploying deployment [" + deploymentContext.getDeploymentId() + "]");
-        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
-        if (deploymentContext.getDeploymentId() != null) {
-            Topology topology = deploymentContext.getTopology();
-            Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-            if (policies == null) {
-                policies = Maps.newHashMap();
-            }
-            Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-            if (nodeTemplates == null) {
-                nodeTemplates = Maps.newHashMap();
-            }
-            Map<String, Map<String, InstanceInformation>> currentInformations = Maps.newHashMap();
-            for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplates.entrySet()) {
-                Map<String, InstanceInformation> instanceInformations = Maps.newHashMap();
-                currentInformations.put(nodeTemplateEntry.getKey(), instanceInformations);
-                ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), policies, nodeTemplates);
-                int initialInstances = policy != null ? policy.getInitialInstances() : 1;
-                for (int i = 1; i <= initialInstances; i++) {
-                    InstanceInformation newInstanceInformation = newInstance(i);
-                    instanceInformations.put(String.valueOf(i), newInstanceInformation);
-                    notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
-                }
-            }
-            instanceInformationsMap.put(deploymentContext.getDeploymentId(), currentInformations);
-        }
-        executorService.schedule(new Runnable() {
 
+        Topology topology = deploymentContext.getTopology();
+        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
+        if (policies == null) {
+            policies = Maps.newHashMap();
+        }
+        Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
+        if (nodeTemplates == null) {
+            nodeTemplates = Maps.newHashMap();
+        }
+        Map<String, Map<String, InstanceInformation>> currentInformations = Maps.newHashMap();
+        for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplates.entrySet()) {
+            Map<String, InstanceInformation> instanceInformations = Maps.newHashMap();
+            currentInformations.put(nodeTemplateEntry.getKey(), instanceInformations);
+            ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), policies, nodeTemplates);
+            int initialInstances = policy != null ? policy.getInitialInstances() : 1;
+            for (int i = 1; i <= initialInstances; i++) {
+                InstanceInformation newInstanceInformation = newInstance(i);
+                instanceInformations.put(String.valueOf(i), newInstanceInformation);
+                notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
+            }
+        }
+
+        runtimeDeploymentInfos.put(deploymentContext.getDeploymentId(), new MockRuntimeDeploymentInfo(deploymentContext,
+                DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
+
+        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
+
+        executorService.schedule(new Runnable() {
             @Override
             public void run() {
-                Application application = alienDAO.findById(Application.class, deploymentContext.getDeployment().getSourceId());
-                // To bluff the product owner, we must do as if it's deploying something, but in fact it's not
-                if (application == null) {
-                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYED);
-                    return;
-                }
-                switch (application.getName()) {
+                switch (deploymentContext.getDeployment().getSourceName()) {
                 case BAD_APPLICATION_THAT_NEVER_WORKS:
                     changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.FAILURE);
                     break;
@@ -198,7 +187,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                     changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYED);
                 }
             }
-
         }, 5, TimeUnit.SECONDS);
     }
 
@@ -206,8 +194,10 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     protected synchronized void doUndeploy(final PaaSDeploymentContext deploymentContext) {
         log.info("Undeploying deployment [" + deploymentContext.getDeploymentId() + "]");
         changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
-        if (instanceInformationsMap.containsKey(deploymentContext.getDeploymentId())) {
-            Map<String, Map<String, InstanceInformation>> appInfo = instanceInformationsMap.get(deploymentContext.getDeploymentId());
+
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        if (runtimeDeploymentInfo != null) {
+            Map<String, Map<String, InstanceInformation>> appInfo = runtimeDeploymentInfo.getInstanceInformations();
             for (Map.Entry<String, Map<String, InstanceInformation>> nodeEntry : appInfo.entrySet()) {
                 for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
@@ -216,41 +206,42 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 }
             }
         }
+
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
                 changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYED);
+                // cleanup deployment cache
+                runtimeDeploymentInfos.remove(deploymentContext.getDeploymentId());
             }
         }, 5, TimeUnit.SECONDS);
     }
 
     @Override
     protected synchronized DeploymentStatus doChangeStatus(final String deploymentId, final DeploymentStatus status) {
-        DeploymentStatus oldDeploymentStatus = deploymentsMap.put(deploymentId, status);
-        if (oldDeploymentStatus == null) {
-            oldDeploymentStatus = DeploymentStatus.UNDEPLOYED;
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentId);
+        DeploymentStatus oldDeploymentStatus = DeploymentStatus.UNDEPLOYED;
+        if (runtimeDeploymentInfo != null) {
+            oldDeploymentStatus = runtimeDeploymentInfo.getStatus();
         }
-        log.info("Deployment [" + deploymentId + "] pass from status [" + oldDeploymentStatus + "] to [" + status + "]");
-        executorService.schedule(new Runnable() {
+        log.info("Deployment [" + deploymentId + "] moved from status [" + oldDeploymentStatus + "] to [" + status + "]");
 
+        executorService.schedule(new Runnable() {
             @Override
             public void run() {
-                Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-                String cloudId = deployment.getCloudId();
                 PaaSDeploymentStatusMonitorEvent event = new PaaSDeploymentStatusMonitorEvent();
                 event.setDeploymentStatus(status);
                 event.setDate((new Date()).getTime());
                 event.setDeploymentId(deploymentId);
-                event.setCloudId(cloudId);
                 toBeDeliveredEvents.add(event);
                 PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                 messageMonitorEvent.setDate((new Date()).getTime());
                 messageMonitorEvent.setDeploymentId(deploymentId);
-                messageMonitorEvent.setCloudId(cloudId);
                 messageMonitorEvent.setMessage("APPLICATIONS.RUNTIME.EVENTS.MESSAGE_EVENT.STATUS_DEPLOYMENT_CHANGED");
                 toBeDeliveredEvents.add(messageMonitorEvent);
             }
         }, 1, TimeUnit.SECONDS);
+
         return oldDeploymentStatus;
     }
 
@@ -261,12 +252,14 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         cloned.setInstanceStatus(information.getInstanceStatus());
         cloned.setRuntimeProperties(information.getRuntimeProperties());
         cloned.setState(information.getState());
+
+        final MockRuntimeDeploymentInfo deploymentInfo = runtimeDeploymentInfos.get(deploymentId);
+
         executorService.schedule(new Runnable() {
 
             @Override
             public void run() {
-                Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-                String cloudId = deployment.getCloudId();
+                Deployment deployment = deploymentInfo.getDeploymentContext().getDeployment();
                 PaaSInstanceStateMonitorEvent event;
                 if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {
                     PaaSInstanceStorageMonitorEvent bsEvent = new PaaSInstanceStorageMonitorEvent();
@@ -283,13 +276,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 event.setDeploymentId(deploymentId);
                 event.setRuntimeProperties(cloned.getRuntimeProperties());
                 event.setAttributes(cloned.getAttributes());
-                event.setCloudId(cloudId);
                 toBeDeliveredEvents.add(event);
                 PaaSMessageMonitorEvent messageMonitorEvent = new PaaSMessageMonitorEvent();
                 messageMonitorEvent.setDate((new Date()).getTime());
                 messageMonitorEvent.setDeploymentId(deploymentId);
                 messageMonitorEvent.setMessage("APPLICATIONS.RUNTIME.EVENTS.MESSAGE_EVENT.INSTANCE_STATE_CHANGED");
-                messageMonitorEvent.setCloudId(cloudId);
                 toBeDeliveredEvents.add(messageMonitorEvent);
             }
         }, delay, TimeUnit.SECONDS);
@@ -300,13 +291,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
             @Override
             public void run() {
-                Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
                 PaaSInstanceStateMonitorEvent event = new PaaSInstanceStateMonitorEvent();
                 event.setInstanceId(instanceId.toString());
                 event.setNodeTemplateId(nodeId);
                 event.setDate((new Date()).getTime());
                 event.setDeploymentId(deploymentId);
-                event.setCloudId(deployment.getCloudId());
                 toBeDeliveredEvents.add(event);
             }
         }, delay, TimeUnit.SECONDS);
@@ -389,10 +378,14 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, final int instances, IPaaSCallback<?> callback) {
-        String deploymentId = deploymentContext.getDeploymentId();
-        Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
-        final Map<String, Map<String, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+
+        if (runtimeDeploymentInfo == null) {
+            return;
+        }
+
+        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getTopology();
+        final Map<String, Map<String, InstanceInformation>> existingInformations = runtimeDeploymentInfo.getInstanceInformations();
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)) {
             ScalingVisitor scalingVisitor = new ScalingVisitor() {
                 @Override
@@ -421,15 +414,17 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
-        DeploymentStatus status = deploymentsMap.get(deploymentContext.getDeploymentId());
-        status = status == null ? DeploymentStatus.UNDEPLOYED : status;
+        DeploymentStatus status = doGetStatus(deploymentContext.getDeploymentId(), false);
         callback.onSuccess(status);
     }
 
     @Override
     public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
             IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        callback.onSuccess(instanceInformationsMap.get(deploymentContext.getDeploymentId()));
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        if (runtimeDeploymentInfo != null) {
+            callback.onSuccess(runtimeDeploymentInfo.getInstanceInformations());
+        }
     }
 
     @Override
@@ -499,9 +494,12 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     @Override
     public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
         String deploymentId = deploymentContext.getDeploymentId();
-        Deployment deployment = alienDAO.findById(Deployment.class, deploymentId);
-        Topology topology = alienDAO.findById(Topology.class, deployment.getTopologyId());
-        Map<String, Map<String, InstanceInformation>> nodes = instanceInformationsMap.get(deploymentId);
+
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+
+        Topology topology = runtimeDeploymentInfo.getDeploymentContext().getTopology();
+        Map<String, Map<String, InstanceInformation>> nodes = runtimeDeploymentInfo.getInstanceInformations();
+
         if (nodes == null || nodes.isEmpty()) {
             return;
         }
@@ -544,12 +542,16 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn) {
         log.info(String.format("switchInstanceMaintenanceMode order received for node <%s>, instance <%s>, mode <%s>", nodeTemplateId, instanceId,
                 maintenanceModeOn));
-        String deploymentId = deploymentContext.getDeploymentId();
-        final Map<String, Map<String, InstanceInformation>> existingInformations = instanceInformationsMap.get(deploymentId);
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        if (runtimeDeploymentInfo == null) {
+            return;
+        }
+
+        final Map<String, Map<String, InstanceInformation>> existingInformations = runtimeDeploymentInfo.getInstanceInformations();
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)
                 && existingInformations.get(nodeTemplateId).containsKey(instanceId)) {
             InstanceInformation instanceInformation = existingInformations.get(nodeTemplateId).get(instanceId);
-            switchInstanceMaintenanceMode(deploymentId, nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
+            switchInstanceMaintenanceMode(deploymentContext.getDeploymentId(), nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
         }
     }
 

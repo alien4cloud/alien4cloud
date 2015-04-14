@@ -1,26 +1,37 @@
 package alien4cloud.cloud;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
@@ -29,7 +40,18 @@ import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.model.*;
+import alien4cloud.paas.model.AbstractMonitorEvent;
+import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceInformation;
+import alien4cloud.paas.model.OperationExecRequest;
+import alien4cloud.paas.model.PaaSDeploymentContext;
+import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
+import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.paas.model.PaaSMessageMonitorEvent;
+import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.model.PaaSTopology;
+import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.utils.MapUtil;
 
@@ -107,7 +129,7 @@ public class DeploymentService {
                 .buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstanceStorageMonitorEvent.class)
-                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
+                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getPaasId() } }))
                 .fieldSort("_timestamp", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
     }
@@ -134,7 +156,7 @@ public class DeploymentService {
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
         deployment.setId(UUID.randomUUID().toString());
-        deployment.setPaasId(generateDeploymentName(deploymentSetup.getEnvironmentId(), cloudId));
+        deployment.setPaasId(generatePaasId(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -163,7 +185,7 @@ public class DeploymentService {
         return deployment.getId();
     }
 
-    private String generateDeploymentName(String envId, String cloudId) {
+    private String generatePaasId(String envId, String cloudId) {
         // Inner class to get value from multiples objects
         @Getter
         class ContextObjectToParse {
@@ -205,17 +227,12 @@ public class DeploymentService {
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
         PaaSDeploymentContext deploymentContext = new PaaSDeploymentContext();
         deploymentContext.setDeployment(deployment);
-        buildDeploymentContext(deploymentContext, deployment);
         return deploymentContext;
-    }
-
-    private void buildDeploymentContext(PaaSDeploymentContext deploymentContext, Deployment deployment) {
-        deploymentContext.setDeployment(deployment);
     }
 
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
         PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
-        buildDeploymentContext(topologyDeploymentContext, deployment);
+        topologyDeploymentContext.setDeployment(deployment);
         Map<String, PaaSNodeTemplate> paaSNodes = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(paaSNodes);
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
@@ -438,14 +455,13 @@ public class DeploymentService {
      * @return active deployment or null if not exist
      */
     public Deployment getActiveDeployment(String applicationEnvironmentId) {
-        Deployment deployment = null;
         Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "deploymentSetup.environmentId", "endDate" }, new String[][] {
                 new String[] { applicationEnvironmentId }, new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            deployment = dataResult.getData()[0];
+            return dataResult.getData()[0];
         }
-        return deployment;
+        return null;
     }
 
     /**
@@ -536,7 +552,7 @@ public class DeploymentService {
      */
     public Deployment getDeploymentByName(String deploymentName) {
         GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class,
-                MapUtil.newHashMap(new String[] { "name", "endDate" }, new String[][] { new String[] { deploymentName }, new String[] { null } }),
+                MapUtil.newHashMap(new String[] { "paasId", "endDate" }, new String[][] { new String[] { deploymentName }, new String[] { null } }),
                 Integer.MAX_VALUE);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
