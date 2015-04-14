@@ -24,7 +24,7 @@ var cancelAction = function(cancelPopup){
 };
 
 var scale = function(oldValue, newValue, cancel) {
-  common.slideXEditableTo('scaleEditableInput', newValue);
+  common.sendXEditableWithConfirm('scaleEditableInput', newValue);
   browser.waitForAngular();
   var scaleEditableInput = element(by.id('scaleEditableInput'));
   var editForm = scaleEditableInput.element(by.tagName('form'));
