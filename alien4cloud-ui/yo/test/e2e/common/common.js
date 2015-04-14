@@ -111,7 +111,7 @@ var sendValueToXEditable = function(id, value, withAutoCompletion, type) {
   expect(span.isDisplayed()).toBe(true);
   // click on the span of x-editable to trigger input
   span.element(by.tagName('i')).click();
-  var editForm = container.element(by.tagName('form'));
+  var editForm = container.element(by.tagName('form')); // this fucking shit doesn't work on firefox !
   var editInput;
   if (type) {
     editInput = editForm.element(by.tagName(type));

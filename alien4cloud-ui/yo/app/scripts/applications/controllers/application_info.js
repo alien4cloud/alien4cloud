@@ -166,15 +166,15 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
     };
 
     $scope.updateApplication = function(fieldName, fieldValue) {
-      // Updating the app name if it 's not already used
       var applicationUpdateRequest = {};
+      if(UTILS.isUndefinedOrNull(fieldValue)) {
+        fieldValue = '';
+      }
       applicationUpdateRequest[fieldName] = fieldValue;
       return applicationServices.update({
         applicationId: $scope.application.id
       }, angular.toJson(applicationUpdateRequest), undefined).$promise.then(
-        function() {
-          // Success
-        },
+        function() {}, // Success
         function(errorResponse) {
           // Error
           return $translate('ERRORS.' + errorResponse.data.error.code);

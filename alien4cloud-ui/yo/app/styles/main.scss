@@ -27,12 +27,18 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
 @import "flip-card";
 @import "hopscotch";
 
+// Navbar and global layout
+
 .navbar-logout-dropdown {
   z-index: 2000;
 }
 
 .navbar-brand {
   padding: 0 5px;
+}
+
+.navbar-form div {
+  margin-right: 5px;
 }
 
 @media all and (min-width: $screen-sm-min) and (max-width: $screen-md-min) {
@@ -72,6 +78,8 @@ $fa-font-path: "../bower_components/font-awesome/fonts" !default;
     margin-right: 20px;
   }
 }
+
+// Navbar and global layout end
 
 .well {
   background-color: white;

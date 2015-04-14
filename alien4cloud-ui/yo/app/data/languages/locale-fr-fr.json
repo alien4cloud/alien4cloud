@@ -287,6 +287,12 @@
       "BACK": "Retour",
       "SCALE_BUTTON": "Scale le noeud",
       "MAINTENANCE_BUTTON": { "ON": "Activer le mode maintenance", "OFF": "Désactiver le mode maintenance"},
+      "DEPLOYMENT": "Déploiement",
+      "SCALE": "Scale",
+      "INSTANCES": "Instances",
+      "PROPERTIES": "Properties",
+      "ATTRIBUTES": "Attributes",
+      "RUNTIMEPROPS": "Runtime properties",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",

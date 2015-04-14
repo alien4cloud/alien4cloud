@@ -281,6 +281,12 @@
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
       "MAINTENANCE_BUTTON": { "ON": "Activate maintenance mode", "OFF": "Deactivate maintenance mode"},
+      "DEPLOYMENT": "Deployment",
+      "SCALE": "Scale",
+      "INSTANCES": "Instances",
+      "PROPERTIES": "Properties",
+      "ATTRIBUTES": "Attributes",
+      "RUNTIMEPROPS": "Runtime properties",      
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Application name",

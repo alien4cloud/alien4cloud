@@ -51,20 +51,20 @@
         </span>
         <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
-          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
+          <span editable-number="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
             {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
           </span>
-          <span ng-if="definitionObject.units" class="btn-group btn-group-xs">
+          <div ng-if="definitionObject.units" class="btn-group btn-group-xs">
             <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
               {{definitionObject.uiUnit}}
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu">
               <li ng-repeat="unit in definitionObject.units" ng-class="{'option-selected selected': definitionObject.uiUnit === unit}">
-                <a ng-click="saveUnit(unit)">{{unit}}</a>
+                <a id="p_{{definition.name}}_unit_{{unit}}" ng-click="saveUnit(unit)">{{unit}}</a>
               </li>
             </ul>
-          </span>
+          </div>
           <div ng-if="unitError" class="help-inline text-danger">{{unitError}}</div>
         </span>
         <em ng-if="!definitionObject.uiPassword && !editable">{{definitionObject.uiValue || '...'}}</em>
