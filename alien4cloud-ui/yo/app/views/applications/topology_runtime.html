@@ -37,9 +37,8 @@
                 <table class="table">
                   <thead>
                     <tr>
-                      <!-- TODO: add trad -->
-                      <th>Name</th>
-                      <th>Value</th>
+                      <th>{{'NAME' | translate}}</th>
+                      <th>{{'VALUE' | translate}}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -48,20 +47,16 @@
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
                       <td class="col-md-7">{{application.name}}</td>
                       <td class="col-md-1">
-												<a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
-												   id="appMaintenanceButton"
-												   confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
-												   confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
-												   confirm-placement="left"
-												   confirm-handler="switchDeployementMaintenanceMode()"
-												   ng-click="$event.stopPropagation();">
-												  <i class="fa fa-wrench"></i>
-												</a>  
+                        <a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
+                           id="appMaintenanceButton"
+                           confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
+                           confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+                           confirm-placement="left"
+                           confirm-handler="switchDeployementMaintenanceMode()"
+                           ng-click="$event.stopPropagation();">
+                          <i class="fa fa-wrench"></i>
+                        </a>
                       </td>
-                    </tr>
-                    <tr>
-                      <td class="col-md-4"><strong>Nom du déploiement</strong></td>
-                      <td class="col-md-8">TODO !!!</td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
@@ -96,8 +91,8 @@
                 <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
                   <i class="fa fa-arrow-left"></i>
                 </button>
-              </div>    
-              <span class="clearfix"></span>          
+              </div>
+              <span class="clearfix"></span>
             </div>
             <div id="scaleEditableInput" ng-show="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
               <div id="node-scale-command" class="clickable"
@@ -164,16 +159,16 @@
                         </td>
                         <td class="col-md-1">
                           <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
-		                        <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
-		                           id="instanceMaintenanceButton"
-		                           confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
-		                           confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
-		                           confirm-placement="left"
-		                           confirm-handler="switchNodeInstanceMaintenanceMode(id)"
-		                           ng-click="$event.stopPropagation();">
-		                          <i class="fa fa-wrench"></i>
-		                        </a>              
-                          </div>                      
+                            <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
+                               id="instanceMaintenanceButton"
+                               confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
+                               confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+                               confirm-placement="left"
+                               confirm-handler="switchNodeInstanceMaintenanceMode(id)"
+                               ng-click="$event.stopPropagation();">
+                              <i class="fa fa-wrench"></i>
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
@@ -285,34 +280,34 @@
             </div>
             <div collapse="isNodeOperationsCollapsed">
               <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
-		            <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
-		              <!-- Operation div with "execute" button -->
-		              <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
-		                <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
-		                <span>{{interfaceName}}.{{operationName}}</span>
-		                <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
-		                  <button class="btn btn-success btn-xs"
-		                      ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
-		                      ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
-		                      id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
-		                    <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
-		                  </button>
-		                </span>
-		                <span class="clearfix"></span>
-		              </div>
-		              <!-- Operation inputs in collapsed div (if exists) -->
-		              <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
-		                <table class="table table-condensed" id="op_{{operationName}}_inputParams">
-		                  <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
-		                    <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
-		                      <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-		                      <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
-		                      </property-display>
-		                    </td>
-		                  </tr>
-		                </table>
-		              </div>
-		            </div>
+                <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
+                  <!-- Operation div with "execute" button -->
+                  <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+                    <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
+                    <span>{{interfaceName}}.{{operationName}}</span>
+                    <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
+                      <button class="btn btn-success btn-xs"
+                          ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
+                          ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
+                          id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
+                        <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
+                      </button>
+                    </span>
+                    <span class="clearfix"></span>
+                  </div>
+                  <!-- Operation inputs in collapsed div (if exists) -->
+                  <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
+                    <table class="table table-condensed" id="op_{{operationName}}_inputParams">
+                      <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
+                        <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+                          <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
+                          <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
+                          </property-display>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

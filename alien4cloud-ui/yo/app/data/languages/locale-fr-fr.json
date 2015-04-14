@@ -17,6 +17,8 @@
   "FALSE": "Faux",
   "YES": "Oui",
   "NO": "Non",
+  "NAME": "Nom",
+  "VALUE": "Valeur",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
