@@ -6,21 +6,22 @@ import lombok.ToString;
 
 import org.elasticsearch.annotation.ESObject;
 
+import alien4cloud.model.deployment.Deployment;
+
 @Getter
 @Setter
 @ESObject
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PaaSDeploymentContext {
-    /**
-     * Id of an deployment (install/uninstall operation)
-     * For the same recipe, we might have multiple deployment ids.
-     */
-    private String deploymentId;
+    private Deployment deployment;
 
     /**
-     * A recipe's id represents in general the topology + setup in alien's term.
-     * For ex : cloudify 3 will use this information to name the blueprint and deployment.
+     * Id to be used by the orchestration technology (PaaS) for the deployment.
+     * 
+     * @return Id to be used by the orchestration technology (PaaS) for the deployment.
      */
-    private String recipeId;
+    public String getDeploymentId() {
+        return deployment.getPaasId();
+    }
 }

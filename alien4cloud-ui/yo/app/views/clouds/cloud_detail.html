@@ -105,18 +105,18 @@
         </tab-heading>
         <div class="row">
           <div class="col-md-12">
-				    <fieldset>
-							<legend class="text-center">
-								<h4>
-									<i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
-									  <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
-										( <span> <i class="fa fa-warning text-danger"></i>
-											{{imageNotConfiguredCount}} {{
-											'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
-									</span> )
-									</span>
-								</h4>
-							</legend>
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+                    <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
+                    ( <span> <i class="fa fa-warning text-danger"></i>
+                      {{imageNotConfiguredCount}} {{
+                      'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                  </span> )
+                  </span>
+                </h4>
+              </legend>
               <div class="row">
                 <div class="col-md-6" id="imagesAdded" alien-droppable drag-data="" drag-on-drop="onImageDragged(data)">
                   <div class="panel panel-primary">
@@ -148,42 +148,42 @@
                                   <div class="row">
                                     <div class="col-md-10">
                                       <div class="row-fluid">
-	                                      <span class="small pull-left margin-top-05">{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}} : </span>
-							                          <div ng-class="{'has-error': !images[cloudImageId].paaSResourceId}" class="small pull-left margin-top-05">
-							                            <span ng-if="!cloud.enabled" >{{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
-							                            <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no"
-							                            onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
-							                              {{images[cloudImageId].paaSResourceId}}
-							                              <em ng-if="images[cloudImageId].paaSResourceId === null || images[cloudImageId].paaSResourceId === undefined" class="text-muted">
-							                                {{'GENERIC_FORM.UNDEFINED' | translate}}
-							                              </em>
-							                              <i class="fa fa-pencil-square-o"></i>
-							                            </span>
-																				  <div ng-if="cloud.enabled && paaSImageIds" class="btn-group-vertical btn-group-xs">
-																						<div class="btn-group btn-group-xs">
-																					 	  <button type="button"
-																							   class="btn btn-default dropdown-toggle"
-																									id="{{images[cloudImageId].resource.name}}_resourceId">
-																									{{images[cloudImageId].paaSResourceId ||
-																									'GENERIC_FORM.UNDEFINED' | translate}} <span
-																										class="caret"></span>
-																							</button>
-																							<ul class="dropdown-menu dropdown-menu-left dropdownAsSelect">
-																							  <li ng-if="images[cloudImageId].paaSResourceId"><a
+                                        <span class="small pull-left margin-top-05">{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}} : </span>
+                                        <div ng-class="{'has-error': !images[cloudImageId].paaSResourceId}" class="small pull-left margin-top-05">
+                                          <span ng-if="!cloud.enabled" >{{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                                          <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no"
+                                          onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
+                                            {{images[cloudImageId].paaSResourceId}}
+                                            <em ng-if="images[cloudImageId].paaSResourceId === null || images[cloudImageId].paaSResourceId === undefined" class="text-muted">
+                                              {{'GENERIC_FORM.UNDEFINED' | translate}}
+                                            </em>
+                                            <i class="fa fa-pencil-square-o"></i>
+                                          </span>
+                                          <div ng-if="cloud.enabled && paaSImageIds" class="btn-group-vertical btn-group-xs">
+                                            <div class="btn-group btn-group-xs">
+                                               <button type="button"
+                                                 class="btn btn-default dropdown-toggle"
+                                                  id="{{images[cloudImageId].resource.name}}_resourceId">
+                                                  {{images[cloudImageId].paaSResourceId ||
+                                                  'GENERIC_FORM.UNDEFINED' | translate}} <span
+                                                    class="caret"></span>
+                                              </button>
+                                              <ul class="dropdown-menu dropdown-menu-left dropdownAsSelect">
+                                                <li ng-if="images[cloudImageId].paaSResourceId"><a
                                                     id="{{images[cloudImageId].resource.name}}_resourceId_empty"
                                                     ng-click="saveImageResourceId(cloudImageId, '')">&nbsp;</a></li>
-																								<li ng-repeat="value in availaiblePaaSImageIds"><a
-																										id="{{images[cloudImageId].resource.name}}_resourceId_{{value}}"
-																										ng-click="saveImageResourceId(cloudImageId, value)">{{value}}</a></li>
-																							</ul>
-																							</div>
-																					</div>
-							                          </div>
-						                          </div>
-					                          </div>
+                                                <li ng-repeat="value in availaiblePaaSImageIds"><a
+                                                    id="{{images[cloudImageId].resource.name}}_resourceId_{{value}}"
+                                                    ng-click="saveImageResourceId(cloudImageId, value)">{{value}}</a></li>
+                                              </ul>
+                                              </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
                                     <div class="col-md-2">
-					                            <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)" id="cloud_delete_cloud_image_{{images[cloudImageId].resource.name}}"><i class="fa fa-trash-o"></i>
-					                            </button>
+                                      <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)" id="cloud_delete_cloud_image_{{images[cloudImageId].resource.name}}"><i class="fa fa-trash-o"></i>
+                                      </button>
                                     </div>
                                   </div>
                                 </h4>
@@ -315,24 +315,24 @@
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
                             <div ng-if="cloud.enabled && paaSFlavorIds" class="btn-group-vertical btn-group-sm">
-															<div class="btn-group btn-group-sm">
-																<button type="button"
-																	class="btn btn-default dropdown-toggle"
-																	id="{{flavor.id}}_resourceId">
-																	{{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
-																	<span class="caret"></span>
-																</button>
-																<ul class="dropdown-menu dropdown-menu-left">
-																	<li ng-if="flavors[flavor.id].paaSResourceId"><a
-																		id="{{cloudImageId}}_resourceId_empty"
-																		ng-click="saveFlavorResourceId(flavor.id, '')">&nbsp;</a></li>
-																	<li ng-repeat="value in availaiblePaaSFlavorIds"><a
-																		id="{{flavor.id}}_resourceId_{{value}}"
-																		ng-click="saveFlavorResourceId(flavor.id, value)">{{value}}</a></li>
-																</ul>
-															</div>
-														</div>
-											    </td>
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{flavor.id}}_resourceId">
+                                  {{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="flavors[flavor.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveFlavorResourceId(flavor.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSFlavorIds"><a
+                                    id="{{flavor.id}}_resourceId_{{value}}"
+                                    ng-click="saveFlavorResourceId(flavor.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
+                            </div>
+                          </td>
                           <td>
                             <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)" id="cloud_delete_flavor_{{flavor.id}}"><i class="fa fa-trash-o"></i>
                             </button>
@@ -574,22 +574,22 @@
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
                             <div ng-if="paaSNetworkIds && cloud.enabled" class="btn-group-vertical btn-group-sm">
-	                            <div class="btn-group btn-group-sm">
-	                              <button type="button"
-	                                class="btn btn-default dropdown-toggle"
-	                                id="{{network.id}}_resourceId">
-	                                {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
-	                                <span class="caret"></span>
-	                              </button>
-	                              <ul class="dropdown-menu dropdown-menu-left">
-	                                <li ng-if="networks[network.id].paaSResourceId"><a
-	                                  id="{{cloudImageId}}_resourceId_empty"
-	                                  ng-click="saveNetworkResourceId(network.id, '')">&nbsp;</a></li>
-	                                <li ng-repeat="value in availaiblePaaSNetworkIds"><a
-	                                  id="{{network.id}}_resourceId_{{value}}"
-	                                  ng-click="saveNetworkResourceId(network.id, value)">{{value}}</a></li>
-	                              </ul>
-	                            </div>
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{network.id}}_resourceId">
+                                  {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="networks[network.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveNetworkResourceId(network.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSNetworkIds"><a
+                                    id="{{network.id}}_resourceId_{{value}}"
+                                    ng-click="saveNetworkResourceId(network.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
                             </div>
                           </td>{{network.description || '---'}}<td>
                           </td>
@@ -660,22 +660,22 @@
                               <i class="fa fa-pencil-square-o"></i>
                             </span>
                             <div ng-if="paaSStorageIds && cloud.enabled" class="btn-group-vertical btn-group-sm">
-	                            <div class="btn-group btn-group-sm">
-	                              <button type="button"
-	                                class="btn btn-default dropdown-toggle"
-	                                id="{{storage.id}}_resourceId">
-	                                {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
-	                                <span class="caret"></span>
-	                              </button>
-	                              <ul class="dropdown-menu dropdown-menu-left">
-	                                <li ng-if="storages[storage.id].paaSResourceId"><a
-	                                  id="{{cloudImageId}}_resourceId_empty"
-	                                  ng-click="saveStorageResourceId(storage.id, '')">&nbsp;</a></li>
-	                                <li ng-repeat="value in availaiblePaaSStorageIds"><a
-	                                  id="{{storage.id}}_resourceId_{{value}}"
-	                                  ng-click="saveStorageResourceId(storage.id, value)">{{value}}</a></li>
-	                              </ul>
-	                            </div>
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{storage.id}}_resourceId">
+                                  {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="storages[storage.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveStorageResourceId(storage.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSStorageIds"><a
+                                    id="{{storage.id}}_resourceId_{{value}}"
+                                    ng-click="saveStorageResourceId(storage.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
                             </div>
                           </td>
                           <td>{{storage.description || '---'}}</td>
@@ -699,12 +699,33 @@
         </div>
       </tab>
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
-        <div class="alert alert-info">
-          {{'CLOUDS.CONFIGURATION_REQUIRES_DISABLE' | translate}}
+        <div class="row" style="margin-bottom:20px;">
+          <div class=col-md-12>
+            <div class="form-horizontal" role="form">
+              <div class="panel panel-default form-panel">
+                <div class="panel-heading">
+                  <h4 class="ng-binding" style="display: inline;">{{'CLOUDS.ADMINISTRATION.GLOBAL.TITLE' | translate}}</h4>
+                </div>
+                <div class="panel-body">
+                  <div class="">
+                    <label class="ng-scope ng-binding" tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
+                      {{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}
+                    </label>
+                    <button class="btn btn-primary btn-xs ng-scope pull-right" data-toggle="modal" ng-click="openSimpleModal()" tooltip="{{'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" tooltip-append-to-body="true" position="right">
+                      <i class="fa fa-question-circle"></i>
+                    </button>
+                  </div>
+                  <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-required e-class="input-sm" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
+                    {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="row">
           <div class=col-md-12>
-            <generic-form ng-if="cloudConfig && cloudConfigDefinition" root-object="cloudConfig" form-title="{{cloud.name}}" type="cloudConfigDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)">
+            <generic-form ng-if="cloudConfig && cloudConfigDefinition" root-object="cloudConfig" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="cloudConfigDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
             </generic-form>
           </div>
         </div>

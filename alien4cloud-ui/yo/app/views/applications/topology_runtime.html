@@ -37,6 +37,7 @@
                 <table class="table">
                   <thead>
                     <tr>
+                      <!-- TODO: add trad -->
                       <th>Name</th>
                       <th>Value</th>
                       <th></th>
@@ -58,6 +59,10 @@
                           <i class="fa fa-wrench"></i>
                         </button>                       
                       </td>
+                    </tr>
+                    <tr>
+                      <td class="col-md-4"><strong>Nom du déploiement</strong></td>
+                      <td class="col-md-8">TODO !!!</td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
@@ -272,41 +277,45 @@
           </div>          
           
           <!-- Operations -->
-          <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterface.operations)">
+          <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeOperationsCollapsed, 'fa-chevron-right': isNodeOperationsCollapsed}"></i>
                 {{'operations' | translate}}
               </h4>
-            </div>                    
-            <div collapse="isNodeOperationsCollapsed" ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{operationName}}" ng-repeat="(operationName, operation) in selectedNodeCustomInterface.operations">
-              <!-- Operation div with "execute" button -->
-              <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
-                <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
-                <span>{{operationName}}</span>
-                <span class="pull-right">
-                  <button tooltip="{{'EXECUTE' | translate}}"
-                          ng-click="executeOperation(operationName, operation.inputParameters, $event)"
-                          ng-disabled="operationLoading[selectedNodeTemplate.name][operationName]"
-                          tooltip-append-to-body="false" class="btn btn-success btn-xs"
-                          id="btn-submit-operation-{{operationName}}">
-                    <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][operationName]}"></i>
-                  </button>
-                </span>
-              </div>
-              <!-- Operation inputs in collapsed div (if exists) -->
-              <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
-                <table class="table table-condensed" id="op_{{operationName}}_inputParams">
-                  <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
-                    <td class="col-md-12" id="op_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
-                      <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-                      <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, operationName)" editable="true" condensed="condensed">
-                      </property-display>
-                    </td>
-                  </tr>
-                </table>
-              </div>
             </div>
+            <div collapse="isNodeOperationsCollapsed">
+              <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
+		            <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
+		              <!-- Operation div with "execute" button -->
+		              <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+		                <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
+		                <span>{{interfaceName}}.{{operationName}}</span>
+		                <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
+		                  <button class="btn btn-success btn-xs" 
+		                      ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
+		                      ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
+		                      id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
+		                    <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
+		                  </button>
+		                </span>
+		                <span class="clearfix"></span>
+		              </div>
+		              <!-- Operation inputs in collapsed div (if exists) -->
+		              <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
+		                <table class="table table-condensed" id="op_{{operationName}}_inputParams">
+		                  <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
+		                    <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+		                      <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
+		                      <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
+		                      </property-display>
+		                    </td>
+		                  </tr>
+		                </table>
+		              </div>
+		            </div>
+              </div>
+            </div>                   
           </div>            
           
         </tab>

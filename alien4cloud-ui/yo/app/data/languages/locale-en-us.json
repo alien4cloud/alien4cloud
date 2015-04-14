@@ -584,6 +584,19 @@
       "PRE_PRODUCTION": "Pre-production",
       "PRODUCTION": "production"
     },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "Global configuration",
+        "DEPLOYMENT_NAME": "Naming policy of deployment"
+      },
+      "DRIVER": {
+        "TITLE": "Driver configuration"
+      },
+      "HELP": {
+        "TITLE": "Help about the naming policy of deployment name",
+        "CONTENT": "You can use the environment, the application, the meta properties of the application and a timestamp. We use the SpEL syntax, make sure to define a correct expression."
+      }
+    },
     "DRIVER": {
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Connection configuration",
