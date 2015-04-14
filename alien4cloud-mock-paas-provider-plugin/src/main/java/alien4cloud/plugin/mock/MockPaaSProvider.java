@@ -75,8 +75,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
 
-    private static final String UNKNOWN_APPLICATION_THAT_NEVER_WORKS = "UNKNOWN-APPLICATION";
-
     private static final String BAD_APPLICATION_THAT_NEVER_WORKS = "BAD-APPLICATION";
 
     private static final String WARN_APPLICATION_THAT_NEVER_WORKS = "WARN-APPLICATION";
