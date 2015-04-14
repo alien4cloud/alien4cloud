@@ -1,5 +1,4 @@
 /* global UTILS, CONSTANTS */
-
 'use strict';
 
 angular.module('alienUiApp').controller(
