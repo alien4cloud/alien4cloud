@@ -189,6 +189,8 @@ public class CloudService {
                 throw new AlreadyExistException("a cloud with the given name already exists.");
             }
             current.setName(updated.getName());
+        } else if (updated.getDeploymentNamePattern() != null && !updated.getDeploymentNamePattern().equals(current.getDeploymentNamePattern())) {
+            current.setDeploymentNamePattern(updated.getDeploymentNamePattern());
         }
         if (updated.getGroupRoles() != null) {
             current.setGroupRoles(updated.getGroupRoles());

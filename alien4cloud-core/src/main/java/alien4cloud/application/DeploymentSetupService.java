@@ -416,7 +416,6 @@ public class DeploymentSetupService {
      */
     public ApplicationVersion getApplicationVersion(String deploymentSetupId) {
         DeploymentSetup deploymentSetup = getById(deploymentSetupId);
-        deploymentSetup.setProviderDeploymentProperties(null);
         if (deploymentSetup != null) {
             ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
             ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());

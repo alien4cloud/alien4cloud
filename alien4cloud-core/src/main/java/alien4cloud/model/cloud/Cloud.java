@@ -21,7 +21,11 @@ import org.hibernate.validator.constraints.NotBlank;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -66,6 +70,13 @@ public class Cloud implements ISecuredResource {
     private String paasProviderName;
     @ApiModelProperty(hidden = true)
     private boolean isConfigurable;
+
+    /**
+     * Pattern to generate the deployment ID
+     */
+    @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
+    @TermFilter
+    private String deploymentNamePattern = "environment.name + application.name";
     /**
      * Type of environment for the cloud.
      */

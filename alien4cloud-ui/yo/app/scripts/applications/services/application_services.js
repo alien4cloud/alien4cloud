@@ -20,9 +20,6 @@ angular.module('alienUiApp').factory('applicationServices', ['$resource',
     var applicationActiveDeploymentDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/active-deployment');
 
     var applicationDeploymentDAO = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment', {}, {
-      'status': {
-        method: 'GET'
-      },
       'undeploy': {
         method: 'DELETE'
       }
