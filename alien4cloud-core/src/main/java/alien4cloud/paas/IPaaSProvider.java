@@ -21,7 +21,7 @@ public interface IPaaSProvider {
 
     /**
      * Deploy a topology
-     * 
+     *
      * @param deploymentContext the context of the deployment
      */
     void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
@@ -44,7 +44,7 @@ public interface IPaaSProvider {
 
     /**
      * Get status of a deployment
-     * 
+     *
      * @param deploymentContext the deployment context
      * @param callback callback when the status will be available
      */
@@ -113,7 +113,10 @@ public interface IPaaSProvider {
 
     /**
      * Switch the maintenance mode for a given node instance of this deployed topology.
+     *
+     * @param maintenanceResultCallback the callback that will be triggered when the operation's result become available
      */
-    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn);
+    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn,
+            IPaaSCallback<Map<String, String>> maintenanceResultCallback);
 
 }

@@ -563,7 +563,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn) {
+    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn,
+            IPaaSCallback<Map<String, String>> maintenanceResultCallback) {
         log.info(String.format("switchInstanceMaintenanceMode order received for node <%s>, instance <%s>, mode <%s>", nodeTemplateId, instanceId,
                 maintenanceModeOn));
         String deploymentId = deploymentContext.getDeploymentId();
@@ -576,4 +577,3 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
 }
-

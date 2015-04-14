@@ -17,6 +17,8 @@
   "FALSE": "Faux",
   "YES": "Oui",
   "NO": "Non",
+  "NAME": "Nom",
+  "VALUE": "Valeur",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -290,9 +292,9 @@
       "DEPLOYMENT": "Déploiement",
       "SCALE": "Scale",
       "INSTANCES": "Instances",
-      "PROPERTIES": "Properties",
-      "ATTRIBUTES": "Attributes",
-      "RUNTIMEPROPS": "Runtime properties",
+      "PROPERTIES": "Propriétés",
+      "ATTRIBUTES": "Attributs",
+      "RUNTIMEPROPS": "Propertés d'exécution",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
