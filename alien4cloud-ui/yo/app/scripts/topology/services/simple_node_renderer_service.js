@@ -104,7 +104,7 @@ angular.module('alienUiApp').factory('simpleNodeRendererService', ['commonNodeRe
             }
           }
           // TODO better draw network node
-          if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
+          if (!toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
             this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
           }
         }
