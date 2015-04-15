@@ -31,7 +31,6 @@ angular.module('alienUiApp').controller(
       };
       refreshCloudInfo();
 
-      var LIFECYCLE_INTERFACE_NAME = 'tosca.interfaces.node.lifecycle.Standard';
       $scope.eventTypeLabels = {
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
         'paasdeploymentstatusmonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STATUS',
@@ -341,7 +340,7 @@ angular.module('alienUiApp').controller(
         if (nodetype.interfaces) {
           $scope.selectedNodeCustomInterfaces = {};
           angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
-            if (interfaceName !== LIFECYCLE_INTERFACE_NAME) {
+            if (interfaceName !== CONSTANTS.toscaStandardInterfaceName && interfaceName !== CONSTANTS.cloudify2extensionInterfaceName) {
               $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
             }
           });
