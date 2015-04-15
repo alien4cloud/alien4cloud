@@ -37,6 +37,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
@@ -335,6 +336,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchMaintenanceMode(environment.getId(), true);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -346,6 +349,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchMaintenanceMode(environment.getId(), false);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -355,20 +360,11 @@ public class ApplicationDeploymentController {
             @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
-            deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, true, new IPaaSCallback<Map<String, String>>() {
-                @Override
-                public void onSuccess(Map<String, String> data) {
-                    // result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-                    // result.setErrorResult(RestResponseBuilder.<Object> builder()
-                    // .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), throwable.getMessage())).build());
-                }
-            });
+            deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, true);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -378,20 +374,11 @@ public class ApplicationDeploymentController {
             @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
-            deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, false, new IPaaSCallback<Map<String, String>>() {
-                @Override
-                public void onSuccess(Map<String, String> data) {
-                    // result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
-                }
-
-                @Override
-                public void onFailure(Throwable throwable) {
-                    // result.setErrorResult(RestResponseBuilder.<Object> builder()
-                    // .error(new RestError(RestErrorCode.NODE_OPERATION_EXECUTION_ERROR.getCode(), throwable.getMessage())).build());
-                }
-            });
+            deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, false);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }

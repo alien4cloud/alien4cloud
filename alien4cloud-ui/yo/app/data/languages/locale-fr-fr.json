@@ -678,6 +678,7 @@
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide"
     },
+    "372": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",

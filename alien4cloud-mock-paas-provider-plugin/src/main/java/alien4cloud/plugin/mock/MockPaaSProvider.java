@@ -539,8 +539,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
-    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn,
-            IPaaSCallback<Map<String, String>> maintenanceResultCallback) {
+    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn) {
         log.info(String.format("switchInstanceMaintenanceMode order received for node <%s>, instance <%s>, mode <%s>", nodeTemplateId, instanceId,
                 maintenanceModeOn));
         MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());

@@ -39,6 +39,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -309,15 +310,15 @@ public class DeploymentService {
         paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
     }
 
-    public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn,
-            IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException {
+    public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
+            throws CloudDisabledException, MaintenanceModeException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn, callback);
+        paaSProvider.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn);
     }
 
-    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException {
+    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException, MaintenanceModeException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);

@@ -25,6 +25,7 @@ public enum RestErrorCode {
     // Cloud errors
     CLOUD_DISABLED_ERROR(370),
     NODE_OPERATION_EXECUTION_ERROR(371),
+    MAINTENANCE_MODE_ERROR(372),
 
     // Repository service error
     REPOSITORY_SERVICE_ERROR(400),

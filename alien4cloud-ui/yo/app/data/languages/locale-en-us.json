@@ -671,6 +671,7 @@
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
     },
+    "372": "Unexpected error happened while switching on / off maintenance mode ",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
