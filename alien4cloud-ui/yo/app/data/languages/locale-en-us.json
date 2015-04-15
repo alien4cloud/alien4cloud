@@ -289,7 +289,7 @@
       "INSTANCES": "Instances",
       "PROPERTIES": "Properties",
       "ATTRIBUTES": "Attributes",
-      "RUNTIMEPROPS": "Runtime properties",      
+      "RUNTIMEPROPS": "Runtime properties",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Application name",
@@ -672,6 +672,7 @@
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
     },
+    "372": "Error in naming policy of deployment.",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",

@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.expression.spel.SpelParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
@@ -260,5 +261,16 @@ public class RestTechnicalExceptionHandler {
                 .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_DEPLOYED_ERROR)
                         .message("Application environment delete error : " + e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = SpelParseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> generatePaasIdErrorHandler(SpelParseException e) {
+        log.error("Problem parsing right operand during the generation of PaasId", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR)
+                        .message("Problem parsing right operand : " + e.getMessage()).build()).build();
     }
 }
