@@ -3,15 +3,13 @@
 
 var authentication = require('../../authentication/authentication');
 var common = require('../../common/common');
-var tagConfigCommon = require('../../admin/metaprops_configuration_common');
 var applications = require('../../applications/applications');
 var cloudsCommon = require('../../admin/clouds_common');
-var rolesCommon = require('../../common/roles_common');
 
 function assertCountVersions(expectedCount) {
   var versions = element.all(by.repeater('version in searchAppVersionResult'));
-//  expect(versions.count()).toEqual(expectedCount);
-};
+  expect(versions.count()).toEqual(expectedCount);
+}
 
 describe('Application versions', function() {
   var reset = true;
@@ -79,10 +77,7 @@ describe('Application versions', function() {
     expect(btnCreate.isEnabled()).toBe(false);
 
     var btnCancel = browser.element(by.id('btn-cancel'));
-    // browser.sleep(5000);
     browser.actions().click(btnCancel).perform();
-
-    // browser.waitForAngular();
   });
 
   it('should not rename an app version with a bad name', function() {
@@ -92,8 +87,6 @@ describe('Application versions', function() {
     common.expectErrors();
     browser.sleep(5000); // DO NOT REMOVE, we need to send a valid value to the editable text
     element(by.css('#td-0\\.1\\.0-SNAPSHOT input')).sendKeys('0');
-    // browser.sleep(5000);
     assertCountVersions(2);
   });
-
 });
