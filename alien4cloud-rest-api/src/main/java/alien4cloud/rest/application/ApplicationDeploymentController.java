@@ -210,7 +210,7 @@ public class ApplicationDeploymentController {
                     DeploymentStatus status = DeploymentStatus.UNKNOWN;
                     try {
                         status = applicationEnvironmentService.getStatus(env);
-                    } catch (CloudDisabledException e) {
+                    } catch (Exception e) {
                         log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
                                 + "> seems disabled. Returned status is UNKNOWN.", e);
                     }

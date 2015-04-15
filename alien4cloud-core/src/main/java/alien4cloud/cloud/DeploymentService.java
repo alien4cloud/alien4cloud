@@ -107,20 +107,6 @@ public class DeploymentService {
         return searchEvents(from, size, deployment);
     }
 
-    /**
-     * Get events for a given topology and cloud
-     *
-     * @param topologyId id of topology for which to get deployment events.
-     * @param cloudId id of targeted cloud
-     * @param from The initial position of the events to get (based on time desc sorting)
-     * @param size The number of events to get.
-     * @return A result that contains all events.
-     */
-    public GetMultipleDataResult<?> getDeploymentEvents(String topologyId, String cloudId, int from, int size) {
-        Deployment deployment = getActiveDeploymentFailIfNotExists(topologyId, cloudId);
-        return searchEvents(from, size, deployment);
-    }
-
     private GetMultipleDataResult<?> searchEvents(int from, int size, Deployment deployment) {
         String index = alienMonitorDao.getIndexForType(AbstractMonitorEvent.class);
         SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
@@ -165,7 +151,6 @@ public class DeploymentService {
         deployment.setSourceName(sourceName);
         deployment.setSourceType(DeploymentSourceType.fromSourceType(deploymentSource.getClass()));
         deployment.setStartDate(new Date());
-        deployment.setDeploymentStatus(DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
         deployment.setDeploymentSetup(deploymentSetup);
         // mandatory for the moment since we could have deployment with no environment (csar test)
         deployment.setTopologyId(topologyId);
@@ -271,7 +256,6 @@ public class DeploymentService {
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
         deploymentContext.setDeployment(deployment);
         paaSProvider.undeploy(deploymentContext, null);
-        deployment.setDeploymentStatus(DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
         alienDao.save(deployment);
         log.info("Un-deployed deployment [{}] on cloud [{}]", deployment.getId(), cloudId);
     }
@@ -544,21 +528,6 @@ public class DeploymentService {
     }
 
     /**
-     * Get a topology Id for a deployment (through deploymentSetup object)
-     *
-     * @param deploymentId
-     * @return a topology id
-     */
-    public String getTopologyIdByDeployment(String deploymentId) {
-        Deployment deployment = getMandatoryDeployment(deploymentId);
-        // WARNING : topologyId may disappear from deployment object and would be accessible only through environment linked to the deployment
-        if (deployment != null) {
-            return deployment.getTopologyId();
-        }
-        return null;
-    }
-
-    /**
      * Find the unique active deployment from it's deployment name.
      *
      * @param deploymentName The deployment name (must be unique for an active deployment.
@@ -570,21 +539,6 @@ public class DeploymentService {
                 Integer.MAX_VALUE);
         if (dataResult.getData() != null && dataResult.getData().length > 0) {
             return dataResult.getData()[0];
-        }
-        return null;
-    }
-
-    /**
-     * Get a application environment object linked to the deployment (through deploymentSetup object)
-     *
-     * @param deploymentId
-     * @return a topology id
-     */
-    public ApplicationEnvironment getEnvironmentByDeployment(String deploymentId) {
-        Deployment deployment = getMandatoryDeployment(deploymentId);
-        if (deployment != null) {
-            ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
-            return applicationEnvironment;
         }
         return null;
     }

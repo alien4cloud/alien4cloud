@@ -4,11 +4,13 @@ import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class MockRuntimeDeploymentInfo {
     private PaaSTopologyDeploymentContext deploymentContext;
