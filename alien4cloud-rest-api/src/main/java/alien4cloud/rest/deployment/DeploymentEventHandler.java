@@ -70,7 +70,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         template.convertAndSend(topicName, event);
 
         if (event instanceof PaaSDeploymentStatusMonitorEvent) {
-            Deployment deployment = deploymentService.getDeploymentByName(event.getDeploymentId());
+            Deployment deployment = deploymentService.getDeploymentByPaaSId(event.getDeploymentId());
 
             if (deployment != null) {
                 updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());

@@ -42,6 +42,7 @@ public class Deployment {
      * This is unique for deployments that have a null end date but you may have multiple completed deployments that share the same paasId.
      */
     @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
     private String paasId;
 
     @TermFilter
