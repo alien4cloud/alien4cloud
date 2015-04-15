@@ -27,8 +27,6 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.tosca.ToscaUtils;
-import alien4cloud.tosca.normative.AlienCustomTypes;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -73,7 +71,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             return;
         }
 
-        if (ToscaUtils.isFromType(AlienCustomTypes.DELETABLE_BLOCKSTORAGE_TYPE, topoServiceCore.getRelatedIndexedNodeType(nodeTemplate, topology))) {
+        if (storageEvent.isDeletable()) {
             log.info("Blockstorage <{}.{}> is a deletable type. Skipping topology volumeId update...", topology.getId(), nodeTemplate.getName());
             return;
         }
