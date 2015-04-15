@@ -113,7 +113,7 @@ public class DeploymentService {
                 .buildSearchQuery(index)
                 .types(PaaSDeploymentStatusMonitorEvent.class, PaaSInstanceStateMonitorEvent.class, PaaSMessageMonitorEvent.class,
                         PaaSInstanceStorageMonitorEvent.class)
-                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getPaasId() } }))
+                .filters(MapUtil.newHashMap(new String[] { "deploymentId" }, new String[][] { new String[] { deployment.getId() } }))
                 .fieldSort("_timestamp", true);
         return alienMonitorDao.search(searchQueryHelperBuilder, from, size);
     }
