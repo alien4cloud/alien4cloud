@@ -37,6 +37,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
@@ -128,7 +129,8 @@ public class ApplicationDeploymentController {
         if (environment.getCloudId() == null) {
             throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
         }
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(deployApplicationRequest.getApplicationId(), deployApplicationRequest.getApplicationEnvironmentId());
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(deployApplicationRequest.getApplicationId(),
+                deployApplicationRequest.getApplicationEnvironmentId());
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
@@ -268,6 +270,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchMaintenanceMode(environment.getId(), true);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -279,6 +283,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchMaintenanceMode(environment.getId(), false);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -291,6 +297,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, true);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -303,6 +311,8 @@ public class ApplicationDeploymentController {
             deploymentService.switchInstanceMaintenanceMode(environment.getId(), nodeTemplateId, instanceId, false);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (MaintenanceModeException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.MAINTENANCE_MODE_ERROR.getCode(), e.getMessage())).build();
         }
         return RestResponseBuilder.<Void> builder().build();
     }

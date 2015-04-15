@@ -6,6 +6,7 @@ import java.util.Map;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -21,7 +22,7 @@ public interface IPaaSProvider {
 
     /**
      * Deploy a topology
-     * 
+     *
      * @param deploymentContext the context of the deployment
      */
     void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
@@ -44,7 +45,7 @@ public interface IPaaSProvider {
 
     /**
      * Get status of a deployment
-     * 
+     *
      * @param deploymentContext the deployment context
      * @param callback callback when the status will be available
      */
@@ -108,12 +109,17 @@ public interface IPaaSProvider {
 
     /**
      * Switch the maintenance mode for this deployed topology.
+     *
+     * @throws MaintenanceModeException
      */
-    void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn);
+    void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) throws MaintenanceModeException;
 
     /**
      * Switch the maintenance mode for a given node instance of this deployed topology.
+     *
+     * @throws MaintenanceModeException
      */
-    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn);
+    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn)
+            throws MaintenanceModeException;
 
 }

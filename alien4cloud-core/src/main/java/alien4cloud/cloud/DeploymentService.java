@@ -39,6 +39,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -98,7 +99,7 @@ public class DeploymentService {
 
     /**
      * Get events for a specific deployment from an environment
-     * 
+     *
      * @param applicationEnvironmentId The environment we want to get events from
      * @param from The initial position of the events to get (based on time desc sorting)
      * @param size The number of events to get.
@@ -310,14 +311,14 @@ public class DeploymentService {
     }
 
     public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
-            throws CloudDisabledException {
+            throws CloudDisabledException, MaintenanceModeException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
         paaSProvider.switchInstanceMaintenanceMode(deploymentContext, nodeTemplateId, instanceId, maintenanceModeOn);
     }
 
-    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException {
+    public void switchMaintenanceMode(String applicationEnvironmentId, boolean maintenanceModeOn) throws CloudDisabledException, MaintenanceModeException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
@@ -418,7 +419,7 @@ public class DeploymentService {
     /**
      * Get an active Deployment given an environment
      * (if not exists throw exception)
-     * 
+     *
      * @param applicationEnvironmentId id of the environment
      * @return active deployment
      * @throws alien4cloud.exception.NotFoundException if not any deployment exists
@@ -434,7 +435,7 @@ public class DeploymentService {
     /**
      * Get an active deployment for a given cloud and topology
      * (if not exists throw exception)
-     * 
+     *
      * @param topologyId id of the topology that has been deployed
      * @param cloudId id of the target cloud
      * @return a deployment
@@ -466,7 +467,7 @@ public class DeploymentService {
 
     /**
      * Get a topology for a given cloud / topology
-     * 
+     *
      * @param cloudId targeted cloud id
      * @param topologyId id of the topology to deploy
      * @return a deployment
@@ -531,7 +532,7 @@ public class DeploymentService {
 
     /**
      * Get a topology Id for a deployment (through deploymentSetup object)
-     * 
+     *
      * @param deploymentId
      * @return a topology id
      */
@@ -562,7 +563,7 @@ public class DeploymentService {
 
     /**
      * Get a application environment object linked to the deployment (through deploymentSetup object)
-     * 
+     *
      * @param deploymentId
      * @return a topology id
      */
