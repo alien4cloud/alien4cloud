@@ -23,7 +23,6 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
@@ -62,9 +61,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     public static final String TOSCA_NAME = "tosca_name";
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-    @Resource
-    private DeploymentService deploymentService;
 
     private ProviderConfig providerConfiguration;
 
@@ -142,7 +138,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     protected synchronized void doDeploy(final PaaSTopologyDeploymentContext deploymentContext) {
-        log.info("Deploying deployment [" + deploymentContext.getDeploymentId() + "]");
+        log.info("Deploying deployment [" + deploymentContext.getDeploymentPaaSId() + "]");
 
         Topology topology = deploymentContext.getTopology();
         Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
@@ -162,27 +158,27 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
             for (int i = 1; i <= initialInstances; i++) {
                 InstanceInformation newInstanceInformation = newInstance(i);
                 instanceInformations.put(String.valueOf(i), newInstanceInformation);
-                notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
+                notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeTemplateEntry.getKey(), String.valueOf(i), newInstanceInformation, 1);
             }
         }
 
-        runtimeDeploymentInfos.put(deploymentContext.getDeploymentId(), new MockRuntimeDeploymentInfo(deploymentContext,
+        runtimeDeploymentInfos.put(deploymentContext.getDeploymentPaaSId(), new MockRuntimeDeploymentInfo(deploymentContext,
                 DeploymentStatus.DEPLOYMENT_IN_PROGRESS, currentInformations));
 
-        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
+        changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
 
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
                 switch (deploymentContext.getDeployment().getSourceName()) {
                 case BAD_APPLICATION_THAT_NEVER_WORKS:
-                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.FAILURE);
+                    changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.FAILURE);
                     break;
                 case WARN_APPLICATION_THAT_NEVER_WORKS:
-                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.WARNING);
+                    changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.WARNING);
                     break;
                 default:
-                    changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.DEPLOYED);
+                    changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.DEPLOYED);
                 }
             }
         }, 5, TimeUnit.SECONDS);
@@ -190,17 +186,17 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     protected synchronized void doUndeploy(final PaaSDeploymentContext deploymentContext) {
-        log.info("Undeploying deployment [" + deploymentContext.getDeploymentId() + "]");
-        changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
+        log.info("Undeploying deployment [" + deploymentContext.getDeploymentPaaSId() + "]");
+        changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
 
-        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
         if (runtimeDeploymentInfo != null) {
             Map<String, Map<String, InstanceInformation>> appInfo = runtimeDeploymentInfo.getInstanceInformations();
             for (Map.Entry<String, Map<String, InstanceInformation>> nodeEntry : appInfo.entrySet()) {
                 for (Map.Entry<String, InstanceInformation> instanceEntry : nodeEntry.getValue().entrySet()) {
                     instanceEntry.getValue().setState("stopping");
                     instanceEntry.getValue().setInstanceStatus(InstanceStatus.PROCESSING);
-                    notifyInstanceStateChanged(deploymentContext.getDeploymentId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
+                    notifyInstanceStateChanged(deploymentContext.getDeploymentPaaSId(), nodeEntry.getKey(), instanceEntry.getKey(), instanceEntry.getValue(), 1);
                 }
             }
         }
@@ -208,9 +204,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         executorService.schedule(new Runnable() {
             @Override
             public void run() {
-                changeStatus(deploymentContext.getDeploymentId(), DeploymentStatus.UNDEPLOYED);
+                changeStatus(deploymentContext.getDeploymentPaaSId(), DeploymentStatus.UNDEPLOYED);
                 // cleanup deployment cache
-                runtimeDeploymentInfos.remove(deploymentContext.getDeploymentId());
+                runtimeDeploymentInfos.remove(deploymentContext.getDeploymentPaaSId());
             }
         }, 5, TimeUnit.SECONDS);
     }
@@ -375,8 +371,12 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     }
 
     @Override
+    public void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments) {
+    }
+
+    @Override
     public void scale(PaaSDeploymentContext deploymentContext, String nodeTemplateId, final int instances, IPaaSCallback<?> callback) {
-        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
 
         if (runtimeDeploymentInfo == null) {
             return;
@@ -412,14 +412,14 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public void getStatus(PaaSDeploymentContext deploymentContext, IPaaSCallback<DeploymentStatus> callback) {
-        DeploymentStatus status = doGetStatus(deploymentContext.getDeploymentId(), false);
+        DeploymentStatus status = doGetStatus(deploymentContext.getDeploymentPaaSId(), false);
         callback.onSuccess(status);
     }
 
     @Override
     public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
             IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
         if (runtimeDeploymentInfo != null) {
             callback.onSuccess(runtimeDeploymentInfo.getInstanceInformations());
         }
@@ -491,9 +491,9 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     @Override
     public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
-        String deploymentId = deploymentContext.getDeploymentId();
+        String deploymentId = deploymentContext.getDeploymentPaaSId();
 
-        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
 
         Topology topology = runtimeDeploymentInfo.getDeploymentContext().getTopology();
         Map<String, Map<String, InstanceInformation>> nodes = runtimeDeploymentInfo.getInstanceInformations();
@@ -540,7 +540,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeTemplateId, String instanceId, boolean maintenanceModeOn) {
         log.info(String.format("switchInstanceMaintenanceMode order received for node <%s>, instance <%s>, mode <%s>", nodeTemplateId, instanceId,
                 maintenanceModeOn));
-        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentId());
+        MockRuntimeDeploymentInfo runtimeDeploymentInfo = runtimeDeploymentInfos.get(deploymentContext.getDeploymentPaaSId());
         if (runtimeDeploymentInfo == null) {
             return;
         }
@@ -549,7 +549,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         if (existingInformations != null && existingInformations.containsKey(nodeTemplateId)
                 && existingInformations.get(nodeTemplateId).containsKey(instanceId)) {
             InstanceInformation instanceInformation = existingInformations.get(nodeTemplateId).get(instanceId);
-            switchInstanceMaintenanceMode(deploymentContext.getDeploymentId(), nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
+            switchInstanceMaintenanceMode(deploymentContext.getDeploymentPaaSId(), nodeTemplateId, instanceId, instanceInformation, maintenanceModeOn);
         }
     }
 

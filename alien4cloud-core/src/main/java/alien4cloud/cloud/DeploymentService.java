@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
@@ -75,8 +74,6 @@ public class DeploymentService {
     private CloudService cloudService;
     @Resource
     private ApplicationService applicationService;
-    @Resource
-    private ApplicationVersionService applicationVersionService;
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
@@ -181,7 +178,7 @@ public class DeploymentService {
         // put back the old Id for deployment
         topology.setId(topologyId);
         // Build the context for deployment and deploy
-        paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology, deploymentSetup), null);
+        paaSProvider.deploy(buildTopologyDeploymentContext(deployment, topology), null);
         log.info("Deployed topology [{}] on cloud [{}], generated deployment with id [{}]", topology.getId(), cloudId, deployment.getId());
         return deployment.getId();
     }
@@ -231,14 +228,13 @@ public class DeploymentService {
         return deploymentContext;
     }
 
-    private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology, DeploymentSetup deploymentSetup) {
+    private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology) {
         PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
         topologyDeploymentContext.setDeployment(deployment);
         Map<String, PaaSNodeTemplate> paaSNodes = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(paaSNodes);
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
         topologyDeploymentContext.setTopology(topology);
-        topologyDeploymentContext.setDeploymentSetup(deploymentSetup);
         topologyDeploymentContext.setDeployment(deployment);
         return topologyDeploymentContext;
     }
@@ -385,12 +381,12 @@ public class DeploymentService {
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      * @throws OperationExecutionException runtime exception during an operation
      */
-    public void triggerOperationExecution(OperationExecRequest request, Topology topology, DeploymentSetup deploymentSetup,
-            IPaaSCallback<Map<String, String>> callback) throws CloudDisabledException, OperationExecutionException {
+    public void triggerOperationExecution(OperationExecRequest request, Topology topology, IPaaSCallback<Map<String, String>> callback)
+            throws CloudDisabledException, OperationExecutionException {
         Deployment activeDeployment = getActiveDeploymentFailIfNotExists(request.getApplicationEnvironmentId());
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(activeDeployment.getCloudId());
         // It's a little bit ugly to let deployment setup to null but we do not need this information
-        paaSProvider.executeOperation(buildTopologyDeploymentContext(activeDeployment, topology, deploymentSetup), request, callback);
+        paaSProvider.executeOperation(buildTopologyDeploymentContext(activeDeployment, topology), request, callback);
     }
 
     /**
@@ -481,6 +477,23 @@ public class DeploymentService {
             deployment = dataResult.getData()[0];
         }
         return deployment;
+    }
+
+    public Deployment[] getCloudActiveDeployments(String cloudId) {
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { cloudId },
+                new String[] { null } });
+        GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
+        return dataResult.getData();
+    }
+
+    public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String cloudId) {
+        Deployment[] deployments = getCloudActiveDeployments(cloudId);
+        Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();
+        for (Deployment deployment : deployments) {
+            Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
+            activeDeploymentContexts.put(deployment.getPaasId(), buildTopologyDeploymentContext(deployment, topology));
+        }
+        return activeDeploymentContexts;
     }
 
     /**

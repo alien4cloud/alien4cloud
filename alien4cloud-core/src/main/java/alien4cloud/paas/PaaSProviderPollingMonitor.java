@@ -99,7 +99,6 @@ public class PaaSProviderPollingMonitor implements Runnable {
                     for (AbstractMonitorEvent event : auditEvents) {
                         // Enrich event with cloud id before saving them
                         event.setCloudId(cloudId);
-                        event.setDeploymentId(event.getDeploymentId());
                     }
                     for (IPaasEventListener listener : listeners) {
                         for (AbstractMonitorEvent event : auditEvents) {

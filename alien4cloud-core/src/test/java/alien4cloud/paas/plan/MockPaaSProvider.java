@@ -36,6 +36,11 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
+    public void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments) {
+
+    }
+
+    @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         this.roots = deploymentContext.getPaaSTopology().getComputes();
     }

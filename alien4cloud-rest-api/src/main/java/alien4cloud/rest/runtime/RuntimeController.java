@@ -21,15 +21,12 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.components.IOperationParameter;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
@@ -72,13 +69,7 @@ public class RuntimeController {
     private DeploymentService deploymentService;
 
     @Resource
-    private DeploymentSetupService deploymentSetupService;
-
-    @Resource
     private ApplicationService applicationService;
-
-    @Resource
-    private ApplicationVersionService applicationVersionService;
 
     @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
@@ -129,11 +120,9 @@ public class RuntimeController {
                     .error(new RestError(RestErrorCode.PROPERTY_UNKNOWN_VIOLATION_ERROR.getCode(), e.getMessage())).build());
             return result;
         }
-        DeploymentSetupMatchInfo deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(applicationId,
-                operationRequest.getApplicationEnvironmentId());
         // try to trigger the execution of the operation
         try {
-            deploymentService.triggerOperationExecution(operationRequest, topology, deploymentSetup, new IPaaSCallback<Map<String, String>>() {
+            deploymentService.triggerOperationExecution(operationRequest, topology, new IPaaSCallback<Map<String, String>>() {
                 @Override
                 public void onSuccess(Map<String, String> data) {
                     result.setResult(RestResponseBuilder.<Object> builder().data(data).build());
