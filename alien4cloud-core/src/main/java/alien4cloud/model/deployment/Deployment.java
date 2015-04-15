@@ -16,7 +16,6 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.paas.model.DeploymentStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -76,9 +75,6 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
-
-    /** The current status of the deployment. */
-    private DeploymentStatus deploymentStatus;
 
     /** Linked deployment setup */
     @NestedObject

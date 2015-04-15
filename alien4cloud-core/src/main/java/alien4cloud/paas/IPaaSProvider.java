@@ -21,6 +21,14 @@ import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 public interface IPaaSProvider {
 
     /**
+     * This method is called by Alien in order to restore the state of the paaS provider after a restart.
+     * The provider must implement this method in order to restore its state
+     * 
+     * @param activeDeployments the currently active deployments that Alien has
+     */
+    void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments);
+
+    /**
      * Deploy a topology
      *
      * @param deploymentContext the context of the deployment

@@ -15,7 +15,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -25,14 +24,12 @@ import alien4cloud.paas.IPaasEventService;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
-import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.rest.websocket.ISecuredHandler;
 import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.security.User;
-import alien4cloud.topology.TopologyServiceCore;
 
 @Slf4j
 @Component
@@ -51,14 +48,6 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     private IGenericSearchDAO alienDAO;
 
     @Resource
-    private TopologyServiceCore topoServiceCore;
-    @Resource
-    private TopologyService topoServiceRest;
-
-    @Resource
-    private DeploymentService deploymentService;
-
-    @Resource
     private SimpMessagingTemplate template;
 
     protected void send(AbstractMonitorEvent event) {
@@ -70,7 +59,8 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         template.convertAndSend(topicName, event);
 
         if (event instanceof PaaSDeploymentStatusMonitorEvent) {
-            Deployment deployment = deploymentService.getDeploymentByPaaSId(event.getDeploymentId());
+
+            Deployment deployment = alienDAO.findById(Deployment.class, event.getDeploymentId());
 
             if (deployment != null) {
                 updateDeploymentStatus(deployment, ((PaaSDeploymentStatusMonitorEvent) event).getDeploymentStatus());
@@ -78,6 +68,9 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
                 if (deployment.getDeploymentSetup() != null && deployment.getDeploymentSetup().getEnvironmentId() != null) {
                     // dispatch an event on the environment topic
                     topicName = ENV_TOPIC_PREFIX + "/" + deployment.getDeploymentSetup().getEnvironmentId();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]");
+                    }
                     template.convertAndSend(topicName, event);
                 }
             }
@@ -85,70 +78,9 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     }
 
     private void updateDeploymentStatus(Deployment deployment, DeploymentStatus newStatus) {
-        if (deployment.getDeploymentStatus() != null && deployment.getDeploymentStatus().equals(newStatus)) {
-            return;
-        }
-        switch (newStatus) {
-        case DEPLOYMENT_IN_PROGRESS:
-            if (DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deployment.getDeploymentStatus())
-                    || DeploymentStatus.UNDEPLOYED.equals(deployment.getDeploymentStatus())) {
-                log.warn(
-                        "Received DEPLOYMENT_IN_PROGRESS status for deployment <{}> for resource <{}> id <{}> of type <{}> while current status is {}. Status will switch to unknown.",
-                        deployment.getId(), deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), deployment.getDeploymentStatus());
-                newStatus = DeploymentStatus.UNKNOWN;
-                return;
-            }
-            break;
-        case DEPLOYED:
-            if (DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deployment.getDeploymentStatus())
-                    || DeploymentStatus.UNDEPLOYED.equals(deployment.getDeploymentStatus())) {
-                log.warn(
-                        "Received DEPLOYED status for deployment <{}> for resource <{}> id <{}> of type <{}> while current status is {}. Status will switch to unknown.",
-                        deployment.getId(), deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), deployment.getDeploymentStatus());
-                newStatus = DeploymentStatus.UNKNOWN;
-                return;
-            }
-            break;
-        case WARNING:
-            if (DeploymentStatus.UNDEPLOYED.equals(deployment.getDeploymentStatus())) {
-                log.warn(
-                        "Received WARNING status for deployment <{}> for resource <{}> id <{}> of type <{}> while current status is {}. Status will switch to unknown.",
-                        deployment.getId(), deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), deployment.getDeploymentStatus());
-                newStatus = DeploymentStatus.UNKNOWN;
-                return;
-            }
-            break;
-        case FAILURE:
-            if (DeploymentStatus.UNDEPLOYED.equals(deployment.getDeploymentStatus())) {
-                log.warn(
-                        "Received WARNING status for deployment <{}> for resource <{}> id <{}> of type <{}> while current status is {}. Status will switch to unknown.",
-                        deployment.getId(), deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), deployment.getDeploymentStatus());
-                newStatus = DeploymentStatus.UNKNOWN;
-                return;
-            }
-            break;
-        case UNDEPLOYMENT_IN_PROGRESS:
-            if (DeploymentStatus.UNDEPLOYED.equals(deployment.getDeploymentStatus())) {
-                log.warn(
-                        "Received WARNING status for deployment <{}> for resource <{}> id <{}> of type <{}> while current status is {}. Status will switch to unknown.",
-                        deployment.getId(), deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), deployment.getDeploymentStatus());
-                newStatus = DeploymentStatus.UNKNOWN;
-                return;
-            }
-            break;
-        case UNDEPLOYED:
-            break;
-        case UNKNOWN:
-            break;
-        default:
-            log.error("Received an unexpected status for deployment <{}> for resource <{}> id <{}> of type <{}>: ", deployment.getId(),
-                    deployment.getSourceName(), deployment.getSourceId(), deployment.getSourceType(), newStatus);
-            return;
-        }
         if (DeploymentStatus.UNDEPLOYED.equals(newStatus)) {
             deployment.setEndDate(new Date());
         }
-        deployment.setDeploymentStatus(newStatus);
         alienDAO.save(deployment);
     }
 
@@ -219,8 +151,8 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
         send(event);
-        if (log.isDebugEnabled()) {
-            log.debug("Pushed event {} for deployment {}", event, event.getDeploymentId());
+        if (log.isTraceEnabled()) {
+            log.trace("Pushed event {} for deployment {}", event, event.getDeploymentId());
         }
     }
 

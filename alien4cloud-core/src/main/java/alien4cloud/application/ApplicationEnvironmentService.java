@@ -1,5 +1,6 @@
 package alien4cloud.application;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import alien4cloud.utils.MapUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.SettableFuture;
 
 @Slf4j
 @Service
@@ -235,32 +237,30 @@ public class ApplicationEnvironmentService {
      * @return {@link DeploymentStatus}
      * @throws CloudDisabledException
      */
-    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws CloudDisabledException {
+    public DeploymentStatus getStatus(ApplicationEnvironment environment) throws Exception {
         final Deployment deployment = getActiveDeployment(environment.getId());
         if (deployment == null) {
             return DeploymentStatus.UNDEPLOYED;
         }
-        if (deployment.getDeploymentStatus() == null) {
-            if (deployment.getEndDate() == null) {
-                return DeploymentStatus.UNDEPLOYED;
+        final SettableFuture<DeploymentStatus> statusSettableFuture = SettableFuture.create();
+        // update the deployment status from PaaS if it cannot be found.
+        deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
+            @Override
+            public void onSuccess(DeploymentStatus data) {
+                statusSettableFuture.set(data);
             }
-            // update the deployment status from PaaS if it cannot be found.
-            deploymentService.getDeploymentStatus(deployment, new IPaaSCallback<DeploymentStatus>() {
-                @Override
-                public void onSuccess(DeploymentStatus data) {
-                    deployment.setDeploymentStatus(data);
-                    alienDAO.save(deployment);
-                }
 
-                @Override
-                public void onFailure(Throwable throwable) {
-                    log.error("Failed to request deployment status from PaaS for deployment <" + deployment.getId() + ">", throwable);
-                }
-            });
-            // and return unknown for now...
-            return DeploymentStatus.UNKNOWN;
+            @Override
+            public void onFailure(Throwable throwable) {
+                statusSettableFuture.setException(throwable);
+            }
+        });
+        DeploymentStatus currentStatus = statusSettableFuture.get();
+        if (DeploymentStatus.UNDEPLOYED.equals(currentStatus)) {
+            deployment.setEndDate(new Date());
+            alienDAO.save(deployment);
         }
-        return deployment.getDeploymentStatus();
+        return currentStatus;
     }
 
     /**

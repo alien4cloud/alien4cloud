@@ -58,6 +58,11 @@ public class TopologyServiceCore {
         }
     };
 
+    public Topology getTopology(String topologyId) {
+        Topology topology = alienDAO.findById(Topology.class, topologyId);
+        return topology;
+    }
+
     /**
      * Retrieve a topology given its Id
      *
@@ -65,7 +70,7 @@ public class TopologyServiceCore {
      * @return
      */
     public Topology getMandatoryTopology(String topologyId) {
-        Topology topology = alienDAO.findById(Topology.class, topologyId);
+        Topology topology = getTopology(topologyId);
         if (topology == null) {
             throw new NotFoundException("Topology [" + topologyId + "] cannot be found");
         }

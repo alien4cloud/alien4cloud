@@ -36,7 +36,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
-        String deploymentId = deploymentContext.getDeploymentId();
+        String deploymentId = deploymentContext.getDeploymentPaaSId();
         Topology topology = deploymentContext.getTopology();
         DeploymentSetup deploymentSetup = deploymentContext.getDeploymentSetup();
         try {
@@ -80,7 +80,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     @Override
     public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
             IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentId(), topology));
+        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), topology));
     }
 
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
@@ -144,7 +144,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
     @Override
     public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
-        String deploymentId = deploymentContext.getDeploymentId();
+        String deploymentId = deploymentContext.getDeploymentPaaSId();
         try {
             providerLock.writeLock().lock();
             DeploymentStatus deploymentStatus = getStatus(deploymentId, true);

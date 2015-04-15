@@ -75,6 +75,8 @@ public class CloudService {
     private PaaSProviderService paaSProviderService;
     @Resource
     private CloudImageService cloudImageService;
+    @Resource
+    private DeploymentService deploymentService;
 
     public void initializeAndWait() {
         Iterator<Future<?>> futureIt = initialize().iterator();
@@ -95,7 +97,8 @@ public class CloudService {
      * @return a list of futures for those who want to wait for task to be done.
      */
     public List<Future<?>> initialize() {
-        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to recover states.
+        // TODO When a cloud is disabled or fails all status of applications should moved to UNKNOWN - PaaS Providers should be able to update correctly to
+        // recover states.
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<Future<?>> futures = new ArrayList<Future<?>>();
         int from = 0;
@@ -388,6 +391,7 @@ public class CloudService {
             provider = passProviderFactory.newInstance();
         }
         initializeMatcherConfig(provider, cloud);
+        provider.init(deploymentService.getCloudActiveDeploymentContexts(cloud.getId()));
         // register the IPaaSProvider for the cloud.
         paaSProviderService.register(cloud.getId(), provider);
     }

@@ -442,7 +442,7 @@ public class ApplicationEnvironmentController {
             tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
-            } catch (CloudDisabledException e) {
+            } catch (Exception e) {
                 log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
                         + "> seems disabled. Returned status is UNKNOWN.", e);
                 tempEnvDTO.setStatus(DeploymentStatus.UNKNOWN);
