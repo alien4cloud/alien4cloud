@@ -479,33 +479,53 @@ angular.module('alienUiApp').controller(
         return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
       };
 
-      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
-        deploymentServices.nodeInstanceMaintenanceOn({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id,
-          nodeTemplateId: $scope.selectedNodeTemplate.name,
-          instanceId: nodeInstanceId
-        }, {}, undefined);
+      $scope.switchNodeInstanceMaintenanceMode = function(nodeInstanceId) {
+        switch ($scope.topology.instances[$scope.selectedNodeTemplate.name][nodeInstanceId].instanceStatus) {
+        case 'SUCCESS':
+          deploymentServices.nodeInstanceMaintenanceOn({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined); 
+          break;
+        case 'MAINTENANCE':
+          deploymentServices.nodeInstanceMaintenanceOff({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined);             
+        }
       };
-      $scope.switchNodeInstanceMaintenanceModeOff = function(nodeInstanceId) {
-        deploymentServices.nodeInstanceMaintenanceOff({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id,
-          nodeTemplateId: $scope.selectedNodeTemplate.name,
-          instanceId: nodeInstanceId
-        }, {}, undefined);
-      };
-      $scope.switchDeployementMaintenanceModeOn = function() {
-        deploymentServices.deploymentMaintenance.on({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, {}, undefined);
-      };
-      $scope.switchDeployementMaintenanceModeOff = function() {
-        deploymentServices.deploymentMaintenance.off({
-          applicationId: applicationId,
-          applicationEnvironmentId: $scope.selectedEnvironment.id
-        }, {}, undefined);
+//      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
+//        deploymentServices.nodeInstanceMaintenanceOn({
+//          applicationId: applicationId,
+//          applicationEnvironmentId: $scope.selectedEnvironment.id,
+//          nodeTemplateId: $scope.selectedNodeTemplate.name,
+//          instanceId: nodeInstanceId
+//        }, {}, undefined);
+//      };
+//      $scope.switchNodeInstanceMaintenanceModeOff = function(nodeInstanceId) {
+//        deploymentServices.nodeInstanceMaintenanceOff({
+//          applicationId: applicationId,
+//          applicationEnvironmentId: $scope.selectedEnvironment.id,
+//          nodeTemplateId: $scope.selectedNodeTemplate.name,
+//          instanceId: nodeInstanceId
+//        }, {}, undefined);
+//      };
+      $scope.switchDeployementMaintenanceMode = function() {
+        if ($scope.hasNOdeInstanceInMaintenanceMode) {
+          deploymentServices.deploymentMaintenance.off({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id
+          }, {}, undefined);
+        } else {
+          deploymentServices.deploymentMaintenance.on({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id
+          }, {}, undefined);
+        }
       };
 
       // first topology load

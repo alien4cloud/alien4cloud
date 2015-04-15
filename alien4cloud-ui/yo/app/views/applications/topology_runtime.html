@@ -16,11 +16,11 @@
 
       <!--  Environment list -->
       <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}"
-        ng-change="loadTopologyRuntime()">
+              ng-change="loadTopologyRuntime()">
       </select>
 
       <tabset>
-      
+
         <tab>
           <tab-heading id="details-tab">
             <i class="fa fa-info"></i>  {{'DETAILS' | translate}}
@@ -31,7 +31,7 @@
               <div class="col-md-5">
                 <h5 class="text-primary">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</h5>
               </div>
-            </div>          
+            </div>
             <div class="row form-horizontal">
               <div class="col-md-12">
                 <table class="table">
@@ -47,21 +47,16 @@
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.APP_NAME' | translate}}</strong></td>
                       <td class="col-md-7">{{application.name}}</td>
                       <td class="col-md-1">
-                        <button ng-if="!hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-success btn-xs"
-                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                ng-click="switchDeployementMaintenanceModeOn()" >
+                        <a class="{{hasNOdeInstanceInMaintenanceMode ? 'btn btn-danger btn-xs' : 'btn btn-success btn-xs'}}"
+                           id="appMaintenanceButton"
+                           confirm="{{hasNOdeInstanceInMaintenanceMode ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate}}"
+                           confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+                           confirm-placement="left"
+                           confirm-handler="switchDeployementMaintenanceMode()"
+                           ng-click="$event.stopPropagation();">
                           <i class="fa fa-wrench"></i>
-                        </button>                          
-                        <button ng-if="hasNOdeInstanceInMaintenanceMode" id="appMaintenanceButton" class="btn btn-danger btn-xs"
-                                tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
-                                ng-click="switchDeployementMaintenanceModeOff()">
-                          <i class="fa fa-wrench"></i>
-                        </button>                       
+                        </a>
                       </td>
-                    </tr>
-                    <tr>
-                      <td class="col-md-4"><strong>Nom du déploiement</strong></td>
-                      <td class="col-md-8">TODO !!!</td>
                     </tr>
                     <tr>
                       <td class="col-md-4"><strong>{{'APPLICATIONS.RUNTIME.INFORMATIONS.DEPLOYMENT_ID' | translate}}</strong></td>
@@ -85,18 +80,19 @@
           </div>
           <!-- Node -->
           <div ng-show="selectedNodeTemplate && !selectedInstance">
-            <div class="row">
-              <div class="col-md-10">
+            <div>
+              <div class="pull-left">
                 <h5>
                   <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
                   <span class="text-primary"> / {{selectedNodeTemplate.name | split:39}}</span>
                 </h5>
               </div>
-              <div class="col-md-2">
+              <div class="pull-right">
                 <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
                   <i class="fa fa-arrow-left"></i>
                 </button>
-              </div>              
+              </div>
+              <span class="clearfix"></span>
             </div>
             <div id="scaleEditableInput" ng-show="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
               <div id="node-scale-command" class="clickable"
@@ -105,21 +101,26 @@
                   <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeScaleCollapsed, 'fa-chevron-right': isNodeScaleCollapsed}"></i>
                   {{'APPLICATIONS.RUNTIME.SCALE' | translate}}
                 </h4>
-              </div>                 
-                <div class="editable-discreet" editable-range="selectedNodeTemplate.newInstancesCount" buttons="yes"  onbeforesave="scale($data)"
-                  e-step="1"
-                  e-min="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].minInstances}}"
-                  e-max="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].maxInstances}}"
-                  e-required collapse="isNodeScaleCollapsed">
-                  <h4>
-                    {{selectedNodeTemplate.newInstancesCount
-                    || selectedNodeTemplate.instancesCount}}
-                    <button id="scaleEditableButton" class="btn btn-primary btn-xs"
-                            tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
-                      <i class="fa fa-signal"></i>
-                    </button>
-                  </h4>
-                </div>            
+              </div>
+              <div
+                class="editable-discreet"
+                editable-number="selectedNodeTemplate.newInstancesCount"
+                buttons="yes"
+                onbeforesave="scale($data)"
+                e-step="1"
+                e-min="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].minInstances}}"
+                e-max="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].maxInstances}}"
+                e-required
+                e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
+                collapse="isNodeScaleCollapsed">
+                <h4>
+                  {{selectedNodeTemplate.newInstancesCount || selectedNodeTemplate.instancesCount}}
+                  <span id="scaleEditableButton" class="btn btn-primary btn-xs"
+                          tooltip="{{ 'APPLICATIONS.RUNTIME.SCALE_BUTTON' | translate }}">
+                    <i class="fa fa-signal"></i>
+                  </span>
+                </h4>
+              </div>
             </div>
             <div ng-show="selectedNodeTemplate.type != 'tosca.nodes.Network'">
               <div id="node-instance-list-command" class="clickable"
@@ -128,7 +129,7 @@
                   <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceListCollapsed, 'fa-chevron-right': isNodeInstanceListCollapsed}"></i>
                   {{'APPLICATIONS.RUNTIME.INSTANCES' | translate}}
                 </h4>
-              </div>              
+              </div>
               <div id="node-instance-list" collapse="isNodeInstanceListCollapsed" class="row">
                 <div class="col-md-12">
                   <table class="table">
@@ -157,32 +158,26 @@
                           'fa fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
                         </td>
                         <td class="col-md-1">
-                          <div ng-if="isComputeType(selectedNodeTemplate)" ng-switch="info.instanceStatus">
-                            <button ng-switch-when="SUCCESS" id="instanceMaintenanceButton" class="btn btn-success btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                    ng-click="switchNodeInstanceMaintenanceModeOn(id)" >
+                          <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
+                            <a class="{{info.instanceStatus === 'SUCCESS' ? 'btn btn-success btn-xs' : 'btn btn-danger btn-xs'}}"
+                               id="instanceMaintenanceButton"
+                               confirm="{{info.instanceStatus === 'SUCCESS' ? 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' : 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate}}"
+                               confirm-title="{{'APPLICATIONS.RUNTIME.MAINTENANCE' | translate }}"
+                               confirm-placement="left"
+                               confirm-handler="switchNodeInstanceMaintenanceMode(id)"
+                               ng-click="$event.stopPropagation();">
                               <i class="fa fa-wrench"></i>
-                            </button>       
-                            <button ng-switch-when="MAINTENANCE" id="instanceMaintenanceButton" class="btn btn-danger btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.OFF' | translate }}" tooltip-placement="left"
-                                    ng-click="$event.stopPropagation(); switchNodeInstanceMaintenanceModeOff(id)" >
-                              <i class="fa fa-wrench"></i>
-                            </button>     
-                            <button ng-switch-default disabled="true" id="instanceMaintenanceButton" class="btn btn-default btn-xs"
-                                    tooltip="{{ 'APPLICATIONS.RUNTIME.MAINTENANCE_BUTTON.ON' | translate }}" tooltip-placement="left"
-                                    ng-click="$event.stopPropagation();" >
-                              <i class="fa fa-wrench"></i>
-                            </button>                                                            
-                          </div>                      
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
-            </div>            
-          </div>          
-       
+            </div>
+          </div>
+
           <!-- Instance -->
           <div ng-show="selectedNodeTemplate && selectedInstance">
             <div class="row">
@@ -205,7 +200,7 @@
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstancePropertiesCollapsed, 'fa-chevron-right': isNodeInstancePropertiesCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.PROPERTIES' | translate}}
               </h4>
-            </div>             
+            </div>
             <div class="row" collapse="isNodeInstancePropertiesCollapsed">
               <div class="col-md-12">
                 <table class="table">
@@ -216,7 +211,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                  <!-- properties are the same for all instances of a node template -->
+                    <!-- properties are the same for all instances of a node template -->
                     <tr ng-repeat="property in selectedNodeTemplate.properties">
                       <td>{{property.key}}</td>
                       <td>{{property.value.value}}</td>
@@ -230,7 +225,7 @@
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceAttributesCollapsed, 'fa-chevron-right': isNodeInstanceAttributesCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.ATTRIBUTES' | translate}}
               </h4>
-            </div>             
+            </div>
             <div class="row" collapse="isNodeInstanceAttributesCollapsed">
               <div class="col-md-12">
                 <table class="table">
@@ -254,7 +249,7 @@
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isNodeInstanceRuntimePropsCollapsed, 'fa-chevron-right': isNodeInstanceRuntimePropsCollapsed}"></i>
                 {{'APPLICATIONS.RUNTIME.RUNTIMEPROPS' | translate}}
               </h4>
-            </div>              
+            </div>
             <div class="row" collapse="isNodeInstanceRuntimePropsCollapsed">
               <div class="col-md-12">
                 <table class="table">
@@ -273,8 +268,8 @@
                 </table>
               </div>
             </div>
-          </div>          
-          
+          </div>
+
           <!-- Operations -->
           <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
@@ -285,40 +280,40 @@
             </div>
             <div collapse="isNodeOperationsCollapsed">
               <div ng-repeat="(interfaceName, interface) in selectedNodeCustomInterfaces">
-		            <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
-		              <!-- Operation div with "execute" button -->
-		              <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
-		                <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
-		                <span>{{interfaceName}}.{{operationName}}</span>
-		                <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
-		                  <button class="btn btn-success btn-xs" 
-		                      ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
-		                      ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
-		                      id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
-		                    <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
-		                  </button>
-		                </span>
-		                <span class="clearfix"></span>
-		              </div>
-		              <!-- Operation inputs in collapsed div (if exists) -->
-		              <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
-		                <table class="table table-condensed" id="op_{{operationName}}_inputParams">
-		                  <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
-		                    <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
-		                      <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
-		                      <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
-		                      </property-display>
-		                    </td>
-		                  </tr>
-		                </table>
-		              </div>
-		            </div>
+                <div ng-init="isOpCollapsed={}; emptyInputs = !isMapNotNullOrEmpty(operation.inputParameters)" id="operation_{{interfaceName}}_{{operationName}}" ng-repeat="(operationName, operation) in interface.operations">
+                  <!-- Operation div with "execute" button -->
+                  <div class="topology-node-expand" ng-class="{'clickable': !emptyInputs}" ng-init="isOpCollapsed[operationName] = true" ng-click="isOpCollapsed[operationName] = !isOpCollapsed[operationName]">
+                    <i ng-if="!emptyInputs" class="pull-left fa vertical-center" ng-class="{'fa-chevron-down' : !isOpCollapsed[operationName], 'fa-chevron-right': isOpCollapsed[operationName]}"></i>
+                    <span>{{interfaceName}}.{{operationName}}</span>
+                    <span class="pull-right" tooltip="{{'EXECUTE' | translate }}" tooltip-placement="left" tooltip-append-to-body="false">
+                      <button class="btn btn-success btn-xs"
+                          ng-click="executeOperation(interfaceName, operationName, operation.inputParameters, $event)"
+                          ng-disabled="operationLoading[selectedNodeTemplate.name][interfaceName][operationName]"
+                          id="btn-submit-operation-{{interfaceName}}-{{operationName}}">
+                        <i class="fa" ng-class="{' fa-spin fa-spinner' : operationLoading[selectedNodeTemplate.name][interfaceName][operationName], 'fa-play-circle': !operationLoading[selectedNodeTemplate.name][interfaceName][operationName]}"></i>
+                      </button>
+                    </span>
+                    <span class="clearfix"></span>
+                  </div>
+                  <!-- Operation inputs in collapsed div (if exists) -->
+                  <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
+                    <table class="table table-condensed" id="op_{{operationName}}_inputParams">
+                      <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
+                        <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+                          <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
+                          <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
+                          </property-display>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
               </div>
-            </div>                   
-          </div>            
-          
+            </div>
+          </div>
+
         </tab>
-              
+
         <!-- events -->
         <tab>
           <tab-heading id="events-tab">
