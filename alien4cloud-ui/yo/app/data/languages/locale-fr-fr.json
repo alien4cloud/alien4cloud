@@ -604,7 +604,7 @@
       },
       "HELP": {
         "TITLE": "Aide concernant la nomenclature des noms de déploiement",
-        "CONTENT": "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est SpEL, assurez-vous de définir une expression correcte."
+        "CONTENT": "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est Spring Expression Language, assurez-vous de définir une expression correcte. De plus, nous vous recommandons de définir un règle qui générera un nom unique pour chaque déploiement."
       }
     },
     "DRIVER": {
