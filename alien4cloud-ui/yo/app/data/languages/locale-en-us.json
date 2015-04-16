@@ -597,7 +597,7 @@
       },
       "HELP": {
         "TITLE": "Help about the naming policy of deployment name",
-        "CONTENT": "You can use the environment, the application, the meta properties of the application and a timestamp. We use the SpEL syntax, make sure to define a correct expression."
+        "CONTENT": "You can use the environment, the application, the meta properties of the application and a timestamp. We use the Spring Expression Language syntax, make sure to define a correct expression. In addition, we recommend that you set a rule that will generate a unique name for each deployment."
       }
     },
     "DRIVER": {
