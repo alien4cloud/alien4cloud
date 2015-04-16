@@ -317,7 +317,8 @@
         }
       },
       "OPERATION_EXECUTION": {
-        "RESULT_TITLE": "Execution result for operation {{operation}}"
+        "RESULT_TITLE": "Execution result for operation {{operation}}",
+        "NO_RETURN": "No return"
       }
     },
     "DEPLOYMENT": {
