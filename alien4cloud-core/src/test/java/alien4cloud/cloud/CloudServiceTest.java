@@ -26,7 +26,7 @@ public class CloudServiceTest {
     private PaaSProviderFactoriesService paaSProviderFactoriesService;
     private IGenericSearchDAO alienDAO;
     private CloudImageService cloudImageService;
-
+    private DeploymentService deploymentService;
     private CloudService cloudService;
 
     private void setPrivateField(Object target, String fieldName, Object fieldValue) {
@@ -45,12 +45,14 @@ public class CloudServiceTest {
         paaSProviderFactoriesService = Mockito.mock(PaaSProviderFactoriesService.class);
         paaSProviderService = Mockito.mock(PaaSProviderService.class);
         cloudImageService = Mockito.mock(CloudImageService.class);
+        deploymentService = Mockito.mock(DeploymentService.class);
         // initialize cloud service instance with mocks
         cloudService = new CloudService();
         setPrivateField(cloudService, "alienDAO", alienDAO);
         setPrivateField(cloudService, "paaSProviderFactoriesService", paaSProviderFactoriesService);
         setPrivateField(cloudService, "paaSProviderService", paaSProviderService);
         setPrivateField(cloudService, "cloudImageService", cloudImageService);
+        setPrivateField(cloudService, "deploymentService", deploymentService);
     }
 
     @Test
