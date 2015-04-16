@@ -138,7 +138,13 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       switch ($scope.definition.type) {
         case 'boolean':
           $scope.definitionObject.uiName = 'checkbox';
-          $scope.definitionObject.uiValue = shownValue === 'true';
+          if(UTILS.isUndefinedOrNull(shownValue)) {
+            $scope.definitionObject.uiValue = false;
+          } else if(typeof shownValue === 'boolean') {
+            $scope.definitionObject.uiValue = shownValue;
+          } else {
+            $scope.definitionObject.uiValue = (shownValue === 'true');
+          }
           break;
         case 'timestamp':
           $scope.definitionObject.uiName = 'date';
