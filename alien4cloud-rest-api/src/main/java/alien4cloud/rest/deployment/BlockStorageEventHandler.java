@@ -59,6 +59,11 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             return;
         }
 
+        if (storageEvent.isDeletable()) {
+            log.info("Delete blockstorage is activated. Skipping topology volumeId update...");
+            return;
+        }
+
         Deployment deployment = deploymentService.getDeployment(storageEvent.getDeploymentId());
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
         ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
@@ -68,11 +73,6 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
         } catch (NotFoundException e) {
             log.warn("Fail to update volumeIds for node " + storageEvent.getNodeTemplateId(), e);
-            return;
-        }
-
-        if (storageEvent.isDeletable()) {
-            log.info("Blockstorage <{}.{}> is a deletable type. Skipping topology volumeId update...", topology.getId(), nodeTemplate.getName());
             return;
         }
 
@@ -86,6 +86,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 return;
             }
             updateNodeTemplate(topology, nodeTemplate, storageEvent, volumeIds);
+
         } else {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
@@ -96,6 +97,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 if (volumeIds == null) {
                     return;
                 }
+                log.debug("Updating deploymentsetup <{}> input properties <{}> to add VolumeId <{}>. New value is <{}>", deploymentSetup.getId(),
+                        function.getTemplateName(), storageEvent.getVolumeId(), volumeIds);
                 deploymentSetup.getInputProperties().put(function.getTemplateName(), volumeIds);
                 alienDAO.save(deploymentSetup);
             } else {
