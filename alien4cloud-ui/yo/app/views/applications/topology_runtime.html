@@ -88,7 +88,8 @@
                 </h5>
               </div>
               <div class="pull-right">
-                <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
+                <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" 
+                        tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
               </div>
@@ -180,8 +181,8 @@
 
           <!-- Instance -->
           <div ng-show="selectedNodeTemplate && selectedInstance">
-            <div class="row">
-              <div class="col-md-10">
+            <div>
+              <div class="pull-left">
                 <h5>
                   <a ng-click="clearNodeSelection()">{{'APPLICATIONS.RUNTIME.DEPLOYMENT' | translate}}</a>
                   <span class="text-primary"> / </span>
@@ -189,11 +190,13 @@
                   <span class="text-primary"> / {{selectedInstance.id}}</span>
                 </h5>
               </div>
-              <div class="col-md-2">
-                <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()" tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}">
+              <div class="pull-right">
+                <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()" 
+                        tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
               </div>
+              <span class="clearfix"></span>
             </div>
             <div id="node-instance-properties-command" class="clickable" ng-click="isNodeInstancePropertiesCollapsed = !isNodeInstancePropertiesCollapsed">
               <h4>

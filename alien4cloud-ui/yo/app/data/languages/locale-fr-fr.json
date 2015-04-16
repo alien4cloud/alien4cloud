@@ -323,7 +323,8 @@
         }
       },
       "OPERATION_EXECUTION": {
-        "RESULT_TITLE": "Resultat de l'éxecution de l'opération {{operation}}"
+        "RESULT_TITLE": "Resultat de l'éxecution de l'opération {{operation}}",
+        "NO_RETURN": "Pas de retour"
       }
     },
     "DEPLOYMENT": {

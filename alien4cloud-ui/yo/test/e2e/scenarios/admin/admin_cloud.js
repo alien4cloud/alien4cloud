@@ -49,8 +49,8 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.deleteCloud();
     cloudsCommon.goToCloudList();
     expect(cloudsCommon.countCloud()).toBe(1);
-  });  
-  
+  });
+
   it('should create network', function() {
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.addNewNetwork('private', '192.168.0.0/24', false, '192.168.0.1', '4');
@@ -103,7 +103,7 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.deleteCloud();
     expect(browser.isElementPresent(by.name('testcloud'))).toBe(false);
   });
-  
+
   it('should be able to select PaaS resources IDs from a list for PaaS that provide them.', function() {
     after = true;
     console.log('################# should be able to select PaaS resources IDs from a list for PaaS that provide them.');
@@ -114,9 +114,8 @@ describe('Test the cloud management: ', function() {
     // by switching this to true, we make the mock PaaS provider able to send list of PaaS resource IDs
     var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelprovideResourceIdstrue'));
     browser.actions().click(badConfigurationSwitch).perform();
-    genericForm.saveForm();
     cloudsCommon.goToCloudDetail('test-id-provided');
-    cloudsCommon.enableCloud();    
+    cloudsCommon.enableCloud();
     // now associate / create resources and associate them to provided resource IDs
     cloudsCommon.addNewCloudImage('MyImage1', 'linux', 'x86_64', 'Ubuntu', '14.04', '8', '320', '4096');
     // expect to have 1 image for this cloud

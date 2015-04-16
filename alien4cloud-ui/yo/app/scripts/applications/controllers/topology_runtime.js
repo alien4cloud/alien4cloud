@@ -453,7 +453,12 @@ angular.module('alienUiApp').controller(
             var resultHtml = [];
             resultHtml.push('<ul>');
             Object.keys(resultInstanceMap).forEach(function(instanceId) {
-              resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
+              if (resultInstanceMap[instanceId]) {
+                resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
+              } else {
+                resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
+              }
+              
             });
             resultHtml.push('</ul>');
             // timeout at 0 == keep displayed until close
