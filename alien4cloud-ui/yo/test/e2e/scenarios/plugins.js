@@ -148,7 +148,6 @@ describe('Upload and handle paas plugins', function() {
     cloudsCommon.goToCloudConfiguration();
     var badConfigurationSwitch = browser.element(by.id('primitiveTypeFormLabelwithBadConfiguratontrue'));
     browser.actions().click(badConfigurationSwitch).perform();
-    genericForm.saveForm();
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.enableCloud();
     common.expectErrors();
