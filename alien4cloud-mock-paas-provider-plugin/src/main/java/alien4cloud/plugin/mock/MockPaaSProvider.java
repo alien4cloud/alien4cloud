@@ -246,12 +246,11 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         cloned.setRuntimeProperties(information.getRuntimeProperties());
         cloned.setState(information.getState());
 
-        final MockRuntimeDeploymentInfo deploymentInfo = runtimeDeploymentInfos.get(deploymentPaaSId);
-
         executorService.schedule(new Runnable() {
 
             @Override
             public void run() {
+                final MockRuntimeDeploymentInfo deploymentInfo = runtimeDeploymentInfos.get(deploymentPaaSId);
                 Deployment deployment = deploymentInfo.getDeploymentContext().getDeployment();
                 PaaSInstanceStateMonitorEvent event;
                 if (deployment.getSourceName().equals(BLOCKSTORAGE_APPLICATION) && cloned.getState().equalsIgnoreCase("created")) {

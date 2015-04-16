@@ -54,7 +54,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
         String eventType = MappingBuilder.indexTypeFromClass(event.getClass());
         String topicName = TOPIC_PREFIX + '/' + event.getDeploymentId() + '/' + eventType;
         if (log.isDebugEnabled()) {
-            log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]");
+            log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
         }
         template.convertAndSend(topicName, event);
 
@@ -68,7 +68,7 @@ public class DeploymentEventHandler implements IPaasEventListener<AbstractMonito
                     // dispatch an event on the environment topic
                     topicName = ENV_TOPIC_PREFIX + "/" + deployment.getDeploymentSetup().getEnvironmentId();
                     if (log.isDebugEnabled()) {
-                        log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]");
+                        log.debug("Send [" + event.getClass().getSimpleName() + "] to [" + topicName + "]: " + event);
                     }
                     template.convertAndSend(topicName, event);
                 }
