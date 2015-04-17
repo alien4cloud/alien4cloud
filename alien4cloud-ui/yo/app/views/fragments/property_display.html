@@ -51,7 +51,7 @@
         </span>
         <span ng-if="!definitionObject.uiPassword && definitionObject.units && editable">
           <!-- Property with unit -->
-          <span editable-number="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
+          <span editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit" e-form="scalarForm" ng-click="scalarForm.$show()" class="editable editable-click">
             {{definitionObject.uiValue}} <i class="fa fa-pencil-square-o"></i>
           </span>
           <div ng-if="definitionObject.units" class="btn-group btn-group-xs">
