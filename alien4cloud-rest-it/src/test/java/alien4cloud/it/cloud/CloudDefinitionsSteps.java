@@ -74,6 +74,19 @@ public class CloudDefinitionsSteps {
         assertTrue(contains);
     }
 
+    @Then("^Response should contains a cloud with deploymentNamePattern \"([^\"]*)\"$")
+    public void Response_should_contains_a_cloud_with_deploymentNamePattern(String deploymentNamePattern) throws IOException {
+        RestResponse<GetMultipleDataResult> response = JsonUtil.read(Context.getInstance().getRestResponse(), GetMultipleDataResult.class);
+        boolean contains = false;
+        for (Object cloudAsMap : response.getData().getData()) {
+            Cloud cloud = JsonUtil.readObject(JsonUtil.toString(cloudAsMap), Cloud.class);
+            if (deploymentNamePattern.equals(cloud.getDeploymentNamePattern())) {
+                contains = true;
+            }
+        }
+        assertTrue(contains);
+    }
+
     @When("^I update cloud name from \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_cloud_name_from_to(String cloudName, String newCloudName) throws IOException {
         Cloud cloud = new Cloud();
@@ -83,6 +96,18 @@ public class CloudDefinitionsSteps {
         if (restResponse.getError() == null && !cloudName.equals(newCloudName)) {
             Context.getInstance().unregisterCloud(cloudName);
             Context.getInstance().registerCloud(cloud.getId(), newCloudName);
+        }
+    }
+
+    @When("^I update deployment name pattern of \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_deployment_name_pattern_of_to(String cloudName, String newDeploymentNamePattern) throws IOException {
+        Cloud cloud = new Cloud();
+        cloud.setDeploymentNamePattern(newDeploymentNamePattern);
+        updateCloud(cloudName, cloud);
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        if (restResponse.getError() == null) {
+            Context.getInstance().unregisterCloud(cloudName);
+            Context.getInstance().registerCloud(cloud.getId(), cloudName);
         }
     }
 
