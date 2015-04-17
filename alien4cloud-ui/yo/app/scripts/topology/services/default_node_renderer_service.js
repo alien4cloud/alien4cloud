@@ -91,6 +91,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
           var successCount = this.getNumberOfInstanceByStatus(nodeInstances, 'SUCCESS');
           var processingCount = this.getNumberOfInstanceByStatus(nodeInstances, 'PROCESSING');
+          var maintenanceCount = this.getNumberOfInstanceByStatus(nodeInstances, 'MAINTENANCE');
           var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
           deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null, 'stopped');
 
@@ -110,6 +111,11 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
             currentY += 20;
           } else {
             this.removeRuntimeCount(runtimeGroup, 'runtime-count-progress');
+          }
+          if (maintenanceCount > 0) {
+            this.drawRuntimeCount(runtimeGroup, 'runtime-count-maintenance', rectOriginX, currentY, '\uf0ad', maintenanceCount, nodeInstancesCount);
+          } else {
+            this.removeRuntimeCount(runtimeGroup, 'runtime-count-maintenance');
           }
           if (failureCount > 0) {
             this.drawRuntimeCount(runtimeGroup, 'runtime-count-failure', rectOriginX, currentY, '\uf00d', failureCount, nodeInstancesCount);
