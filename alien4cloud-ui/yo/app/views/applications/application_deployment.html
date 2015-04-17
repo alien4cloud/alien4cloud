@@ -504,7 +504,7 @@
                       <td>{{storage.id}}</td>
                       <td>{{storage.device || '---'}}</td>
                       <td>{{storage.location || '---'}}</td>
-                      <td>{{storage.size}} GB</td>
+                      <td>{{storage.size | bytes}}</td>
                       <td>{{storage.description || '---'}}</td>
                     </tr>
                   </tbody>
