@@ -88,7 +88,7 @@
                 </h5>
               </div>
               <div class="pull-right">
-                <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()" 
+                <button id="backToDeploymentButton" type="button" class="btn btn-default btn-xs" ng-click="clearNodeSelection()"
                         tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
@@ -156,7 +156,7 @@
                           <i class="fa" ng-class="{'fa-check text-success': info.instanceStatus === 'SUCCESS',
                           'fa-times text-danger': info.instanceStatus === 'FAILURE',
                           'fa-spinner fa-spin' : info.instanceStatus === 'PROCESSING',
-                          'fa fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
+                          'fa-wrench text-warning' : info.instanceStatus === 'MAINTENANCE'}"></i>
                         </td>
                         <td class="col-md-1">
                           <div ng-if="isComputeType(selectedNodeTemplate) && (info.instanceStatus === 'SUCCESS' || info.instanceStatus === 'MAINTENANCE')" >
@@ -191,7 +191,7 @@
                 </h5>
               </div>
               <div class="pull-right">
-                <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()" 
+                <button id="backToInstanceListButton" type="button" class="btn btn-default btn-xs" ng-click="clearInstanceSelection()"
                         tooltip="{{ 'APPLICATIONS.RUNTIME.BACK' | translate }}" tooltip-placement="left">
                   <i class="fa fa-arrow-left"></i>
                 </button>
