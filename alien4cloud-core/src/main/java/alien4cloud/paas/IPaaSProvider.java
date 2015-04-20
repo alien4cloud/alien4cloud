@@ -6,6 +6,7 @@ import java.util.Map;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
@@ -20,8 +21,16 @@ import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 public interface IPaaSProvider {
 
     /**
-     * Deploy a topology
+     * This method is called by Alien in order to restore the state of the paaS provider after a restart.
+     * The provider must implement this method in order to restore its state
      * 
+     * @param activeDeployments the currently active deployments that Alien has
+     */
+    void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments);
+
+    /**
+     * Deploy a topology
+     *
      * @param deploymentContext the context of the deployment
      */
     void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback);
@@ -44,7 +53,7 @@ public interface IPaaSProvider {
 
     /**
      * Get status of a deployment
-     * 
+     *
      * @param deploymentContext the deployment context
      * @param callback callback when the status will be available
      */
@@ -78,8 +87,8 @@ public interface IPaaSProvider {
      * @param operationResultCallback the callback that will be triggered when the operation's result become available
      * @throws OperationExecutionException
      */
-    void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> operationResultCallback)
-            throws OperationExecutionException;
+    void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
+            IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException;
 
     /**
      * Call to determine available ids for the given resource type
@@ -105,4 +114,20 @@ public interface IPaaSProvider {
      * @param config the config to take into account
      */
     void updateMatcherConfig(CloudResourceMatcherConfig config);
+
+    /**
+     * Switch the maintenance mode for this deployed topology.
+     *
+     * @throws MaintenanceModeException
+     */
+    void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) throws MaintenanceModeException;
+
+    /**
+     * Switch the maintenance mode for a given node instance of this deployed topology.
+     *
+     * @throws MaintenanceModeException
+     */
+    void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn)
+            throws MaintenanceModeException;
+
 }

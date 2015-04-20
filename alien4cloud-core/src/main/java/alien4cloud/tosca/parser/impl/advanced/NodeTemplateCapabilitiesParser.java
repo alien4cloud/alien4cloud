@@ -53,8 +53,8 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
             }
             String key = ((ScalarNode) keyNode).getValue();
             // can we find the corresponding capability ?
-            Capability capability = capabilities.get(key);
-            if (capability == null) {
+            Capability capability;
+            if (capabilities == null || (capability = capabilities.get(key)) == null) {
                 // add a warning, we will ignore this property since it does not fit to an existing capa
                 context.getParsingErrors()
                         .add(new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKNOWN_CAPABILITY, null, keyNode.getStartMark(), null,
@@ -94,8 +94,8 @@ public class NodeTemplateCapabilitiesParser extends DefaultDeferredParser<Void> 
                     for (String notFoundKey : parsedCapabilitiesProperties.keySet()) {
                         // add warning
                         context.getParsingErrors().add(
-                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, null, propertiesValueNode.getStartMark(),
-                                        null, propertiesValueNode.getEndMark(), notFoundKey));
+                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, null, propertiesValueNode.getStartMark(), null,
+                                        propertiesValueNode.getEndMark(), notFoundKey));
                     }
                 }
             }

@@ -1,8 +1,7 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').factory('topologyJsonProcessor',
-  ['orderedMapEnricher', function(orderedMapEnricher) {
+angular.module('alienUiApp').factory('topologyJsonProcessor', ['orderedMapEnricher', function(orderedMapEnricher) {
     // This service post-process a topology json in order to add maps field from ordered maps array (array of MapEntry).
     return {
       /**
@@ -22,9 +21,10 @@ angular.module('alienUiApp').factory('topologyJsonProcessor',
               for (var i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].relationships.length; i++) {
                 orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].relationships[i].value, 'properties');
               }
-            } else if (UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].capabilities)) {
-              for (i = 0; i < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; i++) {
-                orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].capabilities[i].value, 'properties');
+            }
+            if (UTILS.isDefinedAndNotNull(topology.topology.nodeTemplates[nodeTemplateName].capabilities)) {
+              for (var j = 0; j < topology.topology.nodeTemplates[nodeTemplateName].capabilities.length; j++) {
+                orderedMapEnricher.process(topology.topology.nodeTemplates[nodeTemplateName].capabilities[j].value, 'properties');
               }
             }
           }
@@ -38,4 +38,4 @@ angular.module('alienUiApp').factory('topologyJsonProcessor',
       }
     };
   } // function
-  ]);
+]);

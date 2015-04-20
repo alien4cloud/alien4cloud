@@ -15,6 +15,8 @@
   "CSAR": "Csar",
   "TRUE": "True",
   "FALSE": "False",
+  "NAME": "Name",
+  "VALUE": "Value",
   "NAVBAR": {
     "BUTTON_LOGIN": "Login",
     "BUTTON_LOGOUT": "Logout",
@@ -280,6 +282,14 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
+      "MAINTENANCE" : "Maintenance mode",
+      "MAINTENANCE_BUTTON": { "ON": "Do you want to activate maintenance mode", "OFF": "Do you want to exit maintenance mode"},
+      "DEPLOYMENT": "Deployment",
+      "SCALE": "Scale",
+      "INSTANCES": "Instances",
+      "PROPERTIES": "Properties",
+      "ATTRIBUTES": "Attributes",
+      "RUNTIMEPROPS": "Runtime properties",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Application name",
@@ -307,7 +317,8 @@
         }
       },
       "OPERATION_EXECUTION": {
-        "RESULT_TITLE": "Execution result for operation {{operation}}"
+        "RESULT_TITLE": "Execution result for operation {{operation}}",
+        "NO_RETURN": "No return"
       }
     },
     "DEPLOYMENT": {
@@ -577,6 +588,19 @@
       "PRE_PRODUCTION": "Pre-production",
       "PRODUCTION": "production"
     },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "Global configuration",
+        "DEPLOYMENT_NAME": "Naming policy of deployment"
+      },
+      "DRIVER": {
+        "TITLE": "Driver configuration"
+      },
+      "HELP": {
+        "TITLE": "Help about the naming policy of deployment name",
+        "CONTENT": "You can use the environment, the application, the meta properties of the application and a timestamp. We use the Spring Expression Language syntax, make sure to define a correct expression. In addition, we recommend that you set a rule that will generate a unique name for each deployment."
+      }
+    },
     "DRIVER": {
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Connection configuration",
@@ -649,6 +673,8 @@
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "Value {{value}} for parameter {{name}} of type {{type}} is not valid"
     },
+    "372": "Error in naming policy of deployment.",
+    "373": "Unexpected error happened while switching on / off maintenance mode ",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
@@ -767,7 +793,8 @@
     "uninstalled": "Uninstalled",
     "initial": "Initial",
     "available": "Available",
-    "uninitialized": "Uninitialized"
+    "uninitialized": "Uninitialized",
+    "maintenance": "Maintenance"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",

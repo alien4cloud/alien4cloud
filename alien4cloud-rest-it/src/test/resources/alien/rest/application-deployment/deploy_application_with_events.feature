@@ -25,7 +25,7 @@ Feature: Listen to events of an deployed application.
       | DEPLOYMENT_IN_PROGRESS |
       | DEPLOYED               |
     And I should receive "instance-state" events that containing
-      | init        |
+      | initial     |
       | creating    |
       | created     |
       | configuring |
@@ -40,7 +40,7 @@ Feature: Listen to events of an deployed application.
     When I start listening to "instance-state" event
     And I start listening to "storage" event
     Then I should receive "instance-state" events that containing
-      | init        |
+      | initial     |
       | creating    |
       | configuring |
       | configured  |

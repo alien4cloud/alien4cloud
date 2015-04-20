@@ -484,10 +484,10 @@ module.exports = function(grunt) {
             capabilities: {
               'browserName': 'chrome'
             },
-            // baseUrl: 'http://localhost:9999',
-             baseUrl: 'http://localhost:8088',
+            //baseUrl: 'http://localhost:9999',
+            baseUrl: 'http://localhost:8088',
             specs: [
-              // 'test/e2e/setup-scenario/before-all.js',
+               'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
               //              'test/e2e/scenarios/admin/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin/admin_groups_management.js',
@@ -500,6 +500,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security.js',
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
+                            'test/e2e/scenarios/application/application_cloud_properties.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_capabilities.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
@@ -511,6 +512,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology/application_topology_editor_replacenode.js',
               //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
               //              'test/e2e/scenarios/application_topology/application_topology_scaling.js',
+              //              'test/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
               //              'test/e2e/scenarios/deployment/deployment.js',
               //              'test/e2e/scenarios/deployment/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
@@ -518,7 +520,6 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/security/security_groups.js',
               //              'test/e2e/scenarios/security/security_users.js',
               //              'test/e2e/scenarios/security/security_environments.js',
-              //              'test/e2e/scenarios/unstable/application_topology_editor_input_output.js',
               //              'test/e2e/scenarios/authentication.js',
               //              'test/e2e/scenarios/component_details.js',
               //              'test/e2e/scenarios/component_details_tags.js',

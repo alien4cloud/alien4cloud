@@ -20,12 +20,16 @@ public class PaaSInstanceStorageMonitorEvent extends PaaSInstanceStateMonitorEve
     /** The volumeId created / related to this instance **/
     private String volumeId;
 
-    public PaaSInstanceStorageMonitorEvent(String volumeId) {
+    /** Indicates if the storage is deletable */
+    private boolean isDeletable;
+
+    public PaaSInstanceStorageMonitorEvent(String volumeId, boolean isDeletable) {
         super();
         this.volumeId = volumeId;
+        this.isDeletable = isDeletable;
     }
 
-    public PaaSInstanceStorageMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String volumeId) {
+    public PaaSInstanceStorageMonitorEvent(PaaSInstanceStateMonitorEvent instanceStateMonitorEvent, String volumeId, boolean isDeletable) {
         super();
         setAttributes(instanceStateMonitorEvent.getAttributes());
         setRuntimeProperties(instanceStateMonitorEvent.getRuntimeProperties());
@@ -37,5 +41,6 @@ public class PaaSInstanceStorageMonitorEvent extends PaaSInstanceStateMonitorEve
         setDate(instanceStateMonitorEvent.getDate());
         setDeploymentId(instanceStateMonitorEvent.getDeploymentId());
         setVolumeId(volumeId);
+        setDeletable(isDeletable);
     }
 }

@@ -19,6 +19,10 @@ public class ToscaElementChecker implements IChecker<IndexedToscaElement> {
     }
 
     @Override
+    public void before(ParsingContextExecution context, Node node) {
+    }
+
+    @Override
     public void check(IndexedToscaElement instance, ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
         instance.setArchiveName(archiveRoot.getArchive().getName());

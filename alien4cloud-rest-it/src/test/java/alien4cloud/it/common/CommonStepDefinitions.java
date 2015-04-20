@@ -173,21 +173,28 @@ public class CommonStepDefinitions {
 
     @Then("^The SPEL boolean expression \"([^\"]*)\" should return true$")
     public void evaluateSpelBooleanExpressionUsingCurrentContext(String spelExpression) {
+        Boolean result = (Boolean) evaluateExpression(spelExpression);
+        Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
+    }
+
+    private Object evaluateExpression(String spelExpression) {
         EvaluationContext context = Context.getInstance().getSpelEvaluationContext();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(spelExpression);
-        Boolean result = (Boolean) exp.getValue(context);
-        Assert.assertTrue(String.format("The SPEL expression [%s] should return true as a result", spelExpression), result.booleanValue());
+        return exp.getValue(context);
     }
 
     @Then("^The SPEL expression \"([^\"]*)\" should return \"([^\"]*)\"$")
     public void evaluateSpelExpressionUsingCurrentContext(String spelExpression, String expected) {
-        EvaluationContext context = Context.getInstance().getSpelEvaluationContext();
-        ExpressionParser parser = new SpelExpressionParser();
-        Expression exp = parser.parseExpression(spelExpression);
-        String result = exp.getValue(context).toString();
+        String result = evaluateExpression(spelExpression).toString();
         Assert.assertNotNull(String.format("The SPEL expression [%s] result should not be null", spelExpression), result);
         Assert.assertEquals(String.format("The SPEL expression [%s] should return [%s]", spelExpression, expected), expected, result);
+    }
+
+    @Then("^The SPEL int expression \"([^\"]*)\" should return (\\d+)$")
+    public void The_SPEL_int_expression_should_return(String spelExpression, int expected) throws Throwable {
+        Integer actual = (Integer) evaluateExpression(spelExpression);
+        Assert.assertEquals(String.format("The SPEL expression [%s] should return [%d]", spelExpression, expected), expected, actual.intValue());
     }
 
     @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")

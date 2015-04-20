@@ -36,6 +36,11 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
+    public void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments) {
+
+    }
+
+    @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
         this.roots = deploymentContext.getPaaSTopology().getComputes();
     }
@@ -56,7 +61,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request,
+    public void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request,
             IPaaSCallback<Map<String, String>> operationResultCallback) throws OperationExecutionException {
 
     }
@@ -84,6 +89,16 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
 
     @Override
     public void updateMatcherConfig(CloudResourceMatcherConfig config) {
+
+    }
+
+    @Override
+    public void switchMaintenanceMode(PaaSDeploymentContext deploymentContext, boolean maintenanceModeOn) {
+
+    }
+
+    @Override
+    public void switchInstanceMaintenanceMode(PaaSDeploymentContext deploymentContext, String nodeId, String instanceId, boolean maintenanceModeOn) {
 
     }
 }

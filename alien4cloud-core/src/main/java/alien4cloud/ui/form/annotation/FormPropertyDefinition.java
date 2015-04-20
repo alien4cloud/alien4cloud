@@ -7,8 +7,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import alien4cloud.tosca.normative.ToscaType;
-
 /**
  * This annotation is the mirror of PropertyDefinition.
  */
@@ -16,7 +14,7 @@ import alien4cloud.tosca.normative.ToscaType;
 @Retention(RUNTIME)
 public @interface FormPropertyDefinition {
 
-    ToscaType type();
+    String type();
 
     FormPropertyConstraint constraints() default @FormPropertyConstraint();
 

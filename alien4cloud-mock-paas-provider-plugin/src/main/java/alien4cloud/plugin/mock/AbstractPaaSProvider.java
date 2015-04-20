@@ -36,8 +36,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
-        String applicationName = deploymentContext.getRecipeId();
-        String deploymentId = deploymentContext.getDeploymentId();
+        String deploymentId = deploymentContext.getDeploymentPaaSId();
         Topology topology = deploymentContext.getTopology();
         DeploymentSetup deploymentSetup = deploymentContext.getDeploymentSetup();
         try {
@@ -45,8 +44,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
             if (deploymentSetup.getProviderDeploymentProperties() != null) {
                 // i.e : use / handle plugin deployment properties
-                log.info("Topology deployment [" + topology.getId() + "] for application [" + applicationName + "]" + " and ["
-                        + deploymentSetup.getProviderDeploymentProperties().size() + "] deployment properties");
+                log.info("Topology deployment [" + topology.getId() + "] for application [" + deploymentContext.getDeployment().getSourceName() + "]"
+                        + " and [" + deploymentSetup.getProviderDeploymentProperties().size() + "] deployment properties");
                 log.info(deploymentSetup.getProviderDeploymentProperties().keySet().toString());
                 for (String property : deploymentSetup.getProviderDeploymentProperties().keySet()) {
                     log.info(property);
@@ -67,7 +66,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
             case UNKNOWN:
                 throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in status [" + deploymentStatus + "] and cannot be deployed");
             case UNDEPLOYED:
-                doDeploy(deploymentId);
+                doDeploy(deploymentContext);
                 break;
             default:
                 throw new IllegalDeploymentStateException("Topology [" + deploymentId + "] is in illegal status [" + deploymentStatus
@@ -81,17 +80,11 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     @Override
     public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
             IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentId(), topology));
+        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), topology));
     }
 
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {
-
         Map<String, Map<String, InstanceInformation>> instanceInformations = instanceInformationsFromTopology(topology);
-
-        // final URI restEventEndpoint = this.cloudifyRestClientManager.getRestEventEndpoint();
-        // if (restEventEndpoint == null) {
-        // return instanceInformations;
-        // }
 
         try {
             // TODO :
@@ -151,7 +144,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
     @Override
     public void undeploy(PaaSDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
-        String deploymentId = deploymentContext.getDeploymentId();
+        String deploymentId = deploymentContext.getDeploymentPaaSId();
         try {
             providerLock.writeLock().lock();
             DeploymentStatus deploymentStatus = getStatus(deploymentId, true);
@@ -165,7 +158,7 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
             case FAILURE:
             case DEPLOYED:
             case WARNING:
-                doUndeploy(deploymentId);
+                doUndeploy(deploymentContext);
                 break;
             default:
                 throw new IllegalDeploymentStateException("Application [" + deploymentId + "] is in illegal status [" + deploymentStatus
@@ -185,19 +178,6 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
         }
     }
 
-    public void getStatuses(String[] deploymentIds, IPaaSCallback<DeploymentStatus[]> callback) {
-        try {
-            providerLock.readLock().lock();
-            DeploymentStatus[] status = new DeploymentStatus[deploymentIds.length];
-            for (int i = 0; i < deploymentIds.length; i++) {
-                status[i] = getStatus(deploymentIds[i], true);
-            }
-            callback.onSuccess(status);
-        } finally {
-            providerLock.readLock().unlock();
-        }
-    }
-
     protected DeploymentStatus changeStatus(String applicationId, DeploymentStatus status) {
         try {
             providerLock.writeLock().lock();
@@ -208,10 +188,9 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     @Override
-    public void executeOperation(PaaSDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
+    public void executeOperation(PaaSTopologyDeploymentContext deploymentContext, NodeOperationExecRequest request, IPaaSCallback<Map<String, String>> callback)
             throws OperationExecutionException {
         try {
-            String deploymentId = deploymentContext.getDeploymentId();
             providerLock.writeLock().lock();
             String doExecuteOperationResult = doExecuteOperation(request);
             String resultException = null;
@@ -232,9 +211,9 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
 
     protected abstract DeploymentStatus doGetStatus(String deploymentId, boolean triggerEventIfUndeployed);
 
-    protected abstract void doDeploy(String deploymentId);
+    protected abstract void doDeploy(PaaSTopologyDeploymentContext deploymentContext);
 
-    protected abstract void doUndeploy(String deploymentId);
+    protected abstract void doUndeploy(PaaSDeploymentContext deploymentContext);
 
     protected abstract String doExecuteOperation(NodeOperationExecRequest request);
 }

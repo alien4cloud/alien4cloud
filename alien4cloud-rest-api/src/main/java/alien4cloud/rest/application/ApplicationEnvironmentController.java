@@ -52,9 +52,9 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.security.UserService;
+import alien4cloud.security.services.ResourceRoleService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
-import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
@@ -442,7 +442,7 @@ public class ApplicationEnvironmentController {
             tempEnvDTO.setCurrentVersionName(applicationVersion != null ? applicationVersion.getVersion() : null);
             try {
                 tempEnvDTO.setStatus(applicationEnvironmentService.getStatus(env));
-            } catch (CloudDisabledException e) {
+            } catch (Exception e) {
                 log.debug("Getting status for the environment <" + env.getId() + "> failed because the associated cloud <" + env.getCloudId()
                         + "> seems disabled. Returned status is UNKNOWN.", e);
                 tempEnvDTO.setStatus(DeploymentStatus.UNKNOWN);

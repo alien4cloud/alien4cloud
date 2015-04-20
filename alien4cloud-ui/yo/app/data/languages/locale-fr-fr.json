@@ -17,6 +17,8 @@
   "FALSE": "Faux",
   "YES": "Oui",
   "NO": "Non",
+  "NAME": "Nom",
+  "VALUE": "Valeur",
   "NAVBAR": {
     "BUTTON_LOGIN": "Connexion",
     "BUTTON_LOGOUT": "Déconnexion",
@@ -286,6 +288,14 @@
       "VALUE": "Valeur",
       "BACK": "Retour",
       "SCALE_BUTTON": "Scale le noeud",
+      "MAINTENANCE" : "Mode maintenance",
+      "MAINTENANCE_BUTTON": { "ON": "Souhaitez-vous activer le mode maintenance ?", "OFF": "Souhaitez-vous sortir du mode maintenance ?"},
+      "DEPLOYMENT": "Déploiement",
+      "SCALE": "Scale",
+      "INSTANCES": "Instances",
+      "PROPERTIES": "Propriétés",
+      "ATTRIBUTES": "Attributs",
+      "RUNTIMEPROPS": "Propertés d'exécution",
       "INFORMATIONS_TAB": "Informations",
       "INFORMATIONS": {
         "APP_NAME": "Nom de l'application",
@@ -313,7 +323,8 @@
         }
       },
       "OPERATION_EXECUTION": {
-        "RESULT_TITLE": "Resultat de l'éxecution de l'opération {{operation}}"
+        "RESULT_TITLE": "Resultat de l'éxecution de l'opération {{operation}}",
+        "NO_RETURN": "Pas de retour"
       }
     },
     "DEPLOYMENT": {
@@ -584,6 +595,19 @@
       "PRE_PRODUCTION": "Pré-production",
       "PRODUCTION": "production"
     },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "Configuration globale",
+        "DEPLOYMENT_NAME": "Nomenclature des noms de déploiement"
+      },
+      "DRIVER": {
+        "TITLE": "Configuration du driver"
+      },
+      "HELP": {
+        "TITLE": "Aide concernant la nomenclature des noms de déploiement",
+        "CONTENT": "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est Spring Expression Language, assurez-vous de définir une expression correcte. De plus, nous vous recommandons de définir un règle qui générera un nom unique pour chaque déploiement."
+      }
+    },
     "DRIVER": {
       "CLOUDIFY": {
         "CLOUDIFY_CONNECTION_CONFIGURATION": "Configuration de la connexion",
@@ -656,6 +680,8 @@
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide"
     },
+    "372": "Erreur dans la nomenclature des noms de déploiement.",
+    "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",
@@ -774,7 +800,8 @@
     "uninstalled": "Désinstallé",
     "initial": "Initial",
     "available": "Disponible",
-    "uninitialized": "Non initialisé"
+    "uninitialized": "Non initialisé",
+    "maintenance": "Maintenance"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",

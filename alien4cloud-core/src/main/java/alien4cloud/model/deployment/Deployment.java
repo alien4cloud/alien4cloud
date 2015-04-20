@@ -2,7 +2,6 @@ package alien4cloud.model.deployment;
 
 import java.util.Date;
 
-import alien4cloud.paas.model.DeploymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,9 +32,17 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @ESObject
 public class Deployment {
 
-    /** Id of the deployment */
+    /** Unique id of the deployment as stored in Alien */
     @Id
     private String id;
+
+    /**
+     * Unique id of the deployment on the orchestration technology.
+     * This is unique for deployments that have a null end date but you may have multiple completed deployments that share the same paasId.
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private String paasId;
 
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)
@@ -68,9 +75,6 @@ public class Deployment {
     /** End date of the deployment. */
     @TermFilter
     private Date endDate;
-
-    /** The current status of the deployment. */
-    private DeploymentStatus deploymentStatus;
 
     /** Linked deployment setup */
     @NestedObject

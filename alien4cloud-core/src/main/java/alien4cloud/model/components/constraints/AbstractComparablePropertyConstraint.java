@@ -1,6 +1,6 @@
 package alien4cloud.model.components.constraints;
 
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -14,17 +14,11 @@ public abstract class AbstractComparablePropertyConstraint extends AbstractPrope
         return comparable;
     }
 
-    protected void initialize(String rawTextValue, ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+    protected void initialize(String rawTextValue, IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         // Perform verification that the property type is supported for comparison
-        ConstraintUtil.checkComparableType(propertyType);
         // Check if the text value is valid for the property type
-        if (propertyType.isValidValue(rawTextValue)) {
-            // Convert the raw text value to a comparable value
-            comparable = ConstraintUtil.convertToComparable(propertyType, rawTextValue);
-        } else {
-            // Invalid value throw exception
-            throw new ConstraintValueDoNotMatchPropertyTypeException("The value [" + rawTextValue + "] is not valid for the type [" + propertyType + "]");
-        }
+        // Convert the raw text value to a comparable value
+        comparable = ConstraintUtil.convertToComparable(propertyType, rawTextValue);
     }
 
     protected abstract void doValidate(Object propertyValue) throws ConstraintViolationException;

@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -33,6 +34,9 @@ import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
+import alien4cloud.tosca.normative.Size;
+import alien4cloud.tosca.normative.SizeUnit;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.utils.MappingUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.Version;
@@ -166,7 +170,8 @@ public class CloudResourceMatcherService {
             if (!match(storageProperties, NormativeBlockStorageConstants.DEVICE, storage.getDevice(), new TextValueParser(), new EqualMatcher<String>())) {
                 continue;
             }
-            if (!match(storageProperties, NormativeBlockStorageConstants.SIZE, storage.getSize(), new LongValueParser(), new GreaterOrEqualValueMatcher<Long>())) {
+            if (!match(storageProperties, NormativeBlockStorageConstants.SIZE, new Size(storage.getSize(), SizeUnit.B), new SizeValueParser(),
+                    new GreaterOrEqualValueMatcher<Size>())) {
                 continue;
             }
             eligibleStorages.add(storage);
@@ -273,12 +278,12 @@ public class CloudResourceMatcherService {
                     new GreaterOrEqualValueMatcher<Integer>())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.DISK_SIZE, flavor.getDiskSize(), new LongValueParser(),
-                    new GreaterOrEqualValueMatcher<Long>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.DISK_SIZE, new Size(flavor.getDiskSize(), SizeUnit.B), new SizeValueParser(),
+                    new GreaterOrEqualValueMatcher<Size>())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.MEM_SIZE, flavor.getMemSize(), new LongValueParser(),
-                    new GreaterOrEqualValueMatcher<Long>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.MEM_SIZE, new Size(flavor.getMemSize(), SizeUnit.B), new SizeValueParser(),
+                    new GreaterOrEqualValueMatcher<Size>())) {
                 continue;
             }
             List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), flavor.getId(), false);
@@ -300,6 +305,14 @@ public class CloudResourceMatcherService {
         @Override
         public Integer parseValue(String textValue) {
             return Integer.parseInt(textValue);
+        }
+    }
+
+    private static class SizeValueParser implements ValueParser<Size> {
+        @Override
+        @SneakyThrows
+        public Size parseValue(String textValue) {
+            return ToscaType.SIZE_TYPE.parse(textValue);
         }
     }
 

@@ -158,7 +158,7 @@ public class FunctionEvaluatorTest {
         IOperationParameter param = configOp.getInputParameters().get("customHostName");
 
         Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates));
 
         // HOST keyword
         String tomcatName = "tomcat";
@@ -166,7 +166,7 @@ public class FunctionEvaluatorTest {
         Operation customHelloOp = tomcatPaaS.getIndexedToscaElement().getInterfaces().get("custom").getOperations().get("helloCmd");
         param = customHelloOp.getInputParameters().get("customHostName");
         Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, tomcatPaaS, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, tomcatPaaS, builtPaaSNodeTemplates));
     }
 
     @Test
@@ -187,35 +187,35 @@ public class FunctionEvaluatorTest {
         // test SOURCE keyword
         IOperationParameter param = configOp.getInputParameters().get("contextPath");
         Assert.assertEquals(getPropertyValue(warPaaS, "contextPath"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test TARGET keyword
         param = configOp.getInputParameters().get("tomcatVersion");
         Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test SELF keyword on relationship
         param = configOp.getInputParameters().get("relName");
         Assert.assertEquals(getPropertyValue(hostedOnRelTemp, "relName"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         Assert.assertEquals(getPropertyValue(hostedOnRelTemp_2, "relName"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp_2, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp_2, builtPaaSNodeTemplates));
 
         // getting capability properties
         param = configOp.getInputParameters().get("valid_node_types");
         Assert.assertEquals(getCapabilityPropertyValue(tomcatPaaS, "war_host", "valid_node_types"),
-                FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // capabilities not existing in the node
         param = configOp.getInputParameters().get("null_capa_prop1");
-        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
         // property not existing in the capability
         param = configOp.getInputParameters().get("null_capa_prop2");
-        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
         // using SELF keywork to get a capability's property on a relationship should return null
         param = configOp.getInputParameters().get("bad_valid_node_types");
-        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        Assert.assertEquals(null, FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
     }
 
     private String getPropertyValue(IPaaSTemplate<? extends IndexedToscaElement> paaSTemplate, String propertyName) {
@@ -246,11 +246,11 @@ public class FunctionEvaluatorTest {
         // case keyword SOURCE used on a NodeType
         IOperationParameter param = configOp.getInputParameters().get("keywordSourceBadUsage");
         try {
-            FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates);
+            FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates);
         } catch (BadUsageKeywordException e) {
             // case keyword TARGET used on a NodeType
             param = configOp.getInputParameters().get("KeywordTargetBadUsage");
-            FunctionEvaluator.evaluateGetPropertyFuntion((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates);
+            FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates);
         }
 
     }

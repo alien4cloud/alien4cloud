@@ -25,6 +25,7 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
@@ -39,10 +40,12 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
+import alien4cloud.rest.application.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.DeployApplicationRequest;
 import alien4cloud.rest.application.EnvironmentStatusDTO;
 import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
+import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
@@ -108,6 +111,7 @@ public class ApplicationsDeploymentStepDefinitions {
         checkStatus(null, deploymentId, expectedStatus, pendingStatus, timeout, null);
     }
 
+    @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
             String applicationEnvironmentName) throws IOException, InterruptedException {
         String statusRequest = null;
@@ -118,7 +122,7 @@ public class ApplicationsDeploymentStepDefinitions {
         } else if (applicationId != null) {
             applicationEnvironmentId = applicationEnvironmentName != null ? Context.getInstance().getApplicationEnvironmentId(applicationName,
                     applicationEnvironmentName) : Context.getInstance().getDefaultApplicationEnvironmentId(applicationName);
-            statusRequest = "/rest/applications/" + applicationId + "/environments/" + applicationEnvironmentId + "/deployment";
+            statusRequest = "/rest/applications/" + applicationId + "/environments/search";
         } else {
             throw new ITException("Expected at least application ID OR deployment ID to check the status.");
         }
@@ -128,11 +132,18 @@ public class ApplicationsDeploymentStepDefinitions {
                 throw new ITException("Expected deployment to be [" + expectedStatus + "] but Test has timeouted");
             }
             // get the current status
-            String restResponseText = Context.getRestClientInstance().get(statusRequest);
-            RestResponse<String> statusResponse = JsonUtil.read(restResponseText, String.class);
-            assertNull(statusResponse.getError());
+            List<NameValuePair> nvps = com.google.common.collect.Lists.newArrayList();
+            nvps.add(new BasicNameValuePair("applicationId", applicationId));
+            String json = JsonUtil.toString(new SearchRequest(null, "", 0, 20, null));
 
-            DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
+            String restResponseText = Context.getRestClientInstance().postJSon(statusRequest, json);
+            RestResponse<GetMultipleDataResult> restResponse = JsonUtil.read(restResponseText, GetMultipleDataResult.class);
+            assertNull(restResponse.getError());
+
+            GetMultipleDataResult searchResp = restResponse.getData();
+            String appEnvDTOrow = JsonUtil.toString(searchResp.getData()[0]);
+            ApplicationEnvironmentDTO appEnvDTO = JsonUtil.readObject(appEnvDTOrow, ApplicationEnvironmentDTO.class);
+            DeploymentStatus deploymentStatus = appEnvDTO.getStatus();
             if (deploymentStatus.equals(expectedStatus)) {
                 if (applicationId != null) {
                     String restInfoResponseText = Context.getRestClientInstance().get(

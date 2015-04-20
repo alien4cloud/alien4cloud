@@ -52,7 +52,11 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
         }
       }
     });
+    
+    var nodeInstanceMaintenanceResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/:nodeTemplateId/:instanceId/maintenance');
 
+    var deploymentMaintenanceResource = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/deployment/maintenance');
+    
     return {
       'get': deploymentsResource.get,
       'getEvents': deploymentEventResource.get,
@@ -61,6 +65,12 @@ angular.module('alienUiApp').factory('deploymentServices', ['$resource',
       'runtime': {
         'getTopology': runtimeTopologyResource.get,
         'executeOperation': runtimeResource.executeOperation
+      },
+      'nodeInstanceMaintenanceOn': nodeInstanceMaintenanceResource.save,
+      'nodeInstanceMaintenanceOff': nodeInstanceMaintenanceResource.remove,
+      'deploymentMaintenance': {
+        'on': deploymentMaintenanceResource.save,
+        'off': deploymentMaintenanceResource.remove
       }
     };
   }

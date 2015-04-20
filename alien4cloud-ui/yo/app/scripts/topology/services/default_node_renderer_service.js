@@ -1,8 +1,8 @@
 /* global UTILS */
 'use strict';
 
-angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeRendererService',
-  function(commonNodeRendererService) {
+angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeRendererService', 'toscaService',
+  function(commonNodeRendererService, toscaService) {
     return {
 
       isRuntime: false,
@@ -52,8 +52,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
         // update version
         nodeGroup.select('.version').text(function() {
-          if (UTILS.isDefinedAndNotNull(nodeTemplate.properties)
-            && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
+          if (UTILS.isDefinedAndNotNull(nodeTemplate.properties) && UTILS.isDefinedAndNotNull(nodeTemplate.properties.version)) {
             return 'v' + nodeTemplate.properties.version.value;
           }
         });
@@ -64,21 +63,26 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
 
           var nodeInstances = null;
           var nodeInstancesCount = null;
+          var nodeScalingPolicies = null;
 
           if (UTILS.isDefinedAndNotNull(topology.instances)) {
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
               nodeInstancesCount = Object.keys(nodeInstances).length;
+              if (topology.topology.hasOwnProperty('scalingPolicies')) {
+                nodeScalingPolicies = topology.topology.scalingPolicies[node.id];
+              }
             }
           }
+
           // TODO better draw network node
-          if (nodeType.elementId !== 'tosca.nodes.Network') {
-            this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY);
+          if (!toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
+            this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY, nodeScalingPolicies);
           }
         }
       },
 
-      drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY) {
+      drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY, scalingPolicies) {
         var currentY = rectOriginY + 40;
         var deletedCount = 0;
         if (UTILS.isDefinedAndNotNull(nodeInstances) && nodeInstancesCount > 0) {
@@ -88,7 +92,13 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
           var successCount = this.getNumberOfInstanceByStatus(nodeInstances, 'SUCCESS');
           var processingCount = this.getNumberOfInstanceByStatus(nodeInstances, 'PROCESSING');
           var failureCount = this.getNumberOfInstanceByStatus(nodeInstances, 'FAILURE');
-          deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null);
+          deletedCount = this.getNumberOfInstanceByStatus(nodeInstances, null, 'stopped');
+
+          // adapt instance count
+          if (UTILS.isDefinedAndNotNull(scalingPolicies)) {
+            nodeInstancesCount = scalingPolicies.initialInstances;
+          }
+
           if (successCount > 0) {
             this.drawRuntimeCount(runtimeGroup, 'runtime-count-success', rectOriginX, currentY, '\uf00c', successCount, nodeInstancesCount);
             currentY += 20;

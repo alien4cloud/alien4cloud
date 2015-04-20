@@ -62,7 +62,7 @@
                    ng-click="getPossibleReplacements(selectedNodeTemplate)">
                   <i class="fa fa-exchange"></i>
                 </a>
-                <ul class="dropdown-menu " role="menu" data-placement="left">
+                <ul class="dropdown-menu " role="menu" data-placement="right">
                   <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
                   <li ng-repeat="suggestedNode in suggestedReplacements">
                     <a id="newnode_{{suggestedNode.elementId}}"
@@ -141,7 +141,7 @@
                          class="btn btn-default btn-xs dropdown-toggle"
                          ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                          tooltip-append-to-body="true">
-                        <i class="fa fa-cogs"></i>
+                        <i class="fa fa-sign-in"></i>
                       </a>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu">
                         <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
@@ -161,7 +161,7 @@
                       <a id="p_output_pro_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
                          ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
-                        <i class="fa fa-eye"></i>
+                        <i class="fa fa-sign-out"></i>
                       </a>
                     </div>
                   </td>
@@ -216,7 +216,7 @@
                       <a id="a_output_{{attrEntry.key}}" ng-click="toggleOutputAttribute(attrEntry.key)" class="btn btn-default btn-xs"
                          ng-class="{'active' : isOutputAttribute(attrEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
-                        <i class="fa fa-eye"></i>
+                        <i class="fa fa-sign-out"></i>
                       </a>
                     </div>
                   </td>
@@ -360,12 +360,12 @@
                            class="btn btn-default btn-xs dropdown-toggle"
                            ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                            tooltip-append-to-body="true">
-                          <i class="fa fa-cogs"></i>
+                          <i class="fa fa-sign-in"></i>
                         </a>
                         <a id="p_output_cap_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
                            ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
-                          <i class="fa fa-eye"></i>
+                          <i class="fa fa-sign-out"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
@@ -464,7 +464,7 @@
                                  ng-class="{'active' : isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"
                                  tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                                  tooltip-append-to-body="true">
-                                <i class="fa fa-cogs"></i>
+                                <i class="fa fa-sign-in"></i>
                               </a>
                               <ul class="dropdown-menu dropdown-menu-left" role="menu">
                                 <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
@@ -659,7 +659,7 @@
         <div class="topology-column-content">
           <div class="topology-column-content-head">
             <span>
-              <i class="fa fa-cogs"></i> Inputs
+              <i class="fa fa-sign-in"></i> Inputs
             </span>
             <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('inputs')">
               <i class="fa fa-remove close-panel"></i>
@@ -711,7 +711,7 @@
         </li>
         <li ng-show="!displays.inputs.active">
           <span id="topology-inputs" ng-click="toggleDisplay('inputs')">
-            <i class="fa fa-cogs"></i> Inputs
+            <i class="fa fa-sign-in"></i> Inputs
           </span>
         </li>
       </ul>

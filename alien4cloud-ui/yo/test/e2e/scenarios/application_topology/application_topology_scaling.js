@@ -24,7 +24,7 @@ var cancelAction = function(cancelPopup){
 };
 
 var scale = function(oldValue, newValue, cancel) {
-  common.slideXEditableTo('scaleEditableInput', newValue);
+  common.sendXEditableWithConfirm('scaleEditableInput', newValue);
   browser.waitForAngular();
   var scaleEditableInput = element(by.id('scaleEditableInput'));
   var editForm = scaleEditableInput.element(by.tagName('form'));
@@ -46,7 +46,7 @@ var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
   nodeToView.click();
   element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
     expect(states.length).toEqual(valueToCheck);
-    states[0].click();
+    states[0].element(by.css('.btn-default')).click(); // the view instance details button
     expect(element.all(by.repeater('(propKey, propVal) in selectedInstance.runtimeProperties')).count()).toEqual(1);
     var backButton = browser.element(by.id('backToInstanceListButton'));
     browser.actions().click(backButton).perform();
@@ -115,7 +115,6 @@ describe('Topology scaling feature', function() {
     navigation.go('applications', 'runtime');
 
     browser.sleep(10000); // Wait for mock deployment to finish
-
     checkAndScale('rect_Compute', 2 , 1);
     checkAndScale('rect_Compute', 1);
     checkAndScale('rect_Compute', 1, 2, true);

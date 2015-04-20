@@ -38,9 +38,6 @@ describe('NodeTemplate relationships edition', function() {
 
   it('should be able to define a capability property as input', function() {
     console.log('################# should be able to define a capability property as input');
-    var nodeToEdit = element(by.id('rect_JavaRPM'));
-    nodeToEdit.click();
-
     topologyEditorCommon.checkCountInputs(0);
     topologyEditorCommon.togglePropertyInput('JavaRPM', 'update', 'cap');
     topologyEditorCommon.checkCountInputs(1);

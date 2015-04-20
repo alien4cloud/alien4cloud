@@ -36,16 +36,22 @@ public class TopologyChecker implements IChecker<Topology> {
     }
 
     @Override
-    public void check(Topology instance, ParsingContextExecution context, Node node) {
+    public void before(ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-        Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
-        instance.setDependencies(topologyDeps);
         
-        // we need that node types inherited stuffs have to be merged before we start parsing requirements
+        // we need that node types inherited stuffs have to be merged before we start parsing node templates and requirements
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getCapabilityTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getNodeTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getRelationshipTypes(), archiveRoot);
+    }
+
+    @Override
+    public void check(Topology instance, ParsingContextExecution context, Node node) {
+        ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
+
+        Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
+        instance.setDependencies(topologyDeps);
     }
 
     private <T extends IndexedInheritableToscaElement> void mergeHierarchy(Map<String, T> indexedElements, ArchiveRoot archiveRoot) {

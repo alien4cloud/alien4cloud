@@ -129,6 +129,9 @@ public class DeploymentSetupService {
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
             try {
+                if (deploymentSetup.getProviderDeploymentProperties() == null) {
+                    generatePropertyDefinition(deploymentSetup, cloud);
+                }
                 return generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
             } catch (CloudDisabledException e) {
                 log.warn("Cannot generate mapping for deployment setup as cloud is disabled, it will be re-generated next time");
@@ -416,7 +419,6 @@ public class DeploymentSetupService {
      */
     public ApplicationVersion getApplicationVersion(String deploymentSetupId) {
         DeploymentSetup deploymentSetup = getById(deploymentSetupId);
-        deploymentSetup.setProviderDeploymentProperties(null);
         if (deploymentSetup != null) {
             ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
             ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());

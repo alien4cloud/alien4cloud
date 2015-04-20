@@ -44,7 +44,8 @@ describe('Topology node template edition :', function() {
 
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.simpleTopology.nodes);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
-      war: componentData.fcTypes.war()
+      war: componentData.fcTypes.war(),
+      ubuntu: componentData.ubuntuTypes.ubuntu()
     });
 
     // should be display the link to the node detail
@@ -74,7 +75,6 @@ describe('Topology node template edition :', function() {
     editInput.clear();
     editInput.sendKeys('Compute_new_NAME');
     editForm.submit();
-    browser.waitForAngular();
     expect(nameSpan.getText()).toContain('Compute_new_NAME');
 
     // fail update
@@ -84,52 +84,58 @@ describe('Topology node template edition :', function() {
     editInput.clear();
     editInput.sendKeys('JavaRPM');
     editForm.submit();
-    browser.waitForAngular();
+    common.expectErrors();
+    common.dismissAlert();
     expect(nameSpan.getText()).toContain('Compute_new');
   });
 
-  // TODO : randomly fails
-  xit('should be able to edit a compute node template properties disk_size with constraint', function() {
+  it('should be able to edit a scalar-unit.size and time', function() {
+    console.log('################# should be able to edit a scalar-unit.size and time');
+    var diskSizeName = 'u_disk_size';
+    var diskSizeElement = element(by.id('p_' + diskSizeName));
+    topologyEditorCommon.editNodeProperty('Ubuntu', diskSizeName, '100', 'pro', 'MB');
+    topologyEditorCommon.checkPropertyEditionError('Ubuntu', diskSizeName, '>');
+    // Editing with a correct value
+    topologyEditorCommon.editNodeProperty('Ubuntu', diskSizeName, '2', 'pro', 'GB');
+    expect(diskSizeElement.isElementPresent(by.tagName('form'))).toBe(false);
+
+    var diskAccessTimeName = 'u_disk_read_access_time';
+    var diskAccessTimeElement = element(by.id('p_' + diskAccessTimeName));
+    topologyEditorCommon.editNodeProperty('Ubuntu', diskAccessTimeName, '1', 'pro', 'ns');
+    topologyEditorCommon.checkPropertyEditionError('Ubuntu', diskAccessTimeName, '>');
+    // Editing with a correct value
+    topologyEditorCommon.editNodeProperty('Ubuntu', diskAccessTimeName, '2', 'pro', 'd');
+    expect(diskAccessTimeElement.isElementPresent(by.tagName('form'))).toBe(false);
+  });
+
+  it('should be able to edit a compute node template properties disk_size with constraint', function() {
     console.log('################# should be able to edit a compute node template properties disk_size with constraint');
     // Edit property disk_size with bad value
     var propertyName = 'disk_size';
     var diskSizeElement = element(by.id('p_' + propertyName));
     topologyEditorCommon.editNodeProperty('Compute', propertyName, 'E');
-    browser.waitForAngular();
-
     // getting error div under the input
     topologyEditorCommon.checkPropertyEditionError('Compute', propertyName, '>');
-
     // Editing with a correct value
     topologyEditorCommon.editNodeProperty('Compute', propertyName, '50');
-    browser.waitForAngular();
-
     // edition OK, no more <form>
     expect(diskSizeElement.isElementPresent(by.tagName('form'))).toBe(false);
   });
 
-  // TODO : randomly fails
-  xit('should be able to edit a JAVA node template properties version with constraint', function() {
+  it('should be able to edit a JAVA node template properties version with constraint', function() {
     console.log('################# should be able to edit a JAVA node template properties version with constraint');
-
     var propertyName = 'version';
     var versionElement = element(by.id('p_' + propertyName));
     topologyEditorCommon.editNodeProperty('JavaRPM', propertyName, '1.2');
-    browser.waitForAngular();
-
     topologyEditorCommon.checkPropertyEditionError('JavaRPM', propertyName, '>=');
-
     // Editing with a correct value
     topologyEditorCommon.editNodeProperty('JavaRPM', propertyName, '1.6');
-    browser.waitForAngular();
-
     expect(versionElement.isElementPresent(by.tagName('form'))).toBe(false);
   });
 
   it('should be able to edit deployment artifact', function() {
     console.log('################# should be able to edit deployment artifact');
-    var nodeToEdit = element(by.id('rect_War'));
-    nodeToEdit.click();
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('War', topologyEditorCommon.nodeDetailsBlocsIds['art']);
     element.all(by.repeater('(artifactId, artifact) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
       expect(artifacts.length).toEqual(1);
       var myWar = artifacts[0];
@@ -145,12 +151,12 @@ describe('Topology node template edition :', function() {
     });
   });
 
-
   it('should have the a todo list if topology is not valid', function() {
     console.log('################# should have the a todo list if topology is not valid');
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.removeNodeTemplate('Compute_new_NAME');
     topologyEditorCommon.removeNodeTemplate('War');
+    topologyEditorCommon.removeNodeTemplate('Ubuntu');
     topologyEditorCommon.checkTodoList(true);
     topologyEditorCommon.addRelationship(componentData.simpleTopology.relationships.hostedOnCompute);
     topologyEditorCommon.checkTodoList(true);

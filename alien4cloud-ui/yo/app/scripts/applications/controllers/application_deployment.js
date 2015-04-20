@@ -348,8 +348,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         applicationEnvironmentId: $scope.selectedEnvironment.id
       };
       $scope.isDeploying = true;
-      applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
+      applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest)
+       , function() {
         $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+        $scope.isDeploying = false;
+      }, function(){
         $scope.isDeploying = false;
       });
     };

@@ -9,8 +9,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     // Size management
     var resizableSelectors = ['#nodetemplate-details', '#catalog-box', '#dependencies-box', '#inputs-box'];
 
-    for(var i=0; i < resizableSelectors.length; i++) {
-      var handlerSelector = resizableSelectors[i]+'-handler';
+    for (var i = 0; i < resizableSelectors.length; i++) {
+      var handlerSelector = resizableSelectors[i] + '-handler';
       $(resizableSelectors[i]).resizable({
         handles: {
           w: $(handlerSelector)
@@ -25,17 +25,19 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       };
       updateVisualDimensions();
       var maxWidth = (width - 100) / 2;
-      for(var i=0; i < resizableSelectors.length; i++) {
+      for (var i = 0; i < resizableSelectors.length; i++) {
         $(resizableSelectors[i]).resizable('option', 'maxWidth', maxWidth);
       }
       $scope.$apply();
     }
+
     function updateVisualDimensions() {
       $scope.visualDimensions = {
         height: $scope.dimensions.height - 22,
         width: $scope.dimensions.width
       };
     }
+
     resizeServices.registerContainer(onResize, '#topology-editor');
     $scope.dimensions = {
       height: 50,
@@ -464,10 +466,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       return topologyServices.nodeTemplate.updateProperty({
         topologyId: $scope.topology.topology.id,
         nodeTemplateName: $scope.selectedNodeTemplate.name
-      }, angular.toJson(updatePropsObject), function() {
+      }, angular.toJson(updatePropsObject), function(saveResult) {
         // update the selectedNodeTemplate properties locally
-        updatedNodeTemplate.propertiesMap[propertyName].value = propertyValue;
-        refreshYaml();
+        if (UTILS.isUndefinedOrNull(saveResult.error)) {
+          updatedNodeTemplate.propertiesMap[propertyName].value = propertyValue;
+          refreshYaml();
+        }
       }).$promise;
     };
 
@@ -551,11 +555,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.toggleCapabilityOutput = function(capabilityId, propertyId) {
       var nodeTemplateName = $scope.selectedNodeTemplate.name;
       var topology = $scope.topology.topology;
-      var inputIndex  = -1;
+      var inputIndex = -1;
 
       if (UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties) &&
-          UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName]) &&
-          UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName][capabilityId])) {
+        UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName]) &&
+        UTILS.isDefinedAndNotNull(topology.outputCapabilityProperties[nodeTemplateName][capabilityId])) {
         inputIndex = topology.outputCapabilityProperties[nodeTemplateName][capabilityId].indexOf(propertyId);
       }
 

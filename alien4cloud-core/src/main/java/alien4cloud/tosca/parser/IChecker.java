@@ -13,6 +13,8 @@ public interface IChecker<T> {
     /** this is the name that is used in the mapping configuration. **/
     String getName();
 
+    void before(ParsingContextExecution context, Node node);
+
     void check(T instance, ParsingContextExecution context, Node node);
 
 }

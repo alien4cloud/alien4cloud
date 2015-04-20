@@ -28,7 +28,7 @@ describe('Topology input/output properties', function() {
     topologyEditorCommon.expectAttributeOutputState('Compute', 'ip_address', true);
   };
 
-  xit('should be able to define properties as input or output and see their values in application details view', function() {
+  it('should be able to define properties as input or output and see their values in application details view', function() {
     console.log('################# should be able to define properties as input or output and see their values in application details view');
     cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);
     navigation.go('main', 'applications');

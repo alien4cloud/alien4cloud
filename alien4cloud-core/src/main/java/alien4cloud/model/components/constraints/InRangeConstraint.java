@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -29,7 +29,7 @@ public class InRangeConstraint extends AbstractPropertyConstraint {
     private Comparable max;
 
     @Override
-    public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+    public void initialize(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
         // Perform verification that the property type is supported for comparison
         ConstraintUtil.checkComparableType(propertyType);
         if (inRange == null || inRange.size() != 2) {
@@ -37,14 +37,6 @@ public class InRangeConstraint extends AbstractPropertyConstraint {
         }
         String minRawText = inRange.get(0);
         String maxRawText = inRange.get(1);
-        if (!propertyType.isValidValue(minRawText)) {
-            throw new ConstraintValueDoNotMatchPropertyTypeException("Invalid min value for in range constraint [" + minRawText
-                    + "] as it does not follow the property type [" + propertyType + "]");
-        }
-        if (!propertyType.isValidValue(maxRawText)) {
-            throw new ConstraintValueDoNotMatchPropertyTypeException("Invalid max value for in range constraint [" + maxRawText
-                    + "] as it does not follow the property type [" + propertyType + "]");
-        }
         min = ConstraintUtil.convertToComparable(propertyType, minRawText);
         max = ConstraintUtil.convertToComparable(propertyType, maxRawText);
     }

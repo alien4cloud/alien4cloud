@@ -1,10 +1,9 @@
 /* global UTILS, CONSTANTS */
-
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments) {
+  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments', '$interval',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments, $interval) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
@@ -24,13 +23,14 @@ angular.module('alienUiApp').controller(
 
       // get the related cloud to display informations.
       var refreshCloudInfo = function() {
-        cloudServices.get({id: $scope.selectedEnvironment.cloudId}, function(response) {
+        cloudServices.get({
+          id: $scope.selectedEnvironment.cloudId
+        }, function(response) {
           $scope.cloud = response.data.cloud;
         });
       };
       refreshCloudInfo();
 
-      var CUSTOM_INTERFACE_NAME = 'custom';
       $scope.eventTypeLabels = {
         'ALL': 'APPLICATIONS.RUNTIME.EVENTS.ALL',
         'paasdeploymentstatusmonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.STATUS',
@@ -39,11 +39,17 @@ angular.module('alienUiApp').controller(
         'paasmessagemonitorevent': 'APPLICATIONS.RUNTIME.EVENTS.MESSAGES'
       };
 
-      $scope.eventTypeFilters = [{'value': 'ALL'},
-        {'value': 'paasdeploymentstatusmonitorevent'},
-        {'value': 'paasinstancestatemonitorevent'},
-        {'value': 'paasinstancestoragemonitorevent'},
-        {'value': 'paasmessagemonitorevent'}];
+      $scope.eventTypeFilters = [{
+        'value': 'ALL'
+      }, {
+        'value': 'paasdeploymentstatusmonitorevent'
+      }, {
+        'value': 'paasinstancestatemonitorevent'
+      }, {
+        'value': 'paasinstancestoragemonitorevent'
+      }, {
+        'value': 'paasmessagemonitorevent'
+      }];
 
       $scope.selectedEventTypeFilter = $scope.eventTypeFilters[0];
       $scope.filterEvents = function(filter) {
@@ -181,6 +187,23 @@ angular.module('alienUiApp').controller(
         }
       }
 
+      var refreshNodeInstanceInMaintenanceMode = function() {
+        var hasNOdeInstanceInMaintenanceMode = false;
+        if (UTILS.isDefinedAndNotNull($scope.topology.instances)) {
+          angular.forEach($scope.topology.instances, function(v, k) {
+            if (UTILS.isDefinedAndNotNull(v)) {
+              angular.forEach(v, function(vv, kk) {
+                if (UTILS.isDefinedAndNotNull(vv) && vv.instanceStatus === 'MAINTENANCE') {
+                  hasNOdeInstanceInMaintenanceMode = true;
+                }
+              });
+            }
+          });
+        }
+        $scope.hasNOdeInstanceInMaintenanceMode = hasNOdeInstanceInMaintenanceMode;
+      };
+
+
       function refreshInstancesStatuses() {
         applicationServices.runtime.get({
           applicationId: applicationId,
@@ -190,6 +213,7 @@ angular.module('alienUiApp').controller(
             getPAASEvents();
             $scope.topology.instances = successResult.data;
             refreshSelectedNodeInstancesCount();
+            refreshNodeInstanceInMaintenanceMode();
           }
         });
       }
@@ -214,31 +238,15 @@ angular.module('alienUiApp').controller(
         event.rawType = type;
         enrichPAASEvent(event);
         $scope.events.data.push(event);
-        if (UTILS.isUndefinedOrNull(event.instanceState)) {
-          // Delete event
-          if ($scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
-            if ($scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-              delete $scope.topology.instances[event.nodeTemplateId][event.instanceId];
-              if (Object.keys($scope.topology.instances[event.nodeTemplateId]).length === 0) {
-                delete $scope.topology.instances[event.nodeTemplateId];
-              }
-            }
-          }
-        } else {
-          // Add or modify event
-          if (!$scope.topology.instances.hasOwnProperty(event.nodeTemplateId)) {
-            $scope.topology.instances[event.nodeTemplateId] = {};
-          }
-          if (!$scope.topology.instances[event.nodeTemplateId].hasOwnProperty(event.instanceId)) {
-            $scope.topology.instances[event.nodeTemplateId][event.instanceId] = {};
-          }
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].state = event.instanceState;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].instanceStatus = event.instanceStatus;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].runtimeProperties = event.runtimeProperties;
-          $scope.topology.instances[event.nodeTemplateId][event.instanceId].attributes = event.attributes;
+        if (!$scope.isWaitingForRefresh) {
+          $scope.isWaitingForRefresh = true;
+          $interval(function() {
+            $scope.isWaitingForRefresh = false;
+            refreshInstancesStatuses();
+          }, 1000, 1);
+          refreshNodeInstanceInMaintenanceMode();
+          $scope.$apply();
         }
-        refreshSelectedNodeInstancesCount();
-        $scope.$apply();
       };
 
       $scope.$on('$destroy', function() {
@@ -250,42 +258,41 @@ angular.module('alienUiApp').controller(
       var injectPropertyDefinitionToInterfaces = function(interfaces) {
 
         if (UTILS.isDefinedAndNotNull(interfaces)) {
-
-          var propteryDefinitionModel = {};
-          var inputParameter = {};
-          Object.keys(interfaces.operations).forEach(function(operation) {
-            if (UTILS.isDefinedAndNotNull(interfaces.operations[operation].inputParameters)) {
-              Object.keys(interfaces.operations[operation].inputParameters).forEach(function(paramName) {
-                inputParameter = interfaces.operations[operation].inputParameters[paramName];
-                if (inputParameter.definition) {
-                  propteryDefinitionModel = {};
-                  propteryDefinitionModel.type = inputParameter.type;
-                  propteryDefinitionModel.required = inputParameter.required;
-                  propteryDefinitionModel.name = paramName;
-                  propteryDefinitionModel.default = inputParameter.paramValue || ''; // needed for the directive
-                  propteryDefinitionModel.password = false;
-                  propteryDefinitionModel.constraints = null;
-                  propteryDefinitionModel.from = operation;
-                  if (inputParameter.type === 'boolean') {
-                    inputParameter.paramValue = false;
+          angular.forEach(interfaces, function(interfaceObj, interfaceName) {
+            Object.keys(interfaceObj.operations).forEach(function(operation) {
+              if (UTILS.isDefinedAndNotNull(interfaceObj.operations[operation].inputParameters)) {
+                Object.keys(interfaceObj.operations[operation].inputParameters).forEach(function(paramName) {
+                  var inputParameter = interfaceObj.operations[operation].inputParameters[paramName];
+                  if (inputParameter.definition) {
+                    var propteryDefinitionModel = {};
+                    propteryDefinitionModel.type = inputParameter.type;
+                    propteryDefinitionModel.required = inputParameter.required;
+                    propteryDefinitionModel.name = paramName;
+                    propteryDefinitionModel.default = inputParameter.paramValue || ''; // needed for the directive
+                    propteryDefinitionModel.password = false;
+                    propteryDefinitionModel.constraints = null;
+                    propteryDefinitionModel.from = operation;
+                    if (inputParameter.type === 'boolean') {
+                      inputParameter.paramValue = false;
+                    }
+                    if (inputParameter.type === 'timestamp') {
+                      inputParameter.paramValue = Date.now();
+                    }
+                    inputParameter.definitionModel = propteryDefinitionModel;
+                  } else {
+                    //we don't want function type params in the ui
+                    delete interfaceObj.operations[operation].inputParameters[paramName];
                   }
-                  if (inputParameter.type === 'timestamp') {
-                    inputParameter.paramValue = Date.now();
-                  }
-                  inputParameter.definitionModel = propteryDefinitionModel;
-                } else {
-                  //we don't want function type params in the ui
-                  delete interfaces.operations[operation].inputParameters[paramName];
-                }
-              });
-            }
+                });
+              }
+            });
           });
 
         }
 
       };
 
-      $scope.checkProperty = function(definition, value) {
+      $scope.checkProperty = function(definition, value, interfaceName) {
 
         var checkPropertyRequest = {
           'propertyId': definition.name,
@@ -308,7 +315,7 @@ angular.module('alienUiApp').controller(
             }
           } else {
             // No errors
-            $scope.selectedNodeCustomInterface.operations[definition.from].inputParameters[definition.name].paramValue = value;
+            $scope.selectedNodeCustomInterfaces[interfaceName].operations[definition.from].inputParameters[definition.name].paramValue = value;
           }
         }).$promise;
 
@@ -329,11 +336,20 @@ angular.module('alienUiApp').controller(
         $scope.selectedNodeTemplate.name = newSelectedName;
         // custom interface if exists
         var nodetype = $scope.topology.nodeTypes[$scope.selectedNodeTemplate.type];
-        delete $scope.selectedNodeCustomInterface;
+        delete $scope.selectedNodeCustomInterfaces;
         if (nodetype.interfaces) {
-          $scope.selectedNodeCustomInterface = nodetype.interfaces[CUSTOM_INTERFACE_NAME];
-          // create and inject property definition in order to use <property-display> directive for input parameters
-          injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterface);
+          $scope.selectedNodeCustomInterfaces = {};
+          angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
+            if (interfaceName !== CONSTANTS.toscaStandardInterfaceName && interfaceName !== CONSTANTS.cloudify2extensionInterfaceName) {
+              $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
+            }
+          });
+          if (UTILS.isMapNotNullOrEmpty($scope.selectedNodeCustomInterfaces)) {
+            // create and inject property definition in order to use <property-display> directive for input parameters
+            injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
+          } else {
+            delete $scope.selectedNodeCustomInterfaces;
+          }
         }
         refreshSelectedNodeInstancesCount();
         $scope.clearInstanceSelection();
@@ -350,6 +366,11 @@ angular.module('alienUiApp').controller(
         delete $scope.selectedInstance;
       };
 
+      $scope.clearNodeSelection = function() {
+        $scope.clearInstanceSelection();
+        delete $scope.selectedNodeTemplate;
+      };
+
       $scope.scale = function(newValue) {
         if (newValue !== $scope.selectedNodeTemplate.instancesCount) {
           applicationServices.scale({
@@ -357,7 +378,9 @@ angular.module('alienUiApp').controller(
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instances: (newValue - $scope.selectedNodeTemplate.instancesCount),
             applicationEnvironmentId: $scope.selectedEnvironment.id
-          }, undefined);
+          }, undefined, function success() {
+            $scope.loadTopologyRuntime();
+          });
         }
       };
 
@@ -366,7 +389,7 @@ angular.module('alienUiApp').controller(
       /** EXECUTE OPERATIONS */
       $scope.isMapNotNullOrEmpty = UTILS.isMapNotNullOrEmpty;
 
-      $scope.executeOperation = function(operationName, params, event) {
+      $scope.executeOperation = function(interfaceName, operationName, params, event) {
         if (event) {
           event.stopPropagation();
         }
@@ -384,20 +407,21 @@ angular.module('alienUiApp').controller(
           applicationEnvironmentId: $scope.selectedEnvironment.id,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
           instanceId: instanceId,
-          interfaceName: CUSTOM_INTERFACE_NAME,
+          interfaceName: interfaceName,
           operationName: operationName,
           parameters: preparedParams
         };
 
         $scope.operationLoading = $scope.operationLoading || {};
         $scope.operationLoading[$scope.selectedNodeTemplate.name] = $scope.operationLoading[$scope.selectedNodeTemplate.name] || {};
-        $scope.operationLoading[$scope.selectedNodeTemplate.name][operationName] = true;
+        $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName] = $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName] || {};
+        $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = true;
 
         deploymentServices.runtime.executeOperation({
           applicationId: applicationId
         }, angular.toJson(operationExecRequest), function(successResult) {
           // success
-          $scope.operationLoading[$scope.selectedNodeTemplate.name][operationName] = false;
+          $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
           if (successResult.error !== null) {
             var title = $translate('ERRORS.' + successResult.error.code + '.TITLE', {
               'operation': operationName
@@ -429,7 +453,12 @@ angular.module('alienUiApp').controller(
             var resultHtml = [];
             resultHtml.push('<ul>');
             Object.keys(resultInstanceMap).forEach(function(instanceId) {
-              resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
+              if (resultInstanceMap[instanceId]) {
+                resultHtml.push('<li>Instance ' + instanceId + ' : ' + resultInstanceMap[instanceId] + '</li>');
+              } else {
+                resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
+              }
+              
             });
             resultHtml.push('</ul>');
             // timeout at 0 == keep displayed until close
@@ -438,7 +467,7 @@ angular.module('alienUiApp').controller(
 
         }, function(errorResult) {
           console.error('executeOperation ERROR', errorResult);
-          $scope.operationLoading[$scope.selectedNodeTemplate.name][operationName] = false;
+          $scope.operationLoading[$scope.selectedNodeTemplate.name][interfaceName][operationName] = false;
         });
 
         // reset parameter inputs ?
@@ -452,6 +481,55 @@ angular.module('alienUiApp').controller(
         }
         var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
         return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
+      };
+
+      $scope.switchNodeInstanceMaintenanceMode = function(nodeInstanceId) {
+        switch ($scope.topology.instances[$scope.selectedNodeTemplate.name][nodeInstanceId].instanceStatus) {
+        case 'SUCCESS':
+          deploymentServices.nodeInstanceMaintenanceOn({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined); 
+          break;
+        case 'MAINTENANCE':
+          deploymentServices.nodeInstanceMaintenanceOff({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined);             
+        }
+      };
+//      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
+//        deploymentServices.nodeInstanceMaintenanceOn({
+//          applicationId: applicationId,
+//          applicationEnvironmentId: $scope.selectedEnvironment.id,
+//          nodeTemplateId: $scope.selectedNodeTemplate.name,
+//          instanceId: nodeInstanceId
+//        }, {}, undefined);
+//      };
+//      $scope.switchNodeInstanceMaintenanceModeOff = function(nodeInstanceId) {
+//        deploymentServices.nodeInstanceMaintenanceOff({
+//          applicationId: applicationId,
+//          applicationEnvironmentId: $scope.selectedEnvironment.id,
+//          nodeTemplateId: $scope.selectedNodeTemplate.name,
+//          instanceId: nodeInstanceId
+//        }, {}, undefined);
+//      };
+      $scope.switchDeployementMaintenanceMode = function() {
+        if ($scope.hasNOdeInstanceInMaintenanceMode) {
+          deploymentServices.deploymentMaintenance.off({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id
+          }, {}, undefined);
+        } else {
+          deploymentServices.deploymentMaintenance.on({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id
+          }, {}, undefined);
+        }
       };
 
       // first topology load

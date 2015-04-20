@@ -5,7 +5,8 @@ import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
@@ -23,13 +24,8 @@ public class EqualConstraint extends AbstractPropertyConstraint {
     private Object typed;
 
     @Override
-    public void initialize(ToscaType propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
-        if (propertyType.isValidValue(equal)) {
-            typed = propertyType.convert(equal);
-        } else {
-            throw new ConstraintValueDoNotMatchPropertyTypeException("equal constraint has invalid value <" + equal + "> property type is <"
-                    + propertyType.toString() + ">");
-        }
+    public void initialize(IPropertyType<?> propertyType) throws ConstraintValueDoNotMatchPropertyTypeException {
+        typed = ConstraintUtil.convert(propertyType, equal);
     }
 
     @Override

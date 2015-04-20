@@ -60,7 +60,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
             "_type": "number",
             "_notNull": true,
             "_step": 0.5,
-            "_unit": "GB",
+            "_unit": "GiB",
+            "_multiplier": 1024 * 1024 * 1024,
             "_constraints": [
               {
                 "greaterThan": 0
@@ -100,7 +101,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           "_type": "number",
           "_notNull": true,
           "_step": 0.01,
-          "_unit": "GB",
+          "_unit": "GiB",
           "_multiplier": 1024 * 1024 * 1024,
           "_constraints": [
             {
@@ -113,7 +114,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           "_type": "number",
           "_notNull": true,
           "_step": 1,
-          "_unit": "MB",
+          "_unit": "MiB",
           "_multiplier": 1024 * 1024,
           "_constraints": [
             {

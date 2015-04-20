@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -657,5 +657,19 @@ angular.module('alienUiApp').controller(
         });
       };
 
+      var ModalInstanceCtrl = ['$scope', '$modalInstance', function ($scope, $modalInstance) {
+        $scope.title = 'CLOUDS.ADMINISTRATION.HELP.TITLE';
+        $scope.content = $filter('translate')('CLOUDS.ADMINISTRATION.HELP.CONTENT');
+        $scope.close = function () {
+          $modalInstance.dismiss('close');
+        };
+      }];
+
+      $scope.openSimpleModal = function () {
+        $modal.open({
+          templateUrl: 'views/fragments/simple_modal.html',
+          controller: ModalInstanceCtrl
+        });
+      };
     }
   ]);

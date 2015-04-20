@@ -48,6 +48,10 @@ public class NodeTemplateChecker implements IChecker<NodeTemplate> {
     }
 
     @Override
+    public void before(ParsingContextExecution context, Node node) {
+    }
+
+    @Override
     public void check(NodeTemplate instance, ParsingContextExecution context, Node node) {
         String nodeTypeName = instance.getType();
         final ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
