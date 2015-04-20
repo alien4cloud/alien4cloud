@@ -111,7 +111,7 @@ angular.module('alienUiApp').controller('ApplicationListCtrl', ['$scope', '$moda
               'effect': 'none'
             },
             'pullOutSegmentOnClick': {
-              'effect': 'none'
+              'effect': tip.hide
             },
             'highlightSegmentOnMouseover': true,
             'highlightLuminosity': 0.10

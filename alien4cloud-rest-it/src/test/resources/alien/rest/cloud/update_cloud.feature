@@ -47,6 +47,17 @@ Scenario: Update a cloud's environment type
   Then I should receive a RestResponse with no error
     And Response should contains a cloud with name "Mount doom cloud" and environment type "DEVELOPMENT"
 
+Scenario: Update the naming policy of deployment
+  Given I create a cloud with name "Mount doom cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+  When I list clouds
+  Then I should receive a RestResponse with no error
+    And Response should contains a cloud with deploymentNamePattern "environment.name + application.name"
+  When I update deployment name pattern of "Mount doom cloud" to "environment.name"
+    Then I should receive a RestResponse with no error
+  When I list clouds
+  Then I should receive a RestResponse with no error
+    And Response should contains a cloud with deploymentNamePattern "environment.name"
+
 # Scenario: Update a cloud's authorized groups
 #   When I update cloud authorized groups
 #       | mordor |
