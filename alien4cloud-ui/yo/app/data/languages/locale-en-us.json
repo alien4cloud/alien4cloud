@@ -675,6 +675,7 @@
     },
     "372": "Error in naming policy of deployment.",
     "373": "Unexpected error happened while switching on / off maintenance mode ",
+    "374": "One of your meta-property is empty and does not have a default value.",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
