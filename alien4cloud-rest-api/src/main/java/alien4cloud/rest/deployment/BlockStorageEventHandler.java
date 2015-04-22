@@ -109,11 +109,18 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     }
 
     private String getAggregatedVolumeIds(String volumeIds, PaaSInstanceStorageMonitorEvent storageEvent) {
+        if (volumeIds == null) {
+            volumeIds = "";
+        }
         Set<String> existingVolumes = Sets.newHashSet(volumeIds.split(","));
         if (existingVolumes.contains(storageEvent.getVolumeId())) {
             return null;
         }
-        volumeIds = volumeIds + "," + storageEvent.getVolumeId();
+        if (StringUtils.isBlank(volumeIds)) {
+            volumeIds = storageEvent.getVolumeId();
+        } else {
+            volumeIds = volumeIds + "," + storageEvent.getVolumeId();
+        }
         return volumeIds;
     }
 
