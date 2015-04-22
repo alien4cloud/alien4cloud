@@ -416,7 +416,7 @@
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
+      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
     },
     "ENVIRONMENT": {
