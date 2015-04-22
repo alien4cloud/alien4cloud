@@ -406,7 +406,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }).progress(function(evt) {
         $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
       }).success(function(success) {
-        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef = success.data;
+        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef;
         $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName;
         $scope.uploads[artifactName].isUploading = false;
         $scope.uploads[artifactName].type = 'success';
