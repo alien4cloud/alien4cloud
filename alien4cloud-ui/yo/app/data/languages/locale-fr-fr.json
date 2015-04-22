@@ -103,7 +103,9 @@
       "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
-      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici."
+      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
+      "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",

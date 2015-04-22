@@ -19,6 +19,7 @@
 - relationship_templates_type: alien4cloud.tosca.parser.impl.advanced.RelationshipTemplatesParser
 - nodetemplate_capabilities_type: alien4cloud.tosca.parser.impl.advanced.NodeTemplateCapabilitiesParser
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
+- group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -68,6 +69,18 @@
     deferred: true
     deferredOrder: 1001 # we want this to be the very last executed
     type: outputs_type
+  groups:
+    map: groups
+    key: name
+    type: node_group
+    
+- node_group: alien4cloud.model.topology.NodeGroup
+  members:
+    set: members
+    type: scalar
+  policies:
+    list: policies
+    type: group_policy_parser
     
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type

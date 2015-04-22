@@ -106,6 +106,20 @@ topology_template:
 #end## of artifactEntry iteration
 #end## if artifacts map not empty
 #end## of nodeTemplateEntry iteration
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.groups))
+  groups:
+#foreach($groupEntry in ${topology.groups.entrySet()})
+    ${groupEntry.key}:
+      members: [ $utils.getCsvToString($groupEntry.value.members) ]
+#if($utils.collectionIsNotEmpty($groupEntry.value.policies))
+      policies:
+#foreach($policy in ${groupEntry.value.policies})
+        - name: ${policy.name}
+          type: ${policy.type}
+#end## of policy iteration      
+#end## if $groupEntry.value.policies not empty      
+#end## of groupEntry iteration  
+#end## if $topology.groups not empty
 #if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputProperties) || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputAttributes)  || $utils.mapIsNotEmptyAndContainsNotnullValues($topology.outputCapabilityProperties))
   outputs:
 #foreach($outputPropertyEntry in ${topology.outputProperties.entrySet()})

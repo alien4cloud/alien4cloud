@@ -96,7 +96,9 @@
       "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
       "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
-      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here."
+      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
+      "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
+      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
