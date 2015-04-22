@@ -61,6 +61,9 @@ public class TestDataRegistry {
                 "src/test/resources/data/csars/topology_template/topology-template-relationship-funtionprop");
         addConditionFolder("topology-capability-io", "src/test/resources/data/csars/topology_template/topology-capability-io");
         addConditionFolder("topology_artifact", "src/test/resources/data/csars/topology_template/topology_artifact");
+        addConditionFolder("topology-groups", "src/test/resources/data/csars/topology_template/topology-groups");
+        addConditionFolder("topology-groups-unknown-policy", "src/test/resources/data/csars/topology_template/topology-groups-unknown-policy");
+        addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
 
         // test uploading an unzipped file (do not zip it)
         CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));

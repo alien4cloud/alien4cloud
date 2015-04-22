@@ -305,3 +305,77 @@ Scenario: Upload CSAR containing a type declaring an artifact
   And The SPEL int expression "nodeTemplates['apache'].artifacts.size()" should return 1 
   And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactType" should return "fastconnect.artifacts.ResourceDirectory"
   And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactRef" should return "scripts"
+
+Scenario: Upload CSAR containing embeded topology template with groups and HA policies
+  Given I upload the archive "tosca-normative-types"
+  And I upload the archive "topology-groups"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  And If I search for topology templates I can find one with the name "topology-groups-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL int expression "groups.size()" should return 2
+  And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
+  And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
+  And The SPEL expression "groups['compute_scaling_group'].members[0]" should return "compute1"
+  And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 2
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
+  And The SPEL expression "groups['compute_scaling_group'].policies[1].name" should return "another_ha_policy"
+  And The SPEL expression "groups['compute_scaling_group'].policies[1].type" should return "tosca.policy.ha"  
+  And The SPEL expression "groups['compute_ha_group'].name" should return "compute_ha_group"
+  And The SPEL int expression "groups['compute_ha_group'].members.size()" should return 2
+  And The SPEL expression "groups['compute_ha_group'].members[0]" should return "compute1"
+  And The SPEL expression "groups['compute_ha_group'].members[1]" should return "compute2"
+  And The SPEL int expression "groups['compute_ha_group'].policies.size()" should return 1
+  And The SPEL expression "groups['compute_ha_group'].policies[0].name" should return "my_scaling_ha_policy"
+  And The SPEL expression "groups['compute_ha_group'].policies[0].type" should return "tosca.policy.ha"      
+  And The SPEL int expression "nodeTemplates['compute1'].groups.size()" should return 2 
+  And The SPEL expression "nodeTemplates['compute1'].groups[0]" should return "compute_scaling_group"   
+  And The SPEL expression "nodeTemplates['compute1'].groups[1]" should return "compute_ha_group"   
+  And The SPEL int expression "nodeTemplates['compute2'].groups.size()" should return 1 
+  And The SPEL expression "nodeTemplates['compute2'].groups[0]" should return "compute_ha_group"
+  
+Scenario: Re-Upload CSAR containing embeded topology template with groups and HA policies
+  Given I upload the archive "tosca-normative-types"
+  And I upload the archive "topology-groups"
+  And I export the YAML from topology template named "topology-groups-1.0.0-SNAPSHOT" and build a test dataset named "topology-groups-replay"
+  Given I upload the archive "topology-groups-replay"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
+  And If I search for topology templates I can find one with the name "topology-groups-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL int expression "groups.size()" should return 2
+  And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
+  And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
+  And The SPEL expression "groups['compute_scaling_group'].members[0]" should return "compute1"
+  And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 2
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
+  And The SPEL expression "groups['compute_scaling_group'].policies[1].name" should return "another_ha_policy"
+  And The SPEL expression "groups['compute_scaling_group'].policies[1].type" should return "tosca.policy.ha"    
+  And The SPEL expression "groups['compute_ha_group'].name" should return "compute_ha_group"
+  And The SPEL int expression "groups['compute_ha_group'].members.size()" should return 2
+  And The SPEL expression "groups['compute_ha_group'].members[0]" should return "compute1"
+  And The SPEL expression "groups['compute_ha_group'].members[1]" should return "compute2"
+  And The SPEL int expression "groups['compute_ha_group'].policies.size()" should return 1
+  And The SPEL expression "groups['compute_ha_group'].policies[0].name" should return "my_scaling_ha_policy"
+  And The SPEL expression "groups['compute_ha_group'].policies[0].type" should return "tosca.policy.ha"      
+  And The SPEL int expression "nodeTemplates['compute1'].groups.size()" should return 2 
+  And The SPEL expression "nodeTemplates['compute1'].groups[0]" should return "compute_scaling_group"   
+  And The SPEL expression "nodeTemplates['compute1'].groups[1]" should return "compute_ha_group"   
+  And The SPEL int expression "nodeTemplates['compute2'].groups.size()" should return 1 
+  And The SPEL expression "nodeTemplates['compute2'].groups[0]" should return "compute_ha_group"  
+  
+Scenario: Upload CSAR containing embeded topology template with groups and HA policies containing unknown policy
+  Given I upload the archive "tosca-normative-types"
+  And I upload the archive "topology-groups-unknown-policy"
+  Then I should receive a RestResponse with 1 alerts in 1 files : 1 errors 0 warnings and 0 infos
+  
+Scenario: Upload CSAR containing embeded topology template with groups and HA policies containing unknown member
+  Given I upload the archive "tosca-normative-types"
+  And I upload the archive "topology-groups-unknown-member"
+  Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
+  And If I search for topology templates I can find one with the name "topology-groups-unknown-member-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And The SPEL int expression "groups.size()" should return 1
+  And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
+  And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
+  And The SPEL expression "groups['compute_scaling_group'].members[0]" should return "compute1"
+  And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 1
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
+  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"

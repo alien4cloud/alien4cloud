@@ -4,16 +4,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.ESObject;
-
 @Getter
 @Setter
-@ESObject
 @NoArgsConstructor
-public class Policy {
+public abstract class AbstractPolicy {
 
     private String name;
 
-    private String type;
+    public abstract String getType();
+
+    public void setType(String type) {
+        // here only for JSON deserialization
+    }
 
 }

@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: TOSCA simple profile including a topology
+template_name: topology-groups
+template_version: 1.0.0-SNAPSHOT
+template_author: FastConnect
+
+description: define groups with ha policies
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  
+topology_template:
+  node_templates:
+    compute1:
+      type: tosca.nodes.Compute
+    compute2:
+      type: tosca.nodes.Compute
+  groups:
+    compute_scaling_group:
+      members: [ compute1 ]
+      policies: 
+        # standard notation
+        - name: my_scaling_ha_policy
+          type: tosca.policy.ha
+        # short notation
+        - another_ha_policy : tosca.policy.ha
+    compute_ha_group:
+      members: [ compute1, compute2 ]
+      policies: 
+        # simple profile example notation
+        - my_scaling_ha_policy:  
+          type: tosca.policy.ha          
