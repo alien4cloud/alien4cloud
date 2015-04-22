@@ -22,6 +22,7 @@ import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
@@ -249,7 +250,18 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> deleteLastApplicationEnvironmentErrorHandler(DeleteLastApplicationEnvironmentException e) {
         log.error("Delete last application environment error", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application version error : " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application environment error : " + e.getMessage())
+                        .build())
+                .build();
+    }
+
+    @ExceptionHandler(value = DeleteLastApplicationVersionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> deleteLastApplicationBersionErrorHandler(DeleteLastApplicationVersionException e) {
+        log.error("Delete last application version error", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.LAST_APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())
                 .build();
     }
 

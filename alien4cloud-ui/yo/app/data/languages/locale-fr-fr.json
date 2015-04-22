@@ -698,6 +698,7 @@
     "605": "Le format de version saisie est invalide",
     "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
     "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
+    "610": "Une application doit nécéssairement avoir au moins une version",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
