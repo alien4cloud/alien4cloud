@@ -30,6 +30,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
@@ -876,4 +877,33 @@ public class CloudService {
         }
     }
 
+    public void addAvailabilityZone(Cloud cloud, AvailabilityZone availabilityZone) {
+        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        if (getResource(availabilityZones, availabilityZone.getId(), false) != null) {
+            throw new AlreadyExistException("Availability zone " + availabilityZone.getId() + " already exist");
+        }
+        availabilityZones.add(availabilityZone);
+        alienDAO.save(cloud);
+    }
+
+    public void removeAvailabilityZone(Cloud cloud, String availabilityZoneId) {
+        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        getResource(availabilityZones, availabilityZoneId, true);
+        cloud.getStorageMapping().remove(availabilityZoneId);
+        alienDAO.save(cloud);
+    }
+
+    public void setAvailabilityZoneResourceId(Cloud cloud, String availabilityZoneId, String pasSResourceId) throws CloudDisabledException {
+        AvailabilityZone foundAvailabilityZone = getResource(cloud.getAvailabilityZones(), availabilityZoneId, false);
+        if (foundAvailabilityZone == null) {
+            throw new NotFoundException("Storage [" + availabilityZoneId + "] not found");
+        }
+        if (StringUtils.isEmpty(pasSResourceId)) {
+            cloud.getAvailabilityZoneMapping().remove(availabilityZoneId);
+        } else {
+            cloud.getAvailabilityZoneMapping().put(availabilityZoneId, pasSResourceId);
+        }
+        initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
+        alienDAO.save(cloud);
+    }
 }
