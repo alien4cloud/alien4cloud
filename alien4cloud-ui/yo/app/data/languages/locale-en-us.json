@@ -574,6 +574,11 @@
       "SIZE": "Size",
       "NEW_MODAL_TITLE": "Create a new block storage"
     },
+    "ZONE": "Zones",
+    "ZONES": {
+      "ID": "Identifiant",
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
+    },    
     "IAAS": {
       "OTHER": "Other",
       "OPENSTACK": "OpenStack",

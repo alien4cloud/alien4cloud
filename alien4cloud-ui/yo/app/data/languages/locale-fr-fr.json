@@ -581,6 +581,11 @@
       "SIZE": "Taille",
       "NEW_MODAL_TITLE": "Créer un nouveau volume"
     },
+    "ZONE": "Zones",
+    "ZONES": {
+      "ID": "Identifiant",
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
+    },
     "IAAS": {
       "OTHER": "Autre",
       "OPENSTACK": "OpenStack",

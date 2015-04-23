@@ -60,6 +60,7 @@ angular.module('alienUiApp').controller(
           $scope.flavorNotConfiguredCount = 0;
           $scope.networkNotConfiguredCount = 0;
           $scope.storageNotConfiguredCount = 0;
+          $scope.zoneNotConfiguredCount = 0;
           // id of images candidat to be added
           $scope.imageAddSelection = [];
           // to display unmapped stuffs alerts
@@ -68,6 +69,7 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
           updateNetworkResourcesStatistic();
           updateStorageResourcesStatistic();
+          updateZoneResourcesStatistic();
 
           $scope.relatedUsers = {};
           if ($scope.cloud.userRoles) {
@@ -361,6 +363,16 @@ angular.module('alienUiApp').controller(
         $scope.availaiblePaaSStorageIds = result.arr;
       };
 
+      // count the number of zones that are not associated to a resource id
+      var updateZoneResourcesStatistic = function() {
+        $scope.zoneNotConfiguredCount = 0;
+        angular.forEach($scope.cloud.availabilityZones, function(v, k) {
+          if (!$scope.cloud.availabilityZoneMapping[v.id]) {
+            $scope.zoneNotConfiguredCount++;
+          }
+        });
+      };
+      
       var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
@@ -640,13 +652,33 @@ angular.module('alienUiApp').controller(
           cloudServices.setCloudStorageResource,
           updateStorageResourcesStatistic);
       };
+      
+      // associate a PaaS resource id to a cloud zone
+      $scope.saveZoneResourceId = function(cloudZoneId, paaSResourceId) {
+        savePasSResourceId(
+          cloudZoneId,
+          $scope.cloud.availabilityZoneMapping,
+          paaSResourceId,
+          cloudServices.setCloudZoneResource,
+          updateZoneResourcesStatistic);
+      };      
 
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
         if (paaSResourceId === null || paaSResourceId === '') {
-          delete alienResourceArray[alienResourceId].paaSResourceId;
+          if (alienResourceArray[alienResourceId]) {
+            if (alienResourceArray[alienResourceId].hasOwnProperty('paaSResourceId')) {
+              delete alienResourceArray[alienResourceId].paaSResourceId;
+            } else {
+              delete alienResourceArray[alienResourceId];
+            }
+          }
         } else {
-          alienResourceArray[alienResourceId].paaSResourceId = paaSResourceId;
+          if (alienResourceArray[alienResourceId].hasOwnProperty('paaSResourceId')) {
+            alienResourceArray[alienResourceId].paaSResourceId = paaSResourceId;
+          } else {
+            alienResourceArray[alienResourceId] = paaSResourceId;
+          }
         }
         saveFn({
           id: $scope.cloud.id,
@@ -671,5 +703,34 @@ angular.module('alienUiApp').controller(
           controller: ModalInstanceCtrl
         });
       };
+      
+      /** handle Modal form for cloud zone creation */
+      $scope.openZoneCreationModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/clouds/new_zone.html',
+          controller: 'NewZoneController'
+        });
+
+        modalInstance.result.then(function(zone) {
+          cloudServices.addZone({
+            id: $scope.cloud.id
+          }, angular.toJson(zone), function() {
+            $scope.cloud.availabilityZones.push(zone);
+            updateZoneResourcesStatistic();
+          });
+        });
+      };      
+      
+      $scope.deleteZone = function(zone) {
+        cloudServices.removeZone({
+          id: $scope.cloud.id,
+          zoneId: zone.id
+        }, undefined, function() {
+          delete $scope.cloud.availabilityZoneMapping[zone.id];
+          UTILS.arrayRemove($scope.cloud.availabilityZones, zone);
+          updateZoneResourcesStatistic();
+        });
+      };
+      
     }
   ]);

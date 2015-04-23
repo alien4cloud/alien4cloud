@@ -475,7 +475,7 @@ public class CloudController {
     // Begin
 
     @ApiOperation(value = "Add an availability zone to the given cloud", notes = "Only user with ADMIN role can add an availability zone.")
-    @RequestMapping(value = "/{cloudId}/availability-zones", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{cloudId}/zones", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> addAvailabilityZone(@PathVariable String cloudId, @RequestBody AvailabilityZone availabilityZone) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -485,7 +485,7 @@ public class CloudController {
     }
 
     @ApiOperation(value = "Remove an availability zone from the given cloud", notes = "Only user with ADMIN role can remove an availability zone.")
-    @RequestMapping(value = "/{cloudId}/availability-zones/{availabilityZoneId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> removeAvailabilityZone(@PathVariable String cloudId, @PathVariable String availabilityZoneId) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
@@ -495,7 +495,7 @@ public class CloudController {
     }
 
     @ApiOperation(value = "Set the corresponding paaS resource id for the availability zone", notes = "Only user with ADMIN role can set the resource id for an availability zone.")
-    @RequestMapping(value = "/{cloudId}/availability-zones/{availabilityZoneId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> setAvailabilityZoneResourceId(@PathVariable String cloudId, @PathVariable String availabilityZoneId,
             @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
