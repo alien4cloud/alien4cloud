@@ -131,6 +131,8 @@ public class UserController {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("username cannot be null or empty").build()).build();
+        } else if (alienUserDao.find(username) == null) {
+            return RestResponseBuilder.<Void> builder().build();
         } else if (userService.isAdmin(username) && userService.countAdminUser() == 1) {
             servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return RestResponseBuilder
