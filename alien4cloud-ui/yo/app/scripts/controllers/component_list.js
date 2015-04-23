@@ -14,6 +14,7 @@ angular.module('alienUiApp').controller('SearchComponentCtrl', ['alienAuthServic
 
     function onResize(width, height) {
       $scope.heightInfo = { height: height };
+      $scope.widthInfo = { width: width };
       $scope.$apply();
     }
 
@@ -24,5 +25,6 @@ angular.module('alienUiApp').controller('SearchComponentCtrl', ['alienAuthServic
 
     resizeServices.register(onResize, 0, 0);
     $scope.heightInfo = { height: resizeServices.getHeight(0) };
+    $scope.widthInfo = { width: resizeServices.getWidth(0) };
   }
 ]);
