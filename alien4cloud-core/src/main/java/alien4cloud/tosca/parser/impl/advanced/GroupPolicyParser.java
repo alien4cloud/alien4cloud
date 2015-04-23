@@ -2,7 +2,10 @@ package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
 import java.util.Map.Entry;
+=======
+>>>>>>> e91a4aff682c100d67646de6b5211d100a9215c6
 
 import javax.annotation.Resource;
 
