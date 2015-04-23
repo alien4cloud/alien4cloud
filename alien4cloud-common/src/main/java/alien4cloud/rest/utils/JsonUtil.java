@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @Slf4j
 public final class JsonUtil {
 
-    private static ObjectMapper getOneObjectMapper(boolean writeNullMapValues) {
+    private static ObjectMapper getNewObjectMapper(boolean writeNullMapValues) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -38,8 +38,8 @@ public final class JsonUtil {
         return mapper;
     }
     
-    private static ObjectMapper getOneObjectMapper() {
-        return getOneObjectMapper(false);
+    private static ObjectMapper getNewObjectMapper() {
+        return getNewObjectMapper(false);
     }
 
     private JsonUtil() {
@@ -79,7 +79,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> T readObject(String objectText, Class<T> objectClass) throws IOException {
-        return getOneObjectMapper().readValue(objectText, objectClass);
+        return getNewObjectMapper().readValue(objectText, objectClass);
     }
 
     /**
@@ -91,7 +91,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> T readObject(InputStream jsonStream, Class<T> objectClass) throws IOException {
-        return getOneObjectMapper().readValue(jsonStream, objectClass);
+        return getNewObjectMapper().readValue(jsonStream, objectClass);
     }
 
     /**
@@ -104,7 +104,7 @@ public final class JsonUtil {
     public static <T> T readObject(String objectText) throws IOException {
         TypeReference<T> typeRef = new TypeReference<T>() {
         };
-        return getOneObjectMapper().readValue(objectText, typeRef);
+        return getNewObjectMapper().readValue(objectText, typeRef);
     }
 
     /**
@@ -115,7 +115,7 @@ public final class JsonUtil {
      * @throws JsonProcessingException In case of a failure in serialization.
      */
     public static String toString(Object obj) throws JsonProcessingException {
-        return getOneObjectMapper().writeValueAsString(obj);
+        return getNewObjectMapper().writeValueAsString(obj);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class JsonUtil {
      *             In case of a failure in serialization.
      */
     public static String toVerboseString(Object obj) throws JsonProcessingException {
-        return getOneObjectMapper(true).writeValueAsString(obj);
+        return getNewObjectMapper(true).writeValueAsString(obj);
     }
 
     /**
@@ -139,7 +139,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static Map<String, Object> toMap(String json) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = getNewObjectMapper();
         JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Object.class);
         return mapper.readValue(json, mapStringObjectType);
     }
@@ -154,7 +154,7 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <K, V> Map<K, V> toMap(String json, Class<K> keyTypeClass, Class<V> valueTypeClass) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = getNewObjectMapper();
         JavaType mapStringObjectType = mapper.getTypeFactory().constructParametricType(HashMap.class, keyTypeClass, valueTypeClass);
         return mapper.readValue(json, mapStringObjectType);
     }
@@ -173,13 +173,13 @@ public final class JsonUtil {
      * @throws IOException
      */
     public static <T> List<T> toList(String json, Class<T> clazz) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = getNewObjectMapper();
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, clazz);
         return mapper.readValue(json, type);
     }
 
     public static <T> List<T> toList(String json, Class<T> elementClass, Class<?> elementGenericClass) throws IOException {
-        ObjectMapper mapper = getOneObjectMapper();
+        ObjectMapper mapper = getNewObjectMapper();
         JavaType elementType = mapper.getTypeFactory().constructParametricType(elementClass, elementGenericClass);
         JavaType listType = mapper.getTypeFactory().constructCollectionType(List.class, elementType);
         return mapper.readValue(json, listType);
