@@ -1,5 +1,7 @@
 package alien4cloud.security;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,6 +63,14 @@ public class UserService {
             String[] roles = new String[] { Role.ADMIN.toString() };
             createUser(adminUserName, email, null, null, roles, adminPassword);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public int countAdminUser() {
+        Map<String, String[]> filters = new HashMap<String, String[]>();
+        filters.put("roles", new String[] { Role.ADMIN.toString() });
+        GetMultipleDataResult searchResult = alienUserDao.find(filters, 1);
+        return (int) searchResult.getTotalResults();
     }
 
     /**
@@ -232,5 +242,11 @@ public class UserService {
         } else {
             alienUserDao.save(user);
         }
+    }
+
+    public boolean isAdmin(String username) {
+        User user = retrieveUser(username);
+        ArrayList<String> roles = new ArrayList(Arrays.asList(user.getRoles()));
+        return roles.contains("ADMIN");
     }
 }

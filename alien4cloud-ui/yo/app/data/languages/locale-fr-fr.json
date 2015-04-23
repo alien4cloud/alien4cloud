@@ -685,6 +685,7 @@
     "372": "Erreur dans la nomenclature des noms de déploiement.",
     "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
+    "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",

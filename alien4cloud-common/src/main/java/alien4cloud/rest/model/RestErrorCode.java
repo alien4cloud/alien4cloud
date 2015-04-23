@@ -29,6 +29,9 @@ public enum RestErrorCode {
     MAINTENANCE_MODE_ERROR(373),
     EMPTY_META_PROPERTY_ERROR(374),
 
+    // User errors
+    DELETE_LAST_ADMIN_USER_ERROR(390),
+
     // Repository service error
     REPOSITORY_SERVICE_ERROR(400),
 
