@@ -1,7 +1,7 @@
 package alien4cloud.application;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,6 +24,7 @@ import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
@@ -45,6 +46,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manages deployment setups.
@@ -236,15 +238,18 @@ public class DeploymentSetupService {
         MappingGenerationResult<StorageTemplate> storageMapping = generateDefaultMapping(deploymentSetup.getStorageMapping(),
                 matchResult.getStorageMatchResult(), topology);
 
+        MappingGenerationResult<Collection<AvailabilityZone>> groupMapping = generateDefaultAvailabilityZoneMapping(
+                deploymentSetup.getAvailabilityZoneMapping(), matchResult.getAvailabilityZoneMatchResult(), topology);
+
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
         deploymentSetup.setNetworkMapping(networkMapping.mapping);
         deploymentSetup.setStorageMapping(storageMapping.mapping);
-        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed) && automaticSave) {
+        deploymentSetup.setAvailabilityZoneMapping(groupMapping.mapping);
+        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed || groupMapping.changed) && automaticSave) {
             alienDAO.save(deploymentSetup);
         }
-
         DeploymentSetupMatchInfo matchInfo = new DeploymentSetupMatchInfo(deploymentSetup);
-        matchInfo.setValid(computeMapping.valid && networkMapping.valid && storageMapping.valid);
+        matchInfo.setValid(computeMapping.valid && networkMapping.valid && storageMapping.valid && groupMapping.valid);
         matchInfo.setMatchResult(matchResult);
         return matchInfo;
     }
@@ -296,9 +301,44 @@ public class DeploymentSetupService {
         private boolean changed;
     }
 
-    private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, List<T>> matchResult, Topology topology) {
+    private MappingGenerationResult<Collection<AvailabilityZone>> generateDefaultAvailabilityZoneMapping(Map<String, Collection<AvailabilityZone>> mapping,
+            Map<String, Collection<AvailabilityZone>> matchResult, Topology topology) {
         boolean valid = true;
-        for (Map.Entry<String, List<T>> matchResultEntry : matchResult.entrySet()) {
+        for (Map.Entry<String, ? extends Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+            valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
+        }
+        boolean changed = false;
+        if (mapping == null) {
+            mapping = Maps.newHashMap(matchResult);
+            changed = true;
+        } else {
+            // Try to remove unknown mapping from existing config
+            Iterator<Map.Entry<String, Collection<AvailabilityZone>>> mappingEntryIterator = mapping.entrySet().iterator();
+            while (mappingEntryIterator.hasNext()) {
+                Map.Entry<String, Collection<AvailabilityZone>> entry = mappingEntryIterator.next();
+                if (topology.getGroups() == null || !topology.getGroups().containsKey(entry.getKey()) || !matchResult.containsKey(entry.getKey())
+                        || !matchResult.get(entry.getKey()).containsAll(entry.getValue())) {
+                    // Remove the mapping if topology do not contain the node with that name and of type compute
+                    // Or the mapping do not exist anymore in the match result
+                    changed = true;
+                    mappingEntryIterator.remove();
+                }
+            }
+        }
+        for (Map.Entry<String, Collection<AvailabilityZone>> entry : matchResult.entrySet()) {
+            if (entry.getValue().size() >= 2 && !mapping.containsKey(entry.getKey())) {
+                // Only take the first element as selected if no configuration has been set before
+                changed = true;
+                Iterator<AvailabilityZone> matchedZones = entry.getValue().iterator();
+                mapping.put(entry.getKey(), Sets.newHashSet(matchedZones.next(), matchedZones.next()));
+            }
+        }
+        return new MappingGenerationResult<>(mapping, valid, changed);
+    }
+
+    private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, ? extends Collection<T>> matchResult, Topology topology) {
+        boolean valid = true;
+        for (Map.Entry<String, ? extends Collection<T>> matchResultEntry : matchResult.entrySet()) {
             valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
         }
         boolean changed = false;
@@ -319,11 +359,11 @@ public class DeploymentSetupService {
                 }
             }
         }
-        for (Map.Entry<String, List<T>> entry : matchResult.entrySet()) {
+        for (Map.Entry<String, ? extends Collection<T>> entry : matchResult.entrySet()) {
             if (!entry.getValue().isEmpty() && !mapping.containsKey(entry.getKey())) {
                 // Only take the first element as selected if no configuration has been set before
                 changed = true;
-                mapping.put(entry.getKey(), entry.getValue().get(0));
+                mapping.put(entry.getKey(), entry.getValue().iterator().next());
             }
         }
         return new MappingGenerationResult<>(mapping, valid, changed);

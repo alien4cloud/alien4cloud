@@ -1,5 +1,6 @@
 package alien4cloud.it.application;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +77,7 @@ public class ApplicationResourceMatcherStepDefinitions {
         CloudResourceTopologyMatchResult cloudResourceTopologyMatchResult = matchResultResponse.getData().getMatchResult();
         Assert.assertTrue(cloudResourceTopologyMatchResult.getImages().isEmpty());
         Assert.assertTrue(cloudResourceTopologyMatchResult.getFlavors().isEmpty());
-        for (List<ComputeTemplate> templates : cloudResourceTopologyMatchResult.getComputeMatchResult().values()) {
+        for (Collection<ComputeTemplate> templates : cloudResourceTopologyMatchResult.getComputeMatchResult().values()) {
             Assert.assertTrue(templates.isEmpty());
         }
     }
