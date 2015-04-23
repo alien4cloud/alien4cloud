@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -20,6 +21,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.topology.AbstractTemplate;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
@@ -37,6 +39,7 @@ import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Utility to build an hosted on tree from a topology.
@@ -82,7 +85,15 @@ public class TopologyTreeBuilderService {
                 if (topology.getScalingPolicies() != null) {
                     paaSNodeTemplate.setScalingPolicy(topology.getScalingPolicies().get(templateEntry.getKey()));
                 }
-
+                if (topology.getGroups() != null) {
+                    Set<String> nodeGroups = Sets.newHashSet();
+                    for (Map.Entry<String, NodeGroup> groupEntry : topology.getGroups().entrySet()) {
+                        if (groupEntry.getValue().getMembers() != null && groupEntry.getValue().getMembers().contains(templateEntry.getKey())) {
+                            nodeGroups.add(groupEntry.getKey());
+                        }
+                    }
+                    paaSNodeTemplate.setGroups(nodeGroups);
+                }
                 nodeTemplates.put(templateEntry.getKey(), paaSNodeTemplate);
             }
         }
@@ -111,6 +122,7 @@ public class TopologyTreeBuilderService {
         List<PaaSNodeTemplate> networks = new ArrayList<PaaSNodeTemplate>();
         List<PaaSNodeTemplate> volumes = new ArrayList<PaaSNodeTemplate>();
         List<PaaSNodeTemplate> nonNatives = new ArrayList<PaaSNodeTemplate>();
+        Map<String, List<PaaSNodeTemplate>> groups = Maps.newHashMap();
         for (Entry<String, PaaSNodeTemplate> entry : nodeTemplates.entrySet()) {
             PaaSNodeTemplate paaSNodeTemplate = entry.getValue();
             boolean isCompute = ToscaUtils.isFromType(NormativeComputeConstants.COMPUTE_TYPE, paaSNodeTemplate.getIndexedToscaElement());
@@ -133,8 +145,18 @@ public class TopologyTreeBuilderService {
                 nonNatives.add(paaSNodeTemplate);
                 processRelationship(paaSNodeTemplate, nodeTemplates);
             }
+            if (entry.getValue().getGroups() != null) {
+                for (String group : entry.getValue().getGroups()) {
+                    List<PaaSNodeTemplate> currentGroupMembers = groups.get(group);
+                    if (currentGroupMembers == null) {
+                        currentGroupMembers = Lists.newArrayList();
+                        groups.put(group, currentGroupMembers);
+                    }
+                    currentGroupMembers.add(entry.getValue());
+                }
+            }
         }
-        return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates);
+        return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates, groups);
     }
 
     private void processRelationship(PaaSNodeTemplate paaSNodeTemplate, Map<String, PaaSNodeTemplate> nodeTemplates) {

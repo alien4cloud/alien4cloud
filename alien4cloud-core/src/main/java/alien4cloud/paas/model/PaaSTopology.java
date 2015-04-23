@@ -23,4 +23,5 @@ public class PaaSTopology {
     private List<PaaSNodeTemplate> volumes;
     private List<PaaSNodeTemplate> nonNatives;
     private Map<String, PaaSNodeTemplate> allNodes;
+    private Map<String, List<PaaSNodeTemplate>> groups;
 }
