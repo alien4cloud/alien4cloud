@@ -33,6 +33,7 @@ import alien4cloud.security.Role;
 import alien4cloud.security.UpdateUserRequest;
 import alien4cloud.security.User;
 import alien4cloud.security.UserService;
+import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Sets;
@@ -51,6 +52,8 @@ public class UserController {
     private IAlienUserDao alienUserDao;
     @Resource
     private UserService userService;
+    @Resource
+    private GroupService groupService;
     @Resource
     private ResourceRoleService resourceRoleService;
 
@@ -136,8 +139,10 @@ public class UserController {
                             .build()).build();
         }
 
-        alienUserDao.delete(username);
         resourceRoleService.deleteUserRoles(username);
+        groupService.removeUserFromAllGroup(username);
+
+        alienUserDao.delete(username);
         return RestResponseBuilder.<Void> builder().build();
     }
 
