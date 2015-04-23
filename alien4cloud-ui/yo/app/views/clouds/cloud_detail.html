@@ -698,7 +698,7 @@
           </div>
         </div>
       </tab>
-      <tab id="tab-clouds-zone" ng-if="cloud.iaaSType === 'OPENSTACK' || cloud.iaaSType === 'AMAZON'">
+      <tab id="tab-clouds-zone" disabled="cloud.iaaSType !== 'OPENSTACK' && cloud.iaaSType !== 'AMAZON'">
         <tab-heading>
           {{'CLOUDS.ZONE' | translate}}
         </tab-heading>
