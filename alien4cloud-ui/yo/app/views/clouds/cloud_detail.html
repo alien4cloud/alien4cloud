@@ -698,6 +698,71 @@
           </div>
         </div>
       </tab>
+      <tab id="tab-clouds-zone" ng-if="cloud.iaaSType === 'OPENSTACK' || cloud.iaaSType === 'AMAZON'">
+        <tab-heading>
+          {{'CLOUDS.ZONE' | translate}}
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-th"></i> {{'CLOUDS.ZONE' | translate }}
+                  <span ng-if="zoneNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-info-circle text-info"></i> {{zoneNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_MAPPED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-storage-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.ZONES.ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="zone in cloud.availabilityZones" id='cloud_zone_{{zone.id}}'>
+                          <td>{{zone.id}}</td>
+                          <td ng-class="{'has-error': !cloud.availabilityZoneMapping[zone.id]}">
+                            <span ng-if="!cloud.enabled" >{{cloud.availabilityZoneMapping[zone.id] || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="cloud.enabled" editable-text="cloud.availabilityZoneMapping[zone.id]" buttons="no" onaftersave="saveZoneResourceId(zone.id, cloud.availabilityZoneMapping[zone.id])" blur="submit">
+                              {{cloud.availabilityZoneMapping[zone.id]}}
+                              <em ng-if="cloud.availabilityZoneMapping[zone.id] === null || cloud.availabilityZoneMapping[zone.id] === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                          </td>
+                          <td>{{zone.description || '---'}}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteZone(zone)" id="cloud_delete_zone_{{zone.id}}"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-zone-add-button" class="btn btn-success btn-sm pull-right" ng-click="openZoneCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>      
+      
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
         <div class="row" style="margin-bottom:20px;">
           <div class=col-md-12>
