@@ -315,17 +315,11 @@ Scenario: Upload CSAR containing embeded topology template with groups and HA po
   And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
   And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
   And The SPEL expression "groups['compute_scaling_group'].members[0]" should return "compute1"
-<<<<<<< HEAD
   And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 2
   And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
   And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
   And The SPEL expression "groups['compute_scaling_group'].policies[1].name" should return "another_ha_policy"
   And The SPEL expression "groups['compute_scaling_group'].policies[1].type" should return "tosca.policy.ha"  
-=======
-  And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 1
-  And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
-  And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
->>>>>>> e91a4aff682c100d67646de6b5211d100a9215c6
   And The SPEL expression "groups['compute_ha_group'].name" should return "compute_ha_group"
   And The SPEL int expression "groups['compute_ha_group'].members.size()" should return 2
   And The SPEL expression "groups['compute_ha_group'].members[0]" should return "compute1"
