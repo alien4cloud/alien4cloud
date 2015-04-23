@@ -22,6 +22,7 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -468,6 +469,39 @@ public class CloudController {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setStorageResourceId(cloud, storageId, pasSResourceId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    // Begin
+
+    @ApiOperation(value = "Add an availability zone to the given cloud", notes = "Only user with ADMIN role can add an availability zone.")
+    @RequestMapping(value = "/{cloudId}/availability-zones", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> addAvailabilityZone(@PathVariable String cloudId, @RequestBody AvailabilityZone availabilityZone) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.addAvailabilityZone(cloud, availabilityZone);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Remove an availability zone from the given cloud", notes = "Only user with ADMIN role can remove an availability zone.")
+    @RequestMapping(value = "/{cloudId}/availability-zones/{availabilityZoneId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> removeAvailabilityZone(@PathVariable String cloudId, @PathVariable String availabilityZoneId) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.removeAvailabilityZone(cloud, availabilityZoneId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Set the corresponding paaS resource id for the availability zone", notes = "Only user with ADMIN role can set the resource id for an availability zone.")
+    @RequestMapping(value = "/{cloudId}/availability-zones/{availabilityZoneId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> setAvailabilityZoneResourceId(@PathVariable String cloudId, @PathVariable String availabilityZoneId,
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.setAvailabilityZoneResourceId(cloud, availabilityZoneId, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
     }
 }

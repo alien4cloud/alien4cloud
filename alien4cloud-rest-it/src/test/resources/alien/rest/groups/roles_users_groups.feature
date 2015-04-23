@@ -40,6 +40,14 @@ Feature: Creating a new group
     And the group "lordOfRing" should have the following users
       | sauron |
 
+  Scenario: Add a user to a group, remove the user and removing the group should succeed.
+    Given I have added to the group "lordOfRing" users
+      | sauron  |
+    When I delete the user "sauron"
+      Then I should receive a RestResponse with no error
+    When I delete the "lordOfRing" group
+      Then I should receive a RestResponse with no error
+
   Scenario: Adding a role to a group should succeed and update all the related users grouproles.
     Given I have added to the group "lordOfRing" users
       | sauron |

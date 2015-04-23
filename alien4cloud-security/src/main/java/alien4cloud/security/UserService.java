@@ -246,6 +246,9 @@ public class UserService {
 
     public boolean isAdmin(String username) {
         User user = retrieveUser(username);
+        if (user.getRoles() == null) {
+            return false;
+        }
         ArrayList<String> roles = new ArrayList(Arrays.asList(user.getRoles()));
         return roles.contains("ADMIN");
     }
