@@ -1,12 +1,13 @@
 package alien4cloud.cloud;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
@@ -34,17 +35,23 @@ public class CloudResourceTopologyMatchResult {
     private Map<String, CloudImageFlavor> flavors;
 
     /**
-     * This is the product of imageMatchResult and flavorMatchResult
+     * This is the product of imageMatchResult and flavorMatchResult.
+     * Compute template match result contains couple of node template id --> eligible compute templates
      */
-    private Map<String, List<ComputeTemplate>> computeMatchResult;
+    private Map<String, Collection<ComputeTemplate>> computeMatchResult;
 
     /**
      * Image match result contains couple of node template id --> eligible storage templates
      */
-    private Map<String, List<StorageTemplate>> storageMatchResult;
+    private Map<String, Collection<StorageTemplate>> storageMatchResult;
 
     /**
-     * Image match result contains couple of node template id --> eligible network templates
+     * Network match result contains couple of node template id --> eligible network templates
      */
-    private Map<String, List<NetworkTemplate>> networkMatchResult;
+    private Map<String, Collection<NetworkTemplate>> networkMatchResult;
+
+    /**
+     * Match group to a set of availability zone defined on the cloud
+     */
+    private Map<String, Collection<AvailabilityZone>> availabilityZoneMatchResult;
 }

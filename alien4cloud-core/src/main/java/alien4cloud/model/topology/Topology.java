@@ -91,4 +91,6 @@ public class Topology implements IManagedSecuredResource {
     private Map<String, Set<String>> outputAttributes;
     private Map<String, Set<String>> inputArtifacts;
 
+    private Map<String, NodeGroup> groups;
+
 }

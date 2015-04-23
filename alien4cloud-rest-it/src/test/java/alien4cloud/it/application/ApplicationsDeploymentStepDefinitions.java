@@ -76,7 +76,7 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_deploy_it() throws Throwable {
         // deploys the current application on default "Environment"
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
-        Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
     }
 
     private DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
@@ -482,12 +482,6 @@ public class ApplicationsDeploymentStepDefinitions {
         deployApplicationRequest.setApplicationId(Context.getInstance().getApplication().getId());
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
-    }
-
-    @And("^I deploy the application with following properties:$")
-    public void I_deploy_the_application_with_following_properties(DataTable deploymentProperties) throws Throwable {
-        I_give_deployment_properties(deploymentProperties);
-        I_deploy_it();
     }
 
     @And("^The deployment setup of the application should contain following deployment properties:$")

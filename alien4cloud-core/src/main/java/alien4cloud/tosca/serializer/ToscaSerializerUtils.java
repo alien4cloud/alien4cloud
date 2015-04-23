@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -144,11 +143,11 @@ public class ToscaSerializerUtils {
         return apv instanceof FunctionPropertyValue;
     }
 
-    public String getCsvToString(List<?> list) {
+    public String getCsvToString(Collection<?> list) {
         return getCsvToString(list, false);
     }
 
-    public String getCsvToString(List<?> list, boolean renderScalar) {
+    public String getCsvToString(Collection<?> list, boolean renderScalar) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
         if (list != null) {

@@ -23,12 +23,13 @@ public class DeploymentSetupMatchInfo extends DeploymentSetup {
      */
     public DeploymentSetupMatchInfo(DeploymentSetup initFrom) {
         super(initFrom.getId(), initFrom.getVersionId(), initFrom.getEnvironmentId(), initFrom.getProviderDeploymentProperties(),
-                initFrom.getInputProperties(), initFrom.getCloudResourcesMapping(), initFrom.getNetworkMapping(), initFrom.getStorageMapping());
+                initFrom.getInputProperties(), initFrom.getCloudResourcesMapping(), initFrom.getNetworkMapping(), initFrom.getStorageMapping(), initFrom
+                        .getAvailabilityZoneMapping());
     }
 
     @JsonIgnore
     public DeploymentSetup getDeploymentSetup() {
         return new DeploymentSetup(getId(), getVersionId(), getEnvironmentId(), getProviderDeploymentProperties(), getInputProperties(),
-                getCloudResourcesMapping(), getNetworkMapping(), getStorageMapping());
+                getCloudResourcesMapping(), getNetworkMapping(), getStorageMapping(), getAvailabilityZoneMapping());
     }
 }

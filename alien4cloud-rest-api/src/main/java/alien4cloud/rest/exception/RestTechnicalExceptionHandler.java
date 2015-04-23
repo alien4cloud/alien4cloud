@@ -6,7 +6,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.expression.spel.SpelParseException;
+import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
@@ -22,12 +22,14 @@ import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.exception.PaaSDeploymentIOException;
@@ -248,7 +250,18 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> deleteLastApplicationEnvironmentErrorHandler(DeleteLastApplicationEnvironmentException e) {
         log.error("Delete last application environment error", e);
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application version error : " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application environment error : " + e.getMessage())
+                        .build())
+                .build();
+    }
+
+    @ExceptionHandler(value = DeleteLastApplicationVersionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public RestResponse<Void> deleteLastApplicationBersionErrorHandler(DeleteLastApplicationVersionException e) {
+        log.error("Delete last application version error", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.LAST_APPLICATION_VERSION_ERROR).message("Application version error : " + e.getMessage()).build())
                 .build();
     }
 
@@ -263,14 +276,25 @@ public class RestTechnicalExceptionHandler {
                         .message("Application environment delete error : " + e.getMessage()).build()).build();
     }
 
-    @ExceptionHandler(value = SpelParseException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = ExpressionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestResponse<Void> generatePaasIdErrorHandler(SpelParseException e) {
-        log.error("Problem parsing right operand during the generation of PaasId", e);
+    public RestResponse<Void> generatePaasIdErrorHandler(ExpressionException e) {
+        log.error("Problem parsing right operand during the generation of PaasId : ", e);
         return RestResponseBuilder
                 .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR)
                         .message("Problem parsing right operand : " + e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = EmptyMetaPropertyException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> generateEmptyMetaPropertyErrorHandler(EmptyMetaPropertyException e) {
+        log.error("One of meta property is empty and don't have a default value : ", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.EMPTY_META_PROPERTY_ERROR)
+                        .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build())
+                .build();
     }
 }

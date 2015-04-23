@@ -1,5 +1,6 @@
 package alien4cloud.cloud;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -26,6 +28,7 @@ import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSProvider;
@@ -105,9 +108,9 @@ public class CloudResourceMatcherService {
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud, IPaaSProvider paaSProvider,
             CloudResourceMatcherConfig cloudResourceMatcherConfig, Map<String, IndexedNodeType> types) {
         MatchableTemplates matchableNodes = getMatchableTemplates(topology, types);
-        Map<String, List<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
-        Map<String, List<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
-        Map<String, List<StorageTemplate>> storageMatchResult = Maps.newHashMap();
+        Map<String, Collection<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
+        Map<String, Collection<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
+        Map<String, Collection<StorageTemplate>> storageMatchResult = Maps.newHashMap();
         Set<String> imageIds = Sets.newHashSet();
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> computeTemplateEntry : matchableNodes.computeTemplates.entrySet()) {
@@ -134,10 +137,21 @@ public class CloudResourceMatcherService {
             networkMatchResult.put(networkTemplateEntry.getKey(), matchNetworks(cloud, cloudResourceMatcherConfig, networkTemplateEntry.getValue()));
         }
         for (Map.Entry<String, NodeTemplate> storageTemplateEntry : matchableNodes.storageTemplates.entrySet()) {
-            storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, cloudResourceMatcherConfig, storageTemplateEntry.getValue()));
+            storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, storageTemplateEntry.getValue()));
+        }
+        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        Map<String, Collection<AvailabilityZone>> availabilityZoneMatchResult = Maps.newHashMap();
+        Map<String, NodeGroup> nodeGroups = topology.getGroups();
+        for (Map.Entry<String, NodeGroup> nodeGroupEntry : nodeGroups.entrySet()) {
+            // As HA rule is 50 % for the moment, we need at least 2 availability zones
+            if (availabilityZones == null || availabilityZones.size() < 2) {
+                availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), Sets.<AvailabilityZone> newHashSet());
+            } else {
+                availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), availabilityZones);
+            }
         }
         return new CloudResourceTopologyMatchResult(cloudImageService.getMultiple(imageIds), flavorMap, templateMatchResult, storageMatchResult,
-                networkMatchResult);
+                networkMatchResult, availabilityZoneMatchResult);
     }
 
     public List<NetworkTemplate> matchNetworks(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
@@ -162,7 +176,7 @@ public class CloudResourceMatcherService {
         return eligibleNetworks;
     }
 
-    public List<StorageTemplate> matchStorages(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
+    public List<StorageTemplate> matchStorages(Cloud cloud, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> storageProperties = nodeTemplate.getProperties();
         Set<StorageTemplate> existingStorages = cloud.getStorages();
         List<StorageTemplate> eligibleStorages = Lists.newArrayList();

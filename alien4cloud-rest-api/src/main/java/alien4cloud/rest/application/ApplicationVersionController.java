@@ -21,6 +21,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
@@ -168,9 +169,12 @@ public class ApplicationVersionController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        appVersionService.getOrFail(applicationVersionId);
         if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
-            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId
-                    + "> could not be found deleted beacause it's used");
+            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted beacause it's used");
+        } else if (appVersionService.getByApplicationId(applicationId).length == 1) {
+            throw new DeleteLastApplicationVersionException("Application version with id <" + applicationVersionId
+                    + "> can't be be deleted beacause it's the last application version.");
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();

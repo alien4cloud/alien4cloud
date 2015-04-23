@@ -155,7 +155,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.editorContent = '';
     var outputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
-    var regexPatternn = '^[\\w_]*$';
+    var regexPatternn = '^[A-Za-z0-9\\-]*$';
 
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
 

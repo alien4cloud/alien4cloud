@@ -1,5 +1,6 @@
 package alien4cloud.model.application;
 
+import java.util.Collection;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
@@ -46,4 +48,6 @@ public class DeploymentSetup {
     private Map<String, NetworkTemplate> networkMapping;
 
     private Map<String, StorageTemplate> storageMapping;
+
+    private Map<String, Collection<AvailabilityZone>> availabilityZoneMapping;
 }

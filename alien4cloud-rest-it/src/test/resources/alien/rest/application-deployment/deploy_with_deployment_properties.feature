@@ -14,11 +14,12 @@ Feature: Deploy an application with deployment properties
   Scenario: Deploy an application with deployment properties on mock-paas-provider
     Given I have an application with name "ALIEN"
     And I assign the cloud with name "mock cloud" for the application
-    When I deploy the application with following properties:
+    When I give deployment properties:
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 1                       |
       | managerEmail  | admin@alien.fr          |
-    Then I should receive a RestResponse with no error
+    Then I deploy it
+      Then I should receive a RestResponse with no error
     And The application's deployment must succeed
     And The deployment setup of the application should contain following deployment properties:
       | managementUrl | http://cloudifyurl:8099 |
@@ -28,7 +29,8 @@ Feature: Deploy an application with deployment properties
   Scenario: Deploy an application with bad deployment properties on mock-paas-provider
     Given I have an application with name "ALIEN"
     And I assign the cloud with name "mock cloud" for the application
-    And I deploy the application with following properties:
+    And I give deployment properties:
       | managementUrl | http://cloudifyurl:8099 |
       | numberBackup  | 0                       |
-    Then I should receive a RestResponse with an error code 800
+    Then I deploy it
+      Then I should receive a RestResponse with an error code 800

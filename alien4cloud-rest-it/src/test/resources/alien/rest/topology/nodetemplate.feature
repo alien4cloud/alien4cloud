@@ -42,6 +42,11 @@ Feature: Manage Nodetemplates of a topology
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template2"
+    
+  Scenario: Update a nodetemplate's name with a improper name from a topology should failed
+    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
+    When I update the node template's name from "Template1" to "Template2_"
+      Then I should receive a RestResponse with an error code 506
 
   Scenario: Update a nodetemplate's property from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type

@@ -96,7 +96,9 @@
       "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
       "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
-      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here."
+      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
+      "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
+      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -416,7 +418,7 @@
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
+      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
     },
     "ENVIRONMENT": {
@@ -675,6 +677,8 @@
     },
     "372": "Error in naming policy of deployment.",
     "373": "Unexpected error happened while switching on / off maintenance mode ",
+    "374": "One of your meta-property is empty and does not have a default value.",
+    "390": "It's forbidden to remove the last admin user.",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
@@ -690,6 +694,7 @@
     "607": "A deployed environment can not be deleted",
     "608": "Only SNAPSHOT applications can be modified",
     "609": "PaaS provider unreachable after triggering the deployment",
+    "610": "An application must necessarily have at least one version",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",

@@ -103,7 +103,9 @@
       "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
-      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici."
+      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
+      "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -424,7 +426,7 @@
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, _, sans espace",
+      "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, des tirets et sans espace.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
     },
     "ENVIRONMENT": {
@@ -682,6 +684,8 @@
     },
     "372": "Erreur dans la nomenclature des noms de déploiement.",
     "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
+    "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
+    "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",
@@ -697,6 +701,7 @@
     "605": "Le format de version saisie est invalide",
     "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
     "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
+    "610": "Une application doit nécéssairement avoir au moins une version",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
