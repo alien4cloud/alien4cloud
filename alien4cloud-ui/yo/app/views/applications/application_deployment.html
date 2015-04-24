@@ -33,7 +33,6 @@
           <p class="text-danger">{{ 'APPLICATIONS.DEPLOYMENT_MANAGER_INVALID' | translate }}</p>
         </div>
         <!-- END : DEPLOYMENT_MANAGER specific -->
-
       </div>
 
       <div class="col-md-4" style="padding-top: 25px;">
@@ -340,9 +339,9 @@
             </span>
           </tab-heading>
           <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4" style="padding-right: 0px;">
               <div class="table-responsive large-data-container">
-                <table class="table table-hover">
+                <table class="table table-hover table-responsive">
                   <thead>
                     <tr>
                       <th></th>
@@ -353,7 +352,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)" class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
-                      <td>
+                      <td class="image-in-table-responsive">
                         <img ng-src="{{getResourceIcon(computeImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
@@ -366,7 +365,7 @@
             </div>
             <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
               <div class="table-responsive large-data-container">
-                <table class="table table-hover">
+                <table class="table table-hover table-responsive">
                   <thead>
                     <tr>
                       <th></th>
@@ -382,7 +381,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media" ng-class="{'info' : isSelectedCompute(template)}" ng-click="changeSelectedImage(template)">
-                      <td ng-init="cloudImageId = images[template.cloudImageId].iconId">
+                      <td ng-init="cloudImageId = images[template.cloudImageId].iconId" class="image-in-table-responsive">
                         <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
                         <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
                       </td>
@@ -421,7 +420,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedNetworkResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedNetworks(key, templates)" class="clickable-media" ng-class="{'info': isSelectedNetworkName(key), 'danger': !selectedNetworks[key]}">
-                      <td>
+                      <td class="image-in-table-responsive">
                         <img ng-src="{{getResourceIcon(networkImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
@@ -433,7 +432,7 @@
             </div>
             <div class="col-md-8" ng-if="currentMatchedNetworks">
               <div class="table-responsive large-data-container">
-                <table class="table table-hover">
+                <table class="table table-hover table-responsive">
                   <thead>
                     <tr>
                       <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
@@ -467,7 +466,7 @@
           <div class="row">
             <div class="col-md-4">
               <div class="table-responsive large-data-container">
-                <table class="table table-hover">
+                <table class="table table-hover table-responsive">
                   <thead>
                     <tr>
                       <th></th>
@@ -477,7 +476,7 @@
                   </thead>
                   <tbody>
                     <tr ng-repeat="(key, templates) in matchedStorageResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedStorages(key, templates)" class="clickable-media" ng-class="{'info': isSelectedStorageName(key), 'danger': !selectedStorages[key]}">
-                      <td>
+                      <td class="image-in-table-responsive">
                         <img ng-src="{{getResourceIcon(storageImage, key)}}" />
                       </td>
                       <td>{{key}}</td>
