@@ -29,10 +29,13 @@ public class AvailabilityZoneAllocator {
         Map<String, AvailabilityZone> haComputeMap = Maps.newHashMap();
         if (groups != null) {
             for (Map.Entry<String, List<PaaSNodeTemplate>> groupEntry : groups.entrySet()) {
+                if (deploymentSetup.getAvailabilityZoneMapping() == null) {
+                    throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
+                }
                 Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 Collection<AvailabilityZone> availabilityZones = deploymentSetup.getAvailabilityZoneMapping().get(groupEntry.getKey());
                 if (availabilityZones == null || availabilityZones.size() < 2) {
-                    throw new ResourceMatchingFailedException("Need at least 2 availability zones defined to process allocation");
+                    throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
                 }
                 for (AvailabilityZone availabilityZone : availabilityZones) {
                     availabilityZoneRepartition.put(availabilityZone, 0);
