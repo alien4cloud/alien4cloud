@@ -610,6 +610,7 @@ public class CloudService {
         config.setFlavorMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getFlavors()), cloud.getFlavorMapping()));
         config.setNetworkMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getNetworks()), cloud.getNetworkMapping()));
         config.setStorageMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getStorages()), cloud.getStorageMapping()));
+        config.setAvailabilityZoneMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getAvailabilityZones()), cloud.getAvailabilityZoneMapping()));
         return config;
     }
 
