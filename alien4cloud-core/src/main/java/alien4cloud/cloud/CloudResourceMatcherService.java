@@ -139,7 +139,12 @@ public class CloudResourceMatcherService {
         for (Map.Entry<String, NodeTemplate> storageTemplateEntry : matchableNodes.storageTemplates.entrySet()) {
             storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, storageTemplateEntry.getValue()));
         }
-        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        Set<AvailabilityZone> availabilityZones = Sets.newHashSet();
+        for (AvailabilityZone zone : cloud.getAvailabilityZones()) {
+            if (cloud.getAvailabilityZoneMapping() != null && cloud.getAvailabilityZoneMapping().containsKey(zone.getId())) {
+                availabilityZones.add(zone);
+            }
+        }
         Map<String, Collection<AvailabilityZone>> availabilityZoneMatchResult = Maps.newHashMap();
         Map<String, NodeGroup> nodeGroups = topology.getGroups();
         if (nodeGroups != null) {
