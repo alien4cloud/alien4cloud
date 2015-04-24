@@ -512,6 +512,54 @@
             </div>
           </div>
         </tab>
+        
+        <tab id="tab-zone-resources">
+          <tab-heading>
+            {{'CLOUDS.ZONE' | translate}}
+            <span ng-if="hasUnmatchedGroup">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_GROUP' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, zones) in matchedZoneResources" id="{{'tr-node-' + key}}" ng-click="setCurrentGroup(key)" class="clickable-media" ng-class="{'danger': !hasEnoughSelectedZones(key), 'info': isSelectedGroup(key)}">
+                      <td>{{key}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" >
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ZONE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DESCRIPTION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="zone in currentMatchedZones track by zone.id" class="clickable-media" ng-class="{'info' : isSelectedZone(zone)}" ng-click="changeSelectedZone(zone)">
+                      <td><i class="{{ isSelectedZone(zone) ? 'fa fa-check-square-o' : 'fa fa-square-o' }}"></i></input></td>
+                      <td>{{zone.id}}</td>
+                      <td>{{zone.description}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+                
       </tabset>
     </div>
   </div>

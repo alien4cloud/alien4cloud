@@ -127,11 +127,13 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         delete $scope.currentMatchedStorages;
         delete $scope.currentMatchedNetworks;
         delete $scope.currentMatchedComputeTemplates;
+        delete $scope.currentMatchedZones;
         $scope.setup = response.data;
         // update resource matching data.
         $scope.selectedComputeTemplates = $scope.setup.cloudResourcesMapping;
         $scope.selectedNetworks = $scope.setup.networkMapping;
         $scope.selectedStorages = $scope.setup.storageMapping;
+        $scope.selectedZones = $scope.setup.availabilityZoneMapping;
 
         // update configuration of the PaaSProvider associated with the deployment setup
         $scope.deploymentProperties = $scope.setup.providerDeploymentProperties;
@@ -142,41 +144,50 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
           $scope.matchedComputeResources = response.data.matchResult.computeMatchResult;
           $scope.matchedNetworkResources = response.data.matchResult.networkMatchResult;
           $scope.matchedStorageResources = response.data.matchResult.storageMatchResult;
+          $scope.matchedZoneResources = response.data.matchResult.availabilityZoneMatchResult;
           $scope.images = response.data.matchResult.images;
           $scope.flavors = response.data.matchResult.flavors;
         } else {
           delete $scope.matchedComputeResources;
           delete $scope.matchedNetworkResources;
           delete $scope.matchedStorageResources;
+          delete $scope.matchedZoneResources;
           delete $scope.images;
           delete $scope.flavors;
           return;
         }
 
-        var key;
-        for (key in $scope.matchedComputeResources) {
-          if ($scope.matchedComputeResources.hasOwnProperty(key) && !($scope.selectedComputeTemplates && $scope.selectedComputeTemplates.hasOwnProperty(key))) {
-            $scope.hasUnmatchedCompute = true;
-            break;
-          }
-        }
-        $scope.hasUnmatchedNetwork = false;
-        for (key in $scope.matchedNetworkResources) {
-          if ($scope.matchedNetworkResources.hasOwnProperty(key) && !($scope.selectedNetworks && $scope.selectedNetworks.hasOwnProperty(key))) {
-            $scope.hasUnmatchedNetwork = true;
-            break;
-          }
-        }
-        $scope.hasUnmatchedStorage = false;
-        for (key in $scope.matchedStorageResources) {
-          if ($scope.matchedStorageResources.hasOwnProperty(key) && !($scope.selectedStorages && $scope.selectedStorages.hasOwnProperty(key))) {
-            $scope.hasUnmatchedStorage = true;
-            break;
-          }
-        }
+        $scope.hasUnmatchedCompute = hasUmatchedResource($scope.matchedComputeResources, $scope.selectedComputeTemplates);
+        $scope.hasUnmatchedNetwork = hasUmatchedResource($scope.matchedNetworkResources, $scope.selectedNetworks);
+        $scope.hasUnmatchedStorage = hasUmatchedResource($scope.matchedStorageResources, $scope.selectedStorages);
+        checkGroupZonesAssociation();
       });
     }
 
+    var checkGroupZonesAssociation = function() {
+      // since we manage 50 HA policies, we need at least 2 zone per group
+      // TODO: find a better way to express that
+      $scope.hasUnmatchedGroup = hasUmatchedResource($scope.matchedZoneResources, $scope.selectedZones, CONSTANTS.minimumZoneCountPerGroup);
+    }
+    $scope.hasEnoughSelectedZones = function(groupId) {
+      return $scope.selectedZones[groupId] && ($scope.selectedZones[groupId].length >= CONSTANTS.minimumZoneCountPerGroup);
+    }
+    
+    var hasUmatchedResource = function(matchedResources, selectedResources, minimumSize) {
+      var key;
+      for (key in matchedResources) {
+        if (matchedResources.hasOwnProperty(key) && !(selectedResources && selectedResources.hasOwnProperty(key))) {
+          return true;
+        }
+        if (minimumSize != undefined) {
+          if (selectedResources[key].length < minimumSize) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+    
     // Change the selected environment (set only if required).
     var changeEnvironment = function(switchToEnvironment) {
       if (UTILS.isDefinedAndNotNull(switchToEnvironment) && switchToEnvironment.id !== $scope.selectedEnvironment.id) {
@@ -192,6 +203,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         $scope.selectedComputeTemplates = {};
         $scope.selectedNetworks = {};
         $scope.selectedStorages = {};
+        $scope.selectedZones = {};
         var updateAppEnvRequest = {};
         updateAppEnvRequest.cloudId = switchToCloud.id;
         // update for the current environment
@@ -235,6 +247,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.currentStorageNodeTemplateId = name;
       $scope.currentMatchedStorages = currentMatchedStorages;
     };
+    
+    $scope.setCurrentGroup = function(name) {
+      $scope.currentGroupId = name;
+      $scope.currentMatchedZones = $scope.matchedZoneResources[name];
+    };
 
     $scope.changeSelectedNetwork = function(template) {
       $scope.selectedNetworks[$scope.currentNetworkNodeTemplateId] = template;
@@ -268,6 +285,23 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         cloudResourcesMapping: $scope.selectedComputeTemplates
       }));
     };
+    
+    $scope.changeSelectedZone = function(zone) {
+      var idx = UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id);
+      if (idx < 0) {
+        $scope.selectedZones[$scope.currentGroupId].push(zone);
+      } else {
+        $scope.selectedZones[$scope.currentGroupId].splice(idx, 1);
+      }
+      checkGroupZonesAssociation();
+      // Update deployment setup when matching change
+      applicationServices.updateDeploymentSetup({
+        applicationId: $scope.application.id,
+        applicationEnvironmentId: $scope.selectedEnvironment.id
+      }, angular.toJson({
+        availabilityZoneMapping: $scope.selectedZones
+      }));
+    };    
 
     $scope.showProperty = function() {
       return !$scope.showTodoList() && UTILS.isDefinedAndNotNull($scope.deploymentPropertyDefinitions);
@@ -304,6 +338,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       return key === $scope.currentStorageNodeTemplateId;
     };
 
+    $scope.isSelectedGroup = function(key) {
+      return key === $scope.currentGroupId;
+    };
+    
+    $scope.isSelectedZone = function(zone) {
+      return UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id) > -1;
+    };
+    
     $scope.isAllowedInputDeployment = function() {
       return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
     };

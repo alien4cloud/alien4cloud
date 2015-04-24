@@ -339,6 +339,8 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Network's name",
       "TITLE_STORAGE": "Block storage's name",
+      "TITLE_GROUP": "Group",
+      "TITLE_ZONE": "Zone",
       "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",

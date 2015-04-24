@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Setter
 public class DeploymentSetupMatchInfo extends DeploymentSetup {
     private boolean isValid;
+
     private CloudResourceTopologyMatchResult matchResult;
 
     /** Default constructor for de-serialization */
