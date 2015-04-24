@@ -42,7 +42,10 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.HaPolicy;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -1037,6 +1040,114 @@ public class TopologyController {
 
         log.debug("Renaiming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", relationshipName, newRelationshipName,
                 nodeTemplateName, topologyId);
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> updateGroupName(@PathVariable String topologyId, @PathVariable String groupName,
+            @RequestParam(value = "newName") String newGroupName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        if (groupName.equals(newGroupName)) {
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        }
+
+        if (topology.getGroups().containsKey(newGroupName)) {
+            // throw an exception : the new name is already used
+        }
+
+        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
+        if (nodeGroup != null) {
+            nodeGroup.setName(newGroupName);
+            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
+                if (nodeTemplate.getGroups() != null) {
+                    if (nodeTemplate.getGroups().remove(groupName)) {
+                        nodeTemplate.getGroups().add(newGroupName);
+                    }
+                }
+            }
+            topology.getGroups().put(newGroupName, nodeGroup);
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> deleteNodeGroup(@PathVariable String topologyId, @PathVariable String groupName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
+        if (nodeGroup != null) {
+            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
+                if (nodeTemplate.getGroups() != null) {
+                    nodeTemplate.getGroups().remove(groupName);
+                }
+            }
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Add a node to a node group. If the group doesn't exists, it's created.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> addNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        NodeGroup nodeGroup = topology.getGroups().get(groupName);
+        if (nodeGroup == null) {
+            nodeGroup = new NodeGroup();
+            nodeGroup.setName(groupName);
+            Set<String> members = Sets.newHashSet();
+            nodeGroup.setMembers(members);
+            List<AbstractPolicy> policies = Lists.newArrayList();
+            // For the moment, groups are created only for HA
+            AbstractPolicy policy = new HaPolicy();
+            policy.setName("High Availability");
+            policies.add(policy);
+            nodeGroup.setPolicies(policies);
+            topology.getGroups().put(groupName, nodeGroup);
+        }
+        nodeGroup.getMembers().add(nodeName);
+
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        if (nodeTemplate != null && nodeTemplate.getGroups() != null) {
+            nodeTemplate.getGroups().add(groupName);
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Remove a node from a node group.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> removeNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        NodeGroup nodeGroup = topology.getGroups().get(groupName);
+        if (nodeGroup != null && nodeGroup.getMembers() != null) {
+            nodeGroup.getMembers().remove(nodeName);
+        }
+
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        if (nodeTemplate != null && nodeTemplate.getGroups() != null) {
+            nodeTemplate.getGroups().remove(groupName);
+        }
 
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();

@@ -423,6 +423,11 @@
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds"
       },
+      "GROUPS" : {
+        "TITLE": "Groupes",
+        "MEMBERS": "Membres",
+        "POLICIES": "Politiques"
+      },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",

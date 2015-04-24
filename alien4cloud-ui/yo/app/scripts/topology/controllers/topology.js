@@ -62,6 +62,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         active: false,
         size: 400
       },
+      groups: {
+        active: false,
+        size: 400
+      },      
       component: {
         active: false,
         size: 400
@@ -100,6 +104,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
               displayOnly(['topology', 'component', 'inputs']);
             }
             break;
+          case 'groups':
+            if (!$scope.displays.component.active) {
+              displayOnly(['topology', 'groups']);
+            } else {
+              displayOnly(['topology', 'component', 'groups']);
+            }
+            break;            
           case 'component':
             if (!$scope.displays.inputs.active) {
               displayOnly(['topology', 'component']);
@@ -230,6 +241,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       topologyId: $scope.topologyId
     }, function(successResult) {
       refreshTopology(successResult.data);
+      // init the group collapse indicators
+      $scope.groupCollapsed = {};
+      angular.forEach($scope.topology.topology.groups, function(value, key) {
+        $scope.groupCollapsed[key] = { main: false, members: true, policies: true };
+      });
+      
     });
 
     $scope.isNodeTemplateCollapsed = false;
@@ -1223,5 +1240,45 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.checkMapSize = function(map) {
       return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
     };
+    
+    $scope.deleteNodeGroup = function(groupId) {
+      topologyServices.nodeGroups.remove({
+        topologyId: $scope.topology.topology.id,
+        groupId: groupId
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });
+    }
+    
+    $scope.updateNodeGroupName = function(groupId, name) {
+      topologyServices.nodeGroups.rename({
+        topologyId: $scope.topology.topology.id,
+        groupId: groupId
+      }, { newName: name }, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          if ($scope.groupCollapsed[groupId]) {
+            $scope.groupCollapsed[name] = $scope.groupCollapsed[groupId]; 
+            delete $scope.groupCollapsed[groupId];
+          }          
+        }
+      });      
+    }
+    
+    $scope.deleteNodeGroupMember = function(groupId, member) {
+      topologyServices.nodeGroups.removeMember({
+        topologyId: $scope.topology.topology.id,
+        groupId: groupId,
+        nodeTemplateName: member
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });
+    }
+    
+    
   }
 ]);

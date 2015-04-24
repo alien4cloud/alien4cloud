@@ -415,6 +415,11 @@
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
       },
+      "GROUPS" : {
+        "TITLE": "Groups",
+        "MEMBERS": "Members",
+        "POLICIES": "Policies"
+      },      
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",

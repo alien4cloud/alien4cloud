@@ -385,6 +385,20 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var nodeGroupsResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId', {}, {
+      'rename': {
+        method: 'PUT',
+        params: {
+          newName: '@newName'
+        }
+      },
+      'remove': {
+        method: 'DELETE'
+      }
+    });
+    
+    var nodeGroupMembersResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId/members/:nodeTemplateName');
+    
     return {
       'dao': topologyDAO,
       'inputs': updateInput,
@@ -418,6 +432,12 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       'relationship': {
         'updateName': updateRelationshipName.updateName,
         'updateProperty': updateRelationshipProperty.updateProperty
+      },
+      'nodeGroups': {
+        'rename': nodeGroupsResource.rename,
+        'remove': nodeGroupsResource.remove,
+        'addMember': nodeGroupMembersResource.save,
+        'removeMember': nodeGroupMembersResource.remove
       },
       'isValid': isValid.get,
       'getYaml': yaml.get,
