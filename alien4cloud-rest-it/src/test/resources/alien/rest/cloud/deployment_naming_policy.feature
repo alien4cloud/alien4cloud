@@ -8,7 +8,7 @@ Background:
 Scenario: Update the naming policy of deployment
   When I list clouds
   Then I should receive a RestResponse with no error
-    And Response should contains a cloud with deploymentNamePattern "environment.name + application.name"
+    And Response should contains a cloud with deploymentNamePattern "application.name + '-' + environment.name"
   When I update deployment name pattern of "Mount doom cloud" to "environment.name"
     Then I should receive a RestResponse with no error
   When I list clouds
