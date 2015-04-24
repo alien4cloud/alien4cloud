@@ -211,14 +211,16 @@ public class CloudResourceMatcherService {
                 // Only consider matched resources
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_ARCH, cloudImage.getOsArch(), new TextValueParser(), new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_ARCH, cloudImage.getOsArch(), new TextValueParser(),
+                    new StringIngoreCaseEqualMatcher())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_DISTRIBUTION, cloudImage.getOsDistribution(), new TextValueParser(),
-                    new EqualMatcher<String>())) {
+                    new StringIngoreCaseEqualMatcher())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(), new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(),
+                    new StringIngoreCaseEqualMatcher())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_VERSION, VersionUtil.parseVersion(cloudImage.getOsVersion()),
@@ -372,6 +374,13 @@ public class CloudResourceMatcherService {
         public boolean matchValue(T expected, T actual) {
             // Actual must be equal strictly as expected
             return expected.equals(actual);
+        }
+    }
+
+    private static class StringIngoreCaseEqualMatcher implements ValueMatcher<String> {
+        @Override
+        public boolean matchValue(String expected, String actual) {
+            return expected.equalsIgnoreCase(actual);
         }
     }
 
