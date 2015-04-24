@@ -393,6 +393,7 @@
       "SCALING_POLICY": "Scaling",
       "NAME": "Nom",
       "DESC": "Description",
+      "DESC_TEMPLATE": "Topology template description",
       "SEARCH_RELATIONSHIP_MODAL": {
         "NO_TARGETS": "No elements in the topology can satisfy the requirement.",
         "SELECT_TARGET_HEADER": "Select relationship's target",
@@ -580,7 +581,7 @@
     "ZONES": {
       "ID": "Identifiant",
       "NEW_MODAL_TITLE": "Créer une nouvelle zone"
-    },    
+    },
     "IAAS": {
       "OTHER": "Other",
       "OPENSTACK": "OpenStack",

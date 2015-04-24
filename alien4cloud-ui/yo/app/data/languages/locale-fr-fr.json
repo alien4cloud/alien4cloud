@@ -401,6 +401,7 @@
       "SCALING_POLICY": "Scaling",
       "NAME": "Nom",
       "DESC": "Description",
+      "DESC_TEMPLATE": "Description du modèle",
       "SEARCH_RELATIONSHIP_MODAL": {
         "NO_TARGETS": "Aucun element de la topologie ne peut satisfaire la dépendance.",
         "SELECT_TARGET_HEADER": "Sélectionnez la cible pour la relation",
