@@ -21,7 +21,6 @@ Feature: Create cloud storages
     And I match the storage with name "STORAGE2" of the cloud "Mount doom cloud" to the PaaS resource "alienSTORAGE2"
     And I am authenticated with user named "sangoku"
     And I have an application "ALIEN" with a topology containing a nodeTemplate "ConfigurableBlockStorage" related to "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT"
-    And I add a node template "ConfigurableBlockStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I assign the cloud with name "Mount doom cloud" for the application
 
   Scenario: Match a topology for storage, no filter
