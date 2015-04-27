@@ -53,6 +53,7 @@
                      src="images/abstract_ico.png" />
               </h3>
             </div>
+            
             <!-- buttons group div -->
             <div class="col-md-4" style="margin-top: 6px;">
               <div class="pull-right">
@@ -122,6 +123,49 @@
               </div>
             </div>
           </div>
+          
+          <!-- Groups -->
+          <div ng-init="isGroupsCollapsed = true">
+            <div id="node-details-groups" class="topology-node-expand clickable">
+              <h4>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}" ng-click="isGroupsCollapsed = !isGroupsCollapsed"></i>
+                {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
+                <div class="btn-group pull-right" data-toggle="buttons">
+                  <a id="node_groups_{{selectedNodeTemplate.name}}"
+                     class="btn btn-default btn-xs dropdown-toggle"
+                     tooltip="{{ 'APPLICATIONS.TOPOLOGY.GROUPS.TOOLTIP' | translate}}"
+                     tooltip-append-to-body="true" tooltip-placement="left">
+                    <i class="fa fa-list-alt"></i>
+                  </a>                
+		              <ul class="dropdown-menu dropdown-menu-left" role="menu">
+		                <li>
+		                  <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="createGroupWithMember(selectedNodeTemplate.name)">
+		                    <strong>{{'APPLICATIONS.TOPOLOGY.GROUPS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
+		                  </a>
+		                </li>
+		                <li ng-repeat="(groupId, group) in topology.topology.groups">
+		                  <a id="{{selectedNodeTemplate.name}}_memberOf_{{groupId}}" ng-click="toggleNodeGroupMember(groupId, selectedNodeTemplate.name)">
+		                    <i class="fa fa-fw"
+		                       ng-class="{'fa-check-square-o' : isNodeMemberOf(selectedNodeTemplate.name, groupId),  'fa-square-o': !isNodeMemberOf(selectedNodeTemplate.name, groupId)}"></i>
+		                    {{groupId}}
+		                  </a>
+		                </li>
+		              </ul>
+                </div>           
+              </h4>
+            </div> 
+            <span class="clearfix"></span>                       
+            <div id="node-details-groups-panel" collapse="isGroupsCollapsed" class="topology-level">
+	            <div ng-repeat="groupId in selectedNodeTemplate.groups">
+              <li>{{groupId}}
+               <delete-confirm id="btn-removeMember-{{groupId}}" func="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
+               </delete-confirm>                    
+              </li>
+              <span class="clearfix"></span>	            
+	            </div>
+            </div>
+          </div>
+                    
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
             <div id="node-details-properties" class="topology-node-expand clickable"

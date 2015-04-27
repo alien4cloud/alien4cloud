@@ -1279,6 +1279,37 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     }
     
+    $scope.isNodeMemberOf = function(nodeName, groupId) {
+      return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
+    }
+    
+    $scope.createGroupWithMember = function(nodeName) {
+      topologyServices.nodeGroups.addMember({
+        topologyId: $scope.topology.topology.id,
+        groupId: nodeName,
+        nodeTemplateName: nodeName
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });      
+    }
+    
+    $scope.toggleNodeGroupMember = function(groupId, nodeName) {
+      if ($scope.isNodeMemberOf(nodeName, groupId)) {
+        $scope.deleteNodeGroupMember(groupId, nodeName);
+      } else {
+        topologyServices.nodeGroups.addMember({
+          topologyId: $scope.topology.topology.id,
+          groupId: groupId,
+          nodeTemplateName: nodeName
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });         
+      }
+    }    
     
   }
 ]);
