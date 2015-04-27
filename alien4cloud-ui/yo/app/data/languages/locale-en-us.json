@@ -418,7 +418,8 @@
       "GROUPS" : {
         "TITLE": "Groups",
         "MEMBERS": "Members",
-        "POLICIES": "Policies"
+        "POLICIES": "Policies",
+        "ADD": "Add a group"
       },      
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",

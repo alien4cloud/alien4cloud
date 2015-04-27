@@ -426,7 +426,8 @@
       "GROUPS" : {
         "TITLE": "Groupes",
         "MEMBERS": "Membres",
-        "POLICIES": "Politiques"
+        "POLICIES": "Politiques",
+        "ADD": "Ajouter un groupe"
       },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
