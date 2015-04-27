@@ -32,11 +32,11 @@ public class AvailabilityZoneAllocator {
                 if (deploymentSetup.getAvailabilityZoneMapping() == null) {
                     throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
                 }
-                Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 Collection<AvailabilityZone> availabilityZones = deploymentSetup.getAvailabilityZoneMapping().get(groupEntry.getKey());
                 if (availabilityZones == null || availabilityZones.size() < 2) {
                     throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
                 }
+                Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 for (AvailabilityZone availabilityZone : availabilityZones) {
                     availabilityZoneRepartition.put(availabilityZone, 0);
                 }
@@ -52,7 +52,6 @@ public class AvailabilityZoneAllocator {
         AvailabilityZone leastUsed = null;
         int leastUsedCount = 0;
         for (Map.Entry<AvailabilityZone, Integer> repartitionEntry : availabilityZoneRepartition.entrySet()) {
-            repartitionEntry.getKey();
             if (leastUsed == null || leastUsedCount > repartitionEntry.getValue()) {
                 leastUsed = repartitionEntry.getKey();
                 leastUsedCount = repartitionEntry.getValue();

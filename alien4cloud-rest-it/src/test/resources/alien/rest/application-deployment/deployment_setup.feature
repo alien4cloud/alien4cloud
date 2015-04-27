@@ -86,3 +86,10 @@ Feature: Deployment setup feature.
       | NewConfigurableBlockStorage | STORAGE1 | /etc/dev1 | 1024 |
     When I update the node template "NewConfigurableBlockStorage"'s property "device" to "/etc/dev2"
     Then The deployment setup of the application should contain an empty storage mapping
+
+  Scenario: Select an availability zone for a group
+    When I select the availability zone with name "paris" for my group "HA_group"
+    Then I should receive a RestResponse with no error
+    And The deployment setup of the application should contain following availability zone mapping:
+      | HA_group | paris    | Data-center at Paris    |
+      | HA_group | toulouse | Data-center at Toulouse |
