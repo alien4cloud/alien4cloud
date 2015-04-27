@@ -138,6 +138,10 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var nodes = layout.nodes;
         var links = layout.links;
 
+        // remove the group bullets
+        var nodeGroupSelection = this.svg.selectAll('.node-template-group');
+        nodeGroupSelection.remove();
+        
         var nodeSelection = this.svg.selectAll('.node-template').data(nodes, function(node) { return node.id; });
 
         // update existing nodes
@@ -156,7 +160,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
         // remove destroyed nodes.
         nodeSelection.exit().remove();
-
+        
         this.drawLink(this.svg, links);
       },
 
@@ -199,7 +203,8 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var oY = -(this.nodeRenderer.height / 2);
         var nodeTemplate = this.topology.topology.nodeTemplates[node.id];
         var nodeType = this.topology.nodeTypes[nodeTemplate.type];
-
+        var instance = this;
+        
         // update location
         nodeGroup.attr('transform', function(d) {
           return 'translate(' + d.coordinate.x + ',' + d.coordinate.y + ')';
@@ -238,6 +243,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
             scalingPolicySelection.remove();
           }
         }
+        
       },
 
       tooltip: function (node) {

@@ -157,7 +157,8 @@
             <span class="clearfix"></span>                       
             <div id="node-details-groups-panel" collapse="isGroupsCollapsed" class="topology-level">
 	            <div ng-repeat="groupId in selectedNodeTemplate.groups">
-              <li>{{groupId}}
+              <li>
+               <span style="color:{{getGroupColor(groupId)}}">{{groupId}}</span>
                <delete-confirm id="btn-removeMember-{{groupId}}" func="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
                </delete-confirm>                    
               </li>
@@ -759,7 +760,7 @@
             <div id="group-details-{{groupId}}-header" class="topology-node-expand clickable">
               <h4>
                 <i class="pull-left fa clickable" ng-class="{'fa-chevron-down' : !groupCollapsed[groupId].main, 'fa-chevron-right': groupCollapsed[groupId].main}" 
-                ng-click="groupCollapsed[groupId].main = !groupCollapsed[groupId].main"></i>
+                ng-click="groupCollapsed[groupId].main = !groupCollapsed[groupId].main" style="color:{{getGroupColor(groupId)}}"></i>
 	              <span editable-text="groupId" buttons="no" e-required onbeforesave="updateNodeGroupName(groupId, $data)" blur="submit">
 	                {{groupId}}
 	                <i class="fa fa-pencil-square-o"></i>

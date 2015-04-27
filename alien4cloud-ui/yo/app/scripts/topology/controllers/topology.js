@@ -1280,7 +1280,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     }
     
     $scope.isNodeMemberOf = function(nodeName, groupId) {
-      return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
+      if ($scope.selectedNodeTemplate) {
+        return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
+      }
     }
     
     $scope.createGroupWithMember = function(nodeName) {
@@ -1310,6 +1312,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         });         
       }
     }    
+    
+    $scope.getGroupColor = function(groupId) {
+      return '#' + D3JS_UTILS.string_to_color(groupId);
+    }
     
   }
 ]);

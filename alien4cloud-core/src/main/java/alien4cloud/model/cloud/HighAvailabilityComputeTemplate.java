@@ -13,7 +13,7 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 public class HighAvailabilityComputeTemplate extends ComputeTemplate {
 
     /**
