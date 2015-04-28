@@ -1293,6 +1293,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, {}, function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          $scope.groupCollapsed[nodeName] = { main: false, members: true, policies: true };
         }
       });      
     }

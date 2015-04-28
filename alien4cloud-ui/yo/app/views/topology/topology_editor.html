@@ -39,7 +39,7 @@
 
           <div class="row">
             <!-- nodeTemplateName div -->
-            <div class="col-md-8">
+            <div class="col-md-7">
               <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
               <span editable-text="nodeNameObj.val" buttons="no" e-required onbeforesave="updateNodeName($data)" blur="submit">
                 {{ selectedNodeTemplate.name | split }}
@@ -55,7 +55,7 @@
             </div>
             
             <!-- buttons group div -->
-            <div class="col-md-4" style="margin-top: 6px;">
+            <div class="col-md-5" style="margin-top: 6px;">
               <div class="pull-right">
                 <a tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
                    tooltip-append-to-body="true" class="btn btn-default btn-sm"
@@ -73,20 +73,42 @@
                     </a>
                   </li>
                 </ul>
-              <span ng-if="isComputeType(selectedNodeTemplate)">
-                <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
-                   tooltip-append-to-body="true" class="btn btn-success btn-sm"
-                   ng-click="addScalingPolicy(selectedNodeTemplate.name)"
-                   ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                  <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
-                </a>
-                <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
-                   tooltip-append-to-body="true" class="btn btn-primary btn-sm"
-                   ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
-                   ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                  <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
-                </a>
-              </span>
+	              <span ng-if="isComputeType(selectedNodeTemplate)">
+	                <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
+	                   tooltip-append-to-body="true" class="btn btn-success btn-sm"
+	                   ng-click="addScalingPolicy(selectedNodeTemplate.name)"
+	                   ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+	                  <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
+	                </a>
+	                <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
+	                   tooltip-append-to-body="true" class="btn btn-primary btn-sm"
+	                   ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
+	                   ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+	                  <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
+	                </a>
+	              </span>
+                <span class="btn-group" data-toggle="buttons">
+                  <a id="node_groups_{{selectedNodeTemplate.name}}"
+                     class="btn btn-default btn-sm dropdown-toggle"
+                     tooltip="{{ 'APPLICATIONS.TOPOLOGY.GROUPS.TOOLTIP' | translate}}"
+                     tooltip-append-to-body="true">
+                    <i class="fa fa-list-alt"></i>
+                  </a>                
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    <li>
+                      <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="createGroupWithMember(selectedNodeTemplate.name)">
+                        <strong>{{'APPLICATIONS.TOPOLOGY.GROUPS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
+                      </a>
+                    </li>
+                    <li ng-repeat="(groupId, group) in topology.topology.groups">
+                      <a id="{{selectedNodeTemplate.name}}_memberOf_{{groupId}}" ng-click="toggleNodeGroupMember(groupId, selectedNodeTemplate.name)">
+                        <i class="fa fa-fw"
+                           ng-class="{'fa-check-square-o' : isNodeMemberOf(selectedNodeTemplate.name, groupId),  'fa-square-o': !isNodeMemberOf(selectedNodeTemplate.name, groupId)}"></i>
+                        {{groupId}}
+                      </a>
+                    </li>
+                  </ul>
+                </span> 	              
                 <!-- Delete selected nodetemplate with confirm -->
                 <delete-confirm id="btn-delete-node" func="deleteNodeTemplate(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
@@ -125,33 +147,11 @@
           </div>
           
           <!-- Groups -->
-          <div ng-init="isGroupsCollapsed = true">
-            <div id="node-details-groups" class="topology-node-expand clickable">
+          <div ng-init="isGroupsCollapsed = true" ng-show="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
+            <div id="node-details-groups" class="topology-node-expand clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
               <h4>
-                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}" ng-click="isGroupsCollapsed = !isGroupsCollapsed"></i>
+                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
-                <div class="btn-group pull-right" data-toggle="buttons">
-                  <a id="node_groups_{{selectedNodeTemplate.name}}"
-                     class="btn btn-default btn-xs dropdown-toggle"
-                     tooltip="{{ 'APPLICATIONS.TOPOLOGY.GROUPS.TOOLTIP' | translate}}"
-                     tooltip-append-to-body="true" tooltip-placement="left">
-                    <i class="fa fa-list-alt"></i>
-                  </a>                
-		              <ul class="dropdown-menu dropdown-menu-left" role="menu">
-		                <li>
-		                  <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="createGroupWithMember(selectedNodeTemplate.name)">
-		                    <strong>{{'APPLICATIONS.TOPOLOGY.GROUPS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
-		                  </a>
-		                </li>
-		                <li ng-repeat="(groupId, group) in topology.topology.groups">
-		                  <a id="{{selectedNodeTemplate.name}}_memberOf_{{groupId}}" ng-click="toggleNodeGroupMember(groupId, selectedNodeTemplate.name)">
-		                    <i class="fa fa-fw"
-		                       ng-class="{'fa-check-square-o' : isNodeMemberOf(selectedNodeTemplate.name, groupId),  'fa-square-o': !isNodeMemberOf(selectedNodeTemplate.name, groupId)}"></i>
-		                    {{groupId}}
-		                  </a>
-		                </li>
-		              </ul>
-                </div>           
               </h4>
             </div> 
             <span class="clearfix"></span>                       
