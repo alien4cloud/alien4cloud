@@ -29,9 +29,6 @@ Feature: Deployment setup feature.
     And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute" related to "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT"
     And I add a node template "Network" related to the "tosca.nodes.Network:1.0.0.wd03-SNAPSHOT" node type
     And I add a node template "ConfigurableBlockStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
-    And I add a node template "Compute1" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
-    And I add a group with name "HA_group" whose members are "Compute1,Compute2"
     And I assign the cloud with name "Mount doom cloud" for the application
 
   Scenario: Select a compute template for a node
@@ -95,7 +92,10 @@ Feature: Deployment setup feature.
     Then The deployment setup of the application should contain an empty storage mapping
 
   Scenario: Select an availability zone for a group
-    When I select the availability zone with name "paris" for my group "HA_group"
+    When I add a node template "Compute1" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
+    And I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
+    And I add a group with name "HA_group" whose members are "Compute1,Compute2"
+    And I select the availability zone with name "paris" for my group "HA_group"
     Then I should receive a RestResponse with no error
     And The deployment setup of the application should contain following availability zone mapping:
       | HA_group | paris    | Data-center at Paris    |
