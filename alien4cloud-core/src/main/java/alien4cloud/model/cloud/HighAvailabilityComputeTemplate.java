@@ -25,4 +25,9 @@ public class HighAvailabilityComputeTemplate extends ComputeTemplate {
         super(cloudImageId, cloudImageFlavorId, description);
         this.availabilityZoneId = availabilityZoneId;
     }
+
+    public HighAvailabilityComputeTemplate(ComputeTemplate computeTemplate, String availabilityZoneId) {
+        this(computeTemplate.getCloudImageId(), computeTemplate.getCloudImageFlavorId(), computeTemplate.getDescription(), availabilityZoneId);
+    }
+
 }

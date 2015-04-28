@@ -94,7 +94,7 @@ public class CloudService {
 
     /**
      * Each cloud initialization is down in it's own thread.
-     * 
+     *
      * @return a list of futures for those who want to wait for task to be done.
      */
     public List<Future<?>> initialize() {
@@ -596,7 +596,7 @@ public class CloudService {
 
     public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
         if (cloud.isEnabled()) {
-            IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+            IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId()); // FIXME: NPE
             return paaSProvider.getAvailableResourceIds(type);
         } else {
             return null;

@@ -43,11 +43,15 @@ public class DeploymentSetup {
     // TODO add also the input artifacts here. /-> Note that they should/could be repository based.
     private Map<String, String> inputProperties;
 
+    /* ComputeId -> SelectedComputeTemplate */
     private Map<String, ComputeTemplate> cloudResourcesMapping;
 
+    /* NetworkId -> SelectedNetworkTemplate */
     private Map<String, NetworkTemplate> networkMapping;
 
+    /* BlockStorageId -> SelectedStorageTemplate */
     private Map<String, StorageTemplate> storageMapping;
 
+    /* groupName -> SelectedZones */
     private Map<String, Collection<AvailabilityZone>> availabilityZoneMapping;
 }
