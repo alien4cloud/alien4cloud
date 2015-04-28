@@ -20,3 +20,17 @@ Feature: Manage Nodetemplates of a topology
     Then The RestResponse should contain a group named "Completely_new_HA_group" whose members are "Compute2" and policy is "tosca.policy.ha"
     When I remove the group "Completely_new_HA_group"
     Then The RestResponse should not contain any group
+    
+  Scenario: Remove node template
+    Given I add the node "Compute1" to the group "HA_group"
+    And I add the node "Compute2" to the group "HA_group"
+    When I delete a node template "Compute1" from the topology
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain a group named "HA_group" whose members are "Compute2" and policy is "tosca.policy.ha"
+    
+  Scenario: Rename node template
+    Given I add the node "Compute1" to the group "HA_group"
+    And I add the node "Compute2" to the group "HA_group"
+    When I update the node template's name from "Compute1" to "Compute1bis"
+    Then I should receive a RestResponse with no error
+    And The RestResponse should contain a group named "HA_group" whose members are "Compute1bis,Compute2" and policy is "tosca.policy.ha"
