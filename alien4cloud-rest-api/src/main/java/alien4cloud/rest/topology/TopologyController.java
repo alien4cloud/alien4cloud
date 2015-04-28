@@ -248,6 +248,7 @@ public class TopologyController {
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
         updateArtifactsOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
+        updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
@@ -470,8 +471,31 @@ public class TopologyController {
         removeArtifactsAndPolicies(nodeTemplateName, topology);
         removeOutputs(nodeTemplateName, topology);
 
+        // group members removal
+        updateGroupMembers(topology, template, nodeTemplateName, null);
+
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    /**
+     * Manage node group members when a node name is removed or its name has changed.
+     * 
+     * @param newName : the new name of the node or <code>null</code> if the node has been removed.
+     */
+    private void updateGroupMembers(Topology topology, NodeTemplate template, String nodeName, String newName) {
+        Map<String, NodeGroup> topologyGroups = topology.getGroups();
+        if (template.getGroups() != null && !template.getGroups().isEmpty() && topologyGroups != null) {
+            for (String groupId : template.getGroups()) {
+                NodeGroup nodeGroup = topologyGroups.get(groupId);
+                if (nodeGroup != null && nodeGroup.getMembers() != null) {
+                    boolean removed = nodeGroup.getMembers().remove(nodeName);
+                    if (removed && newName != null) {
+                        nodeGroup.getMembers().add(newName);
+                    }
+                }
+            }
+        }
     }
 
     private void removeArtifactsAndPolicies(String nodeTemplateName, Topology topology) {

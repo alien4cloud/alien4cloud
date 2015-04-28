@@ -11,6 +11,7 @@ function($scope, $modalInstance) {
       $scope.appVersion.topologyId = oldAppVersion.topologyId;
     }
     $modalInstance.close($scope.appVersion);
+    $scope.searchService.search();
   };
 
   $scope.cancel = function() {
@@ -19,12 +20,19 @@ function($scope, $modalInstance) {
 }
 ];
 
-angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationVersionServices', 'appVersions',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationVersionServices, appVersions) {
+angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationVersionServices', 'appVersions', 'searchServiceFactory',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationVersionServices, appVersions, searchServiceFactory) {
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
     $scope.appVersions = appVersions;
     $scope.searchAppVersionResult = appVersions;
     $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
+
+    $scope.searchService = searchServiceFactory('rest/applications/' + $scope.application.id + '/versions/search', false, $scope, 12);
+    $scope.searchService.search();
+
+    $scope.onSearchCompleted = function(searchResult) {
+      $scope.searchAppVersionResult = searchResult.data.data;
+    };
 
     var addNewAppVersionToAppVersionsArray = function(appVersionId) {
       applicationVersionServices.get({
@@ -45,22 +53,9 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
         applicationVersionServices.create({
           applicationId: $scope.application.id
         }, angular.toJson(appVersion), function(successResponse) {
-          $scope.search();
+          $scope.searchService.search();
           addNewAppVersionToAppVersionsArray(successResponse.data);
         });
-      });
-    };
-
-    $scope.search = function() {
-      var searchRequestObject = {
-        'query': $scope.query,
-        'from': 0,
-        'size': 50
-      };
-      applicationVersionServices.searchVersion({
-        applicationId: $scope.application.id
-      }, angular.toJson(searchRequestObject), function updateAppVersionSearchResult(result) {
-        $scope.searchAppVersionResult = result.data.data;
       });
     };
 
@@ -71,7 +66,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
           applicationVersionId: versionId
         }, null, function deleteAppEnvironment(result) {
           if (result) {
-            $scope.search();
+            $scope.searchService.search();
             for (var i=0; i<appVersions.length; i++) {
               if (appVersions[i].id === versionId) {
                 appVersions.splice(i, 1);

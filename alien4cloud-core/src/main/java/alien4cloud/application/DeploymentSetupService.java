@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -238,8 +239,8 @@ public class DeploymentSetupService {
         MappingGenerationResult<StorageTemplate> storageMapping = generateDefaultMapping(deploymentSetup.getStorageMapping(),
                 matchResult.getStorageMatchResult(), topology);
 
-        MappingGenerationResult<Collection<AvailabilityZone>> groupMapping = generateDefaultAvailabilityZoneMapping(
-                deploymentSetup.getAvailabilityZoneMapping(), matchResult.getAvailabilityZoneMatchResult(), topology);
+        MappingGenerationResult<Set<AvailabilityZone>> groupMapping = generateDefaultAvailabilityZoneMapping(deploymentSetup.getAvailabilityZoneMapping(),
+                matchResult.getAvailabilityZoneMatchResult(), topology);
 
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
         deploymentSetup.setNetworkMapping(networkMapping.mapping);
@@ -301,7 +302,7 @@ public class DeploymentSetupService {
         private boolean changed;
     }
 
-    private MappingGenerationResult<Collection<AvailabilityZone>> generateDefaultAvailabilityZoneMapping(Map<String, Collection<AvailabilityZone>> mapping,
+    private MappingGenerationResult<Set<AvailabilityZone>> generateDefaultAvailabilityZoneMapping(Map<String, Set<AvailabilityZone>> mapping,
             Map<String, Collection<AvailabilityZone>> matchResult, Topology topology) {
         boolean valid = true;
         for (Map.Entry<String, ? extends Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
@@ -309,13 +310,16 @@ public class DeploymentSetupService {
         }
         boolean changed = false;
         if (mapping == null) {
-            mapping = Maps.newHashMap(matchResult);
+            mapping = Maps.newHashMap();
+            for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+                mapping.put(matchResultEntry.getKey(), Sets.newHashSet(matchResultEntry.getValue()));
+            }
             changed = true;
         } else {
             // Try to remove unknown mapping from existing config
-            Iterator<Map.Entry<String, Collection<AvailabilityZone>>> mappingEntryIterator = mapping.entrySet().iterator();
+            Iterator<Map.Entry<String, Set<AvailabilityZone>>> mappingEntryIterator = mapping.entrySet().iterator();
             while (mappingEntryIterator.hasNext()) {
-                Map.Entry<String, Collection<AvailabilityZone>> entry = mappingEntryIterator.next();
+                Map.Entry<String, Set<AvailabilityZone>> entry = mappingEntryIterator.next();
                 if (topology.getGroups() == null || !topology.getGroups().containsKey(entry.getKey()) || !matchResult.containsKey(entry.getKey())
                         || !matchResult.get(entry.getKey()).containsAll(entry.getValue())) {
                     // Remove the mapping if topology do not contain the node with that name and of type compute

@@ -419,7 +419,8 @@
         "TITLE": "Groups",
         "MEMBERS": "Members",
         "POLICIES": "Policies",
-        "ADD": "Add a group"
+        "ADD": "Add a group",
+        "TOOLTIP": "Group management"
       },      
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",

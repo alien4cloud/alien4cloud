@@ -85,8 +85,8 @@ public class ApplicationVersionController {
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, searchRequest.getQuery(),
-                getApplicationVersionsFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
+        GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, null,
+                getApplicationVersionsFilters(applicationId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
     }
 
@@ -186,12 +186,16 @@ public class ApplicationVersionController {
      * @param applicationId
      * @return a filter for application versions
      */
-    private Map<String, String[]> getApplicationVersionsFilters(String applicationId) {
+    private Map<String, String[]> getApplicationVersionsFilters(String applicationId, String version) {
         List<String> filterKeys = Lists.newArrayList();
         List<String[]> filterValues = Lists.newArrayList();
         if (applicationId != null) {
             filterKeys.add("applicationId");
             filterValues.add(new String[] { applicationId });
+        }
+        if (version != null && !version.equals("")) {
+            filterKeys.add("version");
+            filterValues.add(new String[] { version });
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }

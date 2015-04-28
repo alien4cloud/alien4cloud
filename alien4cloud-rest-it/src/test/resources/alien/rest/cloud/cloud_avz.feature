@@ -1,4 +1,4 @@
-Feature: Create cloud storages
+Feature: Create cloud availability zones
 
   Background:
     Given I am authenticated with "ADMIN" role
@@ -20,18 +20,18 @@ Feature: Create cloud storages
     And I match the availability zone with name "paris" of the cloud "Mount doom cloud" to the PaaS resource "paris-zone"
     And I match the availability zone with name "toulouse" of the cloud "Mount doom cloud" to the PaaS resource "toulouse-zone"
     And I am authenticated with user named "sangoku"
-    And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute1" related to "tosca.nodes.Compute:1.0"
-    And I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0" node type
-    And I add a group with name "HA_group" whose members are "Compute1, Compute2"
+    And I have an application "ALIEN" with a topology containing a nodeTemplate "Compute1" related to "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT"
+    And I add a node template "Compute2" related to the "tosca.nodes.Compute:1.0.0.wd03-SNAPSHOT" node type
+    And I add a group with name "HA_group" whose members are "Compute1,Compute2"
     And I assign the cloud with name "Mount doom cloud" for the application
 
-  Scenario: Match a topology for storage, no filter
+  Scenario: Match a topology for avz, no filter
     When I match for resources for my application on the cloud
     Then I should receive a match result with 2 availability zones for the group "HA_group":
       | paris    | Data-center at Paris    |
       | toulouse | Data-center at Toulouse |
 
-  Scenario: Should be able to add and remove a storage
+  Scenario: Should be able to add and remove a avz
     When I match for resources for my application on the cloud
     Then I should receive a match result with 2 availability zones for the group "HA_group":
       | paris    | Data-center at Paris    |

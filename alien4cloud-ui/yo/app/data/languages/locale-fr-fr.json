@@ -427,7 +427,8 @@
         "TITLE": "Groupes",
         "MEMBERS": "Membres",
         "POLICIES": "Politiques",
-        "ADD": "Ajouter un groupe"
+        "ADD": "Ajouter un groupe",
+        "TOOLTIP": "Gestion des groupes"
       },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",

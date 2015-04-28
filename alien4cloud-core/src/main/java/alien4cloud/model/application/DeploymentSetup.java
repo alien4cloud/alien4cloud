@@ -1,7 +1,7 @@
 package alien4cloud.model.application;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -52,6 +52,6 @@ public class DeploymentSetup {
     /* BlockStorageId -> SelectedStorageTemplate */
     private Map<String, StorageTemplate> storageMapping;
 
-    /* groupName -> SelectedZones */
-    private Map<String, Collection<AvailabilityZone>> availabilityZoneMapping;
+ /* groupName -> SelectedZones */
+    private Map<String, Set<AvailabilityZone>> availabilityZoneMapping;
 }
