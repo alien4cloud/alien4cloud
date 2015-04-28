@@ -312,7 +312,7 @@ public class DeploymentSetupService {
         if (mapping == null) {
             mapping = Maps.newHashMap();
             for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
-                mapping.put(matchResultEntry.getKey(), Sets.newHashSet(matchResultEntry.getValue()));
+                mapping.put(matchResultEntry.getKey(), Sets.newLinkedHashSet(matchResultEntry.getValue()));
             }
             changed = true;
         } else {
@@ -334,7 +334,10 @@ public class DeploymentSetupService {
                 // Only take the first element as selected if no configuration has been set before
                 changed = true;
                 Iterator<AvailabilityZone> matchedZones = entry.getValue().iterator();
-                mapping.put(entry.getKey(), Sets.newHashSet(matchedZones.next(), matchedZones.next()));
+                Set<AvailabilityZone> defaultZones = Sets.newLinkedHashSet();
+                defaultZones.add(matchedZones.next());
+                defaultZones.add(matchedZones.next());
+                mapping.put(entry.getKey(), defaultZones);
             }
         }
         return new MappingGenerationResult<>(mapping, valid, changed);
