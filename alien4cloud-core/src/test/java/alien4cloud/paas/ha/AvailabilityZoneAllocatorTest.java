@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 
@@ -44,7 +45,7 @@ public class AvailabilityZoneAllocatorTest {
         availabilityZoneMapping.put(HA_GROUP, availableZones);
         deploymentSetup.setAvailabilityZoneMapping(availabilityZoneMapping);
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
-        Map<String, AvailabilityZone> allocated = allocator.processAllocation(topology, deploymentSetup);
+        Map<String, AvailabilityZone> allocated = allocator.processAllocation(topology, deploymentSetup, new CloudResourceMatcherConfig());
 
         Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
         for (AvailabilityZone availabilityZone : availableZones) {
