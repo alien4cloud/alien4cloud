@@ -27,6 +27,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.cloud.MatchedAvailabilityZone;
 import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
@@ -145,9 +146,14 @@ public class CloudController {
         for (StorageTemplate storage : cloud.getStorages()) {
             matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, cloud.getStorageMapping().get(storage.getId())));
         }
-        CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, cloudService.getCloudResourceIds(cloud,
-                CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR), cloudService.getCloudResourceIds(cloud,
-                CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
+
+        Map<String, MatchedAvailabilityZone> matchedZones = Maps.newHashMap();
+        for (AvailabilityZone zone : cloud.getAvailabilityZones()) {
+            matchedZones.put(zone.getId(), new MatchedAvailabilityZone(zone, cloud.getAvailabilityZoneMapping().get(zone.getId())));
+        }
+        CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, matchedZones,
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR),
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 

@@ -132,7 +132,7 @@ public class CloudService {
     }
 
     private void disableOnInitFailure(Cloud cloud, Throwable t) {
-        log.error("Failed to start cloud - will switch it to disabled", t);
+        log.error("Failed to start cloud Enable cloud <" + cloud.getId() + "> <" + cloud.getName() + "> - will switch it to disabled", t);
         disableCloud(cloud);
     }
 

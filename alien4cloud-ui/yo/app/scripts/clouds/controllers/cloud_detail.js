@@ -11,6 +11,7 @@ angular.module('alienUiApp').controller(
       $scope.tabs = {
         newTemplates: 0
       };
+      $scope.UTILS = UTILS;
       /**
        * FOR USER SEARCH AND ADD GROUP'S ROLE
        */
@@ -45,16 +46,19 @@ angular.module('alienUiApp').controller(
           $scope.flavors = response.data.flavors;
           $scope.networks = response.data.networks;
           $scope.storages = response.data.storages;
+          $scope.zones = response.data.zones;
           // ids coming from pass
           $scope.paaSImageIds = response.data.paaSImageIds;
           $scope.paaSFlavorIds = response.data.paaSFlavorIds;
           $scope.paaSNetworkIds = response.data.paaSNetworkTemplateIds;
           $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;
+          $scope.paaSZoneIds = response.data.paaSZoneIds;
           // array of PaaS stuff IDs available for mapping
           $scope.availaiblePaaSImageIds = [];
           $scope.availaiblePaaSFlavorIds = [];
           $scope.availaiblePaaSNetworkIds = [];
           $scope.availaiblePaaSStorageIds = [];
+          $scope.availaiblePaaSZoneIds = [];
           // counters for non mapped stuffs
           $scope.imageNotConfiguredCount = 0;
           $scope.flavorNotConfiguredCount = 0;
@@ -365,12 +369,9 @@ angular.module('alienUiApp').controller(
 
       // count the number of zones that are not associated to a resource id
       var updateZoneResourcesStatistic = function() {
-        $scope.zoneNotConfiguredCount = 0;
-        angular.forEach($scope.cloud.availabilityZones, function(v, k) {
-          if (!$scope.cloud.availabilityZoneMapping[v.id]) {
-            $scope.zoneNotConfiguredCount++;
-          }
-        });
+        var result = updateResourcesStatistic($scope.paaSZoneIds, $scope.zones);
+        $scope.zoneNotConfiguredCount = result.counter;
+        $scope.availaiblePaaSZoneIds = result.arr;
       };
       
       var updateComputeResources = function(cloudResources) {
@@ -657,7 +658,7 @@ angular.module('alienUiApp').controller(
       $scope.saveZoneResourceId = function(cloudZoneId, paaSResourceId) {
         savePasSResourceId(
           cloudZoneId,
-          $scope.cloud.availabilityZoneMapping,
+          $scope.zones,
           paaSResourceId,
           cloudServices.setCloudZoneResource,
           updateZoneResourcesStatistic);
@@ -665,20 +666,12 @@ angular.module('alienUiApp').controller(
 
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
-        if (paaSResourceId === null || paaSResourceId === '') {
+        if (UTILS.isUndefinedOrNull(paaSResourceId) || paaSResourceId === '') {
           if (alienResourceArray[alienResourceId]) {
-            if (alienResourceArray[alienResourceId].hasOwnProperty('paaSResourceId')) {
-              delete alienResourceArray[alienResourceId].paaSResourceId;
-            } else {
-              delete alienResourceArray[alienResourceId];
-            }
+            delete alienResourceArray[alienResourceId].paaSResourceId;
           }
         } else {
-          if (alienResourceArray[alienResourceId].hasOwnProperty('paaSResourceId')) {
             alienResourceArray[alienResourceId].paaSResourceId = paaSResourceId;
-          } else {
-            alienResourceArray[alienResourceId] = paaSResourceId;
-          }
         }
         saveFn({
           id: $scope.cloud.id,
@@ -715,6 +708,9 @@ angular.module('alienUiApp').controller(
           cloudServices.addZone({
             id: $scope.cloud.id
           }, angular.toJson(zone), function() {
+            $scope.zones[zone.id] = {
+                resource: zone
+            };
             $scope.cloud.availabilityZones.push(zone);
             updateZoneResourcesStatistic();
           });
@@ -726,7 +722,7 @@ angular.module('alienUiApp').controller(
           id: $scope.cloud.id,
           zoneId: zone.id
         }, undefined, function() {
-          delete $scope.cloud.availabilityZoneMapping[zone.id];
+          delete $scope.zones[zone.id];
           UTILS.arrayRemove($scope.cloud.availabilityZones, zone);
           updateZoneResourcesStatistic();
         });

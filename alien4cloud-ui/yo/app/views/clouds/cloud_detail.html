@@ -732,11 +732,11 @@
                       <tbody>
                         <tr ng-repeat="zone in cloud.availabilityZones" id='cloud_zone_{{zone.id}}'>
                           <td>{{zone.id}}</td>
-                          <td ng-class="{'has-error': !cloud.availabilityZoneMapping[zone.id]}">
-                            <span ng-if="!cloud.enabled" >{{cloud.availabilityZoneMapping[zone.id] || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
-                            <span ng-if="cloud.enabled" editable-text="cloud.availabilityZoneMapping[zone.id]" buttons="no" onaftersave="saveZoneResourceId(zone.id, cloud.availabilityZoneMapping[zone.id])" blur="submit">
-                              {{cloud.availabilityZoneMapping[zone.id]}}
-                              <em ng-if="cloud.availabilityZoneMapping[zone.id] === null || cloud.availabilityZoneMapping[zone.id] === undefined" class="text-muted">
+                          <td ng-class="{'has-error': !zones[zone.id].paaSResourceId}">
+                            <span ng-if="!cloud.enabled" >{{zones[zone.id] || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="cloud.enabled" editable-text="zones[zone.id].paaSResourceId" buttons="no" onaftersave="saveZoneResourceId(zone.id, zones[zone.id].paaSResourceId)" blur="submit">
+                              {{zones[zone.id].paaSResourceId}}
+                              <em ng-if="UTILS.isUndefinedOrNull(zones[zone.id].paaSResourceId) " class="text-muted">
                                 {{'GENERIC_FORM.UNDEFINED' | translate}}
                               </em>
                               <i class="fa fa-pencil-square-o"></i>
