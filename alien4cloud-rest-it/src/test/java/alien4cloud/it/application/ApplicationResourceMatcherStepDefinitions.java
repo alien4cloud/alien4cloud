@@ -175,6 +175,7 @@ public class ApplicationResourceMatcherStepDefinitions {
             network.setIpVersion(ipVersion);
             network.setCidr(cidr);
             network.setGatewayIp(gateWay);
+            network.setIsExternal(false);
             expectedNetworksMatching.put(rows.get(0), network);
         }
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
