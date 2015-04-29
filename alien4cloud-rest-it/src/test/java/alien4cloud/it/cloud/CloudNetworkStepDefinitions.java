@@ -25,7 +25,7 @@ public class CloudNetworkStepDefinitions {
 
     @When("^I add the network with name \"([^\"]*)\" and CIDR \"([^\"]*)\" and IP version (\\d+) and gateway \"([^\"]*)\" to the cloud \"([^\"]*)\"$")
     public void I_add_the_network_with_name_and_CIDR_and_IP_version_and_gateway_to_the_cloud(String name, String cidr, int ipVersion, String gateWay,
-                                                                                             String cloudName) throws Throwable {
+            String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         NetworkTemplate network = new NetworkTemplate();
         network.setId(name);
@@ -55,6 +55,7 @@ public class CloudNetworkStepDefinitions {
                 String gateWay = rows.get(3);
                 NetworkTemplate network = new NetworkTemplate();
                 network.setId(name);
+                network.setIsExternal(false);
                 network.setIpVersion(ipVersion);
                 network.setCidr(cidr);
                 network.setGatewayIp(gateWay);
@@ -82,7 +83,7 @@ public class CloudNetworkStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
-                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")
@@ -101,6 +102,7 @@ public class CloudNetworkStepDefinitions {
             network.setIpVersion(ipVersion);
             String gatewayIp = rows.get(3);
             network.setGatewayIp(gatewayIp);
+            network.setIsExternal(false);
             String pasSResourceId = rows.get(4);
             if (pasSResourceId.isEmpty()) {
                 pasSResourceId = null;
@@ -115,7 +117,7 @@ public class CloudNetworkStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
-                        Lists.<NameValuePair>newArrayList()));
+                        Lists.<NameValuePair> newArrayList()));
     }
 
     @Then("^The cloud \"([^\"]*)\" should have empty network mapping configuration$")
@@ -126,7 +128,8 @@ public class CloudNetworkStepDefinitions {
     }
 
     @And("^I add the public network with name \"([^\"]*)\" to the cloud \"([^\"]*)\" and match it to paaS network \"([^\"]*)\"$")
-    public void I_add_the_public_network_with_name_to_the_cloud_and_match_it_to_paaS_network(String name, String cloudName, String paaSResourceId) throws Throwable {
+    public void I_add_the_public_network_with_name_to_the_cloud_and_match_it_to_paaS_network(String name, String cloudName, String paaSResourceId)
+            throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         NetworkTemplate network = new NetworkTemplate();
         network.setId(name);
