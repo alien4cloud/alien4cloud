@@ -125,11 +125,8 @@ h4 .editable-error {
 }
 
 #topology #app-version-select {
-  padding: 0px 0px;
-  font-size: 12px;
-  border-color: #CCC;
-  background-color: white;
-  padding-bottom: 1px;
+  min-width: 140px;
+  float: right;
 }
 
 /*

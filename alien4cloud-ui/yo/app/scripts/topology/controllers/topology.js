@@ -1,5 +1,4 @@
 /* global UTILS, $ */
-
 'use strict';
 
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster',
@@ -65,7 +64,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       groups: {
         active: false,
         size: 400
-      },      
+      },
       component: {
         active: false,
         size: 400
@@ -110,7 +109,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
             } else {
               displayOnly(['topology', 'component', 'groups']);
             }
-            break;            
+            break;
           case 'component':
             if (!$scope.displays.inputs.active) {
               displayOnly(['topology', 'component']);
@@ -246,7 +245,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       angular.forEach($scope.topology.topology.groups, function(value, key) {
         $scope.groupCollapsed[key] = { main: false, members: true, policies: true };
       });
-      
+
     });
 
     $scope.isNodeTemplateCollapsed = false;
@@ -1240,7 +1239,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     $scope.checkMapSize = function(map) {
       return angular.isDefined(map) && map !== null && Object.keys(map).length > 0;
     };
-    
+
     $scope.deleteNodeGroup = function(groupId) {
       topologyServices.nodeGroups.remove({
         topologyId: $scope.topology.topology.id,
@@ -1251,7 +1250,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       });
     }
-    
+
     $scope.updateNodeGroupName = function(groupId, name) {
       topologyServices.nodeGroups.rename({
         topologyId: $scope.topology.topology.id,
@@ -1260,13 +1259,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
           if ($scope.groupCollapsed[groupId]) {
-            $scope.groupCollapsed[name] = $scope.groupCollapsed[groupId]; 
+            $scope.groupCollapsed[name] = $scope.groupCollapsed[groupId];
             delete $scope.groupCollapsed[groupId];
-          }          
+          }
         }
-      });      
+      });
     }
-    
+
     $scope.deleteNodeGroupMember = function(groupId, member) {
       topologyServices.nodeGroups.removeMember({
         topologyId: $scope.topology.topology.id,
@@ -1278,13 +1277,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       });
     }
-    
+
     $scope.isNodeMemberOf = function(nodeName, groupId) {
       if ($scope.selectedNodeTemplate) {
         return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
       }
     }
-    
+
     $scope.createGroupWithMember = function(nodeName) {
       topologyServices.nodeGroups.addMember({
         topologyId: $scope.topology.topology.id,
@@ -1295,9 +1294,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
           $scope.groupCollapsed[nodeName] = { main: false, members: true, policies: true };
         }
-      });      
+      });
     }
-    
+
     $scope.toggleNodeGroupMember = function(groupId, nodeName) {
       if ($scope.isNodeMemberOf(nodeName, groupId)) {
         $scope.deleteNodeGroupMember(groupId, nodeName);
@@ -1310,13 +1309,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           if (!result.error) {
             refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
           }
-        });         
+        });
       }
-    }    
-    
+    }
+
     $scope.getGroupColor = function(groupId) {
       return '#' + D3JS_UTILS.string_to_color(groupId);
     }
-    
+
   }
 ]);

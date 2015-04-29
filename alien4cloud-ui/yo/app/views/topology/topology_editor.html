@@ -12,6 +12,12 @@
             <select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" ng-options="appVersion.version for appVersion in appVersions"
                     class="btn" ng-change="changeVersion(selectedVersion)">
             </select>
+            <!-- <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeVersion(selectedVersion, appVersions)" reset-search-input="false" close-on-select="true">
+              <ui-select-match placeholder="Select or search a version in the list...">{{$select.selected.version}}</ui-select-match>
+                <ui-select-choices repeat="appVersion in appVersions">
+                  <span ng-bind-html="appVersion.version | highlight: $select.search"></span>
+                </ui-select-choices>
+             </ui-select> -->
           </div>
         </div>
         <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
@@ -53,7 +59,7 @@
                      src="images/abstract_ico.png" />
               </h3>
             </div>
-            
+
             <!-- buttons group div -->
             <div class="col-md-5" style="margin-top: 6px;">
               <div class="pull-right">
@@ -73,27 +79,27 @@
                     </a>
                   </li>
                 </ul>
-	              <span ng-if="isComputeType(selectedNodeTemplate)">
-	                <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
-	                   tooltip-append-to-body="true" class="btn btn-success btn-sm"
-	                   ng-click="addScalingPolicy(selectedNodeTemplate.name)"
-	                   ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-	                  <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
-	                </a>
-	                <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
-	                   tooltip-append-to-body="true" class="btn btn-primary btn-sm"
-	                   ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
-	                   ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-	                  <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
-	                </a>
-	              </span>
+                <span ng-if="isComputeType(selectedNodeTemplate)">
+                  <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
+                     tooltip-append-to-body="true" class="btn btn-success btn-sm"
+                     ng-click="addScalingPolicy(selectedNodeTemplate.name)"
+                     ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+                    <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
+                  </a>
+                  <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
+                     tooltip-append-to-body="true" class="btn btn-primary btn-sm"
+                     ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
+                     ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
+                    <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
+                  </a>
+                </span>
                 <span class="btn-group" data-toggle="buttons">
                   <a id="node_groups_{{selectedNodeTemplate.name}}"
                      class="btn btn-default btn-sm dropdown-toggle"
                      tooltip="{{ 'APPLICATIONS.TOPOLOGY.GROUPS.TOOLTIP' | translate}}"
                      tooltip-append-to-body="true">
                     <i class="fa fa-list-alt"></i>
-                  </a>                
+                  </a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li>
                       <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="createGroupWithMember(selectedNodeTemplate.name)">
@@ -108,7 +114,7 @@
                       </a>
                     </li>
                   </ul>
-                </span> 	              
+                </span>
                 <!-- Delete selected nodetemplate with confirm -->
                 <delete-confirm id="btn-delete-node" func="deleteNodeTemplate(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
@@ -145,7 +151,7 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Groups -->
           <div ng-init="isGroupsCollapsed = true" ng-show="selectedNodeTemplate.groups && selectedNodeTemplate.groups.length > 0">
             <div id="node-details-groups" class="topology-node-expand clickable" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
@@ -153,20 +159,20 @@
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
               </h4>
-            </div> 
-            <span class="clearfix"></span>                       
+            </div>
+            <span class="clearfix"></span>
             <div id="node-details-groups-panel" collapse="isGroupsCollapsed" class="topology-level">
-	            <div ng-repeat="groupId in selectedNodeTemplate.groups">
+              <div ng-repeat="groupId in selectedNodeTemplate.groups">
               <li>
                <span style="color:{{getGroupColor(groupId)}}">{{groupId}}</span>
                <delete-confirm id="btn-removeMember-{{groupId}}" func="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
-               </delete-confirm>                    
+               </delete-confirm>
               </li>
-              <span class="clearfix"></span>	            
-	            </div>
+              <span class="clearfix"></span>
+              </div>
             </div>
           </div>
-                    
+
           <!-- Properties -->
           <div ng-if="selectedNodeTemplate.properties.length > 0">
             <div id="node-details-properties" class="topology-node-expand clickable"
@@ -759,33 +765,33 @@
           <div ng-repeat="(groupId, group) in topology.topology.groups">
             <div id="group-details-{{groupId}}-header" class="topology-node-expand clickable">
               <h4>
-                <i class="pull-left fa clickable" ng-class="{'fa-chevron-down' : !groupCollapsed[groupId].main, 'fa-chevron-right': groupCollapsed[groupId].main}" 
+                <i class="pull-left fa clickable" ng-class="{'fa-chevron-down' : !groupCollapsed[groupId].main, 'fa-chevron-right': groupCollapsed[groupId].main}"
                 ng-click="groupCollapsed[groupId].main = !groupCollapsed[groupId].main" style="color:{{getGroupColor(groupId)}}"></i>
-	              <span editable-text="groupId" buttons="no" e-required onbeforesave="updateNodeGroupName(groupId, $data)" blur="submit">
-	                {{groupId}}
-	                <i class="fa fa-pencil-square-o"></i>
-	              </span>   
+                <span editable-text="groupId" buttons="no" e-required onbeforesave="updateNodeGroupName(groupId, $data)" blur="submit">
+                  {{groupId}}
+                  <i class="fa fa-pencil-square-o"></i>
+                </span>
                 <delete-confirm id="btn-delete-group-{{groupId}}" func="deleteNodeGroup(groupId)" position="left" class="pull-right" bssize="btn-sm" fastyle="fa-trash-o">
-                </delete-confirm>	                           
+                </delete-confirm>
               </h4>
             </div>
             <div id="group-details-{{groupId}}-content" collapse="groupCollapsed[groupId].main" class="topology-level">
-	            <div id="group-members-{{groupId}}-header" class="topology-node-expand clickable"
-	                 ng-click="groupCollapsed[groupId].members = !groupCollapsed[groupId].members">
-	              <h5>
-	                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[groupId].members, 'fa-chevron-right': groupCollapsed[groupId].members}"></i>
-	                {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
-	              </h5>
-	            </div>
-	            <div id="group-members-{{groupId}}-content" collapse="groupCollapsed[groupId].members" class="topology-level">
-	               <div ng-repeat="member in group.members">
-	                 <li>{{member}}
+              <div id="group-members-{{groupId}}-header" class="topology-node-expand clickable"
+                   ng-click="groupCollapsed[groupId].members = !groupCollapsed[groupId].members">
+                <h5>
+                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[groupId].members, 'fa-chevron-right': groupCollapsed[groupId].members}"></i>
+                  {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
+                </h5>
+              </div>
+              <div id="group-members-{{groupId}}-content" collapse="groupCollapsed[groupId].members" class="topology-level">
+                 <div ng-repeat="member in group.members">
+                   <li>{{member}}
                     <delete-confirm id="btn-delete-groupMember-{{groupId}}-{{member}}" func="deleteNodeGroupMember(groupId, member)" position="left" class="pull-right" bssize="btn-xs" fastyle="fa-trash-o">
-                    </delete-confirm> 	                 
-	                 </li>
-  	               <span class="clearfix"></span>
-	               </div>
-	            </div>
+                    </delete-confirm>
+                   </li>
+                   <span class="clearfix"></span>
+                 </div>
+              </div>
               <div id="group-policies-{{groupId}}-header" class="topology-node-expand clickable"
                    ng-click="groupCollapsed[groupId].policies = !groupCollapsed[groupId].policies">
                 <h5>
@@ -804,7 +810,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
@@ -827,7 +833,7 @@
           <span id="topology-groups" ng-click="toggleDisplay('groups')">
             <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
           </span>
-        </li>        
+        </li>
       </ul>
     </div>
   </div>

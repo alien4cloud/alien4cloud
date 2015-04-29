@@ -3,7 +3,7 @@
 'use strict';
 
 var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'ngSanitize', 'ui.router', 'alienAuth', 'searchServices',
-  'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl', 'ngTable',
+  'pascalprecht.translate', 'ui.bootstrap', 'angularFileUpload', 'xeditable', 'ui.ace', 'toaster', 'angular-utils-ui', 'treeControl', 'ngTable', 'ui.select', 'ngSanitize',
 ])
   .config(function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
     $parseProvider.unwrapPromises(true);

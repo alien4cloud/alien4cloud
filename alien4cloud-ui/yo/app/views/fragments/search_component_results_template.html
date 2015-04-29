@@ -6,8 +6,9 @@
         <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
       </a>
       <div class="media-body">
-        <h4 class="media-heading">
-          <span tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ component.elementId | splitAndGet:'.':'last' }} </span>
+        <h4 class="media-heading" ng-init="componentNameId= (component.elementId | splitAndGet:'.':'last')">
+          <span ng-if="!globalContext" tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ componentNameId | limitTo: 12 }}{{ componentNameId.length > 12 ? '...' : ''}} </span>
+          <span ng-if="globalContext" tooltip="{{component.elementId}}" tooltip-placement="bottom">{{ componentNameId }}</span>
           <img ng-if="component.abstract"
                class="icon_16"
                alt="abstract_ico_16"
@@ -19,21 +20,19 @@
             <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </small>
           <div class="pull-right center">
-            <div>
-              <div class="btn-group-vertical btn-group-xs">
-                <span class="btn btn-default disabled">
-                  <i class="fa fa-archive"></i> {{component.archiveName}}
-                </span>
-                <div class="btn-group btn-group-xs">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
-                    {{component.selectedVersion || component.archiveVersion}}
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
-                    <li class="option-selected"><a id="{{component.id}}_version_{{component.archiveVersion}}" ng-click="$event.stopPropagation()">{{component.archiveVersion}}</a></li>
-                    <li ng-repeat="olderVersion in component.olderVersions"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
-                  </ul>
-                </div>
+            <div class="btn-group-vertical btn-group-xs">
+              <span class="btn btn-default disabled">
+                <i class="fa fa-archive"></i> {{component.archiveName}}
+              </span>
+              <div class="btn-group btn-group-xs">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"  id="{{component.id}}_versions">
+                  {{component.selectedVersion || component.archiveVersion}}
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" role="menu" ng-init="itemIdex = $index">
+                  <li class="option-selected"><a id="{{component.id}}_version_{{component.archiveVersion}}" ng-click="$event.stopPropagation()">{{component.archiveVersion}}</a></li>
+                  <li ng-repeat="olderVersion in component.olderVersions"><a id="{{component.id}}_version_{{olderVersion}}" ng-click="selectOtherComponentVersion(component, olderVersion, itemIdex, $event)">{{olderVersion}}</a></li>
+                </ul>
               </div>
             </div>
           </div>
