@@ -29,7 +29,6 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
-import alien4cloud.it.setup.PrepareTestData;
 import alien4cloud.it.setup.TestDataRegistry;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
@@ -701,10 +700,10 @@ public class TopologyStepDefinitions {
         Path dir = Files.createTempDirectory("yamlTopo");
         Path filePath = Files.createFile(Paths.get(dir.toAbsolutePath() + File.separator + "service-template.yaml"));
         FileUtils.writeStringToFile(filePath.toFile(), yaml);
-        Path csarPath = Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH, testDataName + ".csar");
+        Path csarPath = TestDataRegistry.IT_ARTIFACTS_DIR.resolve(testDataName + ".csar");
         FileUtil.zip(dir, csarPath);
         FileUtil.delete(dir);
-        TestDataRegistry.CONDITION_TO_PATH.put(testDataName, csarPath);
+        TestDataRegistry.TEST_ARTIFACTS.put(testDataName, csarPath);
 
     }
 

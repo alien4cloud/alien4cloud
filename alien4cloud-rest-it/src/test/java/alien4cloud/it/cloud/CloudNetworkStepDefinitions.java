@@ -25,13 +25,14 @@ public class CloudNetworkStepDefinitions {
 
     @When("^I add the network with name \"([^\"]*)\" and CIDR \"([^\"]*)\" and IP version (\\d+) and gateway \"([^\"]*)\" to the cloud \"([^\"]*)\"$")
     public void I_add_the_network_with_name_and_CIDR_and_IP_version_and_gateway_to_the_cloud(String name, String cidr, int ipVersion, String gateWay,
-            String cloudName) throws Throwable {
+                                                                                             String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         NetworkTemplate network = new NetworkTemplate();
         network.setId(name);
         network.setIpVersion(ipVersion);
         network.setCidr(cidr);
         network.setGatewayIp(gateWay);
+        network.setIsExternal(false);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
     }
@@ -81,7 +82,7 @@ public class CloudNetworkStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
-                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
+                        Lists.<NameValuePair>newArrayList(new BasicNameValuePair("pasSResourceId", paaSResourceId))));
     }
 
     @And("^The cloud \"([^\"]*)\" should have network mapping configuration as below:$")
@@ -114,7 +115,7 @@ public class CloudNetworkStepDefinitions {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/networks/" + networkName + "/resource",
-                        Lists.<NameValuePair> newArrayList()));
+                        Lists.<NameValuePair>newArrayList()));
     }
 
     @Then("^The cloud \"([^\"]*)\" should have empty network mapping configuration$")
@@ -122,5 +123,17 @@ public class CloudNetworkStepDefinitions {
         new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Assert.assertTrue(cloudDTO.getNetworks().isEmpty());
+    }
+
+    @And("^I add the public network with name \"([^\"]*)\" to the cloud \"([^\"]*)\" and match it to paaS network \"([^\"]*)\"$")
+    public void I_add_the_public_network_with_name_to_the_cloud_and_match_it_to_paaS_network(String name, String cloudName, String paaSResourceId) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        NetworkTemplate network = new NetworkTemplate();
+        network.setId(name);
+        network.setIpVersion(4);
+        network.setIsExternal(true);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
+        I_match_the_network_with_name_of_the_cloud_to_the_PaaS_resource(name, cloudName, paaSResourceId);
     }
 }

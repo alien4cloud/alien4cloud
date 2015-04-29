@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.paas.exception.ResourceMatchingFailedException;
@@ -15,6 +16,7 @@ import com.google.common.collect.Maps;
 /**
  * This allocator helps to allocate an availability zone to a compute based on its HA policy
  */
+@Slf4j
 public class AvailabilityZoneAllocator {
 
     /**
@@ -30,18 +32,21 @@ public class AvailabilityZoneAllocator {
         if (groups != null) {
             for (Map.Entry<String, List<PaaSNodeTemplate>> groupEntry : groups.entrySet()) {
                 if (deploymentSetup.getAvailabilityZoneMapping() == null) {
-                    throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
+                    throw new ResourceMatchingFailedException("Need at least 1 availability zone configured to process allocation");
                 }
                 Collection<AvailabilityZone> availabilityZones = deploymentSetup.getAvailabilityZoneMapping().get(groupEntry.getKey());
-                if (availabilityZones == null || availabilityZones.size() < 2) {
-                    throw new ResourceMatchingFailedException("Need at least 2 availability zones configured to process allocation");
+                if (availabilityZones == null || availabilityZones.isEmpty()) {
+                    throw new ResourceMatchingFailedException("Need at least 1 availability zone configured to process allocation");
                 }
                 Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 for (AvailabilityZone availabilityZone : availabilityZones) {
                     availabilityZoneRepartition.put(availabilityZone, 0);
                 }
                 for (PaaSNodeTemplate compute : groupEntry.getValue()) {
-                    haComputeMap.put(compute.getId(), getLeastUsedAvailabilityZone(availabilityZoneRepartition));
+                    if (haComputeMap.put(compute.getId(), getLeastUsedAvailabilityZone(availabilityZoneRepartition)) != null) {
+                        log.error("Cannot manage this use case : [" + compute.getId()
+                                + "] belongs to multiple HA group, only one availability zone will be selected");
+                    }
                 }
             }
         }

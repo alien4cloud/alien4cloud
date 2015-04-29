@@ -1,9 +1,6 @@
 package alien4cloud.it.plugin;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Lists;
 
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
+import alien4cloud.model.common.Tag;
 import alien4cloud.plugin.PluginUsage;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -30,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 
 import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -37,7 +35,8 @@ import cucumber.api.java.en.When;
 @Slf4j
 public class PluginDefinitionsSteps {
     private static final Map<String, Path> conditionToPath = Maps.newHashMap();
-    private static final Path PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-" + Context.VERSION + ".zip");
+    private static final Path PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-"
+            + Context.VERSION + ".zip");
 
     private static final Path INVALID_PLUGIN_PATH = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-invalid-"
             + Context.VERSION + ".zip");
@@ -48,10 +47,10 @@ public class PluginDefinitionsSteps {
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
 
     static {
-        Path nextVersionSameConfiguration = Paths
-                .get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.1-" + Context.VERSION + ".zip");
-        Path nextVersionDifferentConfiguration = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.1-different-conf-"
+        Path nextVersionSameConfiguration = Paths.get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.1-"
                 + Context.VERSION + ".zip");
+        Path nextVersionDifferentConfiguration = Paths
+                .get("../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-1.1-different-conf-" + Context.VERSION + ".zip");
         conditionToPath.put("has the same configuration type", nextVersionSameConfiguration);
         conditionToPath.put("has a different configuration type", nextVersionDifferentConfiguration);
     }
@@ -206,5 +205,13 @@ public class PluginDefinitionsSteps {
         String pluginConfigStr = JsonUtil.toString(pluginConfig);
         String prevPluginConfigStr = JsonUtil.toString(prevPluginConfig);
         assertNotEquals(prevPluginConfigStr, pluginConfigStr);
+    }
+
+    @And("^I upload a plugin from \"([^\"]*)\"$")
+    public void I_upload_a_plugin_from(String pluginPathText) throws Throwable {
+        Path pluginDirPath = Paths.get(pluginPathText);
+        String pluginName = pluginDirPath.getFileName().toString();
+        Path pluginPath = pluginDirPath.resolve("target").resolve(pluginName + "-" + Context.VERSION + ".zip");
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart("/rest/plugin", "file", Files.newInputStream(pluginPath)));
     }
 }
