@@ -1,9 +1,6 @@
 package alien4cloud.it.cloud;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,7 +23,9 @@ import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -297,4 +296,41 @@ public class CloudDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/clone", "{}"));
     }
 
+    @And("^I create a cloud with name \"([^\"]*)\" from cloudify (\\d+) PaaS provider$")
+    public void I_create_a_cloud_with_name_from_cloudify_PaaS_provider(String cloudName, int cloudifyVersion) throws Throwable {
+        String pluginId;
+        String beanName;
+        switch (cloudifyVersion) {
+        case 2:
+            pluginId = "alien-cloudify-2-paas-provider:" + Context.VERSION;
+            beanName = "cloudify-paas-provider";
+            break;
+        case 3:
+            pluginId = "alien-cloudify-3-paas-provider:" + Context.VERSION;
+            beanName = "cloudify-paas-provider";
+            break;
+        default:
+            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+        }
+        I_create_a_cloud_with_name_and_plugin_id_and_bean_name(cloudName, pluginId, beanName);
+    }
+
+    @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" for cloud with name \"([^\"]*)\"$")
+    public void I_update_cloudify_manager_s_url_to_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String cloudName) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+
+        Map<String, Object> config = Maps.newHashMap();
+        switch (cloudifyVersion) {
+        case 2:
+            config.put("cloudifyURLs", Lists.newArrayList(cloudifyUrl));
+            break;
+        case 3:
+            config.put("url", cloudifyUrl);
+            break;
+        default:
+            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+        }
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putJSon("/rest/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
+    }
 }

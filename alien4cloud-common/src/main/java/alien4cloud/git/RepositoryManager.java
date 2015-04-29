@@ -14,6 +14,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  */
 @Slf4j
 public class RepositoryManager {
+
     public void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
         try {
             Files.createDirectories(targetDirectory);
