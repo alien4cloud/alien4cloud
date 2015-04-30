@@ -605,3 +605,18 @@ var checkNumberOfPropertiesForACapability = function(expectedCount) {
   expect(relationships.count()).toBe(expectedCount);
 };
 module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesForACapability;
+
+var addNodeTemplateToNodeGroup = function(nodeTemplateName, groupName) {
+  // click on the node image
+  element(by.id('rect_' + nodeTemplateName)).click();
+  // click on the group icon
+  element(by.id('node_groups_' + nodeTemplateName)).click();
+  if (groupName) {
+    // associate the node to the group
+    element(by.id('Compute_memberOf_' + groupName)).click();  
+  } else {
+    // add a new group
+    element(by.id('createGroupWithMember_' + nodeTemplateName)).click();  
+  }
+}
+module.exports.addNodeTemplateToNodeGroup = addNodeTemplateToNodeGroup;
