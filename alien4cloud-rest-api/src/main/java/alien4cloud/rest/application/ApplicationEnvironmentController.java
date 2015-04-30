@@ -45,7 +45,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.TopologyService;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;

@@ -1,4 +1,4 @@
-package alien4cloud.rest.topology;
+package alien4cloud.topology;
 
 import java.util.Map;
 import java.util.Set;

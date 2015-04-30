@@ -25,7 +25,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.TopologyService;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.Role;
 import alien4cloud.topology.TopologyServiceCore;

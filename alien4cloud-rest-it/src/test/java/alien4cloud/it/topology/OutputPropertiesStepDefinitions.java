@@ -9,7 +9,7 @@ import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.JsonTestUtil;
-import alien4cloud.rest.topology.TopologyDTO;
+import alien4cloud.topology.TopologyDTO;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 

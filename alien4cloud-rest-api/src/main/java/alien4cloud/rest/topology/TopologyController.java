@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.cloud.CloudService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
@@ -38,6 +38,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -62,7 +63,11 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -93,6 +98,9 @@ public class TopologyController {
     private TopologyService topologyService;
 
     @Resource
+    private TopologyValidationService topologyValidationService;
+
+    @Resource
     private TopologyServiceCore topologyServiceCore;
 
     @Resource
@@ -110,12 +118,14 @@ public class TopologyController {
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
+    @Resource
+    private CloudService cloudService;
+
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
      * @param topologyId The id of the topology to retrieve.
-     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the
-     *         {@link alien4cloud.tosca.container.model.type.NodeType} related
+     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the {@link IndexedNodeType} related
      *         to his {@link alien4cloud.model.topology.NodeTemplate}s
      */
     @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -377,7 +387,7 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
-        boolean upperBoundReachedSource = topologyService.isRequirementUpperBoundReachedForSource(nodeTemplate, relationshipTemplateRequest
+        boolean upperBoundReachedSource = topologyValidationService.isRequirementUpperBoundReachedForSource(nodeTemplate, relationshipTemplateRequest
                 .getRelationshipTemplate().getRequirementName(), topology.getDependencies());
         // return with a rest response error
         if (upperBoundReachedSource) {
@@ -390,8 +400,9 @@ public class TopologyController {
                                             + "> on node <" + nodeTemplateName + ">.").build()).build();
         }
 
-        boolean upperBoundReachedTarget = topologyService.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest.getRelationshipTemplate()
-                .getTarget(), nodeTemplates, relationshipTemplateRequest.getRelationshipTemplate().getTargetedCapabilityName(), topology.getDependencies());
+        boolean upperBoundReachedTarget = topologyValidationService.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest
+                .getRelationshipTemplate().getTarget(), nodeTemplates, relationshipTemplateRequest.getRelationshipTemplate().getTargetedCapabilityName(),
+                topology.getDependencies());
         // return with a rest response error
         if (upperBoundReachedTarget) {
             return RestResponseBuilder
@@ -513,10 +524,10 @@ public class TopologyController {
     /**
      * Build and return a RestResponse if we detected a property constraint violation
      * 
-     * @param propertyName
-     * @param propertyValue
-     * @param propertyDefinition
-     * @return
+     * @param propertyName property's name
+     * @param propertyValue property's value
+     * @param propertyDefinition property's definition
+     * @return response containing validation result
      */
     private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
             final PropertyDefinition propertyDefinition) {
@@ -675,21 +686,22 @@ public class TopologyController {
      */
     @ApiOperation(value = "Check if a topology is valid or not.", notes = "Returns true if valid, false if not. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
+    public RestResponse<TopologyValidationResult> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-        Map<String, String> inputs = null;
+        DeploymentSetup deploymentSetup = null;
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = null;
         if (StringUtils.isNotBlank(environmentId)) {
             ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
             ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
-            DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
-            if (deploymentSetup != null) {
-                inputs = deploymentSetup.getInputProperties();
+            deploymentSetup = deploymentSetupService.get(version, environment);
+            if (StringUtils.isNotEmpty(environment.getCloudId())) {
+                cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloudService.getMandatoryCloud(environment.getCloudId()));
             }
         }
-        ValidTopologyDTO dto = topologyService.validateTopology(topology, inputs);
-        return RestResponseBuilder.<ValidTopologyDTO> builder().data(dto).build();
+        TopologyValidationResult dto = topologyValidationService.validateTopology(topology, deploymentSetup, cloudResourceMatcherConfig);
+        return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
 
     /**
@@ -1109,14 +1121,12 @@ public class TopologyController {
 
     private int getAvailableGroupIndex(Topology topology) {
         Collection<NodeGroup> nodeGroups = topology.getGroups().values();
-        LinkedHashSet<Integer> indexSet = new LinkedHashSet<Integer>(nodeGroups.size());
+        LinkedHashSet<Integer> indexSet = new LinkedHashSet<>(nodeGroups.size());
         for (int i = 0; i < nodeGroups.size(); i++) {
             indexSet.add(i);
         }
-        Iterator<NodeGroup> groups = nodeGroups.iterator();
-        while(groups.hasNext()) {
-            indexSet.remove(groups.next().getIndex());
-        }
+        for (NodeGroup nodeGroup : nodeGroups)
+            indexSet.remove(nodeGroup.getIndex());
         if (indexSet.isEmpty()) {
             return nodeGroups.size();
         }

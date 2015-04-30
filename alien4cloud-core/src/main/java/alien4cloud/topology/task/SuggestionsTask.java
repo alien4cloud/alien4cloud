@@ -1,4 +1,4 @@
-package alien4cloud.rest.topology.task;
+package alien4cloud.topology.task;
 
 import alien4cloud.model.components.IndexedNodeType;
 import lombok.AllArgsConstructor;

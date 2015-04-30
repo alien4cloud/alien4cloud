@@ -1,4 +1,4 @@
-package alien4cloud.rest.topology;
+package alien4cloud.topology.exception;
 
 import alien4cloud.exception.TechnicalException;
 

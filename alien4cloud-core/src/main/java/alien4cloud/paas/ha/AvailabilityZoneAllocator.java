@@ -20,6 +20,7 @@ import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.utils.MappingUtil;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -44,21 +45,13 @@ public class AvailabilityZoneAllocator {
             List<PaaSNodeTemplate> volumes = topology.getVolumes();
             for (PaaSNodeTemplate volume : volumes) {
                 PaaSNodeTemplate compute = volume.getParent();
-                Map<String, AbstractPropertyValue> volumeProperties = volume.getNodeTemplate().getProperties();
-                if (volumeProperties != null && volumeProperties.containsKey(NormativeBlockStorageConstants.VOLUME_ID)) {
-                    String allVolumeIds = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
-                    if (StringUtils.isNotEmpty(allVolumeIds)) {
-                        int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienContants.VOLUME_AZ_VOLUMEID_SEPARATOR);
-                        // TODO for the moment we suppose we do not manage HA for node with scaling policy
-                        if (indexOfAvzAndIdSeparator > 0) {
-                            String avzId = allVolumeIds.substring(0, indexOfAvzAndIdSeparator);
-                            AvailabilityZone avz = paaSResourceIdToAvz.get(avzId);
-                            AvailabilityZone existingAvz = haComputeMap.put(compute.getId(), avz);
-                            if (avz != null && existingAvz != null && !existingAvz.equals(avz)) {
-                                log.warn("Cannot manage this use case : [" + compute.getId()
-                                        + "] have multiple volumes on different zones, only one availability zone will be selected");
-                            }
-                        }
+                String avzId = getAvailabilityZone(volume);
+                if (StringUtils.isNotEmpty(avzId)) {
+                    AvailabilityZone avz = paaSResourceIdToAvz.get(avzId);
+                    AvailabilityZone existingAvz = haComputeMap.put(compute.getId(), avz);
+                    if (avz != null && existingAvz != null && !existingAvz.equals(avz)) {
+                        log.warn("Cannot manage this use case : [" + compute.getId()
+                                + "] have multiple volumes on different zones, only one availability zone will be selected");
                     }
                 }
             }
@@ -97,7 +90,58 @@ public class AvailabilityZoneAllocator {
         return haComputeMap;
     }
 
-    protected AvailabilityZone getLeastUsedAvailabilityZone(Map<AvailabilityZone, Integer> availabilityZoneRepartition) {
+    public List<AllocationError> validateAllocation(Map<String, AvailabilityZone> allocation, PaaSTopology topology,
+            CloudResourceMatcherConfig cloudResourceMatcherConfig) {
+        List<AllocationError> allocationErrors = Lists.newArrayList();
+        Map<AvailabilityZone, String> avzToPaaSResourceId = cloudResourceMatcherConfig.getAvailabilityZoneMapping();
+        for (PaaSNodeTemplate compute : topology.getComputes()) {
+            if (compute.getGroups() != null && compute.getGroups().size() > 1) {
+                for (String groupId : compute.getGroups()) {
+                    allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_BELONG_TO_MULTIPLE_HA_GROUPS, groupId, compute.getId()));
+                }
+            }
+        }
+
+        for (Map.Entry<String, List<PaaSNodeTemplate>> groupEntry : topology.getGroups().entrySet()) {
+            String groupId = groupEntry.getKey();
+            List<PaaSNodeTemplate> groupComputes = groupEntry.getValue();
+            Map<AvailabilityZone, Integer> repartitionMap = Maps.newHashMap();
+            for (PaaSNodeTemplate groupCompute : groupComputes) {
+                AvailabilityZone allocatedZone = allocation.get(groupCompute.getId());
+                PaaSNodeTemplate volume = groupCompute.getAttachedNode();
+                if (allocatedZone == null) {
+                    allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_NOT_ALLOCATED, groupId, groupCompute.getId()));
+                } else if (volume != null) {
+                    String volumeAVZ = getAvailabilityZone(volume);
+                    if (volumeAVZ != null && !volumeAVZ.equals(avzToPaaSResourceId.get(allocatedZone))) {
+                        allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE, groupId, groupCompute.getId()));
+                    }
+                }
+                Integer existingCount = repartitionMap.get(allocatedZone);
+                if (existingCount == null) {
+                    repartitionMap.put(allocatedZone, 0);
+                } else {
+                    repartitionMap.put(allocatedZone, existingCount + 1);
+                }
+            }
+            int mostUsed = 0;
+            int leastUsed = Integer.MAX_VALUE;
+            for (Map.Entry<AvailabilityZone, Integer> availabilityZoneRepartitionEntry : repartitionMap.entrySet()) {
+                if (availabilityZoneRepartitionEntry.getValue() > mostUsed) {
+                    mostUsed = availabilityZoneRepartitionEntry.getValue();
+                }
+                if (availabilityZoneRepartitionEntry.getValue() < leastUsed) {
+                    leastUsed = availabilityZoneRepartitionEntry.getValue();
+                }
+            }
+            if (mostUsed - leastUsed > 1) {
+                allocationErrors.add(new AllocationError(AllocationErrorCode.ZONES_NOT_DISTRIBUTED_EQUALLY, groupId, null));
+            }
+        }
+        return allocationErrors;
+    }
+
+    AvailabilityZone getLeastUsedAvailabilityZone(Map<AvailabilityZone, Integer> availabilityZoneRepartition) {
         AvailabilityZone leastUsed = null;
         int leastUsedCount = 0;
         for (Map.Entry<AvailabilityZone, Integer> repartitionEntry : availabilityZoneRepartition.entrySet()) {
@@ -108,5 +152,20 @@ public class AvailabilityZoneAllocator {
         }
         availabilityZoneRepartition.put(leastUsed, leastUsedCount + 1);
         return leastUsed;
+    }
+
+    String getAvailabilityZone(PaaSNodeTemplate volume) {
+        Map<String, AbstractPropertyValue> volumeProperties = volume.getNodeTemplate().getProperties();
+        if (volumeProperties != null && volumeProperties.containsKey(NormativeBlockStorageConstants.VOLUME_ID)) {
+            String allVolumeIds = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
+            if (StringUtils.isNotEmpty(allVolumeIds)) {
+                int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienContants.VOLUME_AZ_VOLUMEID_SEPARATOR);
+                // TODO for the moment we suppose we do not manage HA for node with scaling policy
+                if (indexOfAvzAndIdSeparator > 0) {
+                    return allVolumeIds.substring(0, indexOfAvzAndIdSeparator);
+                }
+            }
+        }
+        return null;
     }
 }

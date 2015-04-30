@@ -130,16 +130,16 @@ public class AvailabilityZoneAllocatorTest {
 
         // Find the most used avz
         int mostUsed = 0;
-        int minUsed = Integer.MAX_VALUE;
+        int leastUsed = Integer.MAX_VALUE;
         for (Map.Entry<AvailabilityZone, Integer> availabilityZoneRepartitionEntry : availabilityZoneRepartition.entrySet()) {
             if (availabilityZoneRepartitionEntry.getValue() > mostUsed) {
                 mostUsed = availabilityZoneRepartitionEntry.getValue();
             }
-            if (availabilityZoneRepartitionEntry.getValue() < minUsed) {
-                minUsed = availabilityZoneRepartitionEntry.getValue();
+            if (availabilityZoneRepartitionEntry.getValue() < leastUsed) {
+                leastUsed = availabilityZoneRepartitionEntry.getValue();
             }
         }
-        if (mostUsed - minUsed > 1) {
+        if (mostUsed - leastUsed > 1) {
             throw new RuntimeException("Test failed as most used and min used difference is bigger than 1, zones are not distributed equally");
         }
     }

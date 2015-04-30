@@ -38,7 +38,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.UpdateTopologyException;
+import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;

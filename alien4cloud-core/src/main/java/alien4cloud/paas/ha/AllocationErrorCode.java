@@ -1,0 +1,5 @@
+package alien4cloud.paas.ha;
+
+public enum AllocationErrorCode {
+    NODE_NOT_ALLOCATED, NODE_BELONG_TO_MULTIPLE_HA_GROUPS, NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE, ZONES_NOT_DISTRIBUTED_EQUALLY
+}

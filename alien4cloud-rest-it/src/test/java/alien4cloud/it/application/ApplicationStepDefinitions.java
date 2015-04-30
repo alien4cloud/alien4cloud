@@ -38,7 +38,7 @@ import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.topology.TopologyDTO;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.ReflectionUtil;
 

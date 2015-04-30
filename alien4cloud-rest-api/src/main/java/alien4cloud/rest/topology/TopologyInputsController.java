@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.NotBlank;
