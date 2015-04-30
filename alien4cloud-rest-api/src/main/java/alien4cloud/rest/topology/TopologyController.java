@@ -2,7 +2,10 @@ package alien4cloud.rest.topology;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1104,6 +1107,22 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    private int getAvailableGroupIndex(Topology topology) {
+        Collection<NodeGroup> nodeGroups = topology.getGroups().values();
+        LinkedHashSet<Integer> indexSet = new LinkedHashSet<Integer>(nodeGroups.size());
+        for (int i = 0; i < nodeGroups.size(); i++) {
+            indexSet.add(i);
+        }
+        Iterator<NodeGroup> groups = nodeGroups.iterator();
+        while(groups.hasNext()) {
+            indexSet.remove(groups.next().getIndex());
+        }
+        if (indexSet.isEmpty()) {
+            return nodeGroups.size();
+        }
+        return indexSet.iterator().next();
+    }
+
     @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> deleteNodeGroup(@PathVariable String topologyId, @PathVariable String groupName) {
@@ -1140,6 +1159,7 @@ public class TopologyController {
         if (nodeGroup == null) {
             nodeGroup = new NodeGroup();
             nodeGroup.setName(groupName);
+            nodeGroup.setIndex(getAvailableGroupIndex(topology));
             Set<String> members = Sets.newHashSet();
             nodeGroup.setMembers(members);
             List<AbstractPolicy> policies = Lists.newArrayList();

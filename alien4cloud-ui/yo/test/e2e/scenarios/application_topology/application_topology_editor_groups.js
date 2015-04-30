@@ -50,7 +50,7 @@ describe('Topology node groups', function() {
     // show the groups box
     element(by.id('topology-groups')).element(by.xpath('..')).click();
     // we should have 1 group at all
-    expect(element(by.id('groups-box')).all(by.repeater('(groupId, group) in topology.topology.groups')).count()).toEqual(1);
+    expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(1);
     // expand the members for the group 'Compute'
     element(by.id('group-members-Compute-content')).isDisplayed().then(function (isVisible) {
       if (!isVisible) {
@@ -115,7 +115,7 @@ describe('Topology node groups', function() {
     expect(element(by.id('topology-groups')).isDisplayed()).toBeTruthy();
     element(by.id('topology-groups')).element(by.xpath('..')).click();
     // we should have 2 group at all
-    expect(element(by.id('groups-box')).all(by.repeater('(groupId, group) in topology.topology.groups')).count()).toEqual(2);
+    expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(2);
     
     console.log('## remove a member from a group');
     // ensure the members for the group 'Compute' are displayed
@@ -163,7 +163,7 @@ describe('Topology node groups', function() {
     // remove the group 
     common.deleteWithConfirm('btn-delete-group-MyGroup', true);
     // now we should have 1 group at all
-    expect(element(by.id('groups-box')).all(by.repeater('(groupId, group) in topology.topology.groups')).count()).toEqual(1);
+    expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(1);
     // close the groups panel
     element(by.id('closeGroups')).click();
     
@@ -199,7 +199,7 @@ describe('Topology node groups', function() {
     expect(element(by.id('topology-groups')).isDisplayed()).toBeTruthy();
     element(by.id('topology-groups')).element(by.xpath('..')).click();
     // we should have 1 group at all
-    expect(element(by.id('groups-box')).all(by.repeater('(groupId, group) in topology.topology.groups')).count()).toEqual(1);
+    expect(element(by.id('groups-box')).all(by.repeater('group in orderedNodeGroups')).count()).toEqual(1);
     // ensure no more members for the group 'Compute' 
     element(by.id('group-members-Compute-content')).isDisplayed().then(function (isVisible) {
       if (!isVisible) {

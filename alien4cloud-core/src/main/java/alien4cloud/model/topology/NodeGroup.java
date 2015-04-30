@@ -22,6 +22,11 @@ public class NodeGroup {
 
     private Set<String> members;
 
+    /**
+     * The group index for a given topology.
+     */
+    private int index;
+
     @JsonDeserialize(contentUsing = PolicyDeserializer.class)
     private List<AbstractPolicy> policies;
 

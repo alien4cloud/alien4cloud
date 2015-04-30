@@ -62,7 +62,9 @@ public class TopologyChecker implements IChecker<Topology> {
 
         // here we need to check that the group members really exist
         if (instance.getGroups() != null && !instance.getGroups().isEmpty()) {
+            int i = 0;
             for (NodeGroup nodeGroup : instance.getGroups().values()) {
+                nodeGroup.setIndex(i++);
                 Iterator<String> groupMembers = nodeGroup.getMembers().iterator();
                 while (groupMembers.hasNext()) {
                     String nodeTemplateId = groupMembers.next();

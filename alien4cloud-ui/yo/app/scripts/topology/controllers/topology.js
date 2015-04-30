@@ -232,6 +232,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       } else {
         $scope.selectedNodeTemplate = null;
       }
+      
+      // we need an ordered nodeGroup array (on index property)
+      $scope.orderedNodeGroups = [];
+      angular.forEach($scope.topology.topology.groups, function(value, key) {
+        $scope.orderedNodeGroups.push(value);
+      });
+      $scope.orderedNodeGroups.sort(function(a, b){
+          return a.index - b.index;
+      });
 
     };
 
@@ -1313,8 +1322,8 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }
     }
 
-    $scope.getGroupColor = function(groupId) {
-      return '#' + D3JS_UTILS.string_to_color(groupId);
+    $scope.getGroupColorCss = function(groupId) {
+      return D3JS_UTILS.groupColorCss($scope.topology.topology, groupId);
     }
 
   }
