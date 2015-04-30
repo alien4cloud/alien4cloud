@@ -12,8 +12,12 @@ import org.junit.Test;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
+import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,28 +28,92 @@ public class AvailabilityZoneAllocatorTest {
 
     public static final String HA_GROUP = "HA_group";
 
+    private List<PaaSNodeTemplate> generateComputes(int number) {
+        List<PaaSNodeTemplate> nodes = Lists.newArrayList();
+        for (int i = 0; i < number; i++) {
+            PaaSNodeTemplate node = new PaaSNodeTemplate("Compute" + i, null);
+            nodes.add(node);
+        }
+        return nodes;
+    }
+
+    private Set<AvailabilityZone> generateAvailabilityZones(int number) {
+        Set<AvailabilityZone> zones = Sets.newHashSet();
+        for (int i = 0; i < number; i++) {
+            AvailabilityZone zone = new AvailabilityZone("zone" + i, "Zone " + i);
+            zones.add(zone);
+        }
+        return zones;
+    }
+
+    private CloudResourceMatcherConfig generateCloudResourceMatcherConfig(Set<AvailabilityZone> zones) {
+        Map<AvailabilityZone, String> mapping = Maps.newHashMap();
+        for (AvailabilityZone zone : zones) {
+            mapping.put(zone, zone.getId());
+        }
+        CloudResourceMatcherConfig config = new CloudResourceMatcherConfig();
+        config.setAvailabilityZoneMapping(mapping);
+        return config;
+    }
+
     @Test
     public void test() {
-        PaaSNodeTemplate compute1 = new PaaSNodeTemplate("Compute1", null);
-        PaaSNodeTemplate compute2 = new PaaSNodeTemplate("Compute2", null);
-        PaaSNodeTemplate compute3 = new PaaSNodeTemplate("Compute3", null);
-        PaaSNodeTemplate compute4 = new PaaSNodeTemplate("Compute4", null);
-        PaaSNodeTemplate compute5 = new PaaSNodeTemplate("Compute5", null);
-        List<PaaSNodeTemplate> templates = Lists.newArrayList(compute1, compute2, compute3, compute4, compute5);
+        doTest(generateComputes(2), generateAvailabilityZones(2), null);
+        doTest(generateComputes(4), generateAvailabilityZones(2), null);
+        doTest(generateComputes(3), generateAvailabilityZones(4), null);
+        doTest(generateComputes(5), generateAvailabilityZones(3), null);
+        doTest(generateComputes(7), generateAvailabilityZones(2), null);
+        doTest(generateComputes(7), generateAvailabilityZones(3), null);
+    }
+
+    @Test
+    public void testAllocationWithVolumeConfigured() {
+        List<PaaSNodeTemplate> computes = generateComputes(5);
+        Set<AvailabilityZone> zones = generateAvailabilityZones(2);
+        Map<String, PaaSNodeTemplate> volumes = Maps.newHashMap();
+        for (PaaSNodeTemplate compute : computes) {
+            NodeTemplate wrappedVolume = new NodeTemplate(NormativeBlockStorageConstants.BLOCKSTORAGE_TYPE, Maps.<String, AbstractPropertyValue> newHashMap(),
+                    null, null, null, null, null);
+            wrappedVolume.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(zones.iterator().next().getId() + "/abcde"));
+            PaaSNodeTemplate volume = new PaaSNodeTemplate("volume_" + compute.getId(), wrappedVolume);
+            volume.setParent(compute);
+            compute.setAttachedNode(volume);
+            volumes.put(compute.getId(), volume);
+        }
+        try {
+            doTest(computes, zones, volumes);
+            Assert.fail("AVZ of volumes must prevail");
+        } catch (Exception e) {
+            log.info("Normal that it fails", e);
+            // Must have assertion failure
+        }
+        Map<AvailabilityZone, Integer> repartitionMap = Maps.newHashMap();
+        for (AvailabilityZone zone : zones) {
+            repartitionMap.put(zone, 0);
+        }
+        AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
+        for (PaaSNodeTemplate volume : volumes.values()) {
+            AvailabilityZone zone = allocator.getLeastUsedAvailabilityZone(repartitionMap);
+            volume.getNodeTemplate().getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(zone.getId() + "/abcde"));
+        }
+        // Must not have assertion failure
+        doTest(computes, zones, volumes);
+    }
+
+    public void doTest(List<PaaSNodeTemplate> computes, Set<AvailabilityZone> availableZones, Map<String, PaaSNodeTemplate> volumes) {
         Map<String, List<PaaSNodeTemplate>> groups = Maps.newHashMap();
-        groups.put(HA_GROUP, templates);
+        groups.put(HA_GROUP, computes);
         PaaSTopology topology = new PaaSTopology();
         topology.setGroups(groups);
+        if (volumes != null) {
+            topology.setVolumes(Lists.newArrayList(volumes.values()));
+        }
         DeploymentSetup deploymentSetup = new DeploymentSetup();
         Map<String, Set<AvailabilityZone>> availabilityZoneMapping = Maps.newHashMap();
-        Set<AvailabilityZone> availableZones = Sets.newHashSet();
-        availableZones.add(new AvailabilityZone("zone1", "Zone 1"));
-        availableZones.add(new AvailabilityZone("zone2", "Zone 2"));
-        availableZones.add(new AvailabilityZone("zone3", "Zone 3"));
         availabilityZoneMapping.put(HA_GROUP, availableZones);
         deploymentSetup.setAvailabilityZoneMapping(availabilityZoneMapping);
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
-        Map<String, AvailabilityZone> allocated = allocator.processAllocation(topology, deploymentSetup, new CloudResourceMatcherConfig());
+        Map<String, AvailabilityZone> allocated = allocator.processAllocation(topology, deploymentSetup, generateCloudResourceMatcherConfig(availableZones));
 
         Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
         for (AvailabilityZone availabilityZone : availableZones) {
@@ -71,6 +139,8 @@ public class AvailabilityZoneAllocatorTest {
                 minUsed = availabilityZoneRepartitionEntry.getValue();
             }
         }
-        Assert.assertTrue(mostUsed - minUsed <= 1);
+        if (mostUsed - minUsed > 1) {
+            throw new RuntimeException("Test failed as most used and min used difference is bigger than 1, zones are not distributed equally");
+        }
     }
 }

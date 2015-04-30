@@ -97,7 +97,7 @@ public class AvailabilityZoneAllocator {
         return haComputeMap;
     }
 
-    private AvailabilityZone getLeastUsedAvailabilityZone(Map<AvailabilityZone, Integer> availabilityZoneRepartition) {
+    protected AvailabilityZone getLeastUsedAvailabilityZone(Map<AvailabilityZone, Integer> availabilityZoneRepartition) {
         AvailabilityZone leastUsed = null;
         int leastUsedCount = 0;
         for (Map.Entry<AvailabilityZone, Integer> repartitionEntry : availabilityZoneRepartition.entrySet()) {

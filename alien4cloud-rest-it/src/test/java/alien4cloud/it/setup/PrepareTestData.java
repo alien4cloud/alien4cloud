@@ -16,10 +16,6 @@ public class PrepareTestData {
 
     private final static RepositoryManager repositoryManager = new RepositoryManager();
 
-    private static void checkoutArchiveFromGit(String localName, String url, String branch) {
-        repositoryManager.cloneOrCheckout(TestDataRegistry.GIT_ARTIFACTS_DIR, url, branch, localName);
-    }
-
     public static void main(String[] args) {
         System.setProperty("basedir", args[0]);
         try {

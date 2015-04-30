@@ -149,12 +149,7 @@ public class CloudResourceMatcherService {
         Map<String, NodeGroup> nodeGroups = topology.getGroups();
         if (nodeGroups != null) {
             for (Map.Entry<String, NodeGroup> nodeGroupEntry : nodeGroups.entrySet()) {
-                // As HA rule is 50 % for the moment, we need at least 2 availability zones
-                if (availabilityZones.size() < 2) {
-                    availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), Sets.<AvailabilityZone> newHashSet());
-                } else {
-                    availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), availabilityZones);
-                }
+                availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), availabilityZones);
             }
         }
         return new CloudResourceTopologyMatchResult(cloudImageService.getMultiple(imageIds), flavorMap, templateMatchResult, storageMatchResult,
