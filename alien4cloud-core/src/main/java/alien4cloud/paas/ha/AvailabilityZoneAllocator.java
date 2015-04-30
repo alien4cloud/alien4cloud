@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
+
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
@@ -42,14 +45,18 @@ public class AvailabilityZoneAllocator {
                 PaaSNodeTemplate compute = volume.getParent();
                 Map<String, AbstractPropertyValue> volumeProperties = volume.getNodeTemplate().getProperties();
                 if (volumeProperties != null && volumeProperties.containsKey(NormativeBlockStorageConstants.VOLUME_ID)) {
-                    String allVolumeId = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
-                    int indexOfAvzAndIdSeparator = allVolumeId.indexOf('/');
-                    if (indexOfAvzAndIdSeparator > 0) {
-                        String avzId = allVolumeId.substring(0, indexOfAvzAndIdSeparator);
-                        AvailabilityZone avz = paaSResourceIdToAvz.get(avzId);
-                        if (avz != null && haComputeMap.put(compute.getId(), avz) != null) {
-                            log.error("Cannot manage this use case : [" + compute.getId()
-                                    + "] have multiple volumes on different zones, only one availability zone will be selected");
+                    String allVolumeIds = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
+                    if (StringUtils.isNotEmpty(allVolumeIds)) {
+                        int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf('/');
+                        // TODO for the moment we suppose we do not manage HA for node with scaling policy
+                        if (indexOfAvzAndIdSeparator > 0) {
+                            String avzId = allVolumeIds.substring(0, indexOfAvzAndIdSeparator);
+                            AvailabilityZone avz = paaSResourceIdToAvz.get(avzId);
+                            AvailabilityZone existingAvz = haComputeMap.put(compute.getId(), avz);
+                            if (avz != null && existingAvz != null && !existingAvz.equals(avz)) {
+                                log.warn("Cannot manage this use case : [" + compute.getId()
+                                        + "] have multiple volumes on different zones, only one availability zone will be selected");
+                            }
                         }
                     }
                 }
@@ -74,14 +81,13 @@ public class AvailabilityZoneAllocator {
                     if (existingAvz != null) {
                         Integer existingCount = availabilityZoneRepartition.get(existingAvz);
                         if (existingCount == null) {
-                            log.error(
+                            log.warn(
                                     "Attention AVZ mapping has been changed, the AVZ {} injected by the existing volume is no longer valid for this compute {}",
                                     existingAvz.getId(), compute.getId());
                         } else {
                             availabilityZoneRepartition.put(existingAvz, existingCount + 1);
                         }
-                    }
-                    else {
+                    } else {
                         haComputeMap.put(compute.getId(), getLeastUsedAvailabilityZone(availabilityZoneRepartition));
                     }
                 }
