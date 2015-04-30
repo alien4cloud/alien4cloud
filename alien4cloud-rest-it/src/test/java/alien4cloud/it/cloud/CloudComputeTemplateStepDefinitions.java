@@ -1,7 +1,5 @@
 package alien4cloud.it.cloud;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.Context;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -125,15 +124,31 @@ public class CloudComputeTemplateStepDefinitions {
 
     @When("^I enable the compute template of the cloud \"([^\"]*)\" constituted of image \"([^\"]*)\" and flavor \"([^\"]*)\"$")
     public void I_enable_the_compute_template_of_the_cloud_constituted_of_image_and_flavor(String cloudName, String cloudImageName, String flavorId)
-            throws IOException, URISyntaxException {
+            throws Throwable {
         toggleTemplateStatus(cloudName, cloudImageName, flavorId, true);
     }
 
-    private void toggleTemplateStatus(String cloudName, String cloudImageName, String flavorId, boolean status) throws IOException, URISyntaxException {
+    private void toggleTemplateStatus(String cloudName, String cloudImageName, String flavorId, boolean status) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         String cloudImageId = Context.getInstance().getCloudImageId(cloudImageName);
+
+        new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
+        CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
+        List<ActivableComputeTemplate> templates = cloudDTO.getCloud().getComputeTemplates();
+        String activableComputeId = null;
+        for (ActivableComputeTemplate template : templates) {
+            if (template.getCloudImageId().equals(cloudImageId) && template.getCloudImageFlavorId().equals(flavorId)) {
+                activableComputeId = template.getId();
+                break;
+            }
+        }
+
+        if (activableComputeId == null) {
+            new NotFoundException("Not found the ActiveComputeTemplate with cloudImageId " + cloudImageId + "and the flavorId " + flavorId);
+        }
+
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + cloudImageId + "/" + flavorId + "/status",
+                Context.getRestClientInstance().postUrlEncoded("/rest/clouds/" + cloudId + "/templates/" + activableComputeId + "/status",
                         Lists.<NameValuePair> newArrayList(new BasicNameValuePair("enabled", String.valueOf(status)))));
     }
 

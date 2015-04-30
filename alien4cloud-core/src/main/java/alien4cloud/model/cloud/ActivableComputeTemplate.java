@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = "id")
 @NoArgsConstructor
 @ToString
 @SuppressWarnings("PMD.UnusedPrivateField")
