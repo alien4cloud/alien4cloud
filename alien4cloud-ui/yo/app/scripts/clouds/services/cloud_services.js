@@ -141,7 +141,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
           }
         }
       };
-    
+
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
@@ -149,10 +149,10 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var crudNetwork = $resource('rest/clouds/:id/networks/:networkName');
 
     var crudStorage = $resource('rest/clouds/:id/storages/:storageId');
-    
+
     var crudZone = $resource('rest/clouds/:id/zones/:zoneId');
 
-    var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
+    var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:activableComputeId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
 
@@ -163,7 +163,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
 
     var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
-    
+
     var cloudZoneResource = $resource('rest/clouds/:id/zones/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
@@ -280,7 +280,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'addStorage': crudStorage.save,
       'removeStorage': crudStorage.remove,
       'addZone': crudZone.save,
-      'removeZone': crudZone.remove,      
+      'removeZone': crudZone.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
       'setCloudNetworkResource': cloudNetworkResource.save,

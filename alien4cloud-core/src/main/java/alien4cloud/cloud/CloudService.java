@@ -581,16 +581,12 @@ public class CloudService {
      * Set the template status (enable / disable)
      *
      * @param cloud the cloud to update
-     * @param cloudImageId the image id
-     * @param flavorId the flavor id
+     * @param activableComputeId the id of the activable compute
      * @param enabled enable or disable
      */
-    public void setCloudTemplateStatus(Cloud cloud, String cloudImageId, String flavorId, boolean enabled) {
-        List<ActivableComputeTemplate> computeTemplates = getComputeTemplates(cloud, cloudImageId, flavorId, false);
-        if (computeTemplates.isEmpty()) {
-            throw new NotFoundException("No compute template found for [" + cloudImageId + "," + flavorId + "]");
-        }
-        computeTemplates.iterator().next().setEnabled(enabled);
+    public void setCloudTemplateStatus(Cloud cloud, String activableComputeId, boolean enabled) {
+        ActivableComputeTemplate computeTemplate = getActivableComputeByIdOrFail(cloud, activableComputeId);
+        computeTemplate.setEnabled(enabled);
         alienDAO.save(cloud);
     }
 
@@ -752,6 +748,17 @@ public class CloudService {
             }
         }
         return foundTemplates;
+    }
+
+    public ActivableComputeTemplate getActivableComputeByIdOrFail(Cloud cloud, String activableComputeId) {
+        Iterator<ActivableComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
+        while (templateIterator.hasNext()) {
+            ActivableComputeTemplate computeTemplate = templateIterator.next();
+            if (computeTemplate.getId().equals(activableComputeId)) {
+                return computeTemplate;
+            }
+        }
+        throw new NotFoundException("No compute template found for " + activableComputeId + " id.");
     }
 
     private <T extends ICloudResourceTemplate> T getResource(Collection<T> resources, String id, boolean take) {

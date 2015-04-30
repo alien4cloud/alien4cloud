@@ -373,7 +373,7 @@ angular.module('alienUiApp').controller(
         $scope.zoneNotConfiguredCount = result.counter;
         $scope.availaiblePaaSZoneIds = result.arr;
       };
-      
+
       var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
@@ -484,8 +484,7 @@ angular.module('alienUiApp').controller(
       $scope.toggleEnableTemplate = function(template) {
         cloudServices.setCloudTemplateStatus({
           id: $scope.cloud.id,
-          imageId: template.cloudImageId,
-          flavorId: template.cloudImageFlavorId,
+          activableComputeId: template.id,
           enabled: !template.enabled
         }, undefined, function() {
           template.enabled = !template.enabled;
@@ -653,7 +652,7 @@ angular.module('alienUiApp').controller(
           cloudServices.setCloudStorageResource,
           updateStorageResourcesStatistic);
       };
-      
+
       // associate a PaaS resource id to a cloud zone
       $scope.saveZoneResourceId = function(cloudZoneId, paaSResourceId) {
         savePasSResourceId(
@@ -662,7 +661,7 @@ angular.module('alienUiApp').controller(
           paaSResourceId,
           cloudServices.setCloudZoneResource,
           updateZoneResourcesStatistic);
-      };      
+      };
 
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
@@ -696,7 +695,7 @@ angular.module('alienUiApp').controller(
           controller: ModalInstanceCtrl
         });
       };
-      
+
       /** handle Modal form for cloud zone creation */
       $scope.openZoneCreationModal = function() {
         var modalInstance = $modal.open({
@@ -715,8 +714,8 @@ angular.module('alienUiApp').controller(
             updateZoneResourcesStatistic();
           });
         });
-      };      
-      
+      };
+
       $scope.deleteZone = function(zone) {
         cloudServices.removeZone({
           id: $scope.cloud.id,
@@ -727,6 +726,6 @@ angular.module('alienUiApp').controller(
           updateZoneResourcesStatistic();
         });
       };
-      
+
     }
   ]);

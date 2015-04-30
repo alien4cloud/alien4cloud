@@ -305,8 +305,13 @@ public class CloudResourceMatcherService {
                 continue;
             }
             List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), flavor.getId(), false);
-            if (!computeTemplates.isEmpty() && computeTemplates.iterator().next().isEnabled()) {
-                matchedFlavors.add(flavor);
+            if (!computeTemplates.isEmpty()) {
+                for (ActivableComputeTemplate computeTemplate : computeTemplates) {
+                    if (computeTemplate.isEnabled()) {
+                        matchedFlavors.add(flavor);
+                        break;
+                    }
+                }
             }
         }
         Collections.sort(matchedFlavors);

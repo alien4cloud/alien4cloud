@@ -291,7 +291,6 @@ public class CloudController {
     @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> addGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
-
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         resourceRoleService.addGroupRole(cloud, groupId, role);
@@ -380,13 +379,12 @@ public class CloudController {
     }
 
     @ApiOperation(value = "Enable or disable a cloud template", notes = "Only user with ADMIN role can enable a cloud template.")
-    @RequestMapping(value = "/{cloudId}/templates/{imageId}/{flavorId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{cloudId}/templates/{activableComputeId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> setCloudComputeTemplateStatus(@PathVariable String cloudId, @PathVariable String imageId, @PathVariable String flavorId,
-            @RequestParam Boolean enabled) {
+    public RestResponse<Void> setCloudComputeTemplateStatus(@PathVariable String cloudId, @PathVariable String activableComputeId, @RequestParam Boolean enabled) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setCloudTemplateStatus(cloud, imageId, flavorId, enabled);
+        cloudService.setCloudTemplateStatus(cloud, activableComputeId, enabled);
         return RestResponseBuilder.<Void> builder().build();
     }
 
