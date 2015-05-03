@@ -16,7 +16,7 @@
 
       <!--  Environment list -->
       <select id="app-environment-select" ng-model="selectedEnvironment" class="form-control " ng-options="environment.name for environment in runtimeEnvironments | filter:{status: '!UNDEPLOYED'}"
-              ng-change="loadTopologyRuntime()">
+              ng-change="changeEnvironment()">
       </select>
 
       <tabset>

@@ -531,6 +531,11 @@ angular.module('alienUiApp').controller(
           }, {}, undefined);
         }
       };
+      
+      $scope.changeEnvironment = function(){
+        $scope.loadTopologyRuntime();
+        $scope.clearNodeSelection();
+      };
 
       // first topology load
       $scope.loadTopologyRuntime();
