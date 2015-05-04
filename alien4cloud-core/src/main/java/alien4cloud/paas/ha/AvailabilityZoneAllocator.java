@@ -159,7 +159,7 @@ public class AvailabilityZoneAllocator {
         if (volumeProperties != null && volumeProperties.containsKey(NormativeBlockStorageConstants.VOLUME_ID)) {
             String allVolumeIds = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
             if (StringUtils.isNotEmpty(allVolumeIds)) {
-                int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienContants.VOLUME_AZ_VOLUMEID_SEPARATOR);
+                int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienContants.STORAGE_AZ_VOLUMEID_SEPARATOR);
                 // TODO for the moment we suppose we do not manage HA for node with scaling policy
                 if (indexOfAvzAndIdSeparator > 0) {
                     return allVolumeIds.substring(0, indexOfAvzAndIdSeparator);
