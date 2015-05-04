@@ -126,9 +126,20 @@ h4 .editable-error {
 
 #topology #app-version-select {
   min-width: 140px;
-  float: right;
+  float: left;
 }
 
+#topology #app-version-select span {
+  height: 22px;
+  outline: 0px none;
+  padding: 0px;
+  font-size: 12px;
+  padding-top: 1px;
+}
+
+#topology #app-version-select span i {
+  left: 92%;
+}
 /*
   Vertical menu
 */

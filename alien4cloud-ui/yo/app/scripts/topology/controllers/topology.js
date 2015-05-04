@@ -199,7 +199,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, function(successResult) {
         refreshTopology(successResult.data);
       });
-      selectTab('topology-components-search');
     };
 
     var refreshTopology = function(topologyDTO, selectedNodeTemplate) {
@@ -232,7 +231,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       } else {
         $scope.selectedNodeTemplate = null;
       }
-      
+
       // we need an ordered nodeGroup array (on index property)
       $scope.orderedNodeGroups = [];
       angular.forEach($scope.topology.topology.groups, function(value, key) {
