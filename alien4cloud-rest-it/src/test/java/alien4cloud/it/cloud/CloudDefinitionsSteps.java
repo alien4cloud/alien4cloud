@@ -35,6 +35,7 @@ public class CloudDefinitionsSteps {
     @Given("^I create a cloud with name \"([^\"]*)\" and plugin id \"([^\"]*)\" and bean name \"([^\"]*)\"$")
     public void I_create_a_cloud_with_name_and_plugin_id_and_bean_name(String cloudName, String pluginId, String pluginBeanName) throws Throwable {
         Cloud cloud = new Cloud();
+        cloud.setIaaSType(IaaSType.OPENSTACK);
         cloud.setName(cloudName);
         cloud.setPaasPluginId(pluginId);
         cloud.setPaasPluginBean(pluginBeanName);

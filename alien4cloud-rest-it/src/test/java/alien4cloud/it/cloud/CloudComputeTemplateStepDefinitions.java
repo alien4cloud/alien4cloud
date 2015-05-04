@@ -84,7 +84,7 @@ public class CloudComputeTemplateStepDefinitions {
     }
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\"$")
-    public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, int memSize,
+    public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(String flavorId, int nbCPUs, long diskSize, long memSize,
             String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         CloudImageFlavor cloudImageFlavor = new CloudImageFlavor();
@@ -252,7 +252,7 @@ public class CloudComputeTemplateStepDefinitions {
 
     @And("^I add the flavor with name \"([^\"]*)\", number of CPUs (\\d+), disk size (\\d+) and memory size (\\d+) to the cloud \"([^\"]*)\" and match it to paaS flavor \"([^\"]*)\"$")
     public void I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud_and_match_it_to_paaS_flavor(String flavorId, int nbCPUs,
-            long diskSize, int memSize, String cloudName, String paaSResourceId) throws Throwable {
+            long diskSize, long memSize, String cloudName, String paaSResourceId) throws Throwable {
         I_add_the_flavor_with_name_number_of_CPUs_disk_size_and_memory_size_to_the_cloud(flavorId, nbCPUs, diskSize, memSize, cloudName);
         I_match_the_flavor_of_the_cloud_to_the_PaaS_resource(flavorId, cloudName, paaSResourceId);
     }

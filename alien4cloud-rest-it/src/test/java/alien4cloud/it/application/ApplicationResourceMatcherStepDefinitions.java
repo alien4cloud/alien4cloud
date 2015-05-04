@@ -49,7 +49,7 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-            DataTable expectedTemplatesTable) throws Throwable {
+                                                                                    DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<DeploymentSetupMatchInfo> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentSetupMatchInfo.class);
         Assert.assertNull(matchResultResponse.getError());
         Assert.assertNotNull(matchResultResponse.getData());
@@ -329,5 +329,26 @@ public class ApplicationResourceMatcherStepDefinitions {
                                 + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
                 DeploymentSetupMatchInfo.class).getData();
         Assert.assertEquals(expectedAVZsMatching, deploymentSetupMatchInfo.getAvailabilityZoneMapping());
+    }
+
+    @And("^I set the input property \"([^\"]*)\" of the topology to \"([^\"]*)\"$")
+    public void I_set_the_input_property_of_the_topology_to(String inputName, String inputValue) throws Throwable {
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest();
+        Map<String, String> inputProperties = Maps.newHashMap();
+        inputProperties.put(inputName, inputValue);
+        request.setInputProperties(inputProperties);
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        if (deploymentSetupMatchInfo.getInputProperties() != null) {
+            inputProperties.putAll(deploymentSetupMatchInfo.getInputProperties());
+        }
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
     }
 }

@@ -904,7 +904,7 @@ public class CloudService {
     public void setAvailabilityZoneResourceId(Cloud cloud, String availabilityZoneId, String pasSResourceId) throws CloudDisabledException {
         AvailabilityZone foundAvailabilityZone = getResource(cloud.getAvailabilityZones(), availabilityZoneId, false);
         if (foundAvailabilityZone == null) {
-            throw new NotFoundException("Storage [" + availabilityZoneId + "] not found");
+            throw new NotFoundException("Availability zone [" + availabilityZoneId + "] not found");
         }
         if (StringUtils.isEmpty(pasSResourceId)) {
             cloud.getAvailabilityZoneMapping().remove(availabilityZoneId);

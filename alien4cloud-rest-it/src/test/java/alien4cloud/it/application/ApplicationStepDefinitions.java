@@ -1,10 +1,6 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +19,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
+import alien4cloud.it.topology.TopologyTemplateStepDefinitions;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
@@ -38,8 +35,8 @@ import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -86,7 +83,7 @@ public class ApplicationStepDefinitions {
     }
 
     @SuppressWarnings("rawtypes")
-    public void setAppEnvironmentIdToContext(String applicationName) throws JsonProcessingException, IOException {
+    public void setAppEnvironmentIdToContext(String applicationName) throws IOException {
         String applicationId = Context.getInstance().getApplicationId(applicationName);
         SearchRequest request = new SearchRequest();
         request.setFrom(0);
@@ -137,29 +134,31 @@ public class ApplicationStepDefinitions {
         assertEquals(String.class, restResponse.getData().getClass());
     }
 
-    @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on this created template$")
-    public void I_create_a_new_application_with_name_and_description_based_this_created_template(String name, String description) throws Throwable {
-
-        // recover the created template
-        TopologyTemplate template = Context.getInstance().getTopologyTemplate();
-        assertNotNull(template);
-
+    private void createApplicationFromTemplateId(String name, String description, String templateId) throws Throwable {
         // create the application linked to this template
-        CreateApplicationRequest request = new CreateApplicationRequest(name, description, template.getId());
+        CreateApplicationRequest request = new CreateApplicationRequest(name, description, templateId);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/", JsonUtil.toString(request)));
 
         // check the created application (topologyId)
-        RestResponse<String> reponse = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
-        String applicationJson = Context.getRestClientInstance().get("/rest/applications/" + reponse.getData());
+        RestResponse<String> response = JsonUtil.read(Context.getInstance().getRestResponse(), String.class);
+        String applicationJson = Context.getRestClientInstance().get("/rest/applications/" + response.getData());
         Application application = JsonUtil.read(applicationJson, Application.class).getData();
         assertNotNull(application);
         CURRENT_APPLICATION = application;
         Context.getInstance().registerApplication(application);
         Context.getInstance().registerApplicationId(name, application.getId());
         setAppEnvironmentIdToContext(application.getName());
+        String topologyId = getTopologyIdFromApplication(application.getName());
+        assertNotNull(topologyId);
+        Context.getInstance().registerTopologyId(topologyId);
+    }
 
-        assertNotNull(getTopologyIdFromApplication(application.getName()));
-
+    @When("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on this created template$")
+    public void I_create_a_new_application_with_name_and_description_based_this_created_template(String name, String description) throws Throwable {
+        // recover the created template
+        TopologyTemplate template = Context.getInstance().getTopologyTemplate();
+        assertNotNull(template);
+        createApplicationFromTemplateId(name, description, template.getId());
     }
 
     @Then("^The created application topology is the same as the one in the base topology template$")
@@ -633,4 +632,9 @@ public class ApplicationStepDefinitions {
         Assert.assertNotNull(environmentId);
     }
 
+    @Given("^I create a new application with name \"([^\"]*)\" and description \"([^\"]*)\" based on the template with name \"([^\"]*)\"$")
+    public void I_create_a_new_application_with_name_and_description_based_on_the_template_with_name(String name, String description, String templateName)
+            throws Throwable {
+        createApplicationFromTemplateId(name, description, TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName));
+    }
 }

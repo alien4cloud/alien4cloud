@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.elasticsearch.common.collect.Maps;
+import org.junit.Assert;
 
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
@@ -14,11 +15,12 @@ import alien4cloud.it.Entry;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.template.CreateTopologyTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
-import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.utils.ReflectionUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -54,7 +56,7 @@ public class TopologyTemplateStepDefinitions {
 
     @Given("^I create a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\" and node templates$")
     public void I_create_a_new_topology_template_with_name_and_description_and_node_templates(String topologyTemplateName, String topologyTemplateDesc,
-            DataTable nodeTemplates) throws Throwable {
+                                                                                              DataTable nodeTemplates) throws Throwable {
 
         // create the topology
         I_create_a_new_topology_template_with_name_and_description(topologyTemplateName, topologyTemplateDesc);
@@ -110,17 +112,19 @@ public class TopologyTemplateStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/templates/topology/" + topologyTemplateId));
     }
 
-    private String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
-        String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
+    public static String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
+        SearchRequest templateWithNameSearchRequest = new SearchRequest();
+        Map<String, String[]> filters = Maps.newHashMap();
+        filters.put("name", new String[]{topologyTemplateName});
+        templateWithNameSearchRequest.setFilters(filters);
+        templateWithNameSearchRequest.setFrom(0);
+        templateWithNameSearchRequest.setSize(1);
+        String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", JsonUtil.toString(templateWithNameSearchRequest));
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
-        String topologyTemplateId = null;
-        for (Object singleResult : restResponse.getData().getData()) {
-            Map map = (Map) singleResult;
-            if (topologyTemplateName.equals(map.get("name"))) {
-                topologyTemplateId = map.get("id").toString();
-            }
-        }
-        return topologyTemplateId;
+        Assert.assertEquals(1, restResponse.getData().getTotalResults());
+        Map<String, Object> singleResult = (Map<String, Object>) restResponse.getData().getData()[0];
+        String templateId = (String) singleResult.get("id");
+        return templateId;
     }
 
     @Then("^The related topology shouldn't exist anymore$")

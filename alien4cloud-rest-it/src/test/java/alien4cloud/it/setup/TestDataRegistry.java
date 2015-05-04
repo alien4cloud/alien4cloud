@@ -114,7 +114,6 @@ public class TestDataRegistry {
         addConditionFolder("samples wordpress", GIT_ARTIFACTS_PATH + "samples/wordpress");
         addConditionFolder("samples mysql", GIT_ARTIFACTS_PATH + "samples/mysql");
         addConditionFolder("samples php", GIT_ARTIFACTS_PATH + "samples/php");
-        addConditionFolder("samples topology apache", GIT_ARTIFACTS_PATH + "samples/topology-apache");
         addConditionFolder("samples topology wordpress", GIT_ARTIFACTS_PATH + "samples/topology-wordpress");
 
         // We put all artifacts to a4c root project dir
