@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import lombok.SneakyThrows;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
@@ -232,7 +233,7 @@ public class TopologyValidationService {
         dto.addToTaskList(validateProperties(topology, deploymentSetup != null ? deploymentSetup.getInputProperties() : null));
 
         // Validate that HA groups are respected with current configuration
-        if (deploymentSetup != null && matcherConfig != null) {
+        if (deploymentSetup != null && matcherConfig != null && MapUtils.isNotEmpty(deploymentSetup.getAvailabilityZoneMapping())) {
             dto.addToWarningList(validateHAGroup(topology, deploymentSetup, matcherConfig));
         }
 

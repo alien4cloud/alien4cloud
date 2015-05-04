@@ -9,15 +9,12 @@
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="displayYaml()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
-            <select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" ng-options="appVersion.version for appVersion in appVersions"
-                    class="btn" ng-change="changeVersion(selectedVersion)">
-            </select>
-            <!-- <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeVersion(selectedVersion, appVersions)" reset-search-input="false" close-on-select="true">
+            <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeVersion(selectedVersion, appVersions)" reset-search-input="false" close-on-select="true">
               <ui-select-match placeholder="Select or search a version in the list...">{{$select.selected.version}}</ui-select-match>
                 <ui-select-choices repeat="appVersion in appVersions">
                   <span ng-bind-html="appVersion.version | highlight: $select.search"></span>
                 </ui-select-choices>
-             </ui-select> -->
+             </ui-select>
           </div>
         </div>
         <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
@@ -158,19 +155,19 @@
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
                 {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
               </h4>
-            </div> 
-            <span class="clearfix"></span>    
+            </div>
+            <span class="clearfix"></span>
             <div id="node-details-groups-panel" collapse="isGroupsCollapsed" class="topology-level facet-choice">
-	            <ul class="nav facet-choice">
+              <ul class="nav facet-choice">
                 <li ng-repeat="groupId in selectedNodeTemplate.groups">
-                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}" 
-                    confirm-handler="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom" 
+                  <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
+                    confirm-handler="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom"
                     ng-click="$event.stopPropagation();">
                     <span class="{{getGroupColorCss(groupId)}}">{{groupId}}</span>&nbsp;
                     <i class="fa fa-times"></i>
-                  </a>                
+                  </a>
                 </li>
-	            </ul>
+              </ul>
             </div>
           </div>
 
@@ -768,34 +765,34 @@
               <h4>
                 <i class="pull-left fa clickable {{getGroupColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
                 ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
-	              <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="updateNodeGroupName(group.name, $data)" blur="submit">
-	                {{group.name}}
-	                <i class="fa fa-pencil-square-o"></i>
-	              </span>   
+                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="updateNodeGroupName(group.name, $data)" blur="submit">
+                  {{group.name}}
+                  <i class="fa fa-pencil-square-o"></i>
+                </span>
                 <delete-confirm id="btn-delete-group-{{group.name}}" func="deleteNodeGroup(group.name)" position="left" class="pull-right" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </h4>
             </div>
             <div id="group-details-{{group.name}}-content" collapse="groupCollapsed[group.name].main" class="topology-level">
-	            <div id="group-members-{{group.name}}-header" class="topology-node-expand clickable"
-	                 ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
-	              <h5>
-	                <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
-	                {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
-	              </h5>
-	            </div>
-	            <div id="group-members-{{group.name}}-content" collapse="groupCollapsed[group.name].members" class="facet-choice topology-level">
-	              <ul class="nav facet-choice">
-	                <li ng-repeat="member in group.members">
-		                <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}" 
-		                  confirm-handler="deleteNodeGroupMember(group.name, member)" confirm-placement="bottom" 
-		                  ng-click="$event.stopPropagation();" >
-		                  <span>{{member}}</span>&nbsp;
-		                  <i class="fa fa-times"></i>
-		                </a>	          
-	                </li>
-	              </ul>
-	            </div>
+              <div id="group-members-{{group.name}}-header" class="topology-node-expand clickable"
+                   ng-click="groupCollapsed[group.name].members = !groupCollapsed[group.name].members">
+                <h5>
+                  <i class="pull-left fa" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].members, 'fa-chevron-right': groupCollapsed[group.name].members}"></i>
+                  {{'APPLICATIONS.TOPOLOGY.GROUPS.MEMBERS' | translate}}
+                </h5>
+              </div>
+              <div id="group-members-{{group.name}}-content" collapse="groupCollapsed[group.name].members" class="facet-choice topology-level">
+                <ul class="nav facet-choice">
+                  <li ng-repeat="member in group.members">
+                    <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
+                      confirm-handler="deleteNodeGroupMember(group.name, member)" confirm-placement="bottom"
+                      ng-click="$event.stopPropagation();" >
+                      <span>{{member}}</span>&nbsp;
+                      <i class="fa fa-times"></i>
+                    </a>
+                  </li>
+                </ul>
+              </div>
               <div id="group-policies-{{group.name}}-header" class="topology-node-expand clickable"
                    ng-click="groupCollapsed[group.name].policies = !groupCollapsed[group.name].policies">
                 <h5>
