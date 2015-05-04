@@ -71,7 +71,11 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
       return applicationServices.upsertProperty({
         applicationId: $scope.application.id
-      }, angular.toJson(updateApplicationPropertyObject)).$promise;
+      }, angular.toJson(updateApplicationPropertyObject), function(response) {
+        if (!response.error) {
+          $scope.application.metaProperties[propertyDefinition.id] = propertyValue;
+        }
+      });
     };
 
     var alienInternalTags = ['icon'];
