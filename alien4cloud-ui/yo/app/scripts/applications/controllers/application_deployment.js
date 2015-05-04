@@ -168,11 +168,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       // since we manage 50 HA policies, we need at least 2 zone per group
       // TODO: find a better way to express that
       $scope.hasUnmatchedGroup = hasUmatchedResource($scope.matchedZoneResources, $scope.selectedZones, CONSTANTS.minimumZoneCountPerGroup);
-    }
+    };
+
     $scope.hasEnoughSelectedZones = function(groupId) {
       return $scope.selectedZones[groupId] && ($scope.selectedZones[groupId].length >= CONSTANTS.minimumZoneCountPerGroup);
-    }
-    
+    };
+
     var hasUmatchedResource = function(matchedResources, selectedResources, minimumSize) {
       var key;
       for (key in matchedResources) {
@@ -187,7 +188,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       }
       return false;
     }
-    
+
     // Change the selected environment (set only if required).
     var changeEnvironment = function(switchToEnvironment) {
       if (UTILS.isDefinedAndNotNull(switchToEnvironment) && switchToEnvironment.id !== $scope.selectedEnvironment.id) {
@@ -247,7 +248,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       $scope.currentStorageNodeTemplateId = name;
       $scope.currentMatchedStorages = currentMatchedStorages;
     };
-    
+
     $scope.setCurrentGroup = function(name) {
       $scope.currentGroupId = name;
       $scope.currentMatchedZones = $scope.matchedZoneResources[name];
@@ -285,7 +286,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         cloudResourcesMapping: $scope.selectedComputeTemplates
       }));
     };
-    
+
     $scope.changeSelectedZone = function(zone) {
       var idx = UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id);
       if (idx < 0) {
@@ -300,8 +301,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         applicationEnvironmentId: $scope.selectedEnvironment.id
       }, angular.toJson({
         availabilityZoneMapping: $scope.selectedZones
-      }));
-    };    
+      }), function() {
+        checkTopology();
+      });
+    };
 
     $scope.showProperty = function() {
       return !$scope.showTodoList() && UTILS.isDefinedAndNotNull($scope.deploymentPropertyDefinitions);
@@ -309,6 +312,10 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
     $scope.showTodoList = function() {
       return !$scope.validTopologyDTO.valid && $scope.isManager;
+    };
+
+    $scope.showWarningList = function() {
+      return UTILS.isArrayDefinedAndNotEmpty($scope.validTopologyDTO.warningList);
     };
 
     $scope.isSelectedCompute = function(template) {
@@ -341,11 +348,11 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     $scope.isSelectedGroup = function(key) {
       return key === $scope.currentGroupId;
     };
-    
+
     $scope.isSelectedZone = function(zone) {
       return UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id) > -1;
     };
-    
+
     $scope.isAllowedInputDeployment = function() {
       return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
     };
@@ -391,12 +398,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       };
       $scope.isDeploying = true;
       applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest)
-       , function() {
-        $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
-        $scope.isDeploying = false;
-      }, function(){
-        $scope.isDeploying = false;
-      });
+        , function() {
+          $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+          $scope.isDeploying = false;
+        }, function() {
+          $scope.isDeploying = false;
+        });
     };
 
     $scope.undeploy = function() {

@@ -290,8 +290,11 @@
       "VALUE": "Valeur",
       "BACK": "Retour",
       "SCALE_BUTTON": "Scale le noeud",
-      "MAINTENANCE" : "Mode maintenance",
-      "MAINTENANCE_BUTTON": { "ON": "Souhaitez-vous activer le mode maintenance ?", "OFF": "Souhaitez-vous sortir du mode maintenance ?"},
+      "MAINTENANCE": "Mode maintenance",
+      "MAINTENANCE_BUTTON": {
+        "ON": "Souhaitez-vous activer le mode maintenance ?",
+        "OFF": "Souhaitez-vous sortir du mode maintenance ?"
+      },
       "DEPLOYMENT": "Déploiement",
       "SCALE": "Scale",
       "INSTANCES": "Instances",
@@ -423,7 +426,20 @@
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds"
       },
-      "GROUPS" : {
+      "WARNING": {
+        "LABEL": "Alertes",
+        "HA_INVALID": {
+          "LABEL": "HA politique is invalide",
+          "GROUP": "Groupe",
+          "NODE": "Noeud",
+          "NODE_NOT_ALLOCATED": "Aucune Zone de disponibilité n'est allouée au noeud",
+          "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Noeud appartient aux multiples groupes",
+          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Noeud n'est pas dans la même Zone de disponibilité que son volume",
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Zones de disponibilité ne sont pas distribuées de manière optimisée",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La Zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées"
+        }
+      },
+      "GROUPS": {
         "TITLE": "Groupes",
         "MEMBERS": "Membres",
         "POLICIES": "Politiques",

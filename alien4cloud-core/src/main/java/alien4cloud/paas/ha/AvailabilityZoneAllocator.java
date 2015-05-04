@@ -117,14 +117,21 @@ public class AvailabilityZoneAllocator {
                 PaaSNodeTemplate volume = groupCompute.getAttachedNode();
                 if (allocatedZone == null) {
                     allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_NOT_ALLOCATED, groupId, groupCompute.getId()));
+                    break;
                 } else if (volume != null) {
                     String volumeAVZ = getAvailabilityZone(volume);
                     if (volumeAVZ != null && !volumeAVZ.equals(avzToPaaSResourceId.get(allocatedZone))) {
                         allocationErrors.add(new AllocationError(AllocationErrorCode.NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE, groupId, groupCompute.getId()));
+                        break;
                     }
                 }
                 Integer existingCount = repartitionMap.get(allocatedZone);
-                repartitionMap.put(allocatedZone, existingCount + 1);
+                if (existingCount == null) {
+                    allocationErrors
+                            .add(new AllocationError(AllocationErrorCode.NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP, groupId, groupCompute.getId()));
+                } else {
+                    repartitionMap.put(allocatedZone, existingCount + 1);
+                }
             }
             int mostUsed = 0;
             int leastUsed = Integer.MAX_VALUE;

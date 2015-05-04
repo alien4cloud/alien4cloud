@@ -55,9 +55,12 @@
 
 .task-list-box {
   padding-left: 5px;
-  border-left-style: solid;
-  border-left-width: 3px;
-  border-left-color: $state-danger-text;
+  border-left: 3px solid $state-danger-text;
+}
+
+.warning-list-box {
+  padding-left: 5px;
+  border-left: 3px solid $state-warning-text;
 }
 
 .margin-top-05 { margin-top: 0.5em; }

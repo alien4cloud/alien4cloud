@@ -53,6 +53,36 @@
 
   </div>
   <div class="col-md-6">
+    <!-- warning list -->
+    <div class="row" ng-if="showWarningList()">
+      <div id="deploymentWarningList" class="col-md-12">
+        <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i>
+          {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
+
+        <div class="warning-list-box">
+          <div class="topology-node-expand clickable" ng-init="isHAGroupWarningsCollapsed = false" ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
+            <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isHAGroupWarningsCollapsed , 'fa-chevron-right': isHAGroupWarningsCollapsed }"></i>
+            <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
+          </div>
+          <div collapse="isHAGroupWarningsCollapsed " class="topology-level">
+            <table class="table table-condensed">
+              <thead>
+                <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.GROUP' | translate}}</th>
+                <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.NODE' | translate}}</th>
+                <th></th>
+              </thead>
+              <tbody>
+                <tr ng-repeat="haTask in validTopologyDTO.warningList">
+                  <td>{{haTask.groupId}}</td>
+                  <td>{{haTask.nodeTemplateName || '---'}}</td>
+                  <td>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.' + haTask.errorCode | translate}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- todo list -->
     <div class="row" ng-if="showTodoList()">
       <div id="deploymentTodoList" class="col-md-12">
