@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -16,34 +14,18 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 
-import alien4cloud.component.ICSARRepositorySearchService;
-import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.ParsingError;
 import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.impl.ErrorCode;
-import alien4cloud.tosca.parser.impl.base.ScalarParser;
 import alien4cloud.tosca.parser.mapping.DefaultDeferredParser;
 
 @Component
 @Slf4j
 public class OuputsParser extends DefaultDeferredParser<Void> {
-
-    @Resource
-    private CsarService csarService;
-
-    @Resource
-    private ScalarParser scalarParser;
-
-    @Resource
-    private ICSARRepositorySearchService searchService;
-
-    @Resource
-    private TopologyServiceCore topologyServiceCore;
 
     @Override
     public Void parse(Node node, ParsingContextExecution context) {

@@ -229,9 +229,7 @@ public class TopologyValidationService {
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
-        if (deploymentSetup != null) {
-            dto.addToTaskList(validateProperties(topology, deploymentSetup.getInputProperties()));
-        }
+        dto.addToTaskList(validateProperties(topology, deploymentSetup != null ? deploymentSetup.getInputProperties() : null));
 
         // Validate that HA groups are respected with current configuration
         if (deploymentSetup != null && matcherConfig != null) {

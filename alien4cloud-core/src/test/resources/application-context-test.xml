@@ -20,7 +20,6 @@
 		alien4cloud.images,
 		alien4cloud.application,
 		alien4cloud.csar.*,
-		alien4cloud.rest.suggestion,
 		org.elasticsearch.mapping,
 		alien4cloud.paas,
 		alien4cloud.paas.plan,
