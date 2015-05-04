@@ -20,7 +20,7 @@
     <!-- Deployment -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
       <div class="col-md-8">
-        <select id="environment-select" class="form-control " ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
+        <select id="environment-select" class="form-control " ng-disabled="isDeploying" ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
           <option value="selectedEnvironment"></option>
         </select>
           <!-- ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}** -->
