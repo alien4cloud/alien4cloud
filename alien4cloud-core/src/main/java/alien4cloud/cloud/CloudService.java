@@ -897,7 +897,7 @@ public class CloudService {
     public void removeAvailabilityZone(Cloud cloud, String availabilityZoneId) {
         Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
         getResource(availabilityZones, availabilityZoneId, true);
-        cloud.getStorageMapping().remove(availabilityZoneId);
+        cloud.getAvailabilityZoneMapping().remove(availabilityZoneId);
         alienDAO.save(cloud);
     }
 
