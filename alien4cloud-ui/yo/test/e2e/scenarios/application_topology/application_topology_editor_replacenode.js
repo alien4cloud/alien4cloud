@@ -33,15 +33,15 @@ describe('Replacing a node template', function() {
     // check on relationships count
     topologyEditorCommon.checkNumberOfRelationshipForANode('JavaPuppet', 1);
 
-    // add a relationship with Compute_2, replace JavaPuppet and check
-    topologyEditorCommon.addRelationshipToNode('Compute_2', 'JavaPuppet', 'dependency', 'tosca.relationships.DependsOn:2.0', 'dependsOnJavaPuppet');
+    // add a relationship with Compute-2, replace JavaPuppet and check
+    topologyEditorCommon.addRelationshipToNode('Compute-2', 'JavaPuppet', 'dependency', 'tosca.relationships.DependsOn:2.0', 'dependsOnJavaPuppet');
 
     topologyEditorCommon.replaceNodeTemplates('JavaPuppet', javaRPM);
     topologyEditorCommon.checkNodeWasReplaced('JavaPuppet', 'JavaRPM');
     topologyEditorCommon.checkNumberOfRelationshipForANode('JavaRPM', 1);
 
-    // check if the target name have been changed in the source of the relationship (Compute_2)
-    topologyEditorCommon.selectNodeAndGoToDetailBloc('Compute_2', topologyEditorCommon.nodeDetailsBlocsIds.rel);
+    // check if the target name have been changed in the source of the relationship (Compute-2)
+    topologyEditorCommon.selectNodeAndGoToDetailBloc('Compute-2', topologyEditorCommon.nodeDetailsBlocsIds.rel);
     var relationships = element.all(by.repeater('relationshipEntry in selectedNodeTemplate.relationships'));
     expect(relationships.first().element(by.binding('relationshipEntry.value.target')).getText()).toContain('JavaRPM');
   });

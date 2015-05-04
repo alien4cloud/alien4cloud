@@ -342,7 +342,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       var tempName = baseName;
       while (nodeTemplateNameExists(tempName)) {
         i++;
-        tempName = baseName + '_' + i;
+        tempName = baseName + '-' + i;
       }
 
       return tempName;

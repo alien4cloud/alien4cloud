@@ -72,7 +72,7 @@ describe('Topology node groups', function() {
       compute: componentData.toscaBaseTypes.compute()
     });
     // and another group
-    topologyEditorCommon.addNodeTemplateToNodeGroup('Compute_2');
+    topologyEditorCommon.addNodeTemplateToNodeGroup('Compute-2');
     // close the node details box
     element(by.id('closeNodeTemplateDetails')).click();
     
@@ -80,7 +80,7 @@ describe('Topology node groups', function() {
     // show the groups box
     element(by.id('topology-groups')).element(by.xpath('..')).click();
     // rename the group
-    var xeditable = element(by.id('nodeGroupName_Compute_2'));
+    var xeditable = element(by.id('nodeGroupName_Compute-2'));
     xeditable.click();
     var form = xeditable.element(by.xpath('..')).element(by.tagName('form'));
     var input = form.element(by.tagName('input'));
@@ -127,7 +127,7 @@ describe('Topology node groups', function() {
       // expect to have 2 members in this group  
       expect(element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).count()).toEqual(2);
       element(by.id('group-members-MyGroup-content')).all(by.repeater('member in group.members')).then(function(members) {
-        expect(members[0].element(by.tagName('span')).getText()).toEqual('Compute_2');
+        expect(members[0].element(by.tagName('span')).getText()).toEqual('Compute-2');
         expect(members[1].element(by.tagName('span')).getText()).toEqual('Compute');
         // delete the member 'Compute'
         expect(members[1].element(by.tagName('a')).isDisplayed()).toBeTruthy();
@@ -168,8 +168,8 @@ describe('Topology node groups', function() {
     element(by.id('closeGroups')).click();
     
     console.log('## ensure the node no more reference the deleted group');
-    // click on the node 'Compute_2'
-    element(by.id('rect_Compute_2')).click();
+    // click on the node 'Compute-2'
+    element(by.id('rect_Compute-2')).click();
     // expect to have 0 groups now  
     expect(element.all(by.repeater('groupId in selectedNodeTemplate.groups')).count()).toEqual(0);
     // the 'group' block should disappear

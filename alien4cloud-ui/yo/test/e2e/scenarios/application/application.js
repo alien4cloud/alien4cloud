@@ -47,7 +47,7 @@ describe('Applications management', function() {
 
     // check relationship count
     topologyEditorCommon.checkNumberOfRelationshipForANode('JavaRPM', 2);
-    topologyEditorCommon.checkNumberOfRelationshipForANode('Compute_2', 0);
+    topologyEditorCommon.checkNumberOfRelationshipForANode('Compute-2', 0);
     topologyEditorCommon.checkNumberOfRelationshipForANode('Compute', 0);
   });
 

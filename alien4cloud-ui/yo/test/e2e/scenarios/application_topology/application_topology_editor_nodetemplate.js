@@ -61,7 +61,7 @@ describe('Topology node template edition :', function() {
 
   it('should be able to edit a node template name', function() {
     console.log('################# should be able to edit a node template name');
-    var nodeToEdit = element(by.id('rect_Compute_2'));
+    var nodeToEdit = element(by.id('rect_Compute-2'));
     nodeToEdit.click();
 
     var nameSpan = element(by.id('nodetemplate-details')).element(by.css('h3 span[editable-text]'));

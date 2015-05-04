@@ -178,6 +178,11 @@ public class TopologyController {
             log.debug("Add Node Template <{}> impossible (already exists)", nodeTemplateRequest.getName());
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
+        } else if (!NodeTemplate.isValidNodeTemplateName(nodeTemplateRequest.getName())) {
+            return RestResponseBuilder
+                    .<TopologyDTO> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
+                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
         } else {
             log.debug("Create application <{}>", nodeTemplateRequest.getName());
         }
@@ -241,8 +246,7 @@ public class TopologyController {
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String newNodeTemplateName) {
-        String pattern = "^[A-Za-z0-9\\\\-]*$";
-        if (!newNodeTemplateName.matches(pattern)) {
+        if (!NodeTemplate.isValidNodeTemplateName(newNodeTemplateName)) {
             return RestResponseBuilder
                     .<TopologyDTO> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
