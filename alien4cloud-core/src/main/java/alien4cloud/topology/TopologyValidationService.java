@@ -246,11 +246,15 @@ public class TopologyValidationService {
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         Map<String, AvailabilityZone> allocatedZones = allocator.processAllocation(paaSTopology, deploymentSetup, matcherConfig);
-        List<AllocationError> allocationErrors = allocator.validateAllocation(allocatedZones, paaSTopology, matcherConfig);
+        List<AllocationError> allocationErrors = allocator.validateAllocation(allocatedZones, paaSTopology, deploymentSetup, matcherConfig);
         List<TopologyTask> tasks = Lists.newArrayList();
         for (AllocationError error : allocationErrors) {
-            tasks.add(new HAGroupTask(TaskCode.HA_INVALID, error.getNodeId(), paaSTopology.getAllNodes().get(error.getNodeId()).getIndexedToscaElement(), error
-                    .getGroupId(), error.getCode()));
+            String nodeId = error.getNodeId();
+            IndexedNodeType nodeType = null;
+            if (StringUtils.isNotBlank(nodeId)) {
+                nodeType = paaSTopology.getAllNodes().get(error.getNodeId()).getIndexedToscaElement();
+            }
+            tasks.add(new HAGroupTask(TaskCode.HA_INVALID, nodeId, nodeType, error.getGroupId(), error.getCode()));
         }
         return tasks;
     }

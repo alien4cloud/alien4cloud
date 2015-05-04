@@ -90,7 +90,7 @@ public class AvailabilityZoneAllocator {
         return haComputeMap;
     }
 
-    public List<AllocationError> validateAllocation(Map<String, AvailabilityZone> allocation, PaaSTopology topology,
+    public List<AllocationError> validateAllocation(Map<String, AvailabilityZone> allocation, PaaSTopology topology, DeploymentSetup deploymentSetup,
             CloudResourceMatcherConfig cloudResourceMatcherConfig) {
         List<AllocationError> allocationErrors = Lists.newArrayList();
         Map<AvailabilityZone, String> avzToPaaSResourceId = cloudResourceMatcherConfig.getAvailabilityZoneMapping();
@@ -106,6 +106,12 @@ public class AvailabilityZoneAllocator {
             String groupId = groupEntry.getKey();
             List<PaaSNodeTemplate> groupComputes = groupEntry.getValue();
             Map<AvailabilityZone, Integer> repartitionMap = Maps.newHashMap();
+            if (deploymentSetup.getAvailabilityZoneMapping() == null || !deploymentSetup.getAvailabilityZoneMapping().containsKey(groupId)) {
+                throw new ResourceMatchingFailedException("Ask to validate allocation on a topology with invalid deployment setup");
+            }
+            for (AvailabilityZone matchedZone : deploymentSetup.getAvailabilityZoneMapping().get(groupId)) {
+                repartitionMap.put(matchedZone, 0);
+            }
             for (PaaSNodeTemplate groupCompute : groupComputes) {
                 AvailabilityZone allocatedZone = allocation.get(groupCompute.getId());
                 PaaSNodeTemplate volume = groupCompute.getAttachedNode();
@@ -118,11 +124,7 @@ public class AvailabilityZoneAllocator {
                     }
                 }
                 Integer existingCount = repartitionMap.get(allocatedZone);
-                if (existingCount == null) {
-                    repartitionMap.put(allocatedZone, 0);
-                } else {
-                    repartitionMap.put(allocatedZone, existingCount + 1);
-                }
+                repartitionMap.put(allocatedZone, existingCount + 1);
             }
             int mostUsed = 0;
             int leastUsed = Integer.MAX_VALUE;
