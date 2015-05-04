@@ -49,11 +49,11 @@ Scenario: Add a relationship between 2 nodes: valid sources different of valid t
   Given I upload the archive "relationship test types"
     And There is a "node type" with element name "test.nodes.Compute" and archive version "1.0"
     And There is a "node type" with element name "test.nodes.Java" and archive version "1.0"
-    And I have added a node template "Compute_test" related to the "test.nodes.Compute:1.0" node type
-    And I have added a node template "Java_test" related to the "test.nodes.Java:1.0" node type
-  When I add a relationship of type "test.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java_test" and target "Compute_test" for requirement "hosted" of type "test.capabilities.Container" and target capability "hosting"
+    And I have added a node template "Compute-test" related to the "test.nodes.Compute:1.0" node type
+    And I have added a node template "Java-test" related to the "test.nodes.Java:1.0" node type
+  When I add a relationship of type "test.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java-test" and target "Compute-test" for requirement "hosted" of type "test.capabilities.Container" and target capability "hosting"
   Then I should receive a RestResponse with no error
-    And I should have 1 relationship with source "Java_test" and target "Compute_test" for type "test.relationships.HostedOn" with requirement "hosted" of type "test.capabilities.Container"
+    And I should have 1 relationship with source "Java-test" and target "Compute-test" for type "test.relationships.HostedOn" with requirement "hosted" of type "test.capabilities.Container"
 
 Scenario: rename a relationship
   Given I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
