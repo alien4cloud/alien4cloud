@@ -1,5 +1,7 @@
 package alien4cloud.rest.application;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -74,11 +76,31 @@ public class ApplicationVersionController {
     }
 
     /**
+     * Sort the ApplicationVersion from newest to oldest
+     *
+     * @param data
+     * @return a sorted array of ApplicationVersion
+     */
+    private ApplicationVersion[] sortArrayOfApplicationVersion(ApplicationVersion[] data) {
+        if (data == null || data.length <= 1) {
+            return data;
+        }
+        List<ApplicationVersion> sortedData = Lists.newArrayList(data);
+        Collections.sort(sortedData, new Comparator<ApplicationVersion>() {
+            @Override
+            public int compare(ApplicationVersion left, ApplicationVersion right) {
+                return VersionUtil.compare(right.getVersion(), left.getVersion());
+            }
+        });
+        return sortedData.toArray(new ApplicationVersion[data.length]);
+    }
+
+    /**
      * Search application versions for a given application id
      *
      * @param applicationId the targeted application id
      * @param searchRequest
-     * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id
+     * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id sorted by version
      */
     @ApiOperation(value = "Search application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -87,6 +109,7 @@ public class ApplicationVersionController {
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, null,
                 getApplicationVersionsFilters(applicationId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
+        searchResult.setData(sortArrayOfApplicationVersion(searchResult.getData()));
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
     }
 
