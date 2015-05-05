@@ -162,11 +162,13 @@ public class FunctionEvaluatorTest {
 
         // HOST keyword
         String tomcatName = "tomcat";
+        String warName = "war_1";
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
-        Operation customHelloOp = tomcatPaaS.getIndexedToscaElement().getInterfaces().get("custom").getOperations().get("helloCmd");
-        param = customHelloOp.getInputParameters().get("customHostName");
-        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
-                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, tomcatPaaS, builtPaaSNodeTemplates));
+        PaaSNodeTemplate warPaaS = builtPaaSNodeTemplates.get(warName);
+        Operation op = warPaaS.getIndexedToscaElement().getInterfaces().get("custom").getOperations().get("update_war_file");
+        param = op.getInputParameters().get("TOMCAT_HOME");
+        Assert.assertEquals(getPropertyValue(tomcatPaaS, "tomcat_home"),
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, warPaaS, builtPaaSNodeTemplates));
     }
 
     @Test
@@ -186,7 +188,7 @@ public class FunctionEvaluatorTest {
 
         // test SOURCE keyword
         IOperationParameter param = configOp.getInputParameters().get("contextPath");
-        Assert.assertEquals(getPropertyValue(warPaaS, "contextPath"),
+        Assert.assertEquals(getPropertyValue(warPaaS, "context_path"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test TARGET keyword

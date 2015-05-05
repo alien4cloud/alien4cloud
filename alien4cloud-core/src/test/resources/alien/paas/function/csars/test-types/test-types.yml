@@ -7,7 +7,7 @@ template_version: 1.0-SNAPSHOT
 imports:
   - tosca-normative-types:1.0.0.wd03-SNAPSHOT
   - alien-base-types:1.0-SNAPSHOT
-  - tomcat-war-types:1.0-SNAPSHOT
+  #- tomcat-war-types:2.0.0-SNAPSHOT
 
 node_types:
   alien.test.TestCompute:
@@ -21,14 +21,54 @@ node_types:
           inputs:
             customHostName: { get_property: [SELF, customHostName]}
           implementation: scripts/setHostname.sh
+        stop:
+          inputs:
+            MY_IP: { get_attribute: [SELF, ip_address] }
+          implementation: scripts/testCompute_stop.groovy
       custom:
-         helloCmd:
+        helloCmd:
           input:
             yourName:
               type: string
               required: true
             customHostName: { get_property: [HOST, customHostName] }
           implementation: scripts/helloCmd.groovy
+      fastconnect.cloudify.extensions:
+        start_detection:
+          input:
+            EXPECTED_HOSTNAME: {get_property: [SELF, customHostName]}
+          implementation: scripts/compute_start_detection.groovy
+      fr.fastconnect.custom:
+        bolo:
+          implementation: scripts/cmd_bolo.groovy
+        bala:
+          implementation: scripts/cmd_bala.groovy
+          inputs:
+            p1:
+              type: string
+              required: true
+        bashWithOuput:
+          implementation: scripts/customCommandBashWithOutput.sh
+
+  alien.test.nodes.ComputeWindows:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    interfaces:
+      Standard:
+        create: scripts/create_comp_windows.cmd
+        configure:
+          inputs:
+            FILENAME: "configured.txt"
+          implementation: scripts/configure_comp_windows.bat
+      custom:
+        checkFile:
+          inputs:
+            FILENAME:
+              type: string
+              required: true
+          implementation: scripts/checkFile.groovy
 
   alien.test.BadTestCompute:
     derived_from: tosca.nodes.Compute
@@ -46,36 +86,26 @@ node_types:
             KeywordTargetBadUsage: { get_property: [TARGET, customHostName]}
           implementation: scripts/setHostname.sh
 
-  alien.test.nodes.TomcatSh:
-    derived_from: alien.nodes.cloudify.Tomcat
-    description: >
-      Installation of Tomcat from a ZIP archive downloaded from the Web using sh scripts.
-    interfaces:
-      Standard:
-        create: tomcatSh-scripts/tomcat_install.sh
-        start: tomcatSh-scripts/tomcat_start.sh
-        stop: tomcatSh-scripts/tomcat_stop.sh
-      custom:
-         helloCmd:
-          input:
-            yourName:
-              type: string
-              required: true
-            customHostName: { get_property: [HOST, customHostName] }
-          implementation: scripts/helloCmd.groovy
+  alien.test.nodes.envVarTestComponent:
+    derived_from: tosca.nodes.SoftwareComponent
+    properties:
+      name:
+        type: string
 
 relationship_types:
-  alien.test.relationships.cloudify.WarHostedOnTomcat:
-    derived_from: alien.relationships.cloudify.WarHostedOnTomcat
+  alien.test.functions.relationships.WarHostedOnTomcat:
+    derived_from: tosca.relationships.HostedOn
+    description: Relationship that allows to deploy a war on tomcat.
+    valid_sources: [ alien.capabilities.WarHosting ]
+    valid_targets: [ alien.capabilities.WarHosting ]
     properties:
       relName:
         type: string
-        default: relation
     interfaces:
       configure:
         post_configure_source:
           inputs:
-            contextPath: { get_property: [SOURCE, contextPath] }
+            contextPath: { get_property: [SOURCE, context_path] }
             tomcatVersion: { get_property: [TARGET, version] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
@@ -84,4 +114,69 @@ relationship_types:
             bad_valid_node_types: { get_property: [SELF, war_host, valid_node_types] }
             null_capa_prop1: { get_property: [TARGET, war_hosttt, valid_node_types] }
             null_capa_prop2: { get_property: [TARGET, war_host, valid_node_typesss] }
-          implementation: relationshipScripts/warHostedOnTomcat_post_configure_source.groovy
+          implementation: relationshipScripts/test_hostedOn_post_configure_source.groovy
+
+  alien.test.relationships.HostedOn:
+    derived_from: tosca.relationships.HostedOn
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            CUSTOM_HOSTNAME: { get_property: [TARGET, customHostName] }
+            NAME: { get_property: [SOURCE, name] }
+            COMPUTE_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/test_hostedOn_post_configure_source.groovy
+
+  alien.test.relationships.TestTrigger:
+    derived_from: tosca.relationships.DependsOn
+    valid_sources: [ alien.test.TestCompute ]
+    valid_targets: [ alien.test.TestCompute ]
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/pre_post_configure_testEnv.groovy
+        post_configure_target:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/pre_post_configure_testEnv.groovy
+        add_target:
+          inputs:
+            MY_HOSTNAME: { get_property: [TARGET, customHostName] }
+            SOURCE_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            MY_IP: { get_attribute: [TARGET, ip_address] }
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: relationshipScripts/target_testEnv.sh
+        add_source:
+          inputs:
+            MY_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            TARGET_HOSTNAME: { get_property: [TARGET, customHostName] }
+            MY_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/source_testEnv.groovy
+        remove_target:
+          inputs:
+            MY_HOSTNAME: { get_property: [TARGET, customHostName] }
+            SOURCE_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            MY_IP: { get_attribute: [TARGET, ip_address] }
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: relationshipScripts/target_testEnv.sh
+        remove_source:
+          inputs:
+            MY_HOSTNAME: { get_property: [SOURCE, customHostName] }
+            TARGET_HOSTNAME: { get_property: [TARGET, customHostName] }
+            MY_IP: { get_attribute: [SOURCE, ip_address] }
+            TARGET_IP: { get_attribute: [TARGET, ip_address] }
+          implementation: relationshipScripts/source_testEnv.groovy
+
+  alien.test.relationships.DependsOnGetIpTest:
+    derived_from: tosca.relationships.DependsOn
+    interfaces:
+      configure:
+        post_configure_source:
+          inputs:
+            SOURCE_IP: { get_attribute: [SOURCE, ip_address] }
+          implementation: relationshipScripts/registerLBNode.groovy
