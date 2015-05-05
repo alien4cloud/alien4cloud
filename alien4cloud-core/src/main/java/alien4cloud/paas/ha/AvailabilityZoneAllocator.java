@@ -75,8 +75,8 @@ public class AvailabilityZoneAllocator {
                     if (existingAvz != null) {
                         Integer existingCount = availabilityZoneRepartition.get(existingAvz);
                         if (existingCount == null) {
-                            throw new AvailabilityZoneConfigurationException(groupEntry.getKey(), "Attention AVZ mapping has been changed, the AVZ "
-                                    + existingAvz.getId() + " injected by the existing volume is no longer valid for this compute " + compute.getId());
+                            log.warn(groupEntry.getKey(), "Attention AVZ mapping has been changed, the AVZ " + existingAvz.getId()
+                                    + " injected by the existing volume is no longer valid for this compute " + compute.getId());
                         } else {
                             availabilityZoneRepartition.put(existingAvz, existingCount + 1);
                         }

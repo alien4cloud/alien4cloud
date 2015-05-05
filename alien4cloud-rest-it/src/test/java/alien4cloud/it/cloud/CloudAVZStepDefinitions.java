@@ -85,6 +85,6 @@ public class CloudAVZStepDefinitions {
         RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
         Assert.assertTrue(restResponse.getData().get("warningList") != null && !((List) restResponse.getData().get("warningList")).isEmpty());
-        Assert.assertEquals(Sets.newHashSet(((List) restResponse.getData().get("warningList"))), tasks);
+        Assert.assertEquals(tasks, Sets.newHashSet(((List) restResponse.getData().get("warningList"))));
     }
 }
