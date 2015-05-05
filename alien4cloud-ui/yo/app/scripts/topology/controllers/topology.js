@@ -159,7 +159,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     } else {
       // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
       $scope.appVersions = appVersions;
-      // $scope.selectedVersion = null;
       $scope.topologyId = topologyId;
     }
 
@@ -174,26 +173,22 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       for (var i = 0; i < $scope.appVersions.length; i++) {
         if ($scope.appVersions[i].version === $scope.selectedVersionName) {
           $scope.selectedVersion = $scope.appVersions[i];
+          $scope.topologyId = $scope.selectedVersion.topologyId;
           break;
         }
       }
     };
 
-    var updateSelectedVersionName = function(applicationVersion) {
-      if (UTILS.isDefinedAndNotNull(applicationVersion)) {
-        applicationVersionServices.getFirst({
-          applicationId: $scope.application.id
-        }, function updateSelectedVersion(result) {
-          $scope.selectedVersionName = result.data.version;
-          setSelectedVersionByName($scope.selectedVersionName);
-        });
+    var updateSelectedVersionName = function(applicationVersions) {
+      if (UTILS.isDefinedAndNotNull(applicationVersions)) {
+          $scope.selectedVersionName = applicationVersions[0].version;
+          setSelectedVersionByName(applicationVersions[0].version);
       }
     };
     updateSelectedVersionName($scope.appVersions);
 
     $scope.changeVersion = function(selectedVersion) {
       setSelectedVersionByName(selectedVersion.version);
-      $scope.topologyId = selectedVersion.topologyId;
       topologyServices.dao.get({
         topologyId: $scope.topologyId
       }, function(successResult) {
