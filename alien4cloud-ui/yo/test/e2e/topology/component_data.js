@@ -2,7 +2,7 @@
 'use strict';
 
 function instanceId(node, instance) {
-  node.id = node.id + '_' + instance;
+  node.id = node.id + '-' + instance;
   return node;
 }
 
