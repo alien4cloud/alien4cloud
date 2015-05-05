@@ -54,6 +54,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
           applicationId: $scope.application.id
         }, angular.toJson(appVersion), function(successResponse) {
           $scope.searchService.search();
+          // TODO: search all app verions
           addNewAppVersionToAppVersionsArray(successResponse.data);
         });
       });
