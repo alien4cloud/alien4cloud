@@ -50,7 +50,6 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
@@ -226,8 +225,7 @@ public class DeploymentService {
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology) {
         PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
         topologyDeploymentContext.setDeployment(deployment);
-        Map<String, PaaSNodeTemplate> paaSNodes = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(paaSNodes);
+        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
         topologyDeploymentContext.setTopology(topology);
         topologyDeploymentContext.setDeployment(deployment);

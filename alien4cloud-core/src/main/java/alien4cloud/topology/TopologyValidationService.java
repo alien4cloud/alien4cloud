@@ -18,6 +18,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.CSARRepositorySearchService;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
@@ -25,7 +26,6 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
@@ -103,7 +103,7 @@ public class TopologyValidationService {
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
-    private List<PropertiesTask> validateProperties(Topology topology, Map<String, String> inputs) {
+    private List<PropertiesTask> validateProperties(Topology topology) {
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
@@ -124,7 +124,7 @@ public class TopologyValidationService {
             task.setProperties(Lists.<String> newArrayList());
 
             // Check the properties of node template
-            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), inputs, task);
+            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task);
 
             // Check relationships PD
             if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
@@ -133,7 +133,7 @@ public class TopologyValidationService {
                     if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), inputs, task);
+                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task);
                 }
             }
 
@@ -144,7 +144,7 @@ public class TopologyValidationService {
                     if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), inputs, task);
+                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), task);
                 }
             }
 
@@ -156,16 +156,18 @@ public class TopologyValidationService {
     }
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            Map<String, String> inputs, PropertiesTask task) {
+            PropertiesTask task) {
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
             PropertyDefinition propertyDef = relatedProperties.get(propertyEntry.getKey());
             // check value
             AbstractPropertyValue value = propertyEntry.getValue();
-            String propertyValue = null;
-            if (value instanceof ScalarPropertyValue) {
+            String propertyValue;
+            if (value == null) {
+                propertyValue = null;
+            } else if (value instanceof ScalarPropertyValue) {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
-            } else if (value instanceof FunctionPropertyValue && inputs != null) {
-                propertyValue = inputs.get(((FunctionPropertyValue) value).getTemplateName());
+            } else {
+                throw new InvalidArgumentException("Topology validation only supports scalar value, get_input should be replaced before performing validation");
             }
             if (propertyDef.isRequired() && StringUtils.isBlank(propertyValue)) {
                 task.getProperties().add(propertyEntry.getKey());
@@ -234,7 +236,7 @@ public class TopologyValidationService {
         dto.addToTaskList(validateRequirementsLowerBounds(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
-        dto.addToTaskList(validateProperties(topology, deploymentSetup != null ? deploymentSetup.getInputProperties() : null));
+        dto.addToTaskList(validateProperties(topology));
 
         // Validate that HA groups are respected with current configuration
         if (deploymentSetup != null && matcherConfig != null && MapUtils.isNotEmpty(deploymentSetup.getAvailabilityZoneMapping())) {

@@ -124,10 +124,15 @@ public class DeploymentSetupService {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+        return getDeploymentSetupMatchInfo(topology, environment, version);
+    }
+
+    public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
         DeploymentSetup deploymentSetup = get(version, environment);
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
+        processGetInput(deploymentSetup, topology);
         generateInputProperties(deploymentSetup, topology, true);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
@@ -223,8 +228,6 @@ public class DeploymentSetupService {
      */
     public DeploymentSetupMatchInfo generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave)
             throws CloudDisabledException {
-        processGetInput(deploymentSetup, topology);
-
         CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
         CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()),
@@ -264,7 +267,7 @@ public class DeploymentSetupService {
      * @param deploymentSetup The deployment setup that contains the input values.
      * @param topology The topology to process.
      */
-    public void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
+    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());

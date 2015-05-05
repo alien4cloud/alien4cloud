@@ -36,6 +36,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
+import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
@@ -697,7 +698,8 @@ public class TopologyController {
         CloudResourceMatcherConfig cloudResourceMatcherConfig = null;
         if (StringUtils.isNotBlank(environmentId)) {
             ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
-            deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(environment.getApplicationId(), environment.getId());
+            ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
+            deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(topology, environment, version);
             if (StringUtils.isNotEmpty(environment.getCloudId())) {
                 cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloudService.getMandatoryCloud(environment.getCloudId()));
             }
