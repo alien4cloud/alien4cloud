@@ -7,7 +7,7 @@ import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {
-"classpath:alien/rest/cloud/cloud_avz.feature"
+"classpath:alien/rest/cloud"
 }, format = { "pretty", "html:target/cucumber/cloud", "json:target/cucumber/cucumber-cloud.json" })
 public class RunCloudIT {
 }
