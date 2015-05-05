@@ -69,11 +69,11 @@
               <thead>
                 <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.GROUP' | translate}}</th>
                 <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.NODE' | translate}}</th>
-                <th></th>
+                <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.ERROR' | translate}}</th>
               </thead>
               <tbody>
                 <tr ng-repeat="haTask in validTopologyDTO.warningList">
-                  <td>{{haTask.groupId}}</td>
+                  <td>{{haTask.groupId || '---'}}</td>
                   <td>{{haTask.nodeTemplateName || '---'}}</td>
                   <td>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.' + haTask.errorCode | translate}}</td>
                 </tr>

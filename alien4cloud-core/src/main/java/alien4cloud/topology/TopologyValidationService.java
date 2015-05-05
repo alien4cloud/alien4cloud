@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -37,7 +38,9 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.paas.exception.AvailabilityZoneConfigurationException;
 import alien4cloud.paas.ha.AllocationError;
+import alien4cloud.paas.ha.AllocationErrorCode;
 import alien4cloud.paas.ha.AvailabilityZoneAllocator;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
@@ -53,6 +56,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Service
+@Slf4j
 public class TopologyValidationService {
 
     @Resource
@@ -245,16 +249,23 @@ public class TopologyValidationService {
     private List<TopologyTask> validateHAGroup(Topology topology, DeploymentSetup deploymentSetup, CloudResourceMatcherConfig matcherConfig) {
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
-        Map<String, AvailabilityZone> allocatedZones = allocator.processAllocation(paaSTopology, deploymentSetup, matcherConfig);
-        List<AllocationError> allocationErrors = allocator.validateAllocation(allocatedZones, paaSTopology, deploymentSetup, matcherConfig);
         List<TopologyTask> tasks = Lists.newArrayList();
+        List<AllocationError> allocationErrors = null;
+        try {
+            Map<String, AvailabilityZone> allocatedZones = allocator.processAllocation(paaSTopology, deploymentSetup, matcherConfig);
+            allocationErrors = allocator.validateAllocation(allocatedZones, paaSTopology, deploymentSetup, matcherConfig);
+        } catch (AvailabilityZoneConfigurationException e) {
+            log.warn("Unable to validate zones allocation due to bad configuration", e);
+            tasks.add(new HAGroupTask(null, null, AllocationErrorCode.CONFIGURATION_ERROR));
+            return tasks;
+        } catch (Exception e) {
+            log.error("Unable to validate zones allocation due to unknown error", e);
+            tasks.add(new HAGroupTask(null, null, AllocationErrorCode.UNKNOWN_ERROR));
+            return tasks;
+        }
         for (AllocationError error : allocationErrors) {
             String nodeId = error.getNodeId();
-            IndexedNodeType nodeType = null;
-            if (StringUtils.isNotBlank(nodeId)) {
-                nodeType = paaSTopology.getAllNodes().get(error.getNodeId()).getIndexedToscaElement();
-            }
-            tasks.add(new HAGroupTask(TaskCode.HA_INVALID, nodeId, nodeType, error.getGroupId(), error.getCode()));
+            tasks.add(new HAGroupTask(nodeId, error.getGroupId(), error.getCode()));
         }
         return tasks;
     }

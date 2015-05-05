@@ -284,8 +284,11 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
-      "MAINTENANCE" : "Maintenance mode",
-      "MAINTENANCE_BUTTON": { "ON": "Do you want to activate maintenance mode", "OFF": "Do you want to exit maintenance mode"},
+      "MAINTENANCE": "Maintenance mode",
+      "MAINTENANCE_BUTTON": {
+        "ON": "Do you want to activate maintenance mode",
+        "OFF": "Do you want to exit maintenance mode"
+      },
       "DEPLOYMENT": "Deployment",
       "SCALE": "Scale",
       "INSTANCES": "Instances",
@@ -421,14 +424,17 @@
           "LABEL": "Invalid HA policy",
           "GROUP": "Group",
           "NODE": "Node",
+          "ERROR": "Error",
           "NODE_NOT_ALLOCATED": "No Availability zone is allocated to the node",
           "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Node belongs to multiples groups",
           "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Node is not in the same availability zone as its volume",
-          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Availability zones are not distributed in an optimized manner",
-          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup"
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Availability zones are not distributed in an optimized manner because of existing volumes",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
+          "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
+          "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
         }
       },
-      "GROUPS" : {
+      "GROUPS": {
         "TITLE": "Groups",
         "MEMBERS": "Members",
         "POLICIES": "Policies",

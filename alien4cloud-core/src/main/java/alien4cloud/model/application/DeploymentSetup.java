@@ -52,6 +52,6 @@ public class DeploymentSetup {
     /* BlockStorageId -> SelectedStorageTemplate */
     private Map<String, StorageTemplate> storageMapping;
 
- /* groupName -> SelectedZones */
+    /* groupName -> SelectedZones */
     private Map<String, Set<AvailabilityZone>> availabilityZoneMapping;
 }

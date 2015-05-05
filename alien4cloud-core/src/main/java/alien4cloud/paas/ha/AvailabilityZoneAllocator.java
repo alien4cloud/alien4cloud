@@ -13,7 +13,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.paas.exception.ResourceMatchingFailedException;
+import alien4cloud.paas.exception.AvailabilityZoneConfigurationException;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
@@ -60,11 +60,11 @@ public class AvailabilityZoneAllocator {
         if (groups != null) {
             for (Map.Entry<String, List<PaaSNodeTemplate>> groupEntry : groups.entrySet()) {
                 if (deploymentSetup.getAvailabilityZoneMapping() == null) {
-                    throw new ResourceMatchingFailedException("Need at least 1 availability zone configured to process allocation");
+                    throw new AvailabilityZoneConfigurationException("Need at least 1 availability zone configured to process allocation");
                 }
                 Collection<AvailabilityZone> availabilityZones = deploymentSetup.getAvailabilityZoneMapping().get(groupEntry.getKey());
                 if (availabilityZones == null || availabilityZones.isEmpty()) {
-                    throw new ResourceMatchingFailedException("Need at least 1 availability zone configured to process allocation");
+                    throw new AvailabilityZoneConfigurationException("Need at least 1 availability zone configured to process allocation");
                 }
                 Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 for (AvailabilityZone availabilityZone : availabilityZones) {
@@ -107,7 +107,7 @@ public class AvailabilityZoneAllocator {
             List<PaaSNodeTemplate> groupComputes = groupEntry.getValue();
             Map<AvailabilityZone, Integer> repartitionMap = Maps.newHashMap();
             if (deploymentSetup.getAvailabilityZoneMapping() == null || !deploymentSetup.getAvailabilityZoneMapping().containsKey(groupId)) {
-                throw new ResourceMatchingFailedException("Ask to validate allocation on a topology with invalid deployment setup");
+                throw new AvailabilityZoneConfigurationException("Ask to validate allocation on a topology with invalid deployment setup");
             }
             for (AvailabilityZone matchedZone : deploymentSetup.getAvailabilityZoneMapping().get(groupId)) {
                 repartitionMap.put(matchedZone, 0);

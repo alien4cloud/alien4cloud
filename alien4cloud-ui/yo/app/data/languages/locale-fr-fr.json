@@ -429,14 +429,17 @@
       "WARNING": {
         "LABEL": "Alertes",
         "HA_INVALID": {
-          "LABEL": "HA politique is invalide",
+          "LABEL": "HA politique est invalide",
           "GROUP": "Groupe",
           "NODE": "Noeud",
-          "NODE_NOT_ALLOCATED": "Aucune Zone de disponibilité n'est allouée au noeud",
+          "ERROR": "Erreur",
+          "NODE_NOT_ALLOCATED": "Aucune zone de disponibilité n'est allouée au noeud",
           "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Noeud appartient aux multiples groupes",
-          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Noeud n'est pas dans la même Zone de disponibilité que son volume",
-          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Zones de disponibilité ne sont pas distribuées de manière optimisée",
-          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La Zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées"
+          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Noeud n'est pas dans la même zone de disponibilité que son volume",
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Zones de disponibilité ne sont pas distribuées de manière optimisée à cause des volumes existant",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées",
+          "CONFIGURATION_ERROR": "La validation de la polique HA a échoué dû à une mauvaise configuration de zones de disponibilité",
+          "UNKNOWN_ERROR": "La validation de la polique HA a échoué dû à une erreur inconnue"
         }
       },
       "GROUPS": {

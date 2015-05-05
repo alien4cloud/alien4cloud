@@ -3,7 +3,6 @@ package alien4cloud.topology.task;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.paas.ha.AllocationErrorCode;
 
 @Getter
@@ -16,8 +15,8 @@ public class HAGroupTask extends TopologyTask {
 
     private String groupId;
 
-    public HAGroupTask(TaskCode code, String nodeTemplateName, IndexedInheritableToscaElement component, String groupId, AllocationErrorCode errorCode) {
-        super(code, nodeTemplateName, component);
+    public HAGroupTask(String nodeTemplateName, String groupId, AllocationErrorCode errorCode) {
+        super(TaskCode.HA_INVALID, nodeTemplateName, null);
         this.groupId = groupId;
         this.errorCode = errorCode;
     }
