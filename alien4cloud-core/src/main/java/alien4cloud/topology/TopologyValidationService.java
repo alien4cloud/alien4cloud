@@ -250,13 +250,13 @@ public class TopologyValidationService {
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
         PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         List<TopologyTask> tasks = Lists.newArrayList();
-        List<AllocationError> allocationErrors = null;
+        List<AllocationError> allocationErrors;
         try {
             Map<String, AvailabilityZone> allocatedZones = allocator.processAllocation(paaSTopology, deploymentSetup, matcherConfig);
             allocationErrors = allocator.validateAllocation(allocatedZones, paaSTopology, deploymentSetup, matcherConfig);
         } catch (AvailabilityZoneConfigurationException e) {
             log.warn("Unable to validate zones allocation due to bad configuration", e);
-            tasks.add(new HAGroupTask(null, null, AllocationErrorCode.CONFIGURATION_ERROR));
+            tasks.add(new HAGroupTask(null, e.getGroupId(), AllocationErrorCode.CONFIGURATION_ERROR));
             return tasks;
         } catch (Exception e) {
             log.error("Unable to validate zones allocation due to unknown error", e);

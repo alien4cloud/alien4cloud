@@ -46,11 +46,11 @@ import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
-import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.task.RequirementToSatify;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -340,6 +340,15 @@ public class TopologyStepDefinitions {
     public void I_check_for_the_deployable_status_of_the_topology() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/isvalid"));
+    }
+
+    @When("^I check for the deployable status of the topology on the default environment$")
+    public void I_check_for_the_deployable_status_of_the_topology_on_the_default_environment() throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().get(
+                        "/rest/topologies/" + topologyId + "/isvalid?environmentId="
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
     @Then("^the topology should be deployable$")

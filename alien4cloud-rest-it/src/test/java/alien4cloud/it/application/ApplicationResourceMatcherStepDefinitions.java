@@ -49,7 +49,7 @@ public class ApplicationResourceMatcherStepDefinitions {
 
     @Then("^I should receive a match result with (\\d+) compute templates for the node \"([^\"]*)\":$")
     public void I_should_receive_a_match_result_with_compute_templates_for_the_node(int numberOfComputeTemplates, String nodeName,
-                                                                                    DataTable expectedTemplatesTable) throws Throwable {
+            DataTable expectedTemplatesTable) throws Throwable {
         RestResponse<DeploymentSetupMatchInfo> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentSetupMatchInfo.class);
         Assert.assertNull(matchResultResponse.getError());
         Assert.assertNotNull(matchResultResponse.getData());
@@ -279,8 +279,7 @@ public class ApplicationResourceMatcherStepDefinitions {
                 expectedZoneTable);
     }
 
-    @When("^I select the availability zone with name \"([^\"]*)\" for my group \"([^\"]*)\"$")
-    public void I_select_the_availability_zone_with_name_for_my_group(String zoneId, String groupName) throws Throwable {
+    private void updateZoneSelection(String zoneId, String groupName, boolean select) throws Throwable {
         Context.getInstance().getCloudForTopology();
         String cloudId = Context.getInstance().getCloudForTopology();
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
@@ -302,13 +301,27 @@ public class ApplicationResourceMatcherStepDefinitions {
         if (existingZones == null) {
             existingZones = Sets.newHashSet();
         }
-        existingZones.add(zoneFound);
+        if (select) {
+            existingZones.add(zoneFound);
+        } else {
+            existingZones.remove(zoneFound);
+        }
         avzMatching.put(groupName, existingZones);
         UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, null, null, avzMatching);
         String response = Context.getRestClientInstance().putJSon(
                 "/rest/applications/" + application.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
         Context.getInstance().registerRestResponse(response);
+    }
+
+    @When("^I select the availability zone with name \"([^\"]*)\" for my group \"([^\"]*)\"$")
+    public void I_select_the_availability_zone_with_name_for_my_group(String zoneId, String groupName) throws Throwable {
+        updateZoneSelection(zoneId, groupName, true);
+    }
+
+    @When("^I de-select the availability zone with name \"([^\"]*)\" for my group \"([^\"]*)\"$")
+    public void I_de_select_the_availability_zone_with_name_for_my_group(String zoneId, String groupName) throws Throwable {
+        updateZoneSelection(zoneId, groupName, false);
     }
 
     @And("^The deployment setup of the application should contain following availability zone mapping:$")

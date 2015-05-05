@@ -60,11 +60,11 @@ public class AvailabilityZoneAllocator {
         if (groups != null) {
             for (Map.Entry<String, List<PaaSNodeTemplate>> groupEntry : groups.entrySet()) {
                 if (deploymentSetup.getAvailabilityZoneMapping() == null) {
-                    throw new AvailabilityZoneConfigurationException("Need at least 1 availability zone configured to process allocation");
+                    throw new AvailabilityZoneConfigurationException(groupEntry.getKey(), "Need at least 1 availability zone configured to process allocation");
                 }
                 Collection<AvailabilityZone> availabilityZones = deploymentSetup.getAvailabilityZoneMapping().get(groupEntry.getKey());
                 if (availabilityZones == null || availabilityZones.isEmpty()) {
-                    throw new AvailabilityZoneConfigurationException("Need at least 1 availability zone configured to process allocation");
+                    throw new AvailabilityZoneConfigurationException(groupEntry.getKey(), "Need at least 1 availability zone configured to process allocation");
                 }
                 Map<AvailabilityZone, Integer> availabilityZoneRepartition = Maps.newHashMap();
                 for (AvailabilityZone availabilityZone : availabilityZones) {
@@ -75,13 +75,16 @@ public class AvailabilityZoneAllocator {
                     if (existingAvz != null) {
                         Integer existingCount = availabilityZoneRepartition.get(existingAvz);
                         if (existingCount == null) {
-                            log.warn(
-                                    "Attention AVZ mapping has been changed, the AVZ {} injected by the existing volume is no longer valid for this compute {}",
-                                    existingAvz.getId(), compute.getId());
+                            throw new AvailabilityZoneConfigurationException(groupEntry.getKey(), "Attention AVZ mapping has been changed, the AVZ "
+                                    + existingAvz.getId() + " injected by the existing volume is no longer valid for this compute " + compute.getId());
                         } else {
                             availabilityZoneRepartition.put(existingAvz, existingCount + 1);
                         }
-                    } else {
+                    }
+                }
+                for (PaaSNodeTemplate compute : groupEntry.getValue()) {
+                    AvailabilityZone existingAvz = haComputeMap.get(compute.getId());
+                    if (existingAvz == null) {
                         haComputeMap.put(compute.getId(), getLeastUsedAvailabilityZone(availabilityZoneRepartition));
                     }
                 }
@@ -107,7 +110,7 @@ public class AvailabilityZoneAllocator {
             List<PaaSNodeTemplate> groupComputes = groupEntry.getValue();
             Map<AvailabilityZone, Integer> repartitionMap = Maps.newHashMap();
             if (deploymentSetup.getAvailabilityZoneMapping() == null || !deploymentSetup.getAvailabilityZoneMapping().containsKey(groupId)) {
-                throw new AvailabilityZoneConfigurationException("Ask to validate allocation on a topology with invalid deployment setup");
+                throw new AvailabilityZoneConfigurationException(groupId, "Ask to validate allocation on a topology with invalid deployment setup");
             }
             for (AvailabilityZone matchedZone : deploymentSetup.getAvailabilityZoneMapping().get(groupId)) {
                 repartitionMap.put(matchedZone, 0);

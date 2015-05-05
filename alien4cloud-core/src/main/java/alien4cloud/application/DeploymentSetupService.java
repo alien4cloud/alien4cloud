@@ -150,6 +150,9 @@ public class DeploymentSetupService {
         }
         Map<String, String> inputProperties = deploymentSetup.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        if (inputDefinitions == null) {
+            throw new NotFoundException("Validate input but no input is defined for the topology");
+        }
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
             PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
             if (definition != null) {
@@ -312,7 +315,7 @@ public class DeploymentSetupService {
         if (mapping == null) {
             mapping = Maps.newHashMap();
             for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
-                mapping.put(matchResultEntry.getKey(), Sets.newLinkedHashSet(matchResultEntry.getValue()));
+                mapping.put(matchResultEntry.getKey(), getFirstZones(matchResultEntry.getValue(), 2));
             }
             changed = true;
         } else {
@@ -328,19 +331,24 @@ public class DeploymentSetupService {
                     mappingEntryIterator.remove();
                 }
             }
-        }
-        for (Map.Entry<String, Collection<AvailabilityZone>> entry : matchResult.entrySet()) {
-            if (entry.getValue().size() >= 2 && !mapping.containsKey(entry.getKey())) {
-                // Only take the first element as selected if no configuration has been set before
-                changed = true;
-                Iterator<AvailabilityZone> matchedZones = entry.getValue().iterator();
-                Set<AvailabilityZone> defaultZones = Sets.newLinkedHashSet();
-                defaultZones.add(matchedZones.next());
-                defaultZones.add(matchedZones.next());
-                mapping.put(entry.getKey(), defaultZones);
+            for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+                if (!mapping.containsKey(matchResultEntry.getKey())) {
+                    // Only take the first element as selected if no configuration has been set before
+                    changed = true;
+                    mapping.put(matchResultEntry.getKey(), getFirstZones(matchResultEntry.getValue(), 2));
+                }
             }
         }
         return new MappingGenerationResult<>(mapping, valid, changed);
+    }
+
+    private Set<AvailabilityZone> getFirstZones(Collection<AvailabilityZone> zones, int toBeTaken) {
+        Iterator<AvailabilityZone> matchedZones = zones.iterator();
+        Set<AvailabilityZone> defaultZones = Sets.newLinkedHashSet();
+        while (defaultZones.size() < toBeTaken && matchedZones.hasNext()) {
+            defaultZones.add(matchedZones.next());
+        }
+        return defaultZones;
     }
 
     private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, ? extends Collection<T>> matchResult, Topology topology) {
