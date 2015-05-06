@@ -4,9 +4,6 @@
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster',
   function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, applicationVersionServices, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster) {
     $scope.view = 'RENDERED';
-    $scope.appVersions = appVersions;
-    $scope.selectedVersion = $scope.appVersions[0];
-    $scope.topologyId = $scope.selectedVersion.topologyId;
 
     // Size management
     var resizableSelectors = ['#nodetemplate-details', '#catalog-box', '#dependencies-box', '#inputs-box'];
@@ -152,6 +149,18 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       });
     };
+
+    // TODO : when topology templates edition with use also version, remove this IF statement
+    if (UTILS.isDefinedAndNotNull(appVersions)) {
+      // default version loading
+      $scope.appVersions = appVersions;
+      $scope.selectedVersion = $scope.appVersions[0];
+      $scope.topologyId = $scope.selectedVersion.topologyId;
+    } else {
+      // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
+      $scope.appVersions = appVersions;
+      $scope.topologyId = topologyId;
+    }
 
     $scope.editorContent = '';
     var outputKeys = ['outputProperties', 'outputAttributes', 'inputArtifacts'];
@@ -1159,9 +1168,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     /**
-     * Update relationship name
+     * Rename a relationship
      */
     $scope.relNameObj = {};
+    /* Update relationship name */
     $scope.updateRelationshipName = function(oldName, newName) {
       // Update only when the name has changed
       if (oldName !== newName) {
@@ -1242,7 +1252,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
         }
       });
-    };
+    }
 
     $scope.updateNodeGroupName = function(groupId, name) {
       topologyServices.nodeGroups.rename({
@@ -1257,7 +1267,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         }
       });
-    };
+    }
 
     $scope.deleteNodeGroupMember = function(groupId, member) {
       topologyServices.nodeGroups.removeMember({
@@ -1269,13 +1279,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
         }
       });
-    };
+    }
 
     $scope.isNodeMemberOf = function(nodeName, groupId) {
       if ($scope.selectedNodeTemplate) {
         return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
       }
-    };
+    }
 
     $scope.createGroupWithMember = function(nodeName) {
       topologyServices.nodeGroups.addMember({
@@ -1288,7 +1298,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           $scope.groupCollapsed[nodeName] = { main: false, members: true, policies: true };
         }
       });
-    };
+    }
 
     $scope.toggleNodeGroupMember = function(groupId, nodeName) {
       if ($scope.isNodeMemberOf(nodeName, groupId)) {
@@ -1304,11 +1314,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         });
       }
-    };
+    }
 
     $scope.getGroupColorCss = function(groupId) {
       return D3JS_UTILS.groupColorCss($scope.topology.topology, groupId);
-    };
+    }
 
   }
 ]);
