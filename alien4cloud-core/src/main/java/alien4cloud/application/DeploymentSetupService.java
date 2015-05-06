@@ -20,6 +20,7 @@ import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -123,6 +124,9 @@ public class DeploymentSetupService {
     public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(String applicationId, String applicationEnvironmentId) {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        if (applicationVersionService.get(environment.getCurrentVersionId()) == null) {
+            throw new ApplicationVersionNotFoundException("An application version is required by an application environment.");
+        }
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
         return getDeploymentSetupMatchInfo(topology, environment, version);

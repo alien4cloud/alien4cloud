@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
@@ -38,8 +39,8 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.security.Alien4CloudAccessDeniedHandler;
+import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
 
@@ -295,6 +296,16 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.EMPTY_META_PROPERTY_ERROR)
                         .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = ApplicationVersionNotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> applicationVersionIsMissingErrorHandler(ApplicationVersionNotFoundException e) {
+        log.error(e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.MISSING_APPLICATION_VERSION_ERROR).message(e.getMessage()).build())
                 .build();
     }
 }
