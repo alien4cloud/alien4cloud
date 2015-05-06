@@ -19,6 +19,7 @@ public class InputPropertiesStepDefinitions {
 
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as input property$")
     public void I_define_the_property_of_the_node_as_input_property(String inputId, String nodeName) throws Throwable {
+        // TODO Use the real node
         String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("string");

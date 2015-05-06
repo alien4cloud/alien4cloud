@@ -22,10 +22,10 @@ Feature: get runtime topology
     And I have added a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
     And I add a scaling policy to the node "Compute"
-    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
 
   Scenario: Getting the runtime version of the deployed topology
-    Given I have deleted a node template "apacheLBGroovy" from the topology
+    Given I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
+    And I have deleted a node template "apacheLBGroovy" from the topology
     When I ask the runtime topology of the application "ALIEN" on the cloud "Mount doom cloud"
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "apacheLBGroovy" and type "fastconnect.nodes.apacheLBGroovy"
@@ -34,3 +34,11 @@ Feature: get runtime topology
     Then I should receive a RestResponse with no error
     And The RestResponse should contain a nodetemplate named "Compute" and type "tosca.nodes.Compute"
     And The RestResponse should not contain a nodetemplate named "apacheLBGroovy"
+
+  Scenario: get_input must be processed in a runtime topology
+    Given I define the property "os_arch" of the node "Compute" as input property
+    And I set the input property "os_arch" of the topology to "x86_64"
+    And I associate the property "os_arch" of a node template "Compute" to the input "os_arch"
+    And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
+    When I ask the runtime topology of the application "ALIEN" on the cloud "Mount doom cloud"
+    Then The topology should contain a nodetemplate named "Compute" with property "os_arch" set to "x86_64"

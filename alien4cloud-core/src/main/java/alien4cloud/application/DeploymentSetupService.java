@@ -140,7 +140,7 @@ public class DeploymentSetupService {
                 if (deploymentSetup.getProviderDeploymentProperties() == null) {
                     generatePropertyDefinition(deploymentSetup, cloud);
                 }
-                return generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
+                return generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
             } catch (CloudDisabledException e) {
                 log.warn("Cannot generate mapping for deployment setup as cloud is disabled, it will be re-generated next time");
             }
