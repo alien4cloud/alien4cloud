@@ -73,9 +73,9 @@ describe('Topology node template edition :', function() {
     editForm = element(by.id('nodetemplate-details')).element(by.css('h3 form'));
     editInput = editForm.element(by.tagName('input'));
     editInput.clear();
-    editInput.sendKeys('Compute_new_NAME');
+    editInput.sendKeys('Compute-new-NAME');
     editForm.submit();
-    expect(nameSpan.getText()).toContain('Compute_new_NAME');
+    expect(nameSpan.getText()).toContain('Compute-new-NAME');
 
     // fail update
     nameSpan.click();
@@ -86,7 +86,7 @@ describe('Topology node template edition :', function() {
     editForm.submit();
     common.expectErrors();
     common.dismissAlert();
-    expect(nameSpan.getText()).toContain('Compute_new');
+    expect(nameSpan.getText()).toContain('Compute-new-NAME');
   });
 
   it('should be able to edit a scalar-unit.size and time', function() {
@@ -154,7 +154,7 @@ describe('Topology node template edition :', function() {
   it('should have the a todo list if topology is not valid', function() {
     console.log('################# should have the a todo list if topology is not valid');
     topologyEditorCommon.checkTodoList(true);
-    topologyEditorCommon.removeNodeTemplate('Compute_new_NAME');
+    topologyEditorCommon.removeNodeTemplate('Compute-new-NAME');
     topologyEditorCommon.removeNodeTemplate('War');
     topologyEditorCommon.removeNodeTemplate('Ubuntu');
     topologyEditorCommon.checkTodoList(true);

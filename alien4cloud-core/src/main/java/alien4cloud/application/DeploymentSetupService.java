@@ -36,6 +36,7 @@ import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
@@ -274,6 +275,11 @@ public class DeploymentSetupService {
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
                         processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                    }
+                }
+                if (nodeTemplate.getCapabilities() != null) {
+                    for (Capability capability : nodeTemplate.getCapabilities().values()) {
+                        processGetInput(deploymentSetup.getInputProperties(), capability.getProperties());
                     }
                 }
             }
