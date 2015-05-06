@@ -591,8 +591,8 @@ public class CloudService {
     }
 
     public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
-        if (cloud.isEnabled()) {
-            IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId()); // FIXME: NPE
+        IPaaSProvider paaSProvider;
+        if (cloud.isEnabled() && (paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId())) != null) {
             return paaSProvider.getAvailableResourceIds(type);
         } else {
             return null;

@@ -110,6 +110,7 @@ public class TestDataRegistry {
         addConditionFolder("tosca-normative-types", GIT_ARTIFACTS_PATH + "tosca-normative-types");
         addConditionFolder("alien-base-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-base-types-1.0-SNAPSHOT");
         addConditionFolder("alien-extended-storage-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-extended-storage-types-1.0-SNAPSHOT");
+        addConditionFolder("samples tomcat-war", GIT_ARTIFACTS_PATH + "samples/tomcat-war");
         addConditionFolder("samples apache", GIT_ARTIFACTS_PATH + "samples/apache");
         addConditionFolder("samples wordpress", GIT_ARTIFACTS_PATH + "samples/wordpress");
         addConditionFolder("samples mysql", GIT_ARTIFACTS_PATH + "samples/mysql");

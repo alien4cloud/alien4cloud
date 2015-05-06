@@ -954,5 +954,13 @@
       "RESPONSESTATUS": "Code réponse",
       "SOURCEIP": "IP source"
     }
-  }
+  },
+  "ENVIRONMENT_TYPE": {
+      "OTHER": "Autre",
+      "DEVELOPMENT": "Développement",
+      "INTEGRATION_TESTS": "Tests d'intégrations",
+      "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+      "PRE_PRODUCTION": "Pré-production",
+      "PRODUCTION": "production"
+    }
 }

@@ -947,5 +947,13 @@
       "RESPONSESTATUS": "Response status",
       "SOURCEIP": "Source IP"
     }
-  }
+  },
+  "ENVIRONMENT_TYPE": {
+	  "OTHER": "Other",
+	  "DEVELOPMENT": "Development",
+	  "INTEGRATION_TESTS": "Integration tests",
+	  "USER_ACCEPTANCE_TESTS": "UAT",
+	  "PRE_PRODUCTION": "Pre-production",
+	  "PRODUCTION": "production"
+    }
 }

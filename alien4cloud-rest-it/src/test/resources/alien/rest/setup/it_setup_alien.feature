@@ -57,6 +57,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I upload the archive "tosca-normative-types"
     And I upload the archive "alien-base-types"
     And I upload the archive "alien-extended-storage-types"
+    And I upload the archive "samples tomcat-war"
     And I upload the archive "samples apache"
     And I upload the archive "samples mysql"
     And I upload the archive "samples php"
