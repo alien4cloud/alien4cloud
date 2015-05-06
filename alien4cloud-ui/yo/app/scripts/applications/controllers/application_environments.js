@@ -22,9 +22,9 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$
   }
 ];
 
-angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments',
-  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments) {
-
+angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments', 'appVersions',
+  function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments, appVersions) {
+    $scope.appVersions = appVersions;
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
     $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 
@@ -114,6 +114,14 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
       for (var i = 0; i < $scope.versions.length; i++) {
         if ($scope.versions[i].version === name) {
           return $scope.versions[i].id;
+        }
+      }
+    };
+
+    $scope.getVersionByName = function(name) {
+      for (var i = 0; i < $scope.versions.length; i++) {
+        if ($scope.versions[i].version === name) {
+          return $scope.versions[i];
         }
       }
     };

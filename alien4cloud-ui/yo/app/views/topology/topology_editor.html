@@ -11,11 +11,11 @@
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeVersion(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
               <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
-                <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
-                  <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
-                    {{appVersion.version.length > 20 ? '...' : ''}}
-                </ui-select-choices>
-             </ui-select>
+              <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
+                <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
+                {{appVersion.version.length > 20 ? '...' : ''}}
+              </ui-select-choices>
+            </ui-select>
           </div>
         </div>
         <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
