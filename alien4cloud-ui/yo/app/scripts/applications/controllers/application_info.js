@@ -36,7 +36,7 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     // whatching $scope.selectTab changes
     $scope.$watch('selectedTab', function(newValue, oldValue) {
-      if (newValue !== oldValue && UTILS.isUndefinedOrNull(newValue.envId)) {
+      if (newValue !== oldValue) {
         $scope.stopEvent();
         $scope.setTopologyId(newValue.appId, newValue.envId, null).$promise.then(function(result) {
           // get informations from this topology
