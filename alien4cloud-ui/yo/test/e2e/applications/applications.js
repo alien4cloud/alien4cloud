@@ -224,7 +224,7 @@ var createApplicationEnvironment = function(envName, envDescription, cloudSelect
   if (typeof envTypeSelectName !== 'undefined') {
     // envTypeSelectNumber should start at 2 since the one at 1 is (no envTypeSelectNumber) first ins the list
     var selectType = element(by.id('envtypelistid'));
-    common.selectDropdownByText(selectType, envTypeSelectName, 100);
+    common.selectDropdownByText(selectType, common.frLanguage.CLOUDS.ENVIRONMENT[envTypeSelectName], 100);
   } else {
     console.error('You should have at least one environment type defined');
   }
