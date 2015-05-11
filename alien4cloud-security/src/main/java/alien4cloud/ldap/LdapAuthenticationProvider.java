@@ -17,9 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.security.IAlienUserDao;
-import alien4cloud.security.Role;
-import alien4cloud.security.User;
+import alien4cloud.security.users.IAlienUserDao;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

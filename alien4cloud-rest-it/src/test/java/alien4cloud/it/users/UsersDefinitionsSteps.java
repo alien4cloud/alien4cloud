@@ -13,7 +13,7 @@ import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.security.UserSearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.User;
+import alien4cloud.security.model.User;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;

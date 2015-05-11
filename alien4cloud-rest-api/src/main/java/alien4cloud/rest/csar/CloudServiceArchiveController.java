@@ -66,7 +66,7 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.CloudRole;
+import alien4cloud.security.model.CloudRole;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingError;

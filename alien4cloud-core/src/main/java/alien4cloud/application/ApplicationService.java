@@ -24,7 +24,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.utils.MapUtil;
 

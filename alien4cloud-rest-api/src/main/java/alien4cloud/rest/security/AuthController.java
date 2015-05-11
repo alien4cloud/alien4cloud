@@ -21,12 +21,12 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.model.UserStatus;
-import alien4cloud.security.ApplicationEnvironmentRole;
-import alien4cloud.security.ApplicationRole;
-import alien4cloud.security.CloudRole;
-import alien4cloud.security.Role;
-import alien4cloud.security.User;
-import alien4cloud.security.groups.Group;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.security.model.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
 
 import com.google.common.collect.Lists;

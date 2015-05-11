@@ -55,10 +55,12 @@
     <spring-boot.version>1.2.1.RELEASE</spring-boot.version>
     <spring.version>4.1.4.RELEASE</spring.version>
     <spring.security.version>3.2.5.RELEASE</spring.security.version>
-
     <spring.ldap.version>2.0.1.RELEASE</spring.ldap.version>
-
     <aspectj.version>1.7.4</aspectj.version>
+
+    <!-- Metrics for webapp -->
+    <codahale-metrics.version>3.0.2</codahale-metrics.version>
+    <metrics-spring.version>3.0.1</metrics-spring.version>
 
     <!-- Elastic Search mapper (reference the elastic search version actually). -->
     <es-mapping.version>1.2.0</es-mapping.version>
@@ -167,6 +169,42 @@
         <artifactId>javax.servlet.jsp</artifactId>
         <version>${jetty.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${codahale-metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>${codahale-metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-servlet</artifactId>
+        <version>${codahale-metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-json</artifactId>
+        <version>${codahale-metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.codahale.metrics</groupId>
+        <artifactId>metrics-servlets</artifactId>
+        <version>${codahale-metrics.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-healthchecks</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.ryantenney.metrics</groupId>
+        <artifactId>metrics-spring</artifactId>
+        <version>${metrics-spring.version}</version>
       </dependency>
       <dependency>
         <groupId>com.mangofactory</groupId>

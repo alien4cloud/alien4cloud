@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.security.model.Group;
 
 /**
  * DAO to manage groups in a store.

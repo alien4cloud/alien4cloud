@@ -13,7 +13,7 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
