@@ -125,13 +125,21 @@ h4 .editable-error {
 }
 
 #topology #app-version-select {
-  padding: 0px 0px;
-  font-size: 12px;
-  border-color: #CCC;
-  background-color: white;
-  padding-bottom: 1px;
+  min-width: 140px;
+  float: left;
 }
 
+#topology #app-version-select span {
+  height: 22px;
+  outline: 0px none;
+  padding: 0px;
+  font-size: 12px;
+  padding-top: 1px;
+}
+
+#topology #app-version-select span i {
+  left: 92%;
+}
 /*
   Vertical menu
 */

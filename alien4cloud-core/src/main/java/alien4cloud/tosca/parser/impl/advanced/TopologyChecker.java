@@ -1,6 +1,7 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,13 +15,19 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
+import alien4cloud.model.topology.NodeGroup;
+import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.IChecker;
 import alien4cloud.tosca.parser.ParsingContextExecution;
+import alien4cloud.tosca.parser.ParsingError;
+import alien4cloud.tosca.parser.ParsingErrorLevel;
 import alien4cloud.tosca.parser.ToscaParsingUtil;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Component
 public class TopologyChecker implements IChecker<Topology> {
@@ -52,6 +59,34 @@ public class TopologyChecker implements IChecker<Topology> {
 
         Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
         instance.setDependencies(topologyDeps);
+
+        // here we need to check that the group members really exist
+        if (instance.getGroups() != null && !instance.getGroups().isEmpty()) {
+            int i = 0;
+            for (NodeGroup nodeGroup : instance.getGroups().values()) {
+                nodeGroup.setIndex(i++);
+                Iterator<String> groupMembers = nodeGroup.getMembers().iterator();
+                while (groupMembers.hasNext()) {
+                    String nodeTemplateId = groupMembers.next();
+                    NodeTemplate nodeTemplate = instance.getNodeTemplates().get(nodeTemplateId);
+                    if (nodeTemplate == null) {
+                        // add an error to the context
+                        context.getParsingErrors().add(
+                                new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNKOWN_GROUP_MEMBER, null, node.getStartMark(), null, node.getEndMark(),
+                                        nodeTemplateId));
+                        // and remove the member
+                        groupMembers.remove();
+                    } else {
+                        Set<String> groups = nodeTemplate.getGroups();
+                        if (groups == null) {
+                            groups = Sets.newHashSet();
+                            nodeTemplate.setGroups(groups);
+                        }
+                        groups.add(nodeGroup.getName());
+                    }
+                }
+            }
+        }
     }
 
     private <T extends IndexedInheritableToscaElement> void mergeHierarchy(Map<String, T> indexedElements, ArchiveRoot archiveRoot) {

@@ -96,7 +96,9 @@
       "OUTPUTS_BAD_PARAMS_COUNT": "Function arguments count is incorrect",
       "OUTPUTS_UNKNOWN_FUNCTION": "Unknown function [{{note}}]",
       "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
-      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here."
+      "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
+      "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
+      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -282,8 +284,11 @@
       "VALUE": "Value",
       "BACK": "Back",
       "SCALE_BUTTON": "Scale this node",
-      "MAINTENANCE" : "Maintenance mode",
-      "MAINTENANCE_BUTTON": { "ON": "Do you want to activate maintenance mode", "OFF": "Do you want to exit maintenance mode"},
+      "MAINTENANCE": "Maintenance mode",
+      "MAINTENANCE_BUTTON": {
+        "ON": "Do you want to activate maintenance mode",
+        "OFF": "Do you want to exit maintenance mode"
+      },
       "DEPLOYMENT": "Deployment",
       "SCALE": "Scale",
       "INSTANCES": "Instances",
@@ -337,6 +342,8 @@
       "TITLE_RAM": "RAM",
       "TITLE_NETWORK": "Network's name",
       "TITLE_STORAGE": "Block storage's name",
+      "TITLE_GROUP": "Group",
+      "TITLE_ZONE": "Zone",
       "TITLE_DESCRIPTION": "Description",
       "RESOURCES_NOT_MATCHED": "The topology has incompatible component in relation to the cloud resources",
       "COMPUTE_RESOURCES": "Machine",
@@ -389,6 +396,7 @@
       "SCALING_POLICY": "Scaling",
       "NAME": "Nom",
       "DESC": "Description",
+      "DESC_TEMPLATE": "Topology template description",
       "SEARCH_RELATIONSHIP_MODAL": {
         "NO_TARGETS": "No elements in the topology can satisfy the requirement.",
         "SELECT_TARGET_HEADER": "Select relationship's target",
@@ -410,13 +418,36 @@
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
       },
+      "WARNING": {
+        "LABEL": "Warnings",
+        "HA_INVALID": {
+          "LABEL": "Invalid HA policy",
+          "GROUP": "Group",
+          "NODE": "Node",
+          "ERROR": "Error",
+          "NODE_NOT_ALLOCATED": "No Availability zone is allocated to the node",
+          "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Node belongs to multiples groups",
+          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Node is not in the same availability zone as its volume",
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Availability zones are not distributed in an optimized manner because of existing volumes",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
+          "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
+          "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        }
+      },
+      "GROUPS": {
+        "TITLE": "Groups",
+        "MEMBERS": "Members",
+        "POLICIES": "Policies",
+        "ADD": "Add a group",
+        "TOOLTIP": "Group management"
+      },
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z,_, without spaces",
+      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
     },
     "ENVIRONMENT": {
@@ -572,6 +603,11 @@
       "SIZE": "Size",
       "NEW_MODAL_TITLE": "Create a new block storage"
     },
+    "ZONE": "Zones",
+    "ZONES": {
+      "ID": "Identifiant",
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
+    },
     "IAAS": {
       "OTHER": "Other",
       "OPENSTACK": "OpenStack",
@@ -675,6 +711,8 @@
     },
     "372": "Error in naming policy of deployment.",
     "373": "Unexpected error happened while switching on / off maintenance mode ",
+    "374": "One of your meta-property is empty and does not have a default value.",
+    "390": "It's forbidden to remove the last admin user.",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
@@ -690,6 +728,8 @@
     "607": "A deployed environment can not be deleted",
     "608": "Only SNAPSHOT applications can be modified",
     "609": "PaaS provider unreachable after triggering the deployment",
+    "610": "An application must necessarily have at least one version",
+    "611": "An application environment must necessarily have an application version.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
@@ -907,5 +947,13 @@
       "RESPONSESTATUS": "Response status",
       "SOURCEIP": "Source IP"
     }
-  }
+  },
+  "ENVIRONMENT_TYPE": {
+	  "OTHER": "Other",
+	  "DEVELOPMENT": "Development",
+	  "INTEGRATION_TESTS": "Integration tests",
+	  "USER_ACCEPTANCE_TESTS": "UAT",
+	  "PRE_PRODUCTION": "Pre-production",
+	  "PRODUCTION": "production"
+    }
 }

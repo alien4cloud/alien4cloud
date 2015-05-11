@@ -19,6 +19,10 @@
   overflow: visible;
 }
 
+#comp-search-result-panel ul li {
+  min-width: 260px;
+}
+
 #comp-search-result-panel .media p.small, #rel-search-result-panel .media p.small {
   overflow: hidden;
   text-overflow: ellipsis;

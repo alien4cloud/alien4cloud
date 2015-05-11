@@ -77,19 +77,19 @@ describe('Test the cloud management: ', function() {
   });
 
   it('should be create a flavor for a cloud.', function() {
-    console.log('################# should be create a flavor for a cloud.')
+    console.log('################# should be create a flavor for a cloud.');
     expect(cloudsCommon.countFlavorCloud()).toBe(0);
-    cloudsCommon.addNewFlavor("small", "1", "10", "256");
+    cloudsCommon.addNewFlavor('small', '1', '10', '256');
     expect(cloudsCommon.countFlavorCloud()).toBe(1);
   });
 
   it('should create a flavor, assign a PaaS to image and flavor, and have a template matching.', function() {
-    console.log('################# should be create a flavor who matching with an image for a cloud.')
+    console.log('################# should be create a flavor who matching with an image for a cloud.');
     expect(cloudsCommon.countTemplateCloud()).toBe(0);
-    cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
+    cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
     cloudsCommon.goToCloudDetailTemplate('testcloud');
-    cloudsCommon.assignPaaSResourceToImage("test-add", "passIdImage1");
-    cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor1");
+    cloudsCommon.assignPaaSResourceToImage('test-add', 'passIdImage1');
+    cloudsCommon.assignPaaSResourceToFlavor('medium', 'passIdFlavor1');
     expect(cloudsCommon.countTemplateCloud()).toBe(1);
   });
 
@@ -127,7 +127,7 @@ describe('Test the cloud management: ', function() {
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('MyImage1_resourceId', 'yetAnotherResourceId-IMAGE-0', 'value in availaiblePaaSImageIds', 10);
     // now that 1 have been selected for 'MyImage1' we should have 9 remaining available
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('MyImage2_resourceId', 'yetAnotherResourceId-IMAGE-1', 'value in availaiblePaaSImageIds', 9);
-    cloudsCommon.addNewFlavor("MEDIUM", "12", "480", "4096");
+    cloudsCommon.addNewFlavor('MEDIUM', '12', '480', '4096');
     expect(cloudsCommon.countFlavorCloud()).toBe(1);
     cloudsCommon.countAndSelectResourcePaaSIdFromDropDown('MEDIUM_resourceId', 'yetAnotherResourceId-FLAVOR-0', 'value in availaiblePaaSFlavorIds', 10);
     // at this stage we should have 2 templates

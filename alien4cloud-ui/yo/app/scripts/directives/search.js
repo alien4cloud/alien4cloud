@@ -10,7 +10,8 @@ angular.module('alienUiApp').directive('alienSearchComponent', ['$interval', fun
       'onSelectItem': '&',
       'globalContext': '=',
       'dragAndDropEnabled': '=',
-      'heightInfo': '='
+      'heightInfo': '=',
+      'widthInfo': '='
     },
     link: function(scope, element) {
       scope.queryComponentType = 'NODE_TYPE';
@@ -20,6 +21,11 @@ angular.module('alienUiApp').directive('alienSearchComponent', ['$interval', fun
         scope.listHeight = scope.globalContext ? 'height: ' + listHeight + 'px' : '';
       }
       scope.$watch('heightInfo', function() {
+        console.log('hauteur');
+        resize();
+      });
+      scope.$watch('widthInfo', function() {
+        console.log('largeur');
         resize();
       });
 

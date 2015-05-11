@@ -1,5 +1,6 @@
 package alien4cloud.cloud;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
@@ -26,6 +28,7 @@ import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSProvider;
@@ -105,9 +108,9 @@ public class CloudResourceMatcherService {
     public CloudResourceTopologyMatchResult matchTopology(Topology topology, Cloud cloud, IPaaSProvider paaSProvider,
             CloudResourceMatcherConfig cloudResourceMatcherConfig, Map<String, IndexedNodeType> types) {
         MatchableTemplates matchableNodes = getMatchableTemplates(topology, types);
-        Map<String, List<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
-        Map<String, List<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
-        Map<String, List<StorageTemplate>> storageMatchResult = Maps.newHashMap();
+        Map<String, Collection<ComputeTemplate>> templateMatchResult = Maps.newHashMap();
+        Map<String, Collection<NetworkTemplate>> networkMatchResult = Maps.newHashMap();
+        Map<String, Collection<StorageTemplate>> storageMatchResult = Maps.newHashMap();
         Set<String> imageIds = Sets.newHashSet();
         Map<String, CloudImageFlavor> flavorMap = Maps.newHashMap();
         for (Map.Entry<String, NodeTemplate> computeTemplateEntry : matchableNodes.computeTemplates.entrySet()) {
@@ -131,16 +134,29 @@ public class CloudResourceMatcherService {
             templateMatchResult.put(computeTemplateEntry.getKey(), eligibleTemplates);
         }
         for (Map.Entry<String, NodeTemplate> networkTemplateEntry : matchableNodes.networkTemplates.entrySet()) {
-            networkMatchResult.put(networkTemplateEntry.getKey(), matchNetworks(cloud, cloudResourceMatcherConfig, networkTemplateEntry.getValue()));
+            networkMatchResult.put(networkTemplateEntry.getKey(), matchNetworks(cloud, networkTemplateEntry.getValue()));
         }
         for (Map.Entry<String, NodeTemplate> storageTemplateEntry : matchableNodes.storageTemplates.entrySet()) {
-            storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, cloudResourceMatcherConfig, storageTemplateEntry.getValue()));
+            storageMatchResult.put(storageTemplateEntry.getKey(), matchStorages(cloud, storageTemplateEntry.getValue()));
+        }
+        Set<AvailabilityZone> availabilityZones = Sets.newHashSet();
+        for (AvailabilityZone zone : cloud.getAvailabilityZones()) {
+            if (cloud.getAvailabilityZoneMapping() != null && cloud.getAvailabilityZoneMapping().containsKey(zone.getId())) {
+                availabilityZones.add(zone);
+            }
+        }
+        Map<String, Collection<AvailabilityZone>> availabilityZoneMatchResult = Maps.newHashMap();
+        Map<String, NodeGroup> nodeGroups = topology.getGroups();
+        if (nodeGroups != null) {
+            for (Map.Entry<String, NodeGroup> nodeGroupEntry : nodeGroups.entrySet()) {
+                availabilityZoneMatchResult.put(nodeGroupEntry.getKey(), availabilityZones);
+            }
         }
         return new CloudResourceTopologyMatchResult(cloudImageService.getMultiple(imageIds), flavorMap, templateMatchResult, storageMatchResult,
-                networkMatchResult);
+                networkMatchResult, availabilityZoneMatchResult);
     }
 
-    public List<NetworkTemplate> matchNetworks(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
+    public List<NetworkTemplate> matchNetworks(Cloud cloud, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> networkProperties = nodeTemplate.getProperties();
         Set<NetworkTemplate> existingNetworks = cloud.getNetworks();
         List<NetworkTemplate> eligibleNetworks = Lists.newArrayList();
@@ -162,7 +178,7 @@ public class CloudResourceMatcherService {
         return eligibleNetworks;
     }
 
-    public List<StorageTemplate> matchStorages(Cloud cloud, CloudResourceMatcherConfig cloudResourceMatcherConfig, NodeTemplate nodeTemplate) {
+    public List<StorageTemplate> matchStorages(Cloud cloud, NodeTemplate nodeTemplate) {
         Map<String, AbstractPropertyValue> storageProperties = nodeTemplate.getProperties();
         Set<StorageTemplate> existingStorages = cloud.getStorages();
         List<StorageTemplate> eligibleStorages = Lists.newArrayList();
@@ -195,18 +211,20 @@ public class CloudResourceMatcherService {
                 // Only consider matched resources
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_ARCH, cloudImage.getOsArch(), new TextValueParser(), new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_ARCH, cloudImage.getOsArch(), new TextValueParser(),
+                    new StringIgnoreCaseEqualMatcher())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_DISTRIBUTION, cloudImage.getOsDistribution(), new TextValueParser(),
-                    new EqualMatcher<String>())) {
+                    new StringIgnoreCaseEqualMatcher())) {
                 continue;
             }
-            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(), new EqualMatcher<String>())) {
+            if (!match(computeTemplateProperties, NormativeComputeConstants.OS_TYPE, cloudImage.getOsType(), new TextValueParser(),
+                    new StringIgnoreCaseEqualMatcher())) {
                 continue;
             }
             if (!match(computeTemplateProperties, NormativeComputeConstants.OS_VERSION, VersionUtil.parseVersion(cloudImage.getOsVersion()),
-                    new VersionValueParser(), new GreaterOrEqualValueMatcher())) {
+                    new VersionValueParser(), new GreaterOrEqualValueMatcher<Version>())) {
                 continue;
             }
             List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), null, false);
@@ -287,15 +305,20 @@ public class CloudResourceMatcherService {
                 continue;
             }
             List<ActivableComputeTemplate> computeTemplates = cloudService.getComputeTemplates(cloud, cloudImage.getId(), flavor.getId(), false);
-            if (!computeTemplates.isEmpty() && computeTemplates.iterator().next().isEnabled()) {
-                matchedFlavors.add(flavor);
+            if (!computeTemplates.isEmpty()) {
+                for (ActivableComputeTemplate computeTemplate : computeTemplates) {
+                    if (computeTemplate.isEnabled()) {
+                        matchedFlavors.add(flavor);
+                        break;
+                    }
+                }
             }
         }
         Collections.sort(matchedFlavors);
         return matchedFlavors;
     }
 
-    private static interface ValueParser<T> {
+    private interface ValueParser<T> {
 
         T parseValue(String textValue);
 
@@ -316,13 +339,6 @@ public class CloudResourceMatcherService {
         }
     }
 
-    private static class LongValueParser implements ValueParser<Long> {
-        @Override
-        public Long parseValue(String textValue) {
-            return Long.parseLong(textValue);
-        }
-    }
-
     private static class TextValueParser implements ValueParser<String> {
         @Override
         public String parseValue(String textValue) {
@@ -337,13 +353,13 @@ public class CloudResourceMatcherService {
         }
     }
 
-    private static interface ValueMatcher<T> {
+    private interface ValueMatcher<T> {
 
         boolean matchValue(T expected, T actual);
 
     }
 
-    private static class GreaterOrEqualValueMatcher<T extends Comparable> implements ValueMatcher<T> {
+    private static class GreaterOrEqualValueMatcher<T extends Comparable<? super T>> implements ValueMatcher<T> {
         @Override
         public boolean matchValue(T expected, T actual) {
             // Actual must be greater or equal than expected
@@ -359,6 +375,13 @@ public class CloudResourceMatcherService {
         }
     }
 
+    private static class StringIgnoreCaseEqualMatcher implements ValueMatcher<String> {
+        @Override
+        public boolean matchValue(String expected, String actual) {
+            return expected.equalsIgnoreCase(actual);
+        }
+    }
+
     private <T> boolean match(Map<String, AbstractPropertyValue> properties, String keyToCheck, T actualValue, ValueParser<T> valueParser,
             ValueMatcher<T> valueMatcher) {
         try {
@@ -366,11 +389,7 @@ public class CloudResourceMatcherService {
                 return true;
             }
             String expectedStrValue = FunctionEvaluator.getScalarValue(properties.get(keyToCheck));
-            if (expectedStrValue == null || expectedStrValue.isEmpty()) {
-                return true;
-            } else {
-                return valueMatcher.matchValue(valueParser.parseValue(expectedStrValue), actualValue);
-            }
+            return expectedStrValue == null || expectedStrValue.isEmpty() || valueMatcher.matchValue(valueParser.parseValue(expectedStrValue), actualValue);
         } catch (Exception e) {
             log.warn("Error happened while matching key [" + keyToCheck + "], actual value [" + actualValue + "], properties [" + properties + "]", e);
             return false;

@@ -51,7 +51,7 @@ describe('Topology input/output properties', function() {
   it('should be able associate a property to an already existing input', function() {
     after = true;
     console.log('################# should be able associate a property to an already existing input.');
-    topologyEditorCommon.associatePropertyToInput('Compute_2', 'os_arch', 'os_arch');
+    topologyEditorCommon.associatePropertyToInput('Compute-2', 'os_arch', 'os_arch');
     topologyEditorCommon.checkCountInputs(1);
   });
 

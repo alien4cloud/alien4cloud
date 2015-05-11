@@ -89,6 +89,18 @@ public class GroupService {
         return user;
     }
 
+    public User removeUserFromAllGroup(String username) {
+        User user = userService.retrieveUser(username);
+        Set<String> userGroups = user.getGroups();
+        if (userGroups != null && userGroups.size() > 0) {
+            for (String group : userGroups) {
+                removeUserFromGroup(username, group);
+            }
+        }
+
+        return user;
+    }
+
     public String createGroup(String name, String email, String description, Set<String> roles, Set<String> users) throws AlreadyExistException {
         checkGroupNameUnicity(name);
         Group group = new Group(name);

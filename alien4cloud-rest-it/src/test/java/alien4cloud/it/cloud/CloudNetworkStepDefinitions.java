@@ -32,6 +32,7 @@ public class CloudNetworkStepDefinitions {
         network.setIpVersion(ipVersion);
         network.setCidr(cidr);
         network.setGatewayIp(gateWay);
+        network.setIsExternal(false);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
     }
@@ -54,6 +55,7 @@ public class CloudNetworkStepDefinitions {
                 String gateWay = rows.get(3);
                 NetworkTemplate network = new NetworkTemplate();
                 network.setId(name);
+                network.setIsExternal(false);
                 network.setIpVersion(ipVersion);
                 network.setCidr(cidr);
                 network.setGatewayIp(gateWay);
@@ -100,6 +102,7 @@ public class CloudNetworkStepDefinitions {
             network.setIpVersion(ipVersion);
             String gatewayIp = rows.get(3);
             network.setGatewayIp(gatewayIp);
+            network.setIsExternal(false);
             String pasSResourceId = rows.get(4);
             if (pasSResourceId.isEmpty()) {
                 pasSResourceId = null;
@@ -122,5 +125,18 @@ public class CloudNetworkStepDefinitions {
         new CloudDefinitionsSteps().I_get_the_cloud_by_id(cloudName);
         CloudDTO cloudDTO = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
         Assert.assertTrue(cloudDTO.getNetworks().isEmpty());
+    }
+
+    @And("^I add the public network with name \"([^\"]*)\" to the cloud \"([^\"]*)\" and match it to paaS network \"([^\"]*)\"$")
+    public void I_add_the_public_network_with_name_to_the_cloud_and_match_it_to_paaS_network(String name, String cloudName, String paaSResourceId)
+            throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        NetworkTemplate network = new NetworkTemplate();
+        network.setId(name);
+        network.setIpVersion(4);
+        network.setIsExternal(true);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/networks", JsonUtil.toString(network)));
+        I_match_the_network_with_name_of_the_cloud_to_the_PaaS_resource(name, cloudName, paaSResourceId);
     }
 }

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,7 @@ import alien4cloud.security.Role;
 import alien4cloud.security.UpdateUserRequest;
 import alien4cloud.security.User;
 import alien4cloud.security.UserService;
+import alien4cloud.security.groups.GroupService;
 import alien4cloud.security.services.ResourceRoleService;
 
 import com.google.common.collect.Sets;
@@ -49,6 +52,8 @@ public class UserController {
     private IAlienUserDao alienUserDao;
     @Resource
     private UserService userService;
+    @Resource
+    private GroupService groupService;
     @Resource
     private ResourceRoleService resourceRoleService;
 
@@ -122,13 +127,24 @@ public class UserController {
     @ApiOperation(value = "Delete an existing user from the internal user's repository.")
     @RequestMapping(value = "/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> deleteUser(@PathVariable String username) throws IOException, ClassNotFoundException {
+    public RestResponse<Void> deleteUser(@PathVariable String username, HttpServletResponse servletResponse) throws IOException, ClassNotFoundException {
         if (username == null || username.isEmpty()) {
             return RestResponseBuilder.<Void> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("username cannot be null or empty").build()).build();
+        } else if (alienUserDao.find(username) == null) {
+            return RestResponseBuilder.<Void> builder().build();
+        } else if (userService.isAdmin(username) && userService.countAdminUser() == 1) {
+            servletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.DELETE_LAST_ADMIN_USER_ERROR).message("It's forbidden to remove the last admin user.")
+                            .build()).build();
         }
-        alienUserDao.delete(username);
+
         resourceRoleService.deleteUserRoles(username);
+        groupService.removeUserFromAllGroup(username);
+
+        alienUserDao.delete(username);
         return RestResponseBuilder.<Void> builder().build();
     }
 

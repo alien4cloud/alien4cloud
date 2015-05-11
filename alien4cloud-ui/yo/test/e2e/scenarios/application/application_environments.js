@@ -43,7 +43,7 @@ describe('Application environments', function() {
   it('should create an application and must have a default application environment.', function() {
     console.log('################# should create an application and must have a default application environment.');
     assertCountEnvironment(1);
-    expect(element(by.id('Environment-envlistid')).$('option:checked').getText()).toEqual('OTHER');
+    expect(element(by.id('Environment-envlistid')).$('option:checked').getText()).toEqual(common.frLanguage.CLOUDS.ENVIRONMENT.OTHER);
   });
 
   it('should create an application environment for a new application.', function() {

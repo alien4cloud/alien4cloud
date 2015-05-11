@@ -22,10 +22,12 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.cloud.MatchedAvailabilityZone;
 import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
@@ -144,9 +146,14 @@ public class CloudController {
         for (StorageTemplate storage : cloud.getStorages()) {
             matchedStorages.put(storage.getId(), new MatchedStorageTemplate(storage, cloud.getStorageMapping().get(storage.getId())));
         }
-        CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, cloudService.getCloudResourceIds(cloud,
-                CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR), cloudService.getCloudResourceIds(cloud,
-                CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
+
+        Map<String, MatchedAvailabilityZone> matchedZones = Maps.newHashMap();
+        for (AvailabilityZone zone : cloud.getAvailabilityZones()) {
+            matchedZones.put(zone.getId(), new MatchedAvailabilityZone(zone, cloud.getAvailabilityZoneMapping().get(zone.getId())));
+        }
+        CloudDTO cloudDTO = new CloudDTO(cloud, matchedImages, matchedFlavors, matchedNetworks, matchedStorages, matchedZones,
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR),
+                cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
     }
 
@@ -284,7 +291,6 @@ public class CloudController {
     @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> addGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
-
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         resourceRoleService.addGroupRole(cloud, groupId, role);
@@ -373,13 +379,12 @@ public class CloudController {
     }
 
     @ApiOperation(value = "Enable or disable a cloud template", notes = "Only user with ADMIN role can enable a cloud template.")
-    @RequestMapping(value = "/{cloudId}/templates/{imageId}/{flavorId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{cloudId}/templates/{activableComputeId}/status", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> setCloudComputeTemplateStatus(@PathVariable String cloudId, @PathVariable String imageId, @PathVariable String flavorId,
-            @RequestParam Boolean enabled) {
+    public RestResponse<Void> setCloudComputeTemplateStatus(@PathVariable String cloudId, @PathVariable String activableComputeId, @RequestParam Boolean enabled) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        cloudService.setCloudTemplateStatus(cloud, imageId, flavorId, enabled);
+        cloudService.setCloudTemplateStatus(cloud, activableComputeId, enabled);
         return RestResponseBuilder.<Void> builder().build();
     }
 
@@ -468,6 +473,39 @@ public class CloudController {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setStorageResourceId(cloud, storageId, pasSResourceId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    // Begin
+
+    @ApiOperation(value = "Add an availability zone to the given cloud", notes = "Only user with ADMIN role can add an availability zone.")
+    @RequestMapping(value = "/{cloudId}/zones", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> addAvailabilityZone(@PathVariable String cloudId, @RequestBody AvailabilityZone availabilityZone) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.addAvailabilityZone(cloud, availabilityZone);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Remove an availability zone from the given cloud", notes = "Only user with ADMIN role can remove an availability zone.")
+    @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> removeAvailabilityZone(@PathVariable String cloudId, @PathVariable String availabilityZoneId) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.removeAvailabilityZone(cloud, availabilityZoneId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+
+    @ApiOperation(value = "Set the corresponding paaS resource id for the availability zone", notes = "Only user with ADMIN role can set the resource id for an availability zone.")
+    @RequestMapping(value = "/{cloudId}/zones/{availabilityZoneId}/resource", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> setAvailabilityZoneResourceId(@PathVariable String cloudId, @PathVariable String availabilityZoneId,
+            @RequestParam(required = false) String pasSResourceId) throws CloudDisabledException {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        cloudService.setAvailabilityZoneResourceId(cloud, availabilityZoneId, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
     }
 }

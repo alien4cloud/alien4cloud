@@ -1,6 +1,8 @@
 package alien4cloud.it.users;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -80,6 +82,11 @@ public class UsersDefinitionsSteps {
         User user = restResponse.getData();
         assertNotNull(user);
         assertTrue(!ArrayUtils.contains(user.getRoles(), expectedRole));
+    }
+
+    @When("^I delete the user \"([^\"]*)\"$")
+    public void I_delete_the_user(String username) throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/users/" + username));
     }
 
 }

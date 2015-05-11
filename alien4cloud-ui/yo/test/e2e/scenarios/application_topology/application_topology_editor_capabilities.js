@@ -52,13 +52,13 @@ describe('NodeTemplate relationships edition', function() {
 
     navigation.go('applications', 'topology');
     topologyEditorCommon.togglePropertyInput('Compute', 'containee_types', 'cap');
-    topologyEditorCommon.associatePropertyToInput('Compute_2', 'containee_types', 'containee_types', 'cap');
+    topologyEditorCommon.associatePropertyToInput('Compute-2', 'containee_types', 'containee_types', 'cap');
     topologyEditorCommon.checkCountInputs(1);
 
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
-    topologyEditorCommon.editNodeProperty('Compute_2', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute_2', 'os_type', 'windows');
+    topologyEditorCommon.editNodeProperty('Compute-2', 'os_arch', 'x86_64');
+    topologyEditorCommon.editNodeProperty('Compute-2', 'os_type', 'windows');
     topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
 
     topologyEditorCommon.expectShowTodoList(true, true);

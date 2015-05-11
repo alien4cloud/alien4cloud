@@ -47,10 +47,10 @@ Scenario: adding non abstract relationships and check if topology is deployable
       |javaNodeType|
       |javaChefNodeType|
     And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
-    And I have added a node template "Compute_2" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
+    And I have added a node template "Compute-2" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
     And I have added a node template "JavaChef" related to the "fastconnect.nodes.JavaChef:1.0-SNAPSHOT" node type
   When I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute" for requirement "container" of type "tosca.capabilities.Container" and target capability "container"
-    And I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute_2" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"
+    And I add a relationship of type "test.HostedOn" defined in archive "myCsar" version "1.0-SNAPSHOT" with source "JavaChef" and target "Compute-2" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"
     And I check for the deployable status of the topology
   Then I should receive a RestResponse with no error
     And the topology should be deployable

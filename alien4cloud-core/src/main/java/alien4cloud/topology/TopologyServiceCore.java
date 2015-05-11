@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -59,15 +60,14 @@ public class TopologyServiceCore {
     };
 
     public Topology getTopology(String topologyId) {
-        Topology topology = alienDAO.findById(Topology.class, topologyId);
-        return topology;
+        return alienDAO.findById(Topology.class, topologyId);
     }
 
     /**
      * Retrieve a topology given its Id
      *
-     * @param topologyId
-     * @return
+     * @param topologyId id of the topology
+     * @return the found topology, throws NotFoundException if not found
      */
     public Topology getMandatoryTopology(String topologyId) {
         Topology topology = getTopology(topologyId);
@@ -80,8 +80,8 @@ public class TopologyServiceCore {
     /**
      * Get the Map of {@link NodeTemplate} from a topology
      *
-     * @param topology
-     * @return
+     * @param topology the topology
+     * @return this topology's node templates
      */
     public Map<String, NodeTemplate> getNodeTemplates(Topology topology) {
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
@@ -94,10 +94,10 @@ public class TopologyServiceCore {
     /**
      * Get a {@link NodeTemplate} given its name from a map
      *
-     * @param topologyId
-     * @param nodeTemplateName
-     * @param nodeTemplates
-     * @return
+     * @param topologyId the topology's id
+     * @param nodeTemplateName the name of the node template
+     * @param nodeTemplates the topology's node templates
+     * @return the found node template, throws NotFoundException if not found
      */
     public NodeTemplate getNodeTemplate(String topologyId, String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
         NodeTemplate nodeTemplate = nodeTemplates.get(nodeTemplateName);
@@ -110,9 +110,9 @@ public class TopologyServiceCore {
     /**
      * Get a {@link NodeTemplate} given its name from a topology
      *
-     * @param topology
-     * @param nodeTemplateId
-     * @return
+     * @param topology the topology
+     * @param nodeTemplateId the name of the node template
+     * @return the found node template, throws NotFoundException if not found
      */
     public NodeTemplate getNodeTemplate(Topology topology, String nodeTemplateId) {
         Map<String, NodeTemplate> nodeTemplates = getNodeTemplates(topology);
@@ -198,10 +198,6 @@ public class TopologyServiceCore {
             }
         }
         return capabilityTypes;
-    }
-
-    public IndexedNodeType getRelatedIndexedNodeType(NodeTemplate nodeTemplate, Topology topology) {
-        return csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
     }
 
     public NodeTemplate buildNodeTemplate(Set<CSARDependency> dependencies, IndexedNodeType indexedNodeType, NodeTemplate templateToMerge) {
@@ -344,6 +340,35 @@ public class TopologyServiceCore {
 
         return topologyTemplate;
 
+    }
+
+    /**
+     *
+     * Get all the relationships in which a given node template is a target
+     *
+     * @param nodeTemplateName the name of the node template which is target for relationship
+     * @param nodeTemplates all topology's node templates
+     * @return all relationships which have nodeTemplateName as target
+     */
+    public List<RelationshipTemplate> getTargetRelatedRelatonshipsTemplate(String nodeTemplateName, Map<String, NodeTemplate> nodeTemplates) {
+        List<RelationshipTemplate> toReturn = Lists.newArrayList();
+        for (String key : nodeTemplates.keySet()) {
+            NodeTemplate nodeTemp = nodeTemplates.get(key);
+            if (nodeTemp.getRelationships() == null) {
+                continue;
+            }
+            for (String key2 : nodeTemp.getRelationships().keySet()) {
+                RelationshipTemplate relTemp = nodeTemp.getRelationships().get(key2);
+                if (relTemp == null) {
+                    continue;
+                }
+                if (relTemp.getTarget() != null && relTemp.getTarget().equals(nodeTemplateName)) {
+                    toReturn.add(relTemp);
+                }
+            }
+        }
+
+        return toReturn;
     }
 
     public String ensureNameUnicity(String name, int attemptCount) {

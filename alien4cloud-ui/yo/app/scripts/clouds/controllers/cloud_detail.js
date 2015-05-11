@@ -11,6 +11,7 @@ angular.module('alienUiApp').controller(
       $scope.tabs = {
         newTemplates: 0
       };
+      $scope.UTILS = UTILS;
       /**
        * FOR USER SEARCH AND ADD GROUP'S ROLE
        */
@@ -45,21 +46,25 @@ angular.module('alienUiApp').controller(
           $scope.flavors = response.data.flavors;
           $scope.networks = response.data.networks;
           $scope.storages = response.data.storages;
+          $scope.zones = response.data.zones;
           // ids coming from pass
           $scope.paaSImageIds = response.data.paaSImageIds;
           $scope.paaSFlavorIds = response.data.paaSFlavorIds;
           $scope.paaSNetworkIds = response.data.paaSNetworkTemplateIds;
           $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;
+          $scope.paaSZoneIds = response.data.paaSZoneIds;
           // array of PaaS stuff IDs available for mapping
           $scope.availaiblePaaSImageIds = [];
           $scope.availaiblePaaSFlavorIds = [];
           $scope.availaiblePaaSNetworkIds = [];
           $scope.availaiblePaaSStorageIds = [];
+          $scope.availaiblePaaSZoneIds = [];
           // counters for non mapped stuffs
           $scope.imageNotConfiguredCount = 0;
           $scope.flavorNotConfiguredCount = 0;
           $scope.networkNotConfiguredCount = 0;
           $scope.storageNotConfiguredCount = 0;
+          $scope.zoneNotConfiguredCount = 0;
           // id of images candidat to be added
           $scope.imageAddSelection = [];
           // to display unmapped stuffs alerts
@@ -68,6 +73,7 @@ angular.module('alienUiApp').controller(
           updateComputeResourcesStatistic();
           updateNetworkResourcesStatistic();
           updateStorageResourcesStatistic();
+          updateZoneResourcesStatistic();
 
           $scope.relatedUsers = {};
           if ($scope.cloud.userRoles) {
@@ -361,6 +367,13 @@ angular.module('alienUiApp').controller(
         $scope.availaiblePaaSStorageIds = result.arr;
       };
 
+      // count the number of zones that are not associated to a resource id
+      var updateZoneResourcesStatistic = function() {
+        var result = updateResourcesStatistic($scope.paaSZoneIds, $scope.zones);
+        $scope.zoneNotConfiguredCount = result.counter;
+        $scope.availaiblePaaSZoneIds = result.arr;
+      };
+
       var updateComputeResources = function(cloudResources) {
         var newComputeTemplates = cloudResources.computeTemplates;
         $scope.tabs.newTemplates = newComputeTemplates.length - $scope.cloud.computeTemplates.length;
@@ -471,8 +484,7 @@ angular.module('alienUiApp').controller(
       $scope.toggleEnableTemplate = function(template) {
         cloudServices.setCloudTemplateStatus({
           id: $scope.cloud.id,
-          imageId: template.cloudImageId,
-          flavorId: template.cloudImageFlavorId,
+          activableComputeId: template.id,
           enabled: !template.enabled
         }, undefined, function() {
           template.enabled = !template.enabled;
@@ -641,12 +653,24 @@ angular.module('alienUiApp').controller(
           updateStorageResourcesStatistic);
       };
 
+      // associate a PaaS resource id to a cloud zone
+      $scope.saveZoneResourceId = function(cloudZoneId, paaSResourceId) {
+        savePasSResourceId(
+          cloudZoneId,
+          $scope.zones,
+          paaSResourceId,
+          cloudServices.setCloudZoneResource,
+          updateZoneResourcesStatistic);
+      };
+
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
-        if (paaSResourceId === null || paaSResourceId === '') {
-          delete alienResourceArray[alienResourceId].paaSResourceId;
+        if (UTILS.isUndefinedOrNull(paaSResourceId) || paaSResourceId === '') {
+          if (alienResourceArray[alienResourceId]) {
+            delete alienResourceArray[alienResourceId].paaSResourceId;
+          }
         } else {
-          alienResourceArray[alienResourceId].paaSResourceId = paaSResourceId;
+            alienResourceArray[alienResourceId].paaSResourceId = paaSResourceId;
         }
         saveFn({
           id: $scope.cloud.id,
@@ -671,5 +695,37 @@ angular.module('alienUiApp').controller(
           controller: ModalInstanceCtrl
         });
       };
+
+      /** handle Modal form for cloud zone creation */
+      $scope.openZoneCreationModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'views/clouds/new_zone.html',
+          controller: 'NewZoneController'
+        });
+
+        modalInstance.result.then(function(zone) {
+          cloudServices.addZone({
+            id: $scope.cloud.id
+          }, angular.toJson(zone), function() {
+            $scope.zones[zone.id] = {
+                resource: zone
+            };
+            $scope.cloud.availabilityZones.push(zone);
+            updateZoneResourcesStatistic();
+          });
+        });
+      };
+
+      $scope.deleteZone = function(zone) {
+        cloudServices.removeZone({
+          id: $scope.cloud.id,
+          zoneId: zone.id
+        }, undefined, function() {
+          delete $scope.zones[zone.id];
+          UTILS.arrayRemove($scope.cloud.availabilityZones, zone);
+          updateZoneResourcesStatistic();
+        });
+      };
+
     }
   ]);

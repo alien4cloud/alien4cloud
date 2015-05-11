@@ -26,6 +26,11 @@ Feature: CRUD operations on application version
     And I create an application version with version "0.3.0-SNAPSHOT"
     Then I should receive a RestResponse with no error
 
+  Scenario: Delete an application version when it' the last should failled
+    Given I have an application with name "ALIEN"
+    And I delete an application version with name "0.1.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 610
+
   Scenario: Delete an application version with failure
     Given I have an application with name "ALIEN"
     And I delete an application version with name "0.2.0-SNAPSHOT"

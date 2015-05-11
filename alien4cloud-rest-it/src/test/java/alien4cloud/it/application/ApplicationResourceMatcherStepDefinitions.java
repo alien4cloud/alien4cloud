@@ -1,5 +1,6 @@
 package alien4cloud.it.application;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,12 +9,14 @@ import org.junit.Assert;
 
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.it.Context;
+import alien4cloud.it.cloud.CloudAVZStepDefinitions;
 import alien4cloud.it.cloud.CloudComputeTemplateStepDefinitions;
 import alien4cloud.it.cloud.CloudNetworkStepDefinitions;
 import alien4cloud.it.cloud.CloudStorageStepDefinitions;
 import alien4cloud.it.cloudImage.CloudImageStepDefinitions;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudImage;
 import alien4cloud.model.cloud.CloudImageFlavor;
 import alien4cloud.model.cloud.ComputeTemplate;
@@ -76,7 +79,7 @@ public class ApplicationResourceMatcherStepDefinitions {
         CloudResourceTopologyMatchResult cloudResourceTopologyMatchResult = matchResultResponse.getData().getMatchResult();
         Assert.assertTrue(cloudResourceTopologyMatchResult.getImages().isEmpty());
         Assert.assertTrue(cloudResourceTopologyMatchResult.getFlavors().isEmpty());
-        for (List<ComputeTemplate> templates : cloudResourceTopologyMatchResult.getComputeMatchResult().values()) {
+        for (Collection<ComputeTemplate> templates : cloudResourceTopologyMatchResult.getComputeMatchResult().values()) {
             Assert.assertTrue(templates.isEmpty());
         }
     }
@@ -85,7 +88,7 @@ public class ApplicationResourceMatcherStepDefinitions {
     public void I_select_the_template_composed_of_image_and_flavor_for_my_node(String cloudImageName, String flavorId, String nodeName) throws Throwable {
         Map<String, ComputeTemplate> cloudResourcesMatching = Maps.newHashMap();
         cloudResourcesMatching.put(nodeName, new ComputeTemplate(Context.getInstance().getCloudImageId(cloudImageName), flavorId));
-        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching, null, null);
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, cloudResourcesMatching, null, null, null);
         Application application = Context.getInstance().getApplication();
         String response = Context.getRestClientInstance().putJSon(
                 "/rest/applications/" + application.getId() + "/environments/"
@@ -151,7 +154,7 @@ public class ApplicationResourceMatcherStepDefinitions {
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
         Map<String, NetworkTemplate> networkMatching = Maps.newHashMap();
         networkMatching.put(nodeName, cloudDTO.getNetworks().get(networkName).getResource());
-        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching, null);
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, networkMatching, null, null);
         Application application = Context.getInstance().getApplication();
         String response = Context.getRestClientInstance().putJSon(
                 "/rest/applications/" + application.getId() + "/environments/"
@@ -172,6 +175,7 @@ public class ApplicationResourceMatcherStepDefinitions {
             network.setIpVersion(ipVersion);
             network.setCidr(cidr);
             network.setGatewayIp(gateWay);
+            network.setIsExternal(false);
             expectedNetworksMatching.put(rows.get(0), network);
         }
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
@@ -254,8 +258,107 @@ public class ApplicationResourceMatcherStepDefinitions {
         CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
         Map<String, StorageTemplate> storageMatching = Maps.newHashMap();
         storageMatching.put(nodeName, cloudDTO.getStorages().get(storageName).getResource());
-        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, null, storageMatching);
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, null, storageMatching, null);
         Application application = Context.getInstance().getApplication();
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @Then("^I should receive a match result with (\\d+) availability zones for the group \"([^\"]*)\":$")
+    public void I_should_receive_a_match_result_with_availability_zones_for_the_group_(int numberOfZones, String groupName, DataTable expectedZoneTable)
+            throws Throwable {
+        RestResponse<DeploymentSetupMatchInfo> matchResultResponse = JsonUtil.read(Context.getInstance().getRestResponse(), DeploymentSetupMatchInfo.class);
+        CloudResourceTopologyMatchResult cloudResourceTopologyMatchResult = matchResultResponse.getData().getMatchResult();
+        Assert.assertNull(matchResultResponse.getError());
+        Assert.assertNotNull(matchResultResponse.getData());
+        Assert.assertNotNull(cloudResourceTopologyMatchResult.getAvailabilityZoneMatchResult());
+        Assert.assertTrue(cloudResourceTopologyMatchResult.getAvailabilityZoneMatchResult().containsKey(groupName));
+        CloudAVZStepDefinitions.assertZones(numberOfZones, Sets.newHashSet(cloudResourceTopologyMatchResult.getAvailabilityZoneMatchResult().get(groupName)),
+                expectedZoneTable);
+    }
+
+    private void updateZoneSelection(String zoneId, String groupName, boolean select) throws Throwable {
+        Context.getInstance().getCloudForTopology();
+        String cloudId = Context.getInstance().getCloudForTopology();
+        CloudDTO cloudDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/clouds/" + cloudId), CloudDTO.class).getData();
+        AvailabilityZone zoneFound = null;
+        for (AvailabilityZone zone : cloudDTO.getCloud().getAvailabilityZones()) {
+            if (zone.getId().equals(zoneId)) {
+                zoneFound = zone;
+            }
+        }
+        Assert.assertNotNull(zoneFound);
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Map<String, Collection<AvailabilityZone>> avzMatching = Maps.newHashMap();
+        Collection<AvailabilityZone> existingZones = deploymentSetupMatchInfo.getAvailabilityZoneMapping().get(groupName);
+        if (existingZones == null) {
+            existingZones = Sets.newHashSet();
+        }
+        if (select) {
+            existingZones.add(zoneFound);
+        } else {
+            existingZones.remove(zoneFound);
+        }
+        avzMatching.put(groupName, existingZones);
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest(null, null, null, null, null, avzMatching);
+        String response = Context.getRestClientInstance().putJSon(
+                "/rest/applications/" + application.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @When("^I select the availability zone with name \"([^\"]*)\" for my group \"([^\"]*)\"$")
+    public void I_select_the_availability_zone_with_name_for_my_group(String zoneId, String groupName) throws Throwable {
+        updateZoneSelection(zoneId, groupName, true);
+    }
+
+    @When("^I de-select the availability zone with name \"([^\"]*)\" for my group \"([^\"]*)\"$")
+    public void I_de_select_the_availability_zone_with_name_for_my_group(String zoneId, String groupName) throws Throwable {
+        updateZoneSelection(zoneId, groupName, false);
+    }
+
+    @And("^The deployment setup of the application should contain following availability zone mapping:$")
+    public void The_deployment_setup_of_the_application_should_contain_following_availability_zone_mapping(DataTable avzMatching) throws Throwable {
+        Map<String, Collection<AvailabilityZone>> expectedAVZsMatching = Maps.newHashMap();
+        for (List<String> rows : avzMatching.raw()) {
+            Collection<AvailabilityZone> existing = expectedAVZsMatching.get(rows.get(0));
+            if (existing == null) {
+                existing = Sets.newHashSet();
+                expectedAVZsMatching.put(rows.get(0), existing);
+            }
+            existing.add(new AvailabilityZone(rows.get(1), rows.get(2)));
+        }
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        Assert.assertEquals(expectedAVZsMatching, deploymentSetupMatchInfo.getAvailabilityZoneMapping());
+    }
+
+    @And("^I set the input property \"([^\"]*)\" of the topology to \"([^\"]*)\"$")
+    public void I_set_the_input_property_of_the_topology_to(String inputName, String inputValue) throws Throwable {
+        UpdateDeploymentSetupRequest request = new UpdateDeploymentSetupRequest();
+        Map<String, String> inputProperties = Maps.newHashMap();
+        inputProperties.put(inputName, inputValue);
+        request.setInputProperties(inputProperties);
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = JsonUtil.read(
+                Context.getRestClientInstance().get(
+                        "/rest/applications/" + application.getId() + "/environments/"
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup"),
+                DeploymentSetupMatchInfo.class).getData();
+        if (deploymentSetupMatchInfo.getInputProperties() != null) {
+            inputProperties.putAll(deploymentSetupMatchInfo.getInputProperties());
+        }
         String response = Context.getRestClientInstance().putJSon(
                 "/rest/applications/" + application.getId() + "/environments/"
                         + Context.getInstance().getDefaultApplicationEnvironmentId(application.getName()) + "/deployment-setup", JsonUtil.toString(request));

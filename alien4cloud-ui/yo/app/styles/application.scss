@@ -55,9 +55,12 @@
 
 .task-list-box {
   padding-left: 5px;
-  border-left-style: solid;
-  border-left-width: 3px;
-  border-left-color: $state-danger-text;
+  border-left: 3px solid $state-danger-text;
+}
+
+.warning-list-box {
+  padding-left: 5px;
+  border-left: 3px solid $state-warning-text;
 }
 
 .margin-top-05 { margin-top: 0.5em; }
@@ -74,4 +77,18 @@ li.selected {
 // FIXME: just a hack to make menu popup visible
 .dropdownAsSelect {
   position: relative !important;
+}
+
+.table-responsive tr > td {
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 8px;
+  padding-left: 0px;
+  word-wrap: break-word;
+  max-width: 40px;
+}
+
+.table-responsive tr > td.image-in-table-responsive {
+  min-width: 65px;
+  max-width: 66px;
 }

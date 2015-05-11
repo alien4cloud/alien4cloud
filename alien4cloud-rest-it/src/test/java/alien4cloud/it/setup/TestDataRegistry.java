@@ -6,12 +6,54 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.Maps;
 
 @Slf4j
 public class TestDataRegistry {
-    public static final Map<Path, Path> FOLDER_TO_ZIP = Maps.newHashMap();
-    public static final Map<String, Path> CONDITION_TO_PATH = Maps.newHashMap();
+
+    /**
+     * This map contains artifacts that need to be zipped in prepare test data phase PrepareTestData.main
+     * it's a map of input folder --> zip path
+     */
+    public static final Map<Path, Path> SOURCE_TO_TARGET_ARTIFACT_MAPPING = Maps.newHashMap();
+
+    /**
+     * This map contains artifacts that is required for IT test
+     * it's a map of human readable artifact name --> zip path
+     */
+    public static final Map<String, Path> TEST_ARTIFACTS = Maps.newHashMap();
+
+    /**
+     * This property is injected by fail safe plugin, it contains the directory of test project
+     */
+    public static final Path BASE_DIR;
+
+    static {
+        String basedir = System.getProperty("basedir");
+        if (StringUtils.isEmpty(basedir)) {
+            // Test from IDE
+            basedir = ".";
+        }
+        BASE_DIR = Paths.get(basedir).normalize().toAbsolutePath();
+    }
+    /**
+     * The parent project, it's where all artifacts are stored
+     */
+    public static final Path A4C_DIR = BASE_DIR.getParent();
+
+    /**
+     * The path where all it artifacts are stored
+     */
+    public static final Path IT_ARTIFACTS_DIR = A4C_DIR.resolve("target").resolve("it-artifacts");
+
+    public static final String GIT_ARTIFACTS_PATH = "target/git/";
+
+    /**
+     * All artifacts that comes from git will be put here
+     */
+    public static final Path GIT_ARTIFACTS_DIR = BASE_DIR.resolve(GIT_ARTIFACTS_PATH);
 
     static {
         addConditionFolder("tosca base types 1.0", "src/test/resources/data/csars/tosca-base-types-1.0");
@@ -43,7 +85,7 @@ public class TestDataRegistry {
         addConditionFolder("csar-test-no-topology", "src/test/resources/data/csars/snapshot-test/missing-topology-yaml");
 
         addConditionFolder("topology-singlecompute", "src/test/resources/data/csars/topology_template/topology-singlecompute");
-        addConditionFolder("topology apache", "src/test/resources/data/csars/topology_template/topology-apache");
+        addConditionFolder("topology apache", "src/test/resources/data/csars/topology_template/topology-apache-it");
         addConditionFolder("topology custom types", "src/test/resources/data/csars/topology_template/topology-custom-types");
         addConditionFolder("topology-error-missingtype", "src/test/resources/data/csars/topology_template/topology-error-missingtype");
         addConditionFolder("topology-unknown-req", "src/test/resources/data/csars/topology_template/topology-unknown-req");
@@ -61,20 +103,30 @@ public class TestDataRegistry {
                 "src/test/resources/data/csars/topology_template/topology-template-relationship-funtionprop");
         addConditionFolder("topology-capability-io", "src/test/resources/data/csars/topology_template/topology-capability-io");
         addConditionFolder("topology_artifact", "src/test/resources/data/csars/topology_template/topology_artifact");
+        addConditionFolder("topology-groups", "src/test/resources/data/csars/topology_template/topology-groups");
+        addConditionFolder("topology-groups-unknown-policy", "src/test/resources/data/csars/topology_template/topology-groups-unknown-policy");
+        addConditionFolder("topology-groups-unknown-member", "src/test/resources/data/csars/topology_template/topology-groups-unknown-member");
 
+        addConditionFolder("tosca-normative-types", GIT_ARTIFACTS_PATH + "tosca-normative-types");
+        addConditionFolder("alien-base-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-base-types-1.0-SNAPSHOT");
+        addConditionFolder("alien-extended-storage-types", GIT_ARTIFACTS_PATH + "alien4cloud-extended-types/alien-extended-storage-types-1.0-SNAPSHOT");
+        addConditionFolder("samples tomcat-war", GIT_ARTIFACTS_PATH + "samples/tomcat-war");
+        addConditionFolder("samples apache", GIT_ARTIFACTS_PATH + "samples/apache");
+        addConditionFolder("samples wordpress", GIT_ARTIFACTS_PATH + "samples/wordpress");
+        addConditionFolder("samples mysql", GIT_ARTIFACTS_PATH + "samples/mysql");
+        addConditionFolder("samples php", GIT_ARTIFACTS_PATH + "samples/php");
+        addConditionFolder("samples topology wordpress", GIT_ARTIFACTS_PATH + "samples/topology-wordpress");
+
+        // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)
-        CONDITION_TO_PATH.put("unzipped", Paths.get("src/test/resources/alien/rest/csars/upload.feature"));
-        CONDITION_TO_PATH.put("alien-base-types",
-                Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "alien-base-types/alien-base-types-1.0-SNAPSHOT.zip"));
-        CONDITION_TO_PATH.put("alien-extended-storage-types",
-                Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "alien-base-types/alien-extended-storage-types-1.0-SNAPSHOT.zip"));
-        CONDITION_TO_PATH.put("tosca-normative-types", Paths.get(PrepareTestData.RELATIVE_ARCHIVES_TARGET_PATH_ROOT + "tosca-normative-types.zip"));
+        TEST_ARTIFACTS.put("unzipped", BASE_DIR.resolve("src/test/resources/alien/rest/csars/upload.feature"));
     }
 
     public static void addConditionFolder(String condition, String folderPathStr) {
-        Path folderPath = Paths.get(PrepareTestData.BASEDIR + folderPathStr);
-        Path zipPath = Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH, folderPath.getFileName() + ".csar");
-        FOLDER_TO_ZIP.put(folderPath, zipPath);
-        CONDITION_TO_PATH.put(condition, zipPath);
+        // We put all artifacts to a4c root project dir
+        Path folderPath = BASE_DIR.resolve(folderPathStr);
+        Path zipPath = IT_ARTIFACTS_DIR.resolve(folderPath.getFileName() + ".csar");
+        SOURCE_TO_TARGET_ARTIFACT_MAPPING.put(folderPath, zipPath);
+        TEST_ARTIFACTS.put(condition, zipPath);
     }
 }

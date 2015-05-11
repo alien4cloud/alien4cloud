@@ -1,11 +1,6 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +29,6 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
-import alien4cloud.it.setup.PrepareTestData;
 import alien4cloud.it.setup.TestDataRegistry;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
@@ -44,6 +38,7 @@ import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -51,11 +46,11 @@ import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
-import alien4cloud.rest.topology.TopologyDTO;
 import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.rest.topology.task.RequirementToSatify;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.task.RequirementToSatify;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -345,6 +340,15 @@ public class TopologyStepDefinitions {
     public void I_check_for_the_deployable_status_of_the_topology() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/isvalid"));
+    }
+
+    @When("^I check for the deployable status of the topology on the default environment$")
+    public void I_check_for_the_deployable_status_of_the_topology_on_the_default_environment() throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().get(
+                        "/rest/topologies/" + topologyId + "/isvalid?environmentId="
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
     @Then("^the topology should be deployable$")
@@ -705,11 +709,72 @@ public class TopologyStepDefinitions {
         Path dir = Files.createTempDirectory("yamlTopo");
         Path filePath = Files.createFile(Paths.get(dir.toAbsolutePath() + File.separator + "service-template.yaml"));
         FileUtils.writeStringToFile(filePath.toFile(), yaml);
-        Path csarPath = Paths.get(PrepareTestData.ARCHIVES_TARGET_PATH, testDataName + ".csar");
+        Path csarPath = TestDataRegistry.IT_ARTIFACTS_DIR.resolve(testDataName + ".csar");
         FileUtil.zip(dir, csarPath);
         FileUtil.delete(dir);
-        TestDataRegistry.CONDITION_TO_PATH.put(testDataName, csarPath);
+        TestDataRegistry.TEST_ARTIFACTS.put(testDataName, csarPath);
 
     }
 
+    @When("^I add the node \"([^\"]*)\" to the group \"([^\"]*)\"$")
+    public void I_add_the_node_to_the_group(String nodeName, String groupName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded("/rest/topologies/" + topologyId + "/nodeGroups/" + groupName + "/members/" + nodeName,
+                        Lists.<NameValuePair> newArrayList()));
+    }
+
+    @And("^The RestResponse should contain a group named \"([^\"]*)\" whose members are \"([^\"]*)\" and policy is \"([^\"]*)\"$")
+    public void The_RestResponse_should_contain_a_group_named_whose_members_are_and_policy_is(String groupName, String members, String policy) throws Throwable {
+        String topologyResponseText = Context.getInstance().getRestResponse();
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        Assert.assertNotNull(topologyResponse.getData().getTopology().getGroups());
+        NodeGroup nodeGroup = topologyResponse.getData().getTopology().getGroups().get(groupName);
+        Set<String> expectedMembers = Sets.newHashSet(members.split(","));
+        Assert.assertNotNull(nodeGroup);
+        Assert.assertEquals(nodeGroup.getMembers(), expectedMembers);
+        Assert.assertEquals(nodeGroup.getPolicies().iterator().next().getType(), policy);
+        for (String expectedMember : expectedMembers) {
+            NodeTemplate nodeTemplate = topologyResponse.getData().getTopology().getNodeTemplates().get(expectedMember);
+            Assert.assertNotNull(nodeTemplate);
+            Assert.assertTrue(nodeTemplate.getGroups().contains(groupName));
+        }
+    }
+
+    @When("^I remove the node \"([^\"]*)\" from the group \"([^\"]*)\"$")
+    public void I_remove_the_node_from_the_group(String nodeName, String groupName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().delete("/rest/topologies/" + topologyId + "/nodeGroups/" + groupName + "/members/" + nodeName));
+    }
+
+    @When("^I remove the group \"([^\"]*)\"$")
+    public void I_remove_the_group(String groupName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/topologies/" + topologyId + "/nodeGroups/" + groupName));
+    }
+
+    @Then("^The RestResponse should not contain any group$")
+    public void The_RestResponse_should_not_contain_any_group() throws Throwable {
+        String topologyResponseText = Context.getInstance().getRestResponse();
+        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        Map<String, NodeGroup> groups = topologyResponse.getData().getTopology().getGroups();
+        Assert.assertTrue(groups == null || groups.isEmpty());
+    }
+
+    @When("^I update the name of the group \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_the_name_of_the_group_to(String groupName, String newGroupName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/nodeGroups/" + groupName,
+                        Lists.<NameValuePair> newArrayList(new BasicNameValuePair("newName", newGroupName))));
+    }
+
+    @And("^I add a group with name \"([^\"]*)\" whose members are \"([^\"]*)\"$")
+    public void I_add_a_group_with_name_whose_members_are(String groupName, String memberText) throws Throwable {
+        Set<String> members = Sets.newHashSet(memberText.split(","));
+        for (String member : members) {
+            I_add_the_node_to_the_group(member, groupName);
+        }
+    }
 }

@@ -30,6 +30,7 @@ import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.cloud.ActivableComputeTemplate;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
@@ -93,7 +94,7 @@ public class CloudService {
 
     /**
      * Each cloud initialization is down in it's own thread.
-     * 
+     *
      * @return a list of futures for those who want to wait for task to be done.
      */
     public List<Future<?>> initialize() {
@@ -131,7 +132,7 @@ public class CloudService {
     }
 
     private void disableOnInitFailure(Cloud cloud, Throwable t) {
-        log.error("Failed to start cloud - will switch it to disabled", t);
+        log.error("Failed to start cloud Enable cloud <" + cloud.getId() + "> <" + cloud.getName() + "> - will switch it to disabled", t);
         disableCloud(cloud);
     }
 
@@ -580,22 +581,18 @@ public class CloudService {
      * Set the template status (enable / disable)
      *
      * @param cloud the cloud to update
-     * @param cloudImageId the image id
-     * @param flavorId the flavor id
+     * @param activableComputeId the id of the activable compute
      * @param enabled enable or disable
      */
-    public void setCloudTemplateStatus(Cloud cloud, String cloudImageId, String flavorId, boolean enabled) {
-        List<ActivableComputeTemplate> computeTemplates = getComputeTemplates(cloud, cloudImageId, flavorId, false);
-        if (computeTemplates.isEmpty()) {
-            throw new NotFoundException("No compute template found for [" + cloudImageId + "," + flavorId + "]");
-        }
-        computeTemplates.iterator().next().setEnabled(enabled);
+    public void setCloudTemplateStatus(Cloud cloud, String activableComputeId, boolean enabled) {
+        ActivableComputeTemplate computeTemplate = getActivableComputeByIdOrFail(cloud, activableComputeId);
+        computeTemplate.setEnabled(enabled);
         alienDAO.save(cloud);
     }
 
     public String[] getCloudResourceIds(Cloud cloud, CloudResourceType type) {
-        if (cloud.isEnabled()) {
-            IPaaSProvider paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId());
+        IPaaSProvider paaSProvider;
+        if (cloud.isEnabled() && (paaSProvider = paaSProviderService.getPaaSProvider(cloud.getId())) != null) {
             return paaSProvider.getAvailableResourceIds(type);
         } else {
             return null;
@@ -609,6 +606,7 @@ public class CloudService {
         config.setFlavorMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getFlavors()), cloud.getFlavorMapping()));
         config.setNetworkMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getNetworks()), cloud.getNetworkMapping()));
         config.setStorageMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getStorages()), cloud.getStorageMapping()));
+        config.setAvailabilityZoneMapping(MappingUtil.getMapping(buildResourcesMap(cloud.getAvailabilityZones()), cloud.getAvailabilityZoneMapping()));
         return config;
     }
 
@@ -752,6 +750,17 @@ public class CloudService {
         return foundTemplates;
     }
 
+    public ActivableComputeTemplate getActivableComputeByIdOrFail(Cloud cloud, String activableComputeId) {
+        Iterator<ActivableComputeTemplate> templateIterator = cloud.getComputeTemplates().iterator();
+        while (templateIterator.hasNext()) {
+            ActivableComputeTemplate computeTemplate = templateIterator.next();
+            if (computeTemplate.getId().equals(activableComputeId)) {
+                return computeTemplate;
+            }
+        }
+        throw new NotFoundException("No compute template found for " + activableComputeId + " id.");
+    }
+
     private <T extends ICloudResourceTemplate> T getResource(Collection<T> resources, String id, boolean take) {
         Iterator<T> templateIterator = resources.iterator();
         while (templateIterator.hasNext()) {
@@ -876,4 +885,33 @@ public class CloudService {
         }
     }
 
+    public void addAvailabilityZone(Cloud cloud, AvailabilityZone availabilityZone) {
+        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        if (getResource(availabilityZones, availabilityZone.getId(), false) != null) {
+            throw new AlreadyExistException("Availability zone " + availabilityZone.getId() + " already exist");
+        }
+        availabilityZones.add(availabilityZone);
+        alienDAO.save(cloud);
+    }
+
+    public void removeAvailabilityZone(Cloud cloud, String availabilityZoneId) {
+        Set<AvailabilityZone> availabilityZones = cloud.getAvailabilityZones();
+        getResource(availabilityZones, availabilityZoneId, true);
+        cloud.getAvailabilityZoneMapping().remove(availabilityZoneId);
+        alienDAO.save(cloud);
+    }
+
+    public void setAvailabilityZoneResourceId(Cloud cloud, String availabilityZoneId, String pasSResourceId) throws CloudDisabledException {
+        AvailabilityZone foundAvailabilityZone = getResource(cloud.getAvailabilityZones(), availabilityZoneId, false);
+        if (foundAvailabilityZone == null) {
+            throw new NotFoundException("Availability zone [" + availabilityZoneId + "] not found");
+        }
+        if (StringUtils.isEmpty(pasSResourceId)) {
+            cloud.getAvailabilityZoneMapping().remove(availabilityZoneId);
+        } else {
+            cloud.getAvailabilityZoneMapping().put(availabilityZoneId, pasSResourceId);
+        }
+        initializeMatcherConfig(getPaaSProvider(cloud.getId()), cloud);
+        alienDAO.save(cloud);
+    }
 }

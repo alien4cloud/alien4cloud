@@ -1,6 +1,7 @@
 package alien4cloud.model.topology;
 
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,6 +63,11 @@ public class NodeTemplate extends AbstractTemplate {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, Capability> capabilities;
 
+    /**
+     * The {@link NodeGroup}s this template is member of.
+     */
+    private Set<String> groups;
+
     public NodeTemplate(String type, Map<String, AbstractPropertyValue> properties, Map<String, String> attributes,
             Map<String, RelationshipTemplate> relationships, Map<String, Requirement> requirements, Map<String, Capability> capabilities,
             Map<String, DeploymentArtifact> artifacts) {
@@ -72,5 +78,13 @@ public class NodeTemplate extends AbstractTemplate {
         this.relationships = relationships;
         this.requirements = requirements;
         this.capabilities = capabilities;
+    }
+
+    public static final boolean isValidNodeTemplateName(String nodeTemplateName) {
+        String pattern = "^[A-Za-z0-9\\\\-]*$";
+        if (nodeTemplateName != null && !nodeTemplateName.matches(pattern)) {
+            return false;
+        }
+        return true;
     }
 }

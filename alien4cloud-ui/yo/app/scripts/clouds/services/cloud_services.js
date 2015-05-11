@@ -125,6 +125,23 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       }
     };
 
+    var zoneFormDescriptor = {
+        "_type": "complex",
+        "_order": [ "id", "description"],
+        "_propertyType": {
+          "id": {
+            "_label": "CLOUDS.ZONES.ID",
+            "_type": "string",
+            "_notNull": true
+          },
+          "description": {
+            "_label": "CLOUDS.DESCRIPTION",
+            "_type": "string",
+            "_notNull": false
+          }
+        }
+      };
+
     var crudImage = $resource('rest/clouds/:id/images/:imageId');
 
     var crudFlavor = $resource('rest/clouds/:id/flavors/:flavorId');
@@ -133,7 +150,9 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var crudStorage = $resource('rest/clouds/:id/storages/:storageId');
 
-    var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:imageId/:flavorId/status');
+    var crudZone = $resource('rest/clouds/:id/zones/:zoneId');
+
+    var setCloudTemplateStatus = $resource('rest/clouds/:id/templates/:activableComputeId/status');
 
     var setCloudTemplateResource = $resource('rest/clouds/:id/templates/:imageId/:flavorId/resource');
 
@@ -144,6 +163,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     var cloudNetworkResource = $resource('rest/clouds/:id/networks/:resourceId/resource');
 
     var cloudStorageResource = $resource('rest/clouds/:id/storages/:resourceId/resource');
+
+    var cloudZoneResource = $resource('rest/clouds/:id/zones/:resourceId/resource');
 
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
@@ -255,14 +276,18 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'addNetwork': crudNetwork.save,
       'removeNetwork': crudNetwork.remove,
       'storageFormDescriptor': storageFormDescriptor,
+      'zoneFormDescriptor': zoneFormDescriptor,
       'addStorage': crudStorage.save,
       'removeStorage': crudStorage.remove,
+      'addZone': crudZone.save,
+      'removeZone': crudZone.remove,
       'setCloudTemplateStatus': setCloudTemplateStatus.save,
       'setCloudTemplateResource': setCloudTemplateResource.save,
       'setCloudNetworkResource': cloudNetworkResource.save,
       'setCloudImageResource' : cloudImageResource.save,
       'setCloudFlavorResource' : cloudFlavorResource.save,
       'setCloudStorageResource' : cloudStorageResource.save,
+      'setCloudZoneResource' : cloudZoneResource.save,
       'cloneCloud' : cloneCloud.save
     };
   }

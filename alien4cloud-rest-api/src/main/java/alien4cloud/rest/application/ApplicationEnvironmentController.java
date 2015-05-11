@@ -30,6 +30,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.InvalidArgumentException;
@@ -45,7 +46,6 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.TopologyService;
 import alien4cloud.security.ApplicationEnvironmentRole;
 import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
@@ -53,6 +53,7 @@ import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.security.UserService;
 import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 
@@ -463,6 +464,9 @@ public class ApplicationEnvironmentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
         String topologyId = applicationEnvironmentService.getTopologyId(applicationEnvironmentId);
+        if (topologyId == null) {
+            throw new ApplicationVersionNotFoundException("An application version is required by an application environment.");
+        }
         return RestResponseBuilder.<String> builder().data(topologyId).build();
     }
 

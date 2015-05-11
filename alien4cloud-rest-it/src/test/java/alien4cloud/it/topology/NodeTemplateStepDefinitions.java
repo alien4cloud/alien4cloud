@@ -21,7 +21,7 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.NodeTemplateRequest;
-import alien4cloud.rest.topology.TopologyDTO;
+import alien4cloud.topology.TopologyDTO;
 import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

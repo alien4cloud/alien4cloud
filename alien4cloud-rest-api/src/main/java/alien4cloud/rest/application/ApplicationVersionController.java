@@ -1,5 +1,7 @@
 package alien4cloud.rest.application;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
@@ -73,19 +76,40 @@ public class ApplicationVersionController {
     }
 
     /**
+     * Sort the ApplicationVersion from newest to oldest
+     *
+     * @param data
+     * @return a sorted array of ApplicationVersion
+     */
+    private ApplicationVersion[] sortArrayOfApplicationVersion(ApplicationVersion[] data) {
+        if (data == null || data.length <= 1) {
+            return data;
+        }
+        List<ApplicationVersion> sortedData = Lists.newArrayList(data);
+        Collections.sort(sortedData, new Comparator<ApplicationVersion>() {
+            @Override
+            public int compare(ApplicationVersion left, ApplicationVersion right) {
+                return VersionUtil.compare(right.getVersion(), left.getVersion());
+            }
+        });
+        return sortedData.toArray(new ApplicationVersion[data.length]);
+    }
+
+    /**
      * Search application versions for a given application id
      *
      * @param applicationId the targeted application id
      * @param searchRequest
-     * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id
+     * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id sorted by version
      */
     @ApiOperation(value = "Search application versions", notes = "Returns a search result with that contains application versions matching the request. A application version is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<ApplicationVersion>> search(@PathVariable String applicationId, @RequestBody SearchRequest searchRequest) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-        GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, searchRequest.getQuery(),
-                getApplicationVersionsFilters(applicationId), searchRequest.getFrom(), searchRequest.getSize());
+        GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, null,
+                getApplicationVersionsFilters(applicationId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
+        searchResult.setData(sortArrayOfApplicationVersion(searchResult.getData()));
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
     }
 
@@ -168,9 +192,12 @@ public class ApplicationVersionController {
     public RestResponse<Boolean> delete(@PathVariable String applicationId, @PathVariable String applicationVersionId) {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
+        appVersionService.getOrFail(applicationVersionId);
         if (appVersionService.isApplicationVersionDeployed(applicationVersionId)) {
-            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId
-                    + "> could not be found deleted beacause it's used");
+            throw new DeleteReferencedObjectException("Application version with id <" + applicationVersionId + "> could not be deleted beacause it's used");
+        } else if (appVersionService.getByApplicationId(applicationId).length == 1) {
+            throw new DeleteLastApplicationVersionException("Application version with id <" + applicationVersionId
+                    + "> can't be be deleted beacause it's the last application version.");
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();
@@ -182,12 +209,16 @@ public class ApplicationVersionController {
      * @param applicationId
      * @return a filter for application versions
      */
-    private Map<String, String[]> getApplicationVersionsFilters(String applicationId) {
+    private Map<String, String[]> getApplicationVersionsFilters(String applicationId, String version) {
         List<String> filterKeys = Lists.newArrayList();
         List<String[]> filterValues = Lists.newArrayList();
         if (applicationId != null) {
             filterKeys.add("applicationId");
             filterValues.add(new String[] { applicationId });
+        }
+        if (version != null && !version.equals("")) {
+            filterKeys.add("version");
+            filterValues.add(new String[] { version });
         }
         return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }

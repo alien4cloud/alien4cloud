@@ -76,7 +76,7 @@ public class Cloud implements ISecuredResource {
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     @TermFilter
-    private String deploymentNamePattern = "environment.name + application.name";
+    private String deploymentNamePattern = "application.name + '-' + environment.name";
     /**
      * Type of environment for the cloud.
      */
@@ -118,6 +118,8 @@ public class Cloud implements ISecuredResource {
 
     private Set<StorageTemplate> storages = Sets.newLinkedHashSet();
 
+    private Set<AvailabilityZone> availabilityZones = Sets.newHashSet();
+
     private List<ActivableComputeTemplate> computeTemplates = Lists.newArrayList();
 
     private Map<String, String> imageMapping = Maps.newHashMap();
@@ -127,6 +129,8 @@ public class Cloud implements ISecuredResource {
     private Map<String, String> networkMapping = Maps.newHashMap();
 
     private Map<String, String> storageMapping = Maps.newHashMap();
+
+    private Map<String, String> availabilityZoneMapping = Maps.newHashMap();
 
     @Override
     public Class<CloudRole> roleEnum() {

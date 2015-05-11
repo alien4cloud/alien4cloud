@@ -1,9 +1,10 @@
 package alien4cloud.application;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,11 +20,13 @@ import alien4cloud.cloud.CloudService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.ApplicationVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
+import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
@@ -34,6 +37,7 @@ import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
@@ -45,6 +49,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manages deployment setups.
@@ -119,12 +124,20 @@ public class DeploymentSetupService {
     public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(String applicationId, String applicationEnvironmentId) {
         // get the topology from the version and the cloud from the environment
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
+        if (applicationVersionService.get(environment.getCurrentVersionId()) == null) {
+            throw new ApplicationVersionNotFoundException("An application version is required by an application environment.");
+        }
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(applicationId, environment.getCurrentVersionId());
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
+        return getDeploymentSetupMatchInfo(topology, environment, version);
+    }
+
+    public DeploymentSetupMatchInfo getDeploymentSetupMatchInfo(Topology topology, ApplicationEnvironment environment, ApplicationVersion version) {
         DeploymentSetup deploymentSetup = get(version, environment);
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
+        processGetInput(deploymentSetup, topology);
         generateInputProperties(deploymentSetup, topology, true);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
@@ -132,7 +145,7 @@ public class DeploymentSetupService {
                 if (deploymentSetup.getProviderDeploymentProperties() == null) {
                     generatePropertyDefinition(deploymentSetup, cloud);
                 }
-                return generateCloudResourcesMapping(deploymentSetup, topologyServiceCore.getMandatoryTopology(version.getTopologyId()), cloud, true);
+                return generateCloudResourcesMapping(deploymentSetup, topology, cloud, true);
             } catch (CloudDisabledException e) {
                 log.warn("Cannot generate mapping for deployment setup as cloud is disabled, it will be re-generated next time");
             }
@@ -147,6 +160,9 @@ public class DeploymentSetupService {
         }
         Map<String, String> inputProperties = deploymentSetup.getInputProperties();
         Map<String, PropertyDefinition> inputDefinitions = topology.getInputs();
+        if (inputDefinitions == null) {
+            throw new NotFoundException("Validate input but no input is defined for the topology");
+        }
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
             PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
             if (definition != null) {
@@ -217,8 +233,6 @@ public class DeploymentSetupService {
      */
     public DeploymentSetupMatchInfo generateCloudResourcesMapping(DeploymentSetup deploymentSetup, Topology topology, Cloud cloud, boolean automaticSave)
             throws CloudDisabledException {
-        processGetInput(deploymentSetup, topology);
-
         CloudResourceMatcherConfig cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloud);
         Map<String, IndexedNodeType> types = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
         CloudResourceTopologyMatchResult matchResult = cloudResourceMatcherService.matchTopology(topology, cloud, cloudService.getPaaSProvider(cloud.getId()),
@@ -236,15 +250,18 @@ public class DeploymentSetupService {
         MappingGenerationResult<StorageTemplate> storageMapping = generateDefaultMapping(deploymentSetup.getStorageMapping(),
                 matchResult.getStorageMatchResult(), topology);
 
+        MappingGenerationResult<Set<AvailabilityZone>> groupMapping = generateDefaultAvailabilityZoneMapping(deploymentSetup.getAvailabilityZoneMapping(),
+                matchResult.getAvailabilityZoneMatchResult(), topology);
+
         deploymentSetup.setCloudResourcesMapping(computeMapping.mapping);
         deploymentSetup.setNetworkMapping(networkMapping.mapping);
         deploymentSetup.setStorageMapping(storageMapping.mapping);
-        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed) && automaticSave) {
+        deploymentSetup.setAvailabilityZoneMapping(groupMapping.mapping);
+        if ((computeMapping.changed || networkMapping.changed || storageMapping.changed || groupMapping.changed) && automaticSave) {
             alienDAO.save(deploymentSetup);
         }
-
         DeploymentSetupMatchInfo matchInfo = new DeploymentSetupMatchInfo(deploymentSetup);
-        matchInfo.setValid(computeMapping.valid && networkMapping.valid && storageMapping.valid);
+        matchInfo.setValid(computeMapping.valid && networkMapping.valid && storageMapping.valid && groupMapping.valid);
         matchInfo.setMatchResult(matchResult);
         return matchInfo;
     }
@@ -255,13 +272,18 @@ public class DeploymentSetupService {
      * @param deploymentSetup The deployment setup that contains the input values.
      * @param topology The topology to process.
      */
-    public void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
+    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
                         processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                    }
+                }
+                if (nodeTemplate.getCapabilities() != null) {
+                    for (Capability capability : nodeTemplate.getCapabilities().values()) {
+                        processGetInput(deploymentSetup.getInputProperties(), capability.getProperties());
                     }
                 }
             }
@@ -296,9 +318,55 @@ public class DeploymentSetupService {
         private boolean changed;
     }
 
-    private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, List<T>> matchResult, Topology topology) {
+    private MappingGenerationResult<Set<AvailabilityZone>> generateDefaultAvailabilityZoneMapping(Map<String, Set<AvailabilityZone>> mapping,
+            Map<String, Collection<AvailabilityZone>> matchResult, Topology topology) {
         boolean valid = true;
-        for (Map.Entry<String, List<T>> matchResultEntry : matchResult.entrySet()) {
+        for (Map.Entry<String, ? extends Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+            valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
+        }
+        boolean changed = false;
+        if (mapping == null) {
+            mapping = Maps.newHashMap();
+            for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+                mapping.put(matchResultEntry.getKey(), getFirstZones(matchResultEntry.getValue(), 2));
+            }
+            changed = true;
+        } else {
+            // Try to remove unknown mapping from existing config
+            Iterator<Map.Entry<String, Set<AvailabilityZone>>> mappingEntryIterator = mapping.entrySet().iterator();
+            while (mappingEntryIterator.hasNext()) {
+                Map.Entry<String, Set<AvailabilityZone>> entry = mappingEntryIterator.next();
+                if (topology.getGroups() == null || !topology.getGroups().containsKey(entry.getKey()) || !matchResult.containsKey(entry.getKey())
+                        || !matchResult.get(entry.getKey()).containsAll(entry.getValue())) {
+                    // Remove the mapping if topology do not contain the node with that name and of type compute
+                    // Or the mapping do not exist anymore in the match result
+                    changed = true;
+                    mappingEntryIterator.remove();
+                }
+            }
+            for (Map.Entry<String, Collection<AvailabilityZone>> matchResultEntry : matchResult.entrySet()) {
+                if (!mapping.containsKey(matchResultEntry.getKey())) {
+                    // Only take the first element as selected if no configuration has been set before
+                    changed = true;
+                    mapping.put(matchResultEntry.getKey(), getFirstZones(matchResultEntry.getValue(), 2));
+                }
+            }
+        }
+        return new MappingGenerationResult<>(mapping, valid, changed);
+    }
+
+    private Set<AvailabilityZone> getFirstZones(Collection<AvailabilityZone> zones, int toBeTaken) {
+        Iterator<AvailabilityZone> matchedZones = zones.iterator();
+        Set<AvailabilityZone> defaultZones = Sets.newLinkedHashSet();
+        while (defaultZones.size() < toBeTaken && matchedZones.hasNext()) {
+            defaultZones.add(matchedZones.next());
+        }
+        return defaultZones;
+    }
+
+    private <T> MappingGenerationResult<T> generateDefaultMapping(Map<String, T> mapping, Map<String, ? extends Collection<T>> matchResult, Topology topology) {
+        boolean valid = true;
+        for (Map.Entry<String, ? extends Collection<T>> matchResultEntry : matchResult.entrySet()) {
             valid = valid && (matchResultEntry.getValue() != null && !matchResultEntry.getValue().isEmpty());
         }
         boolean changed = false;
@@ -319,11 +387,11 @@ public class DeploymentSetupService {
                 }
             }
         }
-        for (Map.Entry<String, List<T>> entry : matchResult.entrySet()) {
+        for (Map.Entry<String, ? extends Collection<T>> entry : matchResult.entrySet()) {
             if (!entry.getValue().isEmpty() && !mapping.containsKey(entry.getKey())) {
                 // Only take the first element as selected if no configuration has been set before
                 changed = true;
-                mapping.put(entry.getKey(), entry.getValue().get(0));
+                mapping.put(entry.getKey(), entry.getValue().iterator().next());
             }
         }
         return new MappingGenerationResult<>(mapping, valid, changed);

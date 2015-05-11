@@ -2,7 +2,9 @@ package alien4cloud.rest.topology;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.cloud.CloudService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
@@ -35,6 +38,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.DeploymentSetup;
+import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedCapabilityType;
@@ -42,7 +46,10 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.topology.AbstractPolicy;
 import alien4cloud.model.topology.Capability;
+import alien4cloud.model.topology.HaPolicy;
+import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -56,7 +63,11 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.ApplicationRole;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyValidationResult;
+import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -87,6 +98,9 @@ public class TopologyController {
     private TopologyService topologyService;
 
     @Resource
+    private TopologyValidationService topologyValidationService;
+
+    @Resource
     private TopologyServiceCore topologyServiceCore;
 
     @Resource
@@ -104,12 +118,14 @@ public class TopologyController {
     @Resource
     private DeploymentSetupService deploymentSetupService;
 
+    @Resource
+    private CloudService cloudService;
+
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
      * @param topologyId The id of the topology to retrieve.
-     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the
-     *         {@link alien4cloud.tosca.container.model.type.NodeType} related
+     * @return {@link RestResponse}<{@link TopologyDTO}> containing the {@link alien4cloud.model.topology.Topology} and the {@link IndexedNodeType} related
      *         to his {@link alien4cloud.model.topology.NodeTemplate}s
      */
     @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -162,6 +178,11 @@ public class TopologyController {
             log.debug("Add Node Template <{}> impossible (already exists)", nodeTemplateRequest.getName());
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
+        } else if (!NodeTemplate.isValidNodeTemplateName(nodeTemplateRequest.getName())) {
+            return RestResponseBuilder
+                    .<TopologyDTO> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
+                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
         } else {
             log.debug("Create application <{}>", nodeTemplateRequest.getName());
         }
@@ -225,6 +246,13 @@ public class TopologyController {
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String newNodeTemplateName) {
+        if (!NodeTemplate.isValidNodeTemplateName(newNodeTemplateName)) {
+            return RestResponseBuilder
+                    .<TopologyDTO> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
+                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
+        }
+
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -237,6 +265,7 @@ public class TopologyController {
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
         updateArtifactsOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
+        updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
 
@@ -362,7 +391,7 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
-        boolean upperBoundReachedSource = topologyService.isRequirementUpperBoundReachedForSource(nodeTemplate, relationshipTemplateRequest
+        boolean upperBoundReachedSource = topologyValidationService.isRequirementUpperBoundReachedForSource(nodeTemplate, relationshipTemplateRequest
                 .getRelationshipTemplate().getRequirementName(), topology.getDependencies());
         // return with a rest response error
         if (upperBoundReachedSource) {
@@ -375,8 +404,9 @@ public class TopologyController {
                                             + "> on node <" + nodeTemplateName + ">.").build()).build();
         }
 
-        boolean upperBoundReachedTarget = topologyService.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest.getRelationshipTemplate()
-                .getTarget(), nodeTemplates, relationshipTemplateRequest.getRelationshipTemplate().getTargetedCapabilityName(), topology.getDependencies());
+        boolean upperBoundReachedTarget = topologyValidationService.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest
+                .getRelationshipTemplate().getTarget(), nodeTemplates, relationshipTemplateRequest.getRelationshipTemplate().getTargetedCapabilityName(),
+                topology.getDependencies());
         // return with a rest response error
         if (upperBoundReachedTarget) {
             return RestResponseBuilder
@@ -459,8 +489,31 @@ public class TopologyController {
         removeArtifactsAndPolicies(nodeTemplateName, topology);
         removeOutputs(nodeTemplateName, topology);
 
+        // group members removal
+        updateGroupMembers(topology, template, nodeTemplateName, null);
+
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    /**
+     * Manage node group members when a node name is removed or its name has changed.
+     * 
+     * @param newName : the new name of the node or <code>null</code> if the node has been removed.
+     */
+    private void updateGroupMembers(Topology topology, NodeTemplate template, String nodeName, String newName) {
+        Map<String, NodeGroup> topologyGroups = topology.getGroups();
+        if (template.getGroups() != null && !template.getGroups().isEmpty() && topologyGroups != null) {
+            for (String groupId : template.getGroups()) {
+                NodeGroup nodeGroup = topologyGroups.get(groupId);
+                if (nodeGroup != null && nodeGroup.getMembers() != null) {
+                    boolean removed = nodeGroup.getMembers().remove(nodeName);
+                    if (removed && newName != null) {
+                        nodeGroup.getMembers().add(newName);
+                    }
+                }
+            }
+        }
     }
 
     private void removeArtifactsAndPolicies(String nodeTemplateName, Topology topology) {
@@ -475,10 +528,10 @@ public class TopologyController {
     /**
      * Build and return a RestResponse if we detected a property constraint violation
      * 
-     * @param propertyName
-     * @param propertyValue
-     * @param propertyDefinition
-     * @return
+     * @param propertyName property's name
+     * @param propertyValue property's value
+     * @param propertyDefinition property's definition
+     * @return response containing validation result
      */
     private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
             final PropertyDefinition propertyDefinition) {
@@ -637,21 +690,22 @@ public class TopologyController {
      */
     @ApiOperation(value = "Check if a topology is valid or not.", notes = "Returns true if valid, false if not. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/isvalid", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<ValidTopologyDTO> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
+    public RestResponse<TopologyValidationResult> isTopologyValid(@PathVariable String topologyId, @RequestParam(required = false) String environmentId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-        Map<String, String> inputs = null;
+        DeploymentSetup deploymentSetup = null;
+        CloudResourceMatcherConfig cloudResourceMatcherConfig = null;
         if (StringUtils.isNotBlank(environmentId)) {
             ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
-            ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
-            DeploymentSetup deploymentSetup = deploymentSetupService.get(version, environment);
-            if (deploymentSetup != null) {
-                inputs = deploymentSetup.getInputProperties();
+            ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
+            deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(topology, environment, version);
+            if (StringUtils.isNotEmpty(environment.getCloudId())) {
+                cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloudService.getMandatoryCloud(environment.getCloudId()));
             }
         }
-        ValidTopologyDTO dto = topologyService.validateTopology(topology, inputs);
-        return RestResponseBuilder.<ValidTopologyDTO> builder().data(dto).build();
+        TopologyValidationResult dto = topologyValidationService.validateTopology(topology, deploymentSetup, cloudResourceMatcherConfig);
+        return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }
 
     /**
@@ -871,8 +925,8 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
-                capabilityId);
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName,
+                propertyId, capabilityId);
         if (outputCapabilityProperties == null) {
             Set<String> outputProperties = Sets.newHashSet(propertyId);
             Map<String, Set<String>> capabilityOutputProperties = Maps.newHashMap();
@@ -908,8 +962,8 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName, propertyId,
-                capabilityId);
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName,
+                propertyId, capabilityId);
         if (outputCapabilityProperties == null || !outputCapabilityProperties.containsKey(nodeTemplateName)
                 || !outputCapabilityProperties.get(nodeTemplateName).containsKey(capabilityId)
                 || !outputCapabilityProperties.get(nodeTemplateName).get(capabilityId).contains(propertyId)) {
@@ -945,7 +999,8 @@ public class TopologyController {
 
     @ApiOperation(value = "Remove a property from the output property list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/property/{propertyName}/isOutput", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> removeOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
+    public RestResponse<TopologyDTO> removeOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
@@ -1029,6 +1084,138 @@ public class TopologyController {
 
         log.debug("Renaiming the relationship <{}> with <{}> in the node template <{}> of topology <{}> .", relationshipName, newRelationshipName,
                 nodeTemplateName, topologyId);
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> updateGroupName(@PathVariable String topologyId, @PathVariable String groupName,
+            @RequestParam(value = "newName") String newGroupName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        if (groupName.equals(newGroupName)) {
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        }
+
+        if (topology.getGroups().containsKey(newGroupName)) {
+            throw new AlreadyExistException("Group with name [" + newGroupName + "] already exists, please choose another name");
+        }
+
+        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
+        if (nodeGroup != null) {
+            nodeGroup.setName(newGroupName);
+            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
+                if (nodeTemplate.getGroups() != null) {
+                    if (nodeTemplate.getGroups().remove(groupName)) {
+                        nodeTemplate.getGroups().add(newGroupName);
+                    }
+                }
+            }
+            topology.getGroups().put(newGroupName, nodeGroup);
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    private int getAvailableGroupIndex(Topology topology) {
+        Collection<NodeGroup> nodeGroups = topology.getGroups().values();
+        LinkedHashSet<Integer> indexSet = new LinkedHashSet<>(nodeGroups.size());
+        for (int i = 0; i < nodeGroups.size(); i++) {
+            indexSet.add(i);
+        }
+        for (NodeGroup nodeGroup : nodeGroups)
+            indexSet.remove(nodeGroup.getIndex());
+        if (indexSet.isEmpty()) {
+            return nodeGroups.size();
+        }
+        return indexSet.iterator().next();
+    }
+
+    @ApiOperation(value = "", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> deleteNodeGroup(@PathVariable String topologyId, @PathVariable String groupName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        NodeGroup nodeGroup = topology.getGroups().remove(groupName);
+        if (nodeGroup != null) {
+            Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+            for (NodeTemplate nodeTemplate : nodeTemplates.values()) {
+                if (nodeTemplate.getGroups() != null) {
+                    nodeTemplate.getGroups().remove(groupName);
+                }
+            }
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Add a node to a node group. If the group doesn't exists, it's created.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> addNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+        Map<String, NodeGroup> groups = topology.getGroups();
+        if (groups == null) {
+            groups = Maps.newHashMap();
+            topology.setGroups(groups);
+        }
+        NodeGroup nodeGroup = groups.get(groupName);
+        if (nodeGroup == null) {
+            nodeGroup = new NodeGroup();
+            nodeGroup.setName(groupName);
+            nodeGroup.setIndex(getAvailableGroupIndex(topology));
+            Set<String> members = Sets.newHashSet();
+            nodeGroup.setMembers(members);
+            List<AbstractPolicy> policies = Lists.newArrayList();
+            // For the moment, groups are created only for HA
+            AbstractPolicy policy = new HaPolicy();
+            policy.setName("High Availability");
+            policies.add(policy);
+            nodeGroup.setPolicies(policies);
+            groups.put(groupName, nodeGroup);
+        }
+        if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeName)) {
+            throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
+        }
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        if (nodeTemplate == null) {
+            throw new NotFoundException("Attempt to add a non existing node [" + nodeName + "] to the group [" + groupName + "]");
+        }
+        if (nodeTemplate.getGroups() == null) {
+            nodeTemplate.setGroups(Sets.<String> newHashSet());
+        }
+        nodeTemplate.getGroups().add(groupName);
+        nodeGroup.getMembers().add(nodeName);
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Remove a node from a node group.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodeGroups/{groupName}/members/{nodeName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> removeNodeGroupMember(@PathVariable String topologyId, @PathVariable String groupName, @PathVariable String nodeName) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        NodeGroup nodeGroup = topology.getGroups().get(groupName);
+        if (nodeGroup != null && nodeGroup.getMembers() != null) {
+            nodeGroup.getMembers().remove(nodeName);
+        }
+
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplates(topology).get(nodeName);
+        if (nodeTemplate != null && nodeTemplate.getGroups() != null) {
+            nodeTemplate.getGroups().remove(groupName);
+        }
 
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();

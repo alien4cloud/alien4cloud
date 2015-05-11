@@ -34,5 +34,11 @@ var D3JS_UTILS = {
     });
 
     return d3AppendGroup;
+  },
+  
+  groupColorCss: function(topology, groupId) {
+    // 10 colors max (cf. topology-svg.scss)
+    return "groupColor-" + topology.groups[groupId].index % 10;
   }
+  
 };

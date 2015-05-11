@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.cloud.Cloud;
+import alien4cloud.model.cloud.MatchedAvailabilityZone;
 import alien4cloud.model.cloud.MatchedCloudImage;
 import alien4cloud.model.cloud.MatchedCloudImageFlavor;
 import alien4cloud.model.cloud.MatchedNetworkTemplate;
@@ -31,6 +32,8 @@ public class CloudDTO {
     private Map<String, MatchedNetworkTemplate> networks;
 
     private Map<String, MatchedStorageTemplate> storages;
+
+    private Map<String, MatchedAvailabilityZone> zones;
 
     private String[] paaSImageIds;
 

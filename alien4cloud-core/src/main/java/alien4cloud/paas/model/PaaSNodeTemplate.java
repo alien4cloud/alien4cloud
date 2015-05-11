@@ -2,6 +2,7 @@ package alien4cloud.paas.model;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,8 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     private List<PaaSRelationshipTemplate> relationshipTemplates = Lists.newArrayList();
     /** The scaling poilicy associated with the node if any. */
     private ScalingPolicy scalingPolicy;
+    /** Groups to which this node belong to **/
+    private Set<String> groups;
 
     /**
      * Create a PaaS node template from a given node template (out of a topology).

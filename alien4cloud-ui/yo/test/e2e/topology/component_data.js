@@ -2,7 +2,7 @@
 'use strict';
 
 function instanceId(node, instance) {
-  node.id = node.id + '_' + instance;
+  node.id = node.id + '-' + instance;
   return node;
 }
 
@@ -114,7 +114,7 @@ module.exports.simpleTopology = {
       name: 'dependsOnCompute2',
       source: 'JavaRPM',
       requirement: 'dependency',
-      target: 'Compute_2',
+      target: 'Compute-2',
       capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }
@@ -145,7 +145,7 @@ module.exports.simpleAbstractTopology = {
       name: 'dependsOnCompute2',
       source: 'Java',
       requirement: 'dependency',
-      target: 'Compute_2',
+      target: 'Compute-2',
       capability: 'feature',
       type: 'tosca.relationships.DependsOn:2.0'
     }

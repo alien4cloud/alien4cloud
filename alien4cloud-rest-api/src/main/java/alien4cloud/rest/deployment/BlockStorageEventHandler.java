@@ -97,8 +97,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 if (volumeIds == null) {
                     return;
                 }
-                log.debug("Updating deploymentsetup <{}> input properties <{}> to add VolumeId <{}>. New value is <{}>", deploymentSetup.getId(),
-                        function.getTemplateName(), storageEvent.getVolumeId(), volumeIds);
+                log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentSetup.getId(), function.getTemplateName());
+                log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
                 deploymentSetup.getInputProperties().put(function.getTemplateName(), volumeIds);
                 alienDAO.save(deploymentSetup);
             } else {
@@ -109,18 +109,25 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
     }
 
     private String getAggregatedVolumeIds(String volumeIds, PaaSInstanceStorageMonitorEvent storageEvent) {
+        if (volumeIds == null) {
+            volumeIds = "";
+        }
         Set<String> existingVolumes = Sets.newHashSet(volumeIds.split(","));
         if (existingVolumes.contains(storageEvent.getVolumeId())) {
             return null;
         }
-        volumeIds = volumeIds + "," + storageEvent.getVolumeId();
+        if (StringUtils.isBlank(volumeIds)) {
+            volumeIds = storageEvent.getVolumeId();
+        } else {
+            volumeIds = volumeIds + "," + storageEvent.getVolumeId();
+        }
         return volumeIds;
     }
 
     private void updateNodeTemplate(Topology topology, NodeTemplate nodeTemplate, PaaSInstanceStorageMonitorEvent storageEvent, String volumeIds) {
         nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(volumeIds));
-        log.debug("Updated NodeTemplate <{}.{}> to add VolumeId <{}>. New value is <{}>", topology.getId(), nodeTemplate.getName(), storageEvent.getVolumeId(),
-                volumeIds);
+        log.info("Updating Storage NodeTemplate <{}.{}> to add a new volumeId", topology.getId(), nodeTemplate.getName());
+        log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
         alienDAO.save(topology);
     }
 

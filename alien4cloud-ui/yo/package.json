@@ -18,7 +18,7 @@
     "grunt-contrib-jshint": "~0.7.1",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-watch": "~0.5.2",
-    "grunt-connect-proxy": "~0.1.7",
+    "grunt-connect-proxy": "~0.2",
     "grunt-google-cdn": "~0.2.0",
     "grunt-newer": "~0.5.4",
     "grunt-rev": "~0.1.0",
@@ -41,7 +41,7 @@
     "jasmine-reporters": "~0.2.1",
     "grunt-protractor-runner": "~1.2.1",
     "grunt-protractor-webdriver": "fastconnect/grunt-protractor-webdriver",
-    "grunt-ng-annotate": "~0.7.0"
+    "grunt-ng-annotate": "~0.10.0"
   },
   "engines": {
     "node": ">=0.8.0"

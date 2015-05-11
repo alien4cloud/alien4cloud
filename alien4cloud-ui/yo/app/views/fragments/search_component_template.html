@@ -74,7 +74,7 @@
   <div ng-if="!globalContext" id="comp-search-result-panel">
     <div ng-include="'views/fragments/search_component_results_template.html'"></div>
   </div>
-  <div class="search-details search-columns" id="comp-search-detail-panel"  ng-if="displayDetailPannel">
+  <div class="search-details search-columns" id="comp-search-detail-panel"  ng-if="displayDetailPannel && widthInfo.width > 1300">
     <!-- component details display -->
     <div class="well " ng-show="detailComponent">
       <h4>{{detailComponent.elementId}}</h4>
@@ -125,4 +125,5 @@
       </div>
     </div>
   </div>
+
 </div>

@@ -257,6 +257,11 @@ module.exports.selectCount = selectCount;
 var deleteWithConfirm = function(deleteConfirmDirectiveId, confirm) {
   var deleteConfirm = element(by.id(deleteConfirmDirectiveId));
   deleteConfirm.element(by.tagName('a')).click();
+  confirmAction(confirm);
+};
+module.exports.deleteWithConfirm = deleteWithConfirm;
+
+var confirmAction = function(confirm) {
   // get popover div and grab the Yes / No buttons
   var divPopover = element(by.css('.popover'));
   var buttonToClick = null;
@@ -265,9 +270,9 @@ var deleteWithConfirm = function(deleteConfirmDirectiveId, confirm) {
   } else { // cancel
     buttonToClick = divPopover.element(by.css('.btn-danger'));
   }
-  browser.actions().click(buttonToClick).perform();
-};
-module.exports.deleteWithConfirm = deleteWithConfirm;
+  browser.actions().click(buttonToClick).perform();  
+}
+module.exports.confirmAction = confirmAction;
 
 var toggleDisplayFacetManagementButton = function toggleDisplayFacetManagementButton() {
   element(by.id('displayFacetManagement')).isDisplayed().then(function(isDisplay) {

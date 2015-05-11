@@ -2,7 +2,6 @@ package alien4cloud.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -142,7 +141,7 @@ public final class FileUtil {
         }
     }
 
-    private static String relativizePath(Path root, Path child) {
+    public static String relativizePath(Path root, Path child) {
         String childPath = child.toAbsolutePath().toString();
         String rootPath = root.toAbsolutePath().toString();
         if (childPath.equals(rootPath)) {
@@ -153,7 +152,7 @@ public final class FileUtil {
             throw new IllegalArgumentException("Child path " + childPath + "is not beginning with root path " + rootPath);
         }
         String relativizedPath = childPath.substring(rootPath.length(), childPath.length());
-        while (relativizedPath.startsWith(File.separator)) {
+        while (relativizedPath.startsWith(root.getFileSystem().getSeparator())) {
             relativizedPath = relativizedPath.substring(1);
         }
         return relativizedPath;

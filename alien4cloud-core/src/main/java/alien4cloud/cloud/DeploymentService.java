@@ -38,6 +38,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -49,7 +50,6 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.paas.model.PaaSMessageMonitorEvent;
-import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
@@ -185,17 +185,25 @@ public class DeploymentService {
                 Map<String, String> metaProperties = Maps.newHashMap();
                 for (int i = 0; i < result.getData().length; i++) {
                     metaProp = (MetaPropConfiguration) result.getData()[i];
-                    metaProperties.put(metaProp.getName(), app.getMetaProperties().get(metaProp.getId()));
+                    if (app.getMetaProperties().get(metaProp.getId()) != null) {
+                        metaProperties.put(metaProp.getName(), app.getMetaProperties().get(metaProp.getId()));
+                    } else if (metaProp.getDefault() != null) {
+                        metaProperties.put(metaProp.getName(), metaProp.getDefault());
+                    } else {
+                        throw new EmptyMetaPropertyException("The meta property " + metaProp.getName() + " is null and don't have a default value.");
+                    }
                 }
                 return metaProperties;
             }
 
-            public ContextObjectToParse(ApplicationEnvironment env, Application app) {
+            public ContextObjectToParse(ApplicationEnvironment env, Application app, boolean hasMetaProperties) {
                 this.environment = env;
                 this.application = app;
                 SimpleDateFormat ft = new SimpleDateFormat("yyyyMMddHHmm");
                 this.time = ft.format(new Date());
-                this.metaProperties = constructMapOfMetaProperties(app);
+                if (hasMetaProperties) {
+                    this.metaProperties = constructMapOfMetaProperties(app);
+                }
             }
         }
 
@@ -204,7 +212,8 @@ public class DeploymentService {
         String namePattern = cloud.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        return (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId())));
+        return (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
+                .contains("metaProperties[")));
     }
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
@@ -216,8 +225,7 @@ public class DeploymentService {
     private PaaSTopologyDeploymentContext buildTopologyDeploymentContext(Deployment deployment, Topology topology) {
         PaaSTopologyDeploymentContext topologyDeploymentContext = new PaaSTopologyDeploymentContext();
         topologyDeploymentContext.setDeployment(deployment);
-        Map<String, PaaSNodeTemplate> paaSNodes = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
-        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(paaSNodes);
+        PaaSTopology paaSTopology = topologyTreeBuilderService.buildPaaSTopology(topology);
         topologyDeploymentContext.setPaaSTopology(paaSTopology);
         topologyDeploymentContext.setTopology(topology);
         topologyDeploymentContext.setDeployment(deployment);

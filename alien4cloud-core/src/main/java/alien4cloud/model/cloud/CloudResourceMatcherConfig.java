@@ -18,4 +18,6 @@ public class CloudResourceMatcherConfig {
     private Map<NetworkTemplate, String> networkMapping = Maps.newHashMap();
 
     private Map<StorageTemplate, String> storageMapping = Maps.newHashMap();
+
+    private Map<AvailabilityZone, String> availabilityZoneMapping = Maps.newHashMap();
 }
