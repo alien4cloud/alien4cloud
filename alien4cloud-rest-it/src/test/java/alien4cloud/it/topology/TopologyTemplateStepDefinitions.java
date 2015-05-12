@@ -56,7 +56,7 @@ public class TopologyTemplateStepDefinitions {
 
     @Given("^I create a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\" and node templates$")
     public void I_create_a_new_topology_template_with_name_and_description_and_node_templates(String topologyTemplateName, String topologyTemplateDesc,
-                                                                                              DataTable nodeTemplates) throws Throwable {
+            DataTable nodeTemplates) throws Throwable {
 
         // create the topology
         I_create_a_new_topology_template_with_name_and_description(topologyTemplateName, topologyTemplateDesc);
@@ -115,13 +115,13 @@ public class TopologyTemplateStepDefinitions {
     public static String getTopologyTemplateIdFromName(String topologyTemplateName) throws Throwable {
         SearchRequest templateWithNameSearchRequest = new SearchRequest();
         Map<String, String[]> filters = Maps.newHashMap();
-        filters.put("name", new String[]{topologyTemplateName});
+        filters.put("name", new String[] { topologyTemplateName });
         templateWithNameSearchRequest.setFilters(filters);
         templateWithNameSearchRequest.setFrom(0);
         templateWithNameSearchRequest.setSize(1);
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", JsonUtil.toString(templateWithNameSearchRequest));
         RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
-        Assert.assertEquals(1, restResponse.getData().getTotalResults());
+        Assert.assertEquals(1, restResponse.getData().getData().length);
         Map<String, Object> singleResult = (Map<String, Object>) restResponse.getData().getData()[0];
         String templateId = (String) singleResult.get("id");
         return templateId;
