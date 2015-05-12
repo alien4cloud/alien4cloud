@@ -31,7 +31,6 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchFacet;
@@ -39,6 +38,7 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.IndexedNodeType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -196,8 +196,8 @@ public class EsDaoPaginatedSearchTest {
 
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
-            for (int i = 0; i < data.length; i++) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(data[i]), IndexedNodeType.class);
+            for (Object element : data) {
+                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
                 assertTrue(expectedDataList.contains(nt));
                 expectedDataList.remove(nt);
             }
@@ -227,8 +227,8 @@ public class EsDaoPaginatedSearchTest {
 
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
-            for (int i = 0; i < data.length; i++) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(data[i]), IndexedNodeType.class);
+            for (Object element : data) {
+                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
 
                 // TODO assert fetch context result.
                 assertTrue(expectedDataList.contains(nt));
@@ -250,10 +250,10 @@ public class EsDaoPaginatedSearchTest {
             FacetedSearchFacet[] facets = searchResp.getFacets().get(facetNameToCheck);
             assertNotNull(facets);
             long facetCount = 0;
-            for (int i = 0; i < facets.length; i++) {
-                if (facets[i].getFacetValue().equals(factetValueToCheck)) {
+            for (FacetedSearchFacet facet : facets) {
+                if (facet.getFacetValue().equals(factetValueToCheck)) {
                     facetToCheckExist = true;
-                    facetCount = facets[i].getCount();
+                    facetCount = facet.getCount();
                 }
             }
 
@@ -282,8 +282,8 @@ public class EsDaoPaginatedSearchTest {
 
             // testing the pertinence of returned data
             Object[] data = searchResp.getData();
-            for (int i = 0; i < data.length; i++) {
-                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(data[i]), IndexedNodeType.class);
+            for (Object element : data) {
+                IndexedNodeType nt = jsonMapper.readValue(jsonMapper.writeValueAsString(element), IndexedNodeType.class);
                 assertTrue(expectedDataList.contains(nt));
                 expectedDataList.remove(nt);
             }
@@ -304,17 +304,16 @@ public class EsDaoPaginatedSearchTest {
         Path path = Paths.get("src/test/resources/nodetypes-faceted-search-result.json");
         FacetedSearchResult res = jsonMapper.readValue(path.toFile(), FacetedSearchResult.class);
         Object[] data = res.getData();
-        for (int i = 0; i < data.length; i++) {
-            String serializeDatum = jsonMapper.writeValueAsString(data[i]);
+        for (Object element : data) {
+            String serializeDatum = jsonMapper.writeValueAsString(element);
+            IndexedNodeType indexedNodeType = jsonMapper.readValue(serializeDatum, IndexedNodeType.class);
             String typeName = MappingBuilder.indexTypeFromClass(IndexedNodeType.class);
-            nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(serializeDatum).setRefresh(refresh).execute().actionGet();
-
-            IndexedNodeType nt = jsonMapper.readValue(serializeDatum, IndexedNodeType.class);
-            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, nt.getId(), true);
-            testDataList.add(nt);
-            for (CapabilityDefinition capaDef : nt.getCapabilities()) {
+            dao.save(indexedNodeType);
+            assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, indexedNodeType.getId(), true);
+            testDataList.add(indexedNodeType);
+            for (CapabilityDefinition capaDef : indexedNodeType.getCapabilities()) {
                 if (capaDef.getType().equals("jndi")) {
-                    jndiTestDataList.add(nt);
+                    jndiTestDataList.add(indexedNodeType);
                 }
             }
         }
