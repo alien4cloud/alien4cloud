@@ -1,8 +1,6 @@
 package alien4cloud.it.users;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -11,9 +9,9 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.security.AuthenticationStepDefinitions;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.security.UserSearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.User;
+import alien4cloud.security.users.rest.UserSearchRequest;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
