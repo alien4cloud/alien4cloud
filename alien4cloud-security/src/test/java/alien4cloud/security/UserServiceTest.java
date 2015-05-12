@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.UserService;
+import alien4cloud.security.users.IAlienUserDao;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;

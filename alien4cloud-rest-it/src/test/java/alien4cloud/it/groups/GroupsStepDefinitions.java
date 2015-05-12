@@ -22,9 +22,9 @@ import alien4cloud.it.users.UsersDefinitionsSteps;
 import alien4cloud.rest.model.FilteredSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.User;
-import alien4cloud.security.groups.CreateGroupRequest;
-import alien4cloud.security.groups.Group;
+import alien4cloud.security.model.User;
+import alien4cloud.security.groups.rest.CreateGroupRequest;
+import alien4cloud.security.model.Group;
 
 import com.google.common.collect.Sets;
 

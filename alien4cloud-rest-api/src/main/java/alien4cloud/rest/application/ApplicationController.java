@@ -49,15 +49,15 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.security.ResourceRoleService;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;

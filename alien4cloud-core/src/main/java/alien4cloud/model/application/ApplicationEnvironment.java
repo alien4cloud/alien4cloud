@@ -5,7 +5,7 @@ import static alien4cloud.dao.model.FetchContext.DEPLOYMENT;
 import java.util.Map;
 import java.util.Set;
 
-import alien4cloud.security.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -19,7 +19,7 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
-import alien4cloud.security.CloudRole;
+import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;

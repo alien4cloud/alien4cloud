@@ -3,6 +3,7 @@ package alien4cloud.security;
 import java.util.Map;
 import java.util.Set;
 
+import alien4cloud.security.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.FilterBuilder;
@@ -17,7 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
-import alien4cloud.security.groups.Group;
+import alien4cloud.security.model.Group;
 import alien4cloud.security.groups.IAlienGroupDao;
 
 import com.google.common.collect.Sets;

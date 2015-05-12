@@ -10,9 +10,6 @@
   <description>This is the rest api for alien4cloud project.</description>
 
   <properties>
-    <codahale-metrics.version>3.0.2</codahale-metrics.version>
-    <metrics-spring.version>3.0.1</metrics-spring.version>
-
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     <sonar.language>java</sonar.language>
@@ -73,27 +70,22 @@
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>${codahale-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-jvm</artifactId>
-      <version>${codahale-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-servlet</artifactId>
-      <version>${codahale-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-json</artifactId>
-      <version>${codahale-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-servlets</artifactId>
-      <version>${codahale-metrics.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.codahale.metrics</groupId>
@@ -104,7 +96,6 @@
     <dependency>
       <groupId>com.ryantenney.metrics</groupId>
       <artifactId>metrics-spring</artifactId>
-      <version>${metrics-spring.version}</version>
     </dependency>
 
     <dependency>
