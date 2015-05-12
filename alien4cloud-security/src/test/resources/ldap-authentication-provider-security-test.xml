@@ -8,12 +8,14 @@
 
   <context:annotation-config />
   <aop:aspectj-autoproxy />
-  <context:component-scan base-package="alien4cloud.utils.services, alien4cloud.rest, alien4cloud.security, alien4cloud.ldap">
+  <context:component-scan base-package="alien4cloud.security, alien4cloud.ldap">
     <context:exclude-filter type="regex" expression="alien4cloud.security.spring.SecurityConfiguration" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.users.ElasticSearchUserDao" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.groups.ElasticSearchGroupDao" />
-    <context:exclude-filter type="regex" expression="alien4cloud.rest.security.GroupController" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.ResourceRoleService" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.users.rest.UserController" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.users.rest.AuthController" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.groups.rest.GroupController" />
   </context:component-scan>
 
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
