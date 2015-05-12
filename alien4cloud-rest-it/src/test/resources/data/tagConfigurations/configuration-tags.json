@@ -58,4 +58,21 @@
   "id": "e53e221e-8ad9-4122-bc21-502d6503a457",
   "required": true,
   "password": false
+}, {
+  "type": "string",
+  "constraints": [{
+    "maxLength": 10
+  }],
+  "name": "CLOUD.METAS.CLOUD_META_1",
+  "target": "cloud",
+  "id": "a5a4be4f-3ee7-4796-8c1a-7e85951ddf54",
+  "required": false,
+  "password": false
+}, {
+  "type": "string",
+  "name": "COMPONENT_JAVA",
+  "target": "component",
+  "id": "a6a4be4f-3ee7-4796-8c1a-7e85951ddf99",
+  "required": false,
+  "password": false
 }]
