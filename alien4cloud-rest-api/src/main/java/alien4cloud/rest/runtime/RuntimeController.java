@@ -27,7 +27,7 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
@@ -196,7 +196,7 @@ public class RuntimeController {
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
 
         if (operation.getInputParameters() != null) {
-            for (Entry<String, IOperationParameter> inputParameter : operation.getInputParameters().entrySet()) {
+            for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
                 if (inputParameter.getValue().isDefinition()) {
                     String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(
                             inputParameter.getKey());

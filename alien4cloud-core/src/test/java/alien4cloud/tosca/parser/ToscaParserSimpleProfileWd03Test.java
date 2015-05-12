@@ -23,7 +23,7 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactType;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
@@ -405,12 +405,12 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals("alien.test.TestComputeConcat", entry.getKey());
         IndexedNodeType nodeType = entry.getValue();
 
-        Map<String, IAttributeValue> attributes = nodeType.getAttributes();
+        Map<String, IValue> attributes = nodeType.getAttributes();
 
-        IAttributeValue simpleDefinition = attributes.get("simple_definition");
-        IAttributeValue ipAddressDefinition = attributes.get("ip_address");
-        IAttributeValue simpleConcat = attributes.get("simple_concat");
-        IAttributeValue complexConcat = attributes.get("complex_concat");
+        IValue simpleDefinition = attributes.get("simple_definition");
+        IValue ipAddressDefinition = attributes.get("ip_address");
+        IValue simpleConcat = attributes.get("simple_concat");
+        IValue complexConcat = attributes.get("complex_concat");
 
         // check attributes types
         Assert.assertTrue(simpleDefinition.getClass().equals(AttributeDefinition.class));
@@ -436,6 +436,74 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertTrue(simpleConcat.getClass().equals(ConcatPropertyValue.class));
         Assert.assertTrue(complexConcat.getClass().equals(ConcatPropertyValue.class));
 
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetOperationOutputFunction() throws Throwable {
+        Mockito.reset(repositorySearchService);
+        Mockito.reset(csarService);
+        Csar csar = new Csar("tosca-normative-types", "1.0.0-SNAPSHOT-wd03");
+        IndexedNodeType mockedResult = Mockito.mock(IndexedNodeType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.SoftwareComponent"),
+                        Mockito.any(List.class))).thenReturn(mockedResult);
+        Mockito.when(mockedResult.getDerivedFrom()).thenReturn(Lists.newArrayList("tosca.nodes.Root"));
+
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
+                .thenReturn(mockedResult);
+        IndexedCapabilityType mockedCapabilityResult = Mockito.mock(IndexedCapabilityType.class);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class),
+                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class),
+                        Mockito.eq("mytypes.mycapabilities.MyCapabilityTypeName"), Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedCapabilityType.class), Mockito.eq("tosca.capabilities.Endpoint"),
+                        Mockito.any(List.class))).thenReturn(mockedCapabilityResult);
+        IndexedRelationshipType hostedOn = new IndexedRelationshipType();
+        Mockito.when(
+                repositorySearchService.getElementInDependencies(Mockito.eq(IndexedRelationshipType.class), Mockito.eq("tosca.relationships.HostedOn"),
+                        Mockito.any(List.class))).thenReturn(hostedOn);
+
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-functions.yml"));
+
+        Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
+
+        assertNoBlocker(parsingResult);
+        ArchiveRoot archiveRoot = parsingResult.getResult();
+        Assert.assertNotNull(archiveRoot.getArchive());
+        Assert.assertEquals(TOSCA_VERSION, archiveRoot.getArchive().getToscaDefinitionsVersion());
+
+        // check nodetype elements
+        Entry<String, IndexedNodeType> entry = archiveRoot.getNodeTypes().entrySet().iterator().next();
+        Assert.assertEquals("my_company.my_types.MyAppNodeType", entry.getKey());
+        IndexedNodeType nodeType = entry.getValue();
+
+        // on input level
+        Map<String, Interface> interfaces = nodeType.getInterfaces();
+        Interface customInterface = interfaces.get("custom");
+        Map<String, IValue> doSomethingInputs = customInterface.getOperations().get("do_something").getInputParameters();
+        Assert.assertNotNull(doSomethingInputs);
+        Assert.assertFalse(doSomethingInputs.isEmpty());
+        IValue operationOutput_input = doSomethingInputs.get("operationOutput_input");
+        Assert.assertTrue(operationOutput_input instanceof FunctionPropertyValue);
+        FunctionPropertyValue function = (FunctionPropertyValue) operationOutput_input;
+        Assert.assertEquals("get_operation_output", function.getFunction());
+        Assert.assertEquals(4, function.getParameters().size());
+
+        Map<String, IValue> attributes = nodeType.getAttributes();
+
+        IValue operationOutputAttr = attributes.get("url");
+
+        // check attributes types
+        Assert.assertTrue(operationOutputAttr instanceof FunctionPropertyValue);
+        function = (FunctionPropertyValue) operationOutputAttr;
+        Assert.assertEquals("get_operation_output", function.getFunction());
+        Assert.assertEquals(4, function.getParameters().size());
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {

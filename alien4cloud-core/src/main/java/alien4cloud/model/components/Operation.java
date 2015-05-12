@@ -27,7 +27,7 @@ public class Operation {
     private String description;
     /** This OPTIONAL property contains a list of one or more input parameter definitions. */
     @JsonDeserialize(contentUsing = OperationParameterDeserializer.class)
-    private Map<String, IOperationParameter> inputParameters;
+    private Map<String, IValue> inputParameters;
 
     /**
      * <p>
