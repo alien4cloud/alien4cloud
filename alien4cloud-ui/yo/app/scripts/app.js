@@ -100,7 +100,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
               return applicationVersionServices.searchVersion({
                 applicationId: application.data.id
               }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
-                  return result.data.data;
+                  return result.data;
                 });
             }
           ]

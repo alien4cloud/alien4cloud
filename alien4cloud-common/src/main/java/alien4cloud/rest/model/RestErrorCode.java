@@ -31,6 +31,7 @@ public enum RestErrorCode {
 
     // User errors
     DELETE_LAST_ADMIN_USER_ERROR(390),
+    DELETE_LAST_ADMIN_ROLE_ERROR(391),
 
     // Repository service error
     REPOSITORY_SERVICE_ERROR(400),

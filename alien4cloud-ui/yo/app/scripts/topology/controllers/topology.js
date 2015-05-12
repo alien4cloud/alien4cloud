@@ -151,14 +151,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     };
 
     // TODO : when topology templates edition with use also version, remove this IF statement
-    if (UTILS.isDefinedAndNotNull(appVersions)) {
+    if (UTILS.isDefinedAndNotNull(appVersions) && UTILS.isDefinedAndNotNull(appVersions.data)) {
       // default version loading
-      $scope.appVersions = appVersions;
+      $scope.appVersions = appVersions.data;
       $scope.selectedVersion = $scope.appVersions[0];
       $scope.topologyId = $scope.selectedVersion.topologyId;
     } else {
       // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
-      $scope.appVersions = appVersions;
       $scope.topologyId = topologyId;
     }
 

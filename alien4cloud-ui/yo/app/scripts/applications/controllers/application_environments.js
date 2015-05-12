@@ -24,7 +24,7 @@ var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$
 
 angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationEnvironmentServices', '$rootScope', '$resolve', 'applicationVersionServices', 'searchServiceFactory', 'appEnvironments', 'appVersions',
   function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationEnvironmentServices, $rootScope, $resolve, applicationVersionServices, searchServiceFactory, appEnvironments, appVersions) {
-    $scope.appVersions = appVersions;
+    $scope.appVersions = appVersions.data;
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
     $scope.envTypeList = applicationEnvironmentServices.environmentTypeList({}, {}, function() {});
 

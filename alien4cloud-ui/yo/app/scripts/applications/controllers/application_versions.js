@@ -23,23 +23,26 @@ function($scope, $modalInstance) {
 angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'alienAuthService', '$modal', 'applicationVersionServices', 'appVersions', 'searchServiceFactory',
   function($scope, $state, $translate, toaster, alienAuthService, $modal, applicationVersionServices, appVersions, searchServiceFactory) {
     $scope.isManager = alienAuthService.hasRole('APPLICATIONS_MANAGER');
-    $scope.appVersions = appVersions;
-    $scope.searchAppVersionResult = appVersions;
+    $scope.appVersions = appVersions.data;
+    $scope.searchAppVersionResult = appVersions.data;
     $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
 
     $scope.searchService = searchServiceFactory('rest/applications/' + $scope.application.id + '/versions/search', false, $scope, 12);
     $scope.searchService.search();
-
     $scope.onSearchCompleted = function(searchResult) {
       $scope.searchAppVersionResult = searchResult.data.data;
     };
 
-    var addNewAppVersionToAppVersionsArray = function(appVersionId) {
-      applicationVersionServices.get({
-        applicationId: $scope.application.id,
-        applicationVersionId: appVersionId
-      }, function(successResponse) {
-        appVersions.push(successResponse.data);
+    var refreshAllAppVersions = function() {
+      var searchAppVersionRequestObject = {
+        'from': 0,
+        'size': 400
+      };
+      applicationVersionServices.searchVersion({
+        applicationId: $scope.application.id
+      }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+        appVersions.data = result.data.data;
+        $scope.appVersions = appVersions.data;
       });
     };
 
@@ -54,8 +57,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
           applicationId: $scope.application.id
         }, angular.toJson(appVersion), function(successResponse) {
           $scope.searchService.search();
-          // TODO: search all app verions
-          addNewAppVersionToAppVersionsArray(successResponse.data);
+          refreshAllAppVersions();
         });
       });
     };
@@ -68,12 +70,7 @@ angular.module('alienUiApp').controller('ApplicationVersionsCtrl', ['$scope', '$
         }, null, function deleteAppEnvironment(result) {
           if (result) {
             $scope.searchService.search();
-            for (var i=0; i<appVersions.length; i++) {
-              if (appVersions[i].id === versionId) {
-                appVersions.splice(i, 1);
-                break;
-              }
-            }
+            refreshAllAppVersions();
           }
         });
       }
