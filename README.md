@@ -31,4 +31,9 @@ $ gem install compass
 - and grunt-contrib-compass  
 ```sh
 $ npm install grunt-contrib-compass --save-dev
+```  
+
+run the folowing command to build the project:  
+```sh
+$ mvn clean install -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 ```
