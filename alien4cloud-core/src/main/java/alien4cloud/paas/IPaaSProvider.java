@@ -5,6 +5,7 @@ import java.util.Map;
 
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -22,7 +23,7 @@ public interface IPaaSProvider {
     /**
      * This method is called by Alien in order to restore the state of the paaS provider after a restart.
      * The provider must implement this method in order to restore its state
-     * 
+     *
      * @param activeDeployments the currently active deployments that Alien has
      */
     void init(Map<String, PaaSTopologyDeploymentContext> activeDeployments);
@@ -62,9 +63,11 @@ public interface IPaaSProvider {
      * Get instance information of a topology from the PaaS
      *
      * @param deploymentContext the deployment context
+     * @param topology TODO
      * @param callback callback when the information will be available
+     * @param topology the topology to retrieve information
      */
-    void getInstancesInformation(PaaSDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
+    void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case

@@ -22,7 +22,7 @@ import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
 import alien4cloud.model.components.DeploymentArtifact;
-import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
@@ -253,11 +253,11 @@ public class TopologyServiceCore {
         return nodeTemplate;
     }
 
-    private static void fillAttributes(Map<String, String> attributes, Map<String, IAttributeValue> attributes2) {
+    private static void fillAttributes(Map<String, String> attributes, Map<String, IValue> attributes2) {
         if (attributes2 == null || attributes == null) {
             return;
         }
-        for (Entry<String, IAttributeValue> entry : attributes2.entrySet()) {
+        for (Entry<String, IValue> entry : attributes2.entrySet()) {
             attributes.put(entry.getKey(), null);
         }
     }

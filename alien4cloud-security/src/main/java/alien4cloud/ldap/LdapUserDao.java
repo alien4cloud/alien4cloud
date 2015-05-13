@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.security.User;
+import alien4cloud.security.model.User;
 
 /**
  * Manage connection with LDAP for security management.

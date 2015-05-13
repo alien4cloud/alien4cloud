@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -66,9 +67,14 @@ public class EsDaoPaginatedSearchTest {
     List<IndexedNodeType> testDataList = new ArrayList<>();
     List<IndexedNodeType> jndiTestDataList = new ArrayList<>();
 
-    @Before
-    public void before() throws IndexingServiceException, IOException {
+    @PostConstruct
+    public void init() {
         nodeClient = esclient.getClient();
+    }
+
+    @Before
+    public void before() throws Throwable {
+        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
         saveDataToES(true);
     }
 

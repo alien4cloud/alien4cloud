@@ -11,7 +11,7 @@ import alien4cloud.audit.model.AuditTrace;
 import alien4cloud.audit.model.AuditedMethod;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.it.Context;
-import alien4cloud.rest.audit.AuditConfigurationDTO;
+import alien4cloud.audit.rest.AuditConfigurationDTO;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.utils.JsonUtil;
 

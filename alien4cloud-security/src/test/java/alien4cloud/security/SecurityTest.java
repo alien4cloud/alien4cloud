@@ -6,6 +6,10 @@ import java.util.Arrays;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.UserService;
+import alien4cloud.security.users.rest.CreateUserRequest;
+import alien4cloud.security.users.InMemoryUserDao;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,11 +21,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.security.Alien4CloudAuthenticationProvider;
-import alien4cloud.security.CreateUserRequest;
-import alien4cloud.security.InMemoryUserDao;
-import alien4cloud.security.User;
-import alien4cloud.security.UserService;
+import alien4cloud.security.spring.Alien4CloudAuthenticationProvider;
 
 /**
  * @author luc boutier

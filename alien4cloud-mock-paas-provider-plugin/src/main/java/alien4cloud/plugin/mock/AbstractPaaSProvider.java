@@ -4,13 +4,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.annotation.Resource;
-
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.client.RestClientException;
 
-import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
@@ -36,8 +33,6 @@ import com.google.common.collect.Maps;
 @Slf4j
 public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<ProviderConfig> {
     private ReentrantReadWriteLock providerLock = new ReentrantReadWriteLock();
-    @Resource(name = "alien-monitor-es-dao")
-    private IGenericSearchDAO alienMonitorDao;
 
     @Override
     public void deploy(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<?> callback) {
@@ -83,8 +78,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     @Override
-    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        Topology topology = alienMonitorDao.findById(Topology.class, deploymentContext.getDeploymentId());
+    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
+            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
         callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), topology));
     }
 

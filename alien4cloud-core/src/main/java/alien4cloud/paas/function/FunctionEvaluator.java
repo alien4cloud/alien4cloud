@@ -11,8 +11,7 @@ import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IAttributeValue;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
@@ -54,7 +53,7 @@ public final class FunctionEvaluator {
      * @param builtPaaSTemplates
      * @return
      */
-    public static String parseAttribute(String attributeId, IAttributeValue attributeValue, Topology topology,
+    public static String parseAttribute(String attributeId, IValue attributeValue, Topology topology,
             Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
             IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
 
@@ -78,7 +77,7 @@ public final class FunctionEvaluator {
         // handle concat function
         StringBuilder evaluatedAttribute = new StringBuilder();
         ConcatPropertyValue concatPropertyValue = (ConcatPropertyValue) attributeValue;
-        for (IOperationParameter concatParam : concatPropertyValue.getParameters()) {
+        for (IValue concatParam : concatPropertyValue.getParameters()) {
             // scalar type
             if (concatParam instanceof ScalarPropertyValue) {
                 // scalar case
@@ -200,7 +199,7 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
-                                                     Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         String propertyId = functionParam.getPropertyOrAttributeName();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {

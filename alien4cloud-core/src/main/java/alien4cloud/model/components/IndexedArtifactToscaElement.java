@@ -27,7 +27,7 @@ public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement 
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     @JsonDeserialize(contentUsing = AbstractAttributeDeserializer.class)
-    private Map<String, IAttributeValue> attributes;
+    private Map<String, IValue> attributes;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
     private Map<String, Interface> interfaces;

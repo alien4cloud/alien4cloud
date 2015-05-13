@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.security.groups.GroupService;
 
 import com.google.common.collect.Sets;

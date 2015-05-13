@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import alien4cloud.security.groups.rest.UpdateGroupRequest;
+import alien4cloud.security.model.Group;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -15,9 +17,9 @@ import org.springframework.stereotype.Service;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.security.Role;
-import alien4cloud.security.User;
-import alien4cloud.security.UserService;
+import alien4cloud.security.model.Role;
+import alien4cloud.security.model.User;
+import alien4cloud.security.users.UserService;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Lists;
