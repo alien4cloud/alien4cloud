@@ -40,7 +40,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
      * Target of the tag configuration (application or component)
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
-    @FormValidValues({ "application", "component" })
+    @FormValidValues({ "application", "component", "clouds" })
     @NotNull
     @TermsFacet
     @FormLabel("TAG_CONFIG.TARGET")

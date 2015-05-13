@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
@@ -37,6 +38,7 @@ import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.rest.internal.PropertyRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -45,6 +47,8 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.CloudRole;
 import alien4cloud.security.Role;
 import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -62,6 +66,10 @@ public class CloudController {
     private CloudImageService cloudImageService;
     @Resource
     private ResourceRoleService resourceRoleService;
+    @Resource
+    private ConstraintPropertyService constraintPropertyService;
+    @Resource
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new cloud.
@@ -507,5 +515,20 @@ public class CloudController {
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setAvailabilityZoneResourceId(cloud, availabilityZoneId, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Update or create a property for an application
+     *
+     * @param applicationId id of the application
+     * @param propertyRequest property request
+     * @return information on the constraint
+     */
+    @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest) {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        return metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getPropertyDefinitionId(), propertyRequest.getPropertyValue());
     }
 }

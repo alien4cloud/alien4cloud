@@ -64,8 +64,7 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
 
     $scope.updateProperties = function(propertyDefinition, propertyValue) {
       var updateApplicationPropertyObject = {
-        'propertyId': propertyDefinition.id,
-        'propertyDefinition': propertyDefinition,
+        'propertyDefinitionId': propertyDefinition.id,
         'propertyValue': propertyValue
       };
 
