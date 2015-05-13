@@ -27,7 +27,7 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.utils.ReflectionUtil;
 

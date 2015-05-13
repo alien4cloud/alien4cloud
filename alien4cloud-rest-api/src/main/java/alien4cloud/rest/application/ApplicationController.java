@@ -43,15 +43,16 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
+import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
-import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
-import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.ApplicationRole;
+import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -340,7 +341,8 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
-        Application application = applicationService.getOrFail(applicationId);
+        RestError updateApplicationPropertyError = null;
+        Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
         return metaPropertiesService.upsertMetaProperty(application, propertyRequest.getPropertyDefinitionId(), propertyRequest.getPropertyValue());
     }

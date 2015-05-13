@@ -5,11 +5,14 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("rawtypes")
 public abstract class AbstractComparablePropertyConstraint extends AbstractPropertyConstraint {
 
     private Comparable comparable;
 
+    @JsonIgnore
     protected Comparable getComparable() {
         return comparable;
     }

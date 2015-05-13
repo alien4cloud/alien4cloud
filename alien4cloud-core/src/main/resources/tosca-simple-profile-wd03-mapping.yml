@@ -217,6 +217,7 @@
   keys:
     type: attribute_definition
     concat: tosca_concat
+    get_operation_output: tosca_function
   default: attribute_definition
 
 - operation_definition: alien4cloud.model.components.Operation

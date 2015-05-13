@@ -44,9 +44,9 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.CloudRole;
-import alien4cloud.security.Role;
-import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.Role;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.services.ConstraintPropertyService;
 

@@ -27,7 +27,7 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
@@ -44,8 +44,8 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
-import alien4cloud.security.ApplicationEnvironmentRole;
-import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -196,7 +196,7 @@ public class RuntimeController {
         Operation operation = interfass.getOperations().get(operationRequest.getOperationName());
 
         if (operation.getInputParameters() != null) {
-            for (Entry<String, IOperationParameter> inputParameter : operation.getInputParameters().entrySet()) {
+            for (Entry<String, IValue> inputParameter : operation.getInputParameters().entrySet()) {
                 if (inputParameter.getValue().isDefinition()) {
                     String requestInputParameter = operationRequest.getParameters() == null ? null : operationRequest.getParameters().get(
                             inputParameter.getKey());

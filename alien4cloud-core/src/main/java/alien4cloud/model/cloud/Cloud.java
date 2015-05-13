@@ -20,8 +20,8 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.IMetaProperties;
-import alien4cloud.security.CloudRole;
 import alien4cloud.security.ISecuredResource;
+import alien4cloud.security.model.CloudRole;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;

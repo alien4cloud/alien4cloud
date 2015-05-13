@@ -10,11 +10,13 @@
   <aop:aspectj-autoproxy />
 
   <context:component-scan base-package="alien4cloud.utils.services, alien4cloud.rest, alien4cloud.security, alien4cloud.ldap">
-    <context:exclude-filter type="regex" expression="alien4cloud.security.SecurityConfiguration" />
-    <context:exclude-filter type="regex" expression="alien4cloud.security.ElasticSearchUserDao" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.spring.SecurityConfiguration" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.users.ElasticSearchUserDao" />
     <context:exclude-filter type="regex" expression="alien4cloud.security.groups.ElasticSearchGroupDao" />
-    <context:exclude-filter type="regex" expression="alien4cloud.rest.security.GroupController" />
-    <context:exclude-filter type="regex" expression="alien4cloud.security.services.ResourceRoleService" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.ResourceRoleService" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.users.rest.UserController" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.users.rest.AuthController" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.groups.rest.GroupController" />
   </context:component-scan>
 
   <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
@@ -23,12 +25,12 @@
   <bean id="alienconfig" factory-bean="alienconfigFactory" factory-method="get" />
   <context:property-placeholder properties-ref="alienconfig" />
 
-  <bean id="alien-authentication-provider" class="alien4cloud.security.Alien4CloudAuthenticationProvider">
+  <bean id="alien-authentication-provider" class="alien4cloud.security.spring.Alien4CloudAuthenticationProvider">
     <property name="wrappedProvider" ref="wrapped-authentication-provider" />
     <property name="alienUserDao" ref="user-dao" />
   </bean>
 
-  <bean id="user-dao" class="alien4cloud.security.InMemoryUserDao" />
+  <bean id="user-dao" class="alien4cloud.security.users.InMemoryUserDao" />
 
   <bean id="wrapped-authentication-provider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
     <property name="userDetailsService" ref="user-service" />

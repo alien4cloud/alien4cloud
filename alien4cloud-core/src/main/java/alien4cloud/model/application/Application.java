@@ -23,7 +23,7 @@ import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.ITaggableResource;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.IDeploymentSource;
-import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;

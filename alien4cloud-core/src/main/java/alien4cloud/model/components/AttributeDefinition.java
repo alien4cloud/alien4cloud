@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "default", "description" })
-public class AttributeDefinition implements IAttributeValue {
+public class AttributeDefinition implements IValue {
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     private String type;
