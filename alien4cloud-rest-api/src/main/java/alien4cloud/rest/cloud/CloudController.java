@@ -518,9 +518,9 @@ public class CloudController {
     }
 
     /**
-     * Update or create a property for an application
+     * Update or create a property for an cloud
      *
-     * @param applicationId id of the application
+     * @param cloudId id of the cloud to update
      * @param propertyRequest property request
      * @return information on the constraint
      */

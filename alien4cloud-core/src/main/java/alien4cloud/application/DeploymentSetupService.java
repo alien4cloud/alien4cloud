@@ -275,12 +275,16 @@ public class DeploymentSetupService {
      */
     private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
         Cloud cloud = null;
+        Map<String, String> mergedInputs = deploymentSetup.getInputProperties();
         if (environment.getCloudId() != null) {
             cloud = cloudService.get(environment.getCloudId());
+            Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
+            mergedInputs.putAll(cloudMetaProperties);
         }
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
+                processGetInput(mergedInputs, nodeTemplate.getProperties());
+                // processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
                 // if (cloud != null) {
                 // processGetInput(cloud.getMetaProperties(), nodeTemplate.getProperties());
                 // }
@@ -304,9 +308,13 @@ public class DeploymentSetupService {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                        ScalarPropertyValue value;
+                        AbstractPropertyValue value;
                         if (inputs != null) {
-                            value = new ScalarPropertyValue(inputs.get(function.getTemplateName()));
+                            if (inputs.containsKey(function.getTemplateName())) {
+                                value = new ScalarPropertyValue(inputs.get(function.getTemplateName()));
+                            } else {
+                                value = propEntry.getValue();
+                            }
                         } else {
                             value = new ScalarPropertyValue(null);
                         }

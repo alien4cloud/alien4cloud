@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.common.collect.Maps;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -25,6 +26,7 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @Slf4j
 @Service
 public class MetaPropertiesService {
+
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -88,4 +90,13 @@ public class MetaPropertiesService {
         }
     }
 
+    /**
+     * Return the the meta property given its name
+     * 
+     * @param metaPropertyName
+     * @return meta property
+     */
+    public MetaPropConfiguration getMetaPropertyIdByName(String metaPropertyName) {
+        return alienDAO.customFind(MetaPropConfiguration.class, QueryBuilders.termQuery("name", metaPropertyName));
+    }
 }
