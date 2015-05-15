@@ -94,10 +94,10 @@ public final class FunctionEvaluator {
                 switch (functionPropertyValue.getFunction()) {
                 case ToscaFunctionConstants.GET_ATTRIBUTE:
                     evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
-                            functionPropertyValue.getPropertyOrAttributeName()));
+                            functionPropertyValue.getElementNameToFetch()));
                     break;
                 case ToscaFunctionConstants.GET_PROPERTY:
-                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getPropertyOrAttributeName(), paasTemplates));
+                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementNameToFetch(), paasTemplates));
                     break;
                 default:
                     log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
@@ -201,10 +201,10 @@ public final class FunctionEvaluator {
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
-        String propertyId = functionParam.getPropertyOrAttributeName();
+        String propertyId = functionParam.getElementNameToFetch();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
-                    functionParam.getPropertyOrAttributeName());
+                    functionParam.getElementNameToFetch());
             // return the first value found
             if (propertyValue != null) {
                 if (propertyValue instanceof ScalarPropertyValue) {
@@ -338,5 +338,8 @@ public final class FunctionEvaluator {
 
     public static boolean isGetAttribute(FunctionPropertyValue function) {
         return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
+    }
+    public static boolean isGetOperationOutput(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction());
     }
 }

@@ -11,7 +11,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.query.FetchContext;
 
-import alien4cloud.json.deserializer.AbstractAttributeDeserializer;
+import alien4cloud.json.deserializer.AttributeDeserializer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -26,7 +26,7 @@ public class IndexedArtifactToscaElement extends IndexedInheritableToscaElement 
     private Map<String, DeploymentArtifact> artifacts;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })
-    @JsonDeserialize(contentUsing = AbstractAttributeDeserializer.class)
+    @JsonDeserialize(contentUsing = AttributeDeserializer.class)
     private Map<String, IValue> attributes;
 
     @FetchContext(contexts = { COMPONENT_SUMMARY, QUICK_SEARCH, TAG_SUGGESTION }, include = { false, false, false })

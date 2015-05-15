@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.ui.form.annotation.FormProperties;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -29,15 +30,53 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
         return parameters.get(0);
     }
 
-    /** get the name of the property or attribute we want to retrieve, represented by the last parameter in the list */
+    /** get the name of the property or attribute or the output we want to retrieve, represented by the last parameter in the list */
     @JsonIgnore
-    public String getPropertyOrAttributeName() {
+    public String getElementNameToFetch() {
         return parameters.get(parameters.size() - 1);
     }
 
     /** Get, if provided, the capability/requirement name within the template which contains the prop or attr to retrieve */
     @JsonIgnore
     public String getCapabilityOrRequirementName() {
-        return parameters.size() > 2 ? parameters.get(1) : null;
+        if (function != null && parameters.size() > 2) {
+            switch (function) {
+            case ToscaFunctionConstants.GET_PROPERTY:
+            case ToscaFunctionConstants.GET_ATTRIBUTE:
+            case ToscaFunctionConstants.GET_INPUT:
+                return parameters.get(1);
+            default:
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Get, in case of get_operation_output, the name of the interface related to the function, represented by the second parameter in the list */
+    @JsonIgnore
+    public String getInterfaceName() {
+        if (function != null) {
+            switch (function) {
+            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                return parameters.size() > 2 ? parameters.get(1) : null;
+            default:
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /** Get, in case of get_operation_output, the name of the operation related to the function, represented by the third parameter in the list */
+    @JsonIgnore
+    public String getOperationName() {
+        if (function != null) {
+            switch (function) {
+            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                return parameters.size() > 3 ? parameters.get(2) : null;
+            default:
+                return null;
+            }
+        }
+        return null;
     }
 }
