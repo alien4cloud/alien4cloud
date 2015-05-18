@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -275,7 +276,8 @@ public class DeploymentSetupService {
      */
     private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
         Cloud cloud = null;
-        Map<String, String> mergedInputs = deploymentSetup.getInputProperties();
+        Map<String, String> mergedInputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
+                .getInputProperties();
         if (environment.getCloudId() != null) {
             cloud = cloudService.get(environment.getCloudId());
             Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
