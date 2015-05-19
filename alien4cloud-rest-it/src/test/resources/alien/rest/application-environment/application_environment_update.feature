@@ -37,13 +37,6 @@ Scenario: Update cloud id for an environment when i have CLOUD_DEPLOYER role on 
     | cloudName   | mock-paas-cloud |
   Then I should receive a RestResponse with no error
 
-Scenario: Update cloud id for an environment with no rights on the underlying cloud must fail
-  Given I remove a role "CLOUD_DEPLOYER" to user "frodon" on the resource type "CLOUD" named "mock-paas-cloud"
-  And I am authenticated with user named "frodon"
-  When I update the application environment named "Environment" with values
-    | cloudName   | mock-paas-cloud |
-  Then I should receive a RestResponse with an error code 102
-
 Scenario: Update cloud id for a deployed environment must fail
   Given I am authenticated with user named "frodon"
   When I deploy an application environment "Environment" for application "LAMP"
@@ -51,3 +44,10 @@ Scenario: Update cloud id for a deployed environment must fail
   Then I should receive a RestResponse with no error
   When I update the environment named "Environment" to use cloud "mock-paas-cloud-second" for application "LAMP"
   Then I should receive a RestResponse with an error code 604
+
+Scenario: Update cloud id for an environment with no rights on the underlying cloud must fail
+  Given I remove a role "CLOUD_DEPLOYER" to user "frodon" on the resource type "CLOUD" named "mock-paas-cloud"
+  And I am authenticated with user named "frodon"
+  When I update the application environment named "Environment" with values
+    | cloudName   | mock-paas-cloud |
+  Then I should receive a RestResponse with an error code 102
