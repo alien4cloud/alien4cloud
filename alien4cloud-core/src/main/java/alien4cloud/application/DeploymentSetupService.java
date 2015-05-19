@@ -137,7 +137,7 @@ public class DeploymentSetupService {
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
-        processGetInput(deploymentSetup, topology);
+        processGetInput(deploymentSetup, topology, environment);
         generateInputProperties(deploymentSetup, topology, true);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
@@ -271,11 +271,19 @@ public class DeploymentSetupService {
      *
      * @param deploymentSetup The deployment setup that contains the input values.
      * @param topology The topology to process.
+     * @param environment
      */
-    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
+    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
+        Cloud cloud = null;
+        if (environment.getCloudId() != null) {
+            cloud = cloudService.get(environment.getCloudId());
+        }
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
+                // if (cloud != null) {
+                // processGetInput(cloud.getMetaProperties(), nodeTemplate.getProperties());
+                // }
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
                         processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());

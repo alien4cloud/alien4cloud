@@ -166,6 +166,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var cloudZoneResource = $resource('rest/clouds/:id/zones/:resourceId/resource');
 
+    var cloudRefreshResource = $resource('rest/clouds/:id/refresh');
+    
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
         method: 'POST',
@@ -262,6 +264,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
     return {
       'create': crudCloud.create,
       'get': crudCloud.get,
+      'refresh': cloudRefreshResource.get,
       'update': crudCloud.update,
       'remove': crudCloud.remove,
       'config': CloudConfiguration,
