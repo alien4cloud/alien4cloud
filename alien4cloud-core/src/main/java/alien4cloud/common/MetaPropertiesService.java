@@ -26,7 +26,6 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @Slf4j
 @Service
 public class MetaPropertiesService {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
