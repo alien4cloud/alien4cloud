@@ -35,16 +35,18 @@ import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.security.ResourceRoleService;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -155,6 +157,37 @@ public class CloudController {
                 cloudService.getCloudResourceIds(cloud, CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR),
                 cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
+    }
+
+    /**
+     * Get details for a cloud.
+     *
+     * @param id Id of the cloud.
+     */
+    @ApiOperation(value = "Refresh a cloud.")
+    @RequestMapping(value = "/{id}/refresh", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<CloudDTO> refresh(@ApiParam(value = "Id of the cloud to refresh.", required = true) @Valid @NotBlank @PathVariable String id) {
+        // check roles on the requested cloud
+        Cloud cloud = cloudService.getMandatoryCloud(id);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+        IPaaSProvider provider = null;
+        try {
+            provider = cloudService.getPaaSProvider(id);
+            cloudService.refreshCloud(cloud, provider);
+        } catch (CloudDisabledException e) {
+            return RestResponseBuilder
+                    .<CloudDTO> builder()
+                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + id
+                            + "> is disabled or not found")).build();
+        } catch (PluginConfigurationException e) {
+            log.error("Failed to enable cloud. PaaS provider plugin rejects the configuration of the plugin.", e);
+            return RestResponseBuilder
+                    .<CloudDTO> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
+                            .message("The cloud configuration is not considered as valid by the plugin. cause: \n" + e.getMessage()).build()).build();
+        }
+        return get(id);
     }
 
     /**
