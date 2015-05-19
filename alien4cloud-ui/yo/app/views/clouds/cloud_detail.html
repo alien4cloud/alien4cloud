@@ -21,13 +21,13 @@
 
           </div>
           <div class="col-md-3">
-            <button type="button" id="cloud-enable-button" class="btn btn-success" ng-click="enableCloud()" ng-if="!cloud.enabled">
+            <button type="button" id="cloud-enable-button" class="btn btn-success {{ !enablePending ? '' : 'disabled'}}" ng-click="enableCloud()" ng-if="!cloud.enabled">
               <i class="fa" ng-class="{'fa-play': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.ENABLE' | translate}}
             </button>
-            <button type="button" id="cloud-disable-button" class="btn btn-danger" ng-click="disableCloud()" ng-if="cloud.enabled">
+            <button type="button" id="cloud-disable-button" class="btn btn-danger {{ !enablePending ? '' : 'disabled'}}" ng-click="disableCloud()" ng-if="cloud.enabled">
               <i class="fa" ng-class="{'fa-stop': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.DISABLE' | translate}}
             </button>
-            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled ? '' : 'disabled'}}" ng-click="refreshCloud()">
+            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending ? '' : 'disabled'}}" ng-click="refreshCloud()">
               <i class="fa" ng-class="{'fa-refresh': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.REFRESH' | translate}}
             </button>            
           </div>
