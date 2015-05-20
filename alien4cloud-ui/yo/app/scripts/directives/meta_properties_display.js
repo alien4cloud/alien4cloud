@@ -6,7 +6,9 @@ angular.module('alienUiApp').directive('metaPropertiesDisplay', function () {
     templateUrl: 'views/fragments/meta_properties_display.html',
     restrict: 'E',
     scope: {
-      'properties': '='
+      'properties': '=',
+      'application': '=',
+      'cloud': '='
     },
     link: {}
   };

@@ -11,8 +11,8 @@
           <td ng-init="propertyDefinition = metaProperty">
             <property-display ng-init="condensed = true"
               definition="metaProperty"
-              property-value="application.metaProperties[metaProperty.id]"
-              on-save="updateProperties(propertyDefinition, propertyValue)"
+              property-value="getPropertyValue(metaProperty.id)"
+              on-save="updateProperties(type, propertyDefinition.id, propertyValue)"
               editable="true"
               condensed="condensed">
             </property-display>

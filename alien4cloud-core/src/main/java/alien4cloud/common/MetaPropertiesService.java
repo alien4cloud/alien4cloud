@@ -16,7 +16,7 @@ import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationExc
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
- * Service that manages meta-property for resources with meta-properties.
+ * Service that manage meta-property for resources with meta-properties.
  */
 @Service
 public class MetaPropertiesService {
