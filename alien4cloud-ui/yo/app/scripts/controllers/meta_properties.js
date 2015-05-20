@@ -6,8 +6,8 @@ angular.module('alienUiApp').controller('MetaPropertiesCtrl', ['$scope', 'proper
 
     $scope.updateProperties = function(propertyDefinitionId, value, metaProperties) {
       var updateApplicationPropertyObject = {
-        'propertyDefinitionId': propertyDefinitionId,
-        'propertyValue': value
+        'definitionId': propertyDefinitionId,
+        'value': value
       };
 
       return applicationServices.upsertProperty({

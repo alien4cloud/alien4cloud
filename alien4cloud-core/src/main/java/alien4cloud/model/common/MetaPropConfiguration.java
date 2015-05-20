@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
@@ -39,7 +38,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
     private String name;
 
     /**
-     * Target of the tag configuration (application or component)
+     * Target of the tag configuration (application or component or cloud)
      */
     @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     @FormValidValues({ "application", "component", "cloud" })
@@ -47,10 +46,4 @@ public class MetaPropConfiguration extends PropertyDefinition {
     @TermsFacet
     @FormLabel("TAG_CONFIG.TARGET")
     private String target;
-
-    /**
-     * Auto generated id
-     */
-    @Id
-    private String id;
 }
