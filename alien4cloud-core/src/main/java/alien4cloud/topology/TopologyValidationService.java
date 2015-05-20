@@ -210,10 +210,6 @@ public class TopologyValidationService {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
             } else if (value instanceof FunctionPropertyValue) {
 
-                // get meta properties from Cloud or Environment
-                if (miscMetaProperties == null)
-                    continue;
-
                 // non resolved property from : cloud / environment
                 String function = ((FunctionPropertyValue) value).getFunction();
 
@@ -223,7 +219,7 @@ public class TopologyValidationService {
                     isGetInputInternal = InternalMetaProperties.isInternalMeta(metaPropertyName);
                     // check cloud/environment properties value
                     MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(metaPropertyName);
-                    if (metaProperty != null) {
+                    if (metaProperty != null && miscMetaProperties != null) {
                         propertyValue = miscMetaProperties.get(metaProperty.getId());
                     }
                 }
@@ -336,7 +332,8 @@ public class TopologyValidationService {
      */
     private boolean isValidTaskList(List<PropertiesTask> taskList) {
         for (PropertiesTask task : taskList) {
-            if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))) {
+            if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
+                    || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
                 return false;
             }
         }
