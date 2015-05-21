@@ -39,7 +39,7 @@ angular.module('alienUiApp').controller('MetaPropertiesCtrl', ['$scope', 'proper
     $scope.getPropertyValue = function(metaPropId) {
       if (UTILS.isDefinedAndNotNull($scope.application)) {
         return $scope.application.metaProperties[metaPropId];
-      } else if (UTILS.isDefinedAndNotNull($scope.cloud)) {
+      } else if (UTILS.isDefinedAndNotNull($scope.cloud) && UTILS.isDefinedAndNotNull($scope.cloud.metaProperties)) {
         return $scope.cloud.metaProperties[metaPropId];
       }
     };

@@ -10,6 +10,7 @@
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">
             <property-display ng-init="condensed = true"
+              class="metaPropDirective"
               definition="metaProperty"
               property-value="getPropertyValue(metaProperty.id)"
               on-save="updateProperties(type, propertyDefinition.id, propertyValue)"
