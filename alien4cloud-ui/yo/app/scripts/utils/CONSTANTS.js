@@ -9,4 +9,4 @@ CONSTANTS.cloudify2extensionInterfaceName = 'fastconnect.cloudify.extensions';
 CONSTANTS.minimumZoneCountPerGroup = 1;
 
 // internal inputs
-CONSTANTS.excludedInputs = ['cloud_metas_', 'cloud_tags_', 'app_metas_', 'app_tags_', 'env_metas_', 'env_tags_'];
+CONSTANTS.excludedInputs = ['cloud_meta_', 'cloud_tags_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];

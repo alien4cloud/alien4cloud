@@ -42,24 +42,23 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
-import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
-import alien4cloud.topology.TopologyService;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.MetaPropertiesServiceWrapper;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
-import alien4cloud.security.ResourceRoleService;
 
-import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.Authorization;
@@ -93,6 +92,8 @@ public class ApplicationController {
     private DeploymentSetupService deploymentSetupService;
     @Resource
     private TopologyService topologyService;
+    @Resource
+    private MetaPropertiesServiceWrapper metaPropertiesServiceWrapper;
 
     /**
      * Create a new application in the system.
@@ -339,49 +340,8 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
-        RestError updateApplicationPropertyError = null;
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        if (application != null) {
-            // Put the updated tag (will override the old tag or add it to the tag map)
-            if (application.getMetaProperties() == null) {
-                application.setMetaProperties(Maps.<String, String> newHashMap());
-            }
-            if (propertyRequest.getPropertyDefinition() != null && propertyRequest.getPropertyDefinition().getConstraints() != null) {
-                try {
-                    constraintPropertyService.checkPropertyConstraint(propertyRequest.getPropertyId(), propertyRequest.getPropertyValue(),
-                            propertyRequest.getPropertyDefinition());
-                } catch (ConstraintViolationException e) {
-                    log.error(
-                            "Constraint violation error for property <" + propertyRequest.getPropertyId() + "> with value <"
-                                    + propertyRequest.getPropertyValue() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                            .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-                } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                    log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                            + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                    return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                            .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-                }
-            }
-            application.getMetaProperties().put(propertyRequest.getPropertyId(), propertyRequest.getPropertyValue());
-            alienDAO.save(application);
-        } else {
-            updateApplicationPropertyError = RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR)
-                    .message("Property update operation failed. Could not find application with id <" + applicationId + ">.").build();
-        }
-        return RestResponseBuilder.<ConstraintInformation> builder().error(updateApplicationPropertyError).build();
+        return metaPropertiesServiceWrapper.upsertMetaProperty(application, propertyRequest.getDefinitionId(), propertyRequest.getValue());
     }
-
-    // @Deprecated
-    // @ApiOperation(value = "Get the id of the topology associated with this application.", notes =
-    // "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    // @RequestMapping(value = "/{applicationId:.+}/topology", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    // public RestResponse<String> getTopologyId(@PathVariable String applicationId) {
-    // Application application = applicationService.getOrFail(applicationId);
-    // AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
-    // ApplicationVersion[] versions = applicationVersionService.getByApplicationId(applicationId);
-    // // TODO : update this with ApplicationVersion implementation
-    // return RestResponseBuilder.<String> builder().data(versions[0].getTopologyId()).build();
-    // }
 }

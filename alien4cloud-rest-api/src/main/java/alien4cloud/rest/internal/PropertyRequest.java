@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.model.components.PropertyDefinition;
 
 @Getter
 @Setter
@@ -12,7 +11,6 @@ import alien4cloud.model.components.PropertyDefinition;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PropertyRequest {
-    private String propertyId;
-    private String propertyValue;
-    private PropertyDefinition propertyDefinition;
+    private String value;
+    private String definitionId;
 }

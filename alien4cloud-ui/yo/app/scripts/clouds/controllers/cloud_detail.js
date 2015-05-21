@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', 'tagConfigurationServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, tagConfigurationServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -748,5 +748,23 @@ angular.module('alienUiApp').controller(
         });
       };
 
+      $scope.loadConfigurationTag = function() {
+        // filter only by target 'cloud'
+        var filterCloud = {};
+        filterCloud.target = [];
+        filterCloud.target.push('cloud');
+
+        var searchRequestObject = {
+          'query': '',
+          'filters': filterCloud,
+          'from': 0,
+          'size': 50
+        };
+
+        tagConfigurationServices.search([], angular.toJson(searchRequestObject), function(successResult) {
+          $scope.configurationProperties = successResult.data.data;
+        });
+      };
+      $scope.loadConfigurationTag();
     }
   ]);

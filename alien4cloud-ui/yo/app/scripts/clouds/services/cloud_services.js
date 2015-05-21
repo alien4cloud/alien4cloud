@@ -259,6 +259,16 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       }
     });
 
+    var cloudProperty = $resource('rest/clouds/:cloudId/properties', {}, {
+      'upsert': {
+        method: 'POST',
+        isArray: false,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var cloneCloud = $resource('rest/clouds/:id/clone');
 
     return {
@@ -270,6 +280,7 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       'config': CloudConfiguration,
       'userRoles': manageCloudUserRoles,
       'groupRoles': manageCloudGroupRoles,
+      'upsertProperty': cloudProperty.upsert,
       'flavorFormDescriptor': flavorFormDescriptor,
       'addFlavor': crudFlavor.save,
       'removeFlavor': crudFlavor.remove,

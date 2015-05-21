@@ -359,7 +359,12 @@
       "COMPUTE_RESOURCES": "Machines",
       "NETWORK_RESOURCES": "Réseaux",
       "STORAGE_RESOURCES": "Volumes",
-      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer.",
+      "PROPERTIES": {
+        "REQUIRED": "Obligatoire",
+        "WARNING": "Alerte",
+        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeur fournies par l'application, le cloud ou l'environnement. Contactez votre administrateur."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -960,11 +965,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-      "OTHER": "Autre",
-      "DEVELOPMENT": "Développement",
-      "INTEGRATION_TESTS": "Tests d'intégrations",
-      "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
-      "PRE_PRODUCTION": "Pré-production",
-      "PRODUCTION": "production"
-    }
+    "OTHER": "Autre",
+    "DEVELOPMENT": "Développement",
+    "INTEGRATION_TESTS": "Tests d'intégrations",
+    "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+    "PRE_PRODUCTION": "Pré-production",
+    "PRODUCTION": "production"
+  }
 }

@@ -764,8 +764,8 @@
             </fieldset>
           </div>
         </div>
-      </tab>      
-      
+      </tab>
+
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
         <div class="row" style="margin-bottom:20px;">
           <div class=col-md-12>
@@ -787,6 +787,12 @@
                     {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
                   </div>
                 </div>
+                <meta-properties-display
+                  id="cloudMetaPropertiesDisplay"
+                  ng-if="configurationProperties"
+                  properties="configurationProperties"
+                  cloud="cloud">
+                </meta-properties-display>
               </div>
             </div>
           </div>

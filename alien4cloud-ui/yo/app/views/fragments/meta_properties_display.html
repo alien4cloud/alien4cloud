@@ -1,0 +1,25 @@
+<div class="meta-properties-display-div" ng-controller="MetaPropertiesCtrl">
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+      <strong>{{ 'APPLICATIONS.META_PROPERTIES' | translate}}</strong>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+      <table class="table table-condensed" id="tabProperties">
+        <tr ng-repeat="metaProperty in properties">
+          <td ng-init="propertyDefinition = metaProperty">
+            <property-display ng-init="condensed = true"
+              class="metaPropDirective"
+              definition="metaProperty"
+              property-value="getPropertyValue(metaProperty.id)"
+              on-save="updateProperties(type, propertyDefinition.id, propertyValue)"
+              editable="true"
+              condensed="condensed">
+            </property-display>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

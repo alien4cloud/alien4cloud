@@ -61,30 +61,11 @@
       </div>
     </div>
     <!-- Meta Properties display -->
-    <div class="row" style="margin-top: 10px;" ng-if="isManager">
-      <div class="col-md-12">
-        <strong>{{ 'APPLICATIONS.META_PROPERTIES' | translate}}</strong>
-      </div>
-    </div>
-    <div class="row" style="margin-top: 10px;" ng-if="isManager">
-      <div class="col-md-12">
-        <table class="table table-condensed" id="tabProperties">
-          <tr ng-repeat="definition in configurationProperties">
-            <!-- Obliged to put <td> to give definition value -->
-            <td>
-              <property-display ng-init="condensed = true"
-                ng-if="application.metaProperties && configurationProperties"
-                definition="definition"
-                property-value="application.metaProperties[definition.id]"
-                on-save="updateProperties(propertyDefinition,propertyValue)"
-                editable="true"
-                condensed="condensed">
-              </property-display>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
+    <meta-properties-display
+      properties="configurationProperties"
+      ng-if="isManager && application.metaProperties && configurationProperties"
+      application="application">
+    </meta-properties-display>
     <!-- End Meta Properties display -->
 
     <!-- Tags display -->
