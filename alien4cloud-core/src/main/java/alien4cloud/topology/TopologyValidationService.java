@@ -310,31 +310,36 @@ public class TopologyValidationService {
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also CLOUD / ENVIRONMENT meta properties
-        List<PropertiesTask> validateProperties = validateProperties(topology, deploymentSetup);
-        boolean isValidPropertiesTaskList = isValidTaskList(validateProperties);
-        dto.addToTaskList(validateProperties);
+        dto.addToTaskList(validateProperties(topology, deploymentSetup));
 
         // Validate that HA groups are respected with current configuration
         if (deploymentSetup != null && matcherConfig != null && MapUtils.isNotEmpty(deploymentSetup.getAvailabilityZoneMapping())) {
             dto.addToWarningList(validateHAGroup(topology, deploymentSetup, matcherConfig));
         }
 
-        dto.setValid(isValidPropertiesTaskList);
+        dto.setValid(isValidTaskList(dto.getTaskList()));
 
         return dto;
     }
 
     /**
-     * False when at least one task has a required property in the task list
+     * Define if a tasks list is valid or not regarding task types
      * 
      * @param taskList
      * @return
      */
-    private boolean isValidTaskList(List<PropertiesTask> taskList) {
-        for (PropertiesTask task : taskList) {
-            if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
-                    || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
+    private boolean isValidTaskList(List<TopologyTask> taskList) {
+        for (TopologyTask task : taskList) {
+            // checking SuggestionsTask or RequirementsTask
+            if (task instanceof SuggestionsTask || task instanceof RequirementsTask) {
                 return false;
+            }
+            // checking properties task
+            if (task instanceof PropertiesTask) {
+                if (CollectionUtils.isNotEmpty(((PropertiesTask) task).getProperties().get(TaskLevel.REQUIRED))
+                        || CollectionUtils.isNotEmpty(((PropertiesTask) task).getProperties().get(TaskLevel.WARNING))) {
+                    return false;
+                }
             }
         }
         return true;
