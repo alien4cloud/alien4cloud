@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -29,24 +27,20 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 @Slf4j
 @RestController
 @RequestMapping("/rest/properties")
-public class PropertiesService {
-    @Resource(name = "alien-es-dao")
-    private IGenericSearchDAO alienDAO;
+public class PropertiesController {
     @Resource
     private ConstraintPropertyService constraintPropertyService;
 
     @RequestMapping(value = "/check", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyRequest propertyRequest) {
-        PropertyDefinition propertyDefinition = alienDAO.findById(PropertyDefinition.class, propertyRequest.getDefinitionId());
 
-        if (propertyDefinition != null) {
+        if (propertyRequest.getPropertyDefinition() != null) {
             try {
                 constraintPropertyService.checkPropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),
-                        propertyDefinition);
+                        propertyRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
-                log.error(
-                        "Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">",
-                        e);
+                log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue()
+                        + ">", e);
                 return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {

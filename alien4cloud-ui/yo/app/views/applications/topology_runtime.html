@@ -274,6 +274,7 @@
           </div>
 
           <!-- Operations -->
+
           <div ng-show="(selectedNodeTemplate || selectedInstance) && isMapNotNullOrEmpty(selectedNodeCustomInterfaces)">
             <div id="node-instance-attributes-command" class="clickable" ng-click="isNodeOperationsCollapsed = !isNodeOperationsCollapsed">
               <h4>
@@ -301,7 +302,7 @@
                   <!-- Operation inputs in collapsed div (if exists) -->
                   <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
                     <table class="table table-condensed" id="op_{{operationName}}_inputParams">
-                      <tr ng-repeat="(inputParameterName,inputParameter) in operation.inputParameters">
+                      <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
                         <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                           <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
                           <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
