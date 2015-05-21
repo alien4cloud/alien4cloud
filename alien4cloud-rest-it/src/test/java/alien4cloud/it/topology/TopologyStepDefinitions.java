@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +56,7 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
@@ -339,7 +345,10 @@ public class TopologyStepDefinitions {
     @When("^I check for the deployable status of the topology$")
     public void I_check_for_the_deployable_status_of_the_topology() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/isvalid"));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().get(
+                        "/rest/topologies/" + topologyId + "/isvalid?environmentId="
+                                + Context.getInstance().getDefaultApplicationEnvironmentId(Context.getInstance().getApplication().getName())));
     }
 
     @When("^I check for the deployable status of the topology on the default environment$")
@@ -553,9 +562,9 @@ public class TopologyStepDefinitions {
     private List<String> getRequiredPropertiesNotSet(String nodeTemplateName, Object taskList) throws IOException {
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
-            List<Object> resToImp = (List<Object>) MapUtil.get(task, "properties");
+            Map<TaskLevel, List<String>> resToImp = (Map<TaskLevel, List<String>>) MapUtil.get(task, "properties");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonUtil.toList(JsonUtil.toString(resToImp), String.class);
+                return JsonUtil.toList(JsonUtil.toString(resToImp.get(TaskLevel.REQUIRED.toString())), String.class);
             }
         }
         return null;
