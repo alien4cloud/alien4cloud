@@ -11,12 +11,14 @@ import javax.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -32,6 +34,7 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
@@ -72,6 +75,8 @@ public class DeploymentSetupService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
+    @Resource
+    private MetaPropertiesService metaPropertiesService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -275,7 +280,8 @@ public class DeploymentSetupService {
      */
     private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
         Cloud cloud = null;
-        Map<String, String> mergedInputs = deploymentSetup.getInputProperties();
+        Map<String, String> mergedInputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
+                .getInputProperties();
         if (environment.getCloudId() != null) {
             cloud = cloudService.get(environment.getCloudId());
             Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
@@ -284,18 +290,14 @@ public class DeploymentSetupService {
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
                 processGetInput(mergedInputs, nodeTemplate.getProperties());
-                // processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
-                // if (cloud != null) {
-                // processGetInput(cloud.getMetaProperties(), nodeTemplate.getProperties());
-                // }
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                        processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                        processGetInput(mergedInputs, relationshipTemplate.getProperties());
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
                     for (Capability capability : nodeTemplate.getCapabilities().values()) {
-                        processGetInput(deploymentSetup.getInputProperties(), capability.getProperties());
+                        processGetInput(mergedInputs, capability.getProperties());
                     }
                 }
             }
@@ -310,8 +312,15 @@ public class DeploymentSetupService {
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         AbstractPropertyValue value;
                         if (inputs != null) {
-                            if (inputs.containsKey(function.getTemplateName())) {
-                                value = new ScalarPropertyValue(inputs.get(function.getTemplateName()));
+                            String templateName = function.getTemplateName();
+                            // check if the template exists as meta property
+                            MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(templateName);
+                            if (metaProperty != null) {
+                                templateName = metaProperty.getId();
+                            }
+                            // recover the good value from inputs (from node inputs or metas)
+                            if (inputs.containsKey(templateName)) {
+                                value = new ScalarPropertyValue(inputs.get(templateName));
                             } else {
                                 value = propEntry.getValue();
                             }

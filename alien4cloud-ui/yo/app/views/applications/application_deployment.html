@@ -193,7 +193,7 @@
           </div>
 
           <!--  Required properties tasks  -->
-          <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTY_REQUIRED'})).length>0">
+          <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTIES'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
               <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
               <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
@@ -203,17 +203,25 @@
               <table class="table table-condensed">
                 <thead>
                   <th></th>
-                  <th>{{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</th>
+                  <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
+                  <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i> {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
                 </thead>
                 <tbody>
-                  <tr ng-repeat=" requiredPropertiesTask in requiredPropertiesTasks">
+                  <tr ng-init="existsWarning = requiredPropertiesTask.properties['WARNING'].length>0" ng-repeat="requiredPropertiesTask in requiredPropertiesTasks" ng-class="{'bg-warning':existsWarning}">
                     <td>
-                      <span>{{requiredPropertiesTask.nodeTemplateName}}</span>
+                      <strong>{{requiredPropertiesTask.nodeTemplateName}}</strong>
                       <span>({{requiredPropertiesTask.component.elementId}})</span>
                     </td>
                     <td>
                       <ul class="td_list liste-no-style">
-                        <li ng-repeat="property in requiredPropertiesTask.properties">
+                        <li ng-repeat="property in requiredPropertiesTask.properties['REQUIRED']">
+                          {{property}}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in requiredPropertiesTask.properties['WARNING']">
                           {{property}}
                         </li>
                       </ul>
@@ -260,7 +268,7 @@
           <i class="fa fa-sign-in"></i> <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
 
-        <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs">
+        <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs | allowedInputs">
           <hr/>
           <div id="app_deployment_id_{{inputId}}" class="col-md-4">
             {{inputId}}

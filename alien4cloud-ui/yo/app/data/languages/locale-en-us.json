@@ -351,7 +351,12 @@
       "STORAGE_RESOURCES": "Block Storages",
       "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy.",
       "CLOUD_ERROR_TITLE": "Select cloud",
-      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin."
+      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin.",
+      "PROPERTIES": {
+        "REQUIRED": "Required",
+        "WARNING": "Warning",
+        "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
