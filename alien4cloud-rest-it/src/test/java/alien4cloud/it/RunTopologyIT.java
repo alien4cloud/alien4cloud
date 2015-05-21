@@ -20,6 +20,7 @@ import cucumber.api.junit.Cucumber;
 // "classpath:alien/rest/topology/roles_on_topologies.feature"
 // "classpath:alien/rest/topology/scaling_policy.feature"
 // "classpath:alien/rest/topology/validate_topology.feature"
+// "classpath:alien/rest/topology/validate_topology_with_meta_properties.feature"
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })
 public class RunTopologyIT {
 

@@ -206,12 +206,16 @@ public class TopologyValidationService {
         // metas from cloud
         if (environment.getCloudId() != null) {
             cloud = cloudService.get(environment.getCloudId());
-            mergedMetaProperties.putAll(cloud.getMetaProperties());
+            if (MapUtils.isNotEmpty(cloud.getMetaProperties())) {
+                mergedMetaProperties.putAll(cloud.getMetaProperties());
+            }
         }
         // meta from application
         if (environment.getApplicationId() != null) {
             Application application = applicationService.getOrFail(environment.getApplicationId());
-            mergedMetaProperties.putAll(application.getMetaProperties());
+            if (MapUtils.isNotEmpty(application.getMetaProperties())) {
+                mergedMetaProperties.putAll(application.getMetaProperties());
+            }
         }
         // TODO : environment
         return mergedMetaProperties;
