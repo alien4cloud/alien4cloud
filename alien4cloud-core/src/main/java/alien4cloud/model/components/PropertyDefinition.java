@@ -11,6 +11,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import org.elasticsearch.annotation.Id;
+
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
@@ -57,6 +60,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
 public class PropertyDefinition implements IValue {
+
+    /**
+     * Auto generated id
+     */
+    @Id
+    private String id;
+
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull

@@ -11,6 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PropertyRequest {
-    private String propertyValue;
-    private String propertyDefinitionId;
+    private String value;
+    private String definitionId;
 }

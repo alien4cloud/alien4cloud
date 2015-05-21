@@ -29,7 +29,6 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.InvalidArgumentException;
@@ -43,7 +42,6 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
-import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -57,6 +55,7 @@ import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.MetaPropertiesServiceWrapper;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
@@ -94,7 +93,7 @@ public class ApplicationController {
     @Resource
     private TopologyService topologyService;
     @Resource
-    private MetaPropertiesService metaPropertiesService;
+    private MetaPropertiesServiceWrapper metaPropertiesServiceWrapper;
 
     /**
      * Create a new application in the system.
@@ -341,9 +340,8 @@ public class ApplicationController {
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
-        RestError updateApplicationPropertyError = null;
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        return metaPropertiesService.upsertMetaProperty(application, propertyRequest.getPropertyDefinitionId(), propertyRequest.getPropertyValue());
+        return metaPropertiesServiceWrapper.upsertMetaProperty(application, propertyRequest.getDefinitionId(), propertyRequest.getValue());
     }
 }

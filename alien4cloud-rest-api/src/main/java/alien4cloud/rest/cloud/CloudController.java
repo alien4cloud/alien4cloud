@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
-import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
@@ -48,7 +47,7 @@ import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.utils.services.ConstraintPropertyService;
+import alien4cloud.utils.MetaPropertiesServiceWrapper;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -59,7 +58,6 @@ import com.wordnik.swagger.annotations.Authorization;
 @RestController
 @RequestMapping("/rest/clouds")
 public class CloudController {
-
     @Resource
     private CloudService cloudService;
     @Resource
@@ -67,9 +65,7 @@ public class CloudController {
     @Resource
     private ResourceRoleService resourceRoleService;
     @Resource
-    private ConstraintPropertyService constraintPropertyService;
-    @Resource
-    private MetaPropertiesService metaPropertiesService;
+    private MetaPropertiesServiceWrapper metaPropertiesServiceWrapper;
 
     /**
      * Create a new cloud.
@@ -526,9 +522,9 @@ public class CloudController {
      */
     @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest) {
+    public RestResponse<ConstraintInformation> upsertMetaProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest) {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        return metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getPropertyDefinitionId(), propertyRequest.getPropertyValue());
+        return metaPropertiesServiceWrapper.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
     }
 }

@@ -2,31 +2,24 @@ package alien4cloud.common;
 
 import javax.annotation.Resource;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 /**
- * Service that manages meta-property for resources with meta-properties.
+ * Service that manage meta-property for resources with meta-properties.
  */
-@Slf4j
 @Service
 public class MetaPropertiesService {
-
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
@@ -39,42 +32,29 @@ public class MetaPropertiesService {
      * @param key The id of the meta-property.
      * @param value The value of the meta-property.
      * @return
+     * @throws ConstraintValueDoNotMatchPropertyTypeException
+     * @throws ConstraintViolationException
      */
-    public RestResponse<ConstraintInformation> upsertMetaProperty(IMetaProperties resource, String key, String value) {
+    public ConstraintInformation upsertMetaProperty(IMetaProperties resource, String key, String value) throws ConstraintViolationException,
+            ConstraintValueDoNotMatchPropertyTypeException {
         MetaPropConfiguration propertyDefinition = alienDAO.findById(MetaPropConfiguration.class, key);
         if (propertyDefinition == null) {
-            return RestResponseBuilder
-                    .<ConstraintInformation> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR)
-                            .message("Property update operation failed. Could not find property definition with id <" + propertyDefinition + ">.").build())
-                    .build();
+            throw new NotFoundException("Property update operation failed. Could not find property definition with id <" + propertyDefinition + ">.");
+        }
+
+        if (propertyDefinition.getConstraints() != null) {
+            constraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
         }
 
         if (resource.getMetaProperties() == null) {
             resource.setMetaProperties(Maps.<String, String> newHashMap());
-        }
-
-        if (propertyDefinition.getConstraints() != null) {
-            try {
-                constraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
-            } catch (ConstraintViolationException e) {
-                log.error("Constraint violation error for property <" + key + "> with value <" + value + ">", e);
-                return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                log.error("Constraint value d error for property <" + e.getConstraintInformation().getName() + "> with value <"
-                        + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
-                return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
-                        .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
-            }
-        }
-
-        if (resource.getMetaProperties().containsKey(key)) {
+        } else if (resource.getMetaProperties().containsKey(key)) {
             resource.getMetaProperties().remove(key);
         }
+
         resource.getMetaProperties().put(key, value);
         alienDAO.save(resource);
-        return RestResponseBuilder.<ConstraintInformation> builder().error(null).build();
+        return null;
     }
 
     /**
