@@ -18,11 +18,13 @@ import org.elasticsearch.common.collect.Lists;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
@@ -90,6 +92,9 @@ public class TopologyValidationService {
     @Resource
     private MetaPropertiesService metaPropertiesService;
 
+    @Resource
+    private ApplicationService applicationService;
+
     private List<RequirementsTask> validateRequirementsLowerBounds(Topology topology) {
         List<RequirementsTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
@@ -127,15 +132,8 @@ public class TopologyValidationService {
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
 
-        // get the related environment
-        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
-        Cloud cloud = null;
-        Map<String, String> mergedMetaProperties = null;
-        if (environment.getCloudId() != null) {
-            cloud = cloudService.get(environment.getCloudId());
-            mergedMetaProperties = cloud.getMetaProperties();
-        }
-        // TODO : meta properties from environment : mergedMetaProperties.putAll(environment.getMetaProperties);
+        // get the related meta properties
+        Map<String, String> mergedMetaProperties = getMergedMetaProperties(deploymentSetup);
 
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
@@ -186,15 +184,41 @@ public class TopologyValidationService {
             }
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
-                toReturnTaskList.add(task);
+                if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
+                        || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
+                    toReturnTaskList.add(task);
+                }
             }
-
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
+    /**
+     * Recover meta properties from cloud, application
+     * 
+     * @param deploymentSetup
+     * @return
+     */
+    private Map<String, String> getMergedMetaProperties(DeploymentSetup deploymentSetup) {
+        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
+        Cloud cloud = null;
+        Map<String, String> mergedMetaProperties = Maps.newHashMap();
+        // metas from cloud
+        if (environment.getCloudId() != null) {
+            cloud = cloudService.get(environment.getCloudId());
+            mergedMetaProperties.putAll(cloud.getMetaProperties());
+        }
+        // meta from application
+        if (environment.getApplicationId() != null) {
+            Application application = applicationService.getOrFail(environment.getApplicationId());
+            mergedMetaProperties.putAll(application.getMetaProperties());
+        }
+        // TODO : environment
+        return mergedMetaProperties;
+    }
+
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            Map<String, String> miscMetaProperties, PropertiesTask task) {
+            Map<String, String> mergedMetaProperties, PropertiesTask task) {
 
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
@@ -219,8 +243,8 @@ public class TopologyValidationService {
                     isGetInputInternal = InternalMetaProperties.isInternalMeta(metaPropertyName);
                     // check cloud/environment properties value
                     MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(metaPropertyName);
-                    if (metaProperty != null && miscMetaProperties != null) {
-                        propertyValue = miscMetaProperties.get(metaProperty.getId());
+                    if (metaProperty != null && MapUtils.isNotEmpty(mergedMetaProperties)) {
+                        propertyValue = mergedMetaProperties.get(metaProperty.getId());
                     }
                 }
 
@@ -329,6 +353,9 @@ public class TopologyValidationService {
      * @return
      */
     private boolean isValidTaskList(List<TopologyTask> taskList) {
+        if (taskList == null) {
+            return true;
+        }
         for (TopologyTask task : taskList) {
             // checking SuggestionsTask or RequirementsTask
             if (task instanceof SuggestionsTask || task instanceof RequirementsTask) {

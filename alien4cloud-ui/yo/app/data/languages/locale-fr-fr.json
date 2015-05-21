@@ -363,7 +363,7 @@
       "PROPERTIES": {
         "REQUIRED": "Obligatoire",
         "WARNING": "Alerte",
-        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeur fournies par l'application, le cloud ou l'environnement. Contactez votre administrateur."
+        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       }
     },
     "TOPOLOGY": {
@@ -704,7 +704,7 @@
       "ENABLING_FAILED_TITLE": "Activer un cloud",
       "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
       "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
-      "REFRESHING_FAILED": "Une erreur est survenue lors du rafraichissement.",      
+      "REFRESHING_FAILED": "Une erreur est survenue lors du rafraichissement.",
       "352_TITLE": "Sauver la configuration du cloud",
       "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
