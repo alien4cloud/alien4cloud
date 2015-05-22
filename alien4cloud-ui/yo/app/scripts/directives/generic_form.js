@@ -331,9 +331,9 @@ angular.module('alienUiApp').directive('toscaTypeFormLabel', ['propertiesService
           }
         } else {
           var checkPropertyRequest = {
-            'propertyId': scope.propertyName,
+            'definitionId': scope.propertyName,
             'propertyDefinition': propertyDefinition,
-            'propertyValue': propertyValue
+            'value': propertyValue
           };
           return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
             if (successResult.error === null) {
