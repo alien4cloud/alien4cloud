@@ -18,9 +18,24 @@ Background:
       |validSource     | tosca.capabilities.Feature|
       |validTarget     | tosca.capabilities.Feature|
       |abstract        |true|
+  Given I am authenticated with "ADMIN" role
+    And I load several configuration tags
+    Then I should have 8 configuration tags loaded
 
-Scenario: checking if an empty topology is deployable
+#Scenario: Check if an empty topology is deployable
+#  Given I am authenticated with "APPLICATIONS_MANAGER" role
+#  When I check for the deployable status of the topology
+#  Then I should receive a RestResponse with no error
+#   And the topology should not be deployable
+
+Scenario: Fill in meta properties for an application and check that is it deployable
   Given I am authenticated with "APPLICATIONS_MANAGER" role
+    And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
+      |computeNodeType|
+      |javaNodeType|
+    And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
   When I check for the deployable status of the topology
   Then I should receive a RestResponse with no error
-    And the topology should not be deployable
+    And the topology should be deployable
+  When I define the property "os_arch" of the node "Compute" as input property
+#    And The topology should have the property "os_arch" defined as input property
