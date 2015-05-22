@@ -5,6 +5,7 @@ var common = require('../../common/common');
 var authentication = require('../../authentication/authentication');
 var genericForm = require('../../generic_form/generic_form');
 var tagConfigCommon = require('../../admin/metaprops_configuration_common');
+var cloudsCommon = require('../../admin/clouds_common');
 
 describe('Tag configuration CRUD', function() {
   beforeEach(function() {
@@ -50,5 +51,20 @@ describe('Tag configuration CRUD', function() {
     // count tags array
     var tagConfigurationsTable = element(by.id('tagConfigurationsTable'));
     expect(tagConfigurationsTable.all(by.tagName('tr')).count()).toEqual(2);
+  });
+
+  it('should add a cloud meta-property and set <success> as value', function() {
+    console.log('################# should add a cloud meta-property and set <success> as value');
+    cloudsCommon.goToCloudList();
+    cloudsCommon.createNewCloud('testcloud');
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.goToCloudConfiguration();
+    expect(element(by.id('cloudMetaPropertiesDisplay')).isPresent()).toBe(false);
+
+    tagConfigCommon.addTagConfiguration(tagConfigCommon.defaultCloudProperty, null);
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.goToCloudConfiguration();
+    expect(element(by.id('cloudMetaPropertiesDisplay')).isDisplayed()).toBe(true);
+    tagConfigCommon.editTagConfiguration('_ALIEN_CLOUD_PROPERTY', 'success');
   });
 });
