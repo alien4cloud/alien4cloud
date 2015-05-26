@@ -2,8 +2,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
+  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', 'tagConfigurationServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, tagConfigurationServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -33,84 +33,87 @@ angular.module('alienUiApp').controller(
         }
       };
 
+      // handle CloudDTO
+      var handleCloudResponse = function(response) {
+        // the cloud
+        $scope.cloud = response.data.cloud;
+        // templates computed by backend
+        $scope.templates = response.data.cloud.computeTemplates;
+        // stuff associated to the cloud
+        $scope.images = response.data.images;
+        $scope.flavors = response.data.flavors;
+        $scope.networks = response.data.networks;
+        $scope.storages = response.data.storages;
+        $scope.zones = response.data.zones;
+        // ids coming from pass
+        $scope.paaSImageIds = response.data.paaSImageIds;
+        $scope.paaSFlavorIds = response.data.paaSFlavorIds;
+        $scope.paaSNetworkIds = response.data.paaSNetworkTemplateIds;
+        $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;
+        $scope.paaSZoneIds = response.data.paaSZoneIds;
+        // array of PaaS stuff IDs available for mapping
+        $scope.availaiblePaaSImageIds = [];
+        $scope.availaiblePaaSFlavorIds = [];
+        $scope.availaiblePaaSNetworkIds = [];
+        $scope.availaiblePaaSStorageIds = [];
+        $scope.availaiblePaaSZoneIds = [];
+        // counters for non mapped stuffs
+        $scope.imageNotConfiguredCount = 0;
+        $scope.flavorNotConfiguredCount = 0;
+        $scope.networkNotConfiguredCount = 0;
+        $scope.storageNotConfiguredCount = 0;
+        $scope.zoneNotConfiguredCount = 0;
+        // id of images candidat to be added
+        $scope.imageAddSelection = [];
+        // to display unmapped stuffs alerts
+        updateImageResourcesStatistic();
+        updateFlavorResourcesStatistic();
+        updateComputeResourcesStatistic();
+        updateNetworkResourcesStatistic();
+        updateStorageResourcesStatistic();
+        updateZoneResourcesStatistic();
+
+        $scope.relatedUsers = {};
+        if ($scope.cloud.userRoles) {
+          var usernames = [];
+          for (var username in $scope.cloud.userRoles) {
+            if ($scope.cloud.userRoles.hasOwnProperty(username)) {
+              usernames.push(username);
+            }
+          }
+          if (usernames.length > 0) {
+            userServices.get([], angular.toJson(usernames), function(usersResults) {
+              var data = usersResults.data;
+              for (var i = 0; i < data.length; i++) {
+                $scope.relatedUsers[data[i].username] = data[i];
+              }
+            });
+          }
+        }
+
+        $scope.relatedGroups = {};
+        if ($scope.cloud.groupRoles) {
+          var groupIds = [];
+          for (var groupId in $scope.cloud.groupRoles) {
+            if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
+              groupIds.push(groupId);
+            }
+          }
+          if (groupIds.length > 0) {
+            groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
+              var data = groupsResults.data;
+              for (var i = 0; i < data.length; i++) {
+                $scope.relatedGroups[data[i].id] = data[i];
+              }
+            });
+          }
+        }
+      };
+      
       var refreshCloud = function() {
         cloudServices.get({
           id: cloudId
-        }, function(response) {
-          // the cloud
-          $scope.cloud = response.data.cloud;
-          // templates computed by backend
-          $scope.templates = response.data.cloud.computeTemplates;
-          // stuff associated to the cloud
-          $scope.images = response.data.images;
-          $scope.flavors = response.data.flavors;
-          $scope.networks = response.data.networks;
-          $scope.storages = response.data.storages;
-          $scope.zones = response.data.zones;
-          // ids coming from pass
-          $scope.paaSImageIds = response.data.paaSImageIds;
-          $scope.paaSFlavorIds = response.data.paaSFlavorIds;
-          $scope.paaSNetworkIds = response.data.paaSNetworkTemplateIds;
-          $scope.paaSStorageIds = response.data.paaSStorageTemplateIds;
-          $scope.paaSZoneIds = response.data.paaSZoneIds;
-          // array of PaaS stuff IDs available for mapping
-          $scope.availaiblePaaSImageIds = [];
-          $scope.availaiblePaaSFlavorIds = [];
-          $scope.availaiblePaaSNetworkIds = [];
-          $scope.availaiblePaaSStorageIds = [];
-          $scope.availaiblePaaSZoneIds = [];
-          // counters for non mapped stuffs
-          $scope.imageNotConfiguredCount = 0;
-          $scope.flavorNotConfiguredCount = 0;
-          $scope.networkNotConfiguredCount = 0;
-          $scope.storageNotConfiguredCount = 0;
-          $scope.zoneNotConfiguredCount = 0;
-          // id of images candidat to be added
-          $scope.imageAddSelection = [];
-          // to display unmapped stuffs alerts
-          updateImageResourcesStatistic();
-          updateFlavorResourcesStatistic();
-          updateComputeResourcesStatistic();
-          updateNetworkResourcesStatistic();
-          updateStorageResourcesStatistic();
-          updateZoneResourcesStatistic();
-
-          $scope.relatedUsers = {};
-          if ($scope.cloud.userRoles) {
-            var usernames = [];
-            for (var username in $scope.cloud.userRoles) {
-              if ($scope.cloud.userRoles.hasOwnProperty(username)) {
-                usernames.push(username);
-              }
-            }
-            if (usernames.length > 0) {
-              userServices.get([], angular.toJson(usernames), function(usersResults) {
-                var data = usersResults.data;
-                for (var i = 0; i < data.length; i++) {
-                  $scope.relatedUsers[data[i].username] = data[i];
-                }
-              });
-            }
-          }
-
-          $scope.relatedGroups = {};
-          if ($scope.cloud.groupRoles) {
-            var groupIds = [];
-            for (var groupId in $scope.cloud.groupRoles) {
-              if ($scope.cloud.groupRoles.hasOwnProperty(groupId)) {
-                groupIds.push(groupId);
-              }
-            }
-            if (groupIds.length > 0) {
-              groupServices.getMultiple([], angular.toJson(groupIds), function(groupsResults) {
-                var data = groupsResults.data;
-                for (var i = 0; i < data.length; i++) {
-                  $scope.relatedGroups[data[i].id] = data[i];
-                }
-              });
-            }
-          }
-        });
+        }, function(response) { handleCloudResponse(response); });
       };
 
       refreshCloud();
@@ -181,6 +184,24 @@ angular.module('alienUiApp').controller(
           });
       };
 
+      $scope.refreshCloud = function() {
+        $scope.enablePending = true;
+        cloudServices.refresh({
+          id: $scope.cloud.id
+        }, function(response) {
+          $scope.enablePending = false; 
+          if (response.data) {
+            handleCloudResponse(response); 
+          } else {
+            // toaster message
+            toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
+          }
+        }, function(response) { 
+          $scope.enablePending = false; 
+          toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
+        });        
+      };
+      
       $scope.cloudConfig = {};
 
       cloudServices.config.get({
@@ -727,5 +748,23 @@ angular.module('alienUiApp').controller(
         });
       };
 
+      $scope.loadConfigurationTag = function() {
+        // filter only by target 'cloud'
+        var filterCloud = {};
+        filterCloud.target = [];
+        filterCloud.target.push('cloud');
+
+        var searchRequestObject = {
+          'query': '',
+          'filters': filterCloud,
+          'from': 0,
+          'size': 50
+        };
+
+        tagConfigurationServices.search([], angular.toJson(searchRequestObject), function(successResult) {
+          $scope.configurationProperties = successResult.data.data;
+        });
+      };
+      $scope.loadConfigurationTag();
     }
   ]);

@@ -359,7 +359,12 @@
       "COMPUTE_RESOURCES": "Machines",
       "NETWORK_RESOURCES": "Réseaux",
       "STORAGE_RESOURCES": "Volumes",
-      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer.",
+      "PROPERTIES": {
+        "REQUIRED": "Obligatoire",
+        "WARNING": "Alerte",
+        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -555,8 +560,9 @@
     "CLOUD": "Cloud",
     "IAAS_TYPE": "Type de IaaS",
     "ENVIRONMENT_TYPE": "Type d'environnement",
-    "ENABLE": "Activer le cloud",
-    "DISABLE": "Désactiver cloud",
+    "ENABLE": "Activer",
+    "DISABLE": "Désactiver",
+    "REFRESH": "Rafraichir",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "La configuration est sauvegardée mais n'est pas appliquée immédiatement. Celle-ci sera effectivement prise en compte lorsque le cloud sera ré-activé (désactiver puis réactiver ou lors du redémarrage de l'application).",
     "MANAGE_ROLES": "Autorisations",
@@ -697,6 +703,8 @@
       "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources.",
       "ENABLING_FAILED_TITLE": "Activer un cloud",
       "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
+      "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
+      "REFRESHING_FAILED": "Une erreur est survenue lors du rafraichissement.",
       "352_TITLE": "Sauver la configuration du cloud",
       "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
@@ -957,11 +965,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-      "OTHER": "Autre",
-      "DEVELOPMENT": "Développement",
-      "INTEGRATION_TESTS": "Tests d'intégrations",
-      "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
-      "PRE_PRODUCTION": "Pré-production",
-      "PRODUCTION": "production"
-    }
+    "OTHER": "Autre",
+    "DEVELOPMENT": "Développement",
+    "INTEGRATION_TESTS": "Tests d'intégrations",
+    "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+    "PRE_PRODUCTION": "Pré-production",
+    "PRODUCTION": "production"
+  }
 }

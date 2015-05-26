@@ -1,6 +1,7 @@
 package alien4cloud.topology.task;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,5 +15,5 @@ import lombok.Setter;
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class PropertiesTask extends TopologyTask {
     // list of required properties not set
-    private List<String> properties;
+    private Map<TaskLevel, List<String>> properties;
 }

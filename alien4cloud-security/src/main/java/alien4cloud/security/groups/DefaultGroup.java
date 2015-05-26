@@ -1,4 +1,4 @@
-package alien4cloud.configuration;
+package alien4cloud.security.groups;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 
 import alien4cloud.Constants;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.security.model.Role;
 import alien4cloud.security.groups.GroupService;
+import alien4cloud.security.model.Role;
 
 import com.google.common.collect.Sets;
 

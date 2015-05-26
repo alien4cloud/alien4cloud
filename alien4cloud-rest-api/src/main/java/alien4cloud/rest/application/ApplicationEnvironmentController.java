@@ -46,13 +46,13 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.users.UserService;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -123,6 +123,8 @@ public class ApplicationEnvironmentController {
      * Get application environment from its id
      *
      * @param applicationId The application id
+     * @param applicationEnvironmentId the environment for which to get the status
+     * @return A {@link RestResponse} that contains the application environment {@link ApplicationEnvironment}.
      */
     @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationEnvironmentId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,6 +137,28 @@ public class ApplicationEnvironmentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
         }
         return RestResponseBuilder.<ApplicationEnvironment> builder().data(environment).build();
+    }
+
+    /**
+     * Get the current status of the environment for the given application.
+     *
+     * @param applicationId the id of the application to be deployed.
+     * @param applicationEnvironmentId the environment for which to get the status
+     * @return A {@link RestResponse} that contains the application's current {@link DeploymentStatus}.
+     * @throws Exception
+     */
+    @ApiOperation(value = "Get an application environment from its id", notes = "Returns the application environment. Application role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
+    @RequestMapping(value = "/{applicationEnvironmentId:.+}/status", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<DeploymentStatus> getApplicationEnvironmentStatus(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
+            throws Exception {
+        Application application = applicationService.checkAndGetApplication(applicationId);
+        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(applicationEnvironmentId);
+        AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
+        if (!AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER)) {
+            AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.values());
+        }
+        DeploymentStatus status = applicationEnvironmentService.getStatus(environment);
+        return RestResponseBuilder.<DeploymentStatus> builder().data(status).build();
     }
 
     /**

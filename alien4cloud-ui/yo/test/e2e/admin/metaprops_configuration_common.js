@@ -128,6 +128,40 @@ var tagMinLength = {
 };
 module.exports.tagMinLength = tagMinLength;
 
+var defaultCloudProperty = {
+  name: {
+    'field': 'name',
+    'ui': 'xeditable',
+    'value': '_ALIEN_CLOUD_PROPERTY'
+  },
+  description: {
+    'field': 'description',
+    'ui': 'xeditable',
+    'value': 'My description'
+  },
+  required: {
+    'field': 'required',
+    'ui': 'radio',
+    'value': 'false'
+  },
+  target: {
+    'field': 'target',
+    'ui': 'select',
+    'value': 'cloud'
+  },
+  type: {
+    'field': 'type',
+    'ui': 'select',
+    'value': 'string'
+  },
+  default: {
+    'field': 'default',
+    'ui': 'xeditable',
+    'value': ''
+  }
+};
+module.exports.defaultCloudProperty = defaultCloudProperty;
+
 // CONSTRAINTS
 var tagValidValuesConstraint = [{
   constraint: constraintsMap.validValues,

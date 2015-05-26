@@ -62,21 +62,6 @@ angular.module('alienUiApp').controller('ApplicationInfosCtrl', ['$scope', '$sta
       $scope.doUpload(file);
     };
 
-    $scope.updateProperties = function(propertyDefinition, propertyValue) {
-      var updateApplicationPropertyObject = {
-        'propertyDefinitionId': propertyDefinition.id,
-        'propertyValue': propertyValue
-      };
-
-      return applicationServices.upsertProperty({
-        applicationId: $scope.application.id
-      }, angular.toJson(updateApplicationPropertyObject), function(response) {
-        if (!response.error) {
-          $scope.application.metaProperties[propertyDefinition.id] = propertyValue;
-        }
-      });
-    };
-
     var alienInternalTags = ['icon'];
     /* Restrict tags visibility */
     $scope.isInternalTag = function(tag) {

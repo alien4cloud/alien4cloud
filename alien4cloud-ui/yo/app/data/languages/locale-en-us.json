@@ -351,7 +351,12 @@
       "STORAGE_RESOURCES": "Block Storages",
       "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy.",
       "CLOUD_ERROR_TITLE": "Select cloud",
-      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin."
+      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin.",
+      "PROPERTIES": {
+        "REQUIRED": "Required",
+        "WARNING": "Warning",
+        "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
@@ -547,8 +552,9 @@
     "CLOUD": "Cloud",
     "IAAS_TYPE": "IaaS type",
     "ENVIRONMENT_TYPE": "Environment type",
-    "ENABLE": "Enable cloud",
-    "DISABLE": "Disable cloud",
+    "ENABLE": "Enable",
+    "DISABLE": "Disable",
+    "REFRESH": "Refresh",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
     "MANAGE_ROLES": "Authorizations",
@@ -690,6 +696,8 @@
       "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources.",
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
+      "REFRESHING_FAILED_TITLE": "Refresh a cloud",
+      "REFRESHING_FAILED": "An error occurred while refreshing.",        
       "352_TITLE": "Save the cloud configuration",
       "352": "Invalid cloud configuration. Please change it and retry."
     },

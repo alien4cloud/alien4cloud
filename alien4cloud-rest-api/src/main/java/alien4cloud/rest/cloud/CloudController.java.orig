@@ -38,8 +38,11 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.rest.internal.PropertyRequest;
+<<<<<<< HEAD
 import alien4cloud.rest.model.RestError;
+=======
+import alien4cloud.rest.internal.PropertyRequest;
+>>>>>>> cbf083c01e52aba407ccf34464e39458142b0aeb
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
@@ -48,8 +51,11 @@ import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
+<<<<<<< HEAD
+=======
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.MetaPropertiesServiceWrapper;
+>>>>>>> cbf083c01e52aba407ccf34464e39458142b0aeb
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;

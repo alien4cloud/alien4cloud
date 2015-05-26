@@ -51,11 +51,6 @@ public class UserController {
     @Resource
     private ResourceRoleService resourceRoleService;
 
-    @PostConstruct
-    public void test() {
-        System.out.println("oooo");
-    }
-
     /**
      * Create a new user in the system.
      *
