@@ -20,7 +20,7 @@ Background:
       |abstract        |true|
   Given I am authenticated with "ADMIN" role
     And I load several configuration tags
-    Then I should have 8 configuration tags loaded
+    Then I should have 9 configuration tags loaded
 
 #Scenario: Check if an empty topology is deployable
 #  Given I am authenticated with "APPLICATIONS_MANAGER" role

@@ -62,6 +62,12 @@
   "required": false,
   "password": false
 }, {
+  "type": "integer",
+  "name": "cloud_meta_CLOUD_META_2",
+  "target": "cloud",
+  "required": false,
+  "password": false
+}, {
   "type": "string",
   "name": "COMPONENT_JAVA",
   "target": "component",
