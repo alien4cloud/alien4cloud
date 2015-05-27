@@ -23,7 +23,7 @@ describe('Application meta properties edition check', function() {
     common.after();
   });
 
-  xit('should create an application an set configuration tags', function() {
+  it('should create an application an set configuration tags', function() {
     console.log('should create an application an set configuration tags');
     // add configuration tags
     authentication.reLogin('admin');
@@ -77,6 +77,7 @@ describe('Application meta properties edition check', function() {
     navigation.go('main', 'applications');
     browser.element(by.binding('application.name')).click();
     navigation.go('applications', 'deployment');
+    cloudsCommon.selectApplicationCloud('testcloud');
     topologyEditorCommon.checkTodoList(false);
 
     // now we map the input to the cloud meta-property, the todo list should be display because the meta-property is empty
