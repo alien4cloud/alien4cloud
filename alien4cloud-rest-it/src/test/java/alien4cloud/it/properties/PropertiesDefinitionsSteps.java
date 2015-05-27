@@ -15,4 +15,13 @@ public class PropertiesDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/properties/check", JsonUtil.toString(propertyCheckRequest)));
     }
 
+    @When("^I set the value \"([^\"]*)\" for the cloud meta-property \"([^\"]*)\" of the cloud \"([^\"]*)\"$")
+    public void I_set_the_value_for_the_cloud_meta_property_of_the_cloud(String value, String metaPropertyName, String cloudName) throws Throwable {
+        MetaPropConfiguration propertyDefinition = Context.getInstance().getConfigurationTag(metaPropertyName);
+        PropertyRequest propertyCheckRequest = new PropertyRequest(value, propertyDefinition.getId(), propertyDefinition);
+        String cloudId = Context.getInstance().getCloudId(cloudName);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/clouds/" + cloudId + "/properties", JsonUtil.toString(propertyCheckRequest)));
+    }
+
 }

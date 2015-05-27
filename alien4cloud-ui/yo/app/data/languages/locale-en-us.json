@@ -697,7 +697,7 @@
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
       "REFRESHING_FAILED_TITLE": "Refresh a cloud",
-      "REFRESHING_FAILED": "An error occurred while refreshing.",        
+      "REFRESHING_FAILED": "An error occurred while refreshing.",
       "352_TITLE": "Save the cloud configuration",
       "352": "Invalid cloud configuration. Please change it and retry."
     },
@@ -752,7 +752,7 @@
       "pattern": "Value must match the pattern {{reference}}",
       "validValues": "Value must be in values [ {{reference}} ]"
     },
-    "804": "{{value}} type is not {{type}}",
+    "804": "The value type is not valid",
     "805": {
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "One or several parameters are required : {{value}}"
@@ -958,11 +958,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-	  "OTHER": "Other",
-	  "DEVELOPMENT": "Development",
-	  "INTEGRATION_TESTS": "Integration tests",
-	  "USER_ACCEPTANCE_TESTS": "UAT",
-	  "PRE_PRODUCTION": "Pre-production",
-	  "PRODUCTION": "production"
+    "OTHER": "Other",
+    "DEVELOPMENT": "Development",
+    "INTEGRATION_TESTS": "Integration tests",
+    "USER_ACCEPTANCE_TESTS": "UAT",
+    "PRE_PRODUCTION": "Pre-production",
+    "PRODUCTION": "production"
     }
 }

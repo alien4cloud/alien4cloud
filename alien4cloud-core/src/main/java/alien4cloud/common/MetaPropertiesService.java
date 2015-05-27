@@ -42,9 +42,7 @@ public class MetaPropertiesService {
             throw new NotFoundException("Property update operation failed. Could not find property definition with id <" + propertyDefinition + ">.");
         }
 
-        if (propertyDefinition.getConstraints() != null) {
-            constraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
-        }
+        constraintPropertyService.checkPropertyConstraint(key, value, propertyDefinition);
 
         if (resource.getMetaProperties() == null) {
             resource.setMetaProperties(Maps.<String, String> newHashMap());

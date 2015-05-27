@@ -12,7 +12,7 @@ Background:
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive " tosca-base-types" version "1.0" with source "BlockStorage" and target "Compute" for requirement "attach" of type "tosca.capabilities.Container" and target capability "compute"
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive " tosca-base-types" version "1.0" with source "BlockStorage-2" and target "Compute" for requirement "attach" of type "tosca.capabilities.Container" and target capability "compute"
   When I load several configuration tags
-    Then I should have 10 configuration tags loaded
+    Then I should have 11 configuration tags loaded
 
 Scenario: Define a property as input
   When I define the property "os_arch" of the node "Compute" as input property

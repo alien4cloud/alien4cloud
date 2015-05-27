@@ -759,7 +759,7 @@
       "pattern": "La valeur doit respecter le modèle {{reference}}",
       "validValues": "La valeur doit être comprise dans [ {{reference}} ]"
     },
-    "804": "{{value}} n'est pas du type {{type}}",
+    "804": "La valeur n'est pas du type attendu",
     "805": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
