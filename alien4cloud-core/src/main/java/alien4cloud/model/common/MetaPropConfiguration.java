@@ -39,7 +39,7 @@ public class MetaPropConfiguration extends PropertyDefinition {
      * The name of the tag
      */
     @TermFilter
-    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    @StringField(includeInAll = true, indexType = IndexType.not_analyzed)
     @NotNull
     @FormLabel("TAG_CONFIG.NAME")
     private String name;
