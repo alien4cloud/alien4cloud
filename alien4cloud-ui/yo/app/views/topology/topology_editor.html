@@ -727,8 +727,8 @@
             </thead>
             <tbody>
               <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
-                <td>
-                  <span editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
+                <td id="td_{{inputId}}">
+                  <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
                     {{inputDefinition.inputId}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>

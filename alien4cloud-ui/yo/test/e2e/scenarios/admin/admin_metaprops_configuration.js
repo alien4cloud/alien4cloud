@@ -67,4 +67,5 @@ describe('Tag configuration CRUD', function() {
     expect(element(by.id('cloudMetaPropertiesDisplay')).isDisplayed()).toBe(true);
     tagConfigCommon.editTagConfiguration('_ALIEN_CLOUD_PROPERTY', 'success');
   });
+
 });
