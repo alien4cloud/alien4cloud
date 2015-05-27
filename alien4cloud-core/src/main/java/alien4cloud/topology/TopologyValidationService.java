@@ -231,11 +231,13 @@ public class TopologyValidationService {
             String propertyValue = null;
             TaskLevel taskLevel = TaskLevel.WARNING; // default property task level
             boolean isGetInputInternal = false;
+            boolean isScalar = false;
 
             if (value == null) {
                 propertyValue = null;
             } else if (value instanceof ScalarPropertyValue) {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
+                isScalar = true;
             } else if (value instanceof FunctionPropertyValue) {
 
                 // non resolved property from : cloud / environment
@@ -257,7 +259,6 @@ public class TopologyValidationService {
             }
 
             if (StringUtils.isBlank(propertyValue)) {
-
                 if (propertyDef.isRequired()) {
                     taskLevel = TaskLevel.REQUIRED;
                     if (!task.getProperties().containsKey(taskLevel)) {
@@ -269,7 +270,7 @@ public class TopologyValidationService {
                     }
                 }
                 // add required or warning property
-                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal) {
+                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
                     task.getProperties().get(taskLevel).add(propertyEntry.getKey());
                 }
             }
