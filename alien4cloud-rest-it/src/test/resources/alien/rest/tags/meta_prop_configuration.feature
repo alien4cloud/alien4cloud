@@ -3,7 +3,7 @@ Feature: Insert meta tags for Application, Component, Cloud and CRUD operations
 Background:
   Given I am authenticated with "ADMIN" role
   And I load several configuration tags
-  Then I should have 9 configuration tags loaded
+  Then I should have 11 configuration tags loaded
 
 Scenario: I have assigned a meta tag to an application
   When I have the tag "_ALIEN_LIST" registered for "application"

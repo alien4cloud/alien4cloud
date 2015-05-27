@@ -3,7 +3,7 @@ Feature: Check a property constraint
 Background:
   Given I am authenticated with "ADMIN" role
   And I load several configuration tags
-  Then I should have 9 configuration tags loaded
+  Then I should have 11 configuration tags loaded
 
 Scenario: I can check properties constraint validValues in A,B,C,D
   Given I am authenticated with "ADMIN" role

@@ -5,7 +5,7 @@ Background:
   And I upload a plugin
   And I create a cloud with name "cloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
   And I load several configuration tags
-  Then I should have 9 configuration tags loaded
+  Then I should have 11 configuration tags loaded
 
  Scenario: I can set properties constraint for the meta-properties of a cloud
   Given I am authenticated with "ADMIN" role
