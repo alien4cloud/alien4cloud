@@ -554,8 +554,6 @@ public class CloudController {
      * @param cloudId id of the cloud to update
      * @param propertyRequest property request
      * @return information on the constraint
-     * @throws ConstraintValueDoNotMatchPropertyTypeException
-     * @throws ConstraintViolationException
      */
     @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
@@ -563,7 +561,18 @@ public class CloudController {
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        try {
+            metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        } catch (ConstraintViolationException e) {
+            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
+                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        }
         return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
     }
 }
