@@ -752,7 +752,7 @@
       "pattern": "Value must match the pattern {{reference}}",
       "validValues": "Value must be in values [ {{reference}} ]"
     },
-    "804": "The value type is not valid",
+    "804": "{{value}} type is not {{type}}",
     "805": {
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "One or several parameters are required : {{value}}"
