@@ -114,10 +114,12 @@ public class TopologyValidationService {
             task.setCode(TaskCode.SATISFY_LOWER_BOUND);
             task.setComponent(relatedIndexedNodeType);
             task.setRequirementsToImplement(Lists.<RequirementToSatify> newArrayList());
-            for (RequirementDefinition reqDef : relatedIndexedNodeType.getRequirements()) {
-                int count = countRelationshipsForRequirement(reqDef.getId(), reqDef.getType(), nodeTemp.getRelationships());
-                if (count < reqDef.getLowerBound()) {
-                    task.getRequirementsToImplement().add(new RequirementToSatify(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
+            if (CollectionUtils.isNotEmpty(relatedIndexedNodeType.getRequirements())) {
+                for (RequirementDefinition reqDef : relatedIndexedNodeType.getRequirements()) {
+                    int count = countRelationshipsForRequirement(reqDef.getId(), reqDef.getType(), nodeTemp.getRelationships());
+                    if (count < reqDef.getLowerBound()) {
+                        task.getRequirementsToImplement().add(new RequirementToSatify(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
+                    }
                 }
             }
             if (CollectionUtils.isNotEmpty(task.getRequirementsToImplement())) {
