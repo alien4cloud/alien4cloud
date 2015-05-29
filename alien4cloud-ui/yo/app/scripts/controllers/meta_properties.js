@@ -47,5 +47,14 @@ angular.module('alienUiApp').controller('MetaPropertiesCtrl', ['$scope', 'proper
       }
     };
 
+    /* By default, we collapse the meta-properties tab*/
+    $scope.initCollapse = function() {
+      if (UTILS.isDefinedAndNotNull($scope.collapse)) {
+        $scope.isMetaPropsCollapsed = $scope.collapse;
+      } else {
+        $scope.isMetaPropsCollapsed = true;
+      }
+    };
+
   }
 ]);

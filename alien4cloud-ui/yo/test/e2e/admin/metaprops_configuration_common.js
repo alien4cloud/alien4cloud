@@ -132,7 +132,7 @@ var defaultCloudProperty = {
   name: {
     'field': 'name',
     'ui': 'xeditable',
-    'value': 'cloud_meta_distribution'
+    'value': 'distribution'
   },
   description: {
     'field': 'description',

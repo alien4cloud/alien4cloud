@@ -84,13 +84,15 @@ describe('Application meta properties edition check', function() {
     navigation.go('applications', 'topology');
     topologyEditorCommon.renameApplicationInput('os_distribution', 'cloud_meta_distribution', false);
     navigation.go('applications', 'deployment');
-    topologyEditorCommon.checkTodoList(true);
+    topologyEditorCommon.checkTodoList(false);
+    topologyEditorCommon.checkWarningList(true);
 
     // now we set the value of the cloud meta-property, should be remove the todo list
     cloudsCommon.goToCloudList();
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.goToCloudConfiguration();
-    tagConfigCommon.editTagConfiguration('cloud_meta_distribution', 'Elementary');
+    cloudsCommon.showMetaProperties();
+    tagConfigCommon.editTagConfiguration('distribution', 'Elementary');
     applications.goToApplicationDetailPage('Alien', false);
     navigation.go('main', 'applications');
     browser.element(by.binding('application.name')).click();
