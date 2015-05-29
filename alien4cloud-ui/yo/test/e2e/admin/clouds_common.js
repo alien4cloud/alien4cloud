@@ -331,3 +331,8 @@ var countAndSelectResourcePaaSIdFromDropDown = function(dropDownButtonId, pasSId
   expect(element(by.id(dropDownButtonId)).getText()).toEqual(pasSId);
 };
 module.exports.countAndSelectResourcePaaSIdFromDropDown = countAndSelectResourcePaaSIdFromDropDown;
+
+var showMetaProperties = function() {
+  element(by.id('toogle-meta-properties')).click();
+};
+module.exports.showMetaProperties = showMetaProperties;

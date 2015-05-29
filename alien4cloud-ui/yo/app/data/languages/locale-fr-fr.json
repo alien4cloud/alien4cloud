@@ -363,7 +363,7 @@
       "PROPERTIES": {
         "REQUIRED": "Obligatoire",
         "WARNING": "Alerte",
-        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+        "WARNING_MESSAGE": "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       }
     },
     "TOPOLOGY": {
@@ -445,6 +445,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées",
           "CONFIGURATION_ERROR": "La validation de la polique HA a échoué dû à une mauvaise configuration de zones de disponibilité",
           "UNKNOWN_ERROR": "La validation de la polique HA a échoué dû à une erreur inconnue"
+        },
+        "PROPERTIES": {
+          "LABEL": "Propriétés de noeuds",
+          "NODENAME": "Noeud",
+          "PROP": "Propriétés"
         }
       },
       "GROUPS": {

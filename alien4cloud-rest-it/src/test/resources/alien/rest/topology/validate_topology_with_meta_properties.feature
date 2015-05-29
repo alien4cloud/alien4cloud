@@ -1,41 +1,31 @@
-Feature: Check if topology with properties defined as internal meta is deployable
+Feature: Check if topology with properties defined as as input on cloud meta is deployable
 
 Background:
-  Given I am authenticated with "APPLICATIONS_MANAGER" role
-    And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
-    And I already had a csar with name "myCsar" and version "1.0-SNAPSHOT"
-    And I add to the csar "myCsar" "1.0-SNAPSHOT" the component "rootNodeType"
-    And I create "capabilities" in an archive name "myCsar" version "1.0-SNAPSHOT"
-      |tosca.capabilities.Container|
-      |tosca.capabilities.Feature|
-      |fastconnect.capabilities.Runner|
-      |tosca.capabilities.Java|
-    And i create a relationshiptype "test.HostedOn" in an archive name "myCsar" version "1.0-SNAPSHOT" with properties
-      |validSource     | tosca.capabilities.Container|
-      |validTarget     | tosca.capabilities.Container|
-      |abstract        |false|
-    And i create a relationshiptype "test.DependsOn" in an archive name "myCsar" version "1.0-SNAPSHOT" with properties
-      |validSource     | tosca.capabilities.Feature|
-      |validTarget     | tosca.capabilities.Feature|
-      |abstract        |true|
   Given I am authenticated with "ADMIN" role
-    And I load several configuration tags
-    Then I should have 8 configuration tags loaded
+  	And I upload a plugin
+  	And I create a cloud with name "mockCloud" and plugin id "alien4cloud-mock-paas-provider:1.0" and bean name "mock-paas-provider"
+  	And I enable the cloud "mockCloud"
+    And I upload the archive "tosca base types 1.0"
+    And I should receive a RestResponse with no error
+    And There is a "node type" with element name "tosca.nodes.Compute" and archive version "1.0"
+    And I create a new application with name "App-with-meta-cloud" and description "An application with meta properties and inputs on cloud..."
+    And I add a node template "Compute" related to the "tosca.nodes.Compute:1.0" node type
+  When I load several configuration tags
+    Then I should have 11 configuration tags loaded
 
-#Scenario: Check if an empty topology is deployable
-#  Given I am authenticated with "APPLICATIONS_MANAGER" role
-#  When I check for the deployable status of the topology
-#  Then I should receive a RestResponse with no error
-#   And the topology should not be deployable
-
-Scenario: Fill in meta properties for an application and check that is it deployable
-  Given I am authenticated with "APPLICATIONS_MANAGER" role
-    And I add to the csar "myCsar" "1.0-SNAPSHOT" the components
-      |computeNodeType|
-      |javaNodeType|
-    And I have added a node template "Compute" related to the "fastconnect.nodes.Compute:1.0-SNAPSHOT" node type
-  When I check for the deployable status of the topology
-  Then I should receive a RestResponse with no error
-    And the topology should be deployable
+Scenario: Define a property as input
+  Given I have the tag "cloud_meta_NUMcpus" registered for "cloud"
+  And I have the tag "cloud_meta_osARCH" registered for "cloud"
+  And I set the value "x86_64" for the cloud meta-property "cloud_meta_osARCH" of the cloud "mockCloud"
+  And I set the value "2" for the cloud meta-property "cloud_meta_NUMcpus" of the cloud "mockCloud"
+  And I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
   When I define the property "os_arch" of the node "Compute" as input property
-#    And The topology should have the property "os_arch" defined as input property
+    Then I should receive a RestResponse with no error
+    And The topology should have the property "os_arch" defined as input property
+  When I check for the deployable status of the topology
+    Then the topology should not be deployable
+  When I rename the property "os_arch" to "cloud_meta_osARCH"
+  Then I associate the property "os_arch" of a node template "Compute" to the input "cloud_meta_osARCH"
+    Then I should receive a RestResponse with no error
+#  When I check for the deployable status of the topology
+#   Then the topology should be deployable

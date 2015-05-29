@@ -38,4 +38,10 @@ public enum InternalMetaProperties {
         return metaPropertyName.toLowerCase().startsWith(InternalMetaProperties.env_meta_.toString())
                 || metaPropertyName.toLowerCase().startsWith(InternalMetaProperties.env_tags_.toString());
     }
+
+    static public boolean isTag(String metaPropertyName) {
+        return metaPropertyName.toLowerCase().startsWith(InternalMetaProperties.env_tags_.toString())
+                || metaPropertyName.toLowerCase().startsWith(InternalMetaProperties.app_tags_.toString())
+                || metaPropertyName.toLowerCase().startsWith(InternalMetaProperties.cloud_tags_.toString());
+    }
 }

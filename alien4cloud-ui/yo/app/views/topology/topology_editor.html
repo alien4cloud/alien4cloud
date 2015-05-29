@@ -221,7 +221,7 @@
                       ng-init="condensed = true"
                       definition="getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition,propertyValue)"
+                      on-save="updateProperty(propertyDefinition, propertyValue)"
                       editable="false"
                       condensed="condensed">
                     </property-display>
@@ -230,7 +230,7 @@
                       ng-init="condensed = true"
                       definition="getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition,propertyValue)"
+                      on-save="updateProperty(propertyDefinition, propertyValue)"
                       editable="true"
                       condensed="condensed">
                     </property-display>
@@ -727,8 +727,8 @@
             </thead>
             <tbody>
               <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
-                <td>
-                  <span editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
+                <td id="td_{{inputId}}">
+                  <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
                     {{inputDefinition.inputId}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>

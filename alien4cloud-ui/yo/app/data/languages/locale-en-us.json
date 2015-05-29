@@ -355,7 +355,7 @@
       "PROPERTIES": {
         "REQUIRED": "Required",
         "WARNING": "Warning",
-        "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+        "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
       }
     },
     "TOPOLOGY": {
@@ -437,6 +437,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
           "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
           "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        },
+        "PROPERTIES": {
+          "LABEL": "Nodes properties",
+          "NODENAME": "Node",
+          "PROP": "Properties"
         }
       },
       "GROUPS": {
@@ -697,7 +702,7 @@
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
       "REFRESHING_FAILED_TITLE": "Refresh a cloud",
-      "REFRESHING_FAILED": "An error occurred while refreshing.",        
+      "REFRESHING_FAILED": "An error occurred while refreshing.",
       "352_TITLE": "Save the cloud configuration",
       "352": "Invalid cloud configuration. Please change it and retry."
     },
@@ -958,11 +963,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-	  "OTHER": "Other",
-	  "DEVELOPMENT": "Development",
-	  "INTEGRATION_TESTS": "Integration tests",
-	  "USER_ACCEPTANCE_TESTS": "UAT",
-	  "PRE_PRODUCTION": "Pre-production",
-	  "PRODUCTION": "production"
-    }
+    "OTHER": "Other",
+    "DEVELOPMENT": "Development",
+    "INTEGRATION_TESTS": "Integration tests",
+    "USER_ACCEPTANCE_TESTS": "UAT",
+    "PRE_PRODUCTION": "Pre-production",
+    "PRODUCTION": "production"
+  }
 }

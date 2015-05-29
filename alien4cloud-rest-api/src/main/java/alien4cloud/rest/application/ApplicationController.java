@@ -29,6 +29,7 @@ import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.InvalidArgumentException;
@@ -55,7 +56,6 @@ import alien4cloud.topology.TopologyService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import alien4cloud.utils.MetaPropertiesServiceWrapper;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
@@ -93,7 +93,7 @@ public class ApplicationController {
     @Resource
     private TopologyService topologyService;
     @Resource
-    private MetaPropertiesServiceWrapper metaPropertiesServiceWrapper;
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new application in the system.
@@ -336,12 +336,28 @@ public class ApplicationController {
      * @param applicationId id of the application
      * @param propertyRequest property request
      * @return information on the constraint
+     * @throws ConstraintValueDoNotMatchPropertyTypeException
+     * @throws ConstraintViolationException
      */
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest) {
+    public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         Application application = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        return metaPropertiesServiceWrapper.upsertMetaProperty(application, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        try {
+            metaPropertiesService.upsertMetaProperty(application, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        } catch (ConstraintViolationException e) {
+            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
+                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        }
+        return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
+
     }
 }

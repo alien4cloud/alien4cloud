@@ -21,6 +21,7 @@ import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.common.TagService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -32,6 +33,7 @@ import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.common.InternalMetaProperties;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.common.MetaPropertiesTarget;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.CapabilityDefinition;
@@ -95,6 +97,9 @@ public class TopologyValidationService {
     @Resource
     private ApplicationService applicationService;
 
+    @Resource
+    private TagService tagService;
+
     private List<RequirementsTask> validateRequirementsLowerBounds(Topology topology) {
         List<RequirementsTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
@@ -133,7 +138,7 @@ public class TopologyValidationService {
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
 
         // get the related meta properties
-        Map<String, String> mergedMetaProperties = getMergedMetaProperties(deploymentSetup);
+        Map<String, Map<String, String>> mergedMetaProperties = getMergedMetaProperties(deploymentSetup);
 
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
@@ -199,30 +204,37 @@ public class TopologyValidationService {
      * @param deploymentSetup
      * @return
      */
-    private Map<String, String> getMergedMetaProperties(DeploymentSetup deploymentSetup) {
+    private Map<String, Map<String, String>> getMergedMetaProperties(DeploymentSetup deploymentSetup) {
         ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
-        Cloud cloud = null;
-        Map<String, String> mergedMetaProperties = Maps.newHashMap();
-        // metas from cloud
+        Map<String, Map<String, String>> mergedMetaProperties = Maps.newHashMap();
+        Map<String, String> tempPropertyMap = Maps.newHashMap();
+
+        // meta or tags from cloud
         if (environment.getCloudId() != null) {
-            cloud = cloudService.get(environment.getCloudId());
+            Cloud cloud = cloudService.get(environment.getCloudId());
             if (MapUtils.isNotEmpty(cloud.getMetaProperties())) {
-                mergedMetaProperties.putAll(cloud.getMetaProperties());
+                mergedMetaProperties.put(MetaPropertiesTarget.cloud.toString(), cloud.getMetaProperties());
             }
         }
-        // meta from application
+        // meta or tags from application
         if (environment.getApplicationId() != null) {
             Application application = applicationService.getOrFail(environment.getApplicationId());
-            if (MapUtils.isNotEmpty(application.getMetaProperties())) {
-                mergedMetaProperties.putAll(application.getMetaProperties());
+            Map<String, String> metaProperties = application.getMetaProperties();
+            if (MapUtils.isNotEmpty(metaProperties)) {
+                tempPropertyMap.putAll(metaProperties);
+            }
+            Map<String, String> tags = tagService.tagListToMap(application.getTags());
+            if (MapUtils.isNotEmpty(tags)) {
+                tempPropertyMap.putAll(tags);
             }
         }
+        mergedMetaProperties.put(MetaPropertiesTarget.application.toString(), tempPropertyMap);
         // TODO : environment
         return mergedMetaProperties;
     }
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            Map<String, String> mergedMetaProperties, PropertiesTask task) {
+            Map<String, Map<String, String>> mergedMetaProperties, PropertiesTask task) {
 
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
@@ -231,24 +243,41 @@ public class TopologyValidationService {
             String propertyValue = null;
             TaskLevel taskLevel = TaskLevel.WARNING; // default property task level
             boolean isGetInputInternal = false;
+            boolean isScalar = false;
 
             if (value == null) {
                 propertyValue = null;
             } else if (value instanceof ScalarPropertyValue) {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
+                isScalar = true;
             } else if (value instanceof FunctionPropertyValue) {
 
                 // non resolved property from : cloud / environment
                 String function = ((FunctionPropertyValue) value).getFunction();
 
                 if (ToscaFunctionConstants.GET_INPUT.equals(function)) {
+
                     List<String> params = ((FunctionPropertyValue) value).getParameters();
                     String metaPropertyName = params.get(0);
                     isGetInputInternal = InternalMetaProperties.isInternalMeta(metaPropertyName);
+                    boolean isTagTarget = InternalMetaProperties.isTag(metaPropertyName);
+                    String baseMetaPropertyName = metaPropertyName;
+
+                    if (isGetInputInternal) {
+                        // get the thrid part of the propertyname : cloud_meta_XXXXXX_YYY => XXXXXX_YYY
+                        baseMetaPropertyName = metaPropertyName.split("_", 3)[2];
+                    }
+
                     // check cloud/environment properties value
-                    MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(metaPropertyName);
-                    if (metaProperty != null && MapUtils.isNotEmpty(mergedMetaProperties)) {
-                        propertyValue = mergedMetaProperties.get(metaProperty.getId());
+                    MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(baseMetaPropertyName);
+                    MetaPropertiesTarget target = InternalMetaProperties.isCloudMeta(metaPropertyName) ? MetaPropertiesTarget.cloud
+                            : MetaPropertiesTarget.application;
+                    if (metaProperty != null && MapUtils.isNotEmpty(mergedMetaProperties) || isTagTarget) {
+                        if (MapUtils.isNotEmpty(mergedMetaProperties.get(target.toString()))) {
+                            // the id in the map could be an UUID for a metaproperty or just a name for a tag
+                            String propertyId = isTagTarget ? baseMetaPropertyName : metaProperty.getId();
+                            propertyValue = mergedMetaProperties.get(target.toString()).get(propertyId);
+                        }
                     }
                 }
 
@@ -257,7 +286,6 @@ public class TopologyValidationService {
             }
 
             if (StringUtils.isBlank(propertyValue)) {
-
                 if (propertyDef.isRequired()) {
                     taskLevel = TaskLevel.REQUIRED;
                     if (!task.getProperties().containsKey(taskLevel)) {
@@ -269,7 +297,7 @@ public class TopologyValidationService {
                     }
                 }
                 // add required or warning property
-                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal) {
+                if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
                     task.getProperties().get(taskLevel).add(propertyEntry.getKey());
                 }
             }
@@ -338,7 +366,12 @@ public class TopologyValidationService {
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also CLOUD / ENVIRONMENT meta properties
-        dto.addToTaskList(validateProperties(topology, deploymentSetup));
+        List<PropertiesTask> validateProperties = validateProperties(topology, deploymentSetup);
+        if (hasOnlyPropertiesWarnings(validateProperties)) {
+            dto.addToWarningList(validateProperties);
+        } else {
+            dto.addToTaskList(validateProperties);
+        }
 
         // Validate that HA groups are respected with current configuration
         if (deploymentSetup != null && matcherConfig != null && MapUtils.isNotEmpty(deploymentSetup.getAvailabilityZoneMapping())) {
@@ -348,6 +381,18 @@ public class TopologyValidationService {
         dto.setValid(isValidTaskList(dto.getTaskList()));
 
         return dto;
+    }
+
+    private boolean hasOnlyPropertiesWarnings(List<PropertiesTask> properties) {
+        if (properties == null) {
+            return true;
+        }
+        for (PropertiesTask task : properties) {
+            if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
@@ -49,7 +50,8 @@ import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
-import alien4cloud.utils.MetaPropertiesServiceWrapper;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -67,7 +69,7 @@ public class CloudController {
     @Resource
     private ResourceRoleService resourceRoleService;
     @Resource
-    private MetaPropertiesServiceWrapper metaPropertiesServiceWrapper;
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new cloud.
@@ -555,9 +557,22 @@ public class CloudController {
      */
     @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<ConstraintInformation> upsertMetaProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest) {
+    public RestResponse<ConstraintInformation> upsertMetaProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
         AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        return metaPropertiesServiceWrapper.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        try {
+            metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        } catch (ConstraintViolationException e) {
+            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
+                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        }
+        return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
     }
 }
