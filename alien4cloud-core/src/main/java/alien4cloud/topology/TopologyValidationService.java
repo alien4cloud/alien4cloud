@@ -371,6 +371,9 @@ public class TopologyValidationService {
     }
 
     private boolean hasOnlyPropertiesWarnings(List<PropertiesTask> properties) {
+        if (properties == null) {
+            return true;
+        }
         for (PropertiesTask task : properties) {
             if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))) {
                 return false;
