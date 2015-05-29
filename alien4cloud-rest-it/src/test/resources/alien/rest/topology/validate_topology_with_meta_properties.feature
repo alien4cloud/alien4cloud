@@ -18,6 +18,7 @@ Scenario: Define a property as input
   And I have the tag "cloud_meta_osARCH" registered for "cloud"
   And I set the value "x86_64" for the cloud meta-property "cloud_meta_osARCH" of the cloud "mockCloud"
   And I set the value "2" for the cloud meta-property "cloud_meta_NUMcpus" of the cloud "mockCloud"
+  And I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
   When I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_arch" defined as input property
