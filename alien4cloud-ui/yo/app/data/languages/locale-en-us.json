@@ -355,7 +355,7 @@
       "PROPERTIES": {
         "REQUIRED": "Required",
         "WARNING": "Warning",
-        "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+        "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
       }
     },
     "TOPOLOGY": {
@@ -437,6 +437,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
           "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
           "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        },
+        "PROPERTIES": {
+          "LABEL": "Nodes properties",
+          "NODENAME": "Node",
+          "PROP": "Properties"
         }
       },
       "GROUPS": {
@@ -964,5 +969,5 @@
     "USER_ACCEPTANCE_TESTS": "UAT",
     "PRE_PRODUCTION": "Pre-production",
     "PRODUCTION": "production"
-    }
+  }
 }
