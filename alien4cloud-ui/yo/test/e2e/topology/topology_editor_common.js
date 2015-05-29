@@ -180,6 +180,12 @@ var checkTodoList = function(enabled) {
 };
 module.exports.checkTodoList = checkTodoList;
 
+var checkWarningList = function(enabled) {
+  navigation.go('applications', 'deployment');
+  expect(element(by.binding('APPLICATIONS.TOPOLOGY.WARNING.LABEL')).isPresent()).toBe(enabled);
+};
+module.exports.checkWarningList = checkWarningList;
+
 var checkApplicationDeployable = function(applicationName, enabled) {
   common.goToApplicationSearchPage();
   common.goToApplicationDetailPage(applicationName);

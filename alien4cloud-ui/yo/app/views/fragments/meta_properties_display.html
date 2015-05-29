@@ -1,12 +1,12 @@
 <div class="meta-properties-display-div" ng-controller="MetaPropertiesCtrl">
-  <div class="row" style="margin-top: 10px;" ng-init="isGroupsCollapsed = true">
-    <div class="col-md-12" ng-click="isGroupsCollapsed = !isGroupsCollapsed">
-      <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isGroupsCollapsed, 'fa-chevron-right': isGroupsCollapsed}"></i>
+  <div class="row" style="margin-top: 10px;" ng-init="initCollapse()">
+    <div id="toogle-meta-properties" class="col-md-12" ng-click="isMetaPropsCollapsed = !isMetaPropsCollapsed">
+      <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isMetaPropsCollapsed, 'fa-chevron-right': isMetaPropsCollapsed}"></i>
       <strong>{{ 'APPLICATIONS.META_PROPERTIES' | translate}}</strong>
     </div>
   </div>
   <div class="row" style="margin-top: 10px;">
-    <div class="col-md-12" collapse="isGroupsCollapsed">
+    <div class="col-md-12" collapse="isMetaPropsCollapsed">
       <table class="table table-condensed" id="tabProperties">
         <tr ng-repeat="metaProperty in properties">
           <td ng-init="propertyDefinition = metaProperty">
