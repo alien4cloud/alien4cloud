@@ -339,21 +339,12 @@ public class TopologyTreeBuilderService {
         for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
             if (paaSTemplate.getIndexedToscaElement() instanceof IndexedArtifactToscaElement) {
                 IndexedArtifactToscaElement toscaElement = (IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement();
-                Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (getProperInterfaceName(interfaceName)));
+                Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (interfaceName));
                 if (interfass != null && interfass.getOperations().containsKey(operationName)) {
                     interfass.getOperations().get(operationName).getOutputs().add(output);
                 }
             }
         }
-    }
-
-    public String getProperInterfaceName(String interfaceName) {
-        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceName)) {
-            return ToscaNodeLifecycleConstants.STANDARD;
-        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceName)) {
-            return ToscaRelationshipLifecycleConstants.CONFIGURE;
-        }
-        return interfaceName;
     }
 
 }

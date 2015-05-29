@@ -2,6 +2,7 @@ package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -40,4 +41,6 @@ public class RelationshipTriggerEvent extends AbstractWorkflowStep {
     private ImplementationArtifact sideOperationImplementationArtifact;
     /** The inputs parameters of the side operation. */
     private Map<String, IValue> sideInputParameters;
+    /** The outputs of the side operation */
+    private Set<String> sideOutputs;
 }

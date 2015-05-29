@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.ui.form.annotation.FormProperties;
 
@@ -58,7 +59,7 @@ public class FunctionPropertyValue extends AbstractPropertyValue {
         if (function != null) {
             switch (function) {
             case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
-                return parameters.size() > 2 ? parameters.get(1) : null;
+                return parameters.size() > 2 ? ToscaUtils.getProperInterfaceName(parameters.get(1)) : null;
             default:
                 return null;
             }
