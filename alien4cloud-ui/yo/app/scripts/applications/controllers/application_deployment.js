@@ -457,7 +457,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     // Artifact upload handler
-    $scope.doUploadArtifact = function(file, nodeTemplateName, artifactName) {
+    $scope.doUploadArtifact = function(file, artifactName) {
       if (UTILS.isUndefinedOrNull($scope.uploads)) {
         $scope.uploads = {};
       }
@@ -466,13 +466,13 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         'type': 'info'
       };
       $upload.upload({
-        url: 'rest/topologies/' + $scope.topologyDTO.topology.id + '/nodetemplates/' + nodeTemplateName + '/artifacts/' + artifactName,
+        url: 'rest/topologies/' + $scope.topologyDTO.topology.id + '/inputArtifacts/' + artifactName + '/upload',
         file: file
       }).progress(function(evt) {
         $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
       }).success(function(success) {
-        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef;
-        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName;
+        $scope.inputArtifacts[artifactName].artifactRef = success.data.topology.inputArtifacts[artifactName].artifactRef;
+        $scope.inputArtifacts[artifactName].artifactName = success.data.topology.inputArtifacts[artifactName].artifactName;
         $scope.uploads[artifactName].isUploading = false;
         $scope.uploads[artifactName].type = 'success';
       }).error(function(data, status) {
@@ -483,9 +483,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       });
     };
 
-    $scope.onArtifactSelected = function($files, nodeTemplateName, artifactName) {
+    $scope.onArtifactSelected = function($files, artifactName) {
       var file = $files[0];
-      $scope.doUploadArtifact(file, nodeTemplateName, artifactName);
+      $scope.doUploadArtifact(file, artifactName);
     };
 
     /** Properties definition */

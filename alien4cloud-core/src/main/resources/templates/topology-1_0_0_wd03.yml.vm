@@ -63,8 +63,18 @@ topology_template:
 #if($inputEntry.value.description)
       description: ${utils.renderDescription($inputEntry.value.description, "        ")}
 #end## if description defined 
-#end 
-#end  
+#end## foreach($inputEntry in $topology.inputs.entrySet())    
+#end## if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputs)) 
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
+  input_artifacts:
+#foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet())
+    ${inputArtifactEntry.key}:
+      type: ${inputArtifactEntry.value.artifactType}
+#if($inputArtifactEntry.value.description)
+      description: ${utils.renderDescription($inputArtifactEntry.value.description, "        ")}
+#end##if($inputArtifactEntry.value.description)
+#end##foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet()) 
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
   node_templates:
 #foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
     ${nodeTemplateEntry.key}:
@@ -100,9 +110,13 @@ topology_template:
       artifacts:
 #foreach($artifactEntry in ${nodeTemplateEntry.value.artifacts.entrySet()})
         ${artifactEntry.key}:
+#if($artifactEntry.value.artifactRef)
           implementation: ${artifactEntry.value.artifactRef}
+#end## if($artifactEntry.value.artifactRef)
           type: ${artifactEntry.value.artifactType}
+#if($artifactEntry.value.artifactName)          
           description: ${artifactEntry.value.artifactName}
+#end## if($artifactEntry.value.artifactName)
 #end## of artifactEntry iteration
 #end## if artifacts map not empty
 #end## of nodeTemplateEntry iteration

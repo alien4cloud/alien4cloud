@@ -2,6 +2,7 @@ package alien4cloud.rest.topology;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -71,6 +72,7 @@ import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Lists;
@@ -264,7 +266,7 @@ public class TopologyController {
         nodeTemplates.put(newNodeTemplateName, nodeTemplate);
         nodeTemplates.remove(nodeTemplateName);
         refreshNodeTempNameInRelationships(nodeTemplateName, newNodeTemplateName, nodeTemplates);
-        updateArtifactsOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
+        updateOnNodeTemplateNameChange(nodeTemplateName, newNodeTemplateName, topology);
         updateGroupMembers(topology, nodeTemplate, nodeTemplateName, newNodeTemplateName);
 
         log.debug("Renaming the Node template <{}> with <{}> in the topology <{}> .", nodeTemplateName, newNodeTemplateName, topologyId);
@@ -274,17 +276,9 @@ public class TopologyController {
     }
 
     /**
-     * Update properties and artifacts inputs in a topology
+     * Update properties in a topology
      */
-    private void updateArtifactsOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
-        // Input artifacts
-        if (topology.getInputArtifacts() != null) {
-            Set<String> oldArtifactsInputs = topology.getInputArtifacts().remove(oldNodeTemplateName);
-            if (oldArtifactsInputs != null) {
-                topology.getInputArtifacts().put(newNodeTemplateName, oldArtifactsInputs);
-            }
-        }
-
+    private void updateOnNodeTemplateNameChange(String oldNodeTemplateName, String newNodeTemplateName, Topology topology) {
         // Output properties
         if (topology.getOutputProperties() != null) {
             Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
@@ -292,7 +286,6 @@ public class TopologyController {
                 topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
             }
         }
-
     }
 
     /**
@@ -486,7 +479,7 @@ public class TopologyController {
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
-        removeArtifactsAndPolicies(nodeTemplateName, topology);
+        removeNodeRelatedStuffs(nodeTemplateName, topology);
         removeOutputs(nodeTemplateName, topology);
 
         // group members removal
@@ -516,12 +509,9 @@ public class TopologyController {
         }
     }
 
-    private void removeArtifactsAndPolicies(String nodeTemplateName, Topology topology) {
+    private void removeNodeRelatedStuffs(String nodeTemplateName, Topology topology) {
         if (topology.getScalingPolicies() != null) {
             topology.getScalingPolicies().remove(nodeTemplateName);
-        }
-        if (topology.getInputArtifacts() != null) {
-            topology.getInputArtifacts().remove(nodeTemplateName);
         }
     }
 
@@ -754,7 +744,7 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
-        removeArtifactsAndPolicies(nodeTemplateName, topology);
+        removeNodeRelatedStuffs(nodeTemplateName, topology);
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
@@ -791,6 +781,48 @@ public class TopologyController {
         DeploymentArtifact artifact = artifacts.get(artifactId);
         if (artifact == null) {
             throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
+        }
+        String oldArtifactId = artifact.getArtifactRef();
+        if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+            artifactRepository.deleteFile(oldArtifactId);
+        }
+        InputStream artifactStream = artifactFile.getInputStream();
+        try {
+            String artifactFileId = artifactRepository.storeFile(artifactStream);
+            artifact.setArtifactName(artifactFile.getOriginalFilename());
+            artifact.setArtifactRef(artifactFileId);
+            artifact.setArtifactRepository(ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY);
+            alienDAO.save(topology);
+            return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+        } finally {
+            Closeables.close(artifactStream, true);
+        }
+    }
+
+    /**
+     * Update application's input artifact.
+     *
+     * @param topologyId The topology's id
+     * @param artifactId artifact's id
+     * @return nothing if success, error will be handled in global exception strategy
+     * @throws IOException
+     */
+    @ApiOperation(value = "Updates the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/inputArtifacts/{inputArtifactId}/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> updateDeploymentInputArtifact(@PathVariable String topologyId, @PathVariable String inputArtifactId,
+            @RequestParam("file") MultipartFile artifactFile) throws IOException {
+        // Perform check that authorization's ok
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+
+        // Get the artifact to update
+        Map<String, DeploymentArtifact> artifacts = topology.getInputArtifacts();
+        if (artifacts == null) {
+            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
+        }
+        DeploymentArtifact artifact = artifacts.get(inputArtifactId);
+        if (artifact == null) {
+            throw new NotFoundException("Artifact with key [" + inputArtifactId + "] do not exist");
         }
         String oldArtifactId = artifact.getArtifactRef();
         if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
@@ -1021,17 +1053,34 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Add an artifact in the input artifact list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> addInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactName) {
+    @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> setInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactId,
+            @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
-        if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactName)) {
-            topology.setInputArtifacts(addToMap(topology.getInputArtifacts(), nodeTemplateName, artifactName));
+        if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactId)) {
+            DeploymentArtifact nodeArtifact = nodeTemplate.getArtifacts().get(artifactId);
+            if (topology.getInputArtifacts() != null && topology.getInputArtifacts().containsKey(inputArtifactId)) {
+                // the input artifact already exist
+            } else {
+                // we create the input artifact
+                DeploymentArtifact inputArtifact = new DeploymentArtifact();
+                inputArtifact.setArchiveName(nodeArtifact.getArchiveName());
+                inputArtifact.setArchiveVersion(nodeArtifact.getArchiveVersion());
+                inputArtifact.setArtifactType(nodeArtifact.getArtifactType());
+                Map<String, DeploymentArtifact> inputArtifacts = topology.getInputArtifacts();
+                if (inputArtifacts == null) {
+                    inputArtifacts = Maps.newHashMap();
+                    topology.setInputArtifacts(inputArtifacts);
+                }
+                inputArtifacts.put(artifactId, inputArtifact);
+            }
+            InputArtifactUtil.setInputArtifact(nodeArtifact, inputArtifactId);
         } else {
             // attributeName does not exists in the node template
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
@@ -1040,16 +1089,105 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Remove an artifact from the input artifact list.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> removeInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String artifactName) {
+    @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> unsetInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String artifactId, @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        topology.setInputArtifacts(removeValueFromMap(topology.getInputArtifacts(), nodeTemplateName, artifactName));
+        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactId)) {
+            InputArtifactUtil.unsetInputArtifact(nodeTemplate.getArtifacts().get(artifactId));
+        }
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/inputArtifacts/{inputArtifactId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> updateInputArtifactId(@PathVariable final String topologyId, @PathVariable final String inputArtifactId,
+            @RequestParam final String newId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+
+        if (topology.getInputArtifacts().containsKey(newId)) {
+            // TODO: throw an exception
+        }
+        DeploymentArtifact inputArtifact = topology.getInputArtifacts().remove(inputArtifactId);
+        if (inputArtifact != null) {
+            topology.getInputArtifacts().put(newId, inputArtifact);
+
+            // change the value of concerned node template artifacts
+            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+                if (nodeTemplate.getArtifacts() != null) {
+                    for (DeploymentArtifact dArtifact : nodeTemplate.getArtifacts().values()) {
+                        InputArtifactUtil.updateInputArtifactIdIfNeeded(dArtifact, inputArtifactId, newId);
+                    }
+                }
+            }
+
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/inputArtifacts/{inputArtifactId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> deleteInputArtifact(@PathVariable final String topologyId, @PathVariable final String inputArtifactId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+
+        DeploymentArtifact inputArtifact = topology.getInputArtifacts().remove(inputArtifactId);
+        if (inputArtifact != null) {
+
+            // change the value of concerned node template artifacts
+            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+                if (nodeTemplate.getArtifacts() != null) {
+                    for (DeploymentArtifact dArtifact : nodeTemplate.getArtifacts().values()) {
+                        if (inputArtifactId.equals(InputArtifactUtil.getInputArtifactId(dArtifact))) {
+                            InputArtifactUtil.unsetInputArtifact(dArtifact);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        alienDAO.save(topology);
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
+    @ApiOperation(value = "Get the list of input artifacts candidates for this node's artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}/inputcandidates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<List<String>> getInputArtifactCandidate(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String artifactName) {
+
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+
+        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        if (nodeTemplate.getArtifacts() != null && nodeTemplate.getArtifacts().containsKey(artifactName)) {
+            DeploymentArtifact nodeDeploymentArtifact = nodeTemplate.getArtifacts().get(artifactName);
+            List<String> inputIds = new ArrayList<String>();
+            if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
+                // iterate overs existing inputs artifacts and filter them by checking type compatibility
+                for (Entry<String, DeploymentArtifact> inputEntry : topology.getInputArtifacts().entrySet()) {
+                    if (inputEntry.getValue().getArtifactType().equals(nodeDeploymentArtifact.getArtifactType())) {
+                        inputIds.add(inputEntry.getKey());
+                    }
+                }
+            }
+            return RestResponseBuilder.<List<String>> builder().data(inputIds).build();
+        } else {
+            // TODO: throw an exception
+            // attributeName does not exists in the node template
+            return RestResponseBuilder.<List<String>> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
+        }
+
     }
 
     /**

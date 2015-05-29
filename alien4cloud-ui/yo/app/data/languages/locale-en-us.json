@@ -385,7 +385,6 @@
       },
       "PROPERTIES_OUTPUTS": "Output properties",
       "NO_OUTPUTS": "No output properties or attributes",
-      "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
       "REQUIREMENTS": "Prerequisites",
       "CAPABILITIES": "Capabilities",
       "ADD_RELATIONSHIP": "Add relationship to another node",
@@ -451,6 +450,13 @@
         "ADD": "Add a group",
         "TOOLTIP": "Group management"
       },
+      "ARTIFACTS": {
+        "TITLE": "Artifacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Define artifact as input"
+      },  
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",

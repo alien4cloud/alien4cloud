@@ -130,6 +130,8 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var artifactInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/inputcandidates');
+    
     var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
       'getCandidates': {
         method: 'GET',
@@ -214,21 +216,17 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var updateInputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactName', {}, {
-      'add': {
-        method: 'PUT',
+    var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/:inputArtifactId');
+    
+    var inputArtifacts = $resource('rest/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
+      'rename': {
+        method: 'POST',
         params: {
-          topologyId: '@topologyId',
-          nodeTemplateName: '@nodeTemplateName',
-          artifactName: '@artifactName'
-        },
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
+          newId: '@newId'
         }
       },
       'remove': {
         method: 'DELETE',
-        isArray: false,
         headers: {
           'Content-Type': 'application/json; charset=UTF-8'
         }
@@ -413,7 +411,11 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'replace': replacements.replace,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
-        'artifactInput': updateInputArtifact,
+        'artifacts': {
+          'getInputCandidates': artifactInputCandidates.get,
+          'setInput': inputArtifact.save,
+          'unsetInput': inputArtifact.remove
+        },
         'relationship': {
           'getInputCandidates': getRelationshipPropertyInputCandidates,
           'setInputs': setInputToRelationshipProperty
@@ -439,6 +441,10 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'addMember': nodeGroupMembersResource.save,
         'removeMember': nodeGroupMembersResource.remove
       },
+      'inputArtifacts': {
+        'rename': inputArtifacts.rename,
+        'remove': inputArtifacts.remove
+      },      
       'isValid': isValid.get,
       'getYaml': yaml.get,
       'cloud': cloudResource

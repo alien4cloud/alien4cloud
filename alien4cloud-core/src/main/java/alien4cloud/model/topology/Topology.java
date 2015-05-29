@@ -14,6 +14,7 @@ import org.elasticsearch.annotation.NestedObject;
 import org.elasticsearch.annotation.query.TermFilter;
 
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.security.IManagedSecuredResource;
 import alien4cloud.utils.jackson.ConditionalAttributes;
@@ -89,7 +90,11 @@ public class Topology implements IManagedSecuredResource {
      * </ul>
      */
     private Map<String, Set<String>> outputAttributes;
-    private Map<String, Set<String>> inputArtifacts;
+
+    /**
+     * These artifacts will be given at deployment time and can be shared by several nodes.
+     */
+    private Map<String, DeploymentArtifact> inputArtifacts;
 
     private Map<String, NodeGroup> groups;
 

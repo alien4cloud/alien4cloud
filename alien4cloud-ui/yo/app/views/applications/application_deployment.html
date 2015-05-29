@@ -317,48 +317,34 @@
     <div class="row" style="margin-top: 20px;" ng-if="inputArtifactsSize>0">
       <div class="col-md-12">
         <span>
-          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_INPUTS' | translate}}</strong>
+          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}</strong>
         </span>
-        <table class="table table-condensed" id="inputArtifactsTable">
-          <tr>
-            <td colspan="2">
-            </td>
-          </tr>
-          <tr ng-repeat="(artifactKey,artifactValue) in inputArtifacts">
-            <td>
-              <span>{{artifactKey}}</span>
-            </td>
-            <td id="a_{{artifactKey}}">
-              <ul>
-                <li ng-repeat="(inputArtifactKey,inputArtifactValue) in inputArtifacts[artifactKey]">
-                  {{inputArtifactValue}}
-                  <div class="topology-level" collapse="isArtifactCollapsed">
-                    <div class="row">
-                      <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
-                      <div class="col-md-9">{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactType}}</div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
-                      <div class="col-md-9">
-                        <div ng-if="!uploads[inputArtifactValue].isUploading">
-                          <span tooltip="{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName.length > 20]}}">{{nodeTemplates[artifactKey].artifacts[inputArtifactValue].artifactName | truncate:20}}</span>
-
-                          <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
-                            <span>
-                              <i class="fa fa-upload text-primary"></i>
-                            </span>
-                            <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
-                          </div>
-                        </div>
-                        <progressbar ng-if="uploads[inputArtifactValue].isUploading" class="progress-striped active" value="uploads[inputArtifactValue].uploadProgress" type="{{uploads[inputArtifactValue].type}}" />
-                      </div>
+        <ul>
+          <li ng-repeat="(artifactKey,artifactValue) in inputArtifacts">
+            {{artifactKey}}
+            <div class="topology-level" collapse="isArtifactCollapsed">
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                <div class="col-md-9">{{artifactValue.artifactType}}</div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
+                <div class="col-md-9">
+                  <div ng-if="!uploads[artifactKey].isUploading">
+                    <span tooltip="{{artifactValue.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifactValue.artifactName.length > 20]}}">{{artifactValue.artifactName | truncate:20}}</span>
+                     <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                      <span>
+                        <i class="fa fa-upload text-primary"></i>
+                      </span>
+                      <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
                     </div>
                   </div>
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </table>
+                  <progressbar ng-if="uploads[artifactKey].isUploading" class="progress-striped active" value="uploads[artifactKey].uploadProgress" type="{{uploads[artifactKey].type}}" />
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
 
