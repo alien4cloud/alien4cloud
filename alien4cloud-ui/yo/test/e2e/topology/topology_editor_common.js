@@ -566,8 +566,16 @@ var nodeDetailsCollapse = function(blocId, opened) {
   }).then(function(classes) {
     // test if the bloc is opened and then close it
     if (classes && ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1))) {
-      myBlock.click();
-      return true;
+      browser.wait(function() {
+        return myBlock.isPresent().then(function(present) {
+          if (present) {
+            myBlock.click();
+            return true;
+          } else {
+            return nodeDetailsCollapse(blocId, opened);
+          }
+        });
+      });
     } else {
       return false;
     }
