@@ -24,6 +24,7 @@ import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudConfiguration;
 import alien4cloud.model.cloud.CloudImage;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
@@ -33,8 +34,8 @@ import alien4cloud.plugin.PluginConfiguration;
 import alien4cloud.rest.exception.FieldErrorDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.model.User;
 import alien4cloud.security.model.Group;
+import alien4cloud.security.model.User;
 import alien4cloud.utils.FileUtil;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -63,6 +64,8 @@ public class CommonStepDefinitions {
         indicesToClean.add(Group.class.getSimpleName().toLowerCase());
         indicesToClean.add(User.class.getSimpleName().toLowerCase());
         indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
+        indicesToClean.add(CloudImage.class.getSimpleName().toLowerCase());
+        indicesToClean.add(MetaPropConfiguration.class.getSimpleName().toLowerCase());
         indicesToClean.add(AuditESDAO.ALIEN_AUDIT_INDEX);
     }
 
