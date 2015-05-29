@@ -45,13 +45,9 @@ public class TagConfigurationStepDefinitions {
             String tagConfigurationJson = JsonUtil.toString(tagObject);
             String response = Context.getRestClientInstance().postJSon("/rest/tagconfigurations", tagConfigurationJson);
             TagConfigurationSaveResponse tagReceived = JsonUtil.read(response, TagConfigurationSaveResponse.class).getData();
-
-            // register in context if success
-            if (tagReceived != null && tagReceived.getId() != null) {
-                tagObject.setId(tagReceived.getId());
-                Context.getInstance().registerConfigurationTag(tagObject.getName(), tagObject);
-            }
-
+            // register in context
+            tagObject.setId(tagReceived.getId());
+            Context.getInstance().registerConfigurationTag(tagObject.getName(), tagObject);
         }
 
         Assert.assertNotNull(Context.getInstance().getConfigurationTags());

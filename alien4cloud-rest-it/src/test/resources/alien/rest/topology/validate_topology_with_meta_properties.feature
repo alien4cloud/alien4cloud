@@ -13,7 +13,7 @@ Background:
   When I load several configuration tags
     Then I should have 11 configuration tags loaded
 
-Scenario: Define a property as input
+Scenario: Use cloud metas to define a property on a node
   Given I have the tag "cloud_meta_NUMcpus" registered for "cloud"
   And I have the tag "cloud_meta_osARCH" registered for "cloud"
   And I set the value "x86_64" for the cloud meta-property "cloud_meta_osARCH" of the cloud "mockCloud"
@@ -27,5 +27,10 @@ Scenario: Define a property as input
   When I rename the property "os_arch" to "cloud_meta_osARCH"
   Then I associate the property "os_arch" of a node template "Compute" to the input "cloud_meta_osARCH"
     Then I should receive a RestResponse with no error
-#  When I check for the deployable status of the topology
-#   Then the topology should be deployable
+  When I check for the deployable status of the topology
+    Then the topology should not be deployable
+#  When I define the property "num_cpus" of the node "Compute" as input property
+#    Then I should receive a RestResponse with no error
+#    And The topology should have the property "num_cpus" defined as input int property
+#  When I associate the property "num_cpus" of a node template "Compute" to the input "cloud_meta_NUMcpus"
+#    Then I should receive a RestResponse with no error
