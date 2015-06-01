@@ -1,8 +1,11 @@
 package alien4cloud.utils;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public final class AlienUtils {
+
+    public static final String DEFAULT_PREFIX_SEPARATOR = "_";
 
     private AlienUtils() {
 
@@ -40,5 +43,39 @@ public final class AlienUtils {
             toReturnBuilder.append(valueToPut);
         }
         return toReturnBuilder.toString();
+    }
+
+    /**
+     * prefix a string with another
+     *
+     * @param separator
+     * @param toPrefix
+     * @param prefixes
+     * @return
+     */
+    public static String prefixWith(String separator, String toPrefix, String[] prefixes) {
+        if (toPrefix == null) {
+            return null;
+        }
+        if (ArrayUtils.isEmpty(prefixes)) {
+            return toPrefix;
+        }
+        String finalSeparator = separator == null ? DEFAULT_PREFIX_SEPARATOR : separator;
+        StringBuilder builder = new StringBuilder();
+        for (String prefix : prefixes) {
+            builder.append(prefix).append(finalSeparator);
+        }
+        return builder.append(toPrefix).toString();
+    }
+
+    /**
+     * prefix a string with another using the default separator "_"
+     *
+     * @param toPrefix
+     * @param prefixes
+     * @return
+     */
+    public static String prefixWith(String toPrefix, String... prefixes) {
+        return prefixWith(DEFAULT_PREFIX_SEPARATOR, toPrefix, prefixes);
     }
 }

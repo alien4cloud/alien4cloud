@@ -1388,7 +1388,7 @@ public class TopologyController {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
-        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
+        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplates(topology);
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
 
         StartEvent startEvent = new BuildPlanGenerator(true).generate(roots);

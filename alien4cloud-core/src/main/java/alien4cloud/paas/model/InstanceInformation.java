@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -28,4 +30,9 @@ public class InstanceInformation {
     private Map<String, String> attributes;
     /** Additional properties specific from the container. */
     private Map<String, String> runtimeProperties;
+
+    /** Available operations outputs for this node instance */
+    /** do not serialize */
+    @JsonIgnore
+    private Map<String, String> operationsOutputs;
 }

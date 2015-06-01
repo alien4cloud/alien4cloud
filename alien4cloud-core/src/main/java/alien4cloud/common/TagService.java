@@ -1,12 +1,16 @@
 package alien4cloud.common;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Resource;
 
+import org.elasticsearch.common.collect.Maps;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.model.common.ITaggableResource;
+import alien4cloud.model.common.Tag;
 
 import com.google.common.collect.Lists;
 
@@ -49,4 +53,19 @@ public class TagService {
             alienDAO.save(resource);
         }
     }
+
+    /**
+     * Convert a tag list to a map
+     * 
+     * @param tags
+     * @return
+     */
+    public Map<String, String> tagListToMap(List<Tag> tags) {
+        Map<String, String> tagMap = Maps.newHashMap();
+        for (Tag tag : tags) {
+            tagMap.put(tag.getName(), tag.getValue());
+        }
+        return tagMap;
+    }
+
 }

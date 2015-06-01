@@ -9,17 +9,23 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.FunctionPropertyValue;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -27,6 +33,7 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
+import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
@@ -35,6 +42,7 @@ import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
+import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;
@@ -45,6 +53,7 @@ import com.google.common.collect.Sets;
  * Utility to build an hosted on tree from a topology.
  */
 @Component
+@Slf4j
 public class TopologyTreeBuilderService {
     @Resource
     private CsarFileRepository repository;
@@ -57,7 +66,7 @@ public class TopologyTreeBuilderService {
      * @param topology The topology for which to build PaaSNodeTemplate map.
      * @return A map of PaaSNodeTemplate that match the one of the NodeTempaltes in the given topology (and filled with artifact paths etc.).
      */
-    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplate(Topology topology) {
+    public Map<String, PaaSNodeTemplate> buildPaaSNodeTemplates(Topology topology) {
         Map<String, PaaSNodeTemplate> nodeTemplates = Maps.newHashMap();
 
         // cache IndexedToscaElements, CloudServiceArchive and ToscaElements to limit queries.
@@ -107,7 +116,7 @@ public class TopologyTreeBuilderService {
      * @return The parsed topology for the PaaS with.
      */
     public PaaSTopology buildPaaSTopology(Topology topology) {
-        return buildPaaSTopology(buildPaaSNodeTemplate(topology));
+        return buildPaaSTopology(buildPaaSNodeTemplates(topology));
     }
 
     /**
@@ -156,6 +165,9 @@ public class TopologyTreeBuilderService {
                 }
             }
         }
+        // check and register possible operation outputs
+        checkAndRegisterIfNeededOperationsOutputs(nodeTemplates);
+
         return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates, groups);
     }
 
@@ -236,7 +248,6 @@ public class TopologyTreeBuilderService {
     }
 
     @SuppressWarnings("unchecked")
-    @SneakyThrows({ CSARVersionNotFoundException.class })
     private <V extends IndexedToscaElement> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
             Class<? extends IndexedToscaElement> clazz) {
         IndexedToscaElement indexedToscaElement = typeMap.get(clazz, template.getType());
@@ -248,7 +259,96 @@ public class TopologyTreeBuilderService {
             typeMap.put(template.getType(), indexedToscaElement);
         }
         paaSTemplate.setIndexedToscaElement((V) indexedToscaElement);
-        Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
-        paaSTemplate.setCsarPath(csarPath);
+        try {
+            Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
+            paaSTemplate.setCsarPath(csarPath);
+        } catch (CSARVersionNotFoundException e) {
+            log.debug("No csarPath for "+indexedToscaElement+"; not setting in "+paaSTemplate);
+        }
     }
+
+    /**
+     * For every templates (nodes and relationship), check the attributes and interfaces operations input parameters for usage of the get_operation_output
+     * function.
+     * if found, register the referenced output on the related operation
+     *
+     * @param paaSNodeTemplates
+     */
+    private void checkAndRegisterIfNeededOperationsOutputs(final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+        // TODO: try to cache already processed nodes
+        for (PaaSNodeTemplate paaSNodeTemplate : paaSNodeTemplates.values()) {
+            checkAttributesForGetOperationOutputUsage(paaSNodeTemplate, paaSNodeTemplates);
+            checkOperationsInputsForGetOperationOutputUsage(paaSNodeTemplate, paaSNodeTemplates);
+            // do the same for the relationships
+            for (PaaSRelationshipTemplate paaSRelationshipTemplate : paaSNodeTemplate.getRelationshipTemplates()) {
+                checkOperationsInputsForGetOperationOutputUsage(paaSRelationshipTemplate, paaSNodeTemplates);
+            }
+        }
+    }
+
+    /**
+     * Check attributes of a paaSNodeTemplate for get_operation_output usage, and register in the related operation the output name
+     *
+     * @param paaSNodeTemplate
+     * @param paaSNodeTemplates
+     */
+    private void checkAttributesForGetOperationOutputUsage(final PaaSNodeTemplate paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+        Map<String, IValue> attributes = paaSNodeTemplate.getIndexedToscaElement().getAttributes();
+        if (MapUtils.isEmpty(attributes)) {
+            return;
+        }
+        checkGetOperationOutputUsageAndRegisterRelatedOutputs(attributes, paaSNodeTemplate, paaSNodeTemplates);
+    }
+
+    /**
+     * Check operations input of every operations of all interfaces of a paaSNodeTemplate for get_operation_output usage, and register in the related operation
+     * the output name
+     *
+     * @param paaSTemplate
+     * @param paaSNodeTemplates
+     */
+    private <V extends IndexedArtifactToscaElement> void checkOperationsInputsForGetOperationOutputUsage(final IPaaSTemplate<V> paaSTemplate,
+            final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+        Map<String, Interface> interfaces = ((IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement()).getInterfaces();
+        if (interfaces != null) {
+            for (Interface interfass : interfaces.values()) {
+                for (Operation operation : interfass.getOperations().values()) {
+                    Map<String, IValue> inputsParams = operation.getInputParameters();
+                    if (inputsParams != null) {
+                        checkGetOperationOutputUsageAndRegisterRelatedOutputs(inputsParams, paaSTemplate, paaSNodeTemplates);
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    private <V extends IndexedArtifactToscaElement> void checkGetOperationOutputUsageAndRegisterRelatedOutputs(final Map<String, IValue> attributes,
+            final IPaaSTemplate<V> paaSTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+        for (IValue attribute : attributes.values()) {
+            if (attribute instanceof FunctionPropertyValue) {
+                FunctionPropertyValue function = (FunctionPropertyValue) attribute;
+                if (ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction())) {
+                    List<? extends IPaaSTemplate> paaSTemplates = FunctionEvaluator.getPaaSTemplatesFromKeyword(paaSTemplate, function.getTemplateName(),
+                            paaSNodeTemplates);
+                    registerOperationOutput(paaSTemplates, function.getInterfaceName(), function.getOperationName(), function.getElementNameToFetch());
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <V extends IndexedArtifactToscaElement> void registerOperationOutput(final List<? extends IPaaSTemplate> paaSTemplates, final String interfaceName,
+            final String operationName, String output) {
+        for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
+            if (paaSTemplate.getIndexedToscaElement() instanceof IndexedArtifactToscaElement) {
+                IndexedArtifactToscaElement toscaElement = (IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement();
+                Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (interfaceName));
+                if (interfass != null && interfass.getOperations().containsKey(operationName)) {
+                    interfass.getOperations().get(operationName).getOutputs().add(output);
+                }
+            }
+        }
+    }
+
 }
