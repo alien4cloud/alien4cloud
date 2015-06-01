@@ -566,7 +566,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
   }).then(function(classes) {
     // test if the bloc is opened and then close it
     if (classes && ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1))) {
-      myBlock.click();
+      browser.actions().click(myBlock).perform();
       return true;
     } else {
       return false;
