@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Component;
@@ -53,6 +53,7 @@ import com.google.common.collect.Sets;
  * Utility to build an hosted on tree from a topology.
  */
 @Component
+@Slf4j
 public class TopologyTreeBuilderService {
     @Resource
     private CsarFileRepository repository;
@@ -247,7 +248,6 @@ public class TopologyTreeBuilderService {
     }
 
     @SuppressWarnings("unchecked")
-    @SneakyThrows({ CSARVersionNotFoundException.class })
     private <V extends IndexedToscaElement> void fillType(TypeMap typeMap, Topology topology, AbstractTemplate template, IPaaSTemplate<V> paaSTemplate,
             Class<? extends IndexedToscaElement> clazz) {
         IndexedToscaElement indexedToscaElement = typeMap.get(clazz, template.getType());
@@ -259,8 +259,12 @@ public class TopologyTreeBuilderService {
             typeMap.put(template.getType(), indexedToscaElement);
         }
         paaSTemplate.setIndexedToscaElement((V) indexedToscaElement);
-        Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
-        paaSTemplate.setCsarPath(csarPath);
+        try {
+            Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
+            paaSTemplate.setCsarPath(csarPath);
+        } catch (CSARVersionNotFoundException e) {
+            log.debug("No csarPath for "+indexedToscaElement+"; not setting in "+paaSTemplate);
+        }
     }
 
     /**
