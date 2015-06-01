@@ -29,8 +29,8 @@ Scenario: Use cloud metas to define a property on a node
     Then I should receive a RestResponse with no error
   When I check for the deployable status of the topology
     Then the topology should not be deployable
-#  When I define the property "num_cpus" of the node "Compute" as input property
-#    Then I should receive a RestResponse with no error
-#    And The topology should have the property "num_cpus" defined as input int property
-#  When I associate the property "num_cpus" of a node template "Compute" to the input "cloud_meta_NUMcpus"
-#    Then I should receive a RestResponse with no error
+  When I define the property "num_cpus" of the node "Compute" as input property
+    Then I should receive a RestResponse with no error
+   And The topology should have the property "num_cpus" defined as input property
+  When I associate the property "num_cpus" of a node template "Compute" to the input "cloud_meta_osARCH"
+    Then I should receive a RestResponse with an error code 500
