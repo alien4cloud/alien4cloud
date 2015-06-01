@@ -236,8 +236,8 @@
   "EDIT_RIGHTS": {
     "EDIT_ROLE_RESOURCE": "Edit roles for resource",
     "EDIT_ROLE_HEADER_RESOURCE": "Add or remove roles to the resource",
-    "EDIT_ROLE_ENV": "Edit roles for environement",
-    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environement"
+    "EDIT_ROLE_ENV": "Edit roles for environment",
+    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environment"
   },
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
@@ -267,7 +267,7 @@
     "UNDEPLOYED": "Undeployed",
     "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
     "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
-    "UNKNOWN": "Unknwon",
+    "UNKNOWN": "Unknown",
     "WARNING": "Warning",
     "FAILURE": "Failed",
     "DEPLOY": "Deploy",
@@ -464,7 +464,7 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
-      "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
+      "NODETEMPLATE_PROPERTY_REQUIRED": "Required property"
     },
     "ENVIRONMENT": {
       "ENV": "Environment",
@@ -495,7 +495,7 @@
       "TITLE": "New version",
       "MODAL": {
         "SELECT-TITLE": "Topology",
-        "DESC": "Select an older verison to duplicate its topology",
+        "DESC": "Select an older version to duplicate its topology",
         "PATTERN": "Invalid format version."
       }
     },
