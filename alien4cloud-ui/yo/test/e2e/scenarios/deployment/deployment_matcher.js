@@ -28,12 +28,12 @@ describe('Application Deployment matcher :', function() {
       // we need to enable cloud to be able to assign PaaS resource IDs
       cloudsCommon.enableCloud();
       cloudsCommon.selectFirstImageOfCloud();
-      cloudsCommon.assignPaaSResourceToImage("Compute-dev", "passIdImage1");
-      cloudsCommon.addNewFlavor("large", "8", "320", "4096");
-      cloudsCommon.addNewFlavor("medium", "12", "480", "4096");
+      cloudsCommon.assignPaaSResourceToImage('Compute-dev', 'passIdImage1');
+      cloudsCommon.addNewFlavor('large', '8', '320', '4096');
+      cloudsCommon.addNewFlavor('medium', '12', '480', '4096');
       cloudsCommon.goToCloudDetailTemplate();
-      cloudsCommon.assignPaaSResourceToFlavor("large", "passIdFlavor1");
-      cloudsCommon.assignPaaSResourceToFlavor("medium", "passIdFlavor2");
+      cloudsCommon.assignPaaSResourceToFlavor('large', 'passIdFlavor1');
+      cloudsCommon.assignPaaSResourceToFlavor('medium', 'passIdFlavor2');
       cloudsCommon.goToCloudDetail('testcloud');
       cloudsCommon.disableCloud();
       cloudsCommon.enableCloud();
@@ -53,7 +53,7 @@ describe('Application Deployment matcher :', function() {
     applications.goToApplicationDetailPage('Alien', true);
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(componentData.verySimpleTopology.nodes);
     applications.goToApplicationDeploymentPage();
-    expect(element(by.id("div-deployment-matcher")).isPresent()).toBe(false);
+    expect(element(by.id('div-deployment-matcher')).isPresent()).toBe(false);
   });
 
   it('should be display the matcher when the todo-list is empty.', function() {
@@ -64,12 +64,12 @@ describe('Application Deployment matcher :', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     applications.goToApplicationDeploymentPage();
     cloudsCommon.selectApplicationCloud('testcloud');
-    expect(element(by.id("div-deployment-matcher")).isPresent()).toBe(true);
+    expect(element(by.id('div-deployment-matcher')).isPresent()).toBe(true);
   });
 
   it('should propose match between the node and the templates.', function() {
     console.log('################# should propose match between the node and the templates.');
-    element(by.id("tr-node-Compute")).click();
+    element(by.id('tr-node-Compute')).click();
     var templates = element.all(by.repeater('template in currentMatchedComputeTemplates'));
     expect(templates.count()).toBe(2);
   });
