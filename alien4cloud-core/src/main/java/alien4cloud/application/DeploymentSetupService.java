@@ -2,6 +2,7 @@ package alien4cloud.application;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -11,12 +12,15 @@ import javax.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.cloud.CloudResourceMatcherService;
 import alien4cloud.cloud.CloudResourceTopologyMatchResult;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
@@ -32,7 +36,9 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.ComputeTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
+import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
@@ -46,6 +52,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
@@ -72,6 +79,8 @@ public class DeploymentSetupService {
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private ConstraintPropertyService constraintPropertyService;
+    @Resource
+    private MetaPropertiesService metaPropertiesService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -137,8 +146,9 @@ public class DeploymentSetupService {
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
-        processGetInput(deploymentSetup, topology);
+        processGetInput(deploymentSetup, topology, environment);
         generateInputProperties(deploymentSetup, topology, true);
+        processInputArtifacts(topology);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
             try {
@@ -271,19 +281,64 @@ public class DeploymentSetupService {
      *
      * @param deploymentSetup The deployment setup that contains the input values.
      * @param topology The topology to process.
+     * @param environment
      */
-    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology) {
+    private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
+        Cloud cloud = null;
+        Map<String, String> mergedInputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
+                .getInputProperties();
+        if (environment.getCloudId() != null) {
+            cloud = cloudService.get(environment.getCloudId());
+            Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
+            mergedInputs.putAll(cloudMetaProperties);
+        }
         if (topology.getNodeTemplates() != null) {
             for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
-                processGetInput(deploymentSetup.getInputProperties(), nodeTemplate.getProperties());
+                processGetInput(mergedInputs, nodeTemplate.getProperties());
                 if (nodeTemplate.getRelationships() != null) {
                     for (RelationshipTemplate relationshipTemplate : nodeTemplate.getRelationships().values()) {
-                        processGetInput(deploymentSetup.getInputProperties(), relationshipTemplate.getProperties());
+                        processGetInput(mergedInputs, relationshipTemplate.getProperties());
                     }
                 }
                 if (nodeTemplate.getCapabilities() != null) {
                     for (Capability capability : nodeTemplate.getCapabilities().values()) {
-                        processGetInput(deploymentSetup.getInputProperties(), capability.getProperties());
+                        processGetInput(mergedInputs, capability.getProperties());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Inject input artifacts in the corresponding nodes.
+     */
+    private void processInputArtifacts(Topology topology) {
+        if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
+            // we'll build a map inputArtifactId -> List<DeploymentArtifact>
+            Map<String, List<DeploymentArtifact>> artifactMap = Maps.newHashMap();
+            // iterate over nodes in order to remember all nodes referencing an input artifact
+            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+                if (nodeTemplate.getArtifacts() != null && !nodeTemplate.getArtifacts().isEmpty()) {
+                    for (DeploymentArtifact da : nodeTemplate.getArtifacts().values()) {
+                        String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
+                        if (inputArtifactId != null) {
+                            List<DeploymentArtifact> das = artifactMap.get(inputArtifactId);
+                            if (das == null) {
+                                das = Lists.newArrayList();
+                                artifactMap.put(inputArtifactId, das);
+                            }
+                            das.add(da);
+                        }
+                    }
+                }
+            }
+
+            for (Entry<String, DeploymentArtifact> e : topology.getInputArtifacts().entrySet()) {
+                List<DeploymentArtifact> nodeArtifacts = artifactMap.get(e.getKey());
+                if (nodeArtifacts != null) {
+                    for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
+                        nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
+                        nodeArtifact.setArtifactName(e.getValue().getArtifactName());
                     }
                 }
             }
@@ -296,9 +351,20 @@ public class DeploymentSetupService {
                 if (propEntry.getValue() instanceof FunctionPropertyValue) {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
-                        ScalarPropertyValue value;
+                        AbstractPropertyValue value;
                         if (inputs != null) {
-                            value = new ScalarPropertyValue(inputs.get(function.getTemplateName()));
+                            String templateName = function.getTemplateName();
+                            // check if the template exists as meta property
+                            MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(templateName);
+                            if (metaProperty != null) {
+                                templateName = metaProperty.getId();
+                            }
+                            // recover the good value from inputs (from node inputs or metas)
+                            if (inputs.containsKey(templateName)) {
+                                value = new ScalarPropertyValue(inputs.get(templateName));
+                            } else {
+                                value = propEntry.getValue();
+                            }
                         } else {
                             value = new ScalarPropertyValue(null);
                         }

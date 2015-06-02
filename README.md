@@ -15,7 +15,7 @@ Alien 4 Cloud is written in java for the backend and requires a JDK 7 or newer (
 - make sure you have Maven installed (team is using 3.0.5)
 - install Ruby
 - install Python
-- install Node.js to get nom command. Check here http://nodejs.org
+- install Node.js to get npm command. Check here http://nodejs.org. Note that you need a recent version of npm (2.7.4) in order to build a4c.
 - install bower  
 ```sh
 $ sudo npm install -g bower
@@ -31,4 +31,9 @@ $ gem install compass
 - and grunt-contrib-compass  
 ```sh
 $ npm install grunt-contrib-compass --save-dev
+```  
+
+run the folowing command to build the project:  
+```sh
+$ mvn clean install -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
 ```

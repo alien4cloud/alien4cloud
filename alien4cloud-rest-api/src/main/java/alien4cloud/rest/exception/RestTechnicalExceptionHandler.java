@@ -39,8 +39,10 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.Alien4CloudAccessDeniedHandler;
+import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
 import alien4cloud.topology.exception.UpdateTopologyException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
 
@@ -307,5 +309,23 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.MISSING_APPLICATION_VERSION_ERROR).message(e.getMessage()).build())
                 .build();
+    }
+
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> metaPropertyConstraintViolationErrorHandler(ConstraintViolationException e) {
+        log.error("Constraint violation error for property : " + e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = ConstraintValueDoNotMatchPropertyTypeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> constraintValueDoNotMatchPropertyErrorHandler(ConstraintValueDoNotMatchPropertyTypeException e) {
+        log.error("Constraint value do not match property : " + e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
     }
 }

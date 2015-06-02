@@ -22,15 +22,12 @@ import alien4cloud.utils.services.ConstraintPropertyService;
 /**
  * Handle generic operation on "properties"
  *
- * @author mourouvi
- *
  */
 
 @Slf4j
 @RestController
 @RequestMapping("/rest/properties")
 public class PropertiesController {
-
     @Resource
     private ConstraintPropertyService constraintPropertyService;
 
@@ -39,10 +36,10 @@ public class PropertiesController {
 
         if (propertyRequest.getPropertyDefinition() != null) {
             try {
-                constraintPropertyService.checkPropertyConstraint(propertyRequest.getPropertyId(), propertyRequest.getPropertyValue(),
+                constraintPropertyService.checkPropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),
                         propertyRequest.getPropertyDefinition());
             } catch (ConstraintViolationException e) {
-                log.error("Constraint violation error for property <" + propertyRequest.getPropertyId() + "> with value <" + propertyRequest.getPropertyValue()
+                log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue()
                         + ">", e);
                 return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
                         .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();

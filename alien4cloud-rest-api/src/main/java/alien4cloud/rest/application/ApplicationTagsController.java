@@ -16,7 +16,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.rest.component.UpdateTagRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.ApplicationRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
 
 import com.wordnik.swagger.annotations.ApiOperation;

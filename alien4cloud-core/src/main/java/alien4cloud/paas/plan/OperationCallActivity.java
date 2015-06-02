@@ -2,10 +2,11 @@ package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.ImplementationArtifact;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,7 +36,9 @@ public class OperationCallActivity extends AbstractWorkflowStep {
     /** The artifact that implements the operation. */
     private ImplementationArtifact implementationArtifact;
     /** The inputs parameters of the the operation. */
-    private Map<String, IOperationParameter> inputParameters;
+    private Map<String, IValue> inputParameters;
+    /** The outputs of the the operation. */
+    private Set<String> outputs;
     /** True if the artifact is related to the operation, false if the artifact is a single artifact for the whole interface (contains several methods) */
     private boolean isOperationArtifact = true;
 }

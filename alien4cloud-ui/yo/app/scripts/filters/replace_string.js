@@ -48,3 +48,16 @@ alienApp.filter('suffix', function() {
     return text + suffixString;
   };
 });
+
+/**
+ * Filter return a full string with each string element in the array concated
+ * a2s : array to string
+ */
+alienApp.filter('a2s', function() {
+  return function(stringArray, separator) {
+    if (!(stringArray instanceof Array)) {
+      return stringArray;
+    }
+    return stringArray.join(separator + ' ');
+  };
+});

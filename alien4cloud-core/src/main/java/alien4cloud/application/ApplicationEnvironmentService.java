@@ -26,9 +26,9 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.model.DeploymentStatus;
-import alien4cloud.security.ApplicationEnvironmentRole;
-import alien4cloud.security.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationEnvironmentRole;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

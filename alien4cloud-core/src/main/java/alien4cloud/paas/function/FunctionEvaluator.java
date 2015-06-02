@@ -7,12 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IAttributeValue;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
@@ -28,6 +28,7 @@ import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.utils.AlienUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -54,7 +55,7 @@ public final class FunctionEvaluator {
      * @param builtPaaSTemplates
      * @return
      */
-    public static String parseAttribute(String attributeId, IAttributeValue attributeValue, Topology topology,
+    public static String parseAttribute(String attributeId, IValue attributeValue, Topology topology,
             Map<String, Map<String, InstanceInformation>> runtimeInformations, String currentInstance,
             IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
 
@@ -76,37 +77,83 @@ public final class FunctionEvaluator {
         }
 
         // handle concat function
-        StringBuilder evaluatedAttribute = new StringBuilder();
-        ConcatPropertyValue concatPropertyValue = (ConcatPropertyValue) attributeValue;
-        for (IOperationParameter concatParam : concatPropertyValue.getParameters()) {
-            // scalar type
-            if (concatParam instanceof ScalarPropertyValue) {
-                // scalar case
-                evaluatedAttribute.append(((ScalarPropertyValue) concatParam).getValue());
-            } else if (concatParam instanceof PropertyDefinition) {
-                // Definition case
-                // TODO : ?? what should i do here ?? currently returns default value in the definition
-                evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
-            } else if (concatParam instanceof FunctionPropertyValue) {
-                // Function case
-                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
-                List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(),
-                        builtPaaSTemplates);
-                switch (functionPropertyValue.getFunction()) {
-                case ToscaFunctionConstants.GET_ATTRIBUTE:
-                    evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
-                            functionPropertyValue.getPropertyOrAttributeName()));
-                    break;
-                case ToscaFunctionConstants.GET_PROPERTY:
-                    evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getPropertyOrAttributeName(), paasTemplates));
-                    break;
-                default:
-                    log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
-                }
+        if (attributeValue instanceof ConcatPropertyValue) {
+            StringBuilder evaluatedAttribute = new StringBuilder();
+            ConcatPropertyValue concatPropertyValue = (ConcatPropertyValue) attributeValue;
+            for (IValue concatParam : concatPropertyValue.getParameters()) {
+                // scalar type
+                if (concatParam instanceof ScalarPropertyValue) {
+                    // scalar case
+                    evaluatedAttribute.append(((ScalarPropertyValue) concatParam).getValue());
+                } else if (concatParam instanceof PropertyDefinition) {
+                    // Definition case
+                    // TODO : ?? what should i do here ?? currently returns default value in the definition
+                    evaluatedAttribute.append(((PropertyDefinition) concatParam).getDefault());
+                } else if (concatParam instanceof FunctionPropertyValue) {
+                    // Function case
+                    FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) concatParam;
+                    List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionPropertyValue.getTemplateName(),
+                            builtPaaSTemplates);
+                    switch (functionPropertyValue.getFunction()) {
+                    case ToscaFunctionConstants.GET_ATTRIBUTE:
+                        evaluatedAttribute.append(extractRuntimeInformationAttribute(runtimeInformations, currentInstance, paasTemplates,
+                                functionPropertyValue.getElementNameToFetch()));
+                        break;
+                    case ToscaFunctionConstants.GET_PROPERTY:
+                        evaluatedAttribute.append(extractRuntimeInformationProperty(topology, functionPropertyValue.getElementNameToFetch(), paasTemplates));
+                        break;
+                    case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                        String defaultValue = "<" + functionPropertyValue.getElementNameToFetch() + ">";
+                        evaluatedAttribute.append(extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates,
+                                functionPropertyValue, defaultValue));
+                    default:
+                        log.warn("Function [{}] is not yet handled in concat operation.", functionPropertyValue.getFunction());
+                    }
 
+                }
+            }
+            return evaluatedAttribute.toString();
+        }
+
+        // handle functions. For now, only support Get_OPERATION_OUTPUT on attributes scope
+        if (attributeValue instanceof FunctionPropertyValue) {
+            FunctionPropertyValue function = (FunctionPropertyValue) attributeValue;
+            switch (function.getFunction()) {
+            case ToscaFunctionConstants.GET_OPERATION_OUTPUT:
+                List<? extends IPaaSTemplate> paasTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, function.getTemplateName(), builtPaaSTemplates);
+                return extractRuntimeInformationOperationOutput(runtimeInformations, currentInstance, paasTemplates, function, null);
+            default:
+                return null;
             }
         }
-        return evaluatedAttribute.toString();
+
+        return null;
+    }
+
+    private static String extractRuntimeInformationOperationOutput(Map<String, Map<String, InstanceInformation>> runtimeInformations, String instanceId,
+            List<? extends IPaaSTemplate> nodes, FunctionPropertyValue function, String defaultValue) {
+        String outputRQN = AlienUtils.prefixWith(AlienConstants.COLON_SEPARATOR, function.getElementNameToFetch(), new String[] { function.getInterfaceName(),
+                function.getOperationName() });
+        // return the first found
+        for (IPaaSTemplate node : nodes) {
+            String nodeName = node.getId();
+            if (runtimeInformations.get(nodeName) != null) {
+                Map<String, String> outputs;
+                // get value for an instance if instance number found
+                if (runtimeInformations.get(nodeName).containsKey(instanceId)) {
+                    outputs = runtimeInformations.get(nodeName).get(instanceId).getOperationsOutputs();
+                } else {
+                    outputs = runtimeInformations.get(nodeName).entrySet().iterator().next().getValue().getAttributes();
+                }
+                String formatedOutputName = ToscaUtils.formatedOperationOutputName(nodeName, function.getInterfaceName(), function.getOperationName(),
+                        function.getElementNameToFetch());
+                if (outputs.containsKey(formatedOutputName)) {
+                    return outputs.get(formatedOutputName);
+                }
+            }
+        }
+        log.warn("Couldn't find output <{}> in nodes <{}>", outputRQN, nodes.toString());
+        return defaultValue;
     }
 
     /**
@@ -200,12 +247,12 @@ public final class FunctionEvaluator {
      * @return the String result of the function evalutation
      */
     public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
-                                                     Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
+            Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
-        String propertyId = functionParam.getPropertyOrAttributeName();
+        String propertyId = functionParam.getElementNameToFetch();
         for (IPaaSTemplate paaSTemplate : paaSTemplates) {
             AbstractPropertyValue propertyValue = getPropertyFromTemplateOrCapability(paaSTemplate, functionParam.getCapabilityOrRequirementName(),
-                    functionParam.getPropertyOrAttributeName());
+                    functionParam.getElementNameToFetch());
             // return the first value found
             if (propertyValue != null) {
                 if (propertyValue instanceof ScalarPropertyValue) {
@@ -339,5 +386,9 @@ public final class FunctionEvaluator {
 
     public static boolean isGetAttribute(FunctionPropertyValue function) {
         return ToscaFunctionConstants.GET_ATTRIBUTE.equals(function.getFunction());
+    }
+
+    public static boolean isGetOperationOutput(FunctionPropertyValue function) {
+        return ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction());
     }
 }

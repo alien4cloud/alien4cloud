@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.AttributeDefinition;
-import alien4cloud.model.components.IAttributeValue;
+import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
@@ -141,7 +141,7 @@ public class IndexedModelTest {
         propDef.setDefault("default_parent");
         attrDef.setType("string");
         parent.setProperties(MapUtil.newHashMap(new String[] { "prop1" }, new PropertyDefinition[] { propDef }));
-        parent.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        parent.setAttributes(Maps.<String, IValue> newHashMap());
         parent.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();
@@ -150,7 +150,7 @@ public class IndexedModelTest {
         attrDef = new AttributeDefinition();
         attrDef.setType("version");
         parent.getProperties().put("prop2", propDef);
-        parent.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        parent.setAttributes(Maps.<String, IValue> newHashMap());
         parent.getAttributes().put("attr2", attrDef);
 
         propDef = new PropertyDefinition();
@@ -160,7 +160,7 @@ public class IndexedModelTest {
         attrDef.setType("integer");
         son.setProperties(MapUtil.newHashMap(new String[] { "prop1" }, new PropertyDefinition[] { propDef }));
         // son.setAttributes(MapUtil.newHashMap(new String[] { "attr1" }, new AttributeDefinition[] { attrDef }));
-        son.setAttributes(Maps.<String, IAttributeValue> newHashMap());
+        son.setAttributes(Maps.<String, IValue> newHashMap());
         son.getAttributes().put("attr1", attrDef);
 
         propDef = new PropertyDefinition();

@@ -42,8 +42,6 @@ describe('Manually match resources for cloud', function() {
     common.after();
   });
 
-
-
   it('should not be able to deploy application if resource is not matched', function() {
     console.log('should not be able to deploy application if compute is not matched');
     cloudsCommon.giveRightsOnCloudToUser('testcloud', 'applicationManager', rolesCommon.cloudRoles.cloudDeployer);

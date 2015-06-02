@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.stereotype.Component;
 
-import alien4cloud.security.User;
+import alien4cloud.security.model.User;
 
 import com.google.common.collect.Lists;
 

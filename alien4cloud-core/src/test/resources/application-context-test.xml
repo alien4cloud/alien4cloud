@@ -15,6 +15,7 @@
 		alien4cloud.configuration,
 		alien4cloud.component,
 		alien4cloud.topology,
+		alien4cloud.common,
 		alien4cloud.rest.*,
 		alien4cloud.tosca.*,
 		alien4cloud.images,
@@ -28,7 +29,7 @@
 		alien4cloud.plugin,
 		alien4cloud.utils.services">
     <context:exclude-filter type="regex" expression="alien4cloud.configuration.ApplicationBootstrap" />
-    <context:exclude-filter type="regex" expression="alien4cloud.configuration.DefaultGroup" />
+    <context:exclude-filter type="regex" expression="alien4cloud.security.groups.DefaultGroup" />
   </context:component-scan>
 
   <bean id="alienconfigFactory" class="alien4cloud.utils.AlienConfigFactory" />

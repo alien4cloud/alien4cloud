@@ -28,6 +28,7 @@ import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -388,7 +389,11 @@ public class CloudResourceMatcherService {
             if (properties == null) {
                 return true;
             }
-            String expectedStrValue = FunctionEvaluator.getScalarValue(properties.get(keyToCheck));
+            AbstractPropertyValue propertyValue = properties.get(keyToCheck);
+            String expectedStrValue = null;
+            if (propertyValue instanceof ScalarPropertyValue) {
+                expectedStrValue = FunctionEvaluator.getScalarValue(propertyValue);
+            }
             return expectedStrValue == null || expectedStrValue.isEmpty() || valueMatcher.matchValue(valueParser.parseValue(expectedStrValue), actualValue);
         } catch (Exception e) {
             log.warn("Error happened while matching key [" + keyToCheck + "], actual value [" + actualValue + "], properties [" + properties + "]", e);

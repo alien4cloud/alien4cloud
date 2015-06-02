@@ -359,7 +359,12 @@
       "COMPUTE_RESOURCES": "Machines",
       "NETWORK_RESOURCES": "Réseaux",
       "STORAGE_RESOURCES": "Volumes",
-      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer."
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer.",
+      "PROPERTIES": {
+        "REQUIRED": "Obligatoire",
+        "WARNING": "Alerte",
+        "WARNING_MESSAGE": "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topologie",
@@ -388,7 +393,6 @@
       },
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
       "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
-      "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
       "RELATIONSHIPS": "Relations",
@@ -397,7 +401,6 @@
       "REMOVE_NODE": "Supprimer le noeud",
       "REFERENCE": "Référence",
       "ARTIFACTS": "Artefacts",
-      "ARTIFACTS_INPUTS": "Artefacts en entrée",
       "UPDATE_ARTIFACT": "Mettre à jour l'artefact",
       "SCALE": "Scale",
       "UNSCALE": "Unscale",
@@ -440,6 +443,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées",
           "CONFIGURATION_ERROR": "La validation de la polique HA a échoué dû à une mauvaise configuration de zones de disponibilité",
           "UNKNOWN_ERROR": "La validation de la polique HA a échoué dû à une erreur inconnue"
+        },
+        "PROPERTIES": {
+          "LABEL": "Propriétés de noeuds",
+          "NODENAME": "Noeud",
+          "PROP": "Propriétés"
         }
       },
       "GROUPS": {
@@ -449,6 +457,13 @@
         "ADD": "Ajouter un groupe",
         "TOOLTIP": "Gestion des groupes"
       },
+      "ARTIFACTS": {
+        "TITLE": "Artefacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Définir l'artefact comme entrée"
+      },      
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
@@ -555,8 +570,9 @@
     "CLOUD": "Cloud",
     "IAAS_TYPE": "Type de IaaS",
     "ENVIRONMENT_TYPE": "Type d'environnement",
-    "ENABLE": "Activer le cloud",
-    "DISABLE": "Désactiver cloud",
+    "ENABLE": "Activer",
+    "DISABLE": "Désactiver",
+    "REFRESH": "Rafraichir",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "La configuration est sauvegardée mais n'est pas appliquée immédiatement. Celle-ci sera effectivement prise en compte lorsque le cloud sera ré-activé (désactiver puis réactiver ou lors du redémarrage de l'application).",
     "MANAGE_ROLES": "Autorisations",
@@ -697,6 +713,8 @@
       "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources.",
       "ENABLING_FAILED_TITLE": "Activer un cloud",
       "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
+      "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
+      "REFRESHING_FAILED": "Une erreur est survenue lors du rafraichissement.",
       "352_TITLE": "Sauver la configuration du cloud",
       "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
     },
@@ -720,6 +738,7 @@
     "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
     "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
+    "391": "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
     "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
     "500": "Erreur inconnue",
@@ -956,11 +975,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-      "OTHER": "Autre",
-      "DEVELOPMENT": "Développement",
-      "INTEGRATION_TESTS": "Tests d'intégrations",
-      "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
-      "PRE_PRODUCTION": "Pré-production",
-      "PRODUCTION": "production"
-    }
+    "OTHER": "Autre",
+    "DEVELOPMENT": "Développement",
+    "INTEGRATION_TESTS": "Tests d'intégrations",
+    "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+    "PRE_PRODUCTION": "Pré-production",
+    "PRODUCTION": "production"
+  }
 }

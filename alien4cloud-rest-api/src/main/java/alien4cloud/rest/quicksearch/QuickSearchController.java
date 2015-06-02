@@ -23,7 +23,7 @@ import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;

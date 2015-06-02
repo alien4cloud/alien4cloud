@@ -4,7 +4,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 
 public class SecurityTestUtils {
 

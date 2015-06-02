@@ -374,10 +374,20 @@ public class CloudService {
         // get a PaaSProvider bean and configure it.
         IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
         // create and configure a IPaaSProvider instance.
-        IPaaSProvider provider;
+        IPaaSProvider provider = null;
         if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
-            IConfigurablePaaSProvider<Object> cProvider = ((IConfigurablePaaSProviderFactory<Object>) passProviderFactory).newInstance();
-            provider = cProvider;
+            provider = ((IConfigurablePaaSProviderFactory<Object>) passProviderFactory).newInstance();
+        } else {
+            provider = passProviderFactory.newInstance();
+        }
+        refreshCloud(cloud, provider);
+        provider.init(deploymentService.getCloudActiveDeploymentContexts(cloud.getId()));
+        // register the IPaaSProvider for the cloud.
+        paaSProviderService.register(cloud.getId(), provider);
+    }
+
+    public void refreshCloud(Cloud cloud, IPaaSProvider provider) throws PluginConfigurationException {
+        if (provider instanceof IConfigurablePaaSProvider) {
             Object configuration = getConfiguration(cloud.getId());
             if (configuration != null) {
                 Object validConfiguration;
@@ -386,15 +396,10 @@ public class CloudService {
                 } catch (IOException e) {
                     throw new PluginConfigurationException("Failed convert configuration in object.", e);
                 }
-                cProvider.setConfiguration(validConfiguration);
+                ((IConfigurablePaaSProvider) provider).setConfiguration(validConfiguration);
             }
-        } else {
-            provider = passProviderFactory.newInstance();
         }
         initializeMatcherConfig(provider, cloud);
-        provider.init(deploymentService.getCloudActiveDeploymentContexts(cloud.getId()));
-        // register the IPaaSProvider for the cloud.
-        paaSProviderService.register(cloud.getId(), provider);
     }
 
     /**

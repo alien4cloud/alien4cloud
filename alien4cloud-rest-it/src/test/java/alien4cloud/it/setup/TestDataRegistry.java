@@ -116,6 +116,7 @@ public class TestDataRegistry {
         addConditionFolder("samples mysql", GIT_ARTIFACTS_PATH + "samples/mysql");
         addConditionFolder("samples php", GIT_ARTIFACTS_PATH + "samples/php");
         addConditionFolder("samples topology wordpress", GIT_ARTIFACTS_PATH + "samples/topology-wordpress");
+        addConditionFolder("samples topology tomcat-war", GIT_ARTIFACTS_PATH + "samples/topology-tomcatWar");
 
         // We put all artifacts to a4c root project dir
         // test uploading an unzipped file (do not zip it)

@@ -19,8 +19,9 @@ import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
 import alien4cloud.model.application.EnvironmentType;
-import alien4cloud.security.CloudRole;
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.security.ISecuredResource;
+import alien4cloud.security.model.CloudRole;
 import alien4cloud.utils.jackson.ConditionalAttributes;
 import alien4cloud.utils.jackson.ConditionalOnAttribute;
 import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
@@ -43,7 +44,7 @@ import com.wordnik.swagger.annotations.ApiModelProperty;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 @ApiModel(value = "A cloud definition in ALIEN", description = "Defines a cloud in ALIEN.")
-public class Cloud implements ISecuredResource {
+public class Cloud implements ISecuredResource, IMetaProperties {
     /**
      * Name of the cloud.
      */
@@ -131,6 +132,9 @@ public class Cloud implements ISecuredResource {
     private Map<String, String> storageMapping = Maps.newHashMap();
 
     private Map<String, String> availabilityZoneMapping = Maps.newHashMap();
+
+    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    private Map<String, String> metaProperties;
 
     @Override
     public Class<CloudRole> roleEnum() {

@@ -92,6 +92,23 @@ node_types:
       name:
         type: string
 
+  alien.test.TestComputeWithGetOperationOutput:
+    derived_from: tosca.nodes.Compute
+    properties:
+      customHostName:
+        type: string
+    attributes: 
+      old_hostname: { get_operation_output: [ SELF, Standard, create, old_hostnane ] }
+      new_hostname: { get_operation_output: [ SELF, Standard, configure, new_hostnane ] }
+    interfaces:
+      Standard:
+        create: scripts/groovy_with_output.groovy
+        configure:
+          inputs:
+            customHostName: { get_property: [SELF, customHostName]}
+            OUTPUT_FROM_CREATE: { get_operation_output: [ SELF, Standard, create, output_from_create ] }
+          implementation: scripts/bash_with_output.sh
+
 relationship_types:
   alien.test.functions.relationships.WarHostedOnTomcat:
     derived_from: tosca.relationships.HostedOn

@@ -2,10 +2,14 @@ package alien4cloud.tosca;
 
 import java.util.List;
 
+import alien4cloud.common.AlienConstants;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.PaaSNodeTemplate;
+import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
+import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.utils.AlienUtils;
 
 import com.google.common.collect.Lists;
 
@@ -28,7 +32,7 @@ public class ToscaUtils {
 
     /**
      * Return
-     * 
+     *
      * @param paaSNodeTemplate
      * @return
      */
@@ -57,7 +61,7 @@ public class ToscaUtils {
 
     /**
      * Returns the ordered nodeTemplate hierarchy for a given nodeTemplate
-     * 
+     *
      * @param paaSNodeTemplate
      * @return ordered nodeTemplate map
      */
@@ -75,6 +79,19 @@ public class ToscaUtils {
             throw new PaaSTechnicalException("The node template <" + paaSNodeTemplate.getId() + "> is not declared as hosted on a compute.");
         }
         return templateList;
+    }
+
+    public static String getProperInterfaceName(String interfaceName) {
+        if (ToscaNodeLifecycleConstants.STANDARD_SHORT.equalsIgnoreCase(interfaceName)) {
+            return ToscaNodeLifecycleConstants.STANDARD;
+        } else if (ToscaRelationshipLifecycleConstants.CONFIGURE_SHORT.equalsIgnoreCase(interfaceName)) {
+            return ToscaRelationshipLifecycleConstants.CONFIGURE;
+        }
+        return interfaceName;
+    }
+
+    public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {
+        return AlienUtils.prefixWith(AlienConstants.COLON_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });
     }
 
 }

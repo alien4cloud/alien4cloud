@@ -14,7 +14,7 @@ import org.springframework.ldap.core.LdapTemplate;
 
 import alien4cloud.ldap.LdapUserDao;
 import alien4cloud.ldap.UserLdapAttributeMapper;
-import alien4cloud.security.User;
+import alien4cloud.security.model.User;
 
 /**
  * Parent class for the LDAP tests.

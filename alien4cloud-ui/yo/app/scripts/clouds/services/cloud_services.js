@@ -166,6 +166,8 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
 
     var cloudZoneResource = $resource('rest/clouds/:id/zones/:resourceId/resource');
 
+    var cloudRefreshResource = $resource('rest/clouds/:id/refresh');
+    
     var crudCloud = $resource('rest/clouds/:id', {}, {
       'create': {
         method: 'POST',
@@ -257,16 +259,28 @@ angular.module('alienUiApp').factory('cloudServices', ['$resource',
       }
     });
 
+    var cloudProperty = $resource('rest/clouds/:cloudId/properties', {}, {
+      'upsert': {
+        method: 'POST',
+        isArray: false,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var cloneCloud = $resource('rest/clouds/:id/clone');
 
     return {
       'create': crudCloud.create,
       'get': crudCloud.get,
+      'refresh': cloudRefreshResource.get,
       'update': crudCloud.update,
       'remove': crudCloud.remove,
       'config': CloudConfiguration,
       'userRoles': manageCloudUserRoles,
       'groupRoles': manageCloudGroupRoles,
+      'upsertProperty': cloudProperty.upsert,
       'flavorFormDescriptor': flavorFormDescriptor,
       'addFlavor': crudFlavor.save,
       'removeFlavor': crudFlavor.remove,

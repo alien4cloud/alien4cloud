@@ -180,6 +180,12 @@ var checkTodoList = function(enabled) {
 };
 module.exports.checkTodoList = checkTodoList;
 
+var checkWarningList = function(enabled) {
+  navigation.go('applications', 'deployment');
+  expect(element(by.binding('APPLICATIONS.TOPOLOGY.WARNING.LABEL')).isPresent()).toBe(enabled);
+};
+module.exports.checkWarningList = checkWarningList;
+
 var checkApplicationDeployable = function(applicationName, enabled) {
   common.goToApplicationSearchPage();
   common.goToApplicationDetailPage(applicationName);
@@ -599,6 +605,13 @@ var checkCountInputs = function(valueExpected) {
 };
 module.exports.checkCountInputs = checkCountInputs;
 
+var renameApplicationInput = function(oldName, newName) {
+  showInputsTab();
+  common.sendValueToXEditable('td_' + oldName, newName, false);
+  closeInputsTab();
+};
+module.exports.renameApplicationInput = renameApplicationInput;
+
 var checkNumberOfPropertiesForACapability = function(expectedCount) {
   var relationships = element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
   browser.waitForAngular();
@@ -613,10 +626,10 @@ var addNodeTemplateToNodeGroup = function(nodeTemplateName, groupName) {
   element(by.id('node_groups_' + nodeTemplateName)).click();
   if (groupName) {
     // associate the node to the group
-    element(by.id('Compute_memberOf_' + groupName)).click();  
+    element(by.id('Compute_memberOf_' + groupName)).click();
   } else {
     // add a new group
-    element(by.id('createGroupWithMember_' + nodeTemplateName)).click();  
+    element(by.id('createGroupWithMember_' + nodeTemplateName)).click();
   }
 }
 module.exports.addNodeTemplateToNodeGroup = addNodeTemplateToNodeGroup;

@@ -6,7 +6,7 @@
           <div class="col-md-2 center visible-md visible-lg" style="height: 127px;">
             <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" class="center" />
           </div>
-          <div class="col-md-8">
+          <div class="col-md-7">
 
             <div id="cloud_name_input" class="h1" style="display: inline-block;">
               <span editable-text="cloud.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateCloud({'name' : $data})" blur="submit">
@@ -20,13 +20,16 @@
             </div>
 
           </div>
-          <div class="col-md-2">
-            <button type="button" id="cloud-enable-button" class="btn btn-success" ng-click="enableCloud()" ng-if="!cloud.enabled">
+          <div class="col-md-3">
+            <button type="button" id="cloud-enable-button" class="btn btn-success {{ !enablePending ? '' : 'disabled'}}" ng-click="enableCloud()" ng-if="!cloud.enabled">
               <i class="fa" ng-class="{'fa-play': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.ENABLE' | translate}}
             </button>
-            <button type="button" id="cloud-disable-button" class="btn btn-danger" ng-click="disableCloud()" ng-if="cloud.enabled">
+            <button type="button" id="cloud-disable-button" class="btn btn-danger {{ !enablePending ? '' : 'disabled'}}" ng-click="disableCloud()" ng-if="cloud.enabled">
               <i class="fa" ng-class="{'fa-stop': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.DISABLE' | translate}}
             </button>
+            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending ? '' : 'disabled'}}" ng-click="refreshCloud()">
+              <i class="fa" ng-class="{'fa-refresh': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.REFRESH' | translate}}
+            </button>            
           </div>
         </div>
         <div class="row">
@@ -761,8 +764,8 @@
             </fieldset>
           </div>
         </div>
-      </tab>      
-      
+      </tab>
+
       <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
         <div class="row" style="margin-bottom:20px;">
           <div class=col-md-12>
@@ -784,6 +787,12 @@
                     {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
                   </div>
                 </div>
+                <meta-properties-display
+                  id="cloudMetaPropertiesDisplay"
+                  ng-if="configurationProperties"
+                  properties="configurationProperties"
+                  cloud="cloud">
+                </meta-properties-display>
               </div>
             </div>
           </div>

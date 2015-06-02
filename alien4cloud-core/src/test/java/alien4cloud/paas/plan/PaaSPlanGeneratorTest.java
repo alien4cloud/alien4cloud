@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
@@ -94,7 +94,7 @@ public class PaaSPlanGeneratorTest {
         topology.setId(UUID.randomUUID().toString());
 
         // deploy the topology so we build the root tree using the PaaSProvider abstract class.
-        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplate(topology);
+        Map<String, PaaSNodeTemplate> nodeTemplates = topologyTreeBuilderService.buildPaaSNodeTemplates(topology);
         List<PaaSNodeTemplate> roots = topologyTreeBuilderService.buildPaaSTopology(nodeTemplates).getComputes();
 
         // now build the plans and check results

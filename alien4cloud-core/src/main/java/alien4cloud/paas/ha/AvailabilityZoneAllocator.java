@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
 
-import alien4cloud.common.AlienContants;
+import alien4cloud.common.AlienConstants;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
@@ -171,7 +171,7 @@ public class AvailabilityZoneAllocator {
         if (volumeProperties != null && volumeProperties.containsKey(NormativeBlockStorageConstants.VOLUME_ID)) {
             String allVolumeIds = FunctionEvaluator.getScalarValue(volumeProperties.get(NormativeBlockStorageConstants.VOLUME_ID));
             if (StringUtils.isNotEmpty(allVolumeIds)) {
-                int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienContants.STORAGE_AZ_VOLUMEID_SEPARATOR);
+                int indexOfAvzAndIdSeparator = allVolumeIds.split(",")[0].indexOf(AlienConstants.STORAGE_AZ_VOLUMEID_SEPARATOR);
                 // TODO for the moment we suppose we do not manage HA for node with scaling policy
                 if (indexOfAvzAndIdSeparator > 0) {
                     return allVolumeIds.substring(0, indexOfAvzAndIdSeparator);

@@ -335,6 +335,7 @@ public abstract class AbstractPlanGenerator {
             activity.setSideOperationName(sideMember.operation);
             activity.setSideOperationImplementationArtifact(sideOperation.getImplementationArtifact());
             activity.setSideInputParameters(sideOperation.getInputParameters());
+            activity.setSideOutputs(sideOperation.getOutputs());
         }
 
         next(activity);
@@ -350,6 +351,7 @@ public abstract class AbstractPlanGenerator {
         activity.setSourceRelationshipId(sourceRelationshipId);
         activity.setImplementationArtifact(operation.getImplementationArtifact());
         activity.setInputParameters(operation.getInputParameters());
+        activity.setOutputs(operation.getOutputs());
     }
 
     private static Interface getNodeInterface(PaaSNodeTemplate nodeTemplate, String interfaceName) {

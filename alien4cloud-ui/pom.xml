@@ -3,7 +3,7 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM25</version>
+    <version>1.0.0-SM26</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
@@ -33,8 +33,6 @@
       <artifactId>websocket-server</artifactId>
     </dependency>
   </dependencies>
-
-
 
   <build>
     <sourceDirectory>yo/app/scripts</sourceDirectory>
@@ -161,27 +159,6 @@
   </build>
 
   <profiles>
-      <profile>
-          <id>intellij</id>
-          <dependencies>
-              <dependency>
-                  <groupId>alien4cloud</groupId>
-                  <artifactId>alien4cloud-rest-api</artifactId>
-                  <scope>compile</scope>
-                  <version>${project.version}</version>
-              </dependency>
-              <dependency>
-                  <groupId>org.eclipse.jetty</groupId>
-                  <artifactId>jetty-webapp</artifactId>
-                  <scope>compile</scope>
-              </dependency>
-              <dependency>
-                  <groupId>org.eclipse.jetty.websocket</groupId>
-                  <artifactId>websocket-server</artifactId>
-                  <scope>compile</scope>
-              </dependency>
-          </dependencies>
-      </profile>
     <profile>
       <id>default</id>
       <activation>

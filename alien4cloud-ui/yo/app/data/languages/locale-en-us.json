@@ -351,7 +351,12 @@
       "STORAGE_RESOURCES": "Block Storages",
       "ENVIRONMENT_INVALID": "Selected environment is not valid to run a deployment. Please update it in order to deploy.",
       "CLOUD_ERROR_TITLE": "Select cloud",
-      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin."
+      "CLOUD_ERROR_MESSAGE": "You have not enough rights on the related cloud or the cloud is disabled to deploy. Please contact an admin.",
+      "PROPERTIES": {
+        "REQUIRED": "Required",
+        "WARNING": "Warning",
+        "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+      }
     },
     "TOPOLOGY": {
       "LABEL": "Topology",
@@ -380,7 +385,6 @@
       },
       "PROPERTIES_OUTPUTS": "Output properties",
       "NO_OUTPUTS": "No output properties or attributes",
-      "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
       "REQUIREMENTS": "Prerequisites",
       "CAPABILITIES": "Capabilities",
       "ADD_RELATIONSHIP": "Add relationship to another node",
@@ -432,6 +436,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
           "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
           "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        },
+        "PROPERTIES": {
+          "LABEL": "Nodes properties",
+          "NODENAME": "Node",
+          "PROP": "Properties"
         }
       },
       "GROUPS": {
@@ -441,6 +450,13 @@
         "ADD": "Add a group",
         "TOOLTIP": "Group management"
       },
+      "ARTIFACTS": {
+        "TITLE": "Artifacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Define artifact as input"
+      },  
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
@@ -547,8 +563,9 @@
     "CLOUD": "Cloud",
     "IAAS_TYPE": "IaaS type",
     "ENVIRONMENT_TYPE": "Environment type",
-    "ENABLE": "Enable cloud",
-    "DISABLE": "Disable cloud",
+    "ENABLE": "Enable",
+    "DISABLE": "Disable",
+    "REFRESH": "Refresh",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
     "MANAGE_ROLES": "Authorizations",
@@ -690,6 +707,8 @@
       "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources.",
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
+      "REFRESHING_FAILED_TITLE": "Refresh a cloud",
+      "REFRESHING_FAILED": "An error occurred while refreshing.",
       "352_TITLE": "Save the cloud configuration",
       "352": "Invalid cloud configuration. Please change it and retry."
     },
@@ -713,6 +732,7 @@
     "373": "Unexpected error happened while switching on / off maintenance mode ",
     "374": "One of your meta-property is empty and does not have a default value.",
     "390": "It's forbidden to remove the last admin user.",
+    "391": "It's forbidden to remove the ADMIN role of the last admin user.",
     "400": "Unexpected error happened while accessing to CSAR repository",
     "401": "You have to be connected to perform this operation. You are going to be redirected now.",
     "500": "Unknown error",
@@ -949,11 +969,11 @@
     }
   },
   "ENVIRONMENT_TYPE": {
-	  "OTHER": "Other",
-	  "DEVELOPMENT": "Development",
-	  "INTEGRATION_TESTS": "Integration tests",
-	  "USER_ACCEPTANCE_TESTS": "UAT",
-	  "PRE_PRODUCTION": "Pre-production",
-	  "PRODUCTION": "production"
-    }
+    "OTHER": "Other",
+    "DEVELOPMENT": "Development",
+    "INTEGRATION_TESTS": "Integration tests",
+    "USER_ACCEPTANCE_TESTS": "UAT",
+    "PRE_PRODUCTION": "Pre-production",
+    "PRODUCTION": "production"
+  }
 }

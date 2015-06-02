@@ -293,11 +293,10 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.checkProperty = function(definition, value, interfaceName) {
-
         var checkPropertyRequest = {
-          'propertyId': definition.name,
+          'definitionId': definition.name,
           'propertyDefinition': definition,
-          'propertyValue': value
+          'value': value
         };
 
         return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
@@ -458,7 +457,7 @@ angular.module('alienUiApp').controller(
               } else {
                 resultHtml.push('<li>Instance ' + instanceId + ' : OK (' + $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.NO_RETURN') + ')</li>');
               }
-              
+
             });
             resultHtml.push('</ul>');
             // timeout at 0 == keep displayed until close
@@ -491,7 +490,7 @@ angular.module('alienUiApp').controller(
             applicationEnvironmentId: $scope.selectedEnvironment.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instanceId: nodeInstanceId
-          }, {}, undefined); 
+          }, {}, undefined);
           break;
         case 'MAINTENANCE':
           deploymentServices.nodeInstanceMaintenanceOff({
@@ -499,7 +498,7 @@ angular.module('alienUiApp').controller(
             applicationEnvironmentId: $scope.selectedEnvironment.id,
             nodeTemplateId: $scope.selectedNodeTemplate.name,
             instanceId: nodeInstanceId
-          }, {}, undefined);             
+          }, {}, undefined);
         }
       };
 //      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
@@ -531,7 +530,7 @@ angular.module('alienUiApp').controller(
           }, {}, undefined);
         }
       };
-      
+
       $scope.changeEnvironment = function(){
         $scope.loadTopologyRuntime();
         $scope.clearNodeSelection();

@@ -38,6 +38,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+/**
+ *
+ * Only parameter exposed as property definitions can be used for "custom" operations.
+ *
+ * @author 'Igor Ngouagna'
+ *
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -48,7 +56,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
-public class PropertyDefinition implements IOperationParameter {
+public class PropertyDefinition implements IValue {
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull

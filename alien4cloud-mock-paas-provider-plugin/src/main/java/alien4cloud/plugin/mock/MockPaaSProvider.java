@@ -122,7 +122,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         attributes.put(TOSCA_NAME, "TOSCA-Simple-Profile-YAML");
         Map<String, String> runtimeProperties = Maps.newHashMap();
         runtimeProperties.put(PUBLIC_IP, "10.52.0." + i);
-        return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties);
+        Map<String, String> outputs = Maps.newHashMap();
+        return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties, outputs);
     }
 
     private ScalingPolicy getScalingPolicy(String id, Map<String, ScalingPolicy> policies, Map<String, NodeTemplate> nodeTemplates) {

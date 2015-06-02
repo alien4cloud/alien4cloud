@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudImageService;
 import alien4cloud.cloud.CloudService;
+import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.AvailabilityZone;
 import alien4cloud.model.cloud.Cloud;
@@ -35,16 +36,22 @@ import alien4cloud.model.cloud.MatchedStorageTemplate;
 import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.rest.internal.PropertyRequest;
+import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.CloudRole;
-import alien4cloud.security.Role;
-import alien4cloud.security.services.ResourceRoleService;
+import alien4cloud.security.ResourceRoleService;
+import alien4cloud.security.model.CloudRole;
+import alien4cloud.security.model.Role;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -55,13 +62,14 @@ import com.wordnik.swagger.annotations.Authorization;
 @RestController
 @RequestMapping("/rest/clouds")
 public class CloudController {
-
     @Resource
     private CloudService cloudService;
     @Resource
     private CloudImageService cloudImageService;
     @Resource
     private ResourceRoleService resourceRoleService;
+    @Resource
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Create a new cloud.
@@ -155,6 +163,37 @@ public class CloudController {
                 cloudService.getCloudResourceIds(cloud, CloudResourceType.IMAGE), cloudService.getCloudResourceIds(cloud, CloudResourceType.FLAVOR),
                 cloudService.getCloudResourceIds(cloud, CloudResourceType.NETWORK), cloudService.getCloudResourceIds(cloud, CloudResourceType.VOLUME));
         return RestResponseBuilder.<CloudDTO> builder().data(cloudDTO).build();
+    }
+
+    /**
+     * Get details for a cloud.
+     *
+     * @param id Id of the cloud.
+     */
+    @ApiOperation(value = "Refresh a cloud.")
+    @RequestMapping(value = "/{id}/refresh", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<CloudDTO> refresh(@ApiParam(value = "Id of the cloud to refresh.", required = true) @Valid @NotBlank @PathVariable String id) {
+        // check roles on the requested cloud
+        Cloud cloud = cloudService.getMandatoryCloud(id);
+        AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
+        IPaaSProvider provider = null;
+        try {
+            provider = cloudService.getPaaSProvider(id);
+            cloudService.refreshCloud(cloud, provider);
+        } catch (CloudDisabledException e) {
+            return RestResponseBuilder
+                    .<CloudDTO> builder()
+                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + id
+                            + "> is disabled or not found")).build();
+        } catch (PluginConfigurationException e) {
+            log.error("Failed to enable cloud. PaaS provider plugin rejects the configuration of the plugin.", e);
+            return RestResponseBuilder
+                    .<CloudDTO> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.INVALID_PLUGIN_CONFIGURATION)
+                            .message("The cloud configuration is not considered as valid by the plugin. cause: \n" + e.getMessage()).build()).build();
+        }
+        return get(id);
     }
 
     /**
@@ -507,5 +546,33 @@ public class CloudController {
         Cloud cloud = cloudService.getMandatoryCloud(cloudId);
         cloudService.setAvailabilityZoneResourceId(cloud, availabilityZoneId, pasSResourceId);
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Update or create a property for an cloud
+     *
+     * @param cloudId id of the cloud to update
+     * @param propertyRequest property request
+     * @return information on the constraint
+     */
+    @RequestMapping(value = "/{cloudId}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<ConstraintInformation> upsertMetaProperty(@PathVariable String cloudId, @RequestBody PropertyRequest propertyRequest)
+            throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
+        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
+        try {
+            metaPropertiesService.upsertMetaProperty(cloud, propertyRequest.getDefinitionId(), propertyRequest.getValue());
+        } catch (ConstraintViolationException e) {
+            log.error("Constraint violation error for property <" + propertyRequest.getDefinitionId() + "> with value <" + propertyRequest.getValue() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+            log.error("Constraint value violation error for property <" + e.getConstraintInformation().getName() + "> with value <"
+                    + e.getConstraintInformation().getValue() + "> and type <" + e.getConstraintInformation().getType() + ">", e);
+            return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())
+                    .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
+        }
+        return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
     }
 }

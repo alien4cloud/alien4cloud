@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,8 @@ import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IOperationParameter;
+import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.ScalarPropertyValue;
@@ -36,7 +38,7 @@ import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.paas.plan.ToscaRelationshipLifecycleConstants;
-import alien4cloud.security.Role;
+import alien4cloud.security.model.Role;
 import alien4cloud.test.utils.SecurityTestUtils;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.utils.FileUtil;
@@ -136,7 +138,7 @@ public class FunctionEvaluatorTest {
         scalarParameter3.setValue(":");
         scalarParameter4.setValue("port");
 
-        concatAttributeValue.setParameters(new ArrayList<IOperationParameter>());
+        concatAttributeValue.setParameters(new ArrayList<IValue>());
         concatAttributeValue.getParameters().add(scalarParameter1);
         concatAttributeValue.getParameters().add(scalarParameter2);
         concatAttributeValue.getParameters().add(scalarParameter3);
@@ -155,7 +157,7 @@ public class FunctionEvaluatorTest {
         PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
         Operation configOp = computePaaS.getIndexedToscaElement().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);
-        IOperationParameter param = configOp.getInputParameters().get("customHostName");
+        IValue param = configOp.getInputParameters().get("customHostName");
 
         Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates));
@@ -187,7 +189,7 @@ public class FunctionEvaluatorTest {
                 .get(ToscaRelationshipLifecycleConstants.POST_CONFIGURE_SOURCE);
 
         // test SOURCE keyword
-        IOperationParameter param = configOp.getInputParameters().get("contextPath");
+        IValue param = configOp.getInputParameters().get("contextPath");
         Assert.assertEquals(getPropertyValue(warPaaS, "context_path"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
@@ -246,7 +248,7 @@ public class FunctionEvaluatorTest {
                 .get(ToscaNodeLifecycleConstants.CONFIGURE);
 
         // case keyword SOURCE used on a NodeType
-        IOperationParameter param = configOp.getInputParameters().get("keywordSourceBadUsage");
+        IValue param = configOp.getInputParameters().get("keywordSourceBadUsage");
         try {
             FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, computePaaS, builtPaaSNodeTemplates);
         } catch (BadUsageKeywordException e) {
@@ -257,4 +259,38 @@ public class FunctionEvaluatorTest {
 
     }
 
+    @Test
+    public void getOperationOutputTest() {
+        String computeName = "comp_getOpOutput";
+        PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
+
+        // check if outputs referenced in get_operation_outputs on attributes are well registered on the related operation
+        IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
+        IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
+        IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
+        Set<String> createOutput = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CREATE).getOutputs();
+        Set<String> configureOutput = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CONFIGURE).getOutputs();
+
+        Assert.assertTrue(oldHostNameAttr instanceof FunctionPropertyValue);
+        Assert.assertTrue(newHostNameAttr instanceof FunctionPropertyValue);
+
+        String output1 = ((FunctionPropertyValue) oldHostNameAttr).getElementNameToFetch();
+        String output2 = ((FunctionPropertyValue) newHostNameAttr).getElementNameToFetch();
+
+        Assert.assertTrue(createOutput.contains(output1));
+        Assert.assertTrue(configureOutput.contains(output2));
+
+        // check if outputs referenced in get_operation_output on an input parameter is well registered on the related operation
+        Operation configOp = computePaaS.getIndexedToscaElement().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
+                .get(ToscaNodeLifecycleConstants.CONFIGURE);
+
+        IValue param = configOp.getInputParameters().get("OUTPUT_FROM_CREATE");
+
+        Assert.assertTrue(param instanceof FunctionPropertyValue);
+
+        String output3 = ((FunctionPropertyValue) param).getElementNameToFetch();
+        Assert.assertTrue(createOutput.contains(output3));
+    }
 }

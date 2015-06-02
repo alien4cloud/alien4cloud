@@ -14,13 +14,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "function_concat", "parameters" })
-public class ConcatPropertyValue implements IAttributeValue {
+public class ConcatPropertyValue extends AbstractPropertyValue {
     private String function_concat;
     @JsonDeserialize(contentUsing = OperationParameterDeserializer.class)
-    private List<IOperationParameter> parameters;
-
-    @Override
-    public boolean isDefinition() {
-        return false;
-    }
+    private List<IValue> parameters;
 }

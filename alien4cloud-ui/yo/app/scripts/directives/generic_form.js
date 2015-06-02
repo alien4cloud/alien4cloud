@@ -162,7 +162,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
 
     if (UTILS.isDefinedAndNotNull(savePromise)) {
       savePromise.then(function(errors) {
-        if (errors.hasOwnProperty('error') && UTILS.isDefinedAndNotNull(errors.error)) {
+        if (UTILS.isDefinedAndNotNull(errors) && errors.hasOwnProperty('error') && UTILS.isDefinedAndNotNull(errors.error)) {
           // There is a main error
           var resultHtml = $filter('translate')('CLOUDS.ERRORS.' + errors.error.code);
           toaster.pop('error', $filter('translate')('CLOUDS.ERRORS.' + errors.error.code + '_TITLE'), resultHtml, 4000, 'trustedHtml', null);
@@ -331,9 +331,9 @@ angular.module('alienUiApp').directive('toscaTypeFormLabel', ['propertiesService
           }
         } else {
           var checkPropertyRequest = {
-            'propertyId': scope.propertyName,
+            'definitionId': scope.propertyName,
             'propertyDefinition': propertyDefinition,
-            'propertyValue': propertyValue
+            'value': propertyValue
           };
           return propertiesServices.validConstraints({}, angular.toJson(checkPropertyRequest), function(successResult) {
             if (successResult.error === null) {

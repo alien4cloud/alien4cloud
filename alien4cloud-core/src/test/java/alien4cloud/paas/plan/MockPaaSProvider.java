@@ -72,8 +72,7 @@ public class MockPaaSProvider implements IPaaSProvider, IConfigurablePaaSProvide
     }
 
     @Override
-    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
-            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
 
     }
 
