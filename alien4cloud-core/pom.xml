@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
-		</dependency>		
+		</dependency>
 		<!-- tests -->
 		<dependency>
 			<groupId>junit</groupId>

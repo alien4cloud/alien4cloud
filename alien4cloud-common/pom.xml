@@ -94,7 +94,7 @@
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjweaver</artifactId>
     </dependency>
-    <!-- Not every alien project need http client (rest utilities), the one who uses must add it by it-self in order to not to have to embark http-client in server 
+    <!-- Not every alien project need http client (rest utilities), the one who uses must add it by it-self in order to not to have to embark http-client in server
       web archive -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
