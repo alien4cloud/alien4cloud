@@ -85,6 +85,7 @@
 	    <version>1.1.0.RELEASE</version>  
 	</dependency>	
 	<!-- End of Spring social dependencies -->  
+	
     <dependency>
       <groupId>org.springframework.ldap</groupId>
       <artifactId>spring-ldap-core</artifactId>
@@ -117,4 +118,16 @@
       <artifactId>spring-test</artifactId>
     </dependency>
   </dependencies>
+  
+   <!-- Repository for Spring Social Github -->
+  <repositories>
+    <repository>
+        <id>spring-milestones</id>
+        <name>Spring Milestones</name>
+        <url>http://repo.spring.io/milestone</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+  </repositories>
 </project>
