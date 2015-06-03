@@ -363,7 +363,7 @@
       "PROPERTIES": {
         "REQUIRED": "Obligatoire",
         "WARNING": "Alerte",
-        "WARNING_MESSAGE" : "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+        "WARNING_MESSAGE": "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
       }
     },
     "TOPOLOGY": {
@@ -393,7 +393,6 @@
       },
       "PROPERTIES_OUTPUTS": "Propriétés de sortie",
       "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
-      "ARTIFACTS_CHECK_INPUT": "Définir l'artefact comme entrée",
       "REQUIREMENTS": "Prérequis",
       "CAPABILITIES": "Capacités",
       "RELATIONSHIPS": "Relations",
@@ -402,7 +401,6 @@
       "REMOVE_NODE": "Supprimer le noeud",
       "REFERENCE": "Référence",
       "ARTIFACTS": "Artefacts",
-      "ARTIFACTS_INPUTS": "Artefacts en entrée",
       "UPDATE_ARTIFACT": "Mettre à jour l'artefact",
       "SCALE": "Scale",
       "UNSCALE": "Unscale",
@@ -445,6 +443,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées",
           "CONFIGURATION_ERROR": "La validation de la polique HA a échoué dû à une mauvaise configuration de zones de disponibilité",
           "UNKNOWN_ERROR": "La validation de la polique HA a échoué dû à une erreur inconnue"
+        },
+        "PROPERTIES": {
+          "LABEL": "Propriétés de noeuds",
+          "NODENAME": "Noeud",
+          "PROP": "Propriétés"
         }
       },
       "GROUPS": {
@@ -454,6 +457,13 @@
         "ADD": "Ajouter un groupe",
         "TOOLTIP": "Gestion des groupes"
       },
+      "ARTIFACTS": {
+        "TITLE": "Artefacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Définir l'artefact comme entrée"
+      },      
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
@@ -759,7 +769,7 @@
       "pattern": "La valeur doit respecter le modèle {{reference}}",
       "validValues": "La valeur doit être comprise dans [ {{reference}} ]"
     },
-    "804": "La valeur n'est pas du type attendu",
+    "804": "{{value}} n'est pas du type {{type}}",
     "805": {
       "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"

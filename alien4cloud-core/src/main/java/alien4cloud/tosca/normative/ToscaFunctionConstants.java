@@ -10,6 +10,7 @@ public class ToscaFunctionConstants {
     public static final String GET_PROPERTY = "get_property";
     public static final String GET_ATTRIBUTE = "get_attribute";
     public static final String GET_INPUT = "get_input";
+    public static final String GET_OPERATION_OUTPUT = "get_operation_output";
 
     /* reserved keywords */
     public static final String SELF = "SELF";

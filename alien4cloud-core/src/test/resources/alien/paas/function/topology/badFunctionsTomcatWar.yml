@@ -11,6 +11,18 @@ node_templates:
         value: ubuntu
       customHostName:
         value: testHostname
+        
+  comp_getOpOutput:
+    type: alien.test.TestComputeWithGetOperationOutput
+    properties:
+      os_type:
+        value: linux
+      os_distribution:
+        value: ubuntu
+      os_version:
+        value: ubuntu
+      customHostName:
+        value: testHostname
   java:
     type: alien.nodes.Java
     properties:

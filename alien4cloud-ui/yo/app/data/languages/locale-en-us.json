@@ -236,8 +236,8 @@
   "EDIT_RIGHTS": {
     "EDIT_ROLE_RESOURCE": "Edit roles for resource",
     "EDIT_ROLE_HEADER_RESOURCE": "Add or remove roles to the resource",
-    "EDIT_ROLE_ENV": "Edit roles for environement",
-    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environement"
+    "EDIT_ROLE_ENV": "Edit roles for environment",
+    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environment"
   },
   "NAVAPPLICATIONS": {
     "MENU_INFO": "Informations",
@@ -267,7 +267,7 @@
     "UNDEPLOYED": "Undeployed",
     "DEPLOYMENT_IN_PROGRESS": "Deployment in progress",
     "UNDEPLOYMENT_IN_PROGRESS": "Undeployment in progress",
-    "UNKNOWN": "Unknwon",
+    "UNKNOWN": "Unknown",
     "WARNING": "Warning",
     "FAILURE": "Failed",
     "DEPLOY": "Deploy",
@@ -355,7 +355,7 @@
       "PROPERTIES": {
         "REQUIRED": "Required",
         "WARNING": "Warning",
-        "WARNING_MESSAGE" : "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
+        "WARNING_MESSAGE": "Those input properties have no values provided by the application, the cloud or the environment. Please contact your administrator."
       }
     },
     "TOPOLOGY": {
@@ -385,7 +385,6 @@
       },
       "PROPERTIES_OUTPUTS": "Output properties",
       "NO_OUTPUTS": "No output properties or attributes",
-      "ARTIFACTS_CHECK_INPUT": "Define artifact as input",
       "REQUIREMENTS": "Prerequisites",
       "CAPABILITIES": "Capabilities",
       "ADD_RELATIONSHIP": "Add relationship to another node",
@@ -437,6 +436,11 @@
           "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "Node's Availability zone has been allocated based on its volume, allocated zone is not in application's deployment setup",
           "CONFIGURATION_ERROR": "HA policy validation has failed due to bad configuration of availability zones",
           "UNKNOWN_ERROR": "HA policy validation has failed due to unknown error"
+        },
+        "PROPERTIES": {
+          "LABEL": "Nodes properties",
+          "NODENAME": "Node",
+          "PROP": "Properties"
         }
       },
       "GROUPS": {
@@ -446,6 +450,13 @@
         "ADD": "Add a group",
         "TOOLTIP": "Group management"
       },
+      "ARTIFACTS": {
+        "TITLE": "Artifacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Define artifact as input"
+      },  
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
@@ -453,7 +464,7 @@
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
       "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
-      "NODETEMPLATE_PROPERTY_REQUIRED": "Required proterty"
+      "NODETEMPLATE_PROPERTY_REQUIRED": "Required property"
     },
     "ENVIRONMENT": {
       "ENV": "Environment",
@@ -484,7 +495,7 @@
       "TITLE": "New version",
       "MODAL": {
         "SELECT-TITLE": "Topology",
-        "DESC": "Select an older verison to duplicate its topology",
+        "DESC": "Select an older version to duplicate its topology",
         "PATTERN": "Invalid format version."
       }
     },
@@ -752,7 +763,7 @@
       "pattern": "Value must match the pattern {{reference}}",
       "validValues": "Value must be in values [ {{reference}} ]"
     },
-    "804": "The value type is not valid",
+    "804": "{{value}} type is not {{type}}",
     "805": {
       "TITLE": "Operation execution failed {{operation}}",
       "MESSAGE": "One or several parameters are required : {{value}}"
@@ -964,5 +975,5 @@
     "USER_ACCEPTANCE_TESTS": "UAT",
     "PRE_PRODUCTION": "Pre-production",
     "PRODUCTION": "production"
-    }
+  }
 }

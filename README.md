@@ -1,11 +1,16 @@
-alien4cloud
-===========
+![Alien4Cloud](https://raw.githubusercontent.com/alien4cloud/alien4cloud.github.io/sources/images/alien4cloud-banner.png)
+
+[Website](http://alien4cloud.github.io) |
+[Community](http://alien4cloud.github.io/community/index.html) |
+[Roadmap](http://alien4cloud.github.io/community/index.html#/roadmap/index.html) |
+[Documentation](http://alien4cloud.github.io/community/index.html#/documentation/index.html) |
+[Twitter](https://twitter.com/alien4cloud) |
+[Release notes](http://alien4cloud.github.io/community/index.html#/release_notes/index.html)
+
 
 ALIEN 4 Cloud stands for Application LIfecycle ENablement for Cloud.
 
 FastConnect started this project in order to help enterprises adopting the cloud for their new and existing applications in an Open way. A4C has an Open-Source model (Apache 2 License) and standardization support in mind.
-
-You can find more details and informations on the [project's website](http://alien4cloud.github.io/index.html)
 
 ## Building Alien 4 Cloud
 

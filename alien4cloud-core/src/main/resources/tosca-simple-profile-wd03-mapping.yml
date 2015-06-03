@@ -20,6 +20,7 @@
 - nodetemplate_capabilities_type: alien4cloud.tosca.parser.impl.advanced.NodeTemplateCapabilitiesParser
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
+- artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -61,6 +62,9 @@
   inputs:
     map: inputs
     type: property_definition
+  input_artifacts:
+    map: inputArtifacts
+    type: template_deployment_artifact
   node_templates:
     map: nodeTemplates
     type: node_template
@@ -73,6 +77,13 @@
     map: groups
     key: name
     type: node_group
+    
+- template_deployment_artifact: alien4cloud.model.components.DeploymentArtifact
+  type: artifactType
+  implementation: 
+    reference: artifactRef
+    type: artifact_ref_parser
+  description: artifactName
     
 - node_group: alien4cloud.model.topology.NodeGroup
   members:
@@ -95,6 +106,9 @@
     inner: void
     deferred: true
     type: nodetemplate_capabilities_type
+  artifacts:
+    map: artifacts
+    type: template_deployment_artifact
     
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 

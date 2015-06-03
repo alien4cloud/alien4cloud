@@ -8,7 +8,8 @@ angular.module('alienUiApp').directive('metaPropertiesDisplay', function () {
     scope: {
       'properties': '=',
       'application': '=',
-      'cloud': '='
+      'cloud': '=',
+      'collapse': '=',
     },
     link: {}
   };

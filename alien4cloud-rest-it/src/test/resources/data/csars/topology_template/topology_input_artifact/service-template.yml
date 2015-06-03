@@ -1,0 +1,114 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+description: Alien4Cloud generated service template
+template_name: topology_input_artifact
+template_version: 0.1.0-SNAPSHOT
+template_author: admin
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+  - tomcat-war-types:1.0-SNAPSHOT
+  - alien-base-types:1.0-SNAPSHOT
+
+topology_template:
+  input_artifacts:
+    my_war_file:
+      type: alien.artifacts.WarFile
+  node_templates:
+    Compute-2:
+      type: tosca.nodes.Compute
+      properties:
+        os_arch: x86_64
+        os_type: linux
+    War:
+      type: alien.nodes.cloudify.War
+      properties:
+        contextPath: /myapp1
+      requirements:
+        - host:
+            node: Tomcat
+            capability: alien.capabilities.WarHosting
+            relationship: alien.relationships.cloudify.WarHostedOnTomcat
+      artifacts:
+        scripts:
+          implementation: warScripts
+          type: tosca.artifacts.File
+          description: 
+        war_file:
+          type: alien.artifacts.WarFile
+          implementation: { get_input_artifact: my_war_file }
+    Tomcat-2:
+      type: alien.nodes.cloudify.Tomcat
+      properties:
+        version: 7.0.23
+      requirements:
+        - host:
+            node: Compute-2
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+        secure_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+      artifacts:
+        scripts:
+          implementation: scripts
+          type: tosca.artifacts.File
+          description: scripts
+    War-2:
+      type: alien.nodes.cloudify.War
+      properties:
+        contextPath: /myapp2
+      requirements:
+        - host:
+            node: Tomcat-2
+            capability: alien.capabilities.WarHosting
+            relationship: alien.relationships.cloudify.WarHostedOnTomcat
+      artifacts:
+        scripts:
+          implementation: warScripts
+          type: tosca.artifacts.File
+          description: warScripts
+        war_file:
+          type: alien.artifacts.WarFile
+          implementation: { get_input_artifact: my_war_file }
+    Tomcat:
+      type: alien.nodes.cloudify.Tomcat
+      properties:
+        version: 7.0.23
+      requirements:
+        - host:
+            node: Compute
+            capability: tosca.capabilities.Container
+            relationship: tosca.relationships.HostedOn
+      capabilities:
+        http_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+        app_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+        secure_endpoint:
+          properties:
+            protocol: tcp
+            secure: false
+      artifacts:
+        scripts:
+          implementation: scripts
+          type: tosca.artifacts.File
+          description: scripts
+    Compute:
+      type: tosca.nodes.Compute
+      properties:
+        os_arch: x86_64
+        os_type: linux

@@ -1,4 +1,4 @@
-/* global UTILS */
+/* global UTILS, CONSTANTS */
 'use strict';
 
 angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 'alienAuthService', '$upload', 'applicationServices', 'topologyServices',
@@ -104,6 +104,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
 
       $scope.isTopologyValid($scope.topologyId, $scope.selectedEnvironment.id).$promise.then(function(validTopologyResult) {
         $scope.validTopologyDTO = validTopologyResult.data;
+        prepareTasksAndWarnings($scope.validTopologyDTO);
       });
 
       var processTopologyInfoResult = $scope.processTopologyInformations($scope.topologyId);
@@ -115,6 +116,22 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         }
       });
 
+    }
+
+    // Just group tasks / warnings by category for the display
+    function prepareTasksAndWarnings(validTopologyDTO) {
+      // currently prepare warnings
+      if (UTILS.isDefinedAndNotNull(validTopologyDTO.warningList)) {
+        var preparedWarningList = {};
+        validTopologyDTO.warningList.forEach(function(task) {
+          if (!preparedWarningList.hasOwnProperty(task.code)) {
+            preparedWarningList[task.code] = [];
+          }
+          preparedWarningList[task.code].push(task);
+        });
+        // replace the default warning list
+        validTopologyDTO.warningList = preparedWarningList;
+      }
     }
 
     // update the deployment configuration for the given environment.
@@ -180,14 +197,14 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         if (matchedResources.hasOwnProperty(key) && !(selectedResources && selectedResources.hasOwnProperty(key))) {
           return true;
         }
-        if (minimumSize != undefined) {
+        if (minimumSize !== undefined) {
           if (selectedResources[key].length < minimumSize) {
             return true;
           }
         }
       }
       return false;
-    }
+    };
 
     // Change the selected environment (set only if required).
     var changeEnvironment = function(switchToEnvironment) {
@@ -288,7 +305,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.changeSelectedZone = function(zone) {
-      var idx = UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id);
+      var idx = UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], 'id', zone.id);
       if (idx < 0) {
         $scope.selectedZones[$scope.currentGroupId].push(zone);
       } else {
@@ -315,7 +332,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.showWarningList = function() {
-      return UTILS.isArrayDefinedAndNotEmpty($scope.validTopologyDTO.warningList);
+      return angular.isObject($scope.validTopologyDTO.warningList) && Object.keys($scope.validTopologyDTO.warningList).length > 0;
     };
 
     $scope.isSelectedCompute = function(template) {
@@ -350,7 +367,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     $scope.isSelectedZone = function(zone) {
-      return UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], "id", zone.id) > -1;
+      return UTILS.findByFieldValue($scope.selectedZones[$scope.currentGroupId], 'id', zone.id) > -1;
     };
 
     $scope.isAllowedInputDeployment = function() {
@@ -397,13 +414,12 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         applicationEnvironmentId: $scope.selectedEnvironment.id
       };
       $scope.isDeploying = true;
-      applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest)
-        , function() {
-          $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
-          $scope.isDeploying = false;
-        }, function() {
-          $scope.isDeploying = false;
-        });
+      applicationServices.deployApplication.deploy([], angular.toJson(deployApplicationRequest), function() {
+        $scope.selectedEnvironment.status = 'DEPLOYMENT_IN_PROGRESS';
+        $scope.isDeploying = false;
+      }, function() {
+        $scope.isDeploying = false;
+      });
     };
 
     $scope.undeploy = function() {
@@ -441,7 +457,7 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
     };
 
     // Artifact upload handler
-    $scope.doUploadArtifact = function(file, nodeTemplateName, artifactName) {
+    $scope.doUploadArtifact = function(file, artifactName) {
       if (UTILS.isUndefinedOrNull($scope.uploads)) {
         $scope.uploads = {};
       }
@@ -450,13 +466,13 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
         'type': 'info'
       };
       $upload.upload({
-        url: 'rest/topologies/' + $scope.topologyDTO.topology.id + '/nodetemplates/' + nodeTemplateName + '/artifacts/' + artifactName,
+        url: 'rest/topologies/' + $scope.topologyDTO.topology.id + '/inputArtifacts/' + artifactName + '/upload',
         file: file
       }).progress(function(evt) {
         $scope.uploads[artifactName].uploadProgress = parseInt(100.0 * evt.loaded / evt.total);
       }).success(function(success) {
-        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactRef;
-        $scope.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName = success.data.topology.nodeTemplates[nodeTemplateName].artifacts[artifactName].artifactName;
+        $scope.inputArtifacts[artifactName].artifactRef = success.data.topology.inputArtifacts[artifactName].artifactRef;
+        $scope.inputArtifacts[artifactName].artifactName = success.data.topology.inputArtifacts[artifactName].artifactName;
         $scope.uploads[artifactName].isUploading = false;
         $scope.uploads[artifactName].type = 'success';
       }).error(function(data, status) {
@@ -467,9 +483,9 @@ angular.module('alienUiApp').controller('ApplicationDeploymentCtrl', ['$scope', 
       });
     };
 
-    $scope.onArtifactSelected = function($files, nodeTemplateName, artifactName) {
+    $scope.onArtifactSelected = function($files, artifactName) {
       var file = $files[0];
-      $scope.doUploadArtifact(file, nodeTemplateName, artifactName);
+      $scope.doUploadArtifact(file, artifactName);
     };
 
     /** Properties definition */

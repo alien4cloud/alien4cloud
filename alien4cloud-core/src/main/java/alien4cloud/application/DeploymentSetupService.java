@@ -2,6 +2,7 @@ package alien4cloud.application;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
+import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,7 @@ import alien4cloud.model.cloud.NetworkTemplate;
 import alien4cloud.model.cloud.StorageTemplate;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
@@ -49,6 +52,7 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
+import alien4cloud.utils.InputArtifactUtil;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 import com.google.common.collect.Maps;
@@ -144,6 +148,7 @@ public class DeploymentSetupService {
         }
         processGetInput(deploymentSetup, topology, environment);
         generateInputProperties(deploymentSetup, topology, true);
+        processInputArtifacts(topology);
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(environment.getCloudId());
             try {
@@ -298,6 +303,42 @@ public class DeploymentSetupService {
                 if (nodeTemplate.getCapabilities() != null) {
                     for (Capability capability : nodeTemplate.getCapabilities().values()) {
                         processGetInput(mergedInputs, capability.getProperties());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Inject input artifacts in the corresponding nodes.
+     */
+    private void processInputArtifacts(Topology topology) {
+        if (topology.getInputArtifacts() != null && !topology.getInputArtifacts().isEmpty()) {
+            // we'll build a map inputArtifactId -> List<DeploymentArtifact>
+            Map<String, List<DeploymentArtifact>> artifactMap = Maps.newHashMap();
+            // iterate over nodes in order to remember all nodes referencing an input artifact
+            for (NodeTemplate nodeTemplate : topology.getNodeTemplates().values()) {
+                if (nodeTemplate.getArtifacts() != null && !nodeTemplate.getArtifacts().isEmpty()) {
+                    for (DeploymentArtifact da : nodeTemplate.getArtifacts().values()) {
+                        String inputArtifactId = InputArtifactUtil.getInputArtifactId(da);
+                        if (inputArtifactId != null) {
+                            List<DeploymentArtifact> das = artifactMap.get(inputArtifactId);
+                            if (das == null) {
+                                das = Lists.newArrayList();
+                                artifactMap.put(inputArtifactId, das);
+                            }
+                            das.add(da);
+                        }
+                    }
+                }
+            }
+
+            for (Entry<String, DeploymentArtifact> e : topology.getInputArtifacts().entrySet()) {
+                List<DeploymentArtifact> nodeArtifacts = artifactMap.get(e.getKey());
+                if (nodeArtifacts != null) {
+                    for (DeploymentArtifact nodeArtifact : nodeArtifacts) {
+                        nodeArtifact.setArtifactRef(e.getValue().getArtifactRef());
+                        nodeArtifact.setArtifactName(e.getValue().getArtifactName());
                     }
                 }
             }

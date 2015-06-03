@@ -45,10 +45,8 @@ public class TagConfigurationStepDefinitions {
             String tagConfigurationJson = JsonUtil.toString(tagObject);
             String response = Context.getRestClientInstance().postJSon("/rest/tagconfigurations", tagConfigurationJson);
             TagConfigurationSaveResponse tagReceived = JsonUtil.read(response, TagConfigurationSaveResponse.class).getData();
-            String tagId = tagReceived.getId();
-
             // register in context
-            tagObject.setId(tagId);
+            tagObject.setId(tagReceived.getId());
             Context.getInstance().registerConfigurationTag(tagObject.getName(), tagObject);
         }
 
@@ -67,4 +65,14 @@ public class TagConfigurationStepDefinitions {
         // possible targets : application / component / cloud
         Assert.assertEquals(target, Context.getInstance().getConfigurationTags().get(tagName).getTarget());
     }
+
+    @Given("^I create a new tag with name \"([^\"]*)\" and the target \"([^\"]*)\"$")
+    public void I_create_a_new_tag_with_name_and_the_target(String name, String target) throws Throwable {
+        MetaPropConfiguration tagObject = new MetaPropConfiguration();
+        tagObject.setName(name);
+        tagObject.setTarget(target);
+        // we just save the response, we don't add the tag in the Context
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/tagconfigurations", JsonUtil.toString(tagObject)));
+    }
+
 }

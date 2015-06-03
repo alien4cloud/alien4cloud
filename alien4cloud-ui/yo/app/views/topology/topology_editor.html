@@ -221,7 +221,7 @@
                       ng-init="condensed = true"
                       definition="getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition,propertyValue)"
+                      on-save="updateProperty(propertyDefinition, propertyValue)"
                       editable="false"
                       condensed="condensed">
                     </property-display>
@@ -230,7 +230,7 @@
                       ng-init="condensed = true"
                       definition="getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition,propertyValue)"
+                      on-save="updateProperty(propertyDefinition, propertyValue)"
                       editable="true"
                       condensed="condensed">
                     </property-display>
@@ -567,21 +567,41 @@
                  ng-click="isArtifactsCollapsed = !isArtifactsCollapsed">
               <h4>
                 <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isArtifactsCollapsed, 'fa-chevron-right': isArtifactsCollapsed}"></i>
-                {{'APPLICATIONS.TOPOLOGY.ARTIFACTS' | translate}}
+                {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
               </h4>
             </div>
             <div id="node-details-artifacts-panel" collapse="isArtifactsCollapsed">
-              <div class="topology-level"
+              <div class="topology-level clearfix"
                    ng-repeat="(artifactId, artifact) in selectedNodeTemplate.artifacts">
                 <div class="topology-node-expand clickable"
                      ng-click="isArtifactCollapsed = !isArtifactCollapsed">
                   <i class="pull-left fa"
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
-                  <i class="fa fa-fw "
-                     ng-click="updateInputArtifactList(artifactId); $event.stopPropagation();"
-                     tooltip="{{'APPLICATIONS.TOPOLOGY.ARTIFACTS_CHECK_INPUT' | translate}}"
-                     ng-class="{'fa-check-square-o text-success' : ( artifactChecked = isInputArtifact(artifactId) ),  'fa-square-o': !artifactChecked}"></i>
+                  <span class="pull-right btn-group" data-toggle="buttons">
+                    <a id="p_input_art_{{artifactId}}"
+                       ng-click="$event.stopPropagation(); getInputCandidatesForArtifact(artifactId); "
+                       class="btn btn-default btn-xs dropdown-toggle"
+                       ng-class="{'active' : isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
+                       tooltip-append-to-body="true">
+                      <i class="fa fa-file"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                      <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
+                      <li>
+                        <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); createInputFromArtifact(artifactId)">
+                          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
+                        </a>
+                      </li>
+                      <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
+                        <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); toggleArtifactInput(artifactId, inputArtifactId)">
+                          <i class="fa fa-fw"
+                             ng-class="{'fa-check-square-o' : isArtifactAssociatedToInput(artifactId, inputArtifactId),  'fa-square-o': !isArtifactAssociatedToInput(artifactId, inputArtifactId)}"></i>
+                          {{inputArtifactId}}
+                        </a>
+                      </li>
+                    </ul>
+                  </span>
                 </div>
                 <div class="topology-level" collapse="isArtifactCollapsed">
                   <div class="row">
@@ -813,6 +833,49 @@
       </div>
     </div>
 
+    <!-- Input Artifacts -->
+    <div id="artifacts-box" ng-show="displays.artifacts.active" class="topology-column ui-resizable" style="width: {{displays.artifacts.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
+            </span>
+            <span id='closeArtifacts' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('artifacts')">
+              <i class="fa fa-remove close-panel"></i>
+            </span>
+          </div>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ID' | translate }}</th>
+                <th>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TYPE' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="(inputArtifactId, inputArtifact) in topology.topology.inputArtifacts">
+                <td>
+                  <span editable-text="inputArtifactId" buttons="no" onbeforesave="updateInputArtifactId(inputArtifactId, $data)" blur="submit">
+                    {{inputArtifactId}}
+                    <i class="fa fa-pencil-square-o"></i>
+                  </span>
+                </td>
+                <td>{{inputArtifact.artifactType}}</td>
+                <td>
+                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="removeInputArtifact(inputArtifactId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  </delete-confirm>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
@@ -836,6 +899,11 @@
             <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
           </span>
         </li>
+        <li ng-show="!displays.artifacts.active" ng-click="toggleDisplay('artifacts')">
+          <span id="topology-artifacts" >
+            <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
+          </span>
+        </li>        
       </ul>
     </div>
   </div>

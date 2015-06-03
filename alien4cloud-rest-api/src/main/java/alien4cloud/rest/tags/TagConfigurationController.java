@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.rest.component.SearchRequest;
@@ -24,10 +28,12 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Sets;
 import com.wordnik.swagger.annotations.ApiOperation;
 
+@Slf4j
 @RestController
 @RequestMapping("/rest/tagconfigurations")
 public class TagConfigurationController {
@@ -38,10 +44,32 @@ public class TagConfigurationController {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
 
+    /**
+     * Throw a not found exception if we found another tag with the same name, the same target
+     * but a different id
+     *
+     * @param name
+     * @param target
+     * @param id
+     */
+    private void ensureNameAndTypeUnicity(final String name, final String target, final String id) {
+        @SuppressWarnings("unchecked")
+        GetMultipleDataResult<MetaPropConfiguration> result = dao.facetedSearch(MetaPropConfiguration.class, null, MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }), 
+                null, 0, 5);
+
+        if (result.getData().length > 0 && !result.getData()[0].getId().equals(id)) {
+            log.debug("An other tag with name <{}> and target <{}> already exists", target, name);
+            throw new AlreadyExistException("An other tag with name " + name + " and target " + target + " already exists");
+        }
+    }
+
     @ApiOperation(value = "Save tag configuration.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<TagConfigurationSaveResponse> saveConfiguration(@RequestBody MetaPropConfiguration configuration) {
+        if (configuration.getName() != null && configuration.getTarget() != null) {
+            ensureNameAndTypeUnicity(configuration.getName(), configuration.getTarget(), configuration.getId());
+        }
         if (configuration.getId() == null) {
             // Save or update
             configuration.setId(UUID.randomUUID().toString());

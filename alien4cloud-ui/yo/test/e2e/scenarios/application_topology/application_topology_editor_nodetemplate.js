@@ -135,6 +135,7 @@ describe('Topology node template edition :', function() {
 
   it('should be able to edit deployment artifact', function() {
     console.log('################# should be able to edit deployment artifact');
+    browser.sleep(5000);
     topologyEditorCommon.selectNodeAndGoToDetailBloc('War', topologyEditorCommon.nodeDetailsBlocsIds['art']);
     element.all(by.repeater('(artifactId, artifact) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
       expect(artifacts.length).toEqual(1);

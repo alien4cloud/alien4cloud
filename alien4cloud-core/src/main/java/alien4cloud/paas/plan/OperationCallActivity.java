@@ -2,6 +2,7 @@ package alien4cloud.paas.plan;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -36,6 +37,8 @@ public class OperationCallActivity extends AbstractWorkflowStep {
     private ImplementationArtifact implementationArtifact;
     /** The inputs parameters of the the operation. */
     private Map<String, IValue> inputParameters;
+    /** The outputs of the the operation. */
+    private Set<String> outputs;
     /** True if the artifact is related to the operation, false if the artifact is a single artifact for the whole interface (contains several methods) */
     private boolean isOperationArtifact = true;
 }

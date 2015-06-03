@@ -6,7 +6,7 @@ import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 
 /**
- * Custom deserializer to handle multiple IOperationParameter types.
+ * Custom deserializer to handle multiple operation parameters types.
  */
 public class OperationParameterDeserializer extends AbstractDiscriminatorPolymorphicDeserializer<IValue> {
     public OperationParameterDeserializer() {

@@ -79,7 +79,7 @@ var beforeTopologyTest = function() {
   authentication.login('applicationManager');
   applications.createApplication('Alien', 'Great Application');
   // Go to the app details page
-  browser.element(by.binding('application.name')).click();
+  browser.actions().click(element(by.binding('application.name'))).perform();
   navigation.go('applications', 'topology');
 };
 module.exports.beforeTopologyTest = beforeTopologyTest;
@@ -113,6 +113,7 @@ function closeInputsTab() {
   element(by.id('closeInputs')).isDisplayed().then(function(isDisplay) {
     if (isDisplay) {
       element(by.id('closeInputs')).click();
+
     }
   });
   browser.waitForAngular();
@@ -131,7 +132,7 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // searchImput.sendKeys(nodeNameToSearch[1]); // e.g. Java or JavaRPM...
   searchImput.sendKeys(ntype); // e.g. tosca.nodes.Network
   var btnSearch = element(by.id('btn-search-component'));
-  btnSearch.click();
+  browser.actions().click(btnSearch).perform();
   common.removeAllFacetFilters();
 
   // select and dnd the element
@@ -145,11 +146,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-    '\
+      '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -159,16 +160,15 @@ mainScope.nodeTypeSelected(typeScope.component);',
 
   // clean search before next addNodeTemplate
   searchImput.clear(); // e.g. Java or JavaRPM...
-  btnSearch.click();
+  browser.actions().click(btnSearch).perform();
 
   return createdNode;
-
 };
 module.exports.addNodeTemplate = addNodeTemplate;
 
 var centerAndZoomOut = function() {
-  var centerButton = browser.element(by.id('btn-topology-reset'));
-  centerButton.click();
+  var centerButton = element(by.id('btn-topology-reset'));
+  browser.actions().click(centerButton).perform();
 };
 module.exports.centerAndZoomOut = centerAndZoomOut;
 
@@ -179,6 +179,12 @@ var checkTodoList = function(enabled) {
   browser.waitForAngular();
 };
 module.exports.checkTodoList = checkTodoList;
+
+var checkWarningList = function(enabled) {
+  navigation.go('applications', 'deployment');
+  expect(element(by.binding('APPLICATIONS.TOPOLOGY.WARNING.LABEL')).isPresent()).toBe(enabled);
+};
+module.exports.checkWarningList = checkWarningList;
 
 var checkApplicationDeployable = function(applicationName, enabled) {
   common.goToApplicationSearchPage();
@@ -200,7 +206,7 @@ var createTopologyWithNodesTemplates = function(nodeTemplateObj) {
 
 var removeNodeTemplate = function(nodeName) {
   var node = element(by.id('rect_' + nodeName));
-  node.click();
+  browser.actions().click(node).perform();
   common.deleteWithConfirm('btn-delete-node', true);
 };
 
@@ -333,10 +339,10 @@ module.exports.removeRelationship = removeRelationship;
 
 var replaceNodeTemplates = function(nodeName, replacementElementId) {
   var node = element(by.id('rect_' + nodeName));
-  node.click();
+  browser.actions().click(node).perform();
   browser.executeScript('window.scrollTo(0,0);').then(function() {
-    element(by.css('.btn[ng-click^="getPossibleReplacements"]')).click();
-    element(by.id('newnode_' + replacementElementId)).click();
+    browser.actions().click(element(by.css('.btn[ng-click^="getPossibleReplacements"]'))).perform();
+    browser.actions().click(element(by.id('newnode_' + replacementElementId))).perform();
   });
 };
 module.exports.replaceNodeTemplates = replaceNodeTemplates;
@@ -560,7 +566,7 @@ var nodeDetailsCollapse = function(blocId, opened) {
   }).then(function(classes) {
     // test if the bloc is opened and then close it
     if (classes && ((opened === true && classes.split(' ').indexOf('fa-chevron-right') !== -1) || (opened === false && classes.split(' ').indexOf('fa-chevron-down') !== -1))) {
-      myBlock.click();
+      browser.actions().click(myBlock).perform();
       return true;
     } else {
       return false;
@@ -615,15 +621,16 @@ module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesFo
 
 var addNodeTemplateToNodeGroup = function(nodeTemplateName, groupName) {
   // click on the node image
-  element(by.id('rect_' + nodeTemplateName)).click();
+  browser.actions().click(element(by.id('rect_' + nodeTemplateName))).perform();
+
   // click on the group icon
-  element(by.id('node_groups_' + nodeTemplateName)).click();
+  browser.actions().click(element(by.id('node_groups_' + nodeTemplateName))).perform();
   if (groupName) {
     // associate the node to the group
-    element(by.id('Compute_memberOf_' + groupName)).click();
+    browser.actions().click(element(by.id('Compute_memberOf_' + groupName))).perform();
   } else {
     // add a new group
-    element(by.id('createGroupWithMember_' + nodeTemplateName)).click();
+    browser.actions().click(element(by.id('createGroupWithMember_' + nodeTemplateName))).perform();
   }
-}
+};
 module.exports.addNodeTemplateToNodeGroup = addNodeTemplateToNodeGroup;

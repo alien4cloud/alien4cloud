@@ -64,8 +64,9 @@ describe('Tag configuration CRUD', function() {
     tagConfigCommon.addTagConfiguration(tagConfigCommon.defaultCloudProperty, null);
     cloudsCommon.goToCloudDetail('testcloud');
     cloudsCommon.goToCloudConfiguration();
+    cloudsCommon.showMetaProperties();
     expect(element(by.id('cloudMetaPropertiesDisplay')).isDisplayed()).toBe(true);
-    tagConfigCommon.editTagConfiguration('cloud_meta_distribution', 'success');
+    tagConfigCommon.editTagConfiguration('distribution', 'success');
   });
 
 });
