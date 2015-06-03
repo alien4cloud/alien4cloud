@@ -53,6 +53,7 @@ public class AuthController {
             userStatus.setIsLogged(auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken));
             userStatus.setUsername(auth.getName());
             if (auth.getPrincipal() instanceof User) {
+                userStatus.setGithubUsername(((User) auth.getPrincipal()).getFirstName());
                 userStatus.setGroups(((User) auth.getPrincipal()).getGroups());
             }
             for (GrantedAuthority role : auth.getAuthorities()) {
