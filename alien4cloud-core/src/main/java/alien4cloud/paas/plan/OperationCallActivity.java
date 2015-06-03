@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.ImplementationArtifact;
+import alien4cloud.model.components.OperationOutput;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -38,7 +39,7 @@ public class OperationCallActivity extends AbstractWorkflowStep {
     /** The inputs parameters of the the operation. */
     private Map<String, IValue> inputParameters;
     /** The outputs of the the operation. */
-    private Set<String> outputs;
+    private Set<OperationOutput> outputs;
     /** True if the artifact is related to the operation, false if the artifact is a single artifact for the whole interface (contains several methods) */
     private boolean isOperationArtifact = true;
 }

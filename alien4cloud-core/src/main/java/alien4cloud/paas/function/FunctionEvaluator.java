@@ -132,8 +132,8 @@ public final class FunctionEvaluator {
 
     private static String extractRuntimeInformationOperationOutput(Map<String, Map<String, InstanceInformation>> runtimeInformations, String instanceId,
             List<? extends IPaaSTemplate> nodes, FunctionPropertyValue function, String defaultValue) {
-        String outputRQN = AlienUtils.prefixWith(AlienConstants.COLON_SEPARATOR, function.getElementNameToFetch(), new String[] { function.getInterfaceName(),
-                function.getOperationName() });
+        String outputRQN = AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, function.getElementNameToFetch(),
+                new String[] { function.getInterfaceName(), function.getOperationName() });
         // return the first found
         for (IPaaSTemplate node : nodes) {
             String nodeName = node.getId();

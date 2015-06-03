@@ -27,6 +27,7 @@ import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.OperationOutput;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -268,10 +269,10 @@ public class FunctionEvaluatorTest {
         IndexedArtifactToscaElement tocaElement = computePaaS.getIndexedToscaElement();
         IValue oldHostNameAttr = tocaElement.getAttributes().get("old_hostname");
         IValue newHostNameAttr = tocaElement.getAttributes().get("new_hostname");
-        Set<String> createOutput = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
-                .get(ToscaNodeLifecycleConstants.CREATE).getOutputs();
-        Set<String> configureOutput = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
-                .get(ToscaNodeLifecycleConstants.CONFIGURE).getOutputs();
+        Operation createOp = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CREATE);
+        Operation configOp = tocaElement.getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations().get(ToscaNodeLifecycleConstants.CONFIGURE);
+        Set<OperationOutput> createOutput = createOp.getOutputs();
+        Set<OperationOutput> configureOutput = configOp.getOutputs();
 
         Assert.assertTrue(oldHostNameAttr instanceof FunctionPropertyValue);
         Assert.assertTrue(newHostNameAttr instanceof FunctionPropertyValue);
@@ -279,18 +280,23 @@ public class FunctionEvaluatorTest {
         String output1 = ((FunctionPropertyValue) oldHostNameAttr).getElementNameToFetch();
         String output2 = ((FunctionPropertyValue) newHostNameAttr).getElementNameToFetch();
 
-        Assert.assertTrue(createOutput.contains(output1));
-        Assert.assertTrue(configureOutput.contains(output2));
+        Assert.assertTrue(createOutput.contains(new OperationOutput(output1)));
+        OperationOutput fullOutput1 = createOp.getOutput(output1);
+        Assert.assertTrue(fullOutput1.getRelatedAttributes().contains("comp_getOpOutput:old_hostname"));
+
+        Assert.assertTrue(configureOutput.contains(new OperationOutput(output2)));
+        OperationOutput fullOutput2 = configOp.getOutput(output2);
+        Assert.assertTrue(fullOutput2.getRelatedAttributes().contains("comp_getOpOutput:new_hostname"));
 
         // check if outputs referenced in get_operation_output on an input parameter is well registered on the related operation
-        Operation configOp = computePaaS.getIndexedToscaElement().getInterfaces().get(ToscaNodeLifecycleConstants.STANDARD).getOperations()
-                .get(ToscaNodeLifecycleConstants.CONFIGURE);
-
         IValue param = configOp.getInputParameters().get("OUTPUT_FROM_CREATE");
 
         Assert.assertTrue(param instanceof FunctionPropertyValue);
 
         String output3 = ((FunctionPropertyValue) param).getElementNameToFetch();
-        Assert.assertTrue(createOutput.contains(output3));
+        Assert.assertTrue(createOutput.contains(new OperationOutput(output3)));
+        OperationOutput fullOutput3 = configOp.getOutput(output2);
+        Assert.assertFalse(fullOutput3.getRelatedAttributes().contains("comp_getOpOutput:OUTPUT_FROM_CREATE"));
+
     }
 }

@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
@@ -26,6 +27,7 @@ import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
+import alien4cloud.model.components.OperationOutput;
 import alien4cloud.model.topology.AbstractTemplate;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
@@ -43,6 +45,7 @@ import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.NormativeNetworkConstants;
 import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
+import alien4cloud.utils.AlienUtils;
 import alien4cloud.utils.TypeMap;
 
 import com.google.common.collect.Lists;
@@ -263,7 +266,7 @@ public class TopologyTreeBuilderService {
             Path csarPath = repository.getCSAR(indexedToscaElement.getArchiveName(), indexedToscaElement.getArchiveVersion());
             paaSTemplate.setCsarPath(csarPath);
         } catch (CSARVersionNotFoundException e) {
-            log.debug("No csarPath for "+indexedToscaElement+"; not setting in "+paaSTemplate);
+            log.debug("No csarPath for " + indexedToscaElement + "; not setting in " + paaSTemplate);
         }
     }
 
@@ -297,7 +300,7 @@ public class TopologyTreeBuilderService {
         if (MapUtils.isEmpty(attributes)) {
             return;
         }
-        checkGetOperationOutputUsageAndRegisterRelatedOutputs(attributes, paaSNodeTemplate, paaSNodeTemplates);
+        checkGetOperationOutputUsageAndRegisterRelatedOutputs(attributes, paaSNodeTemplate, paaSNodeTemplates, true);
     }
 
     /**
@@ -315,7 +318,7 @@ public class TopologyTreeBuilderService {
                 for (Operation operation : interfass.getOperations().values()) {
                     Map<String, IValue> inputsParams = operation.getInputParameters();
                     if (inputsParams != null) {
-                        checkGetOperationOutputUsageAndRegisterRelatedOutputs(inputsParams, paaSTemplate, paaSNodeTemplates);
+                        checkGetOperationOutputUsageAndRegisterRelatedOutputs(inputsParams, paaSTemplate, paaSNodeTemplates, false);
                     }
                 }
             }
@@ -323,15 +326,23 @@ public class TopologyTreeBuilderService {
     }
 
     @SuppressWarnings({ "rawtypes" })
-    private <V extends IndexedArtifactToscaElement> void checkGetOperationOutputUsageAndRegisterRelatedOutputs(final Map<String, IValue> attributes,
-            final IPaaSTemplate<V> paaSTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
-        for (IValue attribute : attributes.values()) {
-            if (attribute instanceof FunctionPropertyValue) {
-                FunctionPropertyValue function = (FunctionPropertyValue) attribute;
+    private <V extends IndexedArtifactToscaElement> void checkGetOperationOutputUsageAndRegisterRelatedOutputs(final Map<String, IValue> iValues,
+            final IPaaSTemplate<V> paaSTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates, final boolean fromAttributes) {
+        for (Entry<String, IValue> iValueEntry : iValues.entrySet()) {
+            IValue iValue = iValueEntry.getValue();
+            String name = iValueEntry.getKey();
+            if (iValue instanceof FunctionPropertyValue) {
+                FunctionPropertyValue function = (FunctionPropertyValue) iValue;
                 if (ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction())) {
+                    // nodeId:attributeName
+                    String formatedAttributeName = null;
                     List<? extends IPaaSTemplate> paaSTemplates = FunctionEvaluator.getPaaSTemplatesFromKeyword(paaSTemplate, function.getTemplateName(),
                             paaSNodeTemplates);
-                    registerOperationOutput(paaSTemplates, function.getInterfaceName(), function.getOperationName(), function.getElementNameToFetch());
+                    if (fromAttributes) {
+                        formatedAttributeName = AlienUtils.prefixWith(AlienUtils.COLON_SEPARATOR, name, paaSTemplate.getId());
+                    }
+                    registerOperationOutput(paaSTemplates, function.getInterfaceName(), function.getOperationName(), function.getElementNameToFetch(),
+                            formatedAttributeName);
                 }
             }
         }
@@ -339,13 +350,17 @@ public class TopologyTreeBuilderService {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private <V extends IndexedArtifactToscaElement> void registerOperationOutput(final List<? extends IPaaSTemplate> paaSTemplates, final String interfaceName,
-            final String operationName, String output) {
+            final String operationName, final String output, final String formatedAttributeName) {
         for (IPaaSTemplate<V> paaSTemplate : paaSTemplates) {
             if (paaSTemplate.getIndexedToscaElement() instanceof IndexedArtifactToscaElement) {
                 IndexedArtifactToscaElement toscaElement = (IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement();
                 Interface interfass = MapUtils.getObject(toscaElement.getInterfaces(), (interfaceName));
                 if (interfass != null && interfass.getOperations().containsKey(operationName)) {
-                    interfass.getOperations().get(operationName).getOutputs().add(output);
+                    OperationOutput toAdd = new OperationOutput(output);
+                    if (StringUtils.isNotBlank(formatedAttributeName)) {
+                        toAdd.getRelatedAttributes().add(formatedAttributeName);
+                    }
+                    interfass.getOperations().get(operationName).addOutput(toAdd);
                 }
             }
         }

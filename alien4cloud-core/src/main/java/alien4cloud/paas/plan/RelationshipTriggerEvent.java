@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.ImplementationArtifact;
+import alien4cloud.model.components.OperationOutput;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -42,5 +43,5 @@ public class RelationshipTriggerEvent extends AbstractWorkflowStep {
     /** The inputs parameters of the side operation. */
     private Map<String, IValue> sideInputParameters;
     /** The outputs of the side operation */
-    private Set<String> sideOutputs;
+    private Set<OperationOutput> sideOutputs;
 }

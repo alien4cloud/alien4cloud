@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 public final class AlienUtils {
 
     public static final String DEFAULT_PREFIX_SEPARATOR = "_";
+    public static final String COLON_SEPARATOR = ":";
 
     private AlienUtils() {
 
@@ -53,7 +54,7 @@ public final class AlienUtils {
      * @param prefixes
      * @return
      */
-    public static String prefixWith(String separator, String toPrefix, String[] prefixes) {
+    public static String prefixWith(String separator, String toPrefix, String... prefixes) {
         if (toPrefix == null) {
             return null;
         }
@@ -75,7 +76,7 @@ public final class AlienUtils {
      * @param prefixes
      * @return
      */
-    public static String prefixWith(String toPrefix, String... prefixes) {
+    public static String prefixWithDefaultSeparator(String toPrefix, String... prefixes) {
         return prefixWith(DEFAULT_PREFIX_SEPARATOR, toPrefix, prefixes);
     }
 }
