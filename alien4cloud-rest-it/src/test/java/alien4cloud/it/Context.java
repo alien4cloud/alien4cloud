@@ -174,6 +174,9 @@ public class Context {
             }
         }
         YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+        if (resources.isEmpty()) {
+            resources = Lists.<Resource> newArrayList(new ClassPathResource("alien4cloud-config.yml"));
+        }
         factory.setResources(resources.toArray(new Resource[resources.size()]));
         appProps = new TestPropertyPlaceholderConfigurer();
         appProps.setProperties(factory.getObject());
