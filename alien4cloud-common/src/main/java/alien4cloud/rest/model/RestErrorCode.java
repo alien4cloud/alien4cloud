@@ -76,7 +76,8 @@ public enum RestErrorCode {
     ELEMENT_NAME_PATTERN_CONSTRAINT(808),
     // bounds on the requirements or capabilities
     UPPER_BOUND_REACHED(810),
-    LOWER_BOUND_NOT_SATISFIED(811);
+    LOWER_BOUND_NOT_SATISFIED(811),
+    PROPERTY_DEFINITION_MATCH_ERROR(812);
 
     private final int code;
 

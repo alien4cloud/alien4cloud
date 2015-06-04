@@ -13,7 +13,7 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.annotation.query.TermsFacet;
 import org.elasticsearch.mapping.IndexType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.social.security.SocialUserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,9 +25,8 @@ import com.google.common.collect.Sets;
 @Setter
 @JsonInclude(Include.NON_NULL)
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class User implements UserDetails {
+public class User implements SocialUserDetails {
     private static final long serialVersionUID = 1L;
-
     @Id
     private String username;
     private String password;
@@ -69,5 +68,11 @@ public class User implements UserDetails {
             }
         }
         return authorities;
+    }
+
+    @JsonIgnore
+    @Override
+    public String getUserId() {
+        return this.username;
     }
 }

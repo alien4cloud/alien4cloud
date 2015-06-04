@@ -10,6 +10,7 @@ Feature: CSAR delete
   Scenario: Try do delete a CSAR that is a target dependency
     When I delete a CSAR with id "tosca-base-types:1.0"
     Then I should receive a RestResponse with an error code 507
+    And I should have a delete csar response with "1" related resources
   
   Scenario: Try do delete a CSAR that is used in a topology  
   	Given I am authenticated with "COMPONENTS_MANAGER" role
@@ -26,6 +27,11 @@ Feature: CSAR delete
     And I have added a relationship "hostedOnCompute" of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "host" of type "tosca.capabilities.Container" and target capability "compute"
     When I delete a CSAR with id "topology-test:2.0-SNAPSHOT"
     Then I should receive a RestResponse with an error code 507
+    And I should have a delete csar response with "1" related resources
+    When I delete a CSAR with id "tosca-base-types:1.0"
+    Then I should receive a RestResponse with an error code 507
+    And I should have a delete csar response with "2" related resources
+    	
     
   Scenario: Update a snapshot CSAR with less nodes
     Given I am authenticated with "COMPONENTS_MANAGER" role

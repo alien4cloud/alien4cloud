@@ -27,14 +27,18 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
 import alien4cloud.it.exception.ITException;
+import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
 import alien4cloud.utils.MapUtil;
 
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -69,6 +73,10 @@ public class Context {
 
     static {
         JSON_MAPPER = new RestMapper();
+        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null));
+        module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+        JSON_MAPPER.registerModule(module);
+
         Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
                 .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
         ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
@@ -91,7 +99,7 @@ public class Context {
         return INSTANCE;
     }
 
-    public ObjectMapper getJsonMapper() {
+    public static ObjectMapper getJsonMapper() {
         return JSON_MAPPER;
     }
 
@@ -166,6 +174,9 @@ public class Context {
             }
         }
         YamlPropertiesFactoryBean factory = new YamlPropertiesFactoryBean();
+        if (resources.isEmpty()) {
+            resources = Lists.<Resource> newArrayList(new ClassPathResource("alien4cloud-config.yml"));
+        }
         factory.setResources(resources.toArray(new Resource[resources.size()]));
         appProps = new TestPropertyPlaceholderConfigurer();
         appProps.setProperties(factory.getObject());

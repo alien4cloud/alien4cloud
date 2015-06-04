@@ -1,5 +1,7 @@
 package alien4cloud.it.csars;
 
+import java.util.List;
+
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
@@ -9,6 +11,7 @@ import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.rest.csar.CreateCsarRequest;
 import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -42,8 +45,8 @@ public class CrudCSARSStepDefinition {
     @When("^I delete a CSAR with id \"([^\"]*)\"$")
     public void I_delete_a_CSAR_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/csars/" + csarId));
-        String response = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
-        Assert.assertNull(response);
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
     }
 
     @Then("^I have CSAR created with id \"([^\"]*)\"$")
@@ -107,5 +110,13 @@ public class CrudCSARSStepDefinition {
         Assert.assertNotNull(dep.getData().getCloudId());
         Assert.assertEquals(CURRENT_CSAR_NAME + ":" + CURRENT_CSAR_VERSION, dep.getData().getSourceId());
         Assert.assertEquals(CURRENT_CSAR_NAME, dep.getData().getSourceName());
+    }
+
+    @Then("^I should have a delete csar response with \"([^\"]*)\" related resources$")
+    public void I_should_have_a_delete_csar_response_with_related_resources(String resourceCount) throws Throwable {
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
+        List<CsarRelatedResourceDTO> resultData = JsonUtil.toList(JsonUtil.toString(restResponse.getData()), CsarRelatedResourceDTO.class);
+        Assert.assertEquals(resultData.size(), Integer.parseInt(resourceCount));
     }
 }
