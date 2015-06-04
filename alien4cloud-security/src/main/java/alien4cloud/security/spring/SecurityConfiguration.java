@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
-import alien4cloud.security.spring.Alien4CloudAuthenticationProvider;
-import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,22 +24,25 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.google.common.collect.Lists;
 
 @Slf4j
 @Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-    @Autowired
+    @Resource
     private SecurityProperties security;
-
     @Resource
     private Alien4CloudAccessDeniedHandler accessDeniedHandler;
     @Resource
     private Alien4CloudAuthenticationProvider authenticationProvider;
 
+    @Autowired
+    private Environment env;
+   
     @Bean
     public Alien4CloudAuthenticationProvider authenticationProvider() {
         return new Alien4CloudAuthenticationProvider();
@@ -128,6 +129,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // handle non authenticated request
         http.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
+        
+        if(env.acceptsProfiles("github-auth")){
+            log.info("GitHub profile is active - enabling Spring Social features");
+            http.apply(new SpringSocialConfigurer().postLoginUrl("/").alwaysUsePostLoginUrl(true));
+        }
     }
 
     @Override
