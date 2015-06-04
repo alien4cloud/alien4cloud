@@ -53,7 +53,6 @@ import alien4cloud.model.topology.HaPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
@@ -195,43 +194,6 @@ public class TopologyController {
         log.debug("Adding a new Node template <" + nodeTemplateRequest.getName() + "> bound to the node type <" + nodeTemplateRequest.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        alienDAO.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Add a new scaling policy for a node template in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> addScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId,
-            @RequestBody @Valid ScalingPolicy policy) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-        if (policies == null) {
-            policies = Maps.newHashMap();
-            topology.setScalingPolicies(policies);
-        }
-        policies.put(nodeTemplateId, policy);
-        alienDAO.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove scaling policy from a compute in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> deleteScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-        if (policies == null) {
-            throw new NotFoundException("Scaling policy not found for node [" + nodeTemplateId + "] of topology [" + topologyId + "]");
-        } else {
-            if (policies.remove(nodeTemplateId) == null) {
-                throw new NotFoundException("Scaling policy not found for node [" + nodeTemplateId + "]");
-            }
-        }
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -479,7 +441,6 @@ public class TopologyController {
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
-        removeNodeRelatedStuffs(nodeTemplateName, topology);
         removeOutputs(nodeTemplateName, topology);
 
         // group members removal
@@ -506,12 +467,6 @@ public class TopologyController {
                     }
                 }
             }
-        }
-    }
-
-    private void removeNodeRelatedStuffs(String nodeTemplateName, Topology topology) {
-        if (topology.getScalingPolicies() != null) {
-            topology.getScalingPolicies().remove(nodeTemplateName);
         }
     }
 
@@ -744,7 +699,6 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
-        removeNodeRelatedStuffs(nodeTemplateName, topology);
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
@@ -803,7 +757,7 @@ public class TopologyController {
      * Update application's input artifact.
      *
      * @param topologyId The topology's id
-     * @param artifactId artifact's id
+     * @param inputArtifactId artifact's id
      * @return nothing if success, error will be handled in global exception strategy
      * @throws IOException
      */

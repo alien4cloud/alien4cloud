@@ -34,6 +34,7 @@ import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.deployment.DeploymentSourceType;
 import alien4cloud.model.deployment.IDeploymentSource;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
@@ -53,6 +54,8 @@ import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
+import alien4cloud.topology.TopologyUtils;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -286,11 +289,11 @@ public class DeploymentService {
     public void scale(String applicationEnvironmentId, String nodeTemplateId, int instances) throws CloudDisabledException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        // change the initial instance to the current instances for the runtime topology.
-        int initialInstances = topology.getScalingPolicies().get(nodeTemplateId).getInitialInstances();
-        topology.getScalingPolicies().get(nodeTemplateId).setInitialInstances(initialInstances + instances);
+        Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
+        int initialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
+        TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, initialInstances + instances, capability);
         alienMonitorDao.save(topology);
-        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances, instances);
+        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances + instances, instances);
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);

@@ -29,9 +29,11 @@ import alien4cloud.model.components.Interface;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.OperationOutput;
 import alien4cloud.model.topology.AbstractTemplate;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.InvalidTopologyException;
@@ -39,6 +41,7 @@ import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
 import alien4cloud.paas.model.PaaSTopology;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeBlockStorageConstants;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
@@ -93,9 +96,13 @@ public class TopologyTreeBuilderService {
                         paaSNodeTemplate.getRelationshipTemplates().add(paaSRelationshipTemplate);
                     }
                 }
-
-                if (topology.getScalingPolicies() != null) {
-                    paaSNodeTemplate.setScalingPolicy(topology.getScalingPolicies().get(templateEntry.getKey()));
+                Capability scalableCapability = TopologyUtils.getScalableCapability(topology, templateEntry.getKey(), false);
+                if (scalableCapability != null) {
+                    ScalingPolicy scalingPolicy = TopologyUtils.getScalingPolicy(scalableCapability);
+                    // A node with a scaling policy 1, 1, 1 is a simple node and so do not set scaling policy
+                    if (!ScalingPolicy.NOT_SCALABLE_POLICY.equals(scalingPolicy)) {
+                        paaSNodeTemplate.setScalingPolicy(scalingPolicy);
+                    }
                 }
                 if (topology.getGroups() != null) {
                     Set<String> nodeGroups = Sets.newHashSet();

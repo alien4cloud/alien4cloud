@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClientException;
 
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
@@ -26,6 +27,7 @@ import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.NodeOperationExecRequest;
 import alien4cloud.paas.model.PaaSDeploymentContext;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
@@ -127,11 +129,10 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     private int getPlannedInstancesCount(String nodeTemplateId, Topology topology) {
-        if (topology.getScalingPolicies() != null) {
-            ScalingPolicy scalingPolicy = topology.getScalingPolicies().get(nodeTemplateId);
-            if (scalingPolicy != null) {
-                return scalingPolicy.getInitialInstances();
-            }
+        Capability scalableCapability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, false);
+        if (scalableCapability != null) {
+            ScalingPolicy scalingPolicy = TopologyUtils.getScalingPolicy(scalableCapability);
+            return scalingPolicy.getInitialInstances();
         }
         return 1;
     }
