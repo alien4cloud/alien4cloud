@@ -30,6 +30,7 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
@@ -328,4 +329,14 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
     }
+    
+    @ExceptionHandler(value = IncompatiblePropertyDefinitionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> IncompatiblePropertyDefinitionExceptionHandler(IncompatiblePropertyDefinitionException e) {
+        log.error("Property definition doesn't match : " + e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_DEFINITION_MATCH_ERROR).message(e.getMessage()).build()).build();
+    }
+    
 }
