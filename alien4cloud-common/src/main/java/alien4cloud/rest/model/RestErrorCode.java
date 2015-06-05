@@ -59,6 +59,9 @@ public enum RestErrorCode {
     LAST_APPLICATION_VERSION_ERROR(610),
     MISSING_APPLICATION_VERSION_ERROR(611),
 
+    // PaaS errors : code 650+
+    COMPUTE_CONFLICT_NAME(650),
+
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
     COMPONENT_INTERNALTAG_ERROR(701),

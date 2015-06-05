@@ -772,6 +772,7 @@
     "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
+    "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
