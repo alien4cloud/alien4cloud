@@ -62,15 +62,9 @@ public final class FileUtil {
         }
     }
 
-    static String getChildEntryRelativePath(Path base, Path child) {
-        return base.toUri().relativize(child.toUri()).getPath();
-    }
-
-    public static String convertToLinuxPath(String path) {
-        if (path == null) {
-            throw new NullPointerException("Path is null");
-        }
-        if ('/' != File.separatorChar) {
+    static String getChildEntryRelativePath(Path base, Path child, boolean convertToLinuxPath) {
+        String path = base.toUri().relativize(child.toUri()).getPath();
+        if (convertToLinuxPath && '/' != File.separatorChar) {
             return path.replace(File.separatorChar, '/');
         } else {
             return path;
