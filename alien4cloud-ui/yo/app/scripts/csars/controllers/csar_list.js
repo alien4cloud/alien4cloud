@@ -1,8 +1,8 @@
 'use strict';
 
 /* Main CSAR search controller */
-angular.module('alienUiApp').controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService',
-  function($scope, $modal, $state, csarService) {
+angular.module('alienUiApp').controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster',
+  function($scope, $modal, $state, csarService, $translate, toaster) {
     $scope.search = function() {
       var searchRequestObject = {
         'query': $scope.query,
@@ -13,14 +13,21 @@ angular.module('alienUiApp').controller('CsarListCtrl', ['$scope', '$modal', '$s
     };
 
     $scope.openCsar = function(csarId) {
-      $state.go('components.csars.csardetail', { csarId: csarId });
+      $state.go('components.csars.csardetail', {
+        csarId: csarId
+      });
     };
 
     // remove a csar
     $scope.remove = function(csarId) {
       csarService.getAndDeleteCsar.remove({
         csarId: csarId
-      }, function() {
+      }, function(result) {
+        var errorMessage = csarService.builtErrorResultList(result);
+        if (errorMessage) {
+          var title = $translate('CSAR.ERRORS.' + result.error.code + '_TITLE');
+          toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
+        }
         // refresh csar list
         $scope.search();
       });

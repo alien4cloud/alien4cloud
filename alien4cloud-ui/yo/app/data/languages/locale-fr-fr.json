@@ -187,6 +187,11 @@
         "APP_TEXT": "Détails de l'application",
         "TOPOLOGY_TEXT": "Détails de la topology"
       }
+    },
+    "DELETE": "Supprimé",
+    "ERRORS": {
+      "507_TITLE": "Suppression d'un CSAR",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
     }
   },
   "GENERIC_FORM": {

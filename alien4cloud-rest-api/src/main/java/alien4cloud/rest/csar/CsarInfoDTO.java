@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import alien4cloud.model.components.Csar;
+import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 
 @Getter
 @Setter
@@ -14,5 +15,5 @@ import alien4cloud.model.components.Csar;
 @AllArgsConstructor
 public class CsarInfoDTO {
     private Csar csar;
-    private List<Object> relatedResources;
+    private List<CsarRelatedResourceDTO> relatedResources;
 }

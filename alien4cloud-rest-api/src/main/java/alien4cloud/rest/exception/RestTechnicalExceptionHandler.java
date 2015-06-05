@@ -40,7 +40,6 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -81,14 +80,9 @@ public class RestTechnicalExceptionHandler {
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public RestResponse<List<CsarRelatedResourceDTO>> processDeleteReferencedObject(DeleteReferencedObjectException e) {
+    public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
         log.error("Object is still referenced and cannot be deleted", e);
-        List<CsarRelatedResourceDTO> dependencies = Lists.newArrayList();
-        for (Object dependency : e.getDependencies()) {
-            CsarRelatedResourceDTO topologyResourceInfoDTO = (CsarRelatedResourceDTO) dependency;
-            dependencies.add(topologyResourceInfoDTO);
-        }
-        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(dependencies)
+        return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
 

@@ -178,6 +178,11 @@
         "CSAR_TEXT": "CSAR details",
         "APP_TEXT": "Application details",
         "TOPOLOGY_TEXT": "Topology template details"
+      },
+      "DELETE": "Deleted",
+      "ERRORS": {
+        "507_TITLE": "Delete a CSAR",
+        "507": "CSAR deletion failed since it is referenced by other resources"
       }
     }
   },
