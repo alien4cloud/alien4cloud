@@ -2,6 +2,7 @@ package alien4cloud.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +64,17 @@ public final class FileUtil {
 
     static String getChildEntryRelativePath(Path base, Path child) {
         return base.toUri().relativize(child.toUri()).getPath();
+    }
+
+    public static String convertToLinuxPath(String path) {
+        if (path == null) {
+            throw new NullPointerException("Path is null");
+        }
+        if ('/' != File.separatorChar) {
+            return path.replace(File.separatorChar, '/');
+        } else {
+            return path;
+        }
     }
 
     /**
