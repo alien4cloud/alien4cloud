@@ -236,23 +236,9 @@ public class CloudServiceArchiveController {
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> delete(@PathVariable String csarId) {
-        boolean isCsarDeletable = true;
         Csar csar = csarService.getMandatoryCsar(csarId);
-        List<Object> relatedResourceList = Lists.newArrayList();
-
-        // a csar that is a dependency of another csar can not be deleted
-        Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
-        if (relatedCsars != null && relatedCsars.length > 0) {
-            isCsarDeletable = false;
-            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
-        }
-
-        // check if some of the nodes are used in topologies.
-        Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
-        if (topologies != null && topologies.length > 0) {
-            isCsarDeletable = false;
-            relatedResourceList.addAll(generateTopologiesInfo(topologies));
-        }
+        List<Object> relatedResourceList = getCsarRelatedResourceList(csar);
+        boolean isCsarDeletable = relatedResourceList.isEmpty() ? true : false;
 
         if (!isCsarDeletable) {
             throw new DeleteReferencedObjectException("The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
@@ -261,12 +247,35 @@ public class CloudServiceArchiveController {
 
         // latest version indicator will be recomputed to match this new reality
         indexerService.deleteElements(csar.getName(), csar.getVersion());
-
         csarDAO.delete(Csar.class, csarId);
 
         // physically delete files
         alienRepository.removeCSAR(csar.getName(), csar.getVersion());
         return RestResponseBuilder.<Void> builder().build();
+    }
+
+    /**
+     * Get resources related to a Csar
+     * 
+     * @param csar
+     * @return
+     */
+    private List<Object> getCsarRelatedResourceList(Csar csar) {
+        List<Object> relatedResourceList = Lists.newArrayList();
+
+        // a csar that is a dependency of another csar can not be deleted
+        Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
+        if (relatedCsars != null && relatedCsars.length > 0) {
+            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
+        }
+
+        // check if some of the nodes are used in topologies.
+        Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
+        if (topologies != null && topologies.length > 0) {
+            relatedResourceList.addAll(generateTopologiesInfo(topologies));
+        }
+
+        return relatedResourceList;
     }
 
     /**
@@ -295,7 +304,6 @@ public class CloudServiceArchiveController {
      * @return
      */
     private List<CsarRelatedResourceDTO> generateTopologiesInfo(Topology[] topologies) {
-
         String resourceName = null;
         String resourceId = null;
         boolean typeHandled = true;
@@ -323,15 +331,16 @@ public class CloudServiceArchiveController {
                 typeHandled = true;
             }
         }
-
         return resourceList;
     }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Csar> read(@PathVariable String csarId) {
-        Csar data = csarDAO.findById(Csar.class, csarId);
-        return RestResponseBuilder.<Csar> builder().data(data).build();
+    public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
+        Csar csar = csarDAO.findById(Csar.class, csarId);
+        List<Object> relatedResourceList = getCsarRelatedResourceList(csar);
+        CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
+        return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
     }
 
     @ApiOperation(value = "Search for cloud service archives.")

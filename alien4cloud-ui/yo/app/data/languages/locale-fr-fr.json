@@ -172,10 +172,21 @@
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "Détails du CSAR",
     "TEST_TOPOLOGY": "Statut du topology de test",
+    "AUTHOR": "Auteur",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "Ajouter un nouveau composant",
       "ARCHIVE_COMPONENTS": "Composants de l'archive",
-      "COMPONENT_FORM_TITLE": "Nouveau composant"
+      "COMPONENT_FORM_TITLE": "Nouveau composant",
+      "LIST": "Liste de csars",
+      "RESOURCES": "Liste des ressources",
+      "NO_RESOURCES": "Aucune autre ressource liée",
+      "RESOURCE": {
+        "TYPE": "Type",
+        "NAME": "Nom",
+        "CSAR_TEXT": "Détails du CSAR",
+        "APP_TEXT": "Détails de l'application",
+        "TOPOLOGY_TEXT": "Détails de la topology"
+      }
     }
   },
   "GENERIC_FORM": {
@@ -463,7 +474,7 @@
         "TYPE": "Type",
         "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Définir l'artefact comme entrée"
-      },      
+      },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
