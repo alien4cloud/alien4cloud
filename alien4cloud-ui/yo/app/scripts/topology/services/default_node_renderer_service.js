@@ -69,9 +69,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
               nodeInstancesCount = Object.keys(nodeInstances).length;
-              if (topology.topology.hasOwnProperty('scalingPolicies')) {
-                nodeScalingPolicies = topology.topology.scalingPolicies[node.id];
-              }
+              nodeScalingPolicies = toscaService.getScalingPolicy(node);
             }
           }
 
@@ -80,8 +78,8 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
             this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY, nodeScalingPolicies);
           }
         }
-        
-        if(UTILS.isDefinedAndNotNull(nodeTemplate.groups)) {
+
+        if (UTILS.isDefinedAndNotNull(nodeTemplate.groups)) {
           var gIdx = 1;
           // group square width is calculated using the node width (1/15)
           var gW = this.width / 15;
@@ -98,15 +96,15 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
           angular.forEach(nodeTemplate.groups, function(value, key) {
             // let's place the group square regarding it's index and applying a 0.2 margin
             var gX = nodeEndX - (gIdx * 1.2 * gW);
-            
-            var rect = D3JS_UTILS.rect(nodeGroup, gX, gY, gW, gH, 3, 3).attr('class', 'node-template-group ' + D3JS_UTILS.groupColorCss(topology.topology, value)); 
+
+            var rect = D3JS_UTILS.rect(nodeGroup, gX, gY, gW, gH, 3, 3).attr('class', 'node-template-group ' + D3JS_UTILS.groupColorCss(topology.topology, value));
             // add the group name as title (for popping over)
             rect.attr('title', value);
-            
+
             gIdx++;
           });
-        }        
-        
+        }
+
       },
 
       drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY, scalingPolicies) {

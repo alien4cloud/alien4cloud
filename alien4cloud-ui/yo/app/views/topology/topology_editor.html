@@ -77,20 +77,6 @@
                     </a>
                   </li>
                 </ul>
-                <span ng-if="isComputeType(selectedNodeTemplate)">
-                  <a id="scaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.SCALE' | translate}}"
-                     tooltip-append-to-body="true" class="btn btn-success btn-sm"
-                     ng-click="addScalingPolicy(selectedNodeTemplate.name)"
-                     ng-if="!topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                    <i class="fa fa-reply fa-rotate-90 fa-inverse"></i>
-                  </a>
-                  <a id="unscaleButton" tooltip="{{'APPLICATIONS.TOPOLOGY.UNSCALE' | translate}}"
-                     tooltip-append-to-body="true" class="btn btn-primary btn-sm"
-                     ng-click="deleteScalingPolicy(selectedNodeTemplate.name)"
-                     ng-if="topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                    <i class="fa fa-reply fa-rotate-270 fa-inverse"></i>
-                  </a>
-                </span>
                 <span ng-if="isComputeType(selectedNodeTemplate)" class="btn-group" data-toggle="buttons">
                   <a id="node_groups_{{selectedNodeTemplate.name}}"
                      class="btn btn-default btn-sm dropdown-toggle"
@@ -629,31 +615,6 @@
               </div>
             </div>
           </div>
-          <!-- Scaling -->
-          <div ng-if="isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-              <div id="node-details-scaling" class="topology-node-expand clickable"
-                   ng-click="isScalingPolicyCollapsed = !isScalingPolicyCollapsed">
-                <h4>
-                  <i class="pull-left fa"
-                     ng-class="{'fa-chevron-down' : !isScalingPolicyCollapsed, 'fa-chevron-right': isScalingPolicyCollapsed}"></i>
-                  <span>{{'APPLICATIONS.TOPOLOGY.SCALING_POLICY' | translate}}</span></h4>
-              </div>
-              <div id="node-details-scaling-panel" collapse="isScalingPolicyCollapsed">
-                <table class="table table-condensed">
-                  <tr
-                    ng-repeat="(policyFieldName,policyFieldValue) in topology.topology.scalingPolicies[selectedNodeTemplate.name]">
-                    <td>{{policyFieldName}}</td>
-                    <td id="{{policyFieldName}}">
-                    <span editable-number="topology.topology.scalingPolicies[selectedNodeTemplate.name][policyFieldName]" buttons="no" e-required
-                          onbeforesave="updateScalingPolicy(policyFieldName, $data)" blur="submit">
-                      {{policyFieldValue}} <i class="fa fa-pencil-square-o"></i>
-                    </span>
-                    </td>
-                  </tr>
-                </table>
-              </div>
-            </div>
-
         </div>
       </div>
     </div>
