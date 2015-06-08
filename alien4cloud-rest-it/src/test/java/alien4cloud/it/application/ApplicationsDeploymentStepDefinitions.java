@@ -262,6 +262,10 @@ public class ApplicationsDeploymentStepDefinitions {
                     .registerRestResponse(
                             Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property",
                                     JsonUtil.toString(checkDeploymentPropertyRequest)));
+            if (JsonUtil.read(Context.getInstance().getRestResponse()).getError() != null) {
+                log.info("Error in deployment properties for deployment property {} with value {}", deploymentPropertyName, deploymentPropertyValue);
+                break;
+            }
             finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         // register deployment application properties to use it

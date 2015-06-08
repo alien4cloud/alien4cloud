@@ -19,6 +19,7 @@ import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.component.repository.exception.CSARVersionNotFoundException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactToscaElement;
@@ -176,7 +177,7 @@ public class TopologyTreeBuilderService {
             }
         }
         // check and register possible operation outputs
-        checkAndRegisterIfNeededOperationsOutputs(nodeTemplates);
+        processOperationsOutputs(nodeTemplates);
 
         return new PaaSTopology(computes, networks, volumes, nonNatives, nodeTemplates, groups);
     }
@@ -284,14 +285,14 @@ public class TopologyTreeBuilderService {
      *
      * @param paaSNodeTemplates
      */
-    private void checkAndRegisterIfNeededOperationsOutputs(final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    private void processOperationsOutputs(final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         // TODO: try to cache already processed nodes
         for (PaaSNodeTemplate paaSNodeTemplate : paaSNodeTemplates.values()) {
-            checkAttributesForGetOperationOutputUsage(paaSNodeTemplate, paaSNodeTemplates);
-            checkOperationsInputsForGetOperationOutputUsage(paaSNodeTemplate, paaSNodeTemplates);
+            processAttributesForOperationOutputs(paaSNodeTemplate, paaSNodeTemplates);
+            processOperationsInputsForOperationOutputs(paaSNodeTemplate, paaSNodeTemplates);
             // do the same for the relationships
             for (PaaSRelationshipTemplate paaSRelationshipTemplate : paaSNodeTemplate.getRelationshipTemplates()) {
-                checkOperationsInputsForGetOperationOutputUsage(paaSRelationshipTemplate, paaSNodeTemplates);
+                processOperationsInputsForOperationOutputs(paaSRelationshipTemplate, paaSNodeTemplates);
             }
         }
     }
@@ -302,22 +303,26 @@ public class TopologyTreeBuilderService {
      * @param paaSNodeTemplate
      * @param paaSNodeTemplates
      */
-    private void checkAttributesForGetOperationOutputUsage(final PaaSNodeTemplate paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
+    private void processAttributesForOperationOutputs(final PaaSNodeTemplate paaSNodeTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         Map<String, IValue> attributes = paaSNodeTemplate.getIndexedToscaElement().getAttributes();
         if (MapUtils.isEmpty(attributes)) {
             return;
         }
-        checkGetOperationOutputUsageAndRegisterRelatedOutputs(attributes, paaSNodeTemplate, paaSNodeTemplates, true);
+        for (Entry<String, IValue> attribute : attributes.entrySet()) {
+            String name = attribute.getKey();
+            IValue value = attribute.getValue();
+            processIValueForOperationOutput(name, value, paaSNodeTemplate, paaSNodeTemplates, true);
+        }
     }
 
     /**
-     * Check operations input of every operations of all interfaces of a paaSNodeTemplate for get_operation_output usage, and register in the related operation
+     * Check operations input of every operations of all interfaces of a IPaaSTemplate for get_operation_output usage, and register in the related operation
      * the output name
      *
      * @param paaSTemplate
      * @param paaSNodeTemplates
      */
-    private <V extends IndexedArtifactToscaElement> void checkOperationsInputsForGetOperationOutputUsage(final IPaaSTemplate<V> paaSTemplate,
+    private <V extends IndexedArtifactToscaElement> void processOperationsInputsForOperationOutputs(final IPaaSTemplate<V> paaSTemplate,
             final Map<String, PaaSNodeTemplate> paaSNodeTemplates) {
         Map<String, Interface> interfaces = ((IndexedArtifactToscaElement) paaSTemplate.getIndexedToscaElement()).getInterfaces();
         if (interfaces != null) {
@@ -325,32 +330,36 @@ public class TopologyTreeBuilderService {
                 for (Operation operation : interfass.getOperations().values()) {
                     Map<String, IValue> inputsParams = operation.getInputParameters();
                     if (inputsParams != null) {
-                        checkGetOperationOutputUsageAndRegisterRelatedOutputs(inputsParams, paaSTemplate, paaSNodeTemplates, false);
+                        for (Entry<String, IValue> input : inputsParams.entrySet()) {
+                            String name = input.getKey();
+                            IValue value = input.getValue();
+                            processIValueForOperationOutput(name, value, paaSTemplate, paaSNodeTemplates, false);
+                        }
                     }
                 }
             }
         }
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    private <V extends IndexedArtifactToscaElement> void checkGetOperationOutputUsageAndRegisterRelatedOutputs(final Map<String, IValue> iValues,
-            final IPaaSTemplate<V> paaSTemplate, final Map<String, PaaSNodeTemplate> paaSNodeTemplates, final boolean fromAttributes) {
-        for (Entry<String, IValue> iValueEntry : iValues.entrySet()) {
-            IValue iValue = iValueEntry.getValue();
-            String name = iValueEntry.getKey();
-            if (iValue instanceof FunctionPropertyValue) {
-                FunctionPropertyValue function = (FunctionPropertyValue) iValue;
-                if (ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction())) {
+    private <V extends IndexedArtifactToscaElement> void processIValueForOperationOutput(String name, IValue iValue, final IPaaSTemplate<V> paaSTemplate,
+            final Map<String, PaaSNodeTemplate> paaSNodeTemplates, final boolean fromAttributes) {
+        if (iValue instanceof FunctionPropertyValue) {
+            FunctionPropertyValue function = (FunctionPropertyValue) iValue;
+            if (ToscaFunctionConstants.GET_OPERATION_OUTPUT.equals(function.getFunction())) {
+                String formatedAttributeName = null;
+                List<? extends IPaaSTemplate> paaSTemplates = FunctionEvaluator.getPaaSTemplatesFromKeyword(paaSTemplate, function.getTemplateName(),
+                        paaSNodeTemplates);
+                if (fromAttributes) {
                     // nodeId:attributeName
-                    String formatedAttributeName = null;
-                    List<? extends IPaaSTemplate> paaSTemplates = FunctionEvaluator.getPaaSTemplatesFromKeyword(paaSTemplate, function.getTemplateName(),
-                            paaSNodeTemplates);
-                    if (fromAttributes) {
-                        formatedAttributeName = AlienUtils.prefixWith(AlienUtils.COLON_SEPARATOR, name, paaSTemplate.getId());
-                    }
-                    registerOperationOutput(paaSTemplates, function.getInterfaceName(), function.getOperationName(), function.getElementNameToFetch(),
-                            formatedAttributeName);
+                    formatedAttributeName = AlienUtils.prefixWith(AlienUtils.COLON_SEPARATOR, name, paaSTemplate.getId());
                 }
+                registerOperationOutput(paaSTemplates, function.getInterfaceName(), function.getOperationName(), function.getElementNameToFetch(),
+                        formatedAttributeName);
+            }
+        } else if (iValue instanceof ConcatPropertyValue) {
+            ConcatPropertyValue concatFunction = (ConcatPropertyValue) iValue;
+            for (IValue param : concatFunction.getParameters()) {
+                processIValueForOperationOutput(name, param, paaSTemplate, paaSNodeTemplates, false);
             }
         }
     }

@@ -172,10 +172,27 @@
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "Détails du CSAR",
     "TEST_TOPOLOGY": "Statut du topology de test",
+    "AUTHOR": "Auteur",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "Ajouter un nouveau composant",
       "ARCHIVE_COMPONENTS": "Composants de l'archive",
-      "COMPONENT_FORM_TITLE": "Nouveau composant"
+      "COMPONENT_FORM_TITLE": "Nouveau composant",
+      "LIST": "Liste de csars",
+      "RESOURCES": "Liste des ressources",
+      "NO_RESOURCES": "Aucune autre ressource liée",
+      "RESOURCE": {
+        "TYPE": "Type",
+        "NAME": "Nom",
+        "VERSION": "Version",
+        "CSAR_TEXT": "Détails du CSAR",
+        "APP_TEXT": "Détails de l'application",
+        "TOPOLOGY_TEXT": "Détails de la topology"
+      }
+    },
+    "DELETE": "Supprimé",
+    "ERRORS": {
+      "507_TITLE": "Suppression d'un CSAR",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
     }
   },
   "GENERIC_FORM": {
@@ -463,7 +480,7 @@
         "TYPE": "Type",
         "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Définir l'artefact comme entrée"
-      },      
+      },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
@@ -756,6 +773,7 @@
     "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
+    "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",

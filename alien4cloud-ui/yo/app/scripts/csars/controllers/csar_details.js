@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('alienUiApp').controller(
-  'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'suggestionServices', 'formDescriptorServices', 'deploymentServices', 'webSocketServices', '$resource', 'topologyServices',
-    function($scope, $stateParams, $state, csarService, suggestionServices, formDescriptorServices, deploymentServices, webSocketServices, $resource, topologyServices) {
+  'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'suggestionServices', 'formDescriptorServices', 'deploymentServices', 'webSocketServices', '$resource', 'topologyServices', '$translate', 'toaster',
+    function($scope, $stateParams, $state, csarService, suggestionServices, formDescriptorServices, deploymentServices, webSocketServices, $resource, topologyServices, $translate, toaster) {
       /* Retrieve CSAR to display */
       $scope.csarId = $stateParams.csarId;
 
@@ -73,8 +73,14 @@ angular.module('alienUiApp').controller(
       $scope.remove = function(csarId) {
         csarService.getAndDeleteCsar.remove({
           csarId: csarId
-        }, function() {
-          $state.go('components.csars.list');
+        }, function(result) {
+          var errorMessage = csarService.builtErrorResultList(result);
+          if (errorMessage) {
+            var title = $translate('CSAR.ERRORS.' + result.error.code + '_TITLE');
+            toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
+          } else {
+            $state.go('components.csars.list');
+          }
         });
       };
 

@@ -51,7 +51,6 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetup;
@@ -235,38 +234,49 @@ public class CloudServiceArchiveController {
     @ApiOperation(value = "Delete a CSAR given its id.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> delete(@PathVariable String csarId) {
-        boolean isCsarDeletable = true;
+    public RestResponse<List<CsarRelatedResourceDTO>> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
-        List<Object> relatedResourceList = Lists.newArrayList();
+        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        boolean isCsarDeletable = relatedResourceList.isEmpty() ? true : false;
+
+        if (!isCsarDeletable) {
+            String errorMessage = "The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
+                    + "> can not be deleted since it is referenced by other resources";
+            return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(relatedResourceList)
+                    .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
+        }
+
+        // latest version indicator will be recomputed to match this new reality
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
+        csarDAO.delete(Csar.class, csarId);
+
+        // physically delete files
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().build();
+    }
+
+    /**
+     * Get resources related to a Csar
+     * 
+     * @param csar
+     * @return
+     */
+    private List<CsarRelatedResourceDTO> getCsarRelatedResourceList(Csar csar) {
+        List<CsarRelatedResourceDTO> relatedResourceList = Lists.newArrayList();
 
         // a csar that is a dependency of another csar can not be deleted
         Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
         if (relatedCsars != null && relatedCsars.length > 0) {
-            isCsarDeletable = false;
             relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
         }
 
         // check if some of the nodes are used in topologies.
         Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
         if (topologies != null && topologies.length > 0) {
-            isCsarDeletable = false;
             relatedResourceList.addAll(generateTopologiesInfo(topologies));
         }
 
-        if (!isCsarDeletable) {
-            throw new DeleteReferencedObjectException("The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
-                    + "> can not be deleted since it is referenced by other resources", relatedResourceList);
-        }
-
-        // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion());
-
-        csarDAO.delete(Csar.class, csarId);
-
-        // physically delete files
-        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
-        return RestResponseBuilder.<Void> builder().build();
+        return relatedResourceList;
     }
 
     /**
@@ -295,7 +305,6 @@ public class CloudServiceArchiveController {
      * @return
      */
     private List<CsarRelatedResourceDTO> generateTopologiesInfo(Topology[] topologies) {
-
         String resourceName = null;
         String resourceId = null;
         boolean typeHandled = true;
@@ -323,15 +332,16 @@ public class CloudServiceArchiveController {
                 typeHandled = true;
             }
         }
-
         return resourceList;
     }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Csar> read(@PathVariable String csarId) {
-        Csar data = csarDAO.findById(Csar.class, csarId);
-        return RestResponseBuilder.<Csar> builder().data(data).build();
+    public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
+        Csar csar = csarDAO.findById(Csar.class, csarId);
+        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
+        return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
     }
 
     @ApiOperation(value = "Search for cloud service archives.")

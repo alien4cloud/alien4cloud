@@ -164,10 +164,27 @@
     "BC_CSAR": "CSAR",
     "DETAILS_TITLE": "CSAR details",
     "TEST_TOPOLOGY": "Test topology's status",
+    "AUTHOR": "Author",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "Add new component",
       "ARCHIVE_COMPONENTS": "Archive's component",
-      "COMPONENT_FORM_TITLE": "New Component"
+      "COMPONENT_FORM_TITLE": "New Component",
+      "LIST": "Csars list",
+      "RESOURCES": "Resources list",
+      "NO_RESOURCES": "No linked resources",
+      "RESOURCE": {
+        "TYPE": "Type",
+        "NAME": "Name",
+        "VERSION": "Version",
+        "CSAR_TEXT": "CSAR details",
+        "APP_TEXT": "Application details",
+        "TOPOLOGY_TEXT": "Topology template details"
+      },
+      "DELETE": "Deleted",
+      "ERRORS": {
+        "507_TITLE": "Delete a CSAR",
+        "507": "CSAR deletion failed since it is referenced by other resources"
+      }
     }
   },
   "GENERIC_FORM": {
@@ -456,7 +473,7 @@
         "TYPE": "Type",
         "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Define artifact as input"
-      },  
+      },
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
@@ -750,6 +767,7 @@
     "609": "PaaS provider unreachable after triggering the deployment",
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
+    "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",

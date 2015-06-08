@@ -76,6 +76,7 @@ alienApp.filter('splitAndGet', function() {
       if (parseInt(indexToReturn) && indexToReturn >= 0) {
         return res[indexToReturn];
       }
+      return '---';
     } else {
       return;
     }

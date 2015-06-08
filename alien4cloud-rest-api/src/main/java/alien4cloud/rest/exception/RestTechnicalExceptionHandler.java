@@ -31,6 +31,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
+import alien4cloud.paas.exception.ComputeConflictNameException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
@@ -40,7 +41,6 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
 import alien4cloud.topology.exception.UpdateTopologyException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
@@ -81,14 +81,9 @@ public class RestTechnicalExceptionHandler {
     @ExceptionHandler(DeleteReferencedObjectException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public RestResponse<List<CsarRelatedResourceDTO>> processDeleteReferencedObject(DeleteReferencedObjectException e) {
+    public RestResponse<Void> processDeleteReferencedObject(DeleteReferencedObjectException e) {
         log.error("Object is still referenced and cannot be deleted", e);
-        List<CsarRelatedResourceDTO> dependencies = Lists.newArrayList();
-        for (Object dependency : e.getDependencies()) {
-            CsarRelatedResourceDTO topologyResourceInfoDTO = (CsarRelatedResourceDTO) dependency;
-            dependencies.add(topologyResourceInfoDTO);
-        }
-        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(dependencies)
+        return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
 
@@ -181,6 +176,17 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> versionConflictHandler(VersionConflictException e) {
         log.error("Version conflict", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_CONFLICT_ERROR).message(e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = ComputeConflictNameException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(ComputeConflictNameException e) {
+        log.error("Error in PaaS Deployment, computer name conflict ", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build())
                 .build();
     }
 
