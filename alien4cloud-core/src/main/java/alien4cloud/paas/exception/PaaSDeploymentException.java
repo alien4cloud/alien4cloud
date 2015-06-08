@@ -9,6 +9,7 @@ public class PaaSDeploymentException extends PaaSTechnicalException {
     }
 
     public PaaSDeploymentException(String message) {
+
         super(message);
     }
 }

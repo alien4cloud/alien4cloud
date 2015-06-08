@@ -31,6 +31,7 @@ import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
+import alien4cloud.paas.exception.ComputeConflictNameException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
@@ -175,6 +176,17 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> versionConflictHandler(VersionConflictException e) {
         log.error("Version conflict", e);
         return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_CONFLICT_ERROR).message(e.getMessage()).build())
+                .build();
+    }
+
+    @ExceptionHandler(value = ComputeConflictNameException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(ComputeConflictNameException e) {
+        log.error("Error in PaaS Deployment, computer name conflict ", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build())
                 .build();
     }
 
