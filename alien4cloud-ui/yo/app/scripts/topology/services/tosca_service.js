@@ -10,13 +10,18 @@ angular.module('alienUiApp').factory('toscaService',
 
     return {
       getScalingPolicy: function(node) {
-        if (UTILS.isDefinedAndNotNull(node.capabilities) && UTILS.isDefinedAndNotNull(node.capabilities['scalable'])) {
-          var scalableCapability = node.capabilities['scalable'];
-          return {
-            minInstances: scalableCapability.properties['min_instances'],
-            maxInstances: scalableCapability.properties['max_intances'],
-            initialInstances: scalableCapability.properties['default_instances']
-          };
+        if (UTILS.isDefinedAndNotNull(node.capabilitiesMap) && UTILS.isDefinedAndNotNull(node.capabilitiesMap['scalable'])) {
+          var scalableCapability = node.capabilitiesMap['scalable'].value;
+          var min = parseInt(scalableCapability.propertiesMap['min_instances'].value.value);
+          var max = parseInt(scalableCapability.propertiesMap['max_instances'].value.value);
+          var init = parseInt(scalableCapability.propertiesMap['default_instances'].value.value);
+          if (min > 1 || max > 1 || init > 1) {
+            return {
+              minInstances: min,
+              maxInstances: max,
+              initialInstances: init
+            };
+          }
         }
       },
       /**

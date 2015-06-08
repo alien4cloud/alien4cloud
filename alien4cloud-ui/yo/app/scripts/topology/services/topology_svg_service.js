@@ -220,7 +220,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         this.nodeRenderer.updateNode(nodeGroup, node, nodeTemplate, nodeType, oX, oY, this.topology);
 
         var scalingPolicySelection = null;
-        var scalingPolicy = toscaService.getScalingPolicy(node);
+        var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
 
         if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
           var netX = oX + this.nodeRenderer.width;

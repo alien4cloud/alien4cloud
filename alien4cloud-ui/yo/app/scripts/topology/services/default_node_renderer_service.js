@@ -69,7 +69,7 @@ angular.module('alienUiApp').factory('defaultNodeRendererService', ['commonNodeR
             nodeInstances = topology.instances[node.id];
             if (UTILS.isDefinedAndNotNull(nodeInstances)) {
               nodeInstancesCount = Object.keys(nodeInstances).length;
-              nodeScalingPolicies = toscaService.getScalingPolicy(node);
+              nodeScalingPolicies = toscaService.getScalingPolicy(nodeTemplate);
             }
           }
 

@@ -498,7 +498,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, angular.toJson(updatePropsObject), function(saveResult) {
         // update the selectedNodeTemplate properties locally
         if (UTILS.isUndefinedOrNull(saveResult.error)) {
-          updatedNodeTemplate.propertiesMap[propertyName].value = propertyValue;
+          updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
           refreshYaml();
         }
       }).$promise;
@@ -1220,7 +1220,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         relationshipName: relationshipName
       }, angular.toJson(updateIndexedTypePropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
-        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].relationshipsMap[relationshipName].value.propertiesMap[propertyName].value = propertyValue;
+        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].relationshipsMap[relationshipName].value.propertiesMap[propertyName].value = {
+          value: propertyValue,
+          definition: false
+        };
         refreshYaml();
       }).$promise;
     };
@@ -1239,7 +1242,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         capabilityId: capabilityId
       }, angular.toJson(updateIndexedTypePropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
-        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = propertyValue;
+        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
+          value: propertyValue,
+          definition: false
+        };
         refreshYaml();
       }).$promise;
     };
