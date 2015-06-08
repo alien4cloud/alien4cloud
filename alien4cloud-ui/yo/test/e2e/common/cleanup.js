@@ -150,7 +150,9 @@ function cleanGroups() {
     "query": {
       "bool": {
         "must_not": {
-          "term": { "name": "ALL_USERS"}
+          "term": {
+            "name": "ALL_USERS"
+          }
         }
       }
     }

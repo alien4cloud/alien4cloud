@@ -183,6 +183,7 @@
       "RESOURCE": {
         "TYPE": "Type",
         "NAME": "Nom",
+        "VERSION": "Version",
         "CSAR_TEXT": "Détails du CSAR",
         "APP_TEXT": "Détails de l'application",
         "TOPOLOGY_TEXT": "Détails de la topology"

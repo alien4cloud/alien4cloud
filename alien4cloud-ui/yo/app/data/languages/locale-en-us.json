@@ -175,6 +175,7 @@
       "RESOURCE": {
         "TYPE": "Type",
         "NAME": "Name",
+        "VERSION": "Version",
         "CSAR_TEXT": "CSAR details",
         "APP_TEXT": "Application details",
         "TOPOLOGY_TEXT": "Topology template details"

@@ -106,6 +106,7 @@
                           <tr>
                             <th>{{'CSAR.DETAILS.RESOURCE.NAME' | translate}}</th>
                             <th>{{'CSAR.DETAILS.RESOURCE.TYPE' | translate}}</th>
+                            <th>{{'CSAR.DETAILS.RESOURCE.VERSION' | translate}}</th>
                             <th></th>
                           </tr>
                         </thead>
@@ -116,6 +117,9 @@
                             </td>
                             <td>
                               {{resource.resourceType}}
+                            </td>
+                            <td>
+                              {{resource.resourceId | splitAndGet:':':'last' }}
                             </td>
                             <td>
                               <div ng-switch="resource.resourceType" class="pull-right">
