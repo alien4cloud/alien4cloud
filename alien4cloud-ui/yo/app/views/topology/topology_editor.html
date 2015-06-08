@@ -578,6 +578,9 @@
                   <i class="pull-left fa"
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
+                  <span id='reset-artifact-{{artifactId}}' class="btn-default btn-xs" ng-click="resetArtifact(artifactId); $event.stopPropagation();">
+                    <i class="fa fa-undo text-success"></i>
+                  </span>
                   <span class="pull-right btn-group" data-toggle="buttons">
                     <a id="p_input_art_{{artifactId}}"
                        ng-click="$event.stopPropagation(); getInputCandidatesForArtifact(artifactId); "
@@ -620,6 +623,8 @@
                         </span>
                           <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactId)">
                         </div>
+
+
                       </div>
                       <progressbar ng-if="uploads[artifactId].isUploading" class="progress-striped active" value="uploads[artifactId].uploadProgress"
                                    type="{{uploads[artifactId].type}}" />
@@ -903,7 +908,7 @@
           <span id="topology-artifacts" >
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
-        </li>        
+        </li>
       </ul>
     </div>
   </div>
