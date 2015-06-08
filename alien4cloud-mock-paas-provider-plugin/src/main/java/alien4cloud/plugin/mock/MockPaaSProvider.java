@@ -132,11 +132,15 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
     private ScalingPolicy getScalingPolicy(String id, Map<String, NodeTemplate> nodeTemplates) {
         // Get the scaling of parent if not exist
         Capability scalableCapability = TopologyUtils.getScalableCapability(nodeTemplates, id, false);
-        if (scalableCapability == null && nodeTemplates.get(id).getRelationships() != null) {
-            for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
-                if (NormativeRelationshipConstants.HOSTED_ON.equals(rel.getType())) {
-                    return getScalingPolicy(rel.getTarget(), nodeTemplates);
+        if (scalableCapability == null) {
+            if (nodeTemplates.get(id).getRelationships() != null) {
+                for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
+                    if (NormativeRelationshipConstants.HOSTED_ON.equals(rel.getType())) {
+                        return getScalingPolicy(rel.getTarget(), nodeTemplates);
+                    }
                 }
+            } else {
+                return null;
             }
         } else {
             return TopologyUtils.getScalingPolicy(scalableCapability);
