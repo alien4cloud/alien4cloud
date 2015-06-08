@@ -11,12 +11,12 @@ import javax.annotation.Resource;
 
 import org.apache.commons.collections4.MapUtils;
 import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.component.IToscaElementFinder;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
@@ -36,6 +36,7 @@ import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Maps;
@@ -48,6 +49,9 @@ public class TopologyServiceCore {
 
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
+
+    @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
 
     /**
      * The default tosca element finder will search into repo.
@@ -321,7 +325,7 @@ public class TopologyServiceCore {
         }
     }
 
-    public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description) {
+    public TopologyTemplate createTopologyTemplate(Topology topology, String name, String description, String version) {
         String topologyId = UUID.randomUUID().toString();
         topology.setId(topologyId);
 
@@ -330,13 +334,17 @@ public class TopologyServiceCore {
         topologyTemplate.setId(topologyTemplateId);
         topologyTemplate.setName(name);
         topologyTemplate.setDescription(description);
-        topologyTemplate.setTopologyId(topologyId);
 
         topology.setDelegateId(topologyTemplateId);
         topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
 
         this.alienDAO.save(topology);
         this.alienDAO.save(topologyTemplate);
+        if (version == null) {
+            topologyTemplateVersionService.createVersion(topologyTemplateId, topologyId);
+        } else {
+            topologyTemplateVersionService.createVersion(topologyTemplateId, topologyId, version, null);
+        }
 
         return topologyTemplate;
 
@@ -371,15 +379,26 @@ public class TopologyServiceCore {
         return toReturn;
     }
 
-    public String ensureNameUnicity(String name, int attemptCount) {
-        String computedName = name;
-        if (attemptCount > 0) {
-            computedName += "-" + attemptCount;
+    public TopologyTemplate searchTopologyTemplateByName(String name) {
+        Map<String, String[]> filters = MapUtil.newHashMap(new String[] { "name" }, new String[][] { new String[] { name } });
+        GetMultipleDataResult<TopologyTemplate> result = alienDAO.find(TopologyTemplate.class, filters, Integer.MAX_VALUE);
+        if (result.getTotalResults() > 0) {
+            return result.getData()[0];
         }
-        if (alienDAO.count(TopologyTemplate.class, QueryBuilders.termQuery("name", computedName)) > 0) {
-            return ensureNameUnicity(name, ++attemptCount);
-        }
-        return computedName;
+        return null;
+    }
+
+    /**
+     * Assign an id to the topology, save it and return the generated id.
+     * 
+     * @param topology
+     * @return
+     */
+    public String saveTopology(Topology topology) {
+        String topologyId = UUID.randomUUID().toString();
+        topology.setId(topologyId);
+        this.alienDAO.save(topology);
+        return topologyId;
     }
 
 }

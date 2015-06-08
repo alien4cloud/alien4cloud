@@ -98,7 +98,7 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
                 'size': 400
               };
               return applicationVersionServices.searchVersion({
-                applicationId: application.data.id
+                delegateId: application.data.id
               }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
                   return result.data;
                 });
@@ -165,6 +165,12 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
       }).state('applications.detail.versions', {
         url: '/versions',
         templateUrl: 'views/applications/application_versions.html',
+        resolve: {
+          versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices }],
+          searchServiceUrl: ['application', function(application) { return 'rest/applications/' + application.data.id + '/versions/search' }],
+          delegateId: ['application', function(application) { return application.data.id }],
+          userCanModify: ['alienAuthService', function(alienAuthService) { return alienAuthService.hasRole('APPLICATIONS_MANAGER') }]
+        },        
         controller: 'ApplicationVersionsCtrl'
       })
 
@@ -186,7 +192,20 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
                 topologyTemplateId: $stateParams.id
               }).$promise;
             }
-          ]
+          ],
+          appVersions: ['$http', 'topologyTemplate', 'topologyTemplateVersionServices',
+                        function($http, topologyTemplate, topologyTemplateVersionServices) {
+                          var searchAppVersionRequestObject = {
+                            'from': 0,
+                            'size': 400
+                          };
+                          return topologyTemplateVersionServices.searchVersion({
+                            delegateId: topologyTemplate.data.id
+                          }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+                              return result.data;
+                            });
+                        }
+          ] 
         },
         controller: 'TopologyTemplateCtrl'
       }).state('topologytemplates.detail.topology', {
@@ -197,13 +216,19 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             function(topologyTemplate) {
               return topologyTemplate.data.topologyId;
             }
-          ],
-          appVersions: function() {
-            // TODO : handle versions for topology templates
-            return null;
-          }
+          ]         
         },
         controller: 'TopologyCtrl'
+      }).state('topologytemplates.detail.versions', {
+        url: '/versions',
+        templateUrl: 'views/applications/application_versions.html',
+        resolve: {
+          versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices }],
+          searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/templates/' + topologyTemplate.data.id + '/versions/search' }],
+          delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id }],
+          userCanModify: ['alienAuthService', function(alienAuthService) { return alienAuthService.hasRole('ARCHITECT') }]
+        },
+        controller: 'ApplicationVersionsCtrl'
       })
 
       // administration

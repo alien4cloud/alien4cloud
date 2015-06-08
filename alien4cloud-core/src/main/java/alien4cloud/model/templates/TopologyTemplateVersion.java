@@ -1,4 +1,4 @@
-package alien4cloud.model.application;
+package alien4cloud.model.templates;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,26 +18,26 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Getter
 @Setter
 @JsonInclude(Include.NON_NULL)
-public class ApplicationVersion extends AbstractTopologyVersion {
+public class TopologyTemplateVersion extends AbstractTopologyVersion {
     @TermFilter
     @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
-    private String applicationId;
+    private String topologyTemplateId;
 
     @JsonIgnore
     @Override
     public String getDelegateId() {
-        return applicationId;
+        return topologyTemplateId;
     }
 
     @JsonIgnore
     @Override
     public String getDelegateType() {
-        return Application.class.getSimpleName().toLowerCase();
+        return TopologyTemplate.class.getSimpleName().toLowerCase();
     }
 
     @Override
     public void setDelegateId(String id) {
-        setApplicationId(id);
+        setTopologyTemplateId(id);
     }
 
 }

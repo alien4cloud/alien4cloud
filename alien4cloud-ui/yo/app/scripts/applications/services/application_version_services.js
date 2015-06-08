@@ -2,7 +2,7 @@
 
 angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
   function($resource) {
-    var searchVersionResource = $resource('rest/applications/:applicationId/versions/search', {}, {
+    var searchVersionResource = $resource('rest/applications/:delegateId/versions/search', {}, {
       'search': {
         method: 'POST',
         isArray: false,
@@ -12,7 +12,7 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
       }
     });
 
-    var applicationVersionResource = $resource('rest/applications/:applicationId/versions', {}, {
+    var applicationVersionResource = $resource('rest/applications/:delegateId/versions', {}, {
       'create': {
         method: 'POST',
         isArray: false,
@@ -25,7 +25,7 @@ angular.module('alienUiApp').factory('applicationVersionServices', ['$resource',
       }
     });
 
-    var applicationVersionMiscResource = $resource('rest/applications/:applicationId/versions/:applicationVersionId', {}, {
+    var applicationVersionMiscResource = $resource('rest/applications/:delegateId/versions/:versionId', {}, {
       'get': {
         method: 'GET'
       },

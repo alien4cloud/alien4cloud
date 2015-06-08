@@ -21,14 +21,16 @@ import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.topology.TopologyService;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.utils.ReflectionUtil;
 
 import com.google.common.collect.Maps;
@@ -54,6 +56,8 @@ public class TopologyTemplateController {
     private TopologyService topologyService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Resource
+    private TopologyTemplateVersionService versionService;
 
     /**
      * Create a new {@link TopologyTemplate}
@@ -71,8 +75,7 @@ public class TopologyTemplateController {
         Topology topology = new Topology();
 
         TopologyTemplate template = topologyServiceCore.createTopologyTemplate(topology, checkNameUnicity(createTopologyTemplateRequest.getName()),
-                createTopologyTemplateRequest.getDescription());
-
+                createTopologyTemplateRequest.getDescription(), null);
         log.info("Created topology template <{}>", template.getId());
 
         return RestResponseBuilder.<String> builder().data(template.getId()).build();
@@ -135,8 +138,13 @@ public class TopologyTemplateController {
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
+        // TODO: here check that the template is not used in a topology or template composition
+        for (TopologyTemplateVersion ttv : versionService.getByDelegateId(topologyTemplate.getId())) {
+            alienDAO.delete(Topology.class, ttv.getTopologyId());
+            alienDAO.delete(TopologyTemplateVersion.class, ttv.getId());
+        }
+        versionService.deleteByDelegate(topologyTemplate.getId());
         alienDAO.delete(TopologyTemplate.class, topologyTemplate.getId());
-        alienDAO.delete(Topology.class, topologyTemplate.getTopologyId());
         return RestResponseBuilder.<Void> builder().build();
     }
 

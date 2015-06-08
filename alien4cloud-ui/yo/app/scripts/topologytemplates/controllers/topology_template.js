@@ -21,4 +21,19 @@ angular.module('alienUiApp').controller('TopologyTemplateCtrl', ['$scope', '$res
         }
       );
     };
+    
+    $scope.menu = [{
+      id: 'am.applications.detail.topology',
+      state: 'topologytemplates.detail.topology',
+      key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
+      icon: 'fa fa-sitemap',
+      show: true
+    }, {
+      id: 'am.applications.detail.versions',
+      state: 'topologytemplates.detail.versions',
+      key: 'NAVAPPLICATIONS.MENU_VERSIONS',
+      icon: 'fa fa-tasks',
+      show: true
+    }];
+    
   }]);

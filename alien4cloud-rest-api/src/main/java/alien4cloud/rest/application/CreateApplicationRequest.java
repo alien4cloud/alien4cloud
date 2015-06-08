@@ -21,5 +21,5 @@ public class CreateApplicationRequest {
     @NotNull
     private String name;
     private String description;
-    private String topologyTemplateId;
+    private String topologyTemplateVersionId;
 }

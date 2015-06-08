@@ -45,7 +45,7 @@
   </div>
 
   <script type="text/ng-template" id="newApplication.html">
-    <form name="newApplication" class="form-horizontal" role="form" ng-submit="create(newApplication.$valid,selectedTopologyTemplate.id)" novalidate>
+    <form name="newApplication" class="form-horizontal" role="form" ng-submit="create(newApplication.$valid,selectedTopologyTemplateVersion.id)" novalidate>
       <div class="modal-header">
         <h3>{{'APPLICATIONS.NEW' | translate}}</h3>
       </div>
@@ -65,14 +65,23 @@
         <div class="form-group" ng-show="templates">
           <label for="templateid" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="templateid" ng-model="selectedTopologyTemplate" ng-options="t.name for t in templates" placeholder="{{'APPLICATIONS.DESC' | translate}}">
-              <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}</option>
+            <select class="form-control" id="templateid">
+              <option value="" ng-click="templateSelected(undefined)">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}</option>
+              <option value="{{t.id}}" ng-repeat="t in templates" ng-click="templateSelected(t)">{{t.name}}</option>
             </select>
           </div>
         </div>
         <div class="form-group" ng-if="selectedTopologyTemplate.description">
           <label for="templateid" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.DESC_TEMPLATE' | translate}}</label>
           <p class="col-lg-9">{{selectedTopologyTemplate.description}}</p>
+        </div>
+        <div class="form-group" ng-show="templateVersions"">
+          <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
+          <div class="col-lg-9">
+            <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
+              <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT_VERSION' | translate}}</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
