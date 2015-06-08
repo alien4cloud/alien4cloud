@@ -40,9 +40,11 @@ module.exports.after = function() {
 // Loading and exposing languages for tests
 var frLanguage = require(__dirname + '/../../../app/data/languages/locale-fr-fr.json');
 var usLanguage = require(__dirname + '/../../../app/data/languages/locale-en-us.json');
+var jpLanguage = require(__dirname + '/../../../app/data/languages/locale-ja-jp.json');
 
 module.exports.frLanguage = frLanguage;
 module.exports.usLanguage = usLanguage;
+module.exports.jpLanguage = jpLanguage;
 
 module.exports.uploadFile = function(path) {
   browser.driver.executeScript('var $scope = angular.element($(\'#fileUpload\')).scope(); $scope.dropSupported=false; $scope.$apply();').then(function() {

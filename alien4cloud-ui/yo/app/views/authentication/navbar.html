@@ -37,6 +37,11 @@
               <img alt="" src="images/flags/flags_iso/24/en-us.png" /> English
             </a>
           </li>
+          <li>
+            <a ng-click="changeLanguage('ja-jp')" name="link-language-jp">
+              <img alt="" src="images/flags/flags_iso/24/ja-jp.png" /> Japanese
+            </a>
+          </li>
           <li ng-show="status.currentStatus.data.isLogged" role="presentation" class="divider"></li>
           <li>
             <a href="https://github.com/alien4cloud/alien4cloud/releases/tag/{{version.tag}}" target="_blank" ng-if="!version.isSnapshot">
