@@ -104,6 +104,7 @@ curl -X POST "http://localhost:9200/csar/_search?pretty=true" -d '
 }
 '
 
+# get toscaelement by elementId : id should be in lower case
 curl -X POST "http://localhost:9200/toscaelement/indexednodetype/_search?pretty=true" -d '
 {
     "query" : {
