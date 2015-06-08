@@ -7,9 +7,9 @@ import org.junit.Assert;
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.Csar;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.rest.csar.CreateCsarRequest;
+import alien4cloud.rest.csar.CsarInfoDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.rest.utils.JsonUtil;
@@ -52,12 +52,12 @@ public class CrudCSARSStepDefinition {
     @Then("^I have CSAR created with id \"([^\"]*)\"$")
     public boolean I_have_CSAR_created_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/csars/" + csarId));
-        Csar csar = JsonUtil.read(Context.getInstance().takeRestResponse(), Csar.class).getData();
-        if (csar == null) {
+        CsarInfoDTO csarInfoDTO = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarInfoDTO.class).getData();
+        if (csarInfoDTO == null) {
             return false;
         }
-        Assert.assertNotNull(csar);
-        Assert.assertEquals(csar.getId(), csarId);
+        Assert.assertNotNull(csarInfoDTO);
+        Assert.assertEquals(csarInfoDTO.getCsar().getId(), csarId);
         return true;
     }
 
@@ -79,8 +79,8 @@ public class CrudCSARSStepDefinition {
     public void I_have_the_CSAR_version_to_contain_a_dependency_to_version(String csarName, String csarVersion, String dependencyName, String dependencyVersion)
             throws Throwable {
         String response = Context.getRestClientInstance().get("/rest/csars/" + csarName + ":" + csarVersion + "-SNAPSHOT");
-        Csar csar = JsonUtil.read(response, Csar.class).getData();
-        Assert.assertTrue(csar.getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
+        CsarInfoDTO csar = JsonUtil.read(response, CsarInfoDTO.class).getData();
+        Assert.assertTrue(csar.getCsar().getDependencies().contains(new CSARDependency(dependencyName, dependencyVersion)));
     }
 
     @When("^I run the test for this snapshot CSAR on cloud \"([^\"]*)\"$")
