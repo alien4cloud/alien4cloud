@@ -79,12 +79,4 @@ public class NodeTemplate extends AbstractTemplate {
         this.requirements = requirements;
         this.capabilities = capabilities;
     }
-
-    public static final boolean isValidNodeTemplateName(String nodeTemplateName) {
-        String pattern = "^[A-Za-z0-9\\\\-]*$";
-        if (nodeTemplateName != null && !nodeTemplateName.matches(pattern)) {
-            return false;
-        }
-        return true;
-    }
 }
