@@ -216,7 +216,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var artifacts = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId', {}, {
+    var artifacts = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/reset', {}, {
       'resetArtifact': {
         method: 'PUT',
         params: {

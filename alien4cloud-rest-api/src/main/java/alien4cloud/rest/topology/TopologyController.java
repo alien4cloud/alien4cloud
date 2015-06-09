@@ -800,7 +800,7 @@ public class TopologyController {
     }
 
     @ApiOperation(value = "Reset the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> resetDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String artifactId) throws IOException {
 
@@ -825,9 +825,18 @@ public class TopologyController {
             artifactRepository.deleteFile(oldArtifactId);
         }
 
-        // TODO : get information from the nodetype
-        IndexedNodeType indexedNodeType = findIndexedNodeType(artifact.getArtifactType());
+        // get information from the nodetype
+        IndexedNodeType indexedNodeType = csarRepoSearch.getElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        DeploymentArtifact baseArtifact = indexedNodeType.getArtifacts().get(artifactId);
 
+        if (baseArtifact != null) {
+            artifact.setArtifactRepository(null);
+            artifact.setArtifactRef(baseArtifact.getArtifactRef());
+            artifact.setArtifactName(baseArtifact.getArtifactName());
+            alienDAO.save(topology);
+        } else {
+            log.warn("Reset service for the artifact <" + artifactId + "> on the node template <" + nodeTemplateName + "> failed.");
+        }
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 

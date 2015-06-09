@@ -1056,21 +1056,17 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.doUpload(file, artifactId);
     };
 
+    // reset the artifact to the original nodetype value
     $scope.resetArtifact = function(artifactId) {
-      
-      console.log('Reset this >', artifactId);
       topologyServices.nodeTemplate.artifacts.resetArtifact({
-          topologyId: $scope.topology.topology.id,
-          nodeTemplateName: $scope.selectedNodeTemplate.name,
-          artifactId: artifactId
-        },
-        function success(result) {
-          console.log('Success', result);
-        },
-        function error(result) {
-          console.log('Error', result);
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        artifactId: artifactId
+      }, function success(result) {
+        if (result.error === null) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate.name);
         }
-      );
+      });
     };
 
     /** REPLACE A NODE TEMPLATE */
