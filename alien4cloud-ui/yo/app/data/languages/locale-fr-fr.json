@@ -487,7 +487,6 @@
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, des tirets et sans espace.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
     },
     "ENVIRONMENT": {

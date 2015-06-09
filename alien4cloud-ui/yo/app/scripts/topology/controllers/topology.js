@@ -174,7 +174,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
 
     $scope.editorContent = '';
     var outputKeys = ['outputProperties', 'outputAttributes'];
-    var regexPatternn = '^[A-Za-z0-9\\-]*$';
 
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
 
@@ -456,16 +455,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       // Update only when the name has changed
       $scope.nodeTempNameEditError = null;
       if ($scope.selectedNodeTemplate.name !== newName) {
-        var nodeNameRegEx = new RegExp(regexPatternn, 'g');
-        var valid = nodeNameRegEx.test(newName);
-        //verify the name format
-        if (!valid) {
-          $scope.nodeTempNameEditError = {
-            code: 'APPLICATIONS.TOPOLOGY.NODETEMPLATE_NAME_ERROR'
-          };
-          return ' ';
-        }
-
         topologyServices.nodeTemplate.updateName({
           topologyId: $scope.topology.topology.id,
           nodeTemplateName: $scope.selectedNodeTemplate.name,
@@ -1056,21 +1045,17 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.doUpload(file, artifactId);
     };
 
+    // reset the artifact to the original nodetype value
     $scope.resetArtifact = function(artifactId) {
-      
-      console.log('Reset this >', artifactId);
       topologyServices.nodeTemplate.artifacts.resetArtifact({
-          topologyId: $scope.topology.topology.id,
-          nodeTemplateName: $scope.selectedNodeTemplate.name,
-          artifactId: artifactId
-        },
-        function success(result) {
-          console.log('Success', result);
-        },
-        function error(result) {
-          console.log('Error', result);
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        artifactId: artifactId
+      }, function success(result) {
+        if (result.error === null) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate.name);
         }
-      );
+      });
     };
 
     /** REPLACE A NODE TEMPLATE */

@@ -180,11 +180,6 @@ public class TopologyController {
             log.debug("Add Node Template <{}> impossible (already exists)", nodeTemplateRequest.getName());
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
-        } else if (!NodeTemplate.isValidNodeTemplateName(nodeTemplateRequest.getName())) {
-            return RestResponseBuilder
-                    .<TopologyDTO> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
         } else {
             log.debug("Create application <{}>", nodeTemplateRequest.getName());
         }
@@ -248,13 +243,6 @@ public class TopologyController {
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String newNodeTemplateName) {
-        if (!NodeTemplate.isValidNodeTemplateName(newNodeTemplateName)) {
-            return RestResponseBuilder
-                    .<TopologyDTO> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
-        }
-
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -800,7 +788,7 @@ public class TopologyController {
     }
 
     @ApiOperation(value = "Reset the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> resetDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String artifactId) throws IOException {
 
@@ -825,9 +813,18 @@ public class TopologyController {
             artifactRepository.deleteFile(oldArtifactId);
         }
 
-        // TODO : get information from the nodetype
-        IndexedNodeType indexedNodeType = findIndexedNodeType(artifact.getArtifactType());
+        // get information from the nodetype
+        IndexedNodeType indexedNodeType = csarRepoSearch.getElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        DeploymentArtifact baseArtifact = indexedNodeType.getArtifacts().get(artifactId);
 
+        if (baseArtifact != null) {
+            artifact.setArtifactRepository(null);
+            artifact.setArtifactRef(baseArtifact.getArtifactRef());
+            artifact.setArtifactName(baseArtifact.getArtifactName());
+            alienDAO.save(topology);
+        } else {
+            log.warn("Reset service for the artifact <" + artifactId + "> on the node template <" + nodeTemplateName + "> failed.");
+        }
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
