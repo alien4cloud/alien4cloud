@@ -279,6 +279,13 @@ public class TopologyStepDefinitions {
                 Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
     }
 
+    @When("^I reset the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" to default value$")
+    public void I_reset_the_node_template_s_artifact_to_default_value(String nodeTemplateName, String artifactId) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId + "/reset";
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().put(url));
+    }
+
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_property_set_to(String nodeTemplateName, String propertyName, String propertyValue)
             throws Throwable {

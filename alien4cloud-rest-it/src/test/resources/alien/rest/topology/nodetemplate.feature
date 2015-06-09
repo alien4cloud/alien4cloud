@@ -58,3 +58,16 @@ Feature: Manage Nodetemplates of a topology
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"
+
+  Scenario: Reset a nodetemplate's deployment artifact from a topology
+    Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
+    When I update the node template "Template1"'s artifact "war" with "myWar.war"
+    Then I should receive a RestResponse with no error
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"
+    When I reset the node template "Template1"'s artifact "war" to default value
+    Then I should receive a RestResponse with no error
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name ""
