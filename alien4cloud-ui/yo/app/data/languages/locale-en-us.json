@@ -15,6 +15,8 @@
   "CSAR": "Csar",
   "TRUE": "True",
   "FALSE": "False",
+  "YES": "Yes",
+  "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
   "NAVBAR": {
@@ -581,6 +583,9 @@
     "ENVIRONMENT_TYPE": "Environment type",
     "ENABLE": "Enable",
     "DISABLE": "Disable",
+    "FORCE-DISABLE": "Force shutdown",
+    "FORCE-DISABLE-TITLE": "Force cloud shutdown",
+    "FORCE-DISABLE-CONTENT": "Do you really want to turn off the cloud while it's being used by applications?",
     "REFRESH": "Refresh",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
