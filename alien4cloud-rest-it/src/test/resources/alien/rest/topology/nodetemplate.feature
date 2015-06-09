@@ -17,10 +17,6 @@ Feature: Manage Nodetemplates of a topology
     And The RestResponse should contain a nodetemplate named "Template1" and type "tosca.nodes.Compute"
     And The RestResponse should contain a node type with "tosca.nodes.Compute:1.0" id
 
-  Scenario: Add a nodetemplate with a wrong name shoul failed
-    When I add a node template "Template_1" related to the "tosca.nodes.Compute:1.0" node type
-      Then I should receive a RestResponse with an error code 506
-
   Scenario: Remove a nodetemplate from a topology
     Given I add a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I delete a node template "Template1" from the topology
