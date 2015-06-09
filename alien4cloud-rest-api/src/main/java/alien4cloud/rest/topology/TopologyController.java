@@ -753,6 +753,38 @@ public class TopologyController {
         }
     }
 
+    @ApiOperation(value = "Reset the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> resetDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String artifactId) throws IOException {
+
+        // Perform check that authorization's ok
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        // Get the node template's artifacts to update
+        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, DeploymentArtifact> artifacts = nodeTemplate.getArtifacts();
+        if (artifacts == null) {
+            throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
+        }
+        DeploymentArtifact artifact = artifacts.get(artifactId);
+        if (artifact == null) {
+            throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
+        }
+        String oldArtifactId = artifact.getArtifactRef();
+        if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+            artifactRepository.deleteFile(oldArtifactId);
+        }
+
+        // TODO : get information from the nodetype
+        IndexedNodeType indexedNodeType = findIndexedNodeType(artifact.getArtifactType());
+
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
     /**
      * Update application's input artifact.
      *

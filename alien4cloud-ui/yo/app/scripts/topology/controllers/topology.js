@@ -1,4 +1,4 @@
-/* global UTILS, $ */
+/* global UTILS, $, D3JS_UTILS*/
 'use strict';
 
 angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'applicationVersionServices', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster',
@@ -256,7 +256,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       // init the group collapse indicators
       $scope.groupCollapsed = {};
       angular.forEach($scope.topology.topology.groups, function(value, key) {
-        $scope.groupCollapsed[key] = {main: false, members: true, policies: true};
+        $scope.groupCollapsed[key] = {
+          main: false,
+          members: true,
+          policies: true
+        };
       });
 
     });
@@ -804,7 +808,9 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       topologyServices.inputArtifacts.rename({
         topologyId: $scope.topology.topology.id,
         inputArtifactId: inputArtifactId
-      }, {newId: newId}, function(result) {
+      }, {
+        newId: newId
+      }, function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
         }
@@ -1050,6 +1056,23 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       $scope.doUpload(file, artifactId);
     };
 
+    $scope.resetArtifact = function(artifactId) {
+      
+      console.log('Reset this >', artifactId);
+      topologyServices.nodeTemplate.artifacts.resetArtifact({
+          topologyId: $scope.topology.topology.id,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          artifactId: artifactId
+        },
+        function success(result) {
+          console.log('Success', result);
+        },
+        function error(result) {
+          console.log('Error', result);
+        }
+      );
+    };
+
     /** REPLACE A NODE TEMPLATE */
     $scope.getIcon = UTILS.getIcon;
 
@@ -1272,13 +1295,15 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
         }
       });
-    }
+    };
 
     $scope.updateNodeGroupName = function(groupId, name) {
       topologyServices.nodeGroups.rename({
         topologyId: $scope.topology.topology.id,
         groupId: groupId
-      }, {newName: name}, function(result) {
+      }, {
+        newName: name
+      }, function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
           if ($scope.groupCollapsed[groupId]) {
@@ -1287,7 +1312,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         }
       });
-    }
+    };
 
     $scope.deleteNodeGroupMember = function(groupId, member) {
       topologyServices.nodeGroups.removeMember({
@@ -1299,13 +1324,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
         }
       });
-    }
+    };
 
     $scope.isNodeMemberOf = function(nodeName, groupId) {
       if ($scope.selectedNodeTemplate) {
         return UTILS.arrayContains($scope.selectedNodeTemplate.groups, groupId);
       }
-    }
+    };
 
     $scope.createGroupWithMember = function(nodeName) {
       topologyServices.nodeGroups.addMember({
@@ -1315,10 +1340,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, {}, function(result) {
         if (!result.error) {
           refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-          $scope.groupCollapsed[nodeName] = {main: false, members: true, policies: true};
+          $scope.groupCollapsed[nodeName] = {
+            main: false,
+            members: true,
+            policies: true
+          };
         }
       });
-    }
+    };
 
     $scope.toggleNodeGroupMember = function(groupId, nodeName) {
       if ($scope.isNodeMemberOf(nodeName, groupId)) {
@@ -1334,11 +1363,11 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           }
         });
       }
-    }
+    };
 
     $scope.getGroupColorCss = function(groupId) {
       return D3JS_UTILS.groupColorCss($scope.topology.topology, groupId);
-    }
+    };
 
   }
 ]);
