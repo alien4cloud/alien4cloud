@@ -275,11 +275,12 @@ public class TopologyStepDefinitions {
                 Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
     }
 
-    @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
-    public void I_update_the_node_template_s_capability_s_property_to(String nodeTempName, String capabilityName, String propertyName, String propertyValue)
+    @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\" of type \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_the_node_template_s_capability_of_type_s_property_to(String nodeTempName, String capabilityName, String capabilityType,
+            String propertyName, String propertyValue)
             throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
-        UpdatePropertyRequest req = new UpdatePropertyRequest(propertyName, propertyValue);
+        UpdateIndexedTypePropertyRequest req = new UpdateIndexedTypePropertyRequest(propertyName, propertyValue, capabilityType);
         String json = jsonMapper.writeValueAsString(req);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon(

@@ -12,22 +12,22 @@ Feature: Add / Remove / Edit scaling policy
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "Java" and target "Compute" for requirement "compute" of type "tosca.capabilities.Container" and target capability "container"
 
   Scenario: Edit a scaling policy
-    When I update the node template "Compute"'s capability "scalable"'s property "max_instances" to "4"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "max_instances" to "4"
     Then I should receive a RestResponse with no error
-    When I update the node template "Compute"'s capability "scalable"'s property "default_instances" to "3"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "default_instances" to "3"
     Then I should receive a RestResponse with no error
-    When I update the node template "Compute"'s capability "scalable"'s property "min_instances" to "2"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "min_instances" to "2"
     Then I should receive a RestResponse with no error
     And the scaling policy of the node "Compute" should match max instances equals to 4, initial instances equals to 3 and min instances equals to 2
 
-    When I update the node template "Compute"'s capability "scalable"'s property "max_instances" to "-1"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "max_instances" to "-1"
     And I check for the deployable status of the topology
     Then the topology should not be deployable
 
-    When I update the node template "Compute"'s capability "scalable"'s property "max_instances" to "1"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "max_instances" to "1"
     Then I should receive a RestResponse with no error
-    When I update the node template "Compute"'s capability "scalable"'s property "default_instances" to "1"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "default_instances" to "1"
     Then I should receive a RestResponse with no error
-    When I update the node template "Compute"'s capability "scalable"'s property "min_instances" to "1"
+    When I update the node template "Compute"'s capability "scalable" of type "tosca.capabilities.Scalable"'s property "min_instances" to "1"
     Then I should receive a RestResponse with no error
     And There's no defined scaling policy for the node "Compute"
