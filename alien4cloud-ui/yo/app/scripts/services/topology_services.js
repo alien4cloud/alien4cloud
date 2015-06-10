@@ -268,20 +268,6 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var resetPropertyDefault = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/properties/:propertyName/reset', {}, {
-      'resetProperty': {
-        method: 'PUT',
-        params: {
-          topologyId: '@topologyId',
-          nodeTemplateName: '@nodeTemplateName',
-          propertyName: '@propertyName'
-        },
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8'
-        }
-      }
-    });
-
     var relationshipDAO = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationships/:relationshipName', {}, {
       'add': {
         method: 'POST',
@@ -439,7 +425,6 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'replace': replacements.replace,
         'outputProperties': updateOutputProperty,
         'outputAttributes': updateOutputAttribute,
-        'resetProperty': resetPropertyDefault.resetProperty,
         'artifacts': {
           'getInputCandidates': artifactInputCandidates.get,
           'setInput': inputArtifact.save,

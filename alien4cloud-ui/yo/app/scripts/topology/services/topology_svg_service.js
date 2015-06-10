@@ -5,7 +5,7 @@
 angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService',
   function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService) {
 
-    function TopologySvg (clickCallback, containerElement, isRuntime, nodeRenderer) {
+    function TopologySvg(clickCallback, containerElement, isRuntime, nodeRenderer) {
       this.networkStyles = 10;
       this.isGridDisplayed = false;
       this.firstRender = true;
@@ -45,10 +45,10 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
       },
 
       setNodeRenderer: function(nodeRenderer) {
-        if(this.nodeRenderer === nodeRenderer) {
+        if (this.nodeRenderer === nodeRenderer) {
           return;
         }
-        if(UTILS.isDefinedAndNotNull(this.svg)) {
+        if (UTILS.isDefinedAndNotNull(this.svg)) {
           this.svg.selectAll('.node-template').remove();
         }
         this.nodeRenderer = nodeRenderer;
@@ -83,10 +83,10 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
           spacing);
         // Update connector routing.
         this.grid = routerFactoryService.create(layout.bbox, this.gridStep);
-        for(i = 0; i< layout.nodes.length;i++) {
+        for (i = 0; i < layout.nodes.length; i++) {
           this.grid.addObstacle(layout.nodes[i].bbox);
         }
-        for(i = 0; i< layout.links.length;i++) {
+        for (i = 0; i < layout.links.length; i++) {
           this.computeLinkRoute(layout.links[i]);
         }
 
@@ -104,7 +104,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
       computeLinkRoute: function(link) {
         // compute the route path
         var route;
-        if(link.isNetwork) {
+        if (link.isNetwork) {
           route = [];
         } else {
           route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
@@ -115,7 +115,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
       },
 
       displayGrid: function() {
-        if(!this.isGridDisplayed) {
+        if (!this.isGridDisplayed) {
           return;
         }
         for (var i = 0; i < this.grid.cells.length; i++) {
@@ -141,8 +141,10 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         // remove the group bullets
         var nodeGroupSelection = this.svg.selectAll('.node-template-group');
         nodeGroupSelection.remove();
-        
-        var nodeSelection = this.svg.selectAll('.node-template').data(nodes, function(node) { return node.id; });
+
+        var nodeSelection = this.svg.selectAll('.node-template').data(nodes, function(node) {
+          return node.id;
+        });
 
         // update existing nodes
         nodeSelection.each(function(node) {
@@ -160,7 +162,7 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
         // remove destroyed nodes.
         nodeSelection.exit().remove();
-        
+
         this.drawLink(this.svg, links);
       },
 
@@ -188,9 +190,9 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
           var netX = oX + this.nodeRenderer.width;
           var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
-          var netY = oY + (this.nodeRenderer.height/2) - 2;
+          var netY = oY + (this.nodeRenderer.height / 2) - 2;
           var netStyle = node.networkId % this.networkStyles;
-          var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
+          var path = 'M ' + netX + ',' + netY + ' ' + netMaxX + ',' + netY;
           nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');
         }
 
@@ -204,49 +206,51 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
         var nodeTemplate = this.topology.topology.nodeTemplates[node.id];
         var nodeType = this.topology.nodeTypes[nodeTemplate.type];
         var instance = this;
-        
+
         // update location
         nodeGroup.attr('transform', function(d) {
           return 'translate(' + d.coordinate.x + ',' + d.coordinate.y + ')';
         });
 
         // update background class
-        nodeGroup.classed('selected', function(){ return nodeTemplate.selected; });
+        nodeGroup.classed('selected', function() {
+          return nodeTemplate.selected;
+        });
 
         this.nodeRenderer.updateNode(nodeGroup, node, nodeTemplate, nodeType, oX, oY, this.topology);
 
-        var scalingPolicySelection, scalingPolicy = null;
-        if(UTILS.isDefinedAndNotNull(this.topology.topology.scalingPolicies)) {
-          scalingPolicy = this.topology.topology.scalingPolicies[node.id];
-        }
+        var scalingPolicySelection = null;
+        var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
 
         if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
           var netX = oX + this.nodeRenderer.width;
           var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
-          var netY = oY + (this.nodeRenderer.height/2) - 2;
-          var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
+          var netY = oY + (this.nodeRenderer.height / 2) - 2;
+          var path = 'M ' + netX + ',' + netY + ' ' + netMaxX + ',' + netY;
           nodeGroup.select('.link-network').attr('d', path);
         }
 
-        if(UTILS.isDefinedAndNotNull(scalingPolicy)) {
+        if (UTILS.isDefinedAndNotNull(scalingPolicy)) {
           scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-          if(scalingPolicySelection.empty()) {
+          if (scalingPolicySelection.empty()) {
             var scalingPolicyGroup = nodeGroup.append('g').attr('id', 'scalingPolicy');
             scalingPolicyGroup.append('circle').attr('cx', oX + this.nodeRenderer.width).attr('cy', oY).attr('r', '12').attr('class', 'topology-svg-icon-circle');
             scalingPolicyGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center').attr('x', oX + this.nodeRenderer.width).attr('y', oY)
-              .attr('transform', 'rotate(90 '+(oX + this.nodeRenderer.width)+' '+oY+')')
-              .text(function() { return '\uf112'; });
+              .attr('transform', 'rotate(90 ' + (oX + this.nodeRenderer.width) + ' ' + oY + ')')
+              .text(function() {
+                return '\uf112';
+              });
           }
         } else {
           scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-          if(!scalingPolicySelection.empty()) {
+          if (!scalingPolicySelection.empty()) {
             scalingPolicySelection.remove();
           }
         }
-        
+
       },
 
-      tooltip: function (node) {
+      tooltip: function(node) {
         var nodeTemplate = this.topology.topology.nodeTemplates[node.id];
         var nodeType = this.topology.nodeTypes[nodeTemplate.type];
 
@@ -258,19 +262,25 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
         var topology = this.topology;
 
-        var linkSelection = parent.selectAll('.link').data(links, function(link) { return link.id; });
+        var linkSelection = parent.selectAll('.link').data(links, function(link) {
+          return link.id;
+        });
 
         var newLinks = linkSelection.enter().append('path');
         newLinks.each(function(link) {
           var linkPath = d3.select(this);
-          if(link.isNetwork) {
+          if (link.isNetwork) {
             var netStyle = link.networkId % instance.networkStyles;
             linkPath.attr('class', 'link link-network link-network-' + netStyle);
           } else {
             linkPath.attr('class', 'link');
             var isHostedOn = toscaService.isHostedOnType(link.type, topology.relationshipTypes);
-            linkPath.classed('link-hosted-on', function() { return isHostedOn; })
-              .classed('link-depends-on', function() { return !isHostedOn; })
+            linkPath.classed('link-hosted-on', function() {
+              return isHostedOn;
+            })
+              .classed('link-depends-on', function() {
+                return !isHostedOn;
+              })
               .attr('marker-start', function(link) {
                 return toscaService.isHostedOnType(link.type, topology.relationshipTypes) ? 'url(#markerHosted)' : 'url(#markerDepends)';
               }).attr('marker-end', function(link) {
@@ -289,17 +299,19 @@ angular.module('alienUiApp').factory('topologySvgFactory', ['svgServiceFactory',
 
       drawLinkPath: function(linkPath) {
         linkPath.attr('d', function(link) {
-            // compute the route path
-            var route = link.route;
-            var path = 'M' + route[0].x + ',' + route[0].y;
-            for (var i = 1; i < route.length - 1; i++) {
-              path = path + ' ' + route[i].x + ',' + route[i].y;
-            }
-            path = path + ' ' + route[route.length - 1].x + ',' + route[route.length - 1].y;
+          // compute the route path
+          var route = link.route;
+          var path = 'M' + route[0].x + ',' + route[0].y;
+          for (var i = 1; i < route.length - 1; i++) {
+            path = path + ' ' + route[i].x + ',' + route[i].y;
+          }
+          path = path + ' ' + route[route.length - 1].x + ',' + route[route.length - 1].y;
 
-            return path;
-          });
-        linkPath.classed('link-selected', function(link) { return link.selected; });
+          return path;
+        });
+        linkPath.classed('link-selected', function(link) {
+          return link.selected;
+        });
       },
 
       defineMarkers: function(svg) {

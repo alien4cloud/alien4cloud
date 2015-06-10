@@ -57,10 +57,6 @@ public class Topology implements IManagedSecuredResource {
     @JsonSerialize(using = JSonMapEntryArraySerializer.class)
     private Map<String, NodeTemplate> nodeTemplates;
 
-    /**
-     * Scaling policies are defined by node (key is the node name).
-     */
-    private Map<String, ScalingPolicy> scalingPolicies;
     private Map<String, PropertyDefinition> inputs;
 
     /**

@@ -444,7 +444,16 @@
         "TOADD_RELATIONSHIP_LABEL": "Prérequis non statisfaits (ajoutez un lien)",
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
-        "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds"
+        "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Politique de scalabilité invalide",
+          "MISSING": "Propriété obligatoire",
+          "ERRORS": {
+            "min_instances": "Propriété min_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Propriété default_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Propriété max_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances"
+          }
+        }
       },
       "WARNING": {
         "LABEL": "Alertes",
@@ -853,6 +862,7 @@
   "name": "Nom",
   "target": "Cible",
   "constraints": "Contraintes",
+  "PROPERTY_RESET": "Revenir à la valeur par défaut",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "La valeur définie dans la contrainte n'est pas valide par rapport à son type",

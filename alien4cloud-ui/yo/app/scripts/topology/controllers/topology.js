@@ -491,7 +491,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       }, angular.toJson(updatePropsObject), function(saveResult) {
         // update the selectedNodeTemplate properties locally
         if (UTILS.isUndefinedOrNull(saveResult.error)) {
-          updatedNodeTemplate.propertiesMap[propertyName].value = propertyValue;
+          updatedNodeTemplate.propertiesMap[propertyName].value = {value: propertyValue, definition: false};
           refreshYaml();
         }
       }).$promise;
@@ -1102,84 +1102,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
-    /**
-     * SCALING POLICIES
-     */
-    $scope.addScalingPolicy = function() {
-      var newScalingPolicy = {
-        minInstances: 1,
-        maxInstances: 1,
-        initialInstances: 1
-      };
-      topologyServices.topologyScalingPoliciesDAO.save({
-        topologyId: $scope.topology.topology.id,
-        nodeTemplateName: $scope.selectedNodeTemplate.name
-      }, angular.toJson(newScalingPolicy), function(result) {
-        if (!result.error) {
-          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-        }
-      });
-    };
-
-    $scope.updateScalingPolicy = function(policyFieldName, policyFieldValue) {
-      if (policyFieldValue < 0) {
-        return $translate('ERRORS.800.greaterOrEqual', {
-          reference: '0'
-        });
-      }
-      var existingPolicy = $scope.topology.topology.scalingPolicies[$scope.selectedNodeTemplate.name];
-      if (policyFieldName === 'initialInstances') {
-        if (policyFieldValue < existingPolicy.minInstances) {
-          return $translate('ERRORS.800.greaterOrEqual', {
-            reference: 'minInstances'
-          });
-        }
-        if (policyFieldValue > existingPolicy.maxInstances) {
-          return $translate('ERRORS.800.lessOrEqual', {
-            reference: 'maxInstances'
-          });
-        }
-      } else if (policyFieldName === 'minInstances') {
-        if (policyFieldValue > existingPolicy.initialInstances) {
-          return $translate('ERRORS.800.lessOrEqual', {
-            reference: 'initialInstances'
-          });
-        }
-        if (policyFieldValue > existingPolicy.maxInstances) {
-          return $translate('ERRORS.800.lessOrEqual', {
-            reference: 'maxInstances'
-          });
-        }
-      } else if (policyFieldName === 'maxInstances') {
-        if (policyFieldValue < existingPolicy.initialInstances) {
-          return $translate('ERRORS.800.greaterOrEqual', {
-            reference: 'initialInstances'
-          });
-        }
-        if (policyFieldValue < existingPolicy.minInstances) {
-          return $translate('ERRORS.800.greaterOrEqual', {
-            reference: 'minInstances'
-          });
-        }
-      }
-      existingPolicy[policyFieldName] = policyFieldValue;
-      topologyServices.topologyScalingPoliciesDAO.save({
-        topologyId: $scope.topology.topology.id,
-        nodeTemplateName: $scope.selectedNodeTemplate.name
-      }, angular.toJson(existingPolicy), undefined);
-    };
-
-    $scope.deleteScalingPolicy = function() {
-      topologyServices.topologyScalingPoliciesDAO.remove({
-        topologyId: $scope.topology.topology.id,
-        nodeTemplateName: $scope.selectedNodeTemplate.name
-      }, function(result) {
-        if (!result.error) {
-          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
-        }
-      });
-    };
-
     var fillBounds = function(topology) {
       if (!topology.nodeTemplates) {
         return;
@@ -1306,7 +1228,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         relationshipName: relationshipName
       }, angular.toJson(updateIndexedTypePropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
-        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].relationshipsMap[relationshipName].value.propertiesMap[propertyName].value = propertyValue;
+        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].relationshipsMap[relationshipName].value.propertiesMap[propertyName].value = {
+          value: propertyValue,
+          definition: false
+        };
         refreshYaml();
       }).$promise;
     };
@@ -1325,7 +1250,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         capabilityId: capabilityId
       }, angular.toJson(updateIndexedTypePropertyRequest), function() {
         // update the selectedNodeTemplate properties locally
-        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = propertyValue;
+        $scope.topology.topology.nodeTemplates[$scope.selectedNodeTemplate.name].capabilitiesMap[capabilityId].value.propertiesMap[propertyName].value = {
+          value: propertyValue,
+          definition: false
+        };
         refreshYaml();
       }).$promise;
     };
