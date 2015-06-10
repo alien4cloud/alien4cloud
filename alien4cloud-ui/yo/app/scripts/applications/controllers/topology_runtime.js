@@ -501,22 +501,7 @@ angular.module('alienUiApp').controller(
           }, {}, undefined);
         }
       };
-//      $scope.switchNodeInstanceMaintenanceModeOn = function(nodeInstanceId) {
-//        deploymentServices.nodeInstanceMaintenanceOn({
-//          applicationId: applicationId,
-//          applicationEnvironmentId: $scope.selectedEnvironment.id,
-//          nodeTemplateId: $scope.selectedNodeTemplate.name,
-//          instanceId: nodeInstanceId
-//        }, {}, undefined);
-//      };
-//      $scope.switchNodeInstanceMaintenanceModeOff = function(nodeInstanceId) {
-//        deploymentServices.nodeInstanceMaintenanceOff({
-//          applicationId: applicationId,
-//          applicationEnvironmentId: $scope.selectedEnvironment.id,
-//          nodeTemplateId: $scope.selectedNodeTemplate.name,
-//          instanceId: nodeInstanceId
-//        }, {}, undefined);
-//      };
+
       $scope.switchDeployementMaintenanceMode = function() {
         if ($scope.hasNOdeInstanceInMaintenanceMode) {
           deploymentServices.deploymentMaintenance.off({

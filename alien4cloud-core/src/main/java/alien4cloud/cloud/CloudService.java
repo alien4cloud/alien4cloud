@@ -432,24 +432,32 @@ public class CloudService {
      * Disable an existing cloud. Note that this can be done only when no more deployments are using the cloud to disable.
      *
      * @param id Id of the cloud to disable.
+     * @param boolean Boolean who indicate if the cloud disable need to be forced or not
      * @return true if the cloud has been disabled, false if not (some deployments are using the cloud).
      */
-    public synchronized boolean disableCloud(String id) {
+    public synchronized boolean disableCloud(String id, boolean force) {
+        if (force == false) {
+            String index = alienDAO.getIndexForType(Deployment.class);
+            SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index).types(Deployment.class)
+                    .filters(MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { id }, new String[] { null } }))
+                    .fieldSort("_timestamp", true);
 
-        String index = alienDAO.getIndexForType(Deployment.class);
-        SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper.buildSearchQuery(index).types(Deployment.class)
-                .filters(MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { id }, new String[] { null } }))
-                .fieldSort("_timestamp", true);
+            GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
-        GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
-
-        // TODO place a lock to avoid deployments during disablement of the cloud.
-        if (result.getData().length > 0) {
-            return false;
+            // TODO place a lock to avoid deployments during disablement of the cloud.
+            if (result.getData().length > 0) {
+                return false;
+            }
         }
+
         Cloud cloud = getMandatoryCloud(id);
         disableCloud(cloud);
         return true;
+    }
+
+    @Deprecated
+    public synchronized boolean disableCloud(String id) {
+        return disableCloud(id, false);
     }
 
     private void disableCloud(Cloud cloud) {
