@@ -23,7 +23,6 @@ Feature: Add / Remove / Edit scaling policy
     When I update the node template "Compute"'s capability "scalable"'s property "max_instances" to "-1"
     And I check for the deployable status of the topology
     Then the topology should not be deployable
-    And
 
     When I update the node template "Compute"'s capability "scalable"'s property "max_instances" to "1"
     Then I should receive a RestResponse with no error
