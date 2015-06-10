@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
@@ -116,12 +117,14 @@ public class TopologyInputsController {
      * @param newInputId
      */
     private void updateInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String oldInputId, final String newInputId) {
-        for (AbstractPropertyValue propertyValue : properties.values()) {
-            if (propertyValue instanceof FunctionPropertyValue) {
-                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
-                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
-                        && functionPropertyValue.getParameters().get(0).equals(oldInputId)) {
-                    functionPropertyValue.setParameters(Arrays.asList(newInputId));
+        if (MapUtils.isNotEmpty(properties)) {
+            for (AbstractPropertyValue propertyValue : properties.values()) {
+                if (propertyValue instanceof FunctionPropertyValue) {
+                    FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
+                    if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
+                            && functionPropertyValue.getParameters().get(0).equals(oldInputId)) {
+                        functionPropertyValue.setParameters(Arrays.asList(newInputId));
+                    }
                 }
             }
         }

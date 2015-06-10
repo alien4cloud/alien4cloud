@@ -437,7 +437,16 @@
         "TOADD_RELATIONSHIP_LABEL": "Unsatisfied requirements (relationship should be added)",
         "REQUIRED_PROPERTIES_LABEL": "Required properties",
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
-        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
+        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Invalid scalability policy",
+          "MISSING": "Madatory property",
+          "ERRORS": {
+            "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Invalid max_instances property, please verify that 0 < min_instances < default_instances < max_instances"
+          }
+        }
       },
       "WARNING": {
         "LABEL": "Warnings",
