@@ -1,11 +1,11 @@
 /* global UTILS */
-
 'use strict';
 
 angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'propertiesServices', '$translate',
   function($scope, propertiesServices, $translate) {
 
     $scope.propertySave = function(data, unit) {
+      console.log('Save property >', data, unit);
       delete $scope.unitError;
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
@@ -13,7 +13,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         if (UTILS.isUndefinedOrNull(unit)) {
           unit = $scope.definitionObject.uiUnit;
         }
-        data += " " + unit;
+        data += ' ' + unit;
       }
       // check constraint here
       var propertyRequest = {
@@ -60,7 +60,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
 
     /**
      * Return the property constraint identifier to represent it in the UI
-     * We can define the représentation regardint the property "type" or "constraint"
+     * We can define the representation regarding the property "type" or "constraint"
      * Managed identifier / constraint :
      *  - validValues => select
      *  - date => date picker (standby)
@@ -93,10 +93,13 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           // Here handle scalar value
           shownValue = $scope.propertyValue.value;
         } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-          shownValue = $scope.propertyValue.function + ': ' + UTILS.array2csv($scope.propertyValue.parameters);
+          shownValue = $scope.propertyValue.function+': ' + UTILS.array2csv($scope.propertyValue.parameters);
         }
       }
+
+      // handeling default value
       shownValue = shownValue || $scope.definition.default;
+      $scope.definitionObject.hasDefaultValue = UTILS.isDefinedAndNotNull($scope.definition.default);
 
       // Second phase : regarding constraints
       if (UTILS.isDefinedAndNotNull($scope.definition.constraints)) {
@@ -138,9 +141,9 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       switch ($scope.definition.type) {
         case 'boolean':
           $scope.definitionObject.uiName = 'checkbox';
-          if(UTILS.isUndefinedOrNull(shownValue)) {
+          if (UTILS.isUndefinedOrNull(shownValue)) {
             $scope.definitionObject.uiValue = false;
-          } else if(typeof shownValue === 'boolean') {
+          } else if (typeof shownValue === 'boolean') {
             $scope.definitionObject.uiValue = shownValue;
           } else {
             $scope.definitionObject.uiValue = (shownValue === 'true');
@@ -171,6 +174,12 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       if (!UTILS.isObjectEmpty($scope.definitionObject)) {
         return $scope.definitionObject;
       }
+    };
+
+    $scope.resetProperty = function resetPropertyToDefault() {
+      // UI reset
+      $scope.definitionObject.uiValue = $scope.definition.default;
+      // backend property reset
     };
 
     // Init managed property
