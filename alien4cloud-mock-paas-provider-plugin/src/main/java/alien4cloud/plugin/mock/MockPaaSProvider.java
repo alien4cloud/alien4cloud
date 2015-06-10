@@ -28,6 +28,7 @@ import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
@@ -47,8 +48,10 @@ import alien4cloud.paas.model.PaaSMessageMonitorEvent;
 import alien4cloud.paas.model.PaaSTopologyDeploymentContext;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
+import alien4cloud.tosca.normative.NormativeRelationshipConstants;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -126,17 +129,23 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         return new InstanceInformation(ToscaNodeLifecycleConstants.INITIAL, InstanceStatus.PROCESSING, attributes, runtimeProperties, outputs);
     }
 
-    private ScalingPolicy getScalingPolicy(String id, Map<String, ScalingPolicy> policies, Map<String, NodeTemplate> nodeTemplates) {
+    private ScalingPolicy getScalingPolicy(String id, Map<String, NodeTemplate> nodeTemplates) {
         // Get the scaling of parent if not exist
-        ScalingPolicy policy = policies.get(id);
-        if (policy == null && nodeTemplates.get(id).getRelationships() != null) {
-            for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
-                if ("tosca.relationships.HostedOn".equals(rel.getType())) {
-                    policy = getScalingPolicy(rel.getTarget(), policies, nodeTemplates);
+        Capability scalableCapability = TopologyUtils.getScalableCapability(nodeTemplates, id, false);
+        if (scalableCapability == null) {
+            if (nodeTemplates.get(id).getRelationships() != null) {
+                for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
+                    if (NormativeRelationshipConstants.HOSTED_ON.equals(rel.getType())) {
+                        return getScalingPolicy(rel.getTarget(), nodeTemplates);
+                    }
                 }
+            } else {
+                return null;
             }
+        } else {
+            return TopologyUtils.getScalingPolicy(scalableCapability);
         }
-        return policy;
+        return null;
     }
 
     @Override
@@ -144,10 +153,6 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         log.info("Deploying deployment [" + deploymentContext.getDeploymentPaaSId() + "]");
         paaSDeploymentIdToAlienDeploymentIdMap.put(deploymentContext.getDeploymentPaaSId(), deploymentContext.getDeploymentId());
         Topology topology = deploymentContext.getTopology();
-        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-        if (policies == null) {
-            policies = Maps.newHashMap();
-        }
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         if (nodeTemplates == null) {
             nodeTemplates = Maps.newHashMap();
@@ -156,7 +161,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         for (Map.Entry<String, NodeTemplate> nodeTemplateEntry : nodeTemplates.entrySet()) {
             Map<String, InstanceInformation> instanceInformations = Maps.newHashMap();
             currentInformations.put(nodeTemplateEntry.getKey(), instanceInformations);
-            ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), policies, nodeTemplates);
+            ScalingPolicy policy = getScalingPolicy(nodeTemplateEntry.getKey(), nodeTemplates);
             int initialInstances = policy != null ? policy.getInitialInstances() : 1;
             for (int i = 1; i <= initialInstances; i++) {
                 InstanceInformation newInstanceInformation = newInstance(i);

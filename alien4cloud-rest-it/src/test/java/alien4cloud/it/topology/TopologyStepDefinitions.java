@@ -1,11 +1,6 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +50,7 @@ import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.task.RequirementToSatify;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -606,9 +602,8 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
-        Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
-        assertTrue(policies != null && !policies.isEmpty());
-        ScalingPolicy computePolicy = policies.get(nodeName);
+        ScalingPolicy computePolicy = TopologyUtils.getScalingPolicy(TopologyUtils.getScalableCapability(topologyResponse.getData().getTopology(), nodeName,
+                true));
         assertNotNull(computePolicy);
         assertEquals(maxInstances, computePolicy.getMaxInstances());
         assertEquals(minInstances, computePolicy.getMinInstances());
@@ -627,11 +622,9 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
-        Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
-        if (policies != null) {
-            ScalingPolicy computePolicy = policies.get(nodeName);
-            assertNull(computePolicy);
-        }
+        ScalingPolicy computePolicy = TopologyUtils.getScalingPolicy(TopologyUtils.getScalableCapability(topologyResponse.getData().getTopology(), nodeName,
+                true));
+        assertEquals(ScalingPolicy.NOT_SCALABLE_POLICY, computePolicy);
     }
 
     @Then("^the node with required properties not set should be$")
