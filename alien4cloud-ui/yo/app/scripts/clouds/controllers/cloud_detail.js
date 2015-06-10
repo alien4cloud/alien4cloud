@@ -194,23 +194,23 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.refreshCloud = function() {
-        $scope.enablePending = true;
+        $scope.refreshPending = true;
         cloudServices.refresh({
           id: $scope.cloud.id
         }, function(response) {
-          $scope.enablePending = false;
+          $scope.refreshPending = false; 
           if (response.data) {
-            handleCloudResponse(response);
+            handleCloudResponse(response); 
           } else {
             // toaster message
-            toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
+            toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
           }
-        }, function(response) {
-          $scope.enablePending = false;
-          toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
-        });
+        }, function(response) { 
+          $scope.refreshPending = false; 
+          toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
+        });        
       };
-
+      
       $scope.cloudConfig = {};
 
       cloudServices.config.get({
@@ -775,6 +775,5 @@ angular.module('alienUiApp').controller(
         });
       };
       $scope.loadConfigurationTag();
-
     }
   ]);
