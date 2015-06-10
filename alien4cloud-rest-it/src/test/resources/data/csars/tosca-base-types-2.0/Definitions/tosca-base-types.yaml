@@ -74,9 +74,11 @@ node_types:
       mem_size:
         type: scalar-unit.size
         required: false
+        default: 2048 MB
         constraints:
           - greater_than: 0 B
       os_arch:
+        default: "x86_64"
         type: string
       os_type:
         type: string

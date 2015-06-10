@@ -487,7 +487,7 @@ module.exports = function(grunt) {
             //baseUrl: 'http://localhost:9999',
             baseUrl: 'http://localhost:8088',
             specs: [
-               'test/e2e/setup-scenario/before-all.js',
+              'test/e2e/setup-scenario/before-all.js',
               //              'test/e2e/scenarios/admin/admin_cloud.js',
               //              'test/e2e/scenarios/admin/admin_cloud_image.js',
               //              'test/e2e/scenarios/admin/admin_groups_management.js',
@@ -500,7 +500,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application/application_security.js',
               //              'test/e2e/scenarios/application/application_security_role_check.js',
               //              'test/e2e/scenarios/application/application_tags.js',
-                            'test/e2e/scenarios/application/application_cloud_properties.js',
+              //              'test/e2e/scenarios/application/application_cloud_properties.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_input_management.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_capabilities.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_editrelationship.js',
@@ -513,6 +513,7 @@ module.exports = function(grunt) {
               //              'test/e2e/scenarios/application_topology/application_topology_runtime.js',
               //              'test/e2e/scenarios/application_topology/application_topology_scaling.js',
               //              'test/e2e/scenarios/application_topology/application_topology_editor_input_output.js',
+              'test/e2e/scenarios/application_topology/application_topology_editor_reset.js',
               //              'test/e2e/scenarios/deployment/deployment.js',
               //              'test/e2e/scenarios/deployment/deployment_matcher.js',
               //              'test/e2e/scenarios/deployment/deployment_manual_match_resources.js',
@@ -584,23 +585,23 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('ittest-admin', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  'protractor:runAdmin'
+    'protractor:runAdmin'
   ]);
 
   grunt.registerTask('ittest-application', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  'protractor:runApplication'
+    'protractor:runApplication'
   ]);
 
   grunt.registerTask('ittest-applicationTopology', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  'protractor:runApplicationTopology'
+    'protractor:runApplicationTopology'
   ]);
 
   grunt.registerTask('ittest-deploymentAndSecurity', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  'protractor:runDeploymentAndSecurity'
+    'protractor:runDeploymentAndSecurity'
   ]);
 
   grunt.registerTask('ittest-otherTests', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'protractor_webdriver:start',
-  'protractor:runOtherTests'
+    'protractor:runOtherTests'
   ]);
 
   grunt.registerTask('continuoustest', ['clean:server', 'concurrent:test', 'autoprefixer', 'connect:test', 'karma:jenkins']);
