@@ -5,7 +5,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
   function($scope, propertiesServices, $translate) {
 
     $scope.propertySave = function(data, unit) {
-      console.log('Save property >', data, unit);
       delete $scope.unitError;
       if (UTILS.isUndefinedOrNull(data) || data.toString() === '') {
         data = null;
@@ -69,10 +68,14 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
      *  - inRange => slider
      */
     $scope.definitionObject = {};
+    var isReset = false;
 
     $scope.init = function() {
       $scope.$watch('propertyValue', function() {
         $scope.initScope();
+        if (isReset) { // could be an initScope after a reset property
+          $scope.propertySave($scope.definitionObject.uiValue, $scope.definitionObject.uiUnit);
+        }
       }, true);
 
       $scope.$watch('definition', function() {
@@ -176,10 +179,11 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
       }
     };
 
+    /** Reset the property to the default value if any */
     $scope.resetProperty = function resetPropertyToDefault() {
-      // UI reset
-      $scope.definitionObject.uiValue = $scope.definition.default;
-      // backend property reset
+      isReset = true;
+      $scope.propertyValue = $scope.definition.default;
+      // propertyValue is "watched", so initScope is called
     };
 
     // Init managed property
