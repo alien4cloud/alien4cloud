@@ -728,8 +728,6 @@
     "ERRORS": {
       "DELETING_FAILED_TITLE": "Supprimer un cloud",
       "DELETING_FAILED": "Impossible de supprimer le cloud. Il est utilisé par des ressources.",
-      "DISABLING_FAILED_TITLE": "Désactiver un cloud",
-      "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources.",
       "ENABLING_FAILED_TITLE": "Activer un cloud",
       "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
       "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
