@@ -80,9 +80,8 @@ public abstract class AbstractPaaSProvider implements IConfigurablePaaSProvider<
     }
 
     @Override
-    public void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology,
-            IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
-        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), topology));
+    public void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback) {
+        callback.onSuccess(getInstancesInformation(deploymentContext.getDeploymentPaaSId(), deploymentContext.getTopology()));
     }
 
     public Map<String, Map<String, InstanceInformation>> getInstancesInformation(String deploymentId, Topology topology) {

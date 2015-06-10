@@ -363,9 +363,9 @@ public class DeploymentService {
             return;
         }
         Topology runtimeTopology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
+        PaaSTopologyDeploymentContext deploymentContext = buildTopologyDeploymentContext(deployment, runtimeTopology);
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
-        paaSProvider.getInstancesInformation(deploymentContext, runtimeTopology, callback);
+        paaSProvider.getInstancesInformation(deploymentContext, callback);
     }
 
     /**

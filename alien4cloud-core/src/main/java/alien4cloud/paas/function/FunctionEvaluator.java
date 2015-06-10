@@ -26,6 +26,7 @@ import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
+import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.AlienUtils;
@@ -42,6 +43,36 @@ import com.google.common.collect.Maps;
 @Slf4j
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public final class FunctionEvaluator {
+
+    /**
+     * Post process / enrich instance information by parsing all function in attributes and replacing them with real values
+     * 
+     * @param instanceInformations the instance information to post process
+     * @param topology the topology
+     * @param paaSTopology the pass topology
+     */
+    public static void postProcessInstanceInformation(Map<String, Map<String, InstanceInformation>> instanceInformations, Topology topology,
+            PaaSTopology paaSTopology) {
+        // parse attributes
+        for (Map.Entry<String, Map<String, InstanceInformation>> nodeInstanceId : instanceInformations.entrySet()) {
+
+            for (Map.Entry<String, InstanceInformation> nodeInstanceNumber : nodeInstanceId.getValue().entrySet()) {
+
+                if (nodeInstanceNumber.getValue().getAttributes() != null) {
+                    for (Map.Entry<String, String> attributeEntry : nodeInstanceNumber.getValue().getAttributes().entrySet()) {
+                        PaaSNodeTemplate nodeTemplate = paaSTopology.getAllNodes().get(nodeInstanceId.getKey());
+                        Map<String, IValue> nodeTemplateAttributes = nodeTemplate.getIndexedToscaElement().getAttributes();
+                        IValue attributeValue = nodeTemplateAttributes.get(attributeEntry.getKey());
+                        if (attributeValue != null) {
+                            String parsedAttribute = FunctionEvaluator.parseAttribute(attributeEntry.getKey(), attributeValue, topology, instanceInformations,
+                                    nodeInstanceNumber.getKey(), nodeTemplate, paaSTopology.getAllNodes());
+                            attributeEntry.setValue(parsedAttribute);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Parse an attribute value that can be : {@link ConcatPropertyValue} / {@link AttributeDefinition}

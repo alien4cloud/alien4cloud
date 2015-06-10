@@ -5,7 +5,6 @@ import java.util.Map;
 
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
-import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
@@ -63,11 +62,9 @@ public interface IPaaSProvider {
      * Get instance information of a topology from the PaaS
      *
      * @param deploymentContext the deployment context
-     * @param topology TODO
      * @param callback callback when the information will be available
-     * @param topology the topology to retrieve information
      */
-    void getInstancesInformation(PaaSDeploymentContext deploymentContext, Topology topology, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
+    void getInstancesInformation(PaaSTopologyDeploymentContext deploymentContext, IPaaSCallback<Map<String, Map<String, InstanceInformation>>> callback);
 
     /**
      * Get all audit events that occurred since the given date. The events must be ordered by date as we could use this method to iterate through events in case
