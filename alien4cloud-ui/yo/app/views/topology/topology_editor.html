@@ -565,7 +565,7 @@
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
                   <span id='reset-artifact-{{artifactId}}' class="btn-default btn-xs" ng-click="resetArtifact(artifactId); $event.stopPropagation();">
-                    <i class="fa fa-undo text-success"></i>
+                    <i class="fa fa-undo text-success" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
                   </span>
                   <span class="pull-right btn-group" data-toggle="buttons">
                     <a id="p_input_art_{{artifactId}}"

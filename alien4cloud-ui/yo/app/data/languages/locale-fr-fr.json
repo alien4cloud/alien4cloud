@@ -864,6 +864,7 @@
   "name": "Nom",
   "target": "Cible",
   "constraints": "Contraintes",
+  "PROPERTY_RESET": "Revenir à la valeur par défaut",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "La valeur définie dans la contrainte n'est pas valide par rapport à son type",

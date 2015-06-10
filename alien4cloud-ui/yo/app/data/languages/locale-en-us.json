@@ -860,6 +860,7 @@
   "name": "Name",
   "target": "Target",
   "constraints": "Constraints",
+  "PROPERTY_RESET": "Reset value to default",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "The value defined in constraint do not match its declared type",

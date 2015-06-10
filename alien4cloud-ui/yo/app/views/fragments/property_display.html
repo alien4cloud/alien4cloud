@@ -3,9 +3,6 @@
 
   <label id="p_name_{{definition.name}}" class="col-md-4 property-display-label-ellipsed control-label" ng-class="{'property-required': definition.required }" tooltip="{{definition.name | translate}}" tooltip-append-to-body="true">
     {{definition.name | translate}}
-    <span id='reset-property-{{definition.name}}' ng-if="definitionObject.hasDefaultValue" class="btn-default btn-xs" ng-click="resetProperty(); $event.stopPropagation();">
-      <i class="fa fa-undo text-success"></i>
-    </span>
   </label>
 
   <div class="col-md-8" ng-class="{'form-editable': !condensed}">
@@ -81,6 +78,9 @@
         <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       </span>
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
+      <span id='reset-property-{{definition.name}}' ng-if="definitionObject.hasDefaultValue" class="btn-default btn-xs" ng-click="resetProperty();">
+        <i class="fa fa-undo text-success" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      </span>
     </div>
   </div>
 </div>
