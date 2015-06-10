@@ -14,6 +14,7 @@ public final class NormativeComputeConstants {
     public static final String OS_VERSION = "os_version";
     public static final String IP_ADDRESS = "ip_address";
     public static final String SCALABLE = "scalable";
+    public static final String SCALABLE_CAPABILITY_TYPE = "tosca.capabilities.Scalable";
     public static final String SCALABLE_MIN_INSTANCES = "min_instances";
     public static final String SCALABLE_MAX_INSTANCES = "max_instances";
     public static final String SCALABLE_DEFAULT_INSTANCES = "default_instances";

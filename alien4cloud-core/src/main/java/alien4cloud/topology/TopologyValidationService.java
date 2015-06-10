@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.paas.function.FunctionEvaluator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -60,10 +61,12 @@ import alien4cloud.topology.task.HAGroupTask;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.RequirementToSatify;
 import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.ScalableTask;
 import alien4cloud.topology.task.SuggestionsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.topology.task.TopologyTask;
+import alien4cloud.tosca.normative.NormativeComputeConstants;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
 import com.google.common.collect.Maps;
@@ -187,6 +190,12 @@ public class TopologyValidationService {
                     }
                     addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate),
                             mergedMetaProperties, task);
+                    if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
+                        Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
+                        if (MapUtils.isEmpty(scalableProperties)) {
+
+                        }
+                    }
                 }
             }
 
@@ -198,6 +207,26 @@ public class TopologyValidationService {
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
+    }
+
+    private void verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList,
+            NodeTemplate nodeTemplate) {
+        List<String> missingProperties = Lists.newArrayList();
+        if (MapUtils.isEmpty(scalableProperties)) {
+            missingProperties.addAll(Lists.newArrayList(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, NormativeComputeConstants.SCALABLE_MAX_INSTANCES,
+                    NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES));
+
+        } else {
+            String minValue = FunctionEvaluator.getScalarValue(scalableProperties.get(NormativeComputeConstants.SCALABLE_MIN_INSTANCES));
+            if(StringUtils.isEmpty(minValue)) {
+
+            }
+        }
+        if (!missingProperties.isEmpty()) {
+            ScalableTask scalableTask = new ScalableTask(nodeTemplate.getName());
+            scalableTask.getProperties().put(TaskLevel.REQUIRED, missingProperties);
+            toReturnTaskList.add(scalableTask);
+        }
     }
 
     /**

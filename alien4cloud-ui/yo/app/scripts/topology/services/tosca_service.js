@@ -8,14 +8,32 @@ angular.module('alienUiApp').factory('toscaService',
     var networkType = 'tosca.relationships.Network';
     var attachedToType = 'tosca.relationships.AttachTo';
 
+    var getScalingProperty = function(scalableCapability, propertyName) {
+      var propertyEntry = scalableCapability.propertiesMap[propertyName];
+      var propertyValue = 1;
+      if (UTILS.isDefinedAndNotNull(propertyEntry) && UTILS.isDefinedAndNotNull(propertyEntry.value)) {
+        if (UTILS.isDefinedAndNotNull(propertyEntry.value.value)) {
+          // Scalar
+          propertyValue = parseInt(propertyEntry.value.value);
+        } else if (UTILS.isDefinedAndNotNull(propertyEntry.value.function) &&
+          UTILS.isDefinedAndNotNull(propertyEntry.value.parameters) &&
+          propertyEntry.value.parameters.length > 0) {
+          // Get input
+          propertyValue = propertyEntry.value;
+        }
+      }
+      return propertyValue;
+    };
+
     return {
       getScalingPolicy: function(node) {
         if (UTILS.isDefinedAndNotNull(node.capabilitiesMap) && UTILS.isDefinedAndNotNull(node.capabilitiesMap['scalable'])) {
           var scalableCapability = node.capabilitiesMap['scalable'].value;
-          var min = parseInt(scalableCapability.propertiesMap['min_instances'].value.value);
-          var max = parseInt(scalableCapability.propertiesMap['max_instances'].value.value);
-          var init = parseInt(scalableCapability.propertiesMap['default_instances'].value.value);
-          if (min > 1 || max > 1 || init > 1) {
+          var min = getScalingProperty(scalableCapability, 'min_instances');
+          var max = getScalingProperty(scalableCapability, 'max_instances');
+          var init = getScalingProperty(scalableCapability, 'default_instances');
+          // If min == max == default == 1 we consider that the node is not scalable
+          if (min !== 1 || max !== 1 || init !== 1) {
             return {
               minInstances: min,
               maxInstances: max,
