@@ -275,6 +275,17 @@ public class TopologyStepDefinitions {
                 Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
     }
 
+    @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_the_node_template_s_capability_s_property_to(String nodeTempName, String capabilityName, String propertyName, String propertyValue)
+            throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        UpdatePropertyRequest req = new UpdatePropertyRequest(propertyName, propertyValue);
+        String json = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/capability/" + capabilityName + "/updateProperty", json));
+    }
+
     @When("^I reset the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" to default value$")
     public void I_reset_the_node_template_s_artifact_to_default_value(String nodeTemplateName, String artifactId) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
@@ -573,28 +584,6 @@ public class TopologyStepDefinitions {
         return null;
     }
 
-    @When("^I add a scaling policy to the node \"([^\"]*)\"$")
-    public void I_add_a_scaling_policy_to_the_node(String nodeName) throws Throwable {
-        ScalingPolicy policy = new ScalingPolicy(1, 1, 1);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName,
-                        JsonUtil.toString(policy)));
-    }
-
-    @Given("^I have a already added a scaling policy to the node \"([^\"]*)\"$")
-    public void I_have_a_already_added_a_scaling_policy_to_the_node(String nodeName) throws Throwable {
-        I_add_a_scaling_policy_to_the_node(nodeName);
-    }
-
-    @When("^I change the scaling policy of the node \"([^\"]*)\" with max instances to (\\d+), initial instances to (\\d+) and min instances to (\\d+)$")
-    public void I_change_the_scaling_of_the_node_with_max_instances_to_initial_instances_to_and_min_instances_to(String nodeName, int maxInstancesValue,
-            int initialInstancesValue, int minInstancesValue) throws Throwable {
-        ScalingPolicy policy = new ScalingPolicy(minInstancesValue, maxInstancesValue, initialInstancesValue);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName,
-                        JsonUtil.toString(policy)));
-    }
-
     @Then("^the scaling policy of the node \"([^\"]*)\" should match max instances equals to (\\d+), initial instances equals to (\\d+) and min instances equals to (\\d+)$")
     public void the_scaling_policy_of_the_node_should_match_max_instances_equals_to_initial_instances_equals_to_and_min_instances_equals_to(String nodeName,
             int maxInstances, int initialInstances, int minInstances) throws Throwable {
@@ -608,12 +597,6 @@ public class TopologyStepDefinitions {
         assertEquals(maxInstances, computePolicy.getMaxInstances());
         assertEquals(minInstances, computePolicy.getMinInstances());
         assertEquals(initialInstances, computePolicy.getInitialInstances());
-    }
-
-    @When("^I delete the policy of the node \"([^\"]*)\"$")
-    public void I_delete_the_policy(String nodeName) throws Throwable {
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName));
     }
 
     @Then("^There's no defined scaling policy for the node \"([^\"]*)\"$")
