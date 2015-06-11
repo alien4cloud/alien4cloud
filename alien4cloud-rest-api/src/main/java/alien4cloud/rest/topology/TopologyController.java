@@ -138,12 +138,17 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    /**
+     * Retrieve an existing {@link alien4cloud.model.topology.Topology} as YAML
+     *
+     * @param topologyId The id of the topology to retrieve.
+     * @return {@link RestResponse}<{@link String}> containing the topology as YAML
+     */
     @RequestMapping(value = "/{topologyId}/yaml", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<String> getYaml(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-
         String yaml = topologyService.getYaml(topology);
         return RestResponseBuilder.<String> builder().data(yaml).build();
     }

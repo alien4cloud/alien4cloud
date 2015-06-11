@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,6 +106,11 @@ public class TopologyStepDefinitions {
     @When("^I try to retrieve it$")
     public void I_try_to_retrieve_it() throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
+    }
+
+    @Then("^I get a topology by id \"([^\"]*)\"$")
+    public void I_get_a_topology_by_id(String topologyId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
     }
 
