@@ -78,8 +78,8 @@
         <em ng-if="definitionObject.units && definitionObject.uiUnit && !editable">{{definitionObject.uiUnit}}</em>
       </span>
       <label ng-if="definition.required" tooltip="{{ 'REQUIRED' | translate }}">*</label>
-      <span id='reset-property-{{definition.name}}' ng-if="definitionObject.hasDefaultValue" class="btn-default btn-xs" ng-click="resetProperty();">
-        <i class="fa fa-undo text-success" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
+      <span id='reset-property-{{definition.name}}' ng-if="definitionObject.hasDefaultValue && editable" class="btn btn-xs" ng-click="resetProperty();">
+        <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
       </span>
     </div>
   </div>
