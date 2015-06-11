@@ -264,6 +264,11 @@ public class CloudServiceArchiveController {
     private List<CsarRelatedResourceDTO> getCsarRelatedResourceList(Csar csar) {
         List<CsarRelatedResourceDTO> relatedResourceList = Lists.newArrayList();
 
+        if (csar == null) {
+            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
+            return relatedResourceList;
+        }
+
         // a csar that is a dependency of another csar can not be deleted
         Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
         if (relatedCsars != null && relatedCsars.length > 0) {
