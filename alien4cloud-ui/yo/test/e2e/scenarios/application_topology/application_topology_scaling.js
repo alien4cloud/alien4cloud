@@ -8,17 +8,17 @@ var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
 
 var computesNodeTemplates = {
-    compute: componentData.toscaBaseTypes.compute(),
-    ubuntu: componentData.ubuntuTypes.ubuntu()
+  compute: componentData.toscaBaseTypes.compute(),
+  ubuntu: componentData.ubuntuTypes.ubuntu()
 };
 
-var confirmAction = function(confirmPopup){
+var confirmAction = function(confirmPopup) {
   var confirmBtn = confirmPopup.element(by.css('.btn-success'));
   confirmBtn.click();
   browser.sleep(8000); // Time needed to complete the scaling
 };
 
-var cancelAction = function(cancelPopup){
+var cancelAction = function(cancelPopup) {
   var cancelBtn = cancelPopup.element(by.css('.btn-danger'));
   cancelBtn.click();
 };
@@ -41,7 +41,7 @@ var scale = function(oldValue, newValue, cancel) {
   expect(scaleEditableInput.getText()).toContain(valueToCheck);
 };
 
-var checkAndScale = function(nodeId, valueToCheck, newValue, cancel){
+var checkAndScale = function(nodeId, valueToCheck, newValue, cancel) {
   var nodeToView = element(by.id(nodeId));
   nodeToView.click();
   element.all(by.repeater('(id, info) in topology.instances[selectedNodeTemplate.name]')).then(function(states) {
@@ -81,31 +81,25 @@ describe('Topology scaling feature', function() {
     console.log('################# should be able to add scaling policy.');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(computesNodeTemplates);
 
-    topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
+    topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
     browser.executeScript('window.scrollTo(0,0);').then(function() {
-      topologyEditorCommon.removeScalingPolicy('rect_Compute');
+      topologyEditorCommon.removeScalingPolicy('Compute');
     });
     browser.sleep(1000);
-    expect(element(by.id('maxInstances')).isPresent()).toBe(false);
-    expect(element(by.id('minInstances')).isPresent()).toBe(false);
-    expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
-    topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
+    topologyEditorCommon.addScalingPolicy('Ubuntu', 1, 3, 3);
     browser.executeScript('window.scrollTo(0,0);').then(function() {
-      topologyEditorCommon.removeScalingPolicy('rect_Ubuntu');
+      topologyEditorCommon.removeScalingPolicy('Ubuntu');
     });
     browser.sleep(1000);
-    expect(element(by.id('maxInstances')).isPresent()).toBe(false);
-    expect(element(by.id('minInstances')).isPresent()).toBe(false);
-    expect(element(by.id('initialInstances')).isPresent()).toBe(false);
 
     // Change scaling policy
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
     topologyEditorCommon.editNodeProperty('Ubuntu', 'containee_types', 'test', 'cap');
-    topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
-    topologyEditorCommon.addScalingPolicy('rect_Ubuntu', 1, 3, 3);
+    topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
+    topologyEditorCommon.addScalingPolicy('Ubuntu', 1, 3, 3);
   });
 
   it('should be able to deploy and scale (with confirmation) a compute, and every node derived from it', function() {
@@ -115,7 +109,7 @@ describe('Topology scaling feature', function() {
     navigation.go('applications', 'runtime');
 
     browser.sleep(10000); // Wait for mock deployment to finish
-    checkAndScale('rect_Compute', 2 , 1);
+    checkAndScale('rect_Compute', 2, 1);
     checkAndScale('rect_Compute', 1);
     checkAndScale('rect_Compute', 1, 2, true);
     checkAndScale('rect_Compute', 1);

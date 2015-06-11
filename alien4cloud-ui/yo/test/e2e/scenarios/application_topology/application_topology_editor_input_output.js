@@ -40,15 +40,14 @@ describe('Topology input/output properties', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
-    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
+    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024', 'pro', 'MIB');
     topologyEditorCommon.editNodeProperty('Compute', 'ip_address', '192.168.1.1');
 
-    topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
+    topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
 
     topologyEditorCommon.togglePropertyInput('Compute', 'ip_address');
     topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');
     topologyEditorCommon.toggleAttributeOutput('Compute', 'ip_address');
-
     checkPropertyState();
 
     // check again after reloading the page
