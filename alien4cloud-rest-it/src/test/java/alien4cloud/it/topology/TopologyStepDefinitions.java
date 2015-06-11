@@ -48,7 +48,6 @@ import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.task.RequirementToSatify;
@@ -94,7 +93,7 @@ public class TopologyStepDefinitions {
     public void The_RestResponse_should_contain_an_id_string() throws Throwable {
         String response = Context.getInstance().getRestResponse();
         assertNotNull(response);
-        RestResponse<String> restResponse = JsonUtil.read(response, String.class);
+        RestResponse<String> restResponse = JsonTestUtil.read(response, String.class);
         assertNotNull(restResponse.getData());
         assertFalse(restResponse.getData().isEmpty());
     }
@@ -108,7 +107,7 @@ public class TopologyStepDefinitions {
     @Then("^The RestResponse should contain a topology$")
     public void The_RestResponse_should_contain_a_topology() throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
         assertNotNull(topologyResponse.getData().getTopology().getId());
     }
@@ -117,7 +116,7 @@ public class TopologyStepDefinitions {
     public void There_is_a_with_element_name_and_archive_version(String elementType, String elementId, String archiveVersion) throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
+        IndexedToscaElement idnt = JsonTestUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -127,7 +126,7 @@ public class TopologyStepDefinitions {
             throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
+        IndexedToscaElement idnt = JsonTestUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -343,9 +342,9 @@ public class TopologyStepDefinitions {
 
     @Then("^I should receive a RestResponse with constraint data name \"([^\"]*)\" and reference \"([^\"]*)\"$")
     public void I_should_receive_a_RestResponse_with_constraint_data_name_and_reference(String name, String reference) throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse.getData());
-        ConstraintInformation constraint = JsonUtil.readObject(JsonUtil.toString(restResponse.getData()), ConstraintInformation.class);
+        ConstraintInformation constraint = JsonTestUtil.readObject(JsonTestUtil.toString(restResponse.getData()), ConstraintInformation.class);
         assertEquals(constraint.getName().toString(), name);
         assertEquals(constraint.getReference().toString(), reference);
     }
@@ -377,17 +376,17 @@ public class TopologyStepDefinitions {
 
     @Then("^the topology should be deployable$")
     public void the_topology_should_be_deployable() throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
-        Map<String, Object> dataMap = JsonUtil.toMap(JsonUtil.toString(restResponse.getData()));
+        Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertTrue(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
     @Then("^the topology should not be deployable$")
     public void the_topology_should_not_be_deployable() throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
-        Map<String, Object> dataMap = JsonUtil.toMap(JsonUtil.toString(restResponse.getData()));
+        Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertFalse(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
@@ -416,7 +415,7 @@ public class TopologyStepDefinitions {
         }
 
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(IndexedRelationshipType.class))
-                .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
+                .setSource(JsonTestUtil.toString(relationship)).setRefresh(true).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -433,7 +432,7 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element))
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonTestUtil.toString(element))
                 .setRefresh(true).execute().actionGet();
     }
 
@@ -459,10 +458,10 @@ public class TopologyStepDefinitions {
 
     @Then("^there should not be suggested nodetypes for the \"([^\"]*)\" node template$")
     public void there_should_not_be_suggested_nodetypes_for_the_node_template(String nodeTemplateName) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         assertNull(getSuggestedNodesFor(nodeTemplateName, tasklist));
@@ -473,7 +472,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> suggestedNodeTypes = (List<Object>) MapUtil.get(task, "suggestedNodeTypes");
             if (nodeTemp.equals(nodeTemplateName) && suggestedNodeTypes != null) {
-                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class);
+                return JsonTestUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class);
             }
         }
         return null;
@@ -481,10 +480,10 @@ public class TopologyStepDefinitions {
 
     @Then("^the suggested nodes types for the abstracts nodes templates should be:$")
     public void the_suggested_nodes_types_for_the_abstracts_nodes_templates_should_be(DataTable expectedSuggestedElemntIds) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedSuggestedElemntIds.raw()) {
@@ -516,7 +515,7 @@ public class TopologyStepDefinitions {
         The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
 
         String topologyResponseText = Context.getInstance().getRestResponse();
-        NodeTemplate nodeTemp = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
+        NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
         Assert.assertNotNull(nodeTemp.getArtifacts());
         Assert.assertFalse(nodeTemp.getArtifacts().isEmpty());
         DeploymentArtifact deploymentArtifact = nodeTemp.getArtifacts().get(artifactId);
@@ -527,10 +526,10 @@ public class TopologyStepDefinitions {
 
     @Then("^the node with requirements lowerbound not satisfied should be$")
     public void the_node_with_requirements_lowerbound_not_satisfied_should_be(DataTable expectedRequirementsNames) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequirementsNames.raw()) {
@@ -550,7 +549,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> resToImp = (List<Object>) MapUtil.get(task, "requirementsToImplement");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonUtil.toList(JsonUtil.toString(resToImp), RequirementToSatify.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatify.class);
             }
         }
         return null;
@@ -579,7 +578,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             Map<TaskLevel, List<String>> resToImp = (Map<TaskLevel, List<String>>) MapUtil.get(task, "properties");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonUtil.toList(JsonUtil.toString(resToImp.get(TaskLevel.REQUIRED.toString())), String.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp.get(TaskLevel.REQUIRED.toString())), String.class);
             }
         }
         return null;
@@ -613,10 +612,10 @@ public class TopologyStepDefinitions {
 
     @Then("^the node with required properties not set should be$")
     public void the_node_with_required_properties_not_set_should_be(DataTable expectedRequiredProperties) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequiredProperties.raw()) {
@@ -681,7 +680,7 @@ public class TopologyStepDefinitions {
 
     private String getTopologyIdFromTemplateName(String topologyTemplateName) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
-        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        RestResponse<FacetedSearchResult> restResponse = JsonTestUtil.read(response, FacetedSearchResult.class);
         String topologyId = null;
         for (Object singleResult : restResponse.getData().getData()) {
             Map map = (Map) singleResult;
@@ -720,7 +719,7 @@ public class TopologyStepDefinitions {
     @And("^The RestResponse should contain a group named \"([^\"]*)\" whose members are \"([^\"]*)\" and policy is \"([^\"]*)\"$")
     public void The_RestResponse_should_contain_a_group_named_whose_members_are_and_policy_is(String groupName, String members, String policy) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         Assert.assertNotNull(topologyResponse.getData().getTopology().getGroups());
         NodeGroup nodeGroup = topologyResponse.getData().getTopology().getGroups().get(groupName);
         Set<String> expectedMembers = Sets.newHashSet(members.split(","));
@@ -750,7 +749,7 @@ public class TopologyStepDefinitions {
     @Then("^The RestResponse should not contain any group$")
     public void The_RestResponse_should_not_contain_any_group() throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         Map<String, NodeGroup> groups = topologyResponse.getData().getTopology().getGroups();
         Assert.assertTrue(groups == null || groups.isEmpty());
     }
