@@ -1,3 +1,4 @@
+/* global UTILS */
 'use strict';
 
 var NewApplicationEnvironmentCtrl = ['$scope', '$modalInstance', '$resource', '$state',
@@ -162,8 +163,13 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         return applicationEnvironmentServices.update({
           applicationId: $scope.application.id,
           applicationEnvironmentId: environmentId
-        }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function() {
-          updateEnvironment(environmentId, fieldName, realFieldValue);
+        }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function(response) {
+          console.log('yolo 1 : ', response);
+          if (UTILS.isDefinedAndNotNull(response.error)) {
+            toaster.pop('error', $translate('ERRORS.' + response.error.code), response.error.message, 4000, 'trustedHtml', null);
+          } else {
+            updateEnvironment(environmentId, fieldName, realFieldValue);
+          }
         }, function(errorResponse) {
           return $translate('ERRORS.' + errorResponse.data.error.code);
         });
