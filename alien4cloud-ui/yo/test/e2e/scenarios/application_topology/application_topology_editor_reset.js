@@ -56,38 +56,37 @@ describe('Nodetemplate properties and artifact reset to default value', function
 
   });
 
-  xit('should be able to change deployment artifact for a node and reset to the default value', function() {
+  it('should be able to change deployment artifact for a node and reset to the default value', function() {
     console.log('################# should be able to change deployment artifact for a node and reset to the default value');
 
     topologyEditorCommon.addNodeTemplatesCenterAndZoom({
       apacheLB: componentData.apacheTypes.apacheLBGroovy()
     });
 
-    browser.sleep(5000);
     topologyEditorCommon.selectNodeAndGoToDetailBloc('apacheLBGroovy', topologyEditorCommon.nodeDetailsBlocsIds['art']);
     element.all(by.repeater('(artifactId, artifact) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
       expect(artifacts.length).toEqual(1);
-      var myWar = artifacts[0];
-      expect(myWar.element(by.binding('artifactId')).getText()).toEqual('scripts');
-      expect(myWar.element(by.binding('artifact.artifactType')).getText()).toEqual('fastconnect.artifacts.ResourceDirectory');
-      expect(myWar.element(by.binding('artifact.artifactName')).getText()).toEqual('');
-      var myWarUpdateButton = browser.element(by.css('input[type="file"]'));
-      myWarUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
+      var myScript = artifacts[0];
+      expect(myScript.element(by.binding('artifactId')).getText()).toEqual('scripts');
+      expect(myScript.element(by.binding('artifact.artifactType')).getText()).toEqual('fastconnect.artifacts.ResourceDirectory');
+      expect(myScript.element(by.binding('artifact.artifactName')).getText()).toEqual('scripts');
+      var myScriptUpdateButton = browser.element(by.css('input[type="file"]'));
+      myScriptUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
       browser.waitForAngular();
-      myWar.element(by.binding('artifact.artifactName')).getText().then(function(text) {
+      myScript.element(by.binding('artifact.artifactName')).getText().then(function(text) {
         expect(text.length).toBeGreaterThan(0);
+        expect(text).toEqual('myWar.war');
       });
 
-      // reset and switch menu
+      // reset check the artifact name is back
       var resetScriptArtifactButton = element(by.id('reset-artifact-scripts'));
-      expect(myWar.element(by.binding('artifactId')).getText()).toEqual('myWar.war');
       browser.actions().click(resetScriptArtifactButton).perform();
-      expect(myWar.element(by.binding('artifactId')).getText()).toEqual('scripts');
-      expect(myWar.element(by.binding('artifact.artifactType')).getText()).toEqual('fastconnect.artifacts.ResourceDirectory');
+      expect(myScript.element(by.binding('artifactId')).getText()).toEqual('scripts');
+      expect(myScript.element(by.binding('artifact.artifactType')).getText()).toEqual('fastconnect.artifacts.ResourceDirectory');
+      expect(myScript.element(by.binding('artifact.artifactName')).getText()).toEqual('scripts');
 
     });
 
   });
-
 
 });
