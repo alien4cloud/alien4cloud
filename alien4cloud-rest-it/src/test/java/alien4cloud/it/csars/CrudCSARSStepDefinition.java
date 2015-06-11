@@ -53,7 +53,7 @@ public class CrudCSARSStepDefinition {
     public boolean I_have_CSAR_created_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/csars/" + csarId));
         CsarInfoDTO csarInfoDTO = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarInfoDTO.class).getData();
-        if (csarInfoDTO == null) {
+        if (csarInfoDTO == null || csarInfoDTO.getCsar() == null) {
             return false;
         }
         Assert.assertNotNull(csarInfoDTO);
