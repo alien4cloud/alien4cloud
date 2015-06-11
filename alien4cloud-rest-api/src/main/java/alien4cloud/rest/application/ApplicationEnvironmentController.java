@@ -238,7 +238,7 @@ public class ApplicationEnvironmentController {
                     .<Void> builder()
                     .data(null)
                     .error(RestErrorBuilder
-                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                            .builder(RestErrorCode.CANNOT_UPDATE_DEPLOYED_ENVIRONMENT)
                             .message(
                                     "Application environment with id <" + applicationEnvironmentId + "> is currently deployed on cloud <"
                                             + request.getCloudId() + ">. Cloud update is not possible.").build()).build();

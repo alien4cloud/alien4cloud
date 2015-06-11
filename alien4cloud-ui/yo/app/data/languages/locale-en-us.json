@@ -778,6 +778,7 @@
     "609": "PaaS provider unreachable after triggering the deployment",
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
+    "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
