@@ -598,10 +598,11 @@ var renameApplicationInput = function(oldName, newName) {
 };
 module.exports.renameApplicationInput = renameApplicationInput;
 
-var checkNumberOfPropertiesForACapability = function(expectedCount) {
-  var relationships = element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
+var checkNumberOfPropertiesForACapability = function(capabilityName, expectedCount) {
+  var capability = element(by.id('node-details-capabilities-' + capabilityName + '-block'));
+  var capabilityProperties = capability.element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
   browser.waitForAngular();
-  expect(relationships.count()).toBe(expectedCount);
+  expect(capabilityProperties.count()).toBe(expectedCount);
 };
 module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesForACapability;
 

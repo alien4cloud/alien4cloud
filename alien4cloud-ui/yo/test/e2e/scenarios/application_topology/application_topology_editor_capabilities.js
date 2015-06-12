@@ -8,7 +8,7 @@ var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
 var cloudsCommon = require('../../admin/clouds_common');
 
-describe('NodeTemplate relationships edition', function() {
+describe('NodeTemplate relationships/capability edition', function() {
 
   beforeEach(function() {
     topologyEditorCommon.beforeTopologyTest();
