@@ -473,6 +473,11 @@ public class TopologyController {
      */
     private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
             final PropertyDefinition propertyDefinition) {
+
+        if (propertyValue == null) {
+            // by convention updateproperty with null value => reset to default if exists
+            return null;
+        }
         try {
             constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         } catch (ConstraintViolationException e) {
@@ -493,7 +498,7 @@ public class TopologyController {
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update properties values.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -525,7 +530,12 @@ public class TopologyController {
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
+        // case "rest" : take the default value
+        if (propertyValue == null) {
+            propertyValue = node.getProperties().get(propertyName).getDefault();
+        }
         nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+
         alienDAO.save(topology);
 
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -536,7 +546,7 @@ public class TopologyController {
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -569,6 +579,11 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
+
+        // case "reset" : take the default value
+        if (propertyValue == null) {
+            propertyValue = relationshipTypes.get(relationshipType).getProperties().get(propertyName).getDefault();
+        }
         relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
         alienDAO.save(topology);
@@ -581,7 +596,7 @@ public class TopologyController {
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
      * @param capabilityId The name of the capability.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -614,6 +629,11 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
+
+        // case "reset" : take the default value
+        if (propertyValue == null) {
+            propertyValue = capabilityTypes.get(capabilityType).getProperties().get(propertyName).getDefault();
+        }
         capabilities.get(capabilityId).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
         alienDAO.save(topology);

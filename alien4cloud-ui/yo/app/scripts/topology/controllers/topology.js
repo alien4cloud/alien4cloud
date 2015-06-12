@@ -473,12 +473,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     /* Update properties of a node template */
     $scope.updateProperty = function(propertyDefinition, propertyValue) {
       var propertyName = propertyDefinition.name;
-      // var currentPropertyValue = $scope.selectedNodeTemplate.propertiesMap[propertyName].value;
-      // if (UTILS.isDefinedAndNotNull(currentPropertyValue)) {
-      //   if (propertyValue === currentPropertyValue.value) {
-      //     return;
-      //   }
-      // }
       var updatePropsObject = {
         'propertyName': propertyName,
         'propertyValue': propertyValue
