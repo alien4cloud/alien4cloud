@@ -216,6 +216,20 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
+    var artifacts = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/reset', {}, {
+      'resetArtifact': {
+        method: 'PUT',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          artifactId: '@artifactId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
     var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/:inputArtifactId');
 
     var inputArtifacts = $resource('rest/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
@@ -414,7 +428,8 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'artifacts': {
           'getInputCandidates': artifactInputCandidates.get,
           'setInput': inputArtifact.save,
-          'unsetInput': inputArtifact.remove
+          'unsetInput': inputArtifact.remove,
+          'resetArtifact': artifacts.resetArtifact
         },
         'relationship': {
           'getInputCandidates': getRelationshipPropertyInputCandidates,
