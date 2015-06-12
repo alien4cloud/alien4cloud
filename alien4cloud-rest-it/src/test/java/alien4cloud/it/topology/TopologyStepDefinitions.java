@@ -1,11 +1,6 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,6 +51,7 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
@@ -286,8 +282,7 @@ public class TopologyStepDefinitions {
 
     @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\" of type \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
     public void I_update_the_node_template_s_capability_of_type_s_property_to(String nodeTempName, String capabilityName, String capabilityType,
-            String propertyName, String propertyValue)
-            throws Throwable {
+            String propertyName, String propertyValue) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         UpdateIndexedTypePropertyRequest req = new UpdateIndexedTypePropertyRequest(propertyName, propertyValue, capabilityType);
         String json = jsonMapper.writeValueAsString(req);
@@ -515,6 +510,23 @@ public class TopologyStepDefinitions {
     public void I_update_the_node_template_s_artifact_with(String nodeTemplateName, String artifactId, String artifactName) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId;
+        InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
+    }
+
+    @When("^I associate the artifact \"([^\"]*)\" of node template \"([^\"]*)\" as an input artifact \"([^\"]*)\"$")
+    public void I_associate_the_artifact_of_node_template_as_an_input_artifact(String artifactId, String nodeTemplateName, String artifactInputName)
+            throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId + "/" + artifactInputName, ""));
+    }
+
+    @When("^I update the application's input artifact \"([^\"]*)\" with \"([^\"]*)\"$")
+    public void I_update_the_application_s_input_artifact_with(String artifactId, String artifactName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/topologies/" + topologyId + "/inputArtifacts/" + artifactId + "/upload";
         InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
     }
@@ -777,6 +789,20 @@ public class TopologyStepDefinitions {
         Set<String> members = Sets.newHashSet(memberText.split(","));
         for (String member : members) {
             I_add_the_node_to_the_group(member, groupName);
+        }
+    }
+
+    @And("^The topology should have scalability policy error concerning \"([^\"]*)\"$")
+    public void The_topology_should_have_scalability_policy_error_concerning(String scalabilityProperty) throws Throwable {
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        assertNotNull(restResponse.getData());
+        List<Map<String, Object>> taskList = (List<Map<String, Object>>) restResponse.getData().get("taskList");
+        assertNotNull(taskList);
+        assertFalse(taskList.isEmpty());
+        for (Map<String, Object> task : taskList) {
+            if (task.get("code").equals(TaskCode.SCALABLE_CAPABILITY_INVALID.toString())) {
+                ((List<String>) ((Map<String, Object>) task.get("properties")).get(TaskLevel.ERROR.toString())).contains(scalabilityProperty);
+            }
         }
     }
 }

@@ -1062,7 +1062,7 @@ public class TopologyController {
     }
 
     @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> setInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactId,
             @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -1086,7 +1086,7 @@ public class TopologyController {
                     inputArtifacts = Maps.newHashMap();
                     topology.setInputArtifacts(inputArtifacts);
                 }
-                inputArtifacts.put(artifactId, inputArtifact);
+                inputArtifacts.put(inputArtifactId, inputArtifact);
             }
             InputArtifactUtil.setInputArtifact(nodeArtifact, inputArtifactId);
         } else {

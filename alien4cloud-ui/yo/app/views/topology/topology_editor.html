@@ -349,7 +349,7 @@
               </h4>
             </div>
             <div id="node-details-capabilities-panel" collapse="isCapabilitiesCollapsed" class="topology-level">
-              <div ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
+              <div id="node-details-capabilities-{{capabilityEntry.key}}-block" ng-repeat="capabilityEntry in selectedNodeTemplate.capabilities"
                    ng-init="isReqPropsCollapsed = {}; emptyProps = !checkMapSize(capabilityEntry.value.properties)">
                 <div class="topology-node-expand" style="font-weight: normal"
                      ng-class="{'clickable' : !emptyProps}"
