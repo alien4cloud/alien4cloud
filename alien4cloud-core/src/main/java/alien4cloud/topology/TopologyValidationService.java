@@ -207,8 +207,8 @@ public class TopologyValidationService {
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
-    private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, List<String> missingProperties,
-            List<String> errorProperties) {
+    private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, Set<String> missingProperties,
+            Set<String> errorProperties) {
         String rawValue = FunctionEvaluator.getScalarValue(scalableProperties.get(propertyToVerify));
         if (StringUtils.isEmpty(rawValue)) {
             missingProperties.add(propertyToVerify);
@@ -229,8 +229,8 @@ public class TopologyValidationService {
     }
 
     private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId) {
-        List<String> missingProperties = Lists.newArrayList();
-        List<String> errorProperties = Lists.newArrayList();
+        Set<String> missingProperties = Sets.newHashSet();
+        Set<String> errorProperties = Sets.newHashSet();
         if (MapUtils.isEmpty(scalableProperties)) {
             missingProperties.addAll(Lists.newArrayList(NormativeComputeConstants.SCALABLE_MIN_INSTANCES, NormativeComputeConstants.SCALABLE_MAX_INSTANCES,
                     NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES));
@@ -246,19 +246,19 @@ public class TopologyValidationService {
                 if (init > max || init < min) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES);
                 }
-                if (max < init || max < init) {
+                if (max < min || max < init) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_MAX_INSTANCES);
                 }
             }
         }
         if (!missingProperties.isEmpty()) {
             ScalableTask scalableTask = new ScalableTask(nodeTemplateId);
-            scalableTask.getProperties().put(TaskLevel.REQUIRED, missingProperties);
+            scalableTask.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList(missingProperties));
             toReturnTaskList.add(scalableTask);
         }
         if (!errorProperties.isEmpty()) {
             ScalableTask scalableTask = new ScalableTask(nodeTemplateId);
-            scalableTask.getProperties().put(TaskLevel.ERROR, errorProperties);
+            scalableTask.getProperties().put(TaskLevel.ERROR, Lists.newArrayList(errorProperties));
             toReturnTaskList.add(scalableTask);
         }
     }
