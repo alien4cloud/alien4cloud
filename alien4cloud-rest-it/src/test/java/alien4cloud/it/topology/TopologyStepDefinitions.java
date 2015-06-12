@@ -514,6 +514,23 @@ public class TopologyStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
     }
 
+    @When("^I associate the artifact \"([^\"]*)\" of node template \"([^\"]*)\" as an input artifact \"([^\"]*)\"$")
+    public void I_associate_the_artifact_of_node_template_as_an_input_artifact(String artifactId, String nodeTemplateName, String artifactInputName)
+            throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId + "/" + artifactInputName, ""));
+    }
+
+    @When("^I update the application's input artifact \"([^\"]*)\" with \"([^\"]*)\"$")
+    public void I_update_the_application_s_input_artifact_with(String artifactId, String artifactName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/topologies/" + topologyId + "/inputArtifacts/" + artifactId + "/upload";
+        InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
+    }
+
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID and name \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_an_artifact_with_the_specified_UID(String nodeTemplateName, String artifactId,
             String artifactName) throws Throwable {

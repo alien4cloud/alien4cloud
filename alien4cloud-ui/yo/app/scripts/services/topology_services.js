@@ -230,7 +230,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/:inputArtifactId');
+    var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/:inputArtifactId');
 
     var inputArtifacts = $resource('rest/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
       'rename': {
