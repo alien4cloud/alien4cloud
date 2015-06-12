@@ -27,9 +27,10 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('ip_address')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_id')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_name')" should return true
-  And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 2
+  And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 3
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('feature')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('compute')" should return true
+  And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
   And The SPEL int expression "nodeTemplates['compute'].requirements.size()" should return 2
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true  
@@ -61,9 +62,10 @@ Scenario: Re-Upload CSAR containing apache types and embeded topology template
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('ip_address')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_id')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].attributes.containsKey('tosca_name')" should return true
-  And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 2
+  And The SPEL int expression "nodeTemplates['compute'].capabilities.size()" should return 3
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('feature')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('compute')" should return true
+  And The SPEL boolean expression "nodeTemplates['compute'].capabilities.containsKey('scalable')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.size() == 2" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('dependency')" should return true
   And The SPEL boolean expression "nodeTemplates['compute'].requirements.containsKey('network')" should return true  

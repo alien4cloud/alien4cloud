@@ -24,5 +24,4 @@ import cucumber.api.junit.Cucumber;
 //
 }, format = { "pretty", "html:target/cucumber/topology", "json:target/cucumber/cucumber-topology.json" })
 public class RunTopologyIT {
-
 }
