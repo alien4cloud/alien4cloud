@@ -29,41 +29,11 @@ describe('NodeTemplate relationships/capability edition', function() {
     console.log('################# should be able display the capability properties');
     var nodeToEdit = element(by.id('rect_Compute'));
     nodeToEdit.click();
-    topologyEditorCommon.checkNumberOfPropertiesForACapability(1);
+    topologyEditorCommon.checkNumberOfPropertiesForACapability('scalable', 3);
 
     nodeToEdit = element(by.id('rect_JavaRPM'));
     nodeToEdit.click();
-    topologyEditorCommon.checkNumberOfPropertiesForACapability(5);
+    topologyEditorCommon.checkNumberOfPropertiesForACapability('java', 5);
   });
 
-  it('should be able to define a capability property as input', function() {
-    console.log('################# should be able to define a capability property as input');
-    topologyEditorCommon.checkCountInputs(0);
-    topologyEditorCommon.togglePropertyInput('JavaRPM', 'update', 'cap');
-    topologyEditorCommon.checkCountInputs(1);
-    topologyEditorCommon.togglePropertyInput('JavaRPM', 'vendor', 'cap');
-    topologyEditorCommon.checkCountInputs(2);
-  });
-
-  it('should be able associate a capability property to an already existing input', function() {
-    console.log('################# should be able associate a capability property to an already existing input.');
-    navigation.go('applications', 'deployment');
-    cloudsCommon.selectApplicationCloud('testcloud');
-
-    navigation.go('applications', 'topology');
-    topologyEditorCommon.togglePropertyInput('Compute', 'containee_types', 'cap');
-    topologyEditorCommon.associatePropertyToInput('Compute-2', 'containee_types', 'containee_types', 'cap');
-    topologyEditorCommon.checkCountInputs(1);
-
-    topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
-    topologyEditorCommon.editNodeProperty('Compute-2', 'os_arch', 'x86_64');
-    topologyEditorCommon.editNodeProperty('Compute-2', 'os_type', 'windows');
-    topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
-
-    topologyEditorCommon.expectShowTodoList(true, true);
-    checkInputProperty('containee_types');
-    common.sendValueToXEditable('p_', 'test', false);
-    topologyEditorCommon.expectShowTodoList(false, false);
-  });
 });

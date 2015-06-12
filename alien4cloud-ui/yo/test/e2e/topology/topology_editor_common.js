@@ -600,7 +600,7 @@ module.exports.renameApplicationInput = renameApplicationInput;
 
 var checkNumberOfPropertiesForACapability = function(capabilityName, expectedCount) {
   var capability = element(by.id('node-details-capabilities-' + capabilityName + '-block'));
-  var capabilityProperties = capability.element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
+  var capabilityProperties = capability.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
   browser.waitForAngular();
   expect(capabilityProperties.count()).toBe(expectedCount);
 };
