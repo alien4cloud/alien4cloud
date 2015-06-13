@@ -43,6 +43,27 @@ describe('Handle CSARS', function() {
 
   });
 
+  it('should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list', function() {
+    console.log('################# should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list');
+
+    csarCommon.goToCsarSearchPage();
+
+    // check the csar count : 6 csars remaining
+    var results = element.all(by.repeater('csar in csarSearchResult.data.data'));
+    expect(results.count()).toEqual(6);
+
+    // try to delete the tosca-base-types csars and check errors
+    common.deleteWithConfirm('delete-csar_tosca-base-types:1.0', true);
+    common.expectErrors();
+    common.expectMessageContent('java-types');
+    common.expectMessageContent('apacheLB');
+    common.expectMessageContent('ubuntu-types');
+
+    // check the csar count : still 6
+    expect(results.count()).toEqual(6);
+
+  });
+
   it('should be able to delete an uploaded and non referenced CSAR', function() {
     console.log('################# should be able to delete an uploaded and non referenced CSAR');
 
@@ -61,27 +82,6 @@ describe('Handle CSARS', function() {
     // check the csar count : from 6 to 5
     var csarsList = element.all(by.repeater('csar in csarSearchResult.data.data'));
     expect(csarsList.count()).toEqual(5);
-
-  });
-
-  it('should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list', function() {
-    console.log('################# should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list');
-
-    csarCommon.goToCsarSearchPage();
-
-    // check the csar count : 5 csars remaining
-    var results = element.all(by.repeater('csar in csarSearchResult.data.data'));
-    expect(results.count()).toEqual(5);
-
-    // try to delete the tosca-base-types csars and check errors
-    common.deleteWithConfirm('delete-csar_tosca-base-types:1.0', true);
-    common.expectErrors();
-    common.expectMessageContent('java-types');
-    common.expectMessageContent('apacheLB');
-    common.expectMessageContent('ubuntu-types');
-
-    // check the csar count : still 5
-    expect(results.count()).toEqual(5);
 
   });
 

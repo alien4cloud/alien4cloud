@@ -34,7 +34,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     cloudsCommon.disableCloud();
     cloudsCommon.checkCloudError(true);
     cloudsCommon.deleteCloud();
-    cloudsCommon.checkCloudError(true);
+    common.dismissAlert();
   });
 
   it('should not be able to delete an application when deployed', function() {
@@ -129,4 +129,14 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
     applications.expectDeploymentPropertyValue('p_numberBackup', applications.mockPaaSDeploymentProperties.numberBackup, false);
   });
 
+  it('should be able to force cloud shutdown and get the appropriate error in deployment page', function() {
+    console.log('################# should be able to force cloud shutdown and get the appropriate error in deployment page');
+    cloudsCommon.goToCloudList();
+    cloudsCommon.goToCloudDetail('testcloud');
+    cloudsCommon.disableCloud();
+    common.confirmAction(true);
+    applications.goToApplicationDetailPage('Alien');
+    applications.goToApplicationDeploymentPage();
+    common.dismissAlert();
+  });
 });

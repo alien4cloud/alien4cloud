@@ -94,12 +94,12 @@ var deleteCloud = function() {
 };
 module.exports.deleteCloud = deleteCloud;
 
-var checkCloudError = function(present) {
-  if (present === true) {
-    common.expectErrors();
-    common.dismissAlert();
-  } else {
-    common.expectNoErrors();
+// Check the cloud error and close the confirmAction popup if displayed, only woek after a deleteCloud()
+var checkCloudError = function(displayed) {
+  if (displayed === true) {
+    browser.sleep(1000); // Technical sleep : wait the popover
+    expect(element(by.id('force-cloud-disable-button')).isDisplayed()).toBe(displayed);
+    common.confirmAction(false);
   }
 };
 module.exports.checkCloudError = checkCloudError;

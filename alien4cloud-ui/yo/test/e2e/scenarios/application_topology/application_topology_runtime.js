@@ -25,7 +25,7 @@ var goToAlienAppAndSelectApachelbOperations = function() {
   topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
   topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
   topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
-  topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
+  topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
   browser.executeScript('window.scrollTo(0,0);').then(function() {
     topologyEditorCommon.addRelationshipToNode('apacheLBGroovy', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
   });
@@ -53,14 +53,10 @@ describe('Topology runtime view', function() {
   it('should be able to add scaling policy to a compute node', function() {
     console.log('################# should be able to add scaling policy to a compute node');
     topologyEditorCommon.addNodeTemplatesCenterAndZoom(nodeTemplates);
-    topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
+    topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
     browser.executeScript('window.scrollTo(0,0);').then(function() {
-      topologyEditorCommon.removeScalingPolicy('rect_Compute');
+      topologyEditorCommon.removeScalingPolicy('Compute');
     });
-    browser.sleep(1000);
-    expect(element(by.id('maxInstances')).isPresent()).toBe(false);
-    expect(element(by.id('minInstances')).isPresent()).toBe(false);
-    expect(element(by.id('initialInstances')).isPresent()).toBe(false);
   });
 
   it('should be able to view topology runtime view', function() {
@@ -69,7 +65,7 @@ describe('Topology runtime view', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
-    topologyEditorCommon.addScalingPolicy('rect_Compute', 1, 2, 3);
+    topologyEditorCommon.addScalingPolicy('Compute', 1, 2, 3);
     browser.executeScript('window.scrollTo(0,0);').then(function() {
       topologyEditorCommon.addRelationshipToNode('JavaRPM', 'Compute', 'host', 'tosca.relationships.HostedOn:2.0', 'hostedOnComputeHost');
     });
@@ -123,7 +119,7 @@ describe('Topology runtime view', function() {
       // all operations for all interfaces that are not standard tosca lifecycle should appear here
       expect(allOperations.length).toEqual(11);
     });
-    
+
     // trigger operation without params: removeNode
     var operationDiv = element(by.id('operation_custom_removeNode'));
     var submitOperationBtn = operationDiv.element(by.id('btn-submit-operation-custom-removeNode'));

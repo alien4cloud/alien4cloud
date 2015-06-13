@@ -95,7 +95,7 @@
               </div>
               <span class="clearfix"></span>
             </div>
-            <div id="scaleEditableInput" ng-show="topology.instances && isComputeType(selectedNodeTemplate) && topology.topology.scalingPolicies[selectedNodeTemplate.name] && selectedNodeTemplate.instancesCount">
+            <div id="scaleEditableInput" ng-show="isScalable()">
               <div id="node-scale-command" class="clickable"
                    ng-click="isNodeScaleCollapsed = !isNodeScaleCollapsed">
                 <h4>
@@ -109,8 +109,8 @@
                 buttons="yes"
                 onbeforesave="scale($data)"
                 e-step="1"
-                e-min="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].minInstances}}"
-                e-max="{{topology.topology.scalingPolicies[selectedNodeTemplate.name].maxInstances}}"
+                e-min="{{selectedNodeTemplate.scalingPolicy.minInstances}}"
+                e-max="{{selectedNodeTemplate.scalingPolicy.maxInstances}}"
                 e-required
                 e-onkeypress="if (event.which==13) {$('#scaleEditableInput button.btn-primary').click(); event.preventDefault();}"
                 collapse="isNodeScaleCollapsed">

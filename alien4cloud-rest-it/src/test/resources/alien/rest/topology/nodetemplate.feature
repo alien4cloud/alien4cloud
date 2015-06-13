@@ -17,10 +17,6 @@ Feature: Manage Nodetemplates of a topology
     And The RestResponse should contain a nodetemplate named "Template1" and type "tosca.nodes.Compute"
     And The RestResponse should contain a node type with "tosca.nodes.Compute:1.0" id
 
-  Scenario: Add a nodetemplate with a wrong name shoul failed
-    When I add a node template "Template_1" related to the "tosca.nodes.Compute:1.0" node type
-      Then I should receive a RestResponse with an error code 506
-
   Scenario: Remove a nodetemplate from a topology
     Given I add a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
     When I delete a node template "Template1" from the topology
@@ -46,11 +42,6 @@ Feature: Manage Nodetemplates of a topology
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template2"
-    
-  Scenario: Update a nodetemplate's name with a improper name from a topology should failed
-    Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
-    When I update the node template's name from "Template1" to "Template2_"
-      Then I should receive a RestResponse with an error code 506
 
   Scenario: Update a nodetemplate's property from a topology
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
@@ -67,3 +58,25 @@ Feature: Manage Nodetemplates of a topology
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
     And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"
+
+  Scenario: Reset a nodetemplate's deployment artifact from a topology
+    Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
+    When I update the node template "Template1"'s artifact "war" with "myWar.war"
+    Then I should receive a RestResponse with no error
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name "myWar.war"
+    When I reset the node template "Template1"'s artifact "war" to default value
+    Then I should receive a RestResponse with no error
+    When I try to retrieve the created topology
+    Then I should receive a RestResponse with no error
+    And The topology should contain a nodetemplate named "Template1" with an artifact "war" with the specified UID and name ""
+
+   Scenario: Set a nodetemplate's artifact as application input artifact and update it
+    Given I have added a node template "Template1" related to the "fastconnect.nodes.War:1.0" node type
+    When I update the node template "Template1"'s artifact "war" with "myWar.war"
+      Then I should receive a RestResponse with no error
+    When I associate the artifact "war" of node template "Template1" as an input artifact "inputWar"
+      Then I should receive a RestResponse with no error
+    When I update the application's input artifact "inputWar" with "yourWar.war"
+      Then I should receive a RestResponse with no error

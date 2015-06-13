@@ -12,6 +12,7 @@ angular.module('alienUiApp').controller(
         newTemplates: 0
       };
       $scope.UTILS = UTILS;
+
       /**
        * FOR USER SEARCH AND ADD GROUP'S ROLE
        */
@@ -109,7 +110,7 @@ angular.module('alienUiApp').controller(
           }
         }
       };
-      
+
       var refreshCloud = function() {
         cloudServices.get({
           id: cloudId
@@ -160,6 +161,7 @@ angular.module('alienUiApp').controller(
             } else {
               refreshCloud();
               $scope.cloud.enabled = true;
+              $scope.showForceDisableCloud = false;
             }
             $scope.enablePending = false;
           })
@@ -168,15 +170,26 @@ angular.module('alienUiApp').controller(
           });
       };
 
-      $scope.disableCloud = function() {
+      $scope.showForceDisableCloud = false;
+      $scope.disableCloud = function(force) {
         $scope.enablePending = true;
-        $http.get('rest/clouds/' + cloudId + '/disable')
+        $http.get('rest/clouds/' + cloudId + '/disable/' + force)
           .success(function(response) {
             if (response.data) {
               $scope.cloud.enabled = false;
             } else {
-              // toaster message
-              toaster.pop('error', $translate('CLOUDS.ERRORS.DISABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DISABLING_FAILED'), 4000, 'trustedHtml', null);
+              if (!force) {
+                // toaster message
+                console.log('yolo 1');
+                $scope.showForceDisableCloud = true;
+                $timeout(function() {
+                  angular.element( document.querySelector( '#force-cloud-disable-button' ) ).triggerHandler('click');
+                  }, 0);
+                console.log(angular.element( document.querySelector( '#force-cloud-disable-button' ) ));
+              } else {
+                // We should never validate this condition
+                console.log('Error in disableCloud with force option');
+              }
             }
             $scope.enablePending = false;
           }).error(function() {
@@ -185,23 +198,23 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.refreshCloud = function() {
-        $scope.enablePending = true;
+        $scope.refreshPending = true;
         cloudServices.refresh({
           id: $scope.cloud.id
         }, function(response) {
-          $scope.enablePending = false; 
+          $scope.refreshPending = false;
           if (response.data) {
-            handleCloudResponse(response); 
+            handleCloudResponse(response);
           } else {
             // toaster message
-            toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
+            toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
           }
-        }, function(response) { 
-          $scope.enablePending = false; 
-          toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);            
-        });        
+        }, function(response) {
+          $scope.refreshPending = false;
+          toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
+        });
       };
-      
+
       $scope.cloudConfig = {};
 
       cloudServices.config.get({

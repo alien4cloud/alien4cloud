@@ -24,11 +24,21 @@
             <button type="button" id="cloud-enable-button" class="btn btn-success {{ !enablePending ? '' : 'disabled'}}" ng-click="enableCloud()" ng-if="!cloud.enabled">
               <i class="fa" ng-class="{'fa-play': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.ENABLE' | translate}}
             </button>
-            <button type="button" id="cloud-disable-button" class="btn btn-danger {{ !enablePending ? '' : 'disabled'}}" ng-click="disableCloud()" ng-if="cloud.enabled">
+            <button type="button" id="cloud-disable-button" class="btn btn-danger {{ !enablePending ? '' : 'disabled'}}" ng-click="disableCloud(false)" ng-if="cloud.enabled && !showForceDisableCloud">
               <i class="fa" ng-class="{'fa-stop': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.DISABLE' | translate}}
             </button>
+            <a id="force-cloud-disable-button"
+               ng-if="cloud.enabled && showForceDisableCloud"
+               class="btn btn-danger"
+               confirm="{{'CLOUDS.FORCE-DISABLE-CONTENT' | translate}}"
+               confirm-title="{{'CLOUDS.FORCE-DISABLE-TITLE' | translate }}"
+               confirm-placement="left"
+               confirm-handler="disableCloud(true)"
+               ng-click="$event.stopPropagation();">
+              <i class="fa fa-stop"></i> {{'CLOUDS.FORCE-DISABLE' | translate}}
+            </a>
             <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending ? '' : 'disabled'}}" ng-click="refreshCloud()">
-              <i class="fa" ng-class="{'fa-refresh': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.REFRESH' | translate}}
+              <i class="fa" ng-class="{'fa-refresh': !refreshPending, 'fa-spinner fa-spin': refreshPending}"></i> {{'CLOUDS.REFRESH' | translate}}
             </button>
           </div>
         </div>

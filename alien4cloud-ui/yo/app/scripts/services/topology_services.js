@@ -131,7 +131,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
     });
 
     var artifactInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/inputcandidates');
-    
+
     var getRelationshipPropertyInputCandidates = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/relationship/:relationshipId/property/:propertyId/inputcandidats', {}, {
       'getCandidates': {
         method: 'GET',
@@ -216,8 +216,22 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       }
     });
 
-    var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifact/:artifactId/:inputArtifactId');
-    
+    var artifacts = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/reset', {}, {
+      'resetArtifact': {
+        method: 'PUT',
+        params: {
+          topologyId: '@topologyId',
+          nodeTemplateName: '@nodeTemplateName',
+          artifactId: '@artifactId'
+        },
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8'
+        }
+      }
+    });
+
+    var inputArtifact = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/artifacts/:artifactId/:inputArtifactId');
+
     var inputArtifacts = $resource('rest/topologies/:topologyId/inputArtifacts/:inputArtifactId', {}, {
       'rename': {
         method: 'POST',
@@ -337,7 +351,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
     var yaml = $resource('rest/topologies/:topologyId/yaml', {}, {
       method: 'GET'
     });
-    
+
     var replacements = $resource('rest/topologies/:topologyId/nodetemplates/:nodeTemplateName/replace', {}, {
       'get': {
         method: 'GET'
@@ -394,9 +408,9 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         method: 'DELETE'
       }
     });
-    
+
     var nodeGroupMembersResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId/members/:nodeTemplateName');
-    
+
     return {
       'dao': topologyDAO,
       'inputs': updateInput,
@@ -414,7 +428,8 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
         'artifacts': {
           'getInputCandidates': artifactInputCandidates.get,
           'setInput': inputArtifact.save,
-          'unsetInput': inputArtifact.remove
+          'unsetInput': inputArtifact.remove,
+          'resetArtifact': artifacts.resetArtifact
         },
         'relationship': {
           'getInputCandidates': getRelationshipPropertyInputCandidates,
@@ -444,7 +459,7 @@ angular.module('alienUiApp').factory('topologyServices', ['$resource',
       'inputArtifacts': {
         'rename': inputArtifacts.rename,
         'remove': inputArtifacts.remove
-      },      
+      },
       'isValid': isValid.get,
       'getYaml': yaml.get,
       'cloud': cloudResource

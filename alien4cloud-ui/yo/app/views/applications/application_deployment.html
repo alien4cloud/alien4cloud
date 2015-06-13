@@ -202,6 +202,34 @@
             </div>
           </div>
 
+          <div ng-if="(scalabilityTasks = (validTopologyDTO.taskList| filter:{code:'SCALABLE_CAPABILITY_INVALID'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isScalabilityCollapsed , 'fa-chevron-right': isScalabilityCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isScalabilityCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <tbody>
+                  <tr ng-repeat="scalabilityTask in scalabilityTasks">
+                    <td>
+                      <strong>{{scalabilityTask.nodeTemplateName}}</strong>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in scalabilityTask.properties['ERROR']">
+                          {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.ERRORS.' + property | translate }}
+                        </li>
+                        <li ng-repeat="property in scalabilityTask.properties['REQUIRED']">
+                          {{property}} {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.MISSING' | translate}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

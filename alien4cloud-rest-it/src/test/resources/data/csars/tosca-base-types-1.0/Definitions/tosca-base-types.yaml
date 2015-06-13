@@ -104,6 +104,7 @@ node_types:
       compute:
         type: tosca.capabilities.Container
         upper_bound: unbounded
+      scalable: tosca.capabilities.Scalable
 
   tosca.nodes.BlockStorage:
     derived_from: tosca.nodes.Root
@@ -256,7 +257,18 @@ capability_types:
         default: false
   tosca.capabilities.Connectivity:
     derived_from: tosca.capabilities.Root
-
+  tosca.capabilities.Scalable:
+    derived_from: tosca.capabilities.Root
+    properties:
+      min_instances:
+        type: integer
+        default: 1
+      max_instances:
+        type: integer
+        default: 1
+      default_instances:
+        type: integer
+        default: 1
 relationship_types:
   tosca.relationships.Root:
     description: TOSCA Root relationship (used to define the default lifecycle).

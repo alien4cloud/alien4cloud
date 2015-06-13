@@ -444,7 +444,16 @@
         "TOADD_RELATIONSHIP_LABEL": "Prérequis non statisfaits (ajoutez un lien)",
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
-        "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds"
+        "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Politique de scalabilité invalide",
+          "MISSING": "Propriété obligatoire",
+          "ERRORS": {
+            "min_instances": "Propriété min_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Propriété default_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Propriété max_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances"
+          }
+        }
       },
       "WARNING": {
         "LABEL": "Alertes",
@@ -487,7 +496,6 @@
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "Le nom doit contenir des lettres de a-Z, des tirets et sans espace.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
     },
     "ENVIRONMENT": {
@@ -589,6 +597,9 @@
     "ENVIRONMENT_TYPE": "Type d'environnement",
     "ENABLE": "Activer",
     "DISABLE": "Désactiver",
+    "FORCE-DISABLE": "Forcer l'arrêt",
+    "FORCE-DISABLE-TITLE": "Forcer l'arrêt du cloud",
+    "FORCE-DISABLE-CONTENT": "Souhaitez-vous désactiver le cloud alors que des applications l'utilisent encore ?",
     "REFRESH": "Rafraichir",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "La configuration est sauvegardée mais n'est pas appliquée immédiatement. Celle-ci sera effectivement prise en compte lorsque le cloud sera ré-activé (désactiver puis réactiver ou lors du redémarrage de l'application).",
@@ -726,8 +737,6 @@
     "ERRORS": {
       "DELETING_FAILED_TITLE": "Supprimer un cloud",
       "DELETING_FAILED": "Impossible de supprimer le cloud. Il est utilisé par des ressources.",
-      "DISABLING_FAILED_TITLE": "Désactiver un cloud",
-      "DISABLING_FAILED": "Impossible de désactiver le cloud. Il est utilisé par des ressources.",
       "ENABLING_FAILED_TITLE": "Activer un cloud",
       "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
       "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
@@ -773,6 +782,7 @@
     "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
+    "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
@@ -853,6 +863,7 @@
   "name": "Nom",
   "target": "Cible",
   "constraints": "Contraintes",
+  "PROPERTY_RESET": "Réinitialiser à la valeur par défaut",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "La valeur définie dans la contrainte n'est pas valide par rapport à son type",

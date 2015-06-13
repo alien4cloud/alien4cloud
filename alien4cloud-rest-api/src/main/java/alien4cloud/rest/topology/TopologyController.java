@@ -53,7 +53,6 @@ import alien4cloud.model.topology.HaPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
@@ -139,12 +138,17 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    /**
+     * Retrieve an existing {@link alien4cloud.model.topology.Topology} as YAML
+     *
+     * @param topologyId The id of the topology to retrieve.
+     * @return {@link RestResponse}<{@link String}> containing the topology as YAML
+     */
     @RequestMapping(value = "/{topologyId}/yaml", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<String> getYaml(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService
                 .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
-
         String yaml = topologyService.getYaml(topology);
         return RestResponseBuilder.<String> builder().data(yaml).build();
     }
@@ -180,11 +184,6 @@ public class TopologyController {
             log.debug("Add Node Template <{}> impossible (already exists)", nodeTemplateRequest.getName());
             // a node template already exist with the given name.
             throw new AlreadyExistException("A node template with the given name already exists.");
-        } else if (!NodeTemplate.isValidNodeTemplateName(nodeTemplateRequest.getName())) {
-            return RestResponseBuilder
-                    .<TopologyDTO> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
         } else {
             log.debug("Create application <{}>", nodeTemplateRequest.getName());
         }
@@ -195,43 +194,6 @@ public class TopologyController {
         log.debug("Adding a new Node template <" + nodeTemplateRequest.getName() + "> bound to the node type <" + nodeTemplateRequest.getIndexedNodeTypeId()
                 + "> to the topology <" + topology.getId() + "> .");
 
-        alienDAO.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Add a new scaling policy for a node template in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> addScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId,
-            @RequestBody @Valid ScalingPolicy policy) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-        if (policies == null) {
-            policies = Maps.newHashMap();
-            topology.setScalingPolicies(policies);
-        }
-        policies.put(nodeTemplateId, policy);
-        alienDAO.save(topology);
-        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @ApiOperation(value = "Remove scaling policy from a compute in a topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
-    @RequestMapping(value = "/{topologyId:.+}/scalingPolicies/{nodeTemplateId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> deleteScalingPolicy(@PathVariable String topologyId, @PathVariable String nodeTemplateId) {
-        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
-        topologyService.checkEditionAuthorizations(topology);
-        topologyService.throwsErrorIfReleased(topology);
-
-        Map<String, ScalingPolicy> policies = topology.getScalingPolicies();
-        if (policies == null) {
-            throw new NotFoundException("Scaling policy not found for node [" + nodeTemplateId + "] of topology [" + topologyId + "]");
-        } else {
-            if (policies.remove(nodeTemplateId) == null) {
-                throw new NotFoundException("Scaling policy not found for node [" + nodeTemplateId + "]");
-            }
-        }
         alienDAO.save(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
@@ -248,13 +210,6 @@ public class TopologyController {
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> updateNodeTemplateName(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String newNodeTemplateName) {
-        if (!NodeTemplate.isValidNodeTemplateName(newNodeTemplateName)) {
-            return RestResponseBuilder
-                    .<TopologyDTO> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.INTERNAL_OBJECT_ERROR)
-                            .message("The name can only contain characters a to Z, dashes and without spaces.").build()).build();
-        }
-
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
@@ -479,7 +434,6 @@ public class TopologyController {
         topologyService.unloadType(topology, typesTobeUnloaded.toArray(new String[typesTobeUnloaded.size()]));
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
-        removeNodeRelatedStuffs(nodeTemplateName, topology);
         removeOutputs(nodeTemplateName, topology);
 
         // group members removal
@@ -509,12 +463,6 @@ public class TopologyController {
         }
     }
 
-    private void removeNodeRelatedStuffs(String nodeTemplateName, Topology topology) {
-        if (topology.getScalingPolicies() != null) {
-            topology.getScalingPolicies().remove(nodeTemplateName);
-        }
-    }
-
     /**
      * Build and return a RestResponse if we detected a property constraint violation
      * 
@@ -525,6 +473,11 @@ public class TopologyController {
      */
     private RestResponse<ConstraintInformation> buildRestErrorIfPropertyConstraintViolation(final String propertyName, final String propertyValue,
             final PropertyDefinition propertyDefinition) {
+
+        if (propertyValue == null) {
+            // by convention updateproperty with null value => reset to default if exists
+            return null;
+        }
         try {
             constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
         } catch (ConstraintViolationException e) {
@@ -545,7 +498,7 @@ public class TopologyController {
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update properties values.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -577,7 +530,12 @@ public class TopologyController {
         log.debug("Updating property <{}> of the Node template <{}> from the topology <{}>: changing value from [{}] to [{}].", propertyName, nodeTemplateName,
                 topology.getId(), nodeTemp.getProperties().get(propertyName), propertyValue);
 
+        // case "rest" : take the default value
+        if (propertyValue == null) {
+            propertyValue = node.getProperties().get(propertyName).getDefault();
+        }
         nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+
         alienDAO.save(topology);
 
         return RestResponseBuilder.<ConstraintInformation> builder().build();
@@ -588,7 +546,7 @@ public class TopologyController {
      *
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -621,6 +579,11 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, RelationshipTemplate> relationships = nodeTemplate.getRelationships();
+
+        // case "reset" : take the default value
+        if (propertyValue == null) {
+            propertyValue = relationshipTypes.get(relationshipType).getProperties().get(propertyName).getDefault();
+        }
         relationships.get(relationshipName).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
         alienDAO.save(topology);
@@ -633,7 +596,7 @@ public class TopologyController {
      * @param topologyId The id of the topology that contains the node template for which to update a property.
      * @param nodeTemplateName The name of the node template for which to update a property.
      * @param capabilityId The name of the capability.
-     * @param updatePropertyRequest The key and value of the property to update.
+     * @param updatePropertyRequest The key and value of the property to update. When value is null => "reset" (load the default value).
      * @return a void rest response that contains no data if successful and an error if something goes wrong.
      */
     @ApiOperation(value = "Update a relationship property value.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
@@ -666,6 +629,11 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
         Map<String, Capability> capabilities = nodeTemplate.getCapabilities();
+
+        // case "reset" : take the default value
+        if (propertyValue == null) {
+            propertyValue = capabilityTypes.get(capabilityType).getProperties().get(propertyName).getDefault();
+        }
         capabilities.get(capabilityId).getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
 
         alienDAO.save(topology);
@@ -744,7 +712,6 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
-        removeNodeRelatedStuffs(nodeTemplateName, topology);
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
@@ -799,11 +766,52 @@ public class TopologyController {
         }
     }
 
+    @ApiOperation(value = "Reset the deployment artifact of the node template.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/reset", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyDTO> resetDeploymentArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
+            @PathVariable String artifactId) throws IOException {
+
+        // Perform check that authorization's ok
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
+
+        // Get the node template's artifacts to update
+        Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
+        NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
+        Map<String, DeploymentArtifact> artifacts = nodeTemplate.getArtifacts();
+        if (artifacts == null) {
+            throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
+        }
+        DeploymentArtifact artifact = artifacts.get(artifactId);
+        if (artifact == null) {
+            throw new NotFoundException("Artifact with key [" + artifactId + "] do not exist");
+        }
+        String oldArtifactId = artifact.getArtifactRef();
+        if (ArtifactRepositoryConstants.ALIEN_ARTIFACT_REPOSITORY.equals(artifact.getArtifactRepository())) {
+            artifactRepository.deleteFile(oldArtifactId);
+        }
+
+        // get information from the nodetype
+        IndexedNodeType indexedNodeType = csarRepoSearch.getElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(), topology.getDependencies());
+        DeploymentArtifact baseArtifact = indexedNodeType.getArtifacts().get(artifactId);
+
+        if (baseArtifact != null) {
+            artifact.setArtifactRepository(null);
+            artifact.setArtifactRef(baseArtifact.getArtifactRef());
+            artifact.setArtifactName(baseArtifact.getArtifactName());
+            alienDAO.save(topology);
+        } else {
+            log.warn("Reset service for the artifact <" + artifactId + "> on the node template <" + nodeTemplateName + "> failed.");
+        }
+        return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
+    }
+
     /**
      * Update application's input artifact.
      *
      * @param topologyId The topology's id
-     * @param artifactId artifact's id
+     * @param inputArtifactId artifact's id
      * @return nothing if success, error will be handled in global exception strategy
      * @throws IOException
      */
@@ -1054,7 +1062,7 @@ public class TopologyController {
     }
 
     @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> setInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String artifactId,
             @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -1078,7 +1086,7 @@ public class TopologyController {
                     inputArtifacts = Maps.newHashMap();
                     topology.setInputArtifacts(inputArtifacts);
                 }
-                inputArtifacts.put(artifactId, inputArtifact);
+                inputArtifacts.put(inputArtifactId, inputArtifact);
             }
             InputArtifactUtil.setInputArtifact(nodeArtifact, inputArtifactId);
         } else {

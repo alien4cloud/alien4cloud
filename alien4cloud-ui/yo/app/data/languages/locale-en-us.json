@@ -15,6 +15,8 @@
   "CSAR": "Csar",
   "TRUE": "True",
   "FALSE": "False",
+  "YES": "Yes",
+  "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
   "NAVBAR": {
@@ -437,7 +439,16 @@
         "TOADD_RELATIONSHIP_LABEL": "Unsatisfied requirements (relationship should be added)",
         "REQUIRED_PROPERTIES_LABEL": "Required properties",
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
-        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
+        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Invalid scalability policy",
+          "MISSING": "Madatory property",
+          "ERRORS": {
+            "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Invalid max_instances property, please verify that 0 < min_instances < default_instances < max_instances"
+          }
+        }
       },
       "WARNING": {
         "LABEL": "Warnings",
@@ -480,7 +491,6 @@
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required property"
     },
     "ENVIRONMENT": {
@@ -582,6 +592,9 @@
     "ENVIRONMENT_TYPE": "Environment type",
     "ENABLE": "Enable",
     "DISABLE": "Disable",
+    "FORCE-DISABLE": "Force shutdown",
+    "FORCE-DISABLE-TITLE": "Force cloud shutdown",
+    "FORCE-DISABLE-CONTENT": "Do you really want to turn off the cloud while it's being used by applications?",
     "REFRESH": "Refresh",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
@@ -720,8 +733,6 @@
     "ERRORS": {
       "DELETING_FAILED_TITLE": "Delete a cloud",
       "DELETING_FAILED": "Unable to delete the cloud. It is used by some resources.",
-      "DISABLING_FAILED_TITLE": "Disable a cloud",
-      "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources.",
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
       "REFRESHING_FAILED_TITLE": "Refresh a cloud",
@@ -767,6 +778,7 @@
     "609": "PaaS provider unreachable after triggering the deployment",
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
+    "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
@@ -847,6 +859,7 @@
   "name": "Name",
   "target": "Target",
   "constraints": "Constraints",
+  "PROPERTY_RESET": "Set to default value or reset",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "The value defined in constraint do not match its declared type",

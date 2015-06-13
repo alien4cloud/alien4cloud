@@ -561,4 +561,23 @@ public class DeploymentSetupService {
         return null;
     }
 
+    /**
+     * Get all deployment setup linked to a topology
+     * 
+     * @param topologyId the topology id
+     * @return all deployment setup that is linked to this topology
+     */
+    public DeploymentSetup[] getByTopologyId(String topologyId) {
+        List<DeploymentSetup> deploymentSetups = Lists.newArrayList();
+        ApplicationVersion version = applicationVersionService.getByTopologyId(topologyId);
+        if (version != null) {
+            ApplicationEnvironment[] environments = applicationEnvironmentService.getByVersionId(version.getId());
+            if (environments != null && environments.length > 0) {
+                for (ApplicationEnvironment environment : environments) {
+                    deploymentSetups.add(get(version, environment));
+                }
+            }
+        }
+        return deploymentSetups.toArray(new DeploymentSetup[deploymentSetups.size()]);
+    }
 }

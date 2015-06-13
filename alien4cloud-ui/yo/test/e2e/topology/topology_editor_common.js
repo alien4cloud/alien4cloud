@@ -146,11 +146,11 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
   // drag and drop is not supported by selenium so we hack a bit there...
   browser.driver
     .executeScript(
-      '\
+    '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
 mainScope.nodeTypeSelected(typeScope.component);',
-      nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
+    nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
   browser.waitForAngular();
@@ -355,26 +355,14 @@ var checkNodeWasReplaced = function(nodeName, newNodeName) {
 module.exports.checkNodeWasReplaced = checkNodeWasReplaced;
 
 var addScalingPolicy = function(computeId, min, init, max) {
-  var nodeToEdit = browser.element(by.id(computeId));
-  browser.actions().click(nodeToEdit).perform();
-  var scaleButton = browser.element(by.id('scaleButton'));
-  browser.actions().click(scaleButton).perform();
-
-  collapseNodeDetailsBloc(nodeDetailsBlocsIds.sca);
-  common.sendValueToXEditable('maxInstances', max, false);
-  common.sendValueToXEditable('initialInstances', init, false);
-  common.sendValueToXEditable('minInstances', min, false);
+  editNodeProperty(computeId, 'min_instances', min, 'cap');
+  editNodeProperty(computeId, 'max_instances', max, 'cap');
+  editNodeProperty(computeId, 'default_instances', init, 'cap');
 };
 module.exports.addScalingPolicy = addScalingPolicy;
 
 var removeScalingPolicy = function(computeId) {
-  browser.executeScript('window.scrollTo(0,0);').then(function() {
-    // Check properties edition on compute node template
-    var nodeToEdit = browser.element(by.id(computeId));
-    browser.actions().click(nodeToEdit).perform();
-    var unscaleButton = browser.element(by.id('unscaleButton'));
-    browser.actions().click(unscaleButton).perform();
-  });
+  addScalingPolicy(computeId, 1, 1, 1);
 };
 
 module.exports.removeScalingPolicy = removeScalingPolicy;
@@ -427,11 +415,9 @@ var checkPropertyEditionError = function(nodeTemplateName, propertyName, contain
 module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componentType) {
-  browser.executeScript('window.scrollTo(0,0);').then(function() {
-    selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
-    var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
-    browser.actions().click(ioButton).perform();
-  });
+  selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
+  var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
+  browser.actions().click(ioButton).perform();
 };
 
 var expectIOPropertyState = function(nodeTemplateName, propertyName, ioType, checked, componentType) {
@@ -612,10 +598,11 @@ var renameApplicationInput = function(oldName, newName) {
 };
 module.exports.renameApplicationInput = renameApplicationInput;
 
-var checkNumberOfPropertiesForACapability = function(expectedCount) {
-  var relationships = element.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
+var checkNumberOfPropertiesForACapability = function(capabilityName, expectedCount) {
+  var capability = element(by.id('node-details-capabilities-' + capabilityName + '-block'));
+  var capabilityProperties = capability.all(by.repeater('propertyEntry in capabilityEntry.value.properties'));
   browser.waitForAngular();
-  expect(relationships.count()).toBe(expectedCount);
+  expect(capabilityProperties.count()).toBe(expectedCount);
 };
 module.exports.checkNumberOfPropertiesForACapability = checkNumberOfPropertiesForACapability;
 
