@@ -11,10 +11,12 @@
   "DELETE_CONFIRM": "本当に削除しますか ?",
   "CONFIRM_MESSAGE": "続けますか ?",
   "CONFIRM": "確認",
-  "APPLICATION": "Application",
+  "APPLICATION": "アプリケーション",
   "CSAR": "Csar",
   "TRUE": "True",
   "FALSE": "False",
+  "YES": "Yes",
+  "NO": "No",
   "NAME": "Name",
   "VALUE": "Value",
   "NAVBAR": {
@@ -35,11 +37,11 @@
   "NAVADMIN": {
     "MENU_USERS": "ユーザ",
     "MENU_PLUGINS": "プラグイン",
-    "MENU_TAGS": "Meta-properties",
+    "MENU_TAGS": "メタプロパティ",
     "MENU_CLOUDS": "Clouds",
-    "MENU_METRICS": "Metrics",
-    "MENU_CLOUD_IMAGES": "Cloud Images",
-    "MENU_AUDIT": "Audit"
+    "MENU_METRICS": "メトリック",
+    "MENU_CLOUD_IMAGES": "クラウドイメージ",
+    "MENU_AUDIT": "操作ログ"
   },
   "MAIN": {
     "WELCOME": "ようこそ",
@@ -101,17 +103,17 @@
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored"
     },
     "UPLOAD_MODAL": {
-      "HEADER": "Upload Cloud Service Archive",
+      "HEADER": "CSARをアップロードします。",
       "OK": "Ok"
     },
     "COMPONENT": {
-      "NAME": "Component name",
-      "DETAILS_TITLE": "Details",
-      "DOC_TITLE": "Description",
-      "PROPERTIES": "Properties",
-      "ATTRIBUTES": "Attributes",
-      "INTERFACES": "Interfaces",
-      "OPERATION": "Operations",
+      "NAME": "コンポーネント名",
+      "DETAILS_TITLE": "詳細",
+      "DOC_TITLE": "説明",
+      "PROPERTIES": "プロパティ",
+      "ATTRIBUTES": "属性",
+      "INTERFACES": "インタフェース",
+      "OPERATION": "オプション",
       "RECOMMEND_MESSAGE": "Define this component as default for this capability.",
       "UNRECOMMEND_MESSAGE": "Undifine this component as default for this capability.",
       "ABSTRACT_COMPONENT": "Abstract component"
@@ -438,6 +440,15 @@
         "REQUIRED_PROPERTIES_LABEL": "Required properties",
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Invalid scalability policy",
+          "MISSING": "Madatory property",
+          "ERRORS": {
+            "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Invalid max_instances property, please verify that 0 < min_instances < default_instances < max_instances"
+          }
+        }
       },
       "WARNING": {
         "LABEL": "Warnings",
@@ -471,7 +482,7 @@
         "TITLE": "Artifacts",
         "ID": "Id",
         "TYPE": "Type",
-        "INPUTS": "Artefacts en entr辿e",
+        "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Define artifact as input"
       },
       "REPLACE_NODETEMPLATE": "Replace",
@@ -480,7 +491,6 @@
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
-      "NODETEMPLATE_NAME_ERROR": "The name can only contain characters a to Z, dashes and without spaces.",
       "NODETEMPLATE_PROPERTY_REQUIRED": "Required property"
     },
     "ENVIRONMENT": {
@@ -582,6 +592,9 @@
     "ENVIRONMENT_TYPE": "Environment type",
     "ENABLE": "Enable",
     "DISABLE": "Disable",
+    "FORCE-DISABLE": "Force shutdown",
+    "FORCE-DISABLE-TITLE": "Force cloud shutdown",
+    "FORCE-DISABLE-CONTENT": "Do you really want to turn off the cloud while it's being used by applications?",
     "REFRESH": "Refresh",
     "CONFIGURATION": "Configuration",
     "CONFIGURATION_REQUIRES_DISABLE": "Configuration will be saved but changes will be applied only on cloud re-enablement (disable and re-enable - or on ALIEN restart).",
@@ -640,7 +653,7 @@
     "ZONE": "Zones",
     "ZONES": {
       "ID": "Identifiant",
-      "NEW_MODAL_TITLE": "Cr辿er une nouvelle zone"
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
     },
     "IAAS": {
       "OTHER": "Other",
@@ -720,8 +733,6 @@
     "ERRORS": {
       "DELETING_FAILED_TITLE": "Delete a cloud",
       "DELETING_FAILED": "Unable to delete the cloud. It is used by some resources.",
-      "DISABLING_FAILED_TITLE": "Disable a cloud",
-      "DISABLING_FAILED": "Unable to disable the cloud. It is used by some resources.",
       "ENABLING_FAILED_TITLE": "Enable a cloud",
       "ENABLING_FAILED": "Unable to activate this cloud due to bad configuration.",
       "REFRESHING_FAILED_TITLE": "Refresh a cloud",
@@ -767,6 +778,7 @@
     "609": "PaaS provider unreachable after triggering the deployment",
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
+    "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
@@ -847,6 +859,7 @@
   "name": "Name",
   "target": "Target",
   "constraints": "Constraints",
+  "PROPERTY_RESET": "Set to default value or reset",
   "CONSTRAINTS": {
     "VALIDATION": {
       "TYPE": "The value defined in constraint do not match its declared type",
