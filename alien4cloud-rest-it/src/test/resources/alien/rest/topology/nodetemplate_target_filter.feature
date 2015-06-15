@@ -12,4 +12,4 @@ Feature: Manage target filter
     # And I create a new application with name "watchmiddleearth" and description "Use my great eye to find frodo and the ring."
 
   Scenario: Add a nodetemplate based on a node type id
-    Then I should receive a RestResponse with no error
+#    Then I should receive a RestResponse with no error
