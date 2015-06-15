@@ -25,7 +25,6 @@ import org.junit.Assert;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
-import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.utils.websocket.IStompDataFuture;
 import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
@@ -37,7 +36,6 @@ import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
 import alien4cloud.rest.application.DeployApplicationRequest;
-import alien4cloud.rest.application.EnvironmentStatusDTO;
 import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
@@ -52,8 +50,6 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class ApplicationsDeploymentStepDefinitions {
-    private Map<String, EnvironmentStatusDTO> applicationStatuses = Maps.newHashMap();
-    private TopologyStepDefinitions topologyStepDefinitions = new TopologyStepDefinitions();
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
     private static Map<String, DeploymentStatus> pendingStatuses;
 
@@ -61,6 +57,15 @@ public class ApplicationsDeploymentStepDefinitions {
         pendingStatuses = Maps.newHashMap();
         pendingStatuses.put("deployment", DeploymentStatus.DEPLOYMENT_IN_PROGRESS);
         pendingStatuses.put("undeployment", DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
+    }
+
+    @When("I undeploy it")
+    public void I_undeploy_it() throws Throwable {
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, envId);
     }
 
     @When("^I deploy it$")
@@ -285,7 +290,6 @@ public class ApplicationsDeploymentStepDefinitions {
                 log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
             }
-
         }
     }
 
