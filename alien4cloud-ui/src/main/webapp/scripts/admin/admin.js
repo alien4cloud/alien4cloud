@@ -33,7 +33,7 @@ define(function (require) {
   require('scripts/admin/plugins/plugin');
   require('scripts/admin/metrics/metrics');
   require('scripts/admin/audit/audit');
-  require('scripts/meta-props/meta_props_list');
+  require('scripts/meta-props/controllers/meta_props_list');
 
   return admin;
 });

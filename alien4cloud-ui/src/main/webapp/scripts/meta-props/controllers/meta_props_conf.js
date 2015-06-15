@@ -1,34 +1,52 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller('TagConfigurationCtrl', ['$scope', '$stateParams', '$state', 'tagConfigurationServices', 'formDescriptorServices',
-  function($scope, $stateParams, $state, tagConfigurationServices, formDescriptorServices) {
+  var modules = require('modules');
+  var states = require('states');
+  require('scripts/meta-props/services/meta_props_conf_services');
+  require('scripts/common/directives/generic_form');
+  require('scripts/common/services/formdescriptor_services');
 
-    $scope.refreshDetails = function() {
-      tagConfigurationServices.get($stateParams.id).then(function(config) {
-        $scope.configuration = config;
-        $scope.formTitle = config.name;
+  var state = 'admin.metaprops.detail';
+
+  states.state(state, {
+    url: '/:id',
+    templateUrl: 'views/meta-props/meta_props_conf.html',
+    controller: 'MetaPropsConfCtrl'
+  });
+
+  modules.get('a4c-metas', ['a4c-common']).controller('MetaPropsConfCtrl',
+    ['$scope', '$stateParams', '$state', 'metapropConfServices', 'formDescriptorServices',
+    function($scope, $stateParams, $state, metapropConfServices, formDescriptorServices) {
+      $scope.refreshDetails = function() {
+        metapropConfServices.get($stateParams.id).then(function(config) {
+          $scope.configuration = config;
+          $scope.formTitle = config.name;
+        });
+      };
+
+      $scope.refreshDetails();
+
+      formDescriptorServices.getTagConfigurationDescriptor.get({}, function(success) {
+        $scope.objectDefinition = success.data;
       });
-    };
 
-    $scope.refreshDetails();
+      $scope.saveTagConfiguration = function(config) {
+        return metapropConfServices.save(config).then(function(response) {
+          return metapropConfServices.processValidationErrors(response.validationErrors);
+        });
+      };
 
-    formDescriptorServices.getTagConfigurationDescriptor.get({}, function(success) {
-      $scope.objectDefinition = success.data;
-    });
+      $scope.removeTagConfiguration = function() {
+        metapropConfServices.remove($stateParams.id).then(function() {
+          $state.go('admin.metaprops.list');
+        });
+      };
 
-    $scope.saveTagConfiguration = function(config) {
-      return tagConfigurationServices.save(config).then(function(response) {
-        return tagConfigurationServices.processValidationErrors(response.validationErrors);
-      });
-    };
-
-    $scope.removeTagConfiguration = function() {
-      tagConfigurationServices.remove($stateParams.id).then(function() {
+      $scope.cancelTagConfigurationCreation = function() {
         $state.go('admin.metaprops.list');
-      });
-    };
+      };
+    }]);
 
-    $scope.cancelTagConfigurationCreation = function() {
-      $state.go('admin.metaprops.list');
-    };
-  }]);
+  return state;
+});

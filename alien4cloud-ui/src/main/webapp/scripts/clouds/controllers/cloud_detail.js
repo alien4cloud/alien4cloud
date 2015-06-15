@@ -9,12 +9,12 @@ define(function (require) {
 
   require('toaster');
   require('scripts/clouds/services/cloud_services');
-  require('scripts/meta-props/meta_props_conf_services');
+  require('scripts/meta-props/services/meta_props_conf_services');
   require('scripts/deployment/services/deployment_services');
   require('scripts/users/services/user_services');
   require('scripts/users/services/group_services');
   require('scripts/common/filters/bytes');
-  require('scripts/meta-props/meta_props_directive');
+  require('scripts/meta-props/directives/meta_props_display');
 
   require('scripts/clouds/controllers/new_flavor');
   require('scripts/clouds/controllers/new_network');

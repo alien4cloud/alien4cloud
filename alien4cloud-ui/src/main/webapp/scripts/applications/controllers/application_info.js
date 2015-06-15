@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/applications/services/application_services');
   require('scripts/applications/services/application_environment_services');
   require('scripts/applications/services/application_version_services');
-  require('scripts/meta-props/meta_props_directive');
+  require('scripts/meta-props/directives/meta_props_display');
 
   states.state('applications.detail.info', {
     url: '/infos',
