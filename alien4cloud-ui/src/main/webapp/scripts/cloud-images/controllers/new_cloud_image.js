@@ -1,26 +1,32 @@
-/* global UTILS */
-'use strict';
+// list of cloud images that can be defined for multiple clouds actually.
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'NewCloudImageController', [ '$scope', '$modalInstance', 'cloudImageServices','$q',
-    function($scope, $modalInstance, cloudImageServices, $q) {
-      $scope.cloudImageFormDescriptor = cloudImageServices.getFormDescriptor();
-      $scope.cloudImage = {};
+  var modules = require('modules');
+  var _ = require('lodash');
+  var angular = require('angular');
 
-      $scope.save = function(cloudImage) {
-        return cloudImageServices.create({}, angular.toJson(cloudImage), function success(response) {
-          if (UTILS.isDefinedAndNotNull(response.error)) {
-            var errorsHandle = $q.defer();
-            return errorsHandle.resolve(response.error);
-          } else {
-            $modalInstance.close(response.data);
-          }
-        }).$promise;
-      };
+  modules.get('a4c-clouds', ['ui.router', 'ui.bootstrap']).controller(
+    'NewCloudImageController', [ '$scope', '$modalInstance', 'cloudImageServices','$q',
+      function($scope, $modalInstance, cloudImageServices, $q) {
+        $scope.cloudImageFormDescriptor = cloudImageServices.getFormDescriptor();
+        $scope.cloudImage = {};
 
-      $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-      };
-    }
-  ]
-);
+        $scope.save = function(cloudImage) {
+          return cloudImageServices.create({}, angular.toJson(cloudImage), function success(response) {
+            if (_.defined(response.error)) {
+              var errorsHandle = $q.defer();
+              return errorsHandle.resolve(response.error);
+            } else {
+              $modalInstance.close(response.data);
+            }
+          }).$promise;
+        };
+
+        $scope.cancel = function() {
+          $modalInstance.dismiss('cancel');
+        };
+      }
+    ]
+  ); // controller
+}); // define

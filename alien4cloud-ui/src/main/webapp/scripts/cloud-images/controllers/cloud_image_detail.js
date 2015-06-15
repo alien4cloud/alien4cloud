@@ -1,11 +1,44 @@
-'use strict';
+// list of cloud images that can be defined for multiple clouds actually.
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'CloudImageDetailController', ['$scope', '$state', 'cloudImageServices', 'cloudImage', '$upload', '$stateParams',
-    function($scope, $state, cloudImageServices, cloudImage, $upload, $stateParams) {
+  var modules = require('modules');
+  var states = require('states');
+  var _ = require('lodash');
+  var angular = require('angular');
+
+  require('scripts/common/directives/upload');
+  require('scripts/cloud-images/services/cloud_image_services');
+
+  states.state('admin.cloud-images.detail', {
+    url: 'detail/:id?mode',
+    resolve: {
+      cloudImage: ['cloudImageServices', '$stateParams',
+        function(cloudImageServices, $stateParams) {
+          return cloudImageServices.get({
+            id: $stateParams.id
+          }).$promise.then(function(success) {
+              var cloudImage = success.data;
+              if (_.defined(cloudImage.requirement)) {
+                cloudImage.numCPUs = cloudImage.requirement.numCPUs;
+                cloudImage.diskSize = cloudImage.requirement.diskSize;
+                cloudImage.memSize = cloudImage.requirement.memSize;
+              }
+              return cloudImage;
+            });
+        }
+      ]
+    },
+    templateUrl: 'views/cloud-images/cloud_image_detail.html',
+    controller: 'CloudImageDetailController'
+  })
+
+  modules.get('a4c-clouds', ['ui.router']).controller(
+  'CloudImageDetailController', ['$scope', '$state', '$stateParams', '$upload', 'cloudImageServices', 'cloudImage',
+    function($scope, $state, $stateParams, $upload, cloudImageServices, cloudImage) {
       $scope.cloudImage = cloudImage;
       // if we are coming from create form, the stateParam mode='edit'
-      $scope.isEditModeActive = UTILS.isDefinedAndNotNull($stateParams.mode) ? $stateParams.mode === 'edit' : false;
+      $scope.isEditModeActive = _.defined($stateParams.mode) ? $stateParams.mode === 'edit' : false;
       $scope.isLinkedToMoreThanOneCloud = false;
       var isReadOnly = !$scope.isEditModeActive;
       $scope.cloudImageFormDescriptor = cloudImageServices.getFormDescriptor();
@@ -49,7 +82,7 @@ angular.module('alienUiApp').controller(
           id: $scope.cloudImage.id
         }, angular.toJson(object));
       };
-      
+
       $scope.switchEditMode = function() {
         if (!$scope.isEditModeActive) {
           // here I should get from anywhere the list of clouds linked to this image
@@ -66,16 +99,17 @@ angular.module('alienUiApp').controller(
             } else {
               $scope.isLinkedToMoreThanOneCloud = true;
               $scope.translationData = {
-                  cloudNames: UTILS.array2csv(cloudNames.data)
+                cloudNames: _(cloudNames.data).toString()
               };
             }
             $scope.cloudImageFormDescriptor._propertyType.name._isReadOnly = false;
             $scope.cloudImageFormDescriptor._propertyType.numCPUs._isReadOnly = false;
             $scope.cloudImageFormDescriptor._propertyType.diskSize._isReadOnly = false;
-            $scope.cloudImageFormDescriptor._propertyType.memSize._isReadOnly = false;            
+            $scope.cloudImageFormDescriptor._propertyType.memSize._isReadOnly = false;
           });
         }
-      };   
-      
+      };
+
     }
-  ]);
+  ]); // controller
+}); // define

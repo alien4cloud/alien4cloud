@@ -1,12 +1,11 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'NewCloudImageFlavorController', [
-    '$scope',
-    '$modalInstance',
-    'cloudServices',
+  var modules = require('modules');
+
+  modules.get('a4c-clouds', ['ui.bootstrap']).controller(
+    'NewCloudImageFlavorController', ['$scope', '$modalInstance', 'cloudServices',
     function($scope, $modalInstance, cloudServices) {
-
       $scope.flavorFormDescriptor = cloudServices.flavorFormDescriptor;
 
       $scope.flavor = {};
@@ -19,5 +18,5 @@ angular.module('alienUiApp').controller(
         $modalInstance.dismiss('cancel');
       };
     }
-  ]
-);
+  ]); // controller
+}); // define

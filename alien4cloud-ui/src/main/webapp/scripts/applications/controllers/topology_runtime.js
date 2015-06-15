@@ -1,15 +1,34 @@
-/* global UTILS, CONSTANTS */
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'TopologyRuntimeCtrl', ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'applicationEnvironmentServices', 'appEnvironments', '$interval', 'topologyJsonProcessor', 'toscaService',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, applicationEnvironmentServices, appEnvironments, $interval, topologyJsonProcessor, toscaService) {
+  var modules = require('modules');
+  var states = require('states');
+  var _ = require('lodash');
+  var angular = require('angular');
+
+  states.state('applications.detail.runtime', {
+    url: '/runtime',
+    templateUrl: 'views/applications/topology_runtime.html',
+    controller: 'TopologyRuntimeCtrl',
+    menu: {
+      id: 'am.applications.detail.runtime',
+      state: 'applications.detail.runtime',
+      key: 'NAVAPPLICATIONS.MENU_RUNTIME',
+      icon: 'fa fa-cogs',
+      roles: ['APPLICATION_MANAGER', 'APPLICATION_DEPLOYER'], // is deployer
+      priority: 400
+    }
+  });
+
+  modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
       $scope.runtimeEnvironments = appEnvironments.deployEnvironments;
       // select current environment
-      if (UTILS.isDefinedAndNotNull(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
+      if (_.defined(appEnvironments.selectedEnvironment) && appEnvironments.selectedEnvironment.status !== 'UNDEPLOYED') {
         $scope.selectedEnvironment = appEnvironments.selectedEnvironment;
       } else {
         $scope.selectedEnvironment = null;
@@ -87,7 +106,7 @@ angular.module('alienUiApp').controller(
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(result) {
           // display events
-          if (UTILS.isUndefinedOrNull(result.data) || UTILS.isUndefinedOrNull(result.data.data)) {
+          if (_.undefined(result.data) || _.undefined(result.data.data)) {
             $scope.events = {};
             $scope.events.data = [];
           } else {
@@ -126,7 +145,7 @@ angular.module('alienUiApp').controller(
             };
             break;
           case 'paasinstancestatemonitorevent':
-            if (UTILS.isDefinedAndNotNull(event.instanceState)) {
+            if (_.defined(event.instanceState)) {
               event.message = {
                 template: 'APPLICATIONS.RUNTIME.EVENTS.INSTANCE_STATE_MESSAGE',
                 data: {
@@ -146,7 +165,7 @@ angular.module('alienUiApp').controller(
             }
             break;
           case 'paasinstancestoragemonitorevent':
-            if (UTILS.isDefinedAndNotNull(event.instanceState)) {
+            if (_.defined(event.instanceState)) {
               event.message = {
                 template: 'APPLICATIONS.RUNTIME.EVENTS.STORAGE_MESSAGE',
                 data: {
@@ -175,13 +194,13 @@ angular.module('alienUiApp').controller(
       }
 
       function refreshSelectedNodeInstancesCount() {
-        if (UTILS.isDefinedAndNotNull($scope.selectedNodeTemplate)) {
-          if (UTILS.isDefinedAndNotNull($scope.topology.instances) && UTILS.isDefinedAndNotNull($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
+        if (_.defined($scope.selectedNodeTemplate)) {
+          if (_.defined($scope.topology.instances) && _.defined($scope.topology.instances[$scope.selectedNodeTemplate.name])) {
             $scope.selectedNodeTemplate.instancesCount = Object.keys($scope.topology.instances[$scope.selectedNodeTemplate.name]).length;
           } else {
             $scope.selectedNodeTemplate.instancesCount = 0;
           }
-          if (UTILS.isUndefinedOrNull($scope.selectedNodeTemplate.newInstancesCount)) {
+          if (_.undefined($scope.selectedNodeTemplate.newInstancesCount)) {
             $scope.selectedNodeTemplate.newInstancesCount = $scope.selectedNodeTemplate.instancesCount;
           }
         }
@@ -189,11 +208,11 @@ angular.module('alienUiApp').controller(
 
       var refreshNodeInstanceInMaintenanceMode = function() {
         var hasNOdeInstanceInMaintenanceMode = false;
-        if (UTILS.isDefinedAndNotNull($scope.topology.instances)) {
+        if (_.defined($scope.topology.instances)) {
           angular.forEach($scope.topology.instances, function(v, k) {
-            if (UTILS.isDefinedAndNotNull(v)) {
+            if (_.defined(v)) {
               angular.forEach(v, function(vv, kk) {
-                if (UTILS.isDefinedAndNotNull(vv) && vv.instanceStatus === 'MAINTENANCE') {
+                if (_.defined(vv) && vv.instanceStatus === 'MAINTENANCE') {
                   hasNOdeInstanceInMaintenanceMode = true;
                 }
               });
@@ -228,7 +247,6 @@ angular.module('alienUiApp').controller(
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
-          topologyJsonProcessor.process($scope.topology);
           refreshInstancesStatuses(); // update instance states
           refreshCloudInfo(); // cloud info for deployment view
         });
@@ -258,10 +276,10 @@ angular.module('alienUiApp').controller(
 
       var injectPropertyDefinitionToInterfaces = function(interfaces) {
 
-        if (UTILS.isDefinedAndNotNull(interfaces)) {
+        if (_.defined(interfaces)) {
           angular.forEach(interfaces, function(interfaceObj, interfaceName) {
             Object.keys(interfaceObj.operations).forEach(function(operation) {
-              if (UTILS.isDefinedAndNotNull(interfaceObj.operations[operation].inputParameters)) {
+              if (_.defined(interfaceObj.operations[operation].inputParameters)) {
                 Object.keys(interfaceObj.operations[operation].inputParameters).forEach(function(paramName) {
                   var inputParameter = interfaceObj.operations[operation].inputParameters[paramName];
                   if (inputParameter.definition) {
@@ -347,7 +365,7 @@ angular.module('alienUiApp').controller(
               $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
             }
           });
-          if (UTILS.isMapNotNullOrEmpty($scope.selectedNodeCustomInterfaces)) {
+          if (_.isNotEmpty($scope.selectedNodeCustomInterfaces)) {
             // create and inject property definition in order to use <property-display> directive for input parameters
             injectPropertyDefinitionToInterfaces($scope.selectedNodeCustomInterfaces);
           } else {
@@ -394,7 +412,7 @@ angular.module('alienUiApp').controller(
       $scope.filter = null;
 
       /** EXECUTE OPERATIONS */
-      $scope.isMapNotNullOrEmpty = UTILS.isMapNotNullOrEmpty;
+      $scope.isMapNotNullOrEmpty = _.isNotEmpty;
 
       $scope.executeOperation = function(interfaceName, operationName, params, event) {
         if (event) {
@@ -450,7 +468,7 @@ angular.module('alienUiApp').controller(
             // to dismiss by the user
             toaster.pop('error', title, message, 0, 'trustedHtml', null);
 
-          } else if (!UTILS.isUndefinedOrNull(successResult.data)) {
+          } else if (!_.undefined(successResult.data)) {
 
             title = $translate('APPLICATIONS.RUNTIME.OPERATION_EXECUTION.RESULT_TITLE', {
               'operation': operationName
@@ -483,30 +501,29 @@ angular.module('alienUiApp').controller(
 
       // check if compute type
       $scope.isComputeType = function(nodeTemplate) {
-        if (UTILS.isUndefinedOrNull($scope.topology) || UTILS.isUndefinedOrNull(nodeTemplate)) {
+        if (_.undefined($scope.topology) || _.undefined(nodeTemplate)) {
           return false;
         }
-        var nodeType = $scope.topology.nodeTypes[nodeTemplate.type];
-        return UTILS.isFromNodeType(nodeType, CONSTANTS.toscaComputeType);
+        return toscaService.isComputeType(nodeTemplate.type, $scope.topology.nodeTypes);
       };
 
       $scope.switchNodeInstanceMaintenanceMode = function(nodeInstanceId) {
         switch ($scope.topology.instances[$scope.selectedNodeTemplate.name][nodeInstanceId].instanceStatus) {
-          case 'SUCCESS':
-            deploymentServices.nodeInstanceMaintenanceOn({
-              applicationId: applicationId,
-              applicationEnvironmentId: $scope.selectedEnvironment.id,
-              nodeTemplateId: $scope.selectedNodeTemplate.name,
-              instanceId: nodeInstanceId
-            }, {}, undefined);
-            break;
-          case 'MAINTENANCE':
-            deploymentServices.nodeInstanceMaintenanceOff({
-              applicationId: applicationId,
-              applicationEnvironmentId: $scope.selectedEnvironment.id,
-              nodeTemplateId: $scope.selectedNodeTemplate.name,
-              instanceId: nodeInstanceId
-            }, {}, undefined);
+        case 'SUCCESS':
+          deploymentServices.nodeInstanceMaintenanceOn({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined);
+          break;
+        case 'MAINTENANCE':
+          deploymentServices.nodeInstanceMaintenanceOff({
+            applicationId: applicationId,
+            applicationEnvironmentId: $scope.selectedEnvironment.id,
+            nodeTemplateId: $scope.selectedNodeTemplate.name,
+            instanceId: nodeInstanceId
+          }, {}, undefined);
         }
       };
 
@@ -524,7 +541,7 @@ angular.module('alienUiApp').controller(
         }
       };
 
-      $scope.changeEnvironment = function() {
+      $scope.changeEnvironment = function(){
         $scope.loadTopologyRuntime();
         $scope.clearNodeSelection();
       };
@@ -533,3 +550,4 @@ angular.module('alienUiApp').controller(
       $scope.loadTopologyRuntime();
     }
   ]);
+});

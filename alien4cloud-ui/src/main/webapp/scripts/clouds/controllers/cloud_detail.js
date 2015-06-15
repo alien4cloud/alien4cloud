@@ -1,9 +1,36 @@
-/* global UTILS */
-'use strict';
+// list of cloud images that can be defined for multiple clouds actually.
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'CloudDetailController', ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', 'tagConfigurationServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
-    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, tagConfigurationServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
+  var modules = require('modules');
+  var states = require('states');
+  var _ = require('lodash');
+  var angular = require('angular');
+
+  require('toaster');
+  require('scripts/clouds/services/cloud_services');
+  require('scripts/meta-props/meta_props_conf_services');
+  require('scripts/deployment/services/deployment_services');
+  require('scripts/users/services/user_services');
+  require('scripts/users/services/group_services');
+  require('scripts/common/filters/bytes');
+  require('scripts/meta-props/meta_props_directive');
+
+  require('scripts/clouds/controllers/new_flavor');
+  require('scripts/clouds/controllers/new_network');
+  require('scripts/clouds/controllers/new_storage');
+  require('scripts/clouds/controllers/new_zone');
+  require('scripts/cloud-images/controllers/new_cloud_image');
+
+  states.state('admin.clouds.detail', {
+    url: '/:id',
+    templateUrl: 'views/clouds/cloud_detail.html',
+    controller: 'CloudDetailController'
+  });
+
+  modules.get('a4c-clouds', ['ui.router', 'ui.bootstrap', 'a4c-common', 'toaster', 'pascalprecht.translate']).controller('CloudDetailController',
+    ['$scope', '$http', '$resource', '$stateParams', '$timeout', 'cloudServices', 'metapropConfServices', '$state', 'deploymentServices', 'toaster', '$translate', 'userServices', 'groupServices', '$modal', 'resizeServices', '$q', 'searchServiceFactory', 'cloudImageServices', '$filter',
+    function($scope, $http, $resource, $stateParams, $timeout, cloudServices, metapropConfServices, $state, deploymentServices, toaster, $translate, userServices, groupServices, $modal, resizeServices, $q, searchServiceFactory, cloudImageServices, $filter) {
       var cloudId = $stateParams.id;
 
       $scope.iaasTypes = ['OTHER', 'AZURE', 'OPENSTACK', 'VMWARE', 'AMAZON', 'VIRTUALBOX'];
@@ -11,8 +38,7 @@ angular.module('alienUiApp').controller(
       $scope.tabs = {
         newTemplates: 0
       };
-      $scope.UTILS = UTILS;
-
+      $scope._ = _;
       /**
        * FOR USER SEARCH AND ADD GROUP'S ROLE
        */
@@ -154,7 +180,7 @@ angular.module('alienUiApp').controller(
         $scope.enablePending = true;
         $http.get('rest/clouds/' + cloudId + '/enable')
           .success(function(response) {
-            if (UTILS.isDefinedAndNotNull(response.error)) {
+            if (_.defined(response.error)) {
               // toaster message
               toaster.pop('error', $translate('CLOUDS.ERRORS.ENABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.ENABLING_FAILED'), 4000, 'trustedHtml', null);
               $scope.cloud.enabled = false;
@@ -179,8 +205,6 @@ angular.module('alienUiApp').controller(
               $scope.cloud.enabled = false;
             } else {
               if (!force) {
-                // toaster message
-                console.log('yolo 1');
                 $scope.showForceDisableCloud = true;
                 $timeout(function() {
                   angular.element( document.querySelector( '#force-cloud-disable-button' ) ).triggerHandler('click');
@@ -188,8 +212,9 @@ angular.module('alienUiApp').controller(
                 console.log(angular.element( document.querySelector( '#force-cloud-disable-button' ) ));
               } else {
                 // We should never validate this condition
-                console.log('Error in disableCloud with force option');
+                console.error('Error in disableCloud with force option');
               }
+              toaster.pop('error', $translate('CLOUDS.ERRORS.DISABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DISABLING_FAILED'), 4000, 'trustedHtml', null);
             }
             $scope.enablePending = false;
           }).error(function() {
@@ -202,7 +227,7 @@ angular.module('alienUiApp').controller(
         cloudServices.refresh({
           id: $scope.cloud.id
         }, function(response) {
-          $scope.refreshPending = false;
+          $scope.refreshPending = true;
           if (response.data) {
             handleCloudResponse(response);
           } else {
@@ -210,7 +235,7 @@ angular.module('alienUiApp').controller(
             toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
           }
         }, function(response) {
-          $scope.refreshPending = false;
+          $scope.refreshPending = true;
           toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
         });
       };
@@ -220,7 +245,7 @@ angular.module('alienUiApp').controller(
       cloudServices.config.get({
         id: cloudId
       }, function(response) {
-        if (UTILS.isDefinedAndNotNull(response.data)) {
+        if (_.defined(response.data)) {
           $scope.cloudConfig = response.data;
         }
       });
@@ -235,7 +260,7 @@ angular.module('alienUiApp').controller(
           id: cloudId
         }, angular.toJson(newConfiguration), function success(response) {
           $scope.cloudConfig = newConfiguration;
-          if (UTILS.isDefinedAndNotNull(response.error)) {
+          if (_.defined(response.error)) {
             var errorsHandle = $q.defer();
             return errorsHandle.resolve(response.error);
           } else {
@@ -272,7 +297,7 @@ angular.module('alienUiApp').controller(
 
       // Handle cloud security action
       $scope.handleRoleSelectionForUser = function(user, role) {
-        if (UTILS.isUndefinedOrNull($scope.cloud.userRoles)) {
+        if (_.undefined($scope.cloud.userRoles)) {
           $scope.cloud.userRoles = {};
         }
         var cloudUserRoles = $scope.cloud.userRoles[user.username];
@@ -301,7 +326,7 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.handleRoleSelectionForGroup = function(group, role) {
-        if (UTILS.isUndefinedOrNull($scope.cloud.groupRoles)) {
+        if (_.undefined($scope.cloud.groupRoles)) {
           $scope.cloud.groupRoles = {};
         }
         var cloudGroupRoles = $scope.cloud.groupRoles[group.id];
@@ -367,11 +392,11 @@ angular.module('alienUiApp').controller(
           availablePaaSResourceIdArr = paaSResourceIdArr.slice(0);
         }
         angular.forEach(alienResourceMap, function(value) {
-          if (UTILS.isUndefinedOrNull(value.paaSResourceId)) {
+          if (_.undefined(value.paaSResourceId)) {
             notConfiguredCount++;
           } else if (paaSResourceIdArr) {
             // this resource id is mapped, not available for others
-            UTILS.arrayRemove(availablePaaSResourceIdArr, value.paaSResourceId);
+            _.pull(availablePaaSResourceIdArr, value.paaSResourceId);
           }
         });
         return {
@@ -440,7 +465,7 @@ angular.module('alienUiApp').controller(
           id: $scope.cloud.id,
           flavorId: flavorId
         }, undefined, function(success) {
-          var indexFlavor = UTILS.findByFieldValue($scope.cloud.flavors, 'id', flavorId);
+          var indexFlavor = _.findByFieldValue($scope.cloud.flavors, 'id', flavorId);
           $scope.cloud.flavors.splice(indexFlavor, 1);
           delete $scope.flavors[flavorId];
           updateFlavorResourcesStatistic();
@@ -495,7 +520,7 @@ angular.module('alienUiApp').controller(
           networkName: network.id
         }, undefined, function() {
           delete $scope.networks[network.id];
-          UTILS.arrayRemove($scope.cloud.networks, network);
+          _.pull($scope.cloud.networks, network);
           updateNetworkResourcesStatistic();
         });
       };
@@ -506,7 +531,7 @@ angular.module('alienUiApp').controller(
           storageId: storage.id
         }, undefined, function() {
           delete $scope.storages[storage.id];
-          UTILS.arrayRemove($scope.cloud.storages, storage);
+          _.pull($scope.cloud.storages, storage);
           updateStorageResourcesStatistic();
         });
       };
@@ -547,7 +572,7 @@ angular.module('alienUiApp').controller(
           id: $scope.cloud.id,
           imageId: imageId
         }, undefined, function(success) {
-          UTILS.arrayRemove($scope.cloud.images, imageId);
+          _.pull($scope.cloud.images, imageId);
           delete $scope.images[imageId];
           updateImageResourcesStatistic();
           updateComputeResources(success.data);
@@ -576,14 +601,14 @@ angular.module('alienUiApp').controller(
       };
 
       $scope.switchCloudImageAddSelection = function(imageId) {
-        if (UTILS.arrayContains($scope.imageAddSelection, imageId)) {
-          UTILS.arrayRemove($scope.imageAddSelection, imageId);
+        if (_.contains($scope.imageAddSelection, imageId)) {
+          _.pull($scope.imageAddSelection, imageId);
         } else {
           $scope.imageAddSelection.push(imageId);
         }
       };
       $scope.isInCloudImageAddSelection = function(imageId) {
-        return UTILS.arrayContains($scope.imageAddSelection, imageId);
+        return _.contains($scope.imageAddSelection, imageId);
       };
       $scope.performAddCloudImageSelection = function() {
         cloudServices.addImage({
@@ -596,7 +621,7 @@ angular.module('alienUiApp').controller(
           });
           // add to the images details map
           angular.forEach($scope.searchImageData.data, function(value) {
-            if (UTILS.arrayContains($scope.imageAddSelection, value.id)) {
+            if (_.contains($scope.imageAddSelection, value.id)) {
               $scope.images[value.id] = {
                 resource: value
               };
@@ -632,7 +657,7 @@ angular.module('alienUiApp').controller(
             cloudServices.addImage({
               id: $scope.cloud.id
             }, angular.toJson([cloudImageId]), function() {
-              $scope.cloud.images = UTILS.concat($scope.cloud.images, [cloudImageId]);
+              $scope.cloud.images = _.concat($scope.cloud.images, [cloudImageId]);
               updateImageResourcesStatistic();
             });
           });
@@ -699,7 +724,7 @@ angular.module('alienUiApp').controller(
 
       // a generic fn that associate an internal resource to a PaaS resource
       var savePasSResourceId = function(alienResourceId, alienResourceArray, paaSResourceId, saveFn, callbackFn) {
-        if (UTILS.isUndefinedOrNull(paaSResourceId) || paaSResourceId === '') {
+        if (_.undefined(paaSResourceId) || paaSResourceId === '') {
           if (alienResourceArray[alienResourceId]) {
             delete alienResourceArray[alienResourceId].paaSResourceId;
           }
@@ -725,7 +750,7 @@ angular.module('alienUiApp').controller(
 
       $scope.openSimpleModal = function () {
         $modal.open({
-          templateUrl: 'views/fragments/simple_modal.html',
+          templateUrl: 'views/common/simple_modal.html',
           controller: ModalInstanceCtrl
         });
       };
@@ -756,7 +781,7 @@ angular.module('alienUiApp').controller(
           zoneId: zone.id
         }, undefined, function() {
           delete $scope.zones[zone.id];
-          UTILS.arrayRemove($scope.cloud.availabilityZones, zone);
+          _.pull($scope.cloud.availabilityZones, zone);
           updateZoneResourcesStatistic();
         });
       };
@@ -774,10 +799,11 @@ angular.module('alienUiApp').controller(
           'size': 50
         };
 
-        tagConfigurationServices.search([], angular.toJson(searchRequestObject), function(successResult) {
+        metapropConfServices.search([], angular.toJson(searchRequestObject), function(successResult) {
           $scope.configurationProperties = successResult.data.data;
         });
       };
       $scope.loadConfigurationTag();
     }
   ]);
+});

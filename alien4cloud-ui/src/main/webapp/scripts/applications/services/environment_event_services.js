@@ -1,7 +1,12 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('environmentEventServicesFactory', ['webSocketServices',
-  function(webSocketServices) {
+  var modules = require('modules');
+
+  require('scripts/common/services/websocket_services');
+
+  modules.get('a4c-applications').factory('environmentEventServicesFactory', ['webSocketServices',
+    function(webSocketServices) {
     return function(applicationId, environment, callback) {
       var topicName = '/topic/environment-events/' + environment.id;
 
@@ -20,4 +25,5 @@ angular.module('alienUiApp').factory('environmentEventServicesFactory', ['webSoc
         }
       };
     };
-  }]);
+  }]); // factory
+}); // define

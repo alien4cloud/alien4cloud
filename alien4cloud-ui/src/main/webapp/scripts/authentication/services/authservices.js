@@ -1,117 +1,62 @@
-/* global UTILS */
+define(function (require) {
+  'use strict';
 
-'use strict';
+  var modules = require('modules');
+  var states = require('states');
+  var _ = require('lodash');
 
-angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide',
-  function($provide) {
-    $provide.factory('alienAuthService', ['$resource', '$state', '$http', 'alienNavBarService',
-      function($resource, $state, $http, alienNavBarService) {
-        // isArray needed when results is JSON with nested object
-        var userStatusResource = $resource('rest/auth/status', {}, {
-          'query': {
-            method: 'GET',
-            isArray: false
-          }
-        });
+  modules.get('a4c-auth', ['ngResource']).factory('authService', ['$resource', '$state', '$http',
+    function($resource, $state, $http) {
+      var userStatusResource = $resource('rest/auth/status', {}, {
+        'query': { method: 'GET', isArray: false }
+      });
+      // get default 'all-users' group
+      var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
+        'query': { method: 'GET', isArray: false }
+      }).query();
 
-        // get default allusers group
-        var defaultAllUsersGroup = $resource('rest/auth/groups/allusers', {}, {
-          'query': {
-            method: 'GET',
-            isArray: false
-          }
-        }).query();
+      /* Permissions */
+      var allAccessAdminRole = 'ADMIN';
 
-        var onCurrentStatus = function() {
-          for (var i = 0; i < alienNavBarService.menu.left.length; i++) {
-            alienNavBarService.menu.left[i].hasRole = hasOneRoleIn(alienNavBarService.menu.left[i].roles);
-          }
-          for (var j = 0; j < alienNavBarService.menu.right.length; j++) {
-            alienNavBarService.menu.right[j].hasRole = hasOneRoleIn(alienNavBarService.menu.right[j].roles);
-          }
-        };
+      return {
+        currentStatus: null,
+        menu: states.rootMenu(),
 
-        var getStatus = function() {
+        onCurrentStatus: function() {
+          var self = this;
+          _.each(this.menu, function(menuItem) {
+            menuItem.hasRole = self.hasOneRoleIn(menuItem.roles);
+          });
+        },
+
+        getStatus: function() {
+          var self = this;
           if (this.currentStatus === null) {
-            this.currentStatus = this.userStatusResource.query();
-            var obj = this;
+            this.currentStatus = userStatusResource.query();
             this.currentStatus.$promise.then(function() {
-              obj.onCurrentStatus();
+              self.onCurrentStatus();
             });
           }
           return this.currentStatus;
-        };
+        },
 
-        // LogOut and redirect to root.
-        var logOut = function() {
-          var obj = this;
-          $http.post('logout').success(function() {
-            obj.currentStatus = obj.userStatusResource.query();
-            $state.go('home');
-          });
-        };
-
-        // Login and redirect to target
-        var logIn = function(data, scope) {
-          var obj = this;
-          $http.post('login', data, {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            }
-          }).success(function() {
-            obj.currentStatus = null;
-            var newStatus = obj.userStatusResource.query(function(loginResult) {
-              // get the new status from server
-              if (loginResult.data.isLogged === false) {
-                var loginError = {
-                  'show': true,
-                  'data': 'Authentication error. Invalid username or password.'
-                };
-                scope.error = loginError;
-                $state.go('home');
-              } else {
-                $state.go('home_user');
-              }
-            });
-
-            obj.currentStatus = newStatus;
-            obj.currentStatus.$promise.then(function() {
-              obj.onCurrentStatus();
-            });
-
-            return newStatus;
-          }).error(function() {
-            obj.currentStatus = {
-              'data': {
-                'isLogged': false
-              }
-            };
-          });
-        };
-
-        /* Permissions */
-        var allAccessAdminRole = 'ADMIN';
-        var authorizationCheck = function(checkCallback) {
-          if (typeof authService.currentStatus.data !== 'undefined') {
-            return checkCallback(authService.currentStatus.data);
+        authorizationCheck: function(checkCallback) {
+          var self = this;
+          if (typeof this.currentStatus.data !== 'undefined') {
+            return checkCallback(this.currentStatus.data);
           } else {
-            return authService.getStatus().$promise.then(
+            return this.getStatus().$promise.then(
               function() {
-                return checkCallback(authService.currentStatus.data);
+                return checkCallback(self.currentStatus.data);
               }
             );
           }
-        };
-
-        /* Checks if the current user has the requested role. */
-        var hasRole = function(role) {
-          return hasOneRoleIn([role]);
-        };
+        },
 
         /** Checks if the user has one of the role requested. */
-        var hasOneRoleIn = function(roles) {
-          if (UTILS.isArrayDefinedAndNotEmpty(roles)) {
-            return authorizationCheck(
+        hasOneRoleIn: function(roles) {
+          if (!_.isEmpty(roles)) {
+            return this.authorizationCheck(
               function(userData) {
                 if (!userData.isLogged) {
                   return false;
@@ -132,49 +77,44 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
             // empty roles array => full access for authenticated user at least
             return true;
           }
+        },
 
-        };
-
-        /** Check if a user has access to a resource. Return true if user has the given role **/
-        var hasResourceRole = function(resource, role) {
-          return hasResourceRoleIn(resource, [role]);
-        };
-
-        var getRolesForResource = function(resource, userStatus) {
+        getRolesForResource: function(resource, userStatus) {
           var allRoles;
           var userRoles = resource.userRoles[userStatus.username];
-          if (UTILS.isArrayDefinedAndNotEmpty(userRoles)) {
+          if (!_.isEmpty(userRoles)) {
             allRoles = userRoles;
           }
           var groups = userStatus.groups;
-          if (UTILS.isUndefinedOrNull(groups)) {
+          if (_.undefined(groups)) {
             groups = [];
           }
-          if (UTILS.isDefinedAndNotNull(defaultAllUsersGroup.data)) {
+          if (_.defined(defaultAllUsersGroup.data)) {
             groups.push(defaultAllUsersGroup.data.id);
           }
           var groupRolesMap = resource.groupRoles;
-          if (UTILS.isArrayDefinedAndNotEmpty(groups) && UTILS.isDefinedAndNotNull(groupRolesMap) && !UTILS.isObjectEmpty(groupRolesMap)) {
+          if (_.defined(groups) && !_.isEmpty(groups) && _.defined(groupRolesMap) && !_.isEmpty(groupRolesMap)) {
             for (var i = 0; i < groups.length; i++) {
               var group = groups[i];
               if (groupRolesMap.hasOwnProperty(group)) {
-                allRoles = UTILS.concat(allRoles, groupRolesMap[group]);
+                allRoles = _.union(allRoles, groupRolesMap[group]);
               }
             }
           }
-          return UTILS.isDefinedAndNotNull(allRoles) ? allRoles : [];
-        };
+          return _.defined(allRoles) ? allRoles : [];
+        },
 
         /** Check if a user has access to a resource. Return true if user has at least one of the given roles **/
-        var hasResourceRoleIn = function(resource, roles) {
-          return authorizationCheck(
+        hasResourceRoleIn: function(resource, roles) {
+          var self = this;
+          return this.authorizationCheck(
             function(userStatus) {
               // check all accessible roles first
               if (userStatus.roles.indexOf(allAccessAdminRole) > -1) {
                 return true;
               }
               // check if the user has the role.
-              var currentUserRoles = getRolesForResource(resource, userStatus);
+              var currentUserRoles = self.getRolesForResource(resource, userStatus);
               for (var i = 0; i < roles.length; i++) {
                 if (currentUserRoles.indexOf(roles[i]) >= 0) {
                   return true;
@@ -182,23 +122,66 @@ angular.module('alienAuth', ['ngResource', 'pascalprecht.translate'], ['$provide
               }
               return false;
             });
-        };
+        },
 
-        var authService = {
-          'logIn': logIn,
-          'logOut': logOut,
-          'getStatus': getStatus,
-          'currentStatus': null,
-          'currentUser': null,
-          'onCurrentStatus': onCurrentStatus,
-          'userStatusResource': userStatusResource,
-          'hasRole': hasRole,
-          'hasOneRoleIn': hasOneRoleIn,
-          'hasResourceRole': hasResourceRole,
-          'hasResourceRoleIn': hasResourceRoleIn
-        };
-        return authService;
-      }
-    ]);
-  }
-]);
+        /**
+        * LogOut and redirect to home.
+        */
+        logOut: function() {
+          var self = this;
+          $http.post('logout').success(function() {
+            self.currentStatus = userStatusResource.query();
+            $state.go('home');
+          });
+        },
+        /**
+        * Login and redirect to target
+        */
+        logIn: function(data, scope) {
+          var self = this;
+          $http.post('login', data, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
+          }).success(function() {
+            self.currentStatus = userStatusResource.query(function(loginResult) {
+              // get the new status from server
+              if (loginResult.data.isLogged === false) {
+                var loginError = {
+                  'show': true,
+                  'data': 'Authentication error. Invalid username or password.'
+                };
+                scope.error = loginError;
+              }
+              $state.go('home');
+            });
+            self.currentStatus.$promise.then(function() {
+              self.onCurrentStatus();
+            });
+
+            return self.currentStatus;
+          }).error(function() {
+            self.currentStatus = {
+              'data': {
+                'isLogged': false
+              }
+            };
+          });
+        },
+
+        /**
+        * Checks if the current user has the requested role.
+        */
+        hasRole: function(role) {
+          return this.hasOneRoleIn([role]);
+        },
+
+        /**
+        * Check if a user has access to a resource. Return true if user has the given role
+        */
+        hasResourceRole: function(resource, role) {
+          return this.hasResourceRoleIn(resource, [role]);
+        }
+      };
+    }]);
+});

@@ -1,10 +1,10 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'NewStorageController', [
-    '$scope',
-    '$modalInstance',
-    'cloudServices',
+  var modules = require('modules');
+
+  modules.get('a4c-clouds', ['ui.bootstrap']).controller(
+  'NewStorageController', ['$scope', '$modalInstance', 'cloudServices',
     function($scope, $modalInstance, cloudServices) {
 
       $scope.storageFormDescriptor = cloudServices.storageFormDescriptor;
@@ -19,5 +19,5 @@ angular.module('alienUiApp').controller(
         $modalInstance.dismiss('cancel');
       };
     }
-  ]
-);
+  ]); // controller
+}); // define

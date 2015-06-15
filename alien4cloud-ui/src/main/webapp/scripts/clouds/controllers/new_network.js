@@ -1,12 +1,11 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'NewNetworkController', [
-    '$scope',
-    '$modalInstance',
-    'cloudServices',
+  var modules = require('modules');
+
+  modules.get('a4c-clouds', ['ui.bootstrap']).controller(
+    'NewNetworkController', ['$scope', '$modalInstance', 'cloudServices',
     function($scope, $modalInstance, cloudServices) {
-
       $scope.networkFormDescriptor = cloudServices.networkFormDescriptor;
 
       $scope.network = {};
@@ -19,5 +18,5 @@ angular.module('alienUiApp').controller(
         $modalInstance.dismiss('cancel');
       };
     }
-  ]
-);
+  ]); // controller
+}); // define

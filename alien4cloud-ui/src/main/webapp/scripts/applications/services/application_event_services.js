@@ -1,115 +1,122 @@
-/* global UTILS */
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('applicationEventServicesFactory', ['deploymentEventServicesFactory', 'applicationServices',
-  function(deploymentEventServicesFactory, applicationServices) {
-    return function(applicationId, selectedEnvironmentId) {
-      var deploymentEventServices = null;
-      var applicationEventServices = {};
-      var subscribeQueue = [];
+  var modules = require('modules');
 
-      applicationEventServices.start = function() {
-        applicationEventServices.doStart();
-      };
+  require('scripts/applications/services/application_services');
+  require('scripts/applications/services/deployment_event_services');
 
-      applicationEventServices.doStart = function(existingListeners) {
-        applicationServices.getActiveDeployment.get({
-          applicationId: applicationId,
-          applicationEnvironmentId: selectedEnvironmentId
-        }, undefined, function(success) {
-          if (UTILS.isDefinedAndNotNull(success.data)) {
-            deploymentEventServices = deploymentEventServicesFactory(success.data.id, existingListeners);
-            for (var i = 0; i < subscribeQueue.length; i++) {
-              doSubscribe(subscribeQueue[i].listenerId, subscribeQueue[i].type, subscribeQueue[i].callback);
+  modules.get('a4c-applications', ['ngResource']).factory('applicationEventServicesFactory',
+    ['deploymentEventServicesFactory', 'applicationServices',
+    function(deploymentEventServicesFactory, applicationServices) {
+      return function(applicationId, selectedEnvironmentId) {
+        var deploymentEventServices = null;
+        var applicationEventServices = {};
+        var subscribeQueue = [];
+
+        applicationEventServices.start = function() {
+          applicationEventServices.doStart();
+        };
+
+        applicationEventServices.doStart = function(existingListeners) {
+          applicationServices.getActiveDeployment.get({
+            applicationId: applicationId,
+            applicationEnvironmentId: selectedEnvironmentId
+          }, undefined, function(success) {
+            if (_.defined(success.data)) {
+              deploymentEventServices = deploymentEventServicesFactory(success.data.id, existingListeners);
+              for (var i = 0; i < subscribeQueue.length; i++) {
+                doSubscribe(subscribeQueue[i].listenerId, subscribeQueue[i].type, subscribeQueue[i].callback);
+              }
+              subscribeQueue = [];
             }
-            subscribeQueue = [];
-          }
-        });
-      };
-
-      applicationEventServices.stop = function() {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.close();
-          deploymentEventServices = null;
-        }
-      };
-
-      applicationEventServices.restart = function() {
-        var existingListeners;
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          existingListeners = deploymentEventServices.allListeners;
-          deploymentEventServices.close();
-          deploymentEventServices = null;
-        }
-        applicationEventServices.doStart(existingListeners);
-      };
-
-      applicationEventServices.subscribe = function(listenerId, callback) {
-        applicationEventServices.subscribeToStatusChange(listenerId, callback);
-        applicationEventServices.subscribeToInstanceStateChange(listenerId, callback);
-        applicationEventServices.subscribeToStorageInstanceStateChange(listenerId, callback);
-        applicationEventServices.subscribeToPaasMessage(listenerId, callback);
-      };
-
-      var doSubscribe = function(listenerId, type, callback) {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.subscribe(listenerId, type, callback);
-        } else {
-          subscribeQueue.push({
-            listenerId: listenerId,
-            type: type,
-            callback: callback
           });
-        }
-      };
+        };
 
-      applicationEventServices.subscribeToStatusChange = function(listenerId, callback) {
-        doSubscribe(listenerId, 'paasdeploymentstatusmonitorevent', callback);
-      };
+        applicationEventServices.stop = function() {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.close();
+            deploymentEventServices = null;
+          }
+        };
 
-      applicationEventServices.subscribeToInstanceStateChange = function(listenerId, callback) {
-        doSubscribe(listenerId, 'paasinstancestatemonitorevent', callback);
-      };
-      applicationEventServices.subscribeToStorageInstanceStateChange = function(listenerId, callback) {
-        doSubscribe(listenerId, 'paasinstancestoragemonitorevent', callback);
-      };
+        applicationEventServices.restart = function() {
+          var existingListeners;
+          if (_.defined(deploymentEventServices)) {
+            existingListeners = deploymentEventServices.allListeners;
+            deploymentEventServices.close();
+            deploymentEventServices = null;
+          }
+          applicationEventServices.doStart(existingListeners);
+        };
 
-      applicationEventServices.subscribeToPaasMessage = function(listenerId, callback) {
-        doSubscribe(listenerId, 'paasmessagemonitorevent', callback);
-      };
+        applicationEventServices.subscribe = function(listenerId, callback) {
+          applicationEventServices.subscribeToStatusChange(listenerId, callback);
+          applicationEventServices.subscribeToInstanceStateChange(listenerId, callback);
+          applicationEventServices.subscribeToStorageInstanceStateChange(listenerId, callback);
+          applicationEventServices.subscribeToPaasMessage(listenerId, callback);
+        };
 
-      applicationEventServices.unsubscribe = function(listenerId) {
-        applicationEventServices.unsubscribeToStatusChange(listenerId);
-        applicationEventServices.unsubscribeToInstanceStateChange(listenerId);
-        applicationEventServices.unsubscribeToStorageInstanceStateChange(listenerId);
-        applicationEventServices.unsubscribeToPaasMessage(listenerId);
-      };
+        var doSubscribe = function(listenerId, type, callback) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.subscribe(listenerId, type, callback);
+          } else {
+            subscribeQueue.push({
+              listenerId: listenerId,
+              type: type,
+              callback: callback
+            });
+          }
+        };
 
-      applicationEventServices.unsubscribeToStatusChange = function(listenerId) {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.unsubscribe(listenerId, 'paasdeploymentstatusmonitorevent');
-        }
-      };
+        applicationEventServices.subscribeToStatusChange = function(listenerId, callback) {
+          doSubscribe(listenerId, 'paasdeploymentstatusmonitorevent', callback);
+        };
 
-      applicationEventServices.unsubscribeToStorageInstanceStateChange = function(listenerId) {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.unsubscribe(listenerId, 'paasinstancestoragemonitorevent');
-        }
-      };
+        applicationEventServices.subscribeToInstanceStateChange = function(listenerId, callback) {
+          doSubscribe(listenerId, 'paasinstancestatemonitorevent', callback);
+        };
+        applicationEventServices.subscribeToStorageInstanceStateChange = function(listenerId, callback) {
+          doSubscribe(listenerId, 'paasinstancestoragemonitorevent', callback);
+        };
 
-      applicationEventServices.unsubscribeToInstanceStateChange = function(listenerId) {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.unsubscribe(listenerId, 'paasinstancestatemonitorevent');
-        }
-      };
+        applicationEventServices.subscribeToPaasMessage = function(listenerId, callback) {
+          doSubscribe(listenerId, 'paasmessagemonitorevent', callback);
+        };
 
-      applicationEventServices.unsubscribeToPaasMessage = function(listenerId) {
-        if (UTILS.isDefinedAndNotNull(deploymentEventServices)) {
-          deploymentEventServices.unsubscribe(listenerId, 'paasmessagemonitorevent');
-        }
-      };
+        applicationEventServices.unsubscribe = function(listenerId) {
+          applicationEventServices.unsubscribeToStatusChange(listenerId);
+          applicationEventServices.unsubscribeToInstanceStateChange(listenerId);
+          applicationEventServices.unsubscribeToStorageInstanceStateChange(listenerId);
+          applicationEventServices.unsubscribeToPaasMessage(listenerId);
+        };
 
-      return applicationEventServices;
-    };
-  }
-]);
+        applicationEventServices.unsubscribeToStatusChange = function(listenerId) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.unsubscribe(listenerId, 'paasdeploymentstatusmonitorevent');
+          }
+        };
+
+        applicationEventServices.unsubscribeToStorageInstanceStateChange = function(listenerId) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.unsubscribe(listenerId, 'paasinstancestoragemonitorevent');
+          }
+        };
+
+        applicationEventServices.unsubscribeToInstanceStateChange = function(listenerId) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.unsubscribe(listenerId, 'paasinstancestatemonitorevent');
+          }
+        };
+
+        applicationEventServices.unsubscribeToPaasMessage = function(listenerId) {
+          if (_.defined(deploymentEventServices)) {
+            deploymentEventServices.unsubscribe(listenerId, 'paasmessagemonitorevent');
+          }
+        };
+
+        return applicationEventServices;
+      };
+    }
+  ]);
+});

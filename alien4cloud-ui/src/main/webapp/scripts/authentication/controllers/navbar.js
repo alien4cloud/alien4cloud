@@ -1,44 +1,61 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienAuth').controller('alienNavBarCtrl', ['$rootScope', '$scope', 'alienAuthService', 'alienNavBarService', '$translate', 'hopscotchService', '$http',
-  function($rootScope, $scope, alienAuthService, alienNavBarService, $translate, hopscotchService, $http) {
+  var modules = require('modules');
+  require('scripts/authentication/services/quicksearch');
+  require('scripts/common/services/hopscotch_service');
+  require('angular-translate');
+  require('angular-bootstrap');
+  require('angular-cookies');
 
-    $scope.login = {};
-    $scope.signIn = function() {
-      var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
-      alienAuthService.logIn(data, $scope);
-    };
+  require('scripts/authentication/directives/navbar');
+  require('scripts/authentication/services/authservices');
 
-    // Recover alien version and display github tag link if it's not snapshot (cached request)
-    $http.get('/version.json', {
-      cache: 'true'
-    }).then(function(result) {
-      $scope.version = {};
-      $scope.version.tag = result.data.version;
-      $scope.version.isSnapshot = $scope.version.tag.indexOf('SNAPSHOT') > -1;
-    });
+  modules.get('a4c-auth', ['pascalprecht.translate', 'ng-hopscotch']).controller('alienNavBarCtrl',
+    ['$rootScope', '$scope', 'authService', 'quickSearchServices', '$translate', 'hopscotchService', '$http',
+    function($rootScope, $scope, authService, quickSearchServices, $translate, hopscotchService, $http) {
+      $scope.login = {};
+      $scope.signIn = function() {
+        var data = 'username=' + $scope.login.username + '&password=' + $scope.login.password + '&submit=Login';
+        authService.logIn(data, $scope);
+      };
 
-    // Basic Spring security logout
-    $scope.logout = function() {
-      alienAuthService.logOut();
-    };
+      // Recover alien version and display github tag link if it's not snapshot (cached request)
+      $http.get('/version.json', {
+        cache: 'true'
+      }).then(function(result) {
+        $scope.version = {};
+        $scope.version.tag = result.data.version;
+        $scope.version.isSnapshot = $scope.version.tag.indexOf('SNAPSHOT') > -1;
+      });
 
-    $scope.search = function() {};
+      // Basic Spring security logout
+      $scope.logout = function() {
+        authService.logOut();
+      };
 
-    $scope.menu = alienNavBarService.menu;
-    $scope.quickSearchHandler = alienNavBarService.quickSearchHandler;
+      $scope.search = function() {};
 
-    alienAuthService.getStatus();
+      $scope.menu = authService.menu;
+      $scope.quickSearchHandler = {
+        'doQuickSearch': quickSearchServices.doQuickSearch,
+        'onItemSelected': quickSearchServices.onItemSelected,
+        'waitBeforeRequest': 500,
+        'minLength': 3
+      };
 
-    /* i18n */
-    $scope.changeLanguage = function(langKey) {
-      $translate.uses(langKey);
-    };
+      authService.getStatus();
 
-    $scope.status = alienAuthService;
+      /* i18n */
+      $scope.changeLanguage = function(langKey) {
+        $translate.uses(langKey);
+      };
 
-    $scope.startTour = function() {
-      hopscotchService.startTour();
-    };
-  }
-]);
+      $scope.status = authService;
+
+      $scope.startTour = function() {
+        hopscotchService.startTour();
+      };
+    }
+  ]);
+});

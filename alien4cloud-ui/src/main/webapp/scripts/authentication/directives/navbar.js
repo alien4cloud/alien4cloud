@@ -1,12 +1,13 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienAuth').directive('alienNavBar',
-  function() {
+  var modules = require('modules');
 
-    return {
-      templateUrl: 'views/authentication/navbar.html',
-      restrict: 'E',
-      link: function postLink() {
-      }
-    };
-  });
+  modules.get('a4c-auth').directive('alienNavBar',
+    function() {
+      return {
+        templateUrl: 'views/authentication/navbar.html',
+        restrict: 'E'
+      };
+    });
+});

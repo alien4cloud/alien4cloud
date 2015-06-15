@@ -1,8 +1,22 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').controller(
-  'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'suggestionServices', 'formDescriptorServices', 'deploymentServices', 'webSocketServices', '$resource', 'topologyServices', '$translate', 'toaster',
-    function($scope, $stateParams, $state, csarService, suggestionServices, formDescriptorServices, deploymentServices, webSocketServices, $resource, topologyServices, $translate, toaster) {
+  var modules = require('modules');
+  var states = require('states');
+
+  require('scripts/components/services/csar');
+  require('scripts/common/services/websocket_services');
+  require('scripts/deployment/services/deployment_services');
+
+  states.state('components.csars.csardetail', {
+    url: '/:csarId',
+    templateUrl: 'views/components/csar_details.html',
+    controller: 'CsarDetailsCtrl'
+  });
+
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap', 'a4c-deployment']).controller(
+    'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices',
+    function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices) {
       /* Retrieve CSAR to display */
       $scope.csarId = $stateParams.csarId;
 
@@ -32,7 +46,7 @@ angular.module('alienUiApp').controller(
       };
 
       var unsubscribeFromDeploymentStatusTopic = function() {
-        if (UTILS.isDefinedAndNotNull($scope.deploymentEventsTopic) && webSocketServices.isTopicSubscribed($scope.deploymentEventsTopic)) {
+        if (_.defined($scope.deploymentEventsTopic) && webSocketServices.isTopicSubscribed($scope.deploymentEventsTopic)) {
           webSocketServices.unSubscribe($scope.deploymentEventsTopic);
         }
       };
@@ -41,7 +55,7 @@ angular.module('alienUiApp').controller(
         csarService.getActiveDeployment.get({
           csarId: $scope.csarId
         }, undefined, function(success) {
-          if (UTILS.isDefinedAndNotNull(success.data)) {
+          if (_.defined(success.data)) {
             var deployment = success.data;
             $scope.deploymentId = deployment.id;
             $scope.deploymentEventsTopic = '/topic/deployment-events/' + $scope.deploymentId + '/paasdeploymentstatusmonitorevent';
@@ -60,13 +74,6 @@ angular.module('alienUiApp').controller(
           deploymentId: $scope.deploymentId
         }, function(successResult) {
           $scope.deploymentStatus = successResult.data;
-        });
-      };
-
-      $scope.goToNodeTypeDetail = function(nodeTypeId) {
-        $state.go('components.csars.csardetailnode', {
-          csarId: $scope.csarId,
-          nodeTypeId: nodeTypeId
         });
       };
 
@@ -96,23 +103,6 @@ angular.module('alienUiApp').controller(
 
       // init details page
       $scope.refreshDetails();
-
-      formDescriptorServices.getNodeTypeFormDescriptor().then(function(result) {
-        $scope.objectDefinition = result;
-      });
-
-      $scope.suggest = function(searchConfiguration, text) {
-        return suggestionServices.getSuggestions(searchConfiguration._index, searchConfiguration._type, searchConfiguration._path, text);
-      };
-
-      $scope.saveNodeType = function(nodeType) {
-        csarService.createNodeType.upload({
-          csarId: $scope.csarId
-        }, angular.toJson(nodeType), function() {
-          $scope.refreshDetails();
-        });
-      };
-
-      $scope.formTitle = 'CSAR.DETAILS.COMPONENT_FORM_TITLE';
     }
-  ]);
+  ]); // controller
+});// define
