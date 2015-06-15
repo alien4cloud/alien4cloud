@@ -20,7 +20,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
         propertyValue: data
       };
       var saveResult = $scope.onSave(propertyRequest);
-      console.log('ON SAVE...', propertyRequest);
       // If the callback return a promise
       if (UTILS.isDefinedAndNotNull(saveResult) && UTILS.isDefinedAndNotNull(saveResult.then)) {
         return saveResult.then(function(saveResult) {
@@ -74,10 +73,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.init = function() {
       $scope.$watch('propertyValue', function() {
         $scope.initScope();
-        console.log('Watch property value >', isReset);
         if (isReset) { // could be an initScope after a reset property
-          console.log('Watch property value > CALL SAVE >', $scope.definitionObject.uiValue, $scope.definitionObject.uiUnit);
-          $scope.definitionObject.uiValue = $scope.propertyValue.value;
           $scope.propertySave($scope.definitionObject.uiValue, $scope.definitionObject.uiUnit);
         }
       }, true);
@@ -141,6 +137,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           }
         } else {
           $scope.definitionObject.uiUnit = $scope.definitionObject.units[0];
+          $scope.definitionObject.uiValue = shownValue;
         }
       };
 
@@ -186,48 +183,9 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     /** Reset the property to the default value if any */
     $scope.resetProperty = function resetPropertyToDefault() {
       isReset = true;
-      console.log('Default >', $scope.definition.default, $scope.propertyValue);
-      // $scope.propertyValue = $scope.definitionObject.uiValue;
       if (UTILS.isDefinedAndNotNull($scope.propertyValue)) {
-        console.log('Change it :)', $scope.propertyValue.value, $scope.definition.default);
-        $scope.propertyValue.value = getResetValue($scope.definition); //$scope.definition.default; // if same value affected, no watch applied
-
+        $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
       }
-      console.log('Reset > Definition >', $scope.definition, $scope.propertyValue);
-      // propertyValue is "watched", so initScope is called
-    };
-
-    var getResetValue = function getResetValue(definition) {
-
-      var resetValue = definition.default;
-      if (definition.default === null) {
-
-        switch (definition.type) {
-          case 'boolean':
-            break;
-          case 'timestamp':
-            break;
-
-          case 'scalar-unit.size':
-            // $scope.definitionObject.uiName = 'scalar-unit';
-            // $scope.definitionObject.units = ['B', 'KB', 'KIB', 'MB', 'MIB', 'GB', 'GIB', 'TB', 'TIB'];
-            // // splitScalarUnitValue(true);
-            resetValue = 4;
-            break;
-          case 'scalar-unit.time':
-            // $scope.definitionObject.uiName = 'scalar-unit';
-            // $scope.definitionObject.units = ['d', 'h', 'm', 's', 'ms', 'us', 'ns'];
-            // splitScalarUnitValue(false);
-            break;
-          default:
-            // $scope.definitionObject.uiName = 'string';
-            // $scope.definitionObject.uiValue = shownValue;
-            // $scope.definitionObject.uiPassword = $scope.definition.password;
-            break;
-        }
-
-      }
-      return resetValue;
     };
 
     // Init managed property
