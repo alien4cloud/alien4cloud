@@ -1,15 +1,23 @@
-/* global UTILS, $ */
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory(
-    'topologyLayoutService', ['toscaService','routerFactoryService',
-    function(toscaService, routerFactoryService) {
+  var modules = require('modules');
+  var $ = require('jquery');
+  var _ = require('lodash');
+
+  require('scripts/tosca/services/tosca_service');
+
+  require('scripts/common-graph/services/router_factory_service');
+  require('scripts/common-graph/services/bbox_factory_service');
+
+  modules.get('a4c-topology-editor', ['ngResource']).factory('topologyLayoutService', ['toscaService','routerFactoryService', 'bboxFactory',
+    function(toscaService, routerFactoryService, bboxFactory) {
       return {
         layout: function(nodeTemplates, nodeTypes, relationshipTypes, nodeSize, spacing) {
           nodeSize.halfWidth = nodeSize.width / 2;
           nodeSize.halfHeight = nodeSize.height / 2;
 
-          var nodeTemplatesCopy = UTILS.deepCopy(nodeTemplates);
+          var nodeTemplatesCopy = _.cloneDeep(nodeTemplates);
           var tree = this.buildTree(nodeTemplatesCopy, nodeTypes, relationshipTypes);
           this.sortTree(tree, relationshipTypes, nodeTemplatesCopy);
           // process the layout of all tree elements but network
@@ -57,10 +65,10 @@ angular.module('alienUiApp').factory(
         },
 
         addNodeTemplateToTree: function(tree, nodeTemplate, nodeTemplates, relationshipTypes) {
-          if(UTILS.isUndefinedOrNull(nodeTemplate.children)) {
+          if(_.undefined(nodeTemplate.children)) {
             nodeTemplate.children = [];
           }
-          if(UTILS.isUndefinedOrNull(nodeTemplate.attached)) {
+          if(_.undefined(nodeTemplate.attached)) {
             nodeTemplate.attached = [];
           }
           nodeTemplate.weight = 0;
@@ -69,14 +77,14 @@ angular.module('alienUiApp').factory(
           if (relationships.length > 0) {
             // TODO we should not have more than a single hosted on actually. Manage if not.
             var parent = nodeTemplates[relationships[0].target];
-            UTILS.safePush(parent, 'children', nodeTemplate);
+            _.safePush(parent, 'children', nodeTemplate);
             nodeTemplate.parent = parent;
           } else {
             // Manage the attach relationship in a specific way in order to display the storage close to the compute.
             relationships = this.getAttachedToRelationships(nodeTemplate, relationshipTypes);
             if (relationships.length > 0) {
               var target = nodeTemplates[relationships[0].target];
-              UTILS.safePush(target, 'attached', nodeTemplate);
+              _.safePush(target, 'attached', nodeTemplate);
               nodeTemplate.parent = tree;
               nodeTemplate.isAttached = true;
             } else {
@@ -158,14 +166,14 @@ angular.module('alienUiApp').factory(
             }
 
             var candidatePosition = -1;
-            if(UTILS.isDefinedAndNotNull(child.before)) { // ensure the node is added before.
+            if(_.defined(child.before)) { // ensure the node is added before.
               for(var j=0; j<children.length && candidatePosition === -1; j++) {
                 if(child.before.indexOf(children[j]) >= 0) {
                   candidatePosition = j;
                 }
               }
             }
-            if(UTILS.isDefinedAndNotNull(child.after)) { // ensure the node is added after.
+            if(_.defined(child.after)) { // ensure the node is added after.
               for(var k=children.length-1; k>candidatePosition; k--) {
                 if(child.after.indexOf(children[k]) >= 0) {
                   candidatePosition = k+1;
@@ -192,8 +200,8 @@ angular.module('alienUiApp').factory(
             var commonParentInfo = thiss.getCommonParentInfo(tree, node, nodeTemplates[relationship.target]);
             if(commonParentInfo !== null) {
               commonParentInfo.child2.weight += 10000;
-              UTILS.safePush(commonParentInfo.child2, 'after', commonParentInfo.child1);
-              UTILS.safePush(commonParentInfo.child1, 'before', commonParentInfo.child2);
+              _.safePush(commonParentInfo.child2, 'after', commonParentInfo.child1);
+              _.safePush(commonParentInfo.child1, 'before', commonParentInfo.child2);
             }
           });
         },
@@ -232,7 +240,7 @@ angular.module('alienUiApp').factory(
 
         buildTreeGraph: function(tree, nodeMap, relationshipTypes, nodeSize) {
           // Extract our graph with node and links
-          var bbox = new UTILS.BoundingBox();
+          var bbox = bboxFactory.create();
           var graph = {
             nodes : [],
             links : [],
@@ -250,7 +258,7 @@ angular.module('alienUiApp').factory(
           graph.nodes.push({
             id : node.name,
             coordinate : node.nodeCoordinate,
-            bbox: new UTILS.BoundingBox(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
+            bbox: bboxFactory.create(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
           });
           graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
 
@@ -272,21 +280,21 @@ angular.module('alienUiApp').factory(
         },
 
         nodeLayout: function(node, position, nodeSize, spacing, initial) {
-          node.bbox = new UTILS.BoundingBox(position.x, position.y, nodeSize.width, nodeSize.height);
+          node.bbox = bboxFactory.create(position.x, position.y, nodeSize.width, nodeSize.height);
           node.nodeCoordinate = {x: node.bbox.minX, y: -node.bbox.minY};
 
           var attachedY = node.bbox.minY - nodeSize.height;
           for(var j = 0; j < node.attached.length; j++) {
             var attached = node.attached[j];
             if(initial) { // append the attached node
-              attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
+              attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
               attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
               attachedY = attached.bbox.minY - nodeSize.height;
               node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
               node.bbox.addPoint(attached.bbox.minX, attached.bbox.minY);
             } else { // insert the attached node
               node.nodeCoordinate.y = -node.bbox.maxY;
-              attached.bbox = new UTILS.BoundingBox(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
+              attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, nodeSize.width, nodeSize.height);
               attached.nodeCoordinate = {x: attached.bbox.minX, y: -attached.bbox.minY};
               attachedY = attached.bbox.maxY;
               node.bbox.addPoint(attached.bbox.maxX, attached.bbox.maxY);
@@ -323,7 +331,7 @@ angular.module('alienUiApp').factory(
               id : node.name,
               coordinate : node.nodeCoordinate,
               networkId: i,
-              bbox: new UTILS.BoundingBox(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
+              bbox: bboxFactory.create(node.nodeCoordinate.x - nodeSize.halfWidth , node.nodeCoordinate.y - nodeSize.halfHeight , nodeSize.width, nodeSize.height)
             });
             graph.bbox.addRectFromCenter(node.nodeCoordinate.x, node.nodeCoordinate.y, nodeSize.width, nodeSize.height);
           }
@@ -345,7 +353,7 @@ angular.module('alienUiApp').factory(
             return toscaService.isOneOfType(['tosca.relationships.Root'], relationship.type, relationshipTypes);
           });
           // var relationships = getRelationships(node, relationshipTypes);
-          if (UTILS.isDefinedAndNotNull(relationships)) {
+          if (_.defined(relationships)) {
             var relationshipsLength = relationships.length;
             for (var i = 0; i < relationshipsLength; i++) {
               var relationship = relationships[i];
@@ -395,4 +403,6 @@ angular.module('alienUiApp').factory(
           }
         }
       };
-    }]);
+    }
+  ]); // factory
+});// define

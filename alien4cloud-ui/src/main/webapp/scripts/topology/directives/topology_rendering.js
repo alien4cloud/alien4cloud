@@ -1,9 +1,19 @@
-/* global d3, UTILS */
-'use strict';
+// Directive allowing to display a topology
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').directive(
-  'topologyRendering', ['topologySvgFactory', 'commonNodeRendererService', 'simpleNodeRendererService', 'defaultNodeRendererService',
-    function(topologySvgFactory, commonNodeRendererService, simpleNodeRendererService, defaultNodeRendererService) {
+  var modules = require('modules');
+  var _ = require('lodash');
+  var d3 = require('d3');
+
+  require('scripts/common-graph/services/svg_service');
+  require('scripts/topology/services/topology_svg_service');
+  require('scripts/topology/services/simple_node_renderer_service');
+  require('scripts/topology/services/default_node_renderer_service');
+
+  modules.get('a4c-topology-editor').directive('topologyRendering',
+    ['topologySvgFactory', 'simpleNodeRendererService', 'defaultNodeRendererService',
+    function(topologySvgFactory, simpleNodeRendererService, defaultNodeRendererService) {
       return {
         restrict: 'E',
         scope: {
@@ -19,7 +29,7 @@ angular.module('alienUiApp').directive(
 
           function getNodeRenderer() {
             var nodeRendererService = scope.simple === true ? simpleNodeRendererService : defaultNodeRendererService;
-            if (UTILS.isDefinedAndNotNull(scope.runtime)) {
+            if (_.defined(scope.runtime)) {
               nodeRendererService.setRuntime(scope.runtime);
             }
             return nodeRendererService;
@@ -42,4 +52,5 @@ angular.module('alienUiApp').directive(
         }
       };
     }
-  ]);
+  ]); // directive
+}); // define
