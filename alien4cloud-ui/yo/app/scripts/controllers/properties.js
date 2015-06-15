@@ -137,6 +137,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
           }
         } else {
           $scope.definitionObject.uiUnit = $scope.definitionObject.units[0];
+          $scope.definitionObject.uiValue = shownValue;
         }
       };
 
@@ -183,7 +184,7 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.resetProperty = function resetPropertyToDefault() {
       isReset = true;
       if (UTILS.isDefinedAndNotNull($scope.propertyValue)) {
-        $scope.propertyValue.value = null; // if same value affected, no watch applied
+        $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
       }
     };
 
