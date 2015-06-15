@@ -1,7 +1,9 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('browserService',
-  function() {
+  var modules = require('modules');
+
+  modules.get('a4c-common').factory('browserService', function() {
     return {
       /**
       * Check if the current browser is the candidate browser (from it's name).
@@ -13,5 +15,5 @@ angular.module('alienUiApp').factory('browserService',
         return navigator.userAgent.indexOf(candidateBrowserName) !== -1;
       }
     };
-  } // function
-);
+  }); // factory
+}); // define

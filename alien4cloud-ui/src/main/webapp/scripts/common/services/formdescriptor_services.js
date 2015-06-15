@@ -1,32 +1,36 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('formDescriptorServices', ['$resource',
-  function($resource) {
+  var modules = require('modules');
 
-    var nodeTypeFormDescriptorDAO = $resource('rest/formdescriptor/nodetype', {}, {
-      'get': {
-        method: 'GET'
-      }
-    });
+  modules.get('a4c-common', ['ngResource']).factory('formDescriptorServices', ['$resource',
+    function($resource) {
 
-    var tagConfigurationFormDescriptorDAO = $resource('rest/formdescriptor/tagconfiguration', {}, {});
-
-    var pluginConfigFormDescriptorDAO = $resource('rest/formdescriptor/pluginConfig/:pluginId', {}, {
-      'get': {
-        method: 'GET'
-      }
-    });
-
-    var getNodeTypeFormDescriptor = function() {
-      return nodeTypeFormDescriptorDAO.get().$promise.then(function(result) {
-        return result.data;
+      var nodeTypeFormDescriptorDAO = $resource('rest/formdescriptor/nodetype', {}, {
+        'get': {
+          method: 'GET'
+        }
       });
-    };
 
-    return {
-      getNodeTypeFormDescriptor: getNodeTypeFormDescriptor,
-      getTagConfigurationDescriptor: tagConfigurationFormDescriptorDAO,
-      getForPluginConfig: pluginConfigFormDescriptorDAO.get
-    };
-  }
-]);
+      var tagConfigurationFormDescriptorDAO = $resource('rest/formdescriptor/tagconfiguration', {}, {});
+
+      var pluginConfigFormDescriptorDAO = $resource('rest/formdescriptor/pluginConfig/:pluginId', {}, {
+        'get': {
+          method: 'GET'
+        }
+      });
+
+      var getNodeTypeFormDescriptor = function() {
+        return nodeTypeFormDescriptorDAO.get().$promise.then(function(result) {
+          return result.data;
+        });
+      };
+
+      return {
+        getNodeTypeFormDescriptor: getNodeTypeFormDescriptor,
+        getTagConfigurationDescriptor: tagConfigurationFormDescriptorDAO,
+        getForPluginConfig: pluginConfigFormDescriptorDAO.get
+      };
+    }
+  ]);
+});

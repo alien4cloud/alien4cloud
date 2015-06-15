@@ -1,18 +1,24 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').directive('propertyDisplay', function() {
+  var modules = require('modules');
 
-  return {
-    templateUrl: 'views/fragments/property_display.html',
-    restrict: 'E',
-    scope: {
-      'definition': '=',
-      'propertyValue': '=',
-      'onSave': '&',
-      'editable': '=',
-      'condensed': '='
-    },
-    link: {}
-  };
+  require('angular-xeditable');
+  require('scripts/common/controllers/property_display');
+  require('scripts/common/filters/strings');
 
-});
+  modules.get('a4c-common').directive('propertyDisplay', function() {
+    return {
+      templateUrl: 'views/common/property_display.html',
+      restrict: 'E',
+      scope: {
+        'definition': '=',
+        'propertyValue': '=',
+        'onSave': '&',
+        'editable': '=',
+        'condensed': '='
+      },
+      link: {}
+    };
+  });
+}); // define

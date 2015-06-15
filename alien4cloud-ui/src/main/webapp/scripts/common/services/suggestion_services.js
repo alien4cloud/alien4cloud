@@ -1,44 +1,47 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('suggestionServices', ['$resource', function($resource) {
+  var modules = require('modules');
 
-  var tagSuggestionResource = $resource('rest/suggest/tag/:path/:searchText', {}, {
-    'get' : {
-      method : 'GET'
-    }
-  });
-
-  var genericSuggestionDAO = $resource('rest/suggestions/:index/:type/:path', {
-    index : '@index',
-    type : '@type',
-    path : '@path'
-  });
-
-  var getSuggestions = function(index, type, path, text) {
-    return genericSuggestionDAO.get({
-      index : index,
-      type : type,
-      path : path,
-      text : text
-    }).$promise.then(function(result) {
-      return result.data;
+  modules.get('a4c-common').factory('suggestionServices', ['$resource', function($resource) {
+    var tagSuggestionResource = $resource('rest/suggest/tag/:path/:searchText', {}, {
+      'get' : {
+        method : 'GET'
+      }
     });
-  };
 
-  var getTagNameSuggestions = function(keyword) {
-    return tagSuggestionResource.get({
-      path : 'name',
-      searchText : keyword
-    }).$promise.then(function(result) {
-      var formatedData = result.data;
-      formatedData.sort();
-      return formatedData;
+    var genericSuggestionDAO = $resource('rest/suggestions/:index/:type/:path', {
+      index : '@index',
+      type : '@type',
+      path : '@path'
     });
-  };
 
-  return {
-    tagNameSuggestions : getTagNameSuggestions,
-    getSuggestions : getSuggestions
-  };
+    var getSuggestions = function(index, type, path, text) {
+      return genericSuggestionDAO.get({
+        index : index,
+        type : type,
+        path : path,
+        text : text
+      }).$promise.then(function(result) {
+        return result.data;
+      });
+    };
 
-}]);
+    var getTagNameSuggestions = function(keyword) {
+      return tagSuggestionResource.get({
+        path : 'name',
+        searchText : keyword
+      }).$promise.then(function(result) {
+        var formatedData = result.data;
+        formatedData.sort();
+        return formatedData;
+      });
+    };
+
+    return {
+      tagNameSuggestions : getTagNameSuggestions,
+      getSuggestions : getSuggestions
+    };
+
+  }]); // factory
+}); // define

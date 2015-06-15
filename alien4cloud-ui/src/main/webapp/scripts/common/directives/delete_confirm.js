@@ -1,14 +1,19 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').directive('deleteConfirm', function() {
-  return {
-    restrict: 'E',
-    templateUrl: 'views/fragments/confirm_button.html',
-    scope: {
-      position: '@',
-      func: '&',
-      fastyle: '@',
-      bssize: '@'
-    }
-  };
+  var modules = require('modules');
+  require('button-confirm');
+
+  modules.get('a4c-common', ['angular-utils-ui']).directive('deleteConfirm', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'views/common/confirm_button.html',
+      scope: {
+        position: '@',
+        func: '&',
+        fastyle: '@',
+        bssize: '@'
+      }
+    };
+  });
 });

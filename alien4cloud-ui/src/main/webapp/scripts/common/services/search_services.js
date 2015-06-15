@@ -1,7 +1,11 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('searchServices', [ 'ngResource' ], ['$provide', function($provide) {
-  $provide.factory('facetedSearch', ['$resource', function($resource) {
+  var modules = require('modules');
+
+  var searchModule = modules.get('a4c-search', ['ngResource']);
+
+  searchModule.factory('facetedSearch', ['$resource', function($resource) {
     // API REST Definition
     var resultsFacetedSearch = $resource('rest/components/search',
       {},
@@ -18,7 +22,7 @@ angular.module('searchServices', [ 'ngResource' ], ['$provide', function($provid
     return resultsFacetedSearch;
   }]);
 
-  $provide.factory('searchContext', [function() {
+  searchModule.factory('searchContext', [function() {
     //The search context var
     var searchContext = {};
 
@@ -30,4 +34,4 @@ angular.module('searchServices', [ 'ngResource' ], ['$provide', function($provid
 
     return searchContext;
   }]);
-}]);
+});

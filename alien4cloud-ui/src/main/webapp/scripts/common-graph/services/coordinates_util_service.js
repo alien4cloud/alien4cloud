@@ -1,7 +1,9 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('coordinateUtilsFactory',
-  function() {
+  var modules = require('modules');
+
+  modules.get('a4c-common-graph').factory('coordinateUtilsFactory', function() {
     function CoordinateUtils (canvasWidth, canvasHeight) {
       this.canvasWidth = canvasWidth;
       this.canvasHeight = canvasHeight;
@@ -95,5 +97,5 @@ angular.module('alienUiApp').factory('coordinateUtilsFactory',
         return new CoordinateUtils(canvasWidth, canvasHeight);
       }
     };
-  } // function
-);
+  }); // factory
+}); // define
