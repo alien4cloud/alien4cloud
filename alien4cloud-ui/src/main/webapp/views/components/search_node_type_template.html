@@ -1,5 +1,5 @@
 <!-- Components list and details -->
-<div ng-controller="alienSearchCtrl" class="search-row">
+<div ng-controller="alienSearchComponentCtrl" class="search-row">
   <div id="comp-search-side-pannel"
     ng-class="{'search-columns search-filter-side':globalContext}">
     <!-- Search result column -->
@@ -69,10 +69,10 @@
   </div>
   <!-- Cannot use ng-class because of a safari bug when changing style in display: table-cell -->
   <div ng-if="globalContext" class="search-columns" id="comp-search-result-panel">
-    <div ng-include="'views/fragments/search_component_results_template.html'"></div>
+    <div ng-include="'views/components/search_node_type_results_template.html'"></div>
   </div>
   <div ng-if="!globalContext" id="comp-search-result-panel">
-    <div ng-include="'views/fragments/search_component_results_template.html'"></div>
+    <div ng-include="'views/components/search_node_type_results_template.html'"></div>
   </div>
   <div class="search-details search-columns" id="comp-search-detail-panel"  ng-if="displayDetailPannel && widthInfo.width > 1300">
     <!-- component details display -->

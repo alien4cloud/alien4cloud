@@ -3,7 +3,8 @@
     <a id="{{menuItem.id}}"
        ng-click="onItemClick($event, menuItem)"
        ui-sref="{{menuItem.state}}"
-       tooltip="{{menuItem.key | translate}}" tooltip-placement="right"
+       tooltip="{{menuItem.key | translate}}"
+       tooltip-placement="right"
        tooltip-append-to-body="true"
        ng-class="{'disabled' : menuItem.disabled}">
       <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i>
