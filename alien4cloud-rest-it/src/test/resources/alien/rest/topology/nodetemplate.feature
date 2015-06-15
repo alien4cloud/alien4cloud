@@ -83,7 +83,7 @@ Feature: Manage Nodetemplates of a topology
 
   Scenario: Reset a nodetemplate's property with default value must put the default value
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
-    Then The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 GB"
+    Then The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 B"
     When I update the node template "Template1"'s property "disk_size" to "1024 B"
     Then I should receive a RestResponse with no error
     When I try to retrieve the created topology
@@ -93,7 +93,7 @@ Feature: Manage Nodetemplates of a topology
     Then I should receive a RestResponse with no error
     When I try to retrieve the created topology
     Then I should receive a RestResponse with no error
-    And The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 GB"
+    And The topology should contain a nodetemplate named "Template1" with property "disk_size" set to "20 B"
 
   Scenario: Reset a nodetemplate's property with no default value must put null value
     Given I have added a node template "Template1" related to the "tosca.nodes.Compute:1.0" node type
