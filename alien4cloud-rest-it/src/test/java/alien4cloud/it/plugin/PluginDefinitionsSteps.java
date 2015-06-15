@@ -16,7 +16,7 @@ import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.model.common.Tag;
-import alien4cloud.plugin.PluginUsage;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.paasprovider.PaaSProviderDTO;

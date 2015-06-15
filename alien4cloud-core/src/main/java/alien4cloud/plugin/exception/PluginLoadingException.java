@@ -1,4 +1,4 @@
-package alien4cloud.plugin;
+package alien4cloud.plugin.exception;
 
 import alien4cloud.exception.FunctionalException;
 

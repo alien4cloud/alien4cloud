@@ -1,4 +1,4 @@
-package alien4cloud.plugin;
+package alien4cloud.plugin.model;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +20,10 @@ public class PluginDescriptor {
     private String description;
     /** The name of the configuration class to load the plugin's spring context. */
     private String configurationClass;
+    /** Entry point for the ui plugin (js file) to be loaded using require js. */
+    private String uiEntryPoint;
+    /** Plugin dependencies (other plugins required for this plugin to run). **/
+    private String[] dependencies;
     /** Descriptor within the plugin. */
     private PluginComponentDescriptor[] componentDescriptors;
 }

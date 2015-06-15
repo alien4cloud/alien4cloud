@@ -1,4 +1,4 @@
-package alien4cloud.plugin;
+package alien4cloud.plugin.model;
 
 import lombok.Getter;
 import lombok.Setter;

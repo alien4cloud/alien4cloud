@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import alien4cloud.exception.InitializationException;
 import alien4cloud.plugin.IPluginLoadingCallback;
-import alien4cloud.plugin.ManagedPlugin;
+import alien4cloud.plugin.model.ManagedPlugin;
 import alien4cloud.plugin.PluginManager;
 
 import com.google.common.collect.Maps;
@@ -44,7 +44,7 @@ public class PluginRestMapper implements IPluginLoadingCallback {
     @Override
     public synchronized void onPluginClosed(ManagedPlugin managedPlugin) {
         if (initialize()) {
-            RequestMappingHandlerMapping mapping = this.pluginMappings.remove(managedPlugin.getDescriptor().getId());
+            RequestMappingHandlerMapping mapping = this.pluginMappings.remove(managedPlugin.getPlugin().getDescriptor().getId());
             for (int i = 0; i < this.handlerMappings.size(); i++) {
                 // identity check and remove if this is the mapping associated with the plugin to close.
                 if (this.handlerMappings.get(i) == mapping) {
@@ -86,6 +86,6 @@ public class PluginRestMapper implements IPluginLoadingCallback {
         mapper.setApplicationContext(managedPlugin.getPluginContext());
         mapper.afterPropertiesSet();
         this.handlerMappings.add(mapper);
-        this.pluginMappings.put(managedPlugin.getDescriptor().getId(), mapper);
+        this.pluginMappings.put(managedPlugin.getPlugin().getDescriptor().getId(), mapper);
     }
 }
