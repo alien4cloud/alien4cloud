@@ -885,7 +885,8 @@
     "initial": "Initial",
     "available": "Available",
     "uninitialized": "Uninitialized",
-    "maintenance": "Maintenance"
+    "maintenance": "Maintenance",
+    "error": "Error"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",
