@@ -64,6 +64,7 @@ node_types:
       disk_size:
         type: scalar-unit.size
         required: false
+        default: 20 GB
         constraints:
           - greater_than: 0 B
       num_cpus:
