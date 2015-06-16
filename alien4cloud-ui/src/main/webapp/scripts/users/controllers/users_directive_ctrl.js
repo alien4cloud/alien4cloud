@@ -1,30 +1,36 @@
-/* global UTILS */
+define(function (require) {
+  'use strict';
 
-'use strict';
+  var modules = require('modules');
+  var angular = require('angular');
+  var _ = require('lodash');
 
-var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, $modalInstance, userServices) {
-  $scope.user = {};
-  $scope.alienRoles = userServices.getAlienRoles();
-  $scope.create = function(valid) {
-    if (valid) {
-      $modalInstance.close($scope.user);
-    }
-  };
+  require('scripts/users/services/user_services');
+  require('scripts/common/services/search_service_factory');
 
-  $scope.cancel = function() {
-    $modalInstance.dismiss('cancel');
-  };
+  var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, $modalInstance, userServices) {
+    $scope.user = {};
+    $scope.alienRoles = userServices.getAlienRoles();
+    $scope.create = function(valid) {
+      if (valid) {
+        $modalInstance.close($scope.user);
+      }
+    };
 
-  $scope.handleRoleSelection = function(user, role) {
-    if (!user.roles || user.roles.indexOf(role) < 0) {
-      userServices.addToRoleArray(user, role);
-    } else {
-      userServices.removeFromRoleArray(user, role);
-    }
-  };
-}];
+    $scope.cancel = function() {
+      $modalInstance.dismiss('cancel');
+    };
 
-angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootScope', '$modal', 'userServices', 'searchServiceFactory', 'groupServices',
+    $scope.handleRoleSelection = function(user, role) {
+      if (!user.roles || user.roles.indexOf(role) < 0) {
+        userServices.addToRoleArray(user, role);
+      } else {
+        userServices.removeFromRoleArray(user, role);
+      }
+    };
+  }];
+
+  modules.get('a4c-security', ['a4c-search']).controller('UsersDirectiveCtrl', ['$scope', '$rootScope', '$modal', 'userServices', 'searchServiceFactory', 'groupServices',
     function($scope, $rootScope, $modal, userServices, searchServiceFactory, groupServices) {
 
       $scope.query = '';
@@ -75,7 +81,7 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
       };
 
       $scope.checkIfAppGroupSelected = function(user, group) {
-        return UTILS.arrayContains(user.groups, group);
+        return _.contains(user.groups, group);
       };
 
       //check if a env role is selected for a user
@@ -96,7 +102,7 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
       };
 
       $scope.checkIfEnvGroupSelected = function(user, group) {
-        return UTILS.arrayContains(user.groups, group);
+        return _.contains(user.groups, group);
       };
 
       $scope.$watch('managedAppRoleList', function(newVal) {
@@ -119,8 +125,8 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
           $scope.groupsMap = {};
           $scope.tempGroups.forEach(function(group) {
             $scope.groupsMap[group.id] = group;
-            // remove UTILS.ALL_USERS_GROUP
-            if (group.name !== UTILS.ALL_USERS_GROUP) {
+            // remove groupServices.ALL_USERS_GROUP
+            if (group.name !== groupServices.ALL_USERS_GROUP) {
               $scope.groups.push(group);
             }
           });
@@ -130,12 +136,12 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
       $scope.searchGroups();
 
       $scope.filteredGroups = function(groups, user) {
-        if (UTILS.isUndefinedOrNull(user.groups) || UTILS.isUndefinedOrNull(groups)) {
+        if (_.undefined(user.groups) || _.undefined(groups)) {
           return groups;
         }
         var filteredGroups = [];
         for (var int = 0; int < groups.length; int++) {
-          if (!UTILS.arrayContains(user.groups, groups[int].name)) {
+          if (!_.contains(user.groups, groups[int].name)) {
             filteredGroups.push(groups[int]);
           }
         }
@@ -187,3 +193,4 @@ angular.module('alienUiApp').controller('UsersDirectiveCtrl', ['$scope', '$rootS
       }
     };
   });
+});

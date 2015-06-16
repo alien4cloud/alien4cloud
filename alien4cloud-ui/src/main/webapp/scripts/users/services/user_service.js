@@ -1,7 +1,10 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').factory('userServices', ['$location', '$resource',
-  function($location, $resource) {
+  var modules = require('modules');
+
+  modules.get('a4c-security', ['ngResource']).factory('userServices', ['$resource',
+  function($resource) {
 
     //search user
     var searchUsers = $resource('rest/users/search', {}, {
@@ -152,5 +155,5 @@ angular.module('alienUiApp').factory('userServices', ['$location', '$resource',
         user.allRoles.size = Object.keys(finalMerge).length;
       }
     };
-  }
-]);
+  }]);
+});
