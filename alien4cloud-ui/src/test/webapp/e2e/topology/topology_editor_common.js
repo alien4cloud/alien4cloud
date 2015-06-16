@@ -368,8 +368,7 @@ var removeScalingPolicy = function(computeId) {
 module.exports.removeScalingPolicy = removeScalingPolicy;
 
 var selectNodeAndGoToDetailBloc = function(nodeTemplateName, blocId) {
-  var nodeToEdit = browser.element(by.id('rect_' + nodeTemplateName));
-  browser.actions().click(nodeToEdit).perform();
+  common.click(by.id('rect_' + nodeTemplateName));
   if (blocId) {
     return collapseNodeDetailsBloc(blocId);
   }
@@ -416,7 +415,7 @@ module.exports.checkPropertyEditionError = checkPropertyEditionError;
 
 var toggleIOProperty = function(nodeTemplateName, propertyName, ioType, componentType) {
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
-  var ioButton = browser.element(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
+  var ioButton = common.waitElement(by.id('p_' + ioType + '_' + componentType + '_' + propertyName));
   browser.actions().click(ioButton).perform();
 };
 
@@ -441,16 +440,14 @@ module.exports.removeInput = removeInput;
 var togglePropertyInput = function(nodeTemplateName, propertyName, componentType) {
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
-  browser.actions().click(browser.element(by.id('addToInputBtn_' + componentType + '_' + propertyName))).perform();
-  browser.waitForAngular();
+  common.click(by.id('addToInputBtn_' + componentType + '_' + propertyName));
 };
 module.exports.togglePropertyInput = togglePropertyInput;
 
 var associatePropertyToInput = function(nodeTemplateName, propertyName, inputId, componentType) {
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
-  browser.actions().click(browser.element(by.id(nodeTemplateName + '_' + propertyName + '_toAssociate_' + inputId))).perform();
-  browser.waitForAngular();
+  common.click(by.id(nodeTemplateName + '_' + propertyName + '_toAssociate_' + inputId));
 };
 module.exports.associatePropertyToInput = associatePropertyToInput;
 

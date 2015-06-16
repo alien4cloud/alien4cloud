@@ -1,4 +1,4 @@
-/* global protractor, by, element */
+/* global browser, protractor, by, element */
 
 'use strict';
 
@@ -6,6 +6,31 @@ var cleanup = require('./cleanup');
 var navigation = require('./navigation');
 var authentication = require('../authentication/authentication');
 var SCREENSHOT = require('./screenshot');
+
+// Common utilities to work with protractor
+var waitElement = function(selector) {
+  // wait for the element to be there for 10 sec
+  browser.wait(function() {
+    var deferred = protractor.promise.defer();
+      element(selector).isPresent().then(function (isPresent) {
+        if(!isPresent) {
+          console.log('waiting for element...');
+        }
+        deferred.fulfill(isPresent);
+      });
+    return deferred.promise;
+  }, 10000);
+  return browser.element(selector);
+};
+module.exports.waitElement = waitElement;
+
+var click = function(selector) {
+  var target = waitElement(selector);
+  browser.actions().click(target).perform();
+  browser.waitForAngular();
+  return target;
+};
+module.exports.click = click;
 
 var dismissAlert = function() { // toast-close-button
   element(by.css('.toast-close-button')).click();
