@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval) {
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval', 'toscaService',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval, toscaService) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
