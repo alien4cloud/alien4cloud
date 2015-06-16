@@ -1,10 +1,14 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').directive('displayOutputs', function() {
-  return {
-    restrict: 'E',
-    templateUrl: 'views/fragments/display_outputs.html',
-    // inherites scope from the parent
-    scope: true
-  };
-});
+  var modules = require('modules');
+
+  angular.module('alienUiApp').directive('displayOutputs', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'views/deployment/display_outputs.html',
+      // inherites scope from the parent
+      scope: true
+    };
+  });
+}); // define

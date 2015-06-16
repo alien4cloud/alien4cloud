@@ -11,6 +11,8 @@ define(function (require) {
   require('scripts/applications/services/application_version_services');
   require('scripts/meta-props/directives/meta_props_display');
 
+  require('scripts/deployment/directives/display_outputs');
+
   states.state('applications.detail.info', {
     url: '/infos',
     templateUrl: 'views/applications/application_infos.html',

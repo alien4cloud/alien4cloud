@@ -10,6 +10,8 @@ define(function (require) {
   require('scripts/applications/services/application_environment_services');
   require('scripts/applications/services/application_version_services');
 
+  require('scripts/deployment/directives/display_outputs');
+
   states.state('applications.detail.deployment', {
     url: '/deployment',
     templateUrl: 'views/applications/application_deployment.html',
