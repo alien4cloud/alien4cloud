@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Simple capability filter value
+ * Capability filter value
  * 
  * @author cem
  *
@@ -21,7 +21,7 @@ import lombok.Setter;
 public class CapabilityNodeFilterValue implements INodeFilterValue {
 
     /** The string identifier could be a property name or a type */
-    private Map<String, List<PropertyFilterDefinition>> capabilitiesFilter;
+    private Map<String, Map<CapabilityFilterTarget, List<PropertyFilterDefinition>>> capabilitiesFilter;
 
     @Override
     public boolean isCapabilityFilter() {

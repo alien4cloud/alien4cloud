@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Simple property filter value
+ * Property filter value
  * 
  * @author cem
  *
