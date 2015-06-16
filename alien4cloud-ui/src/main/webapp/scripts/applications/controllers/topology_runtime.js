@@ -361,7 +361,7 @@ define(function (require) {
         if (nodetype.interfaces) {
           $scope.selectedNodeCustomInterfaces = {};
           angular.forEach(nodetype.interfaces, function(interfaceObj, interfaceName) {
-            if (interfaceName !== CONSTANTS.toscaStandardInterfaceName && interfaceName !== CONSTANTS.cloudify2extensionInterfaceName) {
+            if (interfaceName !== toscaService.standardInterfaceName && interfaceName !== toscaService.cloudify2extensionInterfaceName) {
               $scope.selectedNodeCustomInterfaces[interfaceName] = interfaceObj;
             }
           });

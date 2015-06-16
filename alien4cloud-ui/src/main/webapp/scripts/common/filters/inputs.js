@@ -1,16 +1,18 @@
-/** Filter inputs by id (check CONSTANTS.js / excludedInputs) */
+/** Filter inputs by id */
 define(function (require) {
   'use strict';
 
   var modules = require('modules');
   var _ = require('lodash');
 
+  var excludedInputs = ['cloud_meta_', 'cloud_tags_', 'app_meta_', 'app_tags_', 'env_meta_', 'env_tags_'];
+
   modules.get('a4c-common').filter('allowedInputs', function() {
     return function(items) {
       var filtered = {};
       var foundStart = false;
       angular.forEach(items, function(inputValue, inputId) {
-        CONSTANTS.excludedInputs.forEach(function(inputStart) {
+        excludedInputs.forEach(function(inputStart) {
           // start by one reserved tag ?
           if (inputId.indexOf(inputStart) === 0) {
             foundStart = true;

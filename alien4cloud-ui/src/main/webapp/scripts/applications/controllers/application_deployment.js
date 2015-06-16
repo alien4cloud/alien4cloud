@@ -32,6 +32,8 @@ define(function (require) {
     function($scope, authService, $upload, applicationServices, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster) {
       var pageStateId = $state.current.name;
 
+      var minimumZoneCountPerGroup = 1;
+
       // We have to fetch the list of clouds in order to allow the deployment manager to change the cloud for the environment.
       var Cloud = $resource('rest/clouds/search', {}, {});
 
@@ -210,11 +212,11 @@ define(function (require) {
       var checkGroupZonesAssociation = function() {
         // since we manage 50 HA policies, we need at least 2 zone per group
         // TODO: find a better way to express that
-        $scope.hasUnmatchedGroup = hasUmatchedResource($scope.matchedZoneResources, $scope.selectedZones, CONSTANTS.minimumZoneCountPerGroup);
+        $scope.hasUnmatchedGroup = hasUmatchedResource($scope.matchedZoneResources, $scope.selectedZones, minimumZoneCountPerGroup);
       };
 
       $scope.hasEnoughSelectedZones = function(groupId) {
-        return $scope.selectedZones[groupId] && ($scope.selectedZones[groupId].length >= CONSTANTS.minimumZoneCountPerGroup);
+        return $scope.selectedZones[groupId] && ($scope.selectedZones[groupId].length >= minimumZoneCountPerGroup);
       };
 
       var hasUmatchedResource = function(matchedResources, selectedResources, minimumSize) {
