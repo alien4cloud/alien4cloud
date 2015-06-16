@@ -77,14 +77,14 @@
     map: groups
     key: name
     type: node_group
-    
+
 - template_deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   type: artifactType
-  implementation: 
+  implementation:
     reference: artifactRef
     type: artifact_ref_parser
   description: artifactName
-    
+
 - node_group: alien4cloud.model.topology.NodeGroup
   members:
     set: members
@@ -92,7 +92,7 @@
   policies:
     list: policies
     type: group_policy_parser
-    
+
 - node_template: alien4cloud.model.topology.NodeTemplate|nodeTemplateChecker
   type: type
   name: name
@@ -109,7 +109,7 @@
   artifacts:
     map: artifacts
     type: template_deployment_artifact
-    
+
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
 
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
@@ -153,6 +153,10 @@
     map: properties
     type: template_property
 
+#- property_filter_definition:
+#  reference: propertyFilterDefinition
+#  type: constraint
+
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
     key: id # map the key of the first mapping
@@ -176,6 +180,13 @@
   constraints:
     map: constraints
     type: constraint
+#  node_filter:
+#    properties:
+#      key: elementId
+#      type: property_filter_definition
+#      map: propertyFilters
+#    capabilities:
+
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
@@ -217,7 +228,7 @@
     get_property: tosca_function
     get_attribute: tosca_function
   default: scalar_property_value
-  
+
 - input: __discriminator
   keys:
     type: property_definition

@@ -184,7 +184,11 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.resetProperty = function resetPropertyToDefault() {
       isReset = true;
       if (UTILS.isDefinedAndNotNull($scope.propertyValue)) {
-        $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
+        if ($scope.propertyValue.hasOwnProperty('value')) {
+          $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
+        } else {
+          $scope.propertyValue = $scope.definition.default;
+        }
       }
     };
 

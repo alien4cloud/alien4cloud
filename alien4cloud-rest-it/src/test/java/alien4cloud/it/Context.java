@@ -3,6 +3,7 @@ package alien4cloud.it;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -446,6 +447,14 @@ public class Context {
 
     public String getCloudId(String cloudName) {
         return cloudInfos.get().get(cloudName);
+    }
+
+    public Collection<String> getCloudsIds() {
+        if (cloudInfos.get() != null) {
+            return cloudInfos.get().values();
+        } else {
+            return Lists.newArrayList();
+        }
     }
 
     public void registerCloudForTopology(String cloudId) {
