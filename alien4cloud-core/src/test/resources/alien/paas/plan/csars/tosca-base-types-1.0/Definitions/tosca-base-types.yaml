@@ -86,6 +86,19 @@ node_types:
     requirements:
       host:
         type: tosca.capabilities.Container
+#        node_filter:
+#          properties:
+#            - os_type: { equal: "linux" }
+#            - os_version: { valid_values: [ "13.10", "14.10" ] }
+#          capabilities:
+#            - my_compute:
+#              properties:
+#                num_cpus: { in_range: [ 1, 4 ] }
+#                mem_size: { greater_or_equal: 2 MB }
+#            - mytypes.capabilities.compute.encryption:
+#              properties:
+#                algorithm: { equal: aes }
+#                keylength: { valid_values: [ 128, 256 ] }
     tags:
       icon: /images/software.png
 
@@ -96,7 +109,7 @@ node_types:
       The TOSCA RDBMS Node Type represents a generic relational database. It should be inherited
       to define an actual Database (Such as MySQL) and lifecycle implementation.
     tags:
-      icon: /images/relational_db.png
+      icon: /images/relanode_filtertional_db.png
 
   tosca.nodes.WebServer:
     abstract: true

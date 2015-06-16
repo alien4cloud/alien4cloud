@@ -172,6 +172,13 @@ public class CloudDefinitionsSteps {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/disable"));
     }
 
+    @When("^I disable all clouds$")
+    public void I_disable_all_clouds() throws Throwable {
+        for (String cloudId : Context.getInstance().getCloudsIds()) {
+            Context.getRestClientInstance().get("/rest/clouds/" + cloudId + "/disable");
+        }
+    }
+
     @When("^I enable \"([^\"]*)\"$")
     public void I_enable(String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
@@ -318,12 +325,23 @@ public class CloudDefinitionsSteps {
 
     @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" for cloud with name \"([^\"]*)\"$")
     public void I_update_cloudify_manager_s_url_to_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String cloudName) throws Throwable {
-        String cloudId = Context.getInstance().getCloudId(cloudName);
+        I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(cloudifyVersion, cloudifyUrl, null, null, cloudName);
+    }
 
+    @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" with login \"([^\"]*)\" and password \"([^\"]*)\" for cloud with name \"([^\"]*)\"$")
+    public void I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String login,
+            String password, String cloudName) throws Throwable {
+        String cloudId = Context.getInstance().getCloudId(cloudName);
         Map<String, Object> config = Maps.newHashMap();
         switch (cloudifyVersion) {
         case 2:
             config.put("cloudifyURLs", Lists.newArrayList(cloudifyUrl));
+            if (StringUtils.isNotBlank(login)) {
+                config.put("username", login);
+            }
+            if (StringUtils.isNotBlank(password)) {
+                config.put("password", password);
+            }
             break;
         case 3:
             config.put("url", cloudifyUrl);
