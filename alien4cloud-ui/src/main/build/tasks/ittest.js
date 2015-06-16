@@ -15,7 +15,7 @@ module.exports = function (grunt) {
       grunt.option('force', true);
       grunt.task.run(tasks);
     });
-  }
+  };
 
   registerChromeIt('chrome-ittest', 'protractor:runChrome');
 
