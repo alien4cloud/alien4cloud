@@ -188,7 +188,7 @@ define(function (require) {
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         isReset = true;
-        if (UTILS.isDefinedAndNotNull($scope.propertyValue)) {
+        if (_.defined($scope.propertyValue)) {
           $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
         }
       };

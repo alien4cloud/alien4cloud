@@ -12,7 +12,7 @@ var navigationIds = {
   admin: {
     users: 'am.admin.users',
     plugins: 'am.admin.plugins',
-    meta: 'am.admin.metaprops.list',
+    meta: 'am.admin.metaprops',
     clouds: 'am.admin.clouds.list',
     'cloud-images': 'am.admin.cloud-images.list'
   },
