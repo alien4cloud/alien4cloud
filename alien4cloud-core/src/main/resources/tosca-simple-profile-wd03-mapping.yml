@@ -153,9 +153,12 @@
     map: properties
     type: template_property
 
-#- property_filter_definition:
-#  reference: propertyFilterDefinition
-#  type: constraint
+# Node filter related types
+- property_filter_definition:
+    name: name
+    constraints:
+      list: constraints
+      type: constraint
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
@@ -177,16 +180,14 @@
     reference: relationshipType
     type: relationship_type_reference
   capability: capabilityName
-  constraints:
-    map: constraints
-    type: constraint
-#  node_filter:
+  node_filter:
+    map: nodeFilters
+    type:
 #    properties:
 #      key: elementId
 #      type: property_filter_definition
 #      map: propertyFilters
 #    capabilities:
-
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
