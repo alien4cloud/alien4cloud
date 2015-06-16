@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>alien4cloud</groupId>
@@ -9,13 +10,16 @@
   <packaging>war</packaging>
 
   <name>Alien 4 Cloud UI</name>
-  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.</description>
+  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.
+  </description>
 
   <properties>
     <sonar.language>js</sonar.language>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/</sonar.javascript.jstestdriver.reportsPath>
-    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov</sonar.javascript.lcov.reportPath>
+    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/
+    </sonar.javascript.jstestdriver.reportsPath>
+    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov
+    </sonar.javascript.lcov.reportPath>
   </properties>
 
   <dependencies>
@@ -45,7 +49,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory>yo/dist</directory>
+        <directory>target/webapp</directory>
         <targetPath>static</targetPath>
       </resource>
     </resources>
@@ -63,6 +67,9 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <yeomanProjectDirectory>./</yeomanProjectDirectory>
+        </configuration>
       </plugin>
       <!-- Add resources directories to the war file -->
       <plugin>
@@ -78,10 +85,10 @@
               <filtering>true</filtering>
             </resource>
             <resource>
-              <directory>yo/dist</directory>
+              <directory>target/webapp</directory>
             </resource>
             <!-- Add default types archives folder to the war file -->
-             <resource>
+            <resource>
               <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
               <targetPath>WEB-INF/classes/default-normative-types</targetPath>
             </resource>
@@ -147,7 +154,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -279,7 +286,7 @@
                 <configuration>
                   <tasks>
                     <delete includeemptydirs="true" failonerror="false">
-                      <fileset dir="${user.home}/.alien" includes="**/*" />
+                      <fileset dir="${user.home}/.alien" includes="**/*"/>
                     </delete>
                   </tasks>
                 </configuration>

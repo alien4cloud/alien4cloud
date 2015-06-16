@@ -2,8 +2,8 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
 
 describe('Authentication tests :', function() {
 

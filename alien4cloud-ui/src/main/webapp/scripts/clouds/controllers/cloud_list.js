@@ -11,6 +11,7 @@ define(function (require) {
   require('scripts/clouds/services/cloud_services');
   require('scripts/clouds/controllers/new_cloud');
   require('scripts/clouds/controllers/cloud_detail');
+  require('scripts/common/directives/pagination');
 
   states.state('admin.clouds', {
     url: '/clouds',

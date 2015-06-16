@@ -26,6 +26,8 @@ define(function (require) {
     }
   });
 
+  require('scripts/common/directives/pagination');
+
   var ConfigPluginCtrl = ['$scope', '$modalInstance', '$resource', 'formDescriptorServices',
     function($scope, $modalInstance, $resource, formDescriptorServices) {
       //descriptor of the config

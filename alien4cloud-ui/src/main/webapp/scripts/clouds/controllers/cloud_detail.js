@@ -14,6 +14,8 @@ define(function (require) {
   require('scripts/users/services/user_services');
   require('scripts/users/services/group_services');
   require('scripts/common/filters/bytes');
+  require('scripts/common/directives/os_icon');
+  require('scripts/common/directives/pagination');
   require('scripts/meta-props/directives/meta_props_display');
 
   require('scripts/clouds/controllers/new_flavor');

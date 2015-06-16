@@ -56,43 +56,15 @@ exports.config = {
   // Spec patterns are relative to the location of this config.
   specs: [
     // No data in ALIEN at this point, only default admin user should exist.
-    'test/e2e/setup-scenario/before-all.js',
-    'test/e2e/scenarios/**/*.js'
-
-    // 'test/e2e/scenarios/homepage.js',
-    // 'test/e2e/scenarios/language_test.js',
-    // 'test/e2e/scenarios/authentication.js',
-    // 'test/e2e/scenarios/admin_users_management.js',
-    // 'test/e2e/scenarios/security_users.js',
-    // 'test/e2e/scenarios/admin_groups_management.js',
-    // 'test/e2e/scenarios/plugins.js',
-    // 'test/e2e/scenarios/admin_metaprops_configuration.js',
-    // 'test/e2e/scenarios/admin_cloud.js'
-    // 'test/e2e/scenarios/security_clouds.js',
-
-    // 'test/e2e/scenarios/csar_upload.js',
-    // 'test/e2e/scenarios/component_details.js',
-    // 'test/e2e/scenarios/component_details_tags.js',
-
-    // 'test/e2e/scenarios/topology_template.js',
-
-    // 'test/e2e/scenarios/application.js',
-    // 'test/e2e/scenarios/application_metaprops.js',
-    // 'test/e2e/scenarios/application_tags.js'
-
-    // 'test/e2e/scenarios/application_topology_editor_nodetemplate.js',
-    // 'test/e2e/scenarios/application_topology_editor_relationships.js',
-    // 'test/e2e/scenarios/application_topology_editor_replacenode.js',
-    // 'test/e2e/scenarios/application_topology_editor_editrelationshipname.js',
-    // 'test/e2e/scenarios/application_topology_editor_editrequiredprops.js',
-    // 'test/e2e/scenarios/application_topology_editor_multiplenodeversions.js',
-    // 'test/e2e/scenarios/application_topology_editor_input_output.js',
-    // 'test/e2e/scenarios/application_topology_runtime.js',
-    // 'test/e2e/scenarios/application_security.js',
-
-    // 'test/e2e/scenarios/deployment.js',
-
-    // 'test/e2e/scenarios/quick_search.js',
+    'e2e/setup-scenario/before-all.js',
+    'e2e/scenarios/common/*.js',
+    'e2e/scenarios/components/*.js',
+    'e2e/scenarios/admin/plugins.js',
+    'e2e/scenarios/security/*.js',
+    'e2e/scenarios/topology_templates/*.js',
+    'e2e/scenarios/application/*.js',
+    'e2e/scenarios/application_topology/*.js',
+    'e2e/scenarios/deployment/*/js'
   ],
 
   // Patterns to exclude.

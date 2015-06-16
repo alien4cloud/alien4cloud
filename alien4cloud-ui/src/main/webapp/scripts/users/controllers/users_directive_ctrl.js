@@ -7,6 +7,7 @@ define(function (require) {
 
   require('scripts/users/services/user_services');
   require('scripts/common/services/search_service_factory');
+  require('scripts/common/directives/pagination');
 
   var NewUserCtrl = ['$scope', '$modalInstance', 'userServices', function($scope, $modalInstance, userServices) {
     $scope.user = {};

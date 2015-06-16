@@ -9,6 +9,8 @@ define(function (require) {
   require('scripts/cloud-images/controllers/new_cloud_image');
   require('scripts/cloud-images/services/cloud_image_services');
 
+  require('scripts/common/directives/pagination');
+
   states.state('admin.cloud-images', {
     url: '/cloud-images',
     template: '<ui-view/>',

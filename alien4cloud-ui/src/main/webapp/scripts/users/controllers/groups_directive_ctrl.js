@@ -7,6 +7,7 @@ define(function (require) {
 
   require('scripts/users/services/user_services');
   require('scripts/users/services/group_services');
+  require('scripts/common/directives/pagination');
 
   var NewGroupCtrl = ['$scope', '$modalInstance', 'userServices',
     function($scope, $modalInstance, userServices) {

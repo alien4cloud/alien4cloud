@@ -1,7 +1,7 @@
 'use strict';
 
-var common = require('../common/common');
-var SCREENSHOT = require('../common/screenshot');
+var common = require('../../common/common');
+var SCREENSHOT = require('../../common/screenshot');
 
 describe('Homepage', function() {
   // Load up a view and wait for it to be done with its rendering and epicycles.

@@ -1,9 +1,9 @@
 /* global element, by */
 'use strict';
 
-var common = require('../common/common');
-var authentication = require('../authentication/authentication');
-var csarCommon = require('../csars/csars_commons');
+var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
+var csarCommon = require('../../csars/csars_commons');
 
 describe('Handle CSARS', function() {
 
@@ -43,7 +43,7 @@ describe('Handle CSARS', function() {
 
   });
 
-  it('should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list', function() {
+  xit('should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list', function() {
     console.log('################# should not be able to delete a CSAR referenced by an application / csars /  topologytemplate from CSAR list');
 
     csarCommon.goToCsarSearchPage();
@@ -64,7 +64,7 @@ describe('Handle CSARS', function() {
 
   });
 
-  it('should be able to delete an uploaded and non referenced CSAR', function() {
+  xit('should be able to delete an uploaded and non referenced CSAR', function() {
     console.log('################# should be able to delete an uploaded and non referenced CSAR');
 
     // jump to java-types csar details

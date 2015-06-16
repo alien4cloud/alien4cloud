@@ -8,7 +8,7 @@ var path = require('path');
 
 // Plugins related details paths
 
-var pathToMockPaasPlugin = path.resolve(__dirname, '../../../../../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-' + settings.version.version + '.zip');
+var pathToMockPaasPlugin = path.resolve(__dirname, '../../../../../../alien4cloud-mock-paas-provider-plugin/target/alien4cloud-mock-paas-provider-plugin-' + settings.version.version + '.zip');
 
 // Utils to upload plugin archive
 var uploadTestMockPaasPlugin = function() {

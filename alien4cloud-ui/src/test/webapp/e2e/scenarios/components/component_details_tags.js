@@ -1,9 +1,9 @@
 /* global element, by */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var components = require('../components/components');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var components = require('../../components/components');
 
 var computeComponent = {
   id: 'tosca.nodes.Compute:2.0',

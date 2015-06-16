@@ -1,11 +1,11 @@
 /* global element, by */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var topologyEditorCommon = require('../topology/topology_editor_common');
-var topologyTemplatesCommon = require('../topology/topology_templates_common');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var topologyEditorCommon = require('../../topology/topology_editor_common');
+var topologyTemplatesCommon = require('../../topology/topology_templates_common');
 
 var topologyTemplateName = 'MyNewTopologyTemplate';
 

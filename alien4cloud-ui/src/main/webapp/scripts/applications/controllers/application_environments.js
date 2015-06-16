@@ -6,6 +6,8 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('scripts/common/directives/pagination');
+
   states.state('applications.detail.environments', {
     url: '/environment',
     templateUrl: 'views/applications/application_environments.html',
@@ -181,7 +183,7 @@ define(function (require) {
           return applicationEnvironmentServices.update({
             applicationId: $scope.application.id,
             applicationEnvironmentId: environmentId
-          }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function() {
+          }, angular.toJson(updateApplicationEnvironmentRequest)).$promise.then(function(response) {
             if (_.defined(response.error)) {
               toaster.pop('error', $translate('ERRORS.' + response.error.code), response.error.message, 4000, 'trustedHtml', null);
             } else {

@@ -2,11 +2,11 @@
 
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var genericForm = require('../generic_form/generic_form');
-var pluginsCommon = require('../admin/plugins_common');
-var cloudsCommon = require('../admin/clouds_common');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var genericForm = require('../../generic_form/generic_form');
+var pluginsCommon = require('../../admin/plugins_common');
+var cloudsCommon = require('../../admin/clouds_common');
 
 var pluginId = 'plugin_alien4cloud-mock-paas-provider:1.0';
 var pluginName = 'alien4cloud-mock-paas-provider';

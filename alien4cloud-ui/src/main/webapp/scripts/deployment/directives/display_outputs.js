@@ -3,7 +3,7 @@ define(function (require) {
 
   var modules = require('modules');
 
-  angular.module('alienUiApp').directive('displayOutputs', function() {
+  modules.get('a4c-deployment').directive('displayOutputs', function() {
     return {
       restrict: 'E',
       templateUrl: 'views/deployment/display_outputs.html',

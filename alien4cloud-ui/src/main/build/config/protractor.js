@@ -21,10 +21,11 @@ module.exports = function (grunt, options) {
           capabilities: {
             'browserName': 'chrome'
           },
-          //baseUrl: 'http://localhost:9999',
-          baseUrl: 'http://localhost:8088',
+          baseUrl: 'http://localhost:9999',
+          //baseUrl: 'http://localhost:8088',
           specs: [
-  //              '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/scenarios/components/csar.js'
   //              '<%= yeoman.test %>/e2e/scenarios/admin/admin_groups_management.js',
   //              '<%= yeoman.test %>/e2e/scenarios/admin/admin_users_management.js',
   //              '<%= yeoman.test %>/e2e/scenarios/security/security_groups.js',

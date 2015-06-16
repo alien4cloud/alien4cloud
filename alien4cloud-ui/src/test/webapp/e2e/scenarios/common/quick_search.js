@@ -1,9 +1,9 @@
 /* global element, by */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var applications = require('../applications/applications');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var applications = require('../../applications/applications');
 
 describe('Quick search', function() {
   beforeEach(function() {

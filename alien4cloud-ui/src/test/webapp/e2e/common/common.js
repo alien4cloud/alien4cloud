@@ -38,8 +38,8 @@ module.exports.after = function() {
 };
 
 // Loading and exposing languages for tests
-var frLanguage = require(__dirname + '/../../../app/data/languages/locale-fr-fr.json');
-var usLanguage = require(__dirname + '/../../../app/data/languages/locale-en-us.json');
+var frLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-fr-fr.json');
+var usLanguage = require(__dirname + '/../../../../main/webapp/data/languages/locale-en-us.json');
 
 module.exports.frLanguage = frLanguage;
 module.exports.usLanguage = usLanguage;
@@ -270,7 +270,7 @@ var confirmAction = function(confirm) {
   } else { // cancel
     buttonToClick = divPopover.element(by.css('.btn-danger'));
   }
-  browser.actions().click(buttonToClick).perform();  
+  browser.actions().click(buttonToClick).perform();
 }
 module.exports.confirmAction = confirmAction;
 

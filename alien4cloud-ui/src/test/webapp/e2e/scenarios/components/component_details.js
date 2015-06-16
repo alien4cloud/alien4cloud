@@ -1,10 +1,10 @@
 /* global by, element */
 'use strict';
 
-var authentication = require('../authentication/authentication');
-var common = require('../common/common');
-var navigation = require('../common/navigation');
-var components = require('../components/components');
+var authentication = require('../../authentication/authentication');
+var common = require('../../common/common');
+var navigation = require('../../common/navigation');
+var components = require('../../components/components');
 
 var blockStorageComponent = {
   id: 'tosca.nodes.BlockStorage:2.0',

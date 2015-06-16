@@ -1,7 +1,7 @@
 /* global by, element */
 'use strict';
 
-var common = require('../common/common');
+var common = require('../../common/common');
 
 describe('Language change', function() {
 

@@ -7,6 +7,7 @@ define(function (require) {
 
   require('scripts/components/services/csar');
   require('scripts/components/controllers/csar_details');
+  require('scripts/common/directives/pagination');
 
   states.state('components.csars', {
     url: '/csars',

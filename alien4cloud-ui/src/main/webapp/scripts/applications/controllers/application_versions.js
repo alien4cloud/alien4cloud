@@ -6,6 +6,8 @@ define(function (require) {
   var _ = require('lodash');
   var angular = require('angular');
 
+  require('scripts/common/directives/pagination');
+
   states.state('applications.detail.versions', {
     url: '/versions',
     templateUrl: 'views/applications/application_versions.html',

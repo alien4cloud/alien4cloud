@@ -8,6 +8,8 @@ define(function (require) {
   require('scripts/common/directives/generic_form');
   require('scripts/common/services/formdescriptor_services');
 
+  require('scripts/common/directives/pagination');
+
   // register the state to access the metrics
   states.state('admin.metaprops', {
     url: '/audit',

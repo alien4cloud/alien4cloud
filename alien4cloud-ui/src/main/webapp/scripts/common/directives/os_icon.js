@@ -1,11 +1,15 @@
-'use strict';
+define(function (require) {
+  'use strict';
 
-angular.module('alienUiApp').directive('osIcon', function() {
-  return {
-    templateUrl : 'views/fragments/os_icon.html',
-    restrict : 'E',
-    scope : {
-      'osType' : '='
-    }
-  };
-});
+  var modules = require('modules');
+
+  modules.get('a4c-common').directive('osIcon', function() {
+    return {
+      templateUrl : 'views/common/os_icon.html',
+      restrict : 'E',
+      scope : {
+        'osType' : '='
+      }
+    };
+  });
+}); // define
