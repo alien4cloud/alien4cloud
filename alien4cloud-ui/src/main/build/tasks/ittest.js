@@ -22,5 +22,7 @@ module.exports = function (grunt) {
   registerIt('ittest-application', 'protractor:runApplication');
   registerIt('ittest-applicationTopology', 'protractor:runApplicationTopology');
   registerIt('ittest-deploymentAndSecurity', 'protractor:runDeploymentAndSecurity');
-  registerIt('ittest-otherTests', 'protractor:runOtherTests');
+  registerIt('ittest-components', 'protractor:runComponents');
+  registerIt('ittest-common', 'protractor:runCommon');
+  registerIt('ittest-topologyTemplates', 'protractor:runTopologyTemplates');
 };

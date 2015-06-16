@@ -90,14 +90,38 @@ module.exports = function (grunt, options) {
         }
       }
     },
-    runOtherTests: {
+    runComponents: {
       options: {
         args: {
           browser: grunt.option('browser'),
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-            '<%= yeoman.test %>/e2e/scenarios/*.js'
+            '<%= yeoman.test %>/e2e/scenarios/components/**/*.js'
+          ]
+        }
+      }
+    },
+    runCommon: {
+      options: {
+        args: {
+          browser: grunt.option('browser'),
+          baseUrl: 'http://localhost:8088',
+          specs: [
+            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/scenarios/common/**/*.js'
+          ]
+        }
+      }
+    },
+    runTopologyTemplates: {
+      options: {
+        args: {
+          browser: grunt.option('browser'),
+          baseUrl: 'http://localhost:8088',
+          specs: [
+            '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
+            '<%= yeoman.test %>/e2e/scenarios/topology_templates/**/*.js'
           ]
         }
       }
