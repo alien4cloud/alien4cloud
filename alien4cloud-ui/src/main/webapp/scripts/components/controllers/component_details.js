@@ -69,19 +69,9 @@ define(function (require) {
         $scope.component = successResult.data;
       });
 
-      $scope.currentDisplayed = {};
-      //update currently displayed object
-      $scope.updateCurrentDiplayed = function(name, interfass) {
-        $scope.currentDisplayed.name = name;
-        $scope.currentDisplayed.doc = interfass.description;
-        $scope.currentDisplayed.operations = interfass.operations;
-        $scope.currentDisplayed.urlToInclude = 'views/fragments/interfaceDetail.html';
-      };
-
       /**
        * Confirm modal
        */
-
       var confirmRecommendationCtrl = ['$scope', '$modalInstance', 'confirmObject',
         function($scope, $modalInstance, confirmObject) {
           $scope.confirmObject = confirmObject;
