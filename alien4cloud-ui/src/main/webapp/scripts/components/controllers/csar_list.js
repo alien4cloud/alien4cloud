@@ -28,8 +28,8 @@ define(function (require) {
   states.forward('components.csars', 'components.csars.list');
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService',
-    function($scope, $modal, $state, csarService) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster',
+    function($scope, $modal, $state, csarService, $translate, toaster) {
       $scope.search = function() {
         var searchRequestObject = {
           'query': $scope.query,

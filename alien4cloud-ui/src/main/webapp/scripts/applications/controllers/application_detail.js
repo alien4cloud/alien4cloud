@@ -66,10 +66,15 @@ define(function (require) {
       $scope.application = application;
 
       var runtimeMenuItem;
+      var deploymentMenuItem;
       _.each(menu, function(menuItem) {
         if(menuItem.id === 'am.applications.detail.runtime') {
           runtimeMenuItem = menuItem;
-        } else if(_.has(menuItem, 'roles')) {
+        }
+        if(menuItem.id === 'am.applications.detail.deployment') {
+          deploymentMenuItem = menuItem;
+        }
+        if(_.has(menuItem, 'roles')) {
           menuItem.show = authService.hasResourceRoleIn(application, menuItem.roles);
         } else { // if there is no rôles requirement then the menu is visible
           menuItem.show = true;
@@ -92,6 +97,8 @@ define(function (require) {
             disabled = false;
           }
         }
+        deploymentMenuItem.show = isDeployer;
+        runtimeMenuItem.show = isDeployer;
         runtimeMenuItem.disabled = disabled;
       }
 
