@@ -65,7 +65,7 @@ public class ApplicationsDeploymentStepDefinitions {
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, envId);
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
     }
 
     @When("^I deploy it$")

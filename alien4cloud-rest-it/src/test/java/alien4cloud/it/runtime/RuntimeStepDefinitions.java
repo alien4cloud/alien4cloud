@@ -1,5 +1,6 @@
 package alien4cloud.it.runtime;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.NameValuePair;
@@ -14,6 +15,10 @@ import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.paas.model.OperationExecRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+
+import com.google.common.collect.Maps;
+
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -31,18 +36,11 @@ public class RuntimeStepDefinitions {
         topoSteps.I_have_added_a_node_template_related_to_the_node_type(nodeTemplateName, nodeTypeId);
     }
 
-    @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" on the cloud \"([^\"]*)\" for \"([^\"]*)\"$")
+    @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" for application \"([^\"]*)\"$")
     public void I_trigger_on_the_node_template_the_custom_command_of_the_interface_on_the_cloud(String nodeTemplateName, String commandName,
-            String interfaceName, String cloudName, String appName) throws Throwable {
-        OperationExecRequest commandRequest = new OperationExecRequest();
-        commandRequest.setNodeTemplateName(nodeTemplateName);
-        commandRequest.setInterfaceName(interfaceName);
-        commandRequest.setOperationName(commandName);
-        commandRequest.setApplicationEnvironmentId(Context.getInstance().getDefaultApplicationEnvironmentId(appName));
-        String jSon = JsonUtil.toString(commandRequest);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
-
+            String interfaceName, String appName) throws Throwable {
+        I_trigger_on_the_node_template_the_custom_command_of_the_interface_for_application_with_parameters(nodeTemplateName, commandName, interfaceName,
+                appName, null);
     }
 
     @Given("^I have deleted a node template \"([^\"]*)\" from the topology$")
@@ -68,6 +66,27 @@ public class RuntimeStepDefinitions {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Map<String, String> executionResults = JsonUtil.toMap(JsonUtil.toString(restResponse.getData()), String.class, String.class);
         Assert.assertNotNull(executionResults.get(instanceId));
-        Assert.assertEquals(expectedResponse, executionResults.get(instanceId));
+        Assert.assertTrue(executionResults.get(instanceId).contains(expectedResponse));
+    }
+
+    @When("^I trigger on the node template \"([^\"]*)\" the custom command \"([^\"]*)\" of the interface \"([^\"]*)\" for application \"([^\"]*)\" with parameters:$")
+    public void I_trigger_on_the_node_template_the_custom_command_of_the_interface_for_application_with_parameters(String nodeTemplateName, String commandName,
+            String interfaceName, String appName, DataTable operationParameters) throws Throwable {
+        OperationExecRequest commandRequest = new OperationExecRequest();
+        commandRequest.setNodeTemplateName(nodeTemplateName);
+        commandRequest.setInterfaceName(interfaceName);
+        commandRequest.setOperationName(commandName);
+        commandRequest.setApplicationEnvironmentId(Context.getInstance().getDefaultApplicationEnvironmentId(appName));
+        if (operationParameters != null) {
+            Map<String, String> parameters = Maps.newHashMap();
+            for (List<String> operationParameter : operationParameters.raw()) {
+                parameters.put(operationParameter.get(0), operationParameter.get(1));
+            }
+            commandRequest.setParameters(parameters);
+        }
+        String jSon = JsonUtil.toString(commandRequest);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
+
     }
 }
