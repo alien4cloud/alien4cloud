@@ -19,9 +19,6 @@ angular.module('alienUiApp').controller('MetaPropertiesCtrl', ['$scope', 'proper
         cloudId: $scope.cloud.id
       }, angular.toJson(updateApplicationPropertyObject), function(response) {
         if (!response.error) {
-          if (!$scope.cloud.hasOwnProperty('metaProperties')) {
-            $scope.cloud.metaProperties = {};
-          }
           $scope.cloud.metaProperties[updateApplicationPropertyObject.definitionId] = updateApplicationPropertyObject.value;
         }
       }).$promise;
