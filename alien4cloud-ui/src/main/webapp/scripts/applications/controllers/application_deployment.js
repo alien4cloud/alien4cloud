@@ -11,6 +11,7 @@ define(function (require) {
   require('scripts/applications/services/application_version_services');
 
   require('scripts/deployment/directives/display_outputs');
+  require('scripts/common/filters/inputs');
 
   states.state('applications.detail.deployment', {
     url: '/deployment',
