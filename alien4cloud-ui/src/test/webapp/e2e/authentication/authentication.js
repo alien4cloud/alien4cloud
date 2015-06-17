@@ -67,23 +67,22 @@ module.exports.users = users;
 function logout() {
   common.dismissAlertIfPresent();
   common.click(by.id('navbar-rightdrop'));
-  common.click(by.name('btn-logout'));
+  // skip the wait for angular after a logout operation as there is a redirect operation on the browser.
+  common.click(by.name('btn-logout'), true);
 }
 
 function login(username) {
   var user = users[username];
   // Setting the model
-  var userInput = element(by.model('login.username'));
+  var userInput = common.waitElement(by.model('login.username'));
   userInput.clear();
   userInput.sendKeys(user.username);
-  var pwdInput = element(by.model('login.password'));
+  var pwdInput = common.waitElement(by.model('login.password'));
   pwdInput.clear();
   pwdInput.sendKeys(user.password);
 
   // Login click action
-  var btnLogin = browser.element(by.name('btn-login'));
-  browser.actions().click(btnLogin).perform();
-  browser.waitForAngular();
+  common.click(by.name('btn-login'));
 }
 
 function reLogin(username) {

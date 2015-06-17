@@ -32,10 +32,12 @@ var waitElement = function(selector, fromElement) {
 };
 module.exports.waitElement = waitElement;
 
-var click = function(selector, fromElement) {
+var click = function(selector, fromElement, skipWaitAngular) {
   var target = waitElement(selector, fromElement);
   browser.actions().click(target).perform();
-  browser.waitForAngular();
+  if(!skipWaitAngular) {
+    browser.waitForAngular();
+  }
   return target;
 };
 module.exports.click = click;
