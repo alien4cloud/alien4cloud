@@ -172,7 +172,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
             scope.configuration.validationErrors = errors;
             scope.configuration.showErrorsAlert = true;
           } else {
-            if (!scope.automaticSave) {
+            if (!scope.configuration.automaticSave) {
               toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
             }
             cleanUpAfterSave();
@@ -182,7 +182,7 @@ FORMS.initGenericForm = function(scope, toaster, $filter, element) {
 
       });
     } else {
-      if (!scope.automaticSave) {
+      if (!scope.configuration.automaticSave) {
         toaster.pop('success', $filter('translate')(scope.formTitle), $filter('translate')('GENERIC_FORM.SAVE_IS_DONE'), 4000, 'trustedHtml', null);
       }
       cleanUpAfterSave();
@@ -324,10 +324,8 @@ angular.module('alienUiApp').directive('toscaTypeFormLabel', ['propertiesService
       scope.inputChanged = function(propertyDefinition, propertyValue) {
         if (UTILS.isUndefinedOrNull(propertyValue)) {
           FORMS.deleteValueForPath(scope.rootObject, scope.path);
-          if (scope.automaticSave) {
-            scope.saveAction({
-              object: scope.rootObject
-            });
+          if (scope.configuration.automaticSave) {
+            scope.saveAction(scope.rootObject);
           }
         } else {
           var checkPropertyRequest = {
@@ -339,10 +337,8 @@ angular.module('alienUiApp').directive('toscaTypeFormLabel', ['propertiesService
             if (successResult.error === null) {
               // No error save the result
               FORMS.setValueForPath(scope.rootObject, propertyValue, scope.path);
-              if (scope.automaticSave) {
-                scope.saveAction({
-                  object: scope.rootObject
-                });
+              if (scope.configuration.automaticSave) {
+                scope.saveAction(scope.rootObject);
               }
             }
           }).$promise;
