@@ -65,7 +65,7 @@ public class ApplicationsDeploymentStepDefinitions {
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
-        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, envId);
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
     }
 
     @When("^I deploy it$")
@@ -509,5 +509,13 @@ public class ApplicationsDeploymentStepDefinitions {
         // null value for environmentName => use default environment
         assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
                 numberOfMinutes * 60L * 1000L, null);
+    }
+
+    @And("^I re-deploy the application$")
+    public void I_re_deploy_the_application() throws Throwable {
+        I_undeploy_it();
+        // For asynchronous problem of cloudify 3
+        Thread.sleep(2000L);
+        I_deploy_it();
     }
 }
