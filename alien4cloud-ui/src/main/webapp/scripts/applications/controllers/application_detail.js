@@ -84,8 +84,6 @@ define(function (require) {
 
       // Application rights
       var isManager = authService.hasResourceRole($scope.application, 'APPLICATION_MANAGER');
-      var isDevops = authService.hasResourceRole($scope.application, 'APPLICATION_DEVOPS');
-      var isUser = authService.hasResourceRole($scope.application, 'APPLICATION_USER');
       // Application environment rights. Manager has right anyway, for other users we check all environments (see below)
       var isDeployer = isManager;
 
@@ -332,10 +330,11 @@ define(function (require) {
 
       // link output properties based on values that exists in the topology's node templates.
       function refreshOutputProperties() {
+        var i;
         for (var nodeId in $scope.outputProperties) {
           if ($scope.outputProperties.hasOwnProperty(nodeId)) {
             $scope.outputPropertiesValue[nodeId] = {};
-            for (var i = 0; i < $scope.outputProperties[nodeId].length; i++) {
+            for (i = 0; i < $scope.outputProperties[nodeId].length; i++) {
               var outputPropertyName = $scope.outputProperties[nodeId][i];
               $scope.outputPropertiesValue[nodeId][outputPropertyName] = $scope.nodeTemplates[nodeId].propertiesMap[outputPropertyName].value;
             }

@@ -28,8 +28,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$timeout', 'toscaService',
-    function($scope, authService, $upload, applicationServices, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, toscaService) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
+    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster) {
       var pageStateId = $state.current.name;
 
       var minimumZoneCountPerGroup = 1;

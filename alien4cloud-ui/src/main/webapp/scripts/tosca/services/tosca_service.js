@@ -34,8 +34,8 @@ define(function (require) {
         cloudify2extensionInterfaceName: 'fastconnect.cloudify.extensions',
 
         getScalingPolicy: function(node) {
-          if (_.defined(node.capabilitiesMap) && _.defined(node.capabilitiesMap['scalable'])) {
-            var scalableCapability = node.capabilitiesMap['scalable'].value;
+          if (_.defined(node.capabilitiesMap) && _.defined(node.capabilitiesMap.scalable)) {
+            var scalableCapability = node.capabilitiesMap.scalable.value;
             var min = getScalingProperty(scalableCapability, 'min_instances');
             var max = getScalingProperty(scalableCapability, 'max_instances');
             var init = getScalingProperty(scalableCapability, 'default_instances');
