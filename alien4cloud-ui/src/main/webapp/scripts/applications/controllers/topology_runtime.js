@@ -247,6 +247,7 @@ define(function (require) {
           applicationEnvironmentId: $scope.selectedEnvironment.id
         }, function(successResult) { // get the topology
           $scope.topology = successResult.data;
+          topologyJsonProcessor.process($scope.topology);
           refreshInstancesStatuses(); // update instance states
           refreshCloudInfo(); // cloud info for deployment view
         });

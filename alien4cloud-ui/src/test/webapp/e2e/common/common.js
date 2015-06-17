@@ -12,7 +12,7 @@ var waitElement = function(selector, fromElement) {
   browser.wait(function() {
     var deferred = protractor.promise.defer();
     var isPresentPromise;
-    if(fromElement) {
+    if(fromElement && fromElement !== null) {
       isPresentPromise = fromElement.element(selector).isPresent();
     } else {
       isPresentPromise = browser.element(selector).isPresent();
@@ -25,7 +25,7 @@ var waitElement = function(selector, fromElement) {
     });
     return deferred.promise;
   }, 10000);
-  if(fromElement) {
+  if(fromElement && fromElement !== null) {
     return fromElement.element(selector);
   }
   return browser.element(selector);

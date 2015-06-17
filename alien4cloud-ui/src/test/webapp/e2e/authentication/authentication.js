@@ -68,7 +68,7 @@ function logout() {
   common.dismissAlertIfPresent();
   common.click(by.id('navbar-rightdrop'));
   // skip the wait for angular after a logout operation as there is a redirect operation on the browser.
-  common.click(by.name('btn-logout'), true);
+  common.click(by.name('btn-logout'), null, true);
 }
 
 function login(username) {
