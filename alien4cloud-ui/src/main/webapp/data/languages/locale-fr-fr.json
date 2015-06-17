@@ -889,7 +889,8 @@
     "initial": "Initial",
     "available": "Disponible",
     "uninitialized": "Non initialisé",
-    "maintenance": "Maintenance"
+    "maintenance": "Maintenance",
+    "error": "Erreur"
   },
   "metrics": {
     "title": "Métriques d'Alien 4 Cloud",
