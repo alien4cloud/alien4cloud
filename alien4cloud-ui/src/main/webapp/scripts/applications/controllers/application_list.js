@@ -7,6 +7,7 @@ define(function (require) {
 
   var d3Tip = require('d3-tip');
   var d3 = require('d3');
+  window.d3 = d3;
   var d3pie = require('d3-pie');
 
   require('scripts/applications/services/application_services');
