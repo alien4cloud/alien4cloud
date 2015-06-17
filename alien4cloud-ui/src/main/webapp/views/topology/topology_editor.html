@@ -61,22 +61,24 @@
             <!-- buttons group div -->
             <div class="col-md-5" style="margin-top: 6px;">
               <div class="pull-right">
-                <a tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
-                   tooltip-append-to-body="true" class="btn btn-default btn-sm"
-                   class="dropdown-toggle" data-toggle="dropdown"
-                   ng-click="getPossibleReplacements(selectedNodeTemplate)">
-                  <i class="fa fa-exchange"></i>
-                </a>
-                <ul class="dropdown-menu " role="menu" data-placement="right">
-                  <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
-                  <li ng-repeat="suggestedNode in suggestedReplacements">
-                    <a id="newnode_{{suggestedNode.elementId}}"
-                       ng-click="swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
-                      <img ng-src="img?id={{getIcon(suggestedNode.tags)}}&quality=QUALITY_32" />&nbsp;
-                      {{suggestedNode.elementId}}
-                    </a>
-                  </li>
-                </ul>
+                <span class="btn-group">
+                  <a tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
+                     tooltip-append-to-body="true"
+                     class="btn btn-default btn-sm dropdown-toggle"
+                     ng-click="getPossibleReplacements(selectedNodeTemplate)">
+                    <i class="fa fa-exchange"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                    <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
+                    <li ng-repeat="suggestedNode in suggestedReplacements">
+                      <a id="newnode_{{suggestedNode.elementId}}"
+                         ng-click="swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
+                        <img ng-src="img?id={{getIcon(suggestedNode.tags)}}&quality=QUALITY_32" />&nbsp;
+                        {{suggestedNode.elementId}}
+                      </a>
+                    </li>
+                  </ul>
+                </span>
                 <span ng-if="isComputeType(selectedNodeTemplate)" class="btn-group" data-toggle="buttons">
                   <a id="node_groups_{{selectedNodeTemplate.name}}"
                      class="btn btn-default btn-sm dropdown-toggle"
