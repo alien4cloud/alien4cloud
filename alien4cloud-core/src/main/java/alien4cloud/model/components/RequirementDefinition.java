@@ -54,7 +54,7 @@ public class RequirementDefinition {
     private int upperBound = 1;
 
     /** Constraints to specify on the target capability or node's properties. */
-    private NodeFilter nodeFilters;
+    private NodeFilter nodeFilter;
 
     /**
      * Quick constructor to create a requirement definition from id and type.

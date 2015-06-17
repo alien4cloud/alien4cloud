@@ -74,7 +74,7 @@ public class Context {
 
     static {
         JSON_MAPPER = new RestMapper();
-        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null));
+        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
         module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
         JSON_MAPPER.registerModule(module);
 

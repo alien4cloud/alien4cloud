@@ -1,4 +1,7 @@
 tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+template_name: test-types
+template_author: Alien4Cloud
+template_version: 1.0-SNAPSHOT
 
 description: >
   Contains demo types used for Alien 4 Cloud tests. Warning: those types are not the actual tosca-normative types.
@@ -181,10 +184,23 @@ node_types:
       The TOSCA SoftwareComponent Node Type represents a generic software component
       that can be managed and run by a TOSCA Compute Node Type.
     requirements:
-      host:
-        type: tosca.capabilities.Container
+      - host:
+        node_filter:
+          properties:
+            - os_type: { valid_values: [ "linux", "unix" ] }
+          capabilities:
+            # My “host” Compute node needs these properties:
+            - host:
+              properties:
+                - num_cpus: { in_range: [ 1, 4 ] }
+                - mem_size: { greater_or_equal: 2 MB }
+            # and should also support this type of encryption and properties:
+            - mytypes.capabilities.compute.encryption:
+              properties:
+                - algorithm: { equal: aes }
+                - keylength: { valid_values: [ 128, 256 ] }
     tags:
-      icon: /images/software.png
+        icon: /images/software.png
 
   tosca.nodes.RDBMS:
     abstract: true
