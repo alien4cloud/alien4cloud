@@ -379,17 +379,20 @@ var editNodeProperty = function(nodeTemplateName, propertyName, propertyValue, c
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   showComponentsTab();
   selectNodeAndGoToDetailBloc(nodeTemplateName, nodeDetailsBlocsIds[componentType]);
-  var propertyElement = element(by.id(nodeDetailsBlocsIds[componentType] + '-panel')).element(by.id('p_' + propertyName));
-  var spanPropertyValue = propertyElement.element(by.tagName('span'));
+  var propertyElement = common.waitElement(by.id(nodeDetailsBlocsIds[componentType] + '-panel'));
+  propertyElement = common.waitElement(by.id('p_' + propertyName), propertyElement);
+  var editForm;
   if (unit) {
-    var unitSelect = spanPropertyValue.element(by.tagName('div'));
-    unitSelect.click();
-    propertyElement.element(by.id('p_' + propertyName + '_unit_' + unit)).click();
-    spanPropertyValue = spanPropertyValue.element(by.tagName('span'));
+    var spanPropertyValue = common.waitElement(by.tagName('span'), propertyElement);
+    common.click(by.tagName('div'), spanPropertyValue);
+    common.click(by.id('p_' + propertyName + '_unit_' + unit), propertyElement);
+    common.click(by.tagName('span'), spanPropertyValue);
+    editForm = common.waitElement(by.tagName('form'), spanPropertyValue);
+  } else {
+    common.click(by.tagName('span'), propertyElement);
+    editForm = common.waitElement(by.tagName('form'), propertyElement);
   }
-  spanPropertyValue.click();
-  var editForm = propertyElement.element(by.tagName('form'));
-  var inputValue = editForm.element(by.tagName('input'));
+  var inputValue = common.waitElement(by.tagName('input'), editForm);
 
   inputValue.clear();
   inputValue.sendKeys(propertyValue);

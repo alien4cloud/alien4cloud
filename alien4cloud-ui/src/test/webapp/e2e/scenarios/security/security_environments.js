@@ -41,7 +41,7 @@ describe('Application environments security check', function() {
     topologyEditorCommon.editNodeProperty('Compute', 'os_arch', 'x86_64');
     topologyEditorCommon.editNodeProperty('Compute', 'os_type', 'windows');
     topologyEditorCommon.editNodeProperty('Compute', 'containee_types', 'test', 'cap');
-    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024');
+    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024', 'pro', 'MIB');
 
     // check properties / attributes as output
     topologyEditorCommon.togglePropertyOutput('Compute', 'disk_size');

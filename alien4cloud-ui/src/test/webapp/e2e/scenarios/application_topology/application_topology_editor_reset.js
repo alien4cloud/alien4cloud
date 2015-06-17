@@ -71,7 +71,8 @@ describe('Nodetemplate properties and artifact reset to default value', function
       expect(myScript.element(by.binding('artifact.artifactType')).getText()).toEqual('fastconnect.artifacts.ResourceDirectory');
       expect(myScript.element(by.binding('artifact.artifactName')).getText()).toEqual('scripts');
       var myScriptUpdateButton = browser.element(by.css('input[type="file"]'));
-      myScriptUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
+      myScriptUpdateButton.sendKeys(path.resolve(__dirname,
+        '../../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
       browser.waitForAngular();
       myScript.element(by.binding('artifact.artifactName')).getText().then(function(text) {
         expect(text.length).toBeGreaterThan(0);

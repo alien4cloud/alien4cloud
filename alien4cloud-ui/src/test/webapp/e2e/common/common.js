@@ -8,24 +8,33 @@ var authentication = require('../authentication/authentication');
 var SCREENSHOT = require('./screenshot');
 
 // Common utilities to work with protractor
-var waitElement = function(selector) {
+var waitElement = function(selector, fromElement) {
   // wait for the element to be there for 10 sec
   browser.wait(function() {
     var deferred = protractor.promise.defer();
-      element(selector).isPresent().then(function (isPresent) {
-        if(!isPresent) {
-          console.log('waiting for element...');
-        }
-        deferred.fulfill(isPresent);
-      });
+    var isPresentPromise;
+    if(fromElement) {
+      isPresentPromise = fromElement.element(selector).isPresent();
+    } else {
+      isPresentPromise = browser.element(selector).isPresent();
+    }
+    isPresentPromise.then(function (isPresent) {
+      if(!isPresent) {
+        console.log('waiting for element...');
+      }
+      deferred.fulfill(isPresent);
+    });
     return deferred.promise;
   }, 10000);
+  if(fromElement) {
+    return fromElement.element(selector);
+  }
   return browser.element(selector);
 };
 module.exports.waitElement = waitElement;
 
-var click = function(selector) {
-  var target = waitElement(selector);
+var click = function(selector, fromElement) {
+  var target = waitElement(selector, fromElement);
   browser.actions().click(target).perform();
   browser.waitForAngular();
   return target;

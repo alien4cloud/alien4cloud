@@ -111,13 +111,12 @@ describe('Topology node template edition :', function() {
   it('should be able to edit a compute node template properties disk_size with constraint', function() {
     console.log('################# should be able to edit a compute node template properties disk_size with constraint');
     // Edit property disk_size with bad value
-    var propertyName = 'disk_size';
-    var diskSizeElement = element(by.id('p_' + propertyName));
-    topologyEditorCommon.editNodeProperty('Compute', propertyName, 'E');
+    var diskSizeElement = element(by.id('p_disk_size'));
+    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', 'E', 'pro', 'MIB');
     // getting error div under the input
-    topologyEditorCommon.checkPropertyEditionError('Compute', propertyName, '>');
+    topologyEditorCommon.checkPropertyEditionError('Compute', 'disk_size', '>');
     // Editing with a correct value
-    topologyEditorCommon.editNodeProperty('Compute', propertyName, '50');
+    topologyEditorCommon.editNodeProperty('Compute', 'disk_size', '1024', 'pro', 'MIB');
     // edition OK, no more <form>
     expect(diskSizeElement.isElementPresent(by.tagName('form'))).toBe(false);
   });
@@ -135,7 +134,6 @@ describe('Topology node template edition :', function() {
 
   it('should be able to edit deployment artifact', function() {
     console.log('################# should be able to edit deployment artifact');
-    browser.sleep(5000);
     topologyEditorCommon.selectNodeAndGoToDetailBloc('War', topologyEditorCommon.nodeDetailsBlocsIds['art']);
     element.all(by.repeater('(artifactId, artifact) in selectedNodeTemplate.artifacts')).then(function(artifacts) {
       expect(artifacts.length).toEqual(1);
@@ -144,9 +142,9 @@ describe('Topology node template edition :', function() {
       expect(myWar.element(by.binding('artifact.artifactType')).getText()).toEqual('tosca.artifacts.WarFile');
       expect(myWar.element(by.binding('artifact.artifactName')).getText()).toEqual('');
       var myWarUpdateButton = browser.element(by.css('input[type="file"]'));
-      myWarUpdateButton.sendKeys(path.resolve(__dirname, '../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
-      browser.waitForAngular();
-      myWar.element(by.binding('artifact.artifactName')).getText().then(function(text) {
+      myWarUpdateButton.sendKeys(path.resolve(__dirname,
+        '../../../../../../../alien4cloud-rest-it/src/test/resources/data/artifacts/myWar.war'));
+      common.waitElement(by.binding('artifact.artifactName'), myWar).getText().then(function(text) {
         expect(text.length).toBeGreaterThan(0);
       });
     });
