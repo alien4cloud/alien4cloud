@@ -1,6 +1,5 @@
 package alien4cloud.model.components;
 
-import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
@@ -13,5 +12,5 @@ import lombok.Setter;
 public class NodeFilter extends FilterDefinition {
     /** properties field filters from FilterDefinition */
     /** capabilities field filters */
-    private Map<String, List<FilterDefinition>> capabilities;
+    private Map<String, FilterDefinition> capabilities;
 }
