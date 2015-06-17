@@ -26,7 +26,7 @@ describe('User management :', function() {
 
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to go to users search page', function() {

@@ -38,7 +38,7 @@ describe('Component details tags edition', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should go on #/components and select details for the first element', function() {

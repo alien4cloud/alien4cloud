@@ -39,7 +39,7 @@ describe('Manually match resources for cloud', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should not be able to deploy application if resource is not matched', function() {

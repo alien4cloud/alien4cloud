@@ -12,7 +12,7 @@ describe('Authentication tests :', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to authenticate as user', function() {

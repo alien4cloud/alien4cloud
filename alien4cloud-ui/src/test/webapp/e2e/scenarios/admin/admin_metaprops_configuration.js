@@ -15,7 +15,7 @@ describe('Tag configuration CRUD', function() {
 
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to add/edit/delete a tag configuration', function() {

@@ -60,7 +60,7 @@ describe('Component Details :', function() {
 
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to go to component search page, upload a csar, list components and check pagination', function() {

@@ -2,6 +2,7 @@
 
 'use strict';
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var navigation = require('../../common/navigation');
 var applications = require('../../applications/applications');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
@@ -73,7 +74,7 @@ describe('Topology scaling feature', function() {
 
   afterEach(function() {
     if (after) {
-      common.after();
+      authentication.logout();
     }
   });
 

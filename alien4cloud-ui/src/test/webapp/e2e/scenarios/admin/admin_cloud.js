@@ -23,7 +23,7 @@ describe('Test the cloud management: ', function() {
   afterEach(function() {
     // Logout action
     if (after) {
-      common.after();
+      authentication.logout();
     }
   });
 

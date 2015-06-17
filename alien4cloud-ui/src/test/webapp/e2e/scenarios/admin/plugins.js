@@ -21,7 +21,7 @@ describe('Upload and handle paas plugins', function() {
 
   /* After each spec in the tests suite(s) */
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   // All tests

@@ -4,6 +4,7 @@
 var path = require('path');
 var navigation = require('../../common/navigation');
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
 
@@ -16,7 +17,7 @@ describe('Nodetemplate properties and artifact reset to default value', function
   // After each spec in the tests suite(s)
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   var switchDeploymentTopopology = function switchDeploymentTopopology() {

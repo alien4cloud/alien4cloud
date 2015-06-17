@@ -25,7 +25,7 @@ describe('Security management for group in action', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to add/remove user from a group and user roles are updated', function() {

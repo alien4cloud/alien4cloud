@@ -2,6 +2,7 @@
 'use strict';
 
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
 
@@ -12,7 +13,7 @@ describe('Topology with multiple node versions', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should be able construct a topology by choosing between different versions', function() {

@@ -1,8 +1,9 @@
 /**
  * Module that exposes functions to login - logout and re-login with various users.
  */
-
 /* global by, element */
+
+var common = require('../common/common');
 
 'use strict';
 
@@ -64,16 +65,9 @@ var users = {
 module.exports.users = users;
 
 function logout() {
-  // Right dropdown menu
-  var navBarRightDrop = browser.element(by.id('navbar-rightdrop'));
-  browser.actions().click(navBarRightDrop).perform();
-  browser.waitForAngular().then(function wait() {
-    // Logout action
-    var btnLogout = browser.element(by.name('btn-logout'));
-    browser.actions().click(btnLogout).perform();
-//    browser.waitForAngular();
-  });
-
+  common.dismissAlertIfPresent();
+  common.click(by.id('navbar-rightdrop'));
+  common.click(by.name('btn-logout'));
 }
 
 function login(username) {

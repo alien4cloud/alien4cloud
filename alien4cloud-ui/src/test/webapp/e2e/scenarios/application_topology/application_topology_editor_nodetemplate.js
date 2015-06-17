@@ -24,7 +24,7 @@ describe('Topology node template edition :', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('beforeAll', function() {

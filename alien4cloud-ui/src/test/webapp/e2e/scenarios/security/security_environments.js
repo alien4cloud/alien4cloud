@@ -25,7 +25,7 @@ describe('Application environments security check', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to deploy on default Environment and check output properties / attributes on deployment / info page', function() {

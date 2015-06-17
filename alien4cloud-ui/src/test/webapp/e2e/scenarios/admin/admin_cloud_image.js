@@ -22,7 +22,7 @@ describe('List and creation of cloud image', function() {
   afterEach(function() {
     // Logout action
     if(after) {
-      common.after();
+      authentication.logout();
     }
   });
 
@@ -35,7 +35,7 @@ describe('List and creation of cloud image', function() {
     genericForm.cancelForm();
     expect(cloudImagesCommon.countCloudImages()).toBe(0);
   });
-  
+
   it('should be able to create a cloud image.', function() {
     console.log('################# should be able to create a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(0);
@@ -94,7 +94,7 @@ describe('List and creation of cloud image', function() {
     genericForm.expectValueFromPrimitive('diskSize', '640', 'xeditable');
     genericForm.expectValueFromPrimitive('memSize', '1024', 'xeditable');
   });
-  
+
   it('should be able to edit details of a cloud image.', function() {
     console.log('################# should be able to edit details of a cloud image.');
     expect(cloudImagesCommon.countCloudImages()).toBe(1);

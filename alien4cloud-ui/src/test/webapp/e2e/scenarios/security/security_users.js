@@ -16,7 +16,7 @@ describe('Check that users with an updated role has indeed access to the new rol
 
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('user with updated role should be to perform the new role operations', function() {

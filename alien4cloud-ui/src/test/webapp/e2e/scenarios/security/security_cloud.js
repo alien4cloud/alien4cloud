@@ -66,7 +66,7 @@ describe('Cloud security and deployment capability per user/group', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should add rights to some users on a cloud without error', function() {

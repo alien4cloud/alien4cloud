@@ -26,7 +26,7 @@ describe('Create topology templates', function() {
   // After each spec in the tests suite(s)
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should add a new topology template and be redirected on template topology edition', function() {

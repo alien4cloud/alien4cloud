@@ -51,7 +51,7 @@ describe('Security management on applications', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('Authenticated users should only view applications they are authorized to (with specific rights given to user)', function() {

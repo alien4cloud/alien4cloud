@@ -3,6 +3,7 @@
 'use strict';
 
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var navigation = require('../../common/navigation');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var cloudsCommon = require('../../admin/clouds_common');
@@ -16,7 +17,7 @@ describe('Topology input/output properties', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   var checkPropertyState = function() {

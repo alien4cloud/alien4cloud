@@ -30,7 +30,7 @@ describe('Application versions', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     if (after) {
-      common.after();
+      authentication.logout();
     }
   });
 

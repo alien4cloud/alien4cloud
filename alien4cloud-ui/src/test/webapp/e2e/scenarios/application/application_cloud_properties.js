@@ -31,7 +31,7 @@ describe('Application cloud properties', function() {
 
   /* After each spec in the tests suite(s) */
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   /* Test to ensure a non regression of bug describe in ALIEN-727 */

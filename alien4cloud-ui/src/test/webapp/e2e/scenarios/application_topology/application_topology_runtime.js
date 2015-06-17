@@ -2,6 +2,7 @@
 'use strict';
 
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var navigation = require('../../common/navigation');
 var applications = require('../../applications/applications');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
@@ -47,7 +48,7 @@ describe('Topology runtime view', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to add scaling policy to a compute node', function() {

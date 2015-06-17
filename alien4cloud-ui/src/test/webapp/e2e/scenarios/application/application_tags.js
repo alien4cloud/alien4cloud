@@ -27,7 +27,7 @@ describe('Application Tags :', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should add a good tag without errors', function() {

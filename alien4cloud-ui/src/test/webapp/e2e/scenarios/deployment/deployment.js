@@ -23,7 +23,7 @@ describe('Disabling / Enabling cloud and application when deployed: ', function(
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should not be able to disable or delete a cloud when used for a deployment', function() {

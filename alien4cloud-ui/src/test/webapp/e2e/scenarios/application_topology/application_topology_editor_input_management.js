@@ -29,7 +29,7 @@ describe('Topology input/output properties', function() {
 
   afterEach(function() {
     if (after) {
-      common.after();
+      authentication.logout();
     }
   });
 

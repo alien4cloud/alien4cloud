@@ -3,6 +3,7 @@
 'use strict';
 
 var common = require('../../common/common');
+var authentication = require('../../authentication/authentication');
 var navigation = require('../../common/navigation');
 var topologyEditorCommon = require('../../topology/topology_editor_common');
 var componentData = require('../../topology/component_data');
@@ -18,7 +19,7 @@ describe('NodeTemplate relationships/capability edition', function() {
   // After each spec in the tests suite(s)
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   var checkInputProperty = function(inputId) {

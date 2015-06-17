@@ -4,7 +4,6 @@
 
 var cleanup = require('./cleanup');
 var navigation = require('./navigation');
-var authentication = require('../authentication/authentication');
 var SCREENSHOT = require('./screenshot');
 
 // Common utilities to work with protractor
@@ -65,10 +64,6 @@ module.exports.before = function() {
   // cleanup ElasticSearch and alien folders.
   cleanup.cleanup();
   navigation.home();
-};
-
-module.exports.after = function() {
-  authentication.logout();
 };
 
 // Loading and exposing languages for tests

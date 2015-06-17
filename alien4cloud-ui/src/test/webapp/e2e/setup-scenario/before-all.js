@@ -23,7 +23,7 @@ describe('Initialize test environment', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   it('Setups test environment to be fully cleaned up', function() {

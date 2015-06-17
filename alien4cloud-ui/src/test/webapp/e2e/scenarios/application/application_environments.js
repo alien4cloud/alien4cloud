@@ -36,7 +36,7 @@ describe('Application environments', function() {
   afterEach(function() {
     // Logout action
     if(after) {
-      common.after();
+      authentication.logout();
     }
   });
 

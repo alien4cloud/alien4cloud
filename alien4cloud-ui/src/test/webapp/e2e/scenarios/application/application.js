@@ -18,7 +18,7 @@ describe('Applications management', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to go to application search page at ' + common.appSearchUrl + ' and create new application', function() {

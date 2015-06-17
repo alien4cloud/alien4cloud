@@ -29,7 +29,7 @@ describe('Security management on applications for application manager', function
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   var checkAccess = function(menu) {

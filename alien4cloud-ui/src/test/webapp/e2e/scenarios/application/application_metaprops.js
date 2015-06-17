@@ -20,7 +20,7 @@ describe('Application meta properties edition check', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should create an application an set configuration tags', function() {

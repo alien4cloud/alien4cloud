@@ -11,7 +11,7 @@ describe('Quick search', function() {
   });
 
   afterEach(function() {
-    common.after();
+    authentication.logout();
   });
 
   var checkQuickSearchForm = function(recommended) {

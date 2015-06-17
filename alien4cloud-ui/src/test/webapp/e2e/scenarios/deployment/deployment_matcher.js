@@ -44,7 +44,7 @@ describe('Application Deployment matcher :', function() {
   afterEach(function() {
     // Logout action
     if (after) {
-      common.after();
+      authentication.logout();
     }
   });
 

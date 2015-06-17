@@ -99,7 +99,7 @@ describe('Group management', function() {
 
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should be able to create a new group, and find it in the group list', function() {

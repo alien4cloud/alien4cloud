@@ -15,7 +15,7 @@ describe('Handle CSARS', function() {
   /* After each spec in the tests suite(s) */
   afterEach(function() {
     // Logout action
-    common.after();
+    authentication.logout();
   });
 
   it('should not be able to delete a CSAR referenced by an application / csars /  topologytemplate', function() {
