@@ -105,6 +105,6 @@ public class RuntimeStepDefinitions {
 
     @When("^I scale down the node \"([^\"]*)\" by removing (\\d+) instance\\(s\\)$")
     public void I_scale_down_the_node_by_removing_instance_s(String nodeName, int instancesToRemove) throws Throwable {
-        Context.getInstance().registerRestResponse(scale(nodeName, instancesToRemove));
+        Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove));
     }
 }

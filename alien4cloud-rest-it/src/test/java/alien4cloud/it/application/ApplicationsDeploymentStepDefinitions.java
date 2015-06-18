@@ -544,6 +544,7 @@ public class ApplicationsDeploymentStepDefinitions {
         while (true) {
             try {
                 The_node_should_contain_instance_s(nodeName, numberOfInstances);
+                break;
             } catch (AssertionError e) {
                 long currentDuration = System.currentTimeMillis() - before;
                 if (currentDuration > waitTimeInMillis) {
