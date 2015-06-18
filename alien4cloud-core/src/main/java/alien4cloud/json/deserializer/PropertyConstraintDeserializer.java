@@ -40,7 +40,7 @@ public class PropertyConstraintDeserializer extends StdDeserializer<PropertyCons
     private Map<PropertyNamingStrategy, Map<String, Class<? extends PropertyConstraint>>> constraintsCache;
 
     @SuppressWarnings("unchecked")
-    protected PropertyConstraintDeserializer() throws IOException, ClassNotFoundException, IntrospectionException {
+    public PropertyConstraintDeserializer() throws IOException, ClassNotFoundException, IntrospectionException {
         super(PropertyConstraint.class);
         this.constraints = Maps.newHashMap();
         this.constraintsCache = Maps.newConcurrentMap();

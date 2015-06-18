@@ -1,7 +1,5 @@
 package alien4cloud.model.components;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -56,7 +54,7 @@ public class RequirementDefinition {
     private int upperBound = 1;
 
     /** Constraints to specify on the target capability or node's properties. */
-    private Map<NodeFilterTarget, INodeFilterValue> nodeFilters;
+    private NodeFilter nodeFilter;
 
     /**
      * Quick constructor to create a requirement definition from id and type.
