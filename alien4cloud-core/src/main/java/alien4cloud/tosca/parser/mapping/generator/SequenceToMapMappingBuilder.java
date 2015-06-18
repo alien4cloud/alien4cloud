@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.tosca.parser.MappingTarget;
 import alien4cloud.tosca.parser.ParserUtils;
 import alien4cloud.tosca.parser.ParsingContextExecution;
@@ -46,11 +45,11 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
             log.warn("Both field <{}> and <{}> exist in your mapping. If it's defined <{}> will override the <{}>.", TYPE, LIST_TYPE, LIST_TYPE, TYPE);
         }
         // default mapping for simple type or for a list_type if defined
-        SequenceToMapParser<IndexedNodeType> parser = new SequenceToMapParser<>(new ReferencedParser(map.get(TYPE)), map.get(TYPE));
+        SequenceToMapParser<Object> parser = new SequenceToMapParser<>(new ReferencedParser(map.get(TYPE)), map.get(TYPE));
 
         if (map.containsKey(LIST_TYPE) && !map.get(LIST_TYPE).isEmpty()) {
-            parser = new SequenceToMapParser<>(new ListParser(new ReferencedParser(map.get(LIST_TYPE)), "sequence of " + map.get(LIST_TYPE)),
-                    map.get(LIST_TYPE));
+            ListParser listParser = new ListParser(new ReferencedParser(map.get(LIST_TYPE)), "sequence of " + map.get(LIST_TYPE));
+            parser = new SequenceToMapParser<>(listParser, map.get(LIST_TYPE));
         }
 
         return new MappingTarget(map.get(SEQUENCE_TO_MAP), parser);
