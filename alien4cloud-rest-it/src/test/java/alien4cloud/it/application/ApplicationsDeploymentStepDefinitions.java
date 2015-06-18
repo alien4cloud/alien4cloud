@@ -32,6 +32,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.model.DeploymentStatus;
+import alien4cloud.paas.model.InstanceStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
@@ -100,7 +101,7 @@ public class ApplicationsDeploymentStepDefinitions {
     }
 
     private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws Throwable {
+                              String applicationEnvironmentName) throws Throwable {
         checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
     }
 
@@ -110,7 +111,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-            String applicationEnvironmentName) throws IOException, InterruptedException {
+                             String applicationEnvironmentName) throws IOException, InterruptedException {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
@@ -407,21 +408,21 @@ public class ApplicationsDeploymentStepDefinitions {
             stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
         }
         switch (eventTopic) {
-        case "deployment-status":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                    + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
-            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
-            break;
-        case "instance-state":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                    + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
-            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
-            break;
-        case "storage":
-            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                    + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
-            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
-            break;
+            case "deployment-status":
+                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                        + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
+                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
+                break;
+            case "instance-state":
+                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                        + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
+                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
+                break;
+            case "storage":
+                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                        + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
+                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
+                break;
         }
     }
 
@@ -431,27 +432,27 @@ public class ApplicationsDeploymentStepDefinitions {
         List<String> actualEvents = Lists.newArrayList();
         try {
             switch (eventTopic) {
-            case "deployment-status":
-                StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                        TimeUnit.SECONDS);
-                for (StompData<PaaSDeploymentStatusMonitorEvent> data : deploymentStatusEvents) {
-                    actualEvents.add(data.getData().getDeploymentStatus().toString());
-                }
-                break;
-            case "instance-state":
-                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                        TimeUnit.SECONDS);
-                for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
-                    actualEvents.add(data.getData().getInstanceState());
-                }
-                break;
-            case "storage":
-                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                        TimeUnit.SECONDS);
-                for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
-                    actualEvents.add(data.getData().getInstanceState());
-                }
-                break;
+                case "deployment-status":
+                    StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                            TimeUnit.SECONDS);
+                    for (StompData<PaaSDeploymentStatusMonitorEvent> data : deploymentStatusEvents) {
+                        actualEvents.add(data.getData().getDeploymentStatus().toString());
+                    }
+                    break;
+                case "instance-state":
+                    StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                            TimeUnit.SECONDS);
+                    for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
+                        actualEvents.add(data.getData().getInstanceState());
+                    }
+                    break;
+                case "storage":
+                    StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                            TimeUnit.SECONDS);
+                    for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
+                        actualEvents.add(data.getData().getInstanceState());
+                    }
+                    break;
             }
             Assert.assertEquals(expectedEvents.size(), actualEvents.size());
             Assert.assertArrayEquals(expectedEvents.toArray(), actualEvents.toArray());
@@ -517,5 +518,38 @@ public class ApplicationsDeploymentStepDefinitions {
         // For asynchronous problem of cloudify 3
         Thread.sleep(2000L);
         I_deploy_it();
+    }
+
+    @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")
+    public void The_node_should_contain_instance_s(String nodeName, int numberOfInstances) throws Throwable {
+        RestResponse<?> response = JsonUtil.read(Context.getRestClientInstance().get(
+                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName())
+                        + "/deployment/informations"));
+        Assert.assertNotNull(response.getData());
+        Map<String, Object> instancesInformation = (Map<String, Object>) response.getData();
+        Assert.assertNotNull(instancesInformation.get(nodeName));
+        Map<String, Object> nodeInformation = (Map<String, Object>) instancesInformation.get(nodeName);
+        Assert.assertEquals(numberOfInstances, nodeInformation.size());
+        for (Map.Entry<String, Object> instanceInformationEntry : nodeInformation.entrySet()) {
+            Map<String, Object> instanceInformation = (Map<String, Object>) instanceInformationEntry.getValue();
+            Assert.assertEquals(InstanceStatus.SUCCESS.toString(), instanceInformation.get("instanceStatus"));
+        }
+    }
+
+    @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\) after at maximum (\\d+) minutes$")
+    public void The_node_should_contain_instance_s_after_at_maximum_minutes(String nodeName, int numberOfInstances, int waitTimeInMinutes) throws Throwable {
+        long waitTimeInMillis = waitTimeInMinutes * 60L * 1000L;
+        long before = System.currentTimeMillis();
+        while (true) {
+            try {
+                The_node_should_contain_instance_s(nodeName, numberOfInstances);
+            } catch (AssertionError e) {
+                long currentDuration = System.currentTimeMillis() - before;
+                if (currentDuration > waitTimeInMillis) {
+                    throw e;
+                }
+            }
+        }
     }
 }
