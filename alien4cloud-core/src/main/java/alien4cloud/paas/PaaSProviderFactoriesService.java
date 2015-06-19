@@ -10,7 +10,7 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.plugin.AbstractPluginLinker;
-import alien4cloud.plugin.PluginUsage;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;

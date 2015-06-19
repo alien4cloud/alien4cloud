@@ -3,19 +3,22 @@
   <parent>
     <groupId>alien4cloud</groupId>
     <artifactId>alien4cloud-parent</artifactId>
-    <version>1.0.0-SM27-SNAPSHOT</version>
+    <version>1.1.0-SM1-SNAPSHOT</version>
   </parent>
   <artifactId>alien4cloud-ui</artifactId>
   <packaging>war</packaging>
 
   <name>Alien 4 Cloud UI</name>
-  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.</description>
+  <description>UI project for Alien. Alien 4 Cloud UI is an AngularJS Application and contains multiple UI modules.
+  </description>
 
   <properties>
     <sonar.language>js</sonar.language>
     <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/</sonar.javascript.jstestdriver.reportsPath>
-    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov</sonar.javascript.lcov.reportPath>
+    <sonar.javascript.jstestdriver.reportsPath>${project.basedir}/target/tests/
+    </sonar.javascript.jstestdriver.reportsPath>
+    <sonar.javascript.lcov.reportPath>${project.basedir}/target/coverage/coverage.lcov
+    </sonar.javascript.lcov.reportPath>
   </properties>
 
   <dependencies>
@@ -45,7 +48,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory>yo/dist</directory>
+        <directory>target/webapp</directory>
         <targetPath>static</targetPath>
       </resource>
     </resources>
@@ -63,6 +66,9 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <yeomanProjectDirectory>./</yeomanProjectDirectory>
+        </configuration>
       </plugin>
       <!-- Add resources directories to the war file -->
       <plugin>
@@ -78,10 +84,10 @@
               <filtering>true</filtering>
             </resource>
             <resource>
-              <directory>yo/dist</directory>
+              <directory>target/webapp</directory>
             </resource>
             <!-- Add default types archives folder to the war file -->
-             <resource>
+            <resource>
               <directory>${project.parent.basedir}/alien4cloud-core/src/main/default-normative-types</directory>
               <targetPath>WEB-INF/classes/default-normative-types</targetPath>
             </resource>

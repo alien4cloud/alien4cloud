@@ -1,0 +1,129 @@
+<!-- Components list and details -->
+<div ng-controller="alienSearchComponentCtrl" class="search-row">
+  <div id="comp-search-side-pannel"
+    ng-class="{'search-columns search-filter-side':globalContext}">
+    <!-- Search result column -->
+    <div class="well">
+      <div style="margin-bottom: 10px;">
+        <form role="search" ng-submit="doSearch()">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="..."
+              ng-model="searchedKeyword"> <span class="input-group-btn">
+              <button type="submit" class="btn btn-default"
+                data-loading-text="Loading..." id="btn-search-component">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </form>
+      </div>
+
+      <!-- Displaying active filters -->
+      <a ng-show="!globalContext"
+        id="displayFacetManagement"
+        class="advancedSearchLink"
+        ng-init="collapseAdvancedSearch=true"
+        ng-click="collapseAdvancedSearch = !collapseAdvancedSearch">
+        <span ng-if="collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SHOW_ADV_SEARCH' | translate}}</span>
+        <span ng-if="!collapseAdvancedSearch">{{'COMPONENTS.SEARCH.SIMPLE_SEARCH' | translate}}</span>
+      </a>
+      <div collapse="collapseAdvancedSearch && !globalContext">
+        <div ng-show="facetFilters.length>0" class="filter-category">
+          <div>
+            {{ 'COMPONENTS.ACTIVE_FILTERS' | translate }} <span
+              class="badge" ng-show="facetFilters.length>0">{{facetFilters.length}}</span>
+            <button type="button" class="btn btn-default btn-xs" ng-click="reset()"
+                ng-disabled="facetFilters.length<=0">
+                <i class="fa fa-trash-o"></i>
+            </button>
+          </div>
+          <div class="facet-choice" collapse="isFacetCollapsed">
+            <ul class="nav facet-choice">
+              <li ng-repeat="filter in facetFilters">
+                <a href="" ng-click="removeFilter(filter)">{{'COMPONENTS.'+(filter.term | uppercase) | translate}}: <span class="label label-primary">
+                  {{ getFormatedFacetValue(filter.term, filter.facet) }}</span><i class="fa fa-times"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Displaying all terms and its facets -->
+        <div ng-repeat="(term, termFacets) in searchResult.data.facets">
+          <div ng-click="isFacetCollapsed = !isFacetCollapsed" class="facet-category">
+            <span>{{'COMPONENTS.'+(term | uppercase) | translate}}</span>
+            <i class="pull-right fa" ng-class="{'fa-chevron-down' : !isFacetCollapsed, 'fa-chevron-right': isFacetCollapsed}"></i>
+          </div>
+          <div class="facet-option" collapse="isFacetCollapsed">
+            <ul class="nav facet-option">
+              <li ng-repeat="facet in termFacets">
+                <a href="" ng-click="addFilter(term,facet.facetValue)">
+                  {{ getFormatedFacetValue(term, facet.facetValue) }} <span class="badge">{{facet.count}}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Cannot use ng-class because of a safari bug when changing style in display: table-cell -->
+  <div ng-if="globalContext" class="search-columns" id="comp-search-result-panel">
+    <div ng-include="'views/components/search_node_type_results_template.html'"></div>
+  </div>
+  <div ng-if="!globalContext" id="comp-search-result-panel">
+    <div ng-include="'views/components/search_node_type_results_template.html'"></div>
+  </div>
+  <div class="search-details search-columns" id="comp-search-detail-panel"  ng-if="displayDetailPannel && widthInfo.width > 1300">
+    <!-- component details display -->
+    <div class="well " ng-show="detailComponent">
+      <h4>{{detailComponent.elementId}}</h4>
+      <!-- Body -->
+      <div class="input-group">
+        <span class="input-group-addon">
+          <span translate><i>COMPONENTS.CAPABILITIES.TYPE</i></span>
+        </span>
+        <span class="form-control-noheightlimit">
+          <span ng-repeat="capability in detailComponent.capabilities">
+            <div class="text-primary" ng-class="{'text-success' : isDefaultCapability = isADefaultCapability(detailComponent, capability.type)}">{{capability.type}} <i ng-show="isDefaultCapability" class="fa fa-star"></i></div>
+          </span>
+        </span>
+      </div>
+      &nbsp;
+      <div class="input-group">
+        <span class="input-group-addon">
+          <span translate><i>COMPONENTS.REQUIREMENTS.TYPE</i></span>
+        </span>
+        <span class="form-control-noheightlimit">
+            <div class="text-primary" ng-repeat="requirement in detailComponent.requirements">{{requirement.type}}</div>
+        </span>
+      </div>
+      &nbsp;
+      <div class="input-group">
+        <span class="input-group-addon">
+          <span translate><i>COMPONENTS.DERIVEDFROM</i></span>
+        </span>
+        <span class="form-control-noheightlimit">
+            <div class="text-primary" ng-repeat="derived in detailComponent.derivedFrom">{{derived}}</div>
+        </span>
+      </div>
+      &nbsp;
+
+      <!-- Tags display -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <i class="fa fa-tags"></i> Tags
+        </div>
+        <div class="panel-body table-responsive">
+          <table class="table table-condensed">
+            <tr ng-repeat="tag in detailComponent.tags" ng-if="!isInternalTag(tag.name)">
+              <td> {{tag.name}} </td>
+              <td> {{tag.value}} </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
