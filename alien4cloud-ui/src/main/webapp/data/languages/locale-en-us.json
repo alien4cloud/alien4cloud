@@ -162,6 +162,7 @@
     "BUTTON_MODIFY": "Modify",
     "NAME": "Name",
     "ID":"Id",
+    "LEGEND":"Csars added",
     "FROMGIT":"Imported from Git",
     "ACTIONS":"Operations",
     "URL": "Repository URL",

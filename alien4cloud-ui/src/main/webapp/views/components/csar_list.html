@@ -1,4 +1,7 @@
 <div>
+  <legend style="text-align: center;">
+          <h3 class="ng-binding"><i class="fa fa-archive"></i> {{'CSAR.LEGEND'| translate}}</h3>
+  </legend>
   <!-- CSAR search form -->
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-2 well">
@@ -51,8 +54,7 @@
   <legend style="text-align: center;">
           <h3 class="ng-binding"><i class="fa fa-git"></i> {{'CSAR.FROMGIT'|translate}}</h3>
   </legend>
-
-  <!-- CSAR Git search form -->
+  <!-- CSAR search form -->
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-2 well">
       <div class="row" style="padding-bottom: 15px;">
@@ -85,8 +87,8 @@
             <tr>
               <th></th>
               <th>{{ 'CSAR.URL' | translate}}</th>
-              <th>{{ 'CSAR.COUNTARCHIVES' | translate}}</th>
               <th>{{ 'CSAR.ARCHIVE' | translate}}</th>
+              <th>{{ 'CSAR.BRANCHE' | translate }}</th>
               <th>{{ 'CSAR.ACTIONS' | translate}}</th>
             </tr>
           </thead>
@@ -96,10 +98,12 @@
                 <i class="pull-left media-object fa fa-lg fa-code-fork fa-2x"></i>
               </td>
               <td>{{csar.repositoryUrl}}</td>
-              <td>{{csar.importLocations.length || '---' }}</td>
               <td>
-                <span  style="display:block;"ng-repeat="location in csar.importLocations">{{location.branchId}}</span>
+                <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.subPath || '*'}}</span>
               </td>
+            <td>
+              <span style="display:block;"ng-repeat="location in csar.importLocations"> {{location.branchId || '*'}}</span>
+            </td>
               <td>
                 <button class=" btn-sm btn ng-binding"  bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id)">
                   <i class="fa fa-download fa-lg"></i>
@@ -181,8 +185,7 @@
             {{'CSAR.ARCHIVE' | translate}}
           </label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="archive_id" ng-model="csarGit.archive" name="archive" required="" placeholder="{{'CSAR.ARCHIVEPATH' | translate}}">
-
+            <input type="text" class="form-control" id="archive_id" ng-model="csarGit.archive" name="archive"  placeholder="{{'CSAR.ARCHIVEPATH' | translate}}">
           </div>
         </div>
         <div class="form-group" ng-class="{'has-error': newCsarGit.branchId.$invalid}">

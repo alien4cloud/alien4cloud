@@ -168,6 +168,7 @@
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
     "ID":"Id",
+    "LEGEND":"Csars ajoutés",
     "FROMGIT":"Importés depuis Git",
     "ACTIONS":"Opérations",
     "COUNTARCHIVES":"Nombre d'archives",
