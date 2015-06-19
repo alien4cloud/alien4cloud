@@ -56,10 +56,10 @@ node_types:
         node_filter:
           properties:
             - os_type: { valid_values: [ "linux", "unix" ] }
-            - os_mix:
-              - valid_values: [ "linux", "unix" ]
-              - in_range: [ 1, 4 ]
-            - os_arch : [ valid_values: [ "x86_64", "x86_32" ], in_range: [ 1, 4 ] ]
+            #- os_mix:
+            #  - valid_values: [ "linux", "unix" ]
+            #  - in_range: [ 1, 4 ]
+            # - os_arch : [ valid_values: [ "x86_64", "x86_32" ], in_range: [ 1, 4 ] ]
           capabilities:
             # My “host” Compute node needs these properties:
             - host:

@@ -7,10 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import org.elasticsearch.common.collect.Maps;
+
 @Getter
 @Setter
 @NoArgsConstructor
 public class FilterDefinition {
     /** Property constraint list by property */
-    private Map<String, List<PropertyConstraint>> properties;
+    private Map<String, List<PropertyConstraint>> properties = Maps.newHashMap();
 }
