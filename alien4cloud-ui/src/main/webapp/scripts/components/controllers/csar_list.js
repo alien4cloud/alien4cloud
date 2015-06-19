@@ -6,6 +6,7 @@ define(function (require) {
   var angular = require('angular');
 
   require('scripts/components/services/csar');
+  require('scripts/components/services/csar_git');
   require('scripts/components/controllers/csar_details');
   require('scripts/common/directives/pagination');
 
@@ -27,9 +28,35 @@ define(function (require) {
   });
   states.forward('components.csars', 'components.csars.list');
 
+  var NewCsarGitController = ['$scope', '$modalInstance',
+    function($scope, $modalInstance) {
+      $scope.csarGitTemplate = {};
+      $scope.create = function(valid, csargit) {
+        if(!valid) {
+          return;
+        }
+        var CsarCheckoutLocations={
+          'branchId': csargit.branchId,
+          'subPath': csargit.archive
+        };
+        csargit.locations=CsarCheckoutLocations;
+        var csargitDTO ={
+          'username': 'empty',
+          'password': 'empty',
+          'repositoryUrl': csargit.url,
+          'importLocations': [CsarCheckoutLocations]
+        };
+        $modalInstance.close(csargitDTO);
+      };
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+    }
+  ];
+
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', '$translate', 'toaster',
-    function($scope, $modal, $state, csarService, $translate, toaster) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', 'csarGitService', '$translate', 'toaster',
+   function($scope, $modal, $state, csarService, csarGitService, $translate, toaster) {
       $scope.search = function() {
         var searchRequestObject = {
           'query': $scope.query,
@@ -37,6 +64,35 @@ define(function (require) {
           'size': 50
         };
         $scope.csarSearchResult = csarService.searchCsar.search([], angular.toJson(searchRequestObject));
+      };
+
+      $scope.searchCsarsGit = function() {
+        var searchRequestObject = {
+          'query': $scope.queryCsarGit,
+          'from': 0,
+          'size': 50
+        };
+        $scope.csarGitSearchResult = csarGitService.search([],angular.toJson(searchRequestObject));
+      };
+
+      $scope.triggerImport = function(id) {
+        csarGitService.fetch({
+          id: id
+        }, angular.toJson(id), function() {
+          $scope.search();
+       });
+      };
+
+      $scope.triggerImportAllCsarGit = function(data) {
+        if (data.length > 0) {
+          for (var i=0; i<data.length; i++) {
+            csarGitService.fetch({
+              id: data[i].id
+            }, angular.toJson(data[i].id), function() {
+              $scope.search();
+           });
+          }
+        }
       };
 
       $scope.openCsar = function(csarId) {
@@ -58,8 +114,32 @@ define(function (require) {
         });
       };
 
+      $scope.removeCsarGit = function(id) {
+        csarGitService.remove({
+          id: id
+        }, function() {
+          // refresh csargit list
+          $scope.searchCsarsGit();
+        });
+      };
+
+
+      $scope.openNewCsarGitTemplate = function() {
+        var modalInstance = $modal.open({
+          templateUrl: 'newCsarGit.html',
+          controller: NewCsarGitController,
+          scope: $scope
+        });
+        modalInstance.result.then(function(csarGitTemplate) {
+          csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
+           $scope.searchCsarsGit();
+          });
+        });
+      };
+
       // init search
       $scope.search();
+      $scope.searchCsarsGit();
     }
   ]); // controller
 }); // define

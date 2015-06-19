@@ -107,7 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/formdescriptor/pluginConfig/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/formdescriptor/tagconfiguration/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/formdescriptor/cloudConfig/**").hasAuthority("ADMIN");
-
+        http.authorizeRequests().antMatchers("/rest/csarsgit/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/properties/**").hasAnyAuthority("ADMIN", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/enums/**").authenticated();
 

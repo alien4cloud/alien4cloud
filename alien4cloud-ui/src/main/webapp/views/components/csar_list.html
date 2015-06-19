@@ -1,5 +1,4 @@
 <div>
-
   <!-- CSAR search form -->
   <div class="row" style="margin-top: 10px;">
     <div class="col-md-2 well">
@@ -49,6 +48,73 @@
     </div>
   </div>
 
+  <legend style="text-align: center;">
+          <h3 class="ng-binding"><i class="fa fa-git"></i> {{'CSAR.FROMGIT'|translate}}</h3>
+  </legend>
+
+  <!-- CSAR Git search form -->
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-2 well">
+      <div class="row" style="padding-bottom: 15px;">
+        <form  class="col-md-12" role="search" ng-submit="searchCsarsGit()">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="..."
+              ng-model="queryCsarGit"> <span class="input-group-btn">
+              <button type="submit" class="btn btn-default"
+                data-loading-text="Loading...">
+                <i class="fa fa-search"></i>
+              </button>
+            </span>
+          </div>
+        </form>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <button class="btn btn-success ng-binding" id="MODAL_NEWCSAR  " ng-click="openNewCsarGitTemplate()">
+            <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CSAR search result display -->
+    <div class="col-md-10">
+      <div class="table-responsive large-data-container" id="users-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'CSAR.URL' | translate}}</th>
+              <th>{{ 'CSAR.COUNTARCHIVES' | translate}}</th>
+              <th>{{ 'CSAR.ARCHIVE' | translate}}</th>
+              <th>{{ 'CSAR.ACTIONS' | translate}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="csar in csarGitSearchResult.data.data"  id="csar_{{csar.id}}" name="csar_{{csar.id}}" >
+              <td>
+                <i class="pull-left media-object fa fa-lg fa-code-fork fa-2x"></i>
+              </td>
+              <td>{{csar.repositoryUrl}}</td>
+              <td>{{csar.importLocations.length || '---' }}</td>
+              <td>
+                <span  style="display:block;"ng-repeat="location in csar.importLocations">{{location.branchId}}</span>
+              </td>
+              <td>
+                <button class=" btn-sm btn ng-binding"  bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id)">
+                  <i class="fa fa-download fa-lg"></i>
+                </button>
+                <delete-confirm id="delete-csar_{{csar.id}}" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                </delete-confirm>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
   <script type="text/ng-template" id="newCsar.html">
     <form name="newCsar" class="form-horizontal" role="form" ng-submit="create(newCsar.$valid)" novalidate>
       <div class="modal-header">
@@ -96,4 +162,41 @@
     </form>
   </script>
 
-</div>
+  <script type="text/ng-template" id="newCsarGit.html">
+    <form name="newCsarGit" class="form-horizontal" role="form" ng-submit="create(newCsarGit.$valid, csarGit)" novalidate>
+      <div class="modal-header">
+        <h3>{{'CSAR.MODAL_NEWCSAR' | translate}}</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" ng-class="{'has-error': newCsarGit.url.$invalid}">
+          <label for="name_id" class="col-lg-2 control-label">
+            {{'CSAR.URL' | translate}}
+          </label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="csargit_url" ng-model="csarGit.url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
+          </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newCsarGit.archive.$invalid}">
+          <label for="archive_id " class="col-lg-2 control-label">
+            {{'CSAR.ARCHIVE' | translate}}
+          </label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="archive_id" ng-model="csarGit.archive" name="archive" required="" placeholder="{{'CSAR.ARCHIVEPATH' | translate}}">
+
+          </div>
+        </div>
+        <div class="form-group" ng-class="{'has-error': newCsarGit.branchId.$invalid}">
+          <label for="branche_id " class="col-lg-2 control-label">
+            {{'CSAR.BRANCHE' | translate}}
+          </label>
+          <div class="col-lg-10">
+            <input type="text"class="form-control" id="branchId" rows="3" ng-model="csarGit.branchId" name="branchId" required="" placeholder="{{'CSAR.BRANCHE' | translate}}"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-create" ng-disabled="csarGit.id.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
+      </div>
+    </form>
+  </script>
