@@ -1,5 +1,7 @@
 package alien4cloud.plugin;
 
+import alien4cloud.plugin.model.PluginUsage;
+
 import java.util.List;
 
 /**

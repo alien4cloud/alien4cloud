@@ -24,6 +24,10 @@ public final class ToscaNodeLifecycleConstants {
     public static final String AVAILABLE = "available";
     public static final String STOPPED = "stopped";
     public static final String DELETED = "deleted";
+    public static final String ERROR = "error";
+
+    /** not really tosca */
+    public static final String MAINTENANCE = "maintenance";
 
     private ToscaNodeLifecycleConstants() {
     }

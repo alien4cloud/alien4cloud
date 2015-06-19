@@ -1,6 +1,6 @@
 package alien4cloud.plugin;
 
-import alien4cloud.paas.exception.PluginConfigurationException;
+import alien4cloud.plugin.exception.PluginConfigurationException;
 
 /**
  * Interface for plugin configuration objects

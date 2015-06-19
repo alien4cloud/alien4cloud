@@ -15,6 +15,7 @@ import cucumber.api.junit.Cucumber;
 // "classpath:alien/rest/topology/mixing_component_versions.feature"
 // "classpath:alien/rest/topology/nodetemplate_constraint.feature"
 // "classpath:alien/rest/topology/nodetemplate.feature"
+// "classpath:alien/rest/topology/nodetemplate_target_filter.feature"
 // "classpath:alien/rest/topology/relationships.feature"
 // "classpath:alien/rest/topology/replace_node_template.feature"
 // "classpath:alien/rest/topology/roles_on_topologies.feature"

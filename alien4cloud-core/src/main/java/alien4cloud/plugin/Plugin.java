@@ -11,6 +11,7 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.plugin.model.PluginDescriptor;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

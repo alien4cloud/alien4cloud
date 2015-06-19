@@ -8,6 +8,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import alien4cloud.plugin.IPluginConfigurator;
+import alien4cloud.plugin.Plugin;
+import alien4cloud.plugin.PluginManager;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilder;
@@ -16,32 +19,17 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.audit.annotation.Audit;
-import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.paas.PaaSProviderService;
-import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.plugin.IPluginConfigurator;
-import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginConfiguration;
-import alien4cloud.plugin.PluginLoadingException;
-import alien4cloud.plugin.PluginManager;
-import alien4cloud.plugin.PluginUsage;
-import alien4cloud.rest.model.BasicSearchRequest;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.plugin.exception.PluginConfigurationException;
+import alien4cloud.plugin.exception.PluginLoadingException;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginUsage;
+import alien4cloud.rest.model.*;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
@@ -57,16 +45,12 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @RequestMapping("/rest/plugin")
 @Slf4j
 public class PluginController {
-
     @Resource
     private PluginManager pluginManager;
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     private Path tempDirPath;
-
-    @Resource
-    private PaaSProviderService paaSProviderService;
 
     @ApiOperation(value = "Upload a plugin archive.", notes = "Error code can be 300 (INDEXING_SERVICE_ERROR) in case of a backend IO issue.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -75,11 +59,10 @@ public class PluginController {
         Path pluginPath = null;
         try {
             // save the plugin archive in the temp directory
-            pluginPath = Files.createTempFile(tempDirPath, "", '.' + CsarFileRepository.CSAR_EXTENSION);
+            pluginPath = Files.createTempFile(tempDirPath, null, ".zip");
             FileUploadUtil.safeTransferTo(pluginPath, pluginArchive);
             // upload the plugin archive
             Plugin plugin = pluginManager.uploadPlugin(pluginPath);
-
             // if the plugin is configurable, then try reuse if existing a previous version
             if (plugin.isConfigurable()) {
                 tryReusePreviousVersionConf(plugin);
@@ -186,7 +169,7 @@ public class PluginController {
     @Required
     @Value("${directories.alien}/${directories.upload_temp}")
     public void setTempDirPath(String tempDirPath) throws IOException {
-        this.tempDirPath = Paths.get(tempDirPath);
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
     }
 
     @ApiOperation(value = "Get a plugin configuration object.", notes = "Retrieve a plugin configuration object.  Role required [ ADMIN ]")

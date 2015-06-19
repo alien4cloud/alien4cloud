@@ -30,7 +30,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginConfiguration;
+import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.rest.exception.FieldErrorDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;

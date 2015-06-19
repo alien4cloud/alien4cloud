@@ -1,6 +1,11 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -306,8 +311,15 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
         assertNotNull(nodeTemp.getProperties());
-        assertNotNull(nodeTemp.getProperties().get(propertyName));
+        if (propertyValue != null) {
+            assertNotNull(nodeTemp.getProperties().get(propertyName));
+        }
         assertEquals(propertyValue, FunctionEvaluator.getScalarValue(nodeTemp.getProperties().get(propertyName)));
+    }
+
+    @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to null$")
+    public void The_topology_should_contain_a_nodetemplate_named_with_property_set_to_null(String nodeTemplateName, String propertyName) throws Throwable {
+        The_topology_should_contain_a_nodetemplate_named_with_property_set_to(nodeTemplateName, propertyName, null);
     }
 
     @Then("^I should have a relationship with type \"([^\"]*)\" from \"([^\"]*)\" to \"([^\"]*)\" in ALIEN$")
@@ -804,5 +816,17 @@ public class TopologyStepDefinitions {
                 ((List<String>) ((Map<String, Object>) task.get("properties")).get(TaskLevel.ERROR.toString())).contains(scalabilityProperty);
             }
         }
+    }
+
+    @When("^I reset the the node template \"([^\"]*)\"'s property \"([^\"]*)\"$")
+    public void I_reset_the_the_node_template_s_property(String nodeTempName, String propertyName) throws Throwable {
+
+        String topologyId = Context.getInstance().getTopologyId();
+        // reset a property value = update it's value to null
+        UpdatePropertyRequest req = new UpdatePropertyRequest(propertyName, null);
+        String json = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
+
     }
 }
