@@ -73,9 +73,6 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.init = function() {
       $scope.$watch('propertyValue', function() {
         $scope.initScope();
-        if (isReset) { // could be an initScope after a reset property
-          $scope.propertySave($scope.definitionObject.uiValue, $scope.definitionObject.uiUnit);
-        }
       }, true);
 
       $scope.$watch('definition', function() {
@@ -184,6 +181,8 @@ angular.module('alienUiApp').controller('PropertiesCtrl', ['$scope', 'properties
     $scope.resetProperty = function resetPropertyToDefault() {
       isReset = true;
       if (UTILS.isDefinedAndNotNull($scope.propertyValue)) {
+        $scope.initScope();
+        $scope.propertySave($scope.definition.default, $scope.definitionObject.uiUnit);
         if ($scope.propertyValue.hasOwnProperty('value')) {
           $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
         } else {

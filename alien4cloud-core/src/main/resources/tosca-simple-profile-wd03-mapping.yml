@@ -154,6 +154,7 @@
     type: template_property
 
 # Node filter related types
+
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
