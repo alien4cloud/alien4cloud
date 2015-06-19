@@ -506,6 +506,11 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(4, function.getParameters().size());
     }
 
+    @Test
+    public void testNodeTypeNodeFilter() throws ParsingException {
+        parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-nodefilter.yml"));
+    }
+
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
