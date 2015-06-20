@@ -22,6 +22,7 @@ require.config({
     'angular-animate': 'bower_components/angular-animate/angular-animate',
     'angular-xeditable': 'bower_components/angular-xeditable/dist/js/xeditable',
     'angular-ui-select': 'bower_components/angular-ui-select/dist/select',
+    'angular-tree-control': 'bower_components/angular-tree-control/angular-tree-control',
     'ng-table': 'bower_components/ng-table/dist/ng-table',
     'toaster': 'bower_components/angularjs-toaster/toaster',
     'hopscotch': 'bower_components/hopscotch/dist/js/hopscotch',
@@ -57,6 +58,7 @@ require.config({
     'angular-file-upload': { deps: ['angular'] },
     'button-confirm': { deps: ['angular'] },
     'angular-ui-ace': { deps: ['angular', 'ace'] },
+    'angular-tree-control': { deps: ['angular'] },
     'stomp':  { deps: ['sockjs'] },
     'dagre-d3': { deps: ['d3'] },
     'd3-pie': { deps: ['d3'] }
