@@ -115,7 +115,7 @@
       "INTERFACES": "Interfaces",
       "OPERATION": "Operations",
       "RECOMMEND_MESSAGE": "Define this component as default for this capability.",
-      "UNRECOMMEND_MESSAGE": "Undifine this component as default for this capability.",
+      "UNRECOMMEND_MESSAGE": "Undefine this component as default for this capability.",
       "ABSTRACT_COMPONENT": "Abstract component"
     },
     "RELATIONSHIPS": {
@@ -442,7 +442,7 @@
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Invalid scalability policy",
-          "MISSING": "Madatory property",
+          "MISSING": "Mandatory property",
           "ERRORS": {
             "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
             "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
@@ -482,7 +482,7 @@
         "TITLE": "Artifacts",
         "ID": "Id",
         "TYPE": "Type",
-        "INPUTS": "Artefacts en entrée",
+        "INPUTS": "Entry into artifacts",
         "ADDINPUT": "Define artifact as input"
       },
       "REPLACE_NODETEMPLATE": "Replace",
@@ -653,7 +653,7 @@
     "ZONE": "Zones",
     "ZONES": {
       "ID": "Identifiant",
-      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
+      "NEW_MODAL_TITLE": "Create a new zone"
     },
     "IAAS": {
       "OTHER": "Other",
@@ -869,7 +869,7 @@
   },
   "SEARCH": "Search",
   "STATES": {
-    "unknown": "Wating for the orchestrator",
+    "unknown": "Waiting for the orchestrator",
     "creating": "Creating",
     "created": "Created",
     "configuring": "Configuring",
