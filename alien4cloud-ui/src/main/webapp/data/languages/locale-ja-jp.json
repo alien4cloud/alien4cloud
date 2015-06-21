@@ -114,75 +114,75 @@
       "ATTRIBUTES": "属性",
       "INTERFACES": "インタフェース",
       "OPERATION": "オプション",
-      "RECOMMEND_MESSAGE": "Define this component as default for this capability.",
-      "UNRECOMMEND_MESSAGE": "Undifine this component as default for this capability.",
-      "ABSTRACT_COMPONENT": "Abstract component"
+      "RECOMMEND_MESSAGE": "このコンポーネントをデフォルトとする。",
+      "UNRECOMMEND_MESSAGE": "このコンポーネントをデフォルトとしない。",
+      "ABSTRACT_COMPONENT": "抽象コンポーネント"
     },
     "RELATIONSHIPS": {
-      "SOURCE": "Source",
-      "TARGET": "Target"
+      "SOURCE": "ソース",
+      "TARGET": "ターゲット"
     },
     "CONFIRM_RECOMMENDATION_MODAL": {
-      "HEADER": "Confirm the default component",
-      "MESSAGE": "A component [ {{componentId}} ] is already set as default for capability [ {{capability}} ]. Would you like to overwrite it?",
-      "OK": "Overwrite"
+      "HEADER": "デフォルトコンポーネントの確認",
+      "MESSAGE": "コンポーネント[ {{componentId}} ]は、デフォルトとして設定されています。機能名： [ {{capability}} ]. 上書きしますか？",
+      "OK": "上書き"
     },
     "FORM_ERRORS": {
-      "TAG_KEY": "Tag name can only contain characters a to Z, -, _ without spaces"
+      "TAG_KEY": "タグ名に使用できるのは、 a to Z, -, _ spaceは除く"
     },
     "CAPABILITIES": {
-      "TYPE": "Capabilities",
+      "TYPE": "機能",
       "CARDINALITIES_TOOLTIP": "upperBound"
     },
-    "ABSTRACT": "Abstract component",
-    "DEFAULTCAPABILITIES": "Default Capabilities",
-    "DERIVEDFROM": "Derived from",
+    "ABSTRACT": "抽象コンポーネント",
+    "DEFAULTCAPABILITIES": "デフォルト機能",
+    "DERIVEDFROM": "派生元",
     "REQUIREMENTS": {
-      "TYPE": "Prerequisites"
+      "TYPE": "必須コンポーネント"
     },
     "SEARCH": {
-      "SHOW_ADV_SEARCH": "Advanced search...",
-      "SIMPLE_SEARCH": "Simple search...",
-      "SEARCH_COMP": "Search for components"
+      "SHOW_ADV_SEARCH": "高度な検索...",
+      "SIMPLE_SEARCH": "簡易検索...",
+      "SEARCH_COMP": "コンポーネントの検索"
     },
-    "ACTIVE_FILTERS": "Active filters",
-    "RESULT_TITLE": "Components",
-    "ARCHIVE": "Archive",
-    "ARCHIVE_VERSION": "Archive version",
-    "ARCHIVE_NAME": "Archive name",
-    "GET_DETAILS": "Details",
-    "VALIDSOURCES": "Valid Sources",
-    "VALIDTARGET": "Valid Targets",
+    "ACTIVE_FILTERS": "アクティブフィルター",
+    "RESULT_TITLE": "コンポーネント",
+    "ARCHIVE": "アーカイブ",
+    "ARCHIVE_VERSION": "アーカイブバージョン",
+    "ARCHIVE_NAME": "アーカイブ名",
+    "GET_DETAILS": "詳細",
+    "VALIDSOURCES": "有効なソース",
+    "VALIDTARGET": "有効なターゲット",
     "CARDINALITIES_TOOLTIP": "lowerBound..upperBound"
   },
   "CSAR": {
-    "BUTTON_NEWCSAR": "Create a SNAPSHOT CSAR",
-    "MODAL_NEWCSAR": "New CSAR",
-    "BUTTON_DELETE": "Delete",
-    "BUTTON_MODIFY": "Modify",
-    "NAME": "Name",
-    "DESCRIPTION": "Description",
-    "VERSION": "Version",
+    "BUTTON_NEWCSAR": "CSARスナップショットの作成",
+    "MODAL_NEWCSAR": "CSARの新規作成",
+    "BUTTON_DELETE": "削除",
+    "BUTTON_MODIFY": "変更",
+    "NAME": "CSAR名",
+    "DESCRIPTION": "説明",
+    "VERSION": "バージョン",
     "BC_CSAR": "CSAR",
-    "DETAILS_TITLE": "CSAR details",
+    "DETAILS_TITLE": "CSAR 詳細",
     "TEST_TOPOLOGY": "Test topology's status",
-    "AUTHOR": "Author",
+    "AUTHOR": "作成者",
     "DETAILS": {
-      "BUTTON_ADD_NODE_TYPE": "Add new component",
-      "ARCHIVE_COMPONENTS": "Archive's component",
-      "COMPONENT_FORM_TITLE": "New Component",
-      "LIST": "Csars list",
-      "RESOURCES": "Resources list",
-      "NO_RESOURCES": "No linked resources",
+      "BUTTON_ADD_NODE_TYPE": "新しいコンポーネントの追加",
+      "ARCHIVE_COMPONENTS": "アーカイブコンポーネント",
+      "COMPONENT_FORM_TITLE": "新規コンポーネント",
+      "LIST": "Csars リスト",
+      "RESOURCES": "リソースリスト",
+      "NO_RESOURCES": "リンク切れリソース",
       "RESOURCE": {
-        "TYPE": "Type",
-        "NAME": "Name",
-        "VERSION": "Version",
-        "CSAR_TEXT": "CSAR details",
-        "APP_TEXT": "Application details",
-        "TOPOLOGY_TEXT": "Topology template details"
+        "TYPE": "タイプ",
+        "NAME": "リソース名",
+        "VERSION": "バージョン",
+        "CSAR_TEXT": "CSAR 詳細",
+        "APP_TEXT": "アプリケーション詳細",
+        "TOPOLOGY_TEXT": "トポロジテンプレート詳細"
       },
-      "DELETE": "Deleted",
+      "DELETE": "削除",
       "ERRORS": {
         "507_TITLE": "Delete a CSAR",
         "507": "CSAR deletion failed since it is referenced by other resources"
