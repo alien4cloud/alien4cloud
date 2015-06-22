@@ -16,7 +16,6 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service',
     function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service) {
-
       function TopologySvg (clickCallback, containerElement, isRuntime, nodeRenderer) {
         this.networkStyles = 10;
         this.isGridDisplayed = false;
@@ -108,9 +107,8 @@ define(function (require) {
           this.displayGrid();
 
           this.svgGraph.controls.coordinateUtils.bbox = layout.bbox;
-
           this.svgGraph.controls.coordinateUtils.reset();
-          this.svgGraph.controls.updateViewBox();
+          // this.svgGraph.controls.updateViewBox();
         },
 
         computeLinkRoute: function(link) {
@@ -192,6 +190,8 @@ define(function (require) {
 
             instance.selectedNodeId = node.id;
           };
+
+          this.nodeRenderer.draw(nodeGroup, node, nodeTemplate, nodeType, this.topology);
 
           d3Service.rect(nodeGroup, oX, oY, this.nodeRenderer.width, this.nodeRenderer.height, 0, 0).attr('class', 'background');
 
