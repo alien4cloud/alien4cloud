@@ -57,6 +57,9 @@ public class RequirementDefinition {
     @JsonSerialize(using = BoundSerializer.class)
     private int upperBound = 1;
 
+    /** Constraints to specify on the target capability or node's properties. */
+    private NodeFilter nodeFilter;
+
     /**
      * Quick constructor to create a requirement definition from id and type.
      * 
