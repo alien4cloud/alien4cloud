@@ -519,7 +519,7 @@ public class ToscaParserSimpleProfileWd03Test {
         // requirements for this snapshot
         List<RequirementDefinition> requirements = nodeType.getRequirements();
         RequirementDefinition requirementHost = requirements.get(0); // requirement host
-        // Assert.assertEquals("tosca.relationships.HostedOn", requirementHost.getRelationshipType());
+
         NodeFilter nodeFilter = requirementHost.getNodeFilter();
         Map<String, List<PropertyConstraint>> properties = nodeFilter.getProperties();
         Assert.assertEquals(1, properties.size());
