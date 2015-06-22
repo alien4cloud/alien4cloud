@@ -190,7 +190,8 @@
   capability: capabilityName
   node_filter:
     reference: nodeFilter
-    type: node_filter_parser
+    type: node_filter_type
+    # type: node_filter_parser
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
