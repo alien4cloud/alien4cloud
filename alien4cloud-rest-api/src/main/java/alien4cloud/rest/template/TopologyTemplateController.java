@@ -16,10 +16,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.InvalidArgumentException;
+import alien4cloud.model.components.Csar;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
@@ -58,6 +61,8 @@ public class TopologyTemplateController {
     private TopologyServiceCore topologyServiceCore;
     @Resource
     private TopologyTemplateVersionService versionService;
+    @Resource
+    private CsarService csarService;
 
     /**
      * Create a new {@link TopologyTemplate}
@@ -138,12 +143,23 @@ public class TopologyTemplateController {
     public RestResponse<Void> delete(@PathVariable String topologyTemplateId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplate topologyTemplate = topologyService.getOrFailTopologyTemplate(topologyTemplateId);
-        // TODO: here check that the template is not used in a topology or template composition
+        // here we check that the template is not used in a topology or template composition
         for (TopologyTemplateVersion ttv : versionService.getByDelegateId(topologyTemplate.getId())) {
-            alienDAO.delete(Topology.class, ttv.getTopologyId());
-            alienDAO.delete(TopologyTemplateVersion.class, ttv.getId());
+            Topology topology = topologyServiceCore.getTopology(ttv.getTopologyId());
+            if (topology != null && topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+                // this topology template expose some substitution stuffs
+                // we have to check that it is not used by another topology
+                Csar csar = csarService.getTopologySubstitutionCsar(topology.getId());
+                Topology[] dependentTopologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
+                if (dependentTopologies != null && dependentTopologies.length > 0) {
+                    throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+                }
+            }
         }
-        versionService.deleteByDelegate(topologyTemplate.getId());
+        // none of the version is used as embeded topology, we have to delete each version
+        for (TopologyTemplateVersion ttv : versionService.getByDelegateId(topologyTemplate.getId())) {
+            versionService.delete(ttv.getId());
+        }
         alienDAO.delete(TopologyTemplate.class, topologyTemplate.getId());
         return RestResponseBuilder.<Void> builder().build();
     }
@@ -169,6 +185,9 @@ public class TopologyTemplateController {
         }
         if (!currentTemplateName.equals(topologyTemplate.getName())) {
             checkNameUnicity(topologyTemplate.getName());
+            // TODO: if the template expose substitution stuffs,
+            // - we need to avoid name change if the type is already used elsewhere
+            // - we need to change the CSAR name and type name
         }
         alienDAO.save(topologyTemplate);
         return RestResponseBuilder.<Void> builder().build();

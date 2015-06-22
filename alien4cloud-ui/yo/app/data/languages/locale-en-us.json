@@ -455,9 +455,23 @@
         "TITLE": "Artifacts",
         "ID": "Id",
         "TYPE": "Type",
-        "INPUTS": "Artefacts en entrée",
+        "INPUTS": "Input artifacts",
         "ADDINPUT": "Define artifact as input"
-      },  
+      }, 
+      "SUBSTITUTIONS": {
+        "TITLE": "Substitutions",
+        "TYPE": "Type",
+        "CAPABILITIES": "Capabilities",
+        "CAPABILITY": "Capability",
+        "REQUIREMENTS": "Requirements",
+        "REQUIREMENT": "Requirement",
+        "TARGET_NODE": "Target",
+        "SOURCE_NODE": "Source",
+        "NOM": "Name",
+        "VERSION": "Version",
+        "EXPOSE": "Expose",
+        "DISPLAY": "Display substitution topology"
+      },         
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
@@ -771,7 +785,8 @@
       "MESSAGE": "One or several parameters are required : {{value}}"
     },
     "807": "Only the topology of a SNAPSHOT version can be modified",
-    "808": "The name doesn't respect the expected pattern"
+    "808": "The name doesn't respect the expected pattern",
+    "820": "Cyclic reference : a topology template can not reference itself !"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

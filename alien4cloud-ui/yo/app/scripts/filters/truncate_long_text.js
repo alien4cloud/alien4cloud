@@ -69,6 +69,9 @@ alienApp.filter('splitAndGet', function() {
   return function(text, separator, indexToReturn) {
     if (!UTILS.isUndefinedOrNull(text)) {
       separator = separator || '.'; // by defult . if not defined
+      if (text.indexOf(separator) < 0) {
+        return text;
+      }
       var res = text.split(separator);
       if(indexToReturn === 'last') {
         indexToReturn = res.length - 1;

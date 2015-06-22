@@ -1,8 +1,8 @@
 /* global UTILS, $ */
 'use strict';
 
-angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster',
-  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster) {
+angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$q', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster', 'suggestionServices', 'preselectedVersion', 
+  function(alienAuthService, $scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $q, $translate, $upload, componentService, nodeTemplateService, $timeout, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster, suggestionServices, preselectedVersion) {
     $scope.view = 'RENDERED';
 
     // Size management
@@ -69,6 +69,10 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         active: false,
         size: 400
       },
+      substitutions: {
+        active: false,
+        size: 400
+      },      
       component: {
         active: false,
         size: 400
@@ -128,6 +132,13 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
               displayOnly(['topology', 'component', 'inputs']);
             }
             break;
+          case 'substitutions':
+            if (!$scope.displays.component.active) {
+              displayOnly(['topology', 'substitutions']);
+            } else {
+              displayOnly(['topology', 'component', 'substitutions']);
+            }
+            break;            
         }
       }
     };
@@ -161,12 +172,27 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       });
     };
 
+    var setSelectedVersionByName = function(name) {
+      preselectedVersion = undefined;
+      for (var i = 0; i < $scope.appVersions.length; i++) {
+        if ($scope.appVersions[i].version === name) {
+          $scope.selectedVersionName = name;
+          $scope.selectedVersion = $scope.appVersions[i];
+          $scope.topologyId = $scope.selectedVersion.topologyId;
+          break;
+        }
+      }
+    };
+    
     // TODO : when topology templates edition with use also version, remove this IF statement
     if (UTILS.isDefinedAndNotNull(appVersions) && UTILS.isDefinedAndNotNull(appVersions.data)) {
       // default version loading
       $scope.appVersions = appVersions.data;
       $scope.selectedVersion = $scope.appVersions[0];
       $scope.topologyId = $scope.selectedVersion.topologyId;
+      if (UTILS.isDefinedAndNotNull(preselectedVersion)) {
+        setSelectedVersionByName(preselectedVersion);
+      }
     } else {
       // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
       $scope.topologyId = topologyId;
@@ -177,25 +203,6 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
     var regexPatternn = '^[A-Za-z0-9\\-]*$';
 
     var COMPUTE_TYPE = 'tosca.nodes.Compute';
-
-    var setSelectedVersionByName = function(name) {
-      $scope.selectedVersionName = name;
-      for (var i = 0; i < $scope.appVersions.length; i++) {
-        if ($scope.appVersions[i].version === $scope.selectedVersionName) {
-          $scope.selectedVersion = $scope.appVersions[i];
-          $scope.topologyId = $scope.selectedVersion.topologyId;
-          break;
-        }
-      }
-    };
-
-    var updateSelectedVersionName = function(applicationVersions) {
-      if (UTILS.isDefinedAndNotNull(applicationVersions)) {
-          $scope.selectedVersionName = applicationVersions[0].version;
-          setSelectedVersionByName(applicationVersions[0].version);
-      }
-    };
-    updateSelectedVersionName($scope.appVersions);
 
     $scope.changeVersion = function(selectedVersion) {
       setSelectedVersionByName(selectedVersion.version);
@@ -213,6 +220,7 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
         }
       }
       $scope.topology = topologyDTO;
+      $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
 
       // enrich objects to add maps for the fields that are currently mapped as array of map entries.
       topologyJsonProcessor.process($scope.topology);
@@ -246,6 +254,14 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
           return a.index - b.index;
       });
 
+      // about substitution
+      if ($scope.topology.topology.substitutionMapping && $scope.topology.topology.substitutionMapping.substitutionType) {
+        $scope.substitutionType = $scope.topology.topology.substitutionMapping.substitutionType.elementId;
+        $scope.substitutionVersion = $scope.topology.topology.substitutionMapping.substitutionType.archiveVersion;
+      } else {
+        $scope.substitutionType = /*moumou*/undefined;
+        $scope.substitutionVersion = /*moumou*/undefined;
+      }
     };
 
     // Topology can comes from application OR topology template
@@ -387,10 +403,12 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       topologyServices.nodeTemplate.add({
         topologyId: $scope.topology.topology.id
       }, angular.toJson(nodeTemplateRequest), function(result) {
-        // for refreshing the ui
-        refreshTopology(result.data, nodeTemplateName);
-        if (targetNodeTemplateName) {
-          autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
+        if (!result.error) {
+          // for refreshing the ui
+          refreshTopology(result.data, nodeTemplateName);
+          if (targetNodeTemplateName) {
+            autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
+          }
         }
       });
     }
@@ -1412,5 +1430,158 @@ angular.module('alienUiApp').controller('TopologyCtrl', ['alienAuthService', '$s
       return D3JS_UTILS.groupColorCss($scope.topology.topology, groupId);
     }
 
+    /**
+     * Substitution type suggest
+     */
+    var getSubstitutionTypeSuggestions = function(keyword) {
+      return suggestionServices.nodetypeSuggestions(keyword);
+    };
+
+    $scope.getSubstitutionTypeSuggestions = {
+      get: getSubstitutionTypeSuggestions,
+      waitBeforeRequest: 0,
+      minLength: 2
+    };
+    
+    $scope.selectSubstitutionType = function(substitutionType) {
+      if (!$scope.topology.topology.substitutionMapping || $scope.topology.topology.substitutionMapping.substitutionType !== substitutionType) {
+        topologyServices.substitutionType.set({
+          topologyId: $scope.topology.topology.id,
+          elementId: substitutionType
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+    };
+    
+    $scope.removeSubstitution = function() {
+      topologyServices.substitutionType.remove({
+        topologyId: $scope.topology.topology.id
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });      
+    }
+    
+    $scope.isTypeInDependencies = function(nodeType) {
+      for (var i=0; i< $scope.topology.topology.dependencies.length; i++) {
+        if ($scope.topology.topology.dependencies[i].name === nodeType.archiveName) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+    $scope.exposeCapabilityForSubstitution = function(capabilityId) {
+      if ($scope.isCapabilityExposed(capabilityId)) {
+        return;
+      }
+      topologyServices.capabilitySubstitution.add({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        substitutionCapabilityId: capabilityId,
+        capabilityId: capabilityId
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate.name);
+        }
+      });      
+    }
+    
+    $scope.isCapabilityExposed = function(capabilityId) {
+      var result = false;
+      angular.forEach($scope.topology.topology.substitutionMapping.capabilities, function(value, key) {
+        if (value.nodeTemplateName === $scope.selectedNodeTemplate.name && value.targetId === capabilityId) {
+          result = true;
+        }
+      }); 
+      return result;
+    }
+    
+    $scope.updateSubstitutionCababilityKey = function(oldKey, newKey) {
+      topologyServices.capabilitySubstitution.update({
+        topologyId: $scope.topology.topology.id,
+        substitutionCapabilityId: oldKey,
+        newCapabilityId: newKey
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });       
+    }
+    
+    $scope.removeSubstitutionCabability = function(key) {
+      topologyServices.capabilitySubstitution.remove({
+        topologyId: $scope.topology.topology.id,
+        substitutionCapabilityId: key
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });       
+    }
+    
+    $scope.exposeRequirementForSubstitution = function(requirementId) {
+      if ($scope.isRequirementExposed(requirementId)) {
+        return;
+      }
+      topologyServices.requirementSubstitution.add({
+        topologyId: $scope.topology.topology.id,
+        nodeTemplateName: $scope.selectedNodeTemplate.name,
+        substitutionRequirementId: requirementId,
+        requirementId: requirementId
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate.name);
+        }
+      });      
+    }
+    
+    $scope.isRequirementExposed = function(requirementId) {
+      var result = false;
+      angular.forEach($scope.topology.topology.substitutionMapping.requirements, function(value, key) {
+        if (value.nodeTemplateName === $scope.selectedNodeTemplate.name && value.targetId === requirementId) {
+          result = true;
+        }
+      }); 
+      return result;
+    }
+    
+    $scope.updateSubstitutionRequirementKey = function(oldKey, newKey) {
+      topologyServices.requirementSubstitution.update({
+        topologyId: $scope.topology.topology.id,
+        substitutionRequirementId: oldKey,
+        newRequirementId: newKey
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });       
+    }
+    
+    $scope.removeSubstitutionRequirement = function(key) {
+      topologyServices.requirementSubstitution.remove({
+        topologyId: $scope.topology.topology.id,
+        substitutionRequirementId: key
+      }, {}, function(result) {
+        if (!result.error) {
+          refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+        }
+      });       
+    }
+    
+    $scope.displayEmbededTopology = function(topologyId) {
+      topologyServices.getTopologyVersion({
+        topologyId: topologyId
+      }, {}, function(result) {
+        if (!result.error) {
+          window.open('/#/topologytemplates/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+        }
+      });       
+    }
+    
   }
 ]);

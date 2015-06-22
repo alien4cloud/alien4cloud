@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.InitializingBean;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.IndexedToscaElement;
@@ -91,4 +93,11 @@ public class CheckElementExistService implements ICSARRepositorySearchService, I
     public <T extends IndexedToscaElement> T getParentOfElement(Class<T> elementClass, T indexedToscaElement, String parentElementId) {
         throw new NotImplementedException("This method is not used in the compilation tool.");
     }
+
+    @Override
+    public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer from, Integer size,
+            Map<String, String[]> filters, boolean queryAllVersions) {
+        throw new NotImplementedException("This method is not used in the compilation tool.");
+    }
+
 }

@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -41,6 +39,8 @@ import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -78,6 +78,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The property definition of the new input.", required = true) @RequestBody PropertyDefinition newPropertyDefinition) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, true);
 
         if (inputs.containsKey(inputId)) {
@@ -89,6 +90,7 @@ public class TopologyInputsController {
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -124,6 +126,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the new input.", required = true) @NotBlank @RequestParam final String newInputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, PropertyDefinition> inputs = topology.getInputs();
         if (inputs == null || !inputs.containsKey(inputId)) {
@@ -155,6 +158,7 @@ public class TopologyInputsController {
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", inputId, newInputId, topologyId);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -191,6 +195,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The name of the input.", required = true) @NotBlank @PathVariable final String inputId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, PropertyDefinition> inputProperties = topology.getInputs();
         if (inputProperties == null || !inputProperties.containsKey(inputId)) {
@@ -210,6 +215,7 @@ public class TopologyInputsController {
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topologyServiceCore.getMandatoryTopology(topologyId))).build();
     }
 
@@ -241,6 +247,7 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
         IndexedNodeType indexedNodeType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
@@ -281,6 +288,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The property id.", required = true) @NotBlank @PathVariable final String propertyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeTemplateName);
 
         if (nodeTemplate.getProperties().containsKey(propertyId)) {
@@ -421,6 +429,7 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
             throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
@@ -472,6 +481,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The relationship template id.", required = true) @NotBlank @PathVariable final String relationshipId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
             throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
         }
@@ -524,6 +534,7 @@ public class TopologyInputsController {
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         Map<String, PropertyDefinition> inputs = getInputs(topology, false);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
             throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
@@ -577,6 +588,7 @@ public class TopologyInputsController {
             @ApiParam(value = "The capability template id.", required = true) @NotBlank @PathVariable final String capabilityId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
         if (topology.getNodeTemplates() == null || !topology.getNodeTemplates().containsKey(nodeTemplateName)) {
             throw new NotFoundException("Node " + nodeTemplateName + " do not exist");
         }

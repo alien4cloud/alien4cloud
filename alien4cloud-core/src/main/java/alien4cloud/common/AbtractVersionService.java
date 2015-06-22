@@ -32,6 +32,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     protected abstract Class<V> getVersionImplemClass();
 
+    protected abstract Class<?> getDelegateClass();
+
     protected abstract String getDelegatePropertyName();
 
     /**
@@ -74,7 +76,7 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         }
         topology.setId(UUID.randomUUID().toString());
         topology.setDelegateId(delegateId);
-        topology.setDelegateType(appVersion.getClass().getSimpleName().toLowerCase());
+        topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
         alienDAO.save(topology);
 
         appVersion.setTopologyId(topology.getId());

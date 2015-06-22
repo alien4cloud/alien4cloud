@@ -38,12 +38,13 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.exception.UpdateTopologyException;
@@ -79,6 +80,9 @@ public class TopologyService {
     @Resource
     private ApplicationVersionService applicationVersionService;
 
+    @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
+
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
@@ -95,6 +99,10 @@ public class TopologyService {
                     }
                 }
             }
+        }
+        if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+            IndexedNodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
+            loader.loadType(substitutionType.getElementId(), new CSARDependency(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
     }
@@ -393,30 +401,24 @@ public class TopologyService {
     }
 
     /**
-     * True when an topology is released
-     *
-     * @param topology topology to be checked
-     * @return true if the environment is currently deployed
+     * True when an topology is released.
      */
     public boolean isReleased(Topology topology) {
-        ApplicationVersion appVersion = getApplicationVersion(topology);
-        return !(appVersion == null || !appVersion.isReleased());
+        AbstractTopologyVersion appVersion = getApplicationVersion(topology);
+        return appVersion != null && appVersion.isReleased();
     }
 
     /**
-     * Get the released application version of a topology
+     * Get the delegates version of a topology.
      *
      * @param topology the topology
      * @return The application version associated with the environment.
      */
-    private ApplicationVersion getApplicationVersion(Topology topology) {
-        GetMultipleDataResult<ApplicationVersion> dataResult = alienDAO.search(
-                ApplicationVersion.class,
-                null,
-                MapUtil.newHashMap(new String[] { "applicationId", "topologyId" }, new String[][] { new String[] { topology.getDelegateId() },
-                        new String[] { topology.getId() } }), 1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
+    private AbstractTopologyVersion getApplicationVersion(Topology topology) {
+        if (topology.getDelegateType().equalsIgnoreCase(Application.class.getSimpleName())) {
+            return applicationVersionService.getByTopologyId(topology.getId());
+        } else if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+            return topologyTemplateVersionService.getByTopologyId(topology.getId());
         }
         return null;
     }

@@ -76,7 +76,9 @@ public enum RestErrorCode {
     ELEMENT_NAME_PATTERN_CONSTRAINT(808),
     // bounds on the requirements or capabilities
     UPPER_BOUND_REACHED(810),
-    LOWER_BOUND_NOT_SATISFIED(811);
+    LOWER_BOUND_NOT_SATISFIED(811),
+    //
+    CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR(820);
 
     private final int code;
 

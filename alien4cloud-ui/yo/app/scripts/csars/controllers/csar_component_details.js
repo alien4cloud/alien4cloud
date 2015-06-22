@@ -63,4 +63,5 @@ angular.module('alienUiApp').controller(
           $scope.cancelNodeTypeUpdate = function() {
             $state.go('components.csars.csardetail', { csarId: $scope.csarId });
           };
+          
         }]);

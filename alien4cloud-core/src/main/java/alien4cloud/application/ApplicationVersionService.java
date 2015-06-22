@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AbtractVersionService;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
@@ -24,6 +25,11 @@ public class ApplicationVersionService extends AbtractVersionService<Application
     @Override
     protected Class<ApplicationVersion> getVersionImplemClass() {
         return ApplicationVersion.class;
+    }
+
+    @Override
+    protected Class<?> getDelegateClass() {
+        return Application.class;
     }
 
     @Override
