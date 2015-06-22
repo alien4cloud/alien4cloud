@@ -130,7 +130,7 @@ public class ArchiveUploadService {
                     topologyTemplateVersionService.changeTopology(ttv, topologyId);
                 } else {
                     // we just create a new version
-                    topologyTemplateVersionService.createVersion(existingTemplate.getId(), topologyId, archiveVersion, null);
+                    topologyTemplateVersionService.createVersion(existingTemplate.getId(), null, archiveVersion, null, topology);
                 }
                 simpleResult
                         .getContext()
@@ -146,6 +146,7 @@ public class ArchiveUploadService {
                                 archiveName));
                 topologyServiceCore.createTopologyTemplate(topology, archiveName, parsingResult.getResult().getTopologyTemplateDescription(), archiveVersion);
             }
+            topologyServiceCore.updateSubstitutionType(topology);
         }
 
         return simpleResult;

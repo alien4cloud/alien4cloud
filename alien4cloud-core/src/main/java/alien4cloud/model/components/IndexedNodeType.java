@@ -36,4 +36,9 @@ public class IndexedNodeType extends IndexedArtifactToscaElement {
 
     @NumberField(index = IndexType.not_analyzed, includeInAll = false)
     private long alienScore;
+
+    /**
+     * When the type is created from a topology template (substitution), contains the topology id.
+     */
+    private String substitutionTopologyId;
 }

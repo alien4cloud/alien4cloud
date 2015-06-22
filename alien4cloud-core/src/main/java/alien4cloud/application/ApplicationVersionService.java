@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.common.AbtractVersionService;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.utils.MapUtil;
@@ -27,6 +28,11 @@ public class ApplicationVersionService extends AbtractVersionService<Application
     }
 
     @Override
+    protected Class<?> getDelegateClass() {
+        return Application.class;
+    }
+
+    @Override
     protected String getDelegatePropertyName() {
         return "applicationId";
     }
@@ -38,7 +44,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param topologyId The id of the topology to clone for the version's topology.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId) {
-        return createVersion(applicationId, topologyId, DEFAULT_VERSION_NAME, null);
+        return createVersion(applicationId, topologyId, DEFAULT_VERSION_NAME, null, null);
     }
 
     /**
@@ -49,7 +55,7 @@ public class ApplicationVersionService extends AbtractVersionService<Application
      * @param version The number version of the new application version.
      */
     public ApplicationVersion createApplicationVersion(String applicationId, String topologyId, String version, String desc) {
-        return createVersion(applicationId, topologyId, version, desc);
+        return createVersion(applicationId, topologyId, version, desc, null);
     }
 
     /**

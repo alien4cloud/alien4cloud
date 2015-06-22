@@ -81,6 +81,8 @@ public class DeploymentSetupService {
     private ConstraintPropertyService constraintPropertyService;
     @Resource
     private MetaPropertiesService metaPropertiesService;
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -146,6 +148,7 @@ public class DeploymentSetupService {
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
+        topologyCompositionService.processTopologyComposition(topology);
         processGetInput(deploymentSetup, topology, environment);
         generateInputProperties(deploymentSetup, topology, true);
         processInputArtifacts(topology);

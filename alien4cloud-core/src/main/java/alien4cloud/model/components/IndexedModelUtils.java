@@ -7,10 +7,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import alien4cloud.model.common.Tag;
 import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
 import alien4cloud.utils.CollectionUtils;
 
 import com.google.common.collect.Lists;
@@ -139,4 +139,23 @@ public final class IndexedModelUtils {
         to.setInterfaces(CollectionUtils.merge(from.getInterfaces(), to.getInterfaces(), false));
         to.setArtifacts(CollectionUtils.merge(from.getArtifacts(), to.getArtifacts(), false));
     }
+
+    public static CapabilityDefinition getCapabilityDefinitionById(List<CapabilityDefinition> list, String id) {
+        for (CapabilityDefinition cd : list) {
+            if (cd.getId().equals(id)) {
+                return cd;
+            }
+        }
+        return null;
+    }
+
+    public static RequirementDefinition getRequirementDefinitionById(List<RequirementDefinition> list, String id) {
+        for (RequirementDefinition cd : list) {
+            if (cd.getId().equals(id)) {
+                return cd;
+            }
+        }
+        return null;
+    }
+
 }

@@ -32,6 +32,8 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
 
     protected abstract Class<V> getVersionImplemClass();
 
+    protected abstract Class<?> getDelegateClass();
+
     protected abstract String getDelegatePropertyName();
 
     /**
@@ -40,18 +42,18 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
      * @param delegateId The id of the application for which to create the version.
      * @param topologyId The id of the topology to clone for the version's topology.
      */
-    public V createVersion(String delegateId, String topologyId) {
-        return createVersion(delegateId, topologyId, DEFAULT_VERSION_NAME, null);
+    public V createVersion(String delegateId, String topologyToCloneId, Topology topology) {
+        return createVersion(delegateId, topologyToCloneId, DEFAULT_VERSION_NAME, null, topology);
     }
 
     /**
      * Create a new version for an application/topology template based on an existing topology.
      *
      * @param delegateId The id of the application/topology template for which to create the version.
-     * @param topologyId The id of the topology to clone for the version's topology.
+     * @param topologyToCloneId The id of the topology to clone for the version's topology.
      * @param version The number version of the new application version.
      */
-    public V createVersion(String delegateId, String topologyId, String version, String desc) {
+    public V createVersion(String delegateId, String topologyToCloneId, String version, String desc, Topology providedTopology) {
         if (isVersionNameExist(delegateId, version)) {
             throw new AlreadyExistException("An version " + version + " already exists.");
         }
@@ -66,15 +68,19 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         appVersion.setReleased(!VersionUtil.isSnapshot(version));
         appVersion.setDescription(desc);
 
-        Topology topology;
-        if (topologyId != null) { // "cloning" the topology
-            topology = alienDAO.findById(Topology.class, topologyId);
+        Topology topology = null;
+        if (providedTopology != null) {
+            topology = providedTopology;
         } else {
-            topology = new Topology();
+            if (topologyToCloneId != null) { // "cloning" the topology
+                topology = alienDAO.findById(Topology.class, topologyToCloneId);
+            } else {
+                topology = new Topology();
+            }
+            topology.setId(UUID.randomUUID().toString());
         }
-        topology.setId(UUID.randomUUID().toString());
         topology.setDelegateId(delegateId);
-        topology.setDelegateType(appVersion.getClass().getSimpleName().toLowerCase());
+        topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
         alienDAO.save(topology);
 
         appVersion.setTopologyId(topology.getId());

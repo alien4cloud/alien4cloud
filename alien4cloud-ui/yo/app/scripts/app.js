@@ -127,7 +127,8 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
         resolve: {
           topologyId: function() {
             return null;
-          }
+          },
+          preselectedVersion: function() { return undefined; }
         }
       })
       .state('applications.detail.deployment', {
@@ -216,7 +217,20 @@ var alien4cloudApp = angular.module('alienUiApp', ['ngCookies', 'ngResource', 'n
             function(topologyTemplate) {
               return topologyTemplate.data.topologyId;
             }
-          ]         
+          ],
+          preselectedVersion: function() { return undefined; }
+        },
+        controller: 'TopologyCtrl'
+      }).state('topologytemplates.detail.topologyVersion', {
+        url: '/topology/:version',
+        templateUrl: 'views/topology/topology_editor.html',
+        resolve: {
+          topologyId: ['topologyTemplate',
+            function(topologyTemplate) {
+              return topologyTemplate.data.topologyId;
+            }
+          ],
+          preselectedVersion: ['$stateParams', function($stateParams) { return $stateParams.version; } ]
         },
         controller: 'TopologyCtrl'
       }).state('topologytemplates.detail.versions', {

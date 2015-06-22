@@ -12,17 +12,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.DeleteLastApplicationVersionException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.templates.TopologyTemplateVersion;
+import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.application.ApplicationVersionRequest;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
+import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
@@ -41,6 +47,27 @@ public class TopologyTemplateVersionController {
     private IGenericSearchDAO alienDAO;
     @Resource
     private TopologyTemplateVersionService versionService;
+    @Resource
+    private TopologyServiceCore topologyServiceCore;
+    @Resource
+    private TopologyService topologyService;
+    @Resource
+    private CsarService csarService;
+
+    /**
+     * Get the latest version for a topology template.
+     */
+    @ApiOperation(value = "Get the latest version for a topology template.")
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<TopologyTemplateVersion> get(@PathVariable String topologyTemplateId) {
+        TopologyTemplateVersion[] versions = versionService.getByDelegateId(topologyTemplateId);
+        for (TopologyTemplateVersion current : versions) {
+            if (current.isLatest()) {
+                return RestResponseBuilder.<TopologyTemplateVersion> builder().data(current).build();
+            }
+        }
+        throw new NotFoundException("No latest verion can be found for topology template " + topologyTemplateId);
+    }
 
     /**
      * Search topology template versions for a given topology template id
@@ -83,7 +110,9 @@ public class TopologyTemplateVersionController {
     public RestResponse<String> create(@PathVariable String topologyTemplateId, @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplateVersion version = versionService.createVersion(topologyTemplateId, request.getTopologyId(), request.getVersion(),
-                request.getDescription());
+                request.getDescription(), null);
+        Topology topology = topologyServiceCore.getTopology(version.getTopologyId());
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<String> builder().data(version.getId()).build();
     }
 
@@ -132,8 +161,12 @@ public class TopologyTemplateVersionController {
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String topologyTemplateId, @PathVariable String versionId) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
+        TopologyTemplateVersion ttv = versionService.getOrFail(versionId);
+        if (versionService.getByDelegateId(topologyTemplateId).length == 1) {
+            throw new DeleteLastApplicationVersionException("Topology Template version <" + ttv.getVersion()
+                    + "> can't be be deleted beacause it's the last application version.");
+        }
         versionService.delete(versionId);
-        // TODO: check if the version is used by a topology composition
         return RestResponseBuilder.<Boolean> builder().data(true).build();
     }
 

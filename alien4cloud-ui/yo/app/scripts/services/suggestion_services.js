@@ -14,6 +14,8 @@ angular.module('alienUiApp').factory('suggestionServices', ['$resource', functio
     path : '@path'
   });
 
+  var nodetypeSuggestionResource = $resource('rest/suggest/nodetypes');
+  
   var getSuggestions = function(index, type, path, text) {
     return genericSuggestionDAO.get({
       index : index,
@@ -36,9 +38,18 @@ angular.module('alienUiApp').factory('suggestionServices', ['$resource', functio
     });
   };
 
+  var getNodetypeSuggestions = function(keyword) {
+    return nodetypeSuggestionResource.get({
+      text : keyword
+    }).$promise.then(function(result) {
+      return result.data;
+    });    
+  };
+  
   return {
     tagNameSuggestions : getTagNameSuggestions,
-    getSuggestions : getSuggestions
+    getSuggestions : getSuggestions,
+    nodetypeSuggestions : getNodetypeSuggestions
   };
 
 }]);

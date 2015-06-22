@@ -50,6 +50,8 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
       }
     });
 
+    var topologyVersionResource = $resource('rest/topologies/:topologyId/version');
+    
     ComponentResource.get({
       componentId: $stateParams.id
     }, function(successResult) {
@@ -306,5 +308,15 @@ angular.module('alienUiApp').controller('ComponentDetailsCtrl', ['alienAuthServi
       };
     }];
 
+    $scope.displaySubtitutionTopology = function(topologyId) {
+      topologyVersionResource.get({
+        topologyId: topologyId
+      }, {}, function(result) {
+        if (!result.error) {
+          window.open('/#/topologytemplates/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+        }
+      });              
+    };
+    
   }
 ]);
