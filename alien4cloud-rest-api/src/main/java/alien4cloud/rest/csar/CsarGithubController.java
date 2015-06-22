@@ -4,7 +4,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,12 +27,11 @@ import alien4cloud.tosca.parser.ParsingResult;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 
-@Component
 @RestController
 @RequestMapping("/rest/csarsgit")
 public class CsarGithubController {
-    @Resource(name = "csargit-dao")
-    private IGenericSearchDAO alienCsargitDao;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
 
     @Resource
     private CsarGithubService csarGithubService;
@@ -52,7 +50,7 @@ public class CsarGithubController {
             return RestResponseBuilder.<CsarGitRepository> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("id cannot be null").build()).build();
         }
-        CsarGitRepository csargit = alienCsargitDao.findById(CsarGitRepository.class, csarId);
+        CsarGitRepository csargit = alienDAO.findById(CsarGitRepository.class, csarId);
         return RestResponseBuilder.<CsarGitRepository> builder().data(csargit).build();
     }
 
@@ -78,7 +76,8 @@ public class CsarGithubController {
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<CsarGitRepository>> search(@RequestBody SearchRequest searchRequest) {
         //TODO Suport search request for csarsgit based on id ...
-        GetMultipleDataResult<CsarGitRepository> searchResult = alienCsargitDao.search(CsarGitRepository.class, searchRequest.getQuery(), null, searchRequest.getFrom(),
+        GetMultipleDataResult<CsarGitRepository> searchResult = alienDAO.search(CsarGitRepository.class, searchRequest.getQuery(), null,
+                searchRequest.getFrom(),
                 searchRequest.getSize());
         searchResult.setData(searchResult.getData());
         return RestResponseBuilder.<GetMultipleDataResult<CsarGitRepository>> builder().data(searchResult).build();
@@ -136,7 +135,7 @@ public class CsarGithubController {
             return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("id cannot be null").build())
                     .build();
         }
-        alienCsargitDao.delete(CsarGitRepository.class, id);
+        alienDAO.delete(CsarGitRepository.class, id);
         return RestResponseBuilder.<Void> builder().build();
     }
 

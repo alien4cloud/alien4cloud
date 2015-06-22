@@ -28,6 +28,7 @@ import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.security.model.CsarGitRepository;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.
@@ -70,6 +71,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(CloudConfiguration.class);
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
+        initIndice(CsarGitRepository.class);
         initCompleted();
     }
 

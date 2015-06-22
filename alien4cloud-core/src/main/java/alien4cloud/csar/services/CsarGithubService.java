@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,8 +34,8 @@ public class CsarGithubService {
     @Resource
     ArchiveUploadService uploadService;
 
-    @Resource(name = "csargit-dao")
-    private IGenericSearchDAO alienCsarGitDao;
+    @Resource(name = "alien-es-dao")
+    private IGenericSearchDAO alienDAO;
 
     @Value("${directories.alien}/${directories.upload_temp}")
     private String alienTempUpload;
@@ -59,7 +58,7 @@ public class CsarGithubService {
         csarGit.setUsername(username);
         csarGit.setPassword(password);
         csarGit.setImportLocations(importLocations);
-        alienCsarGitDao.save(csarGit);
+        alienDAO.save(csarGit);
         return csarGit.getId();
     };
 
@@ -76,7 +75,7 @@ public class CsarGithubService {
         Map<String, String> locationsMap = new HashMap<String, String>();
         String data = param.replaceAll("\"", "");
         if (!paramIsUrl(data)) {
-            csarGit = alienCsarGitDao.findById(CsarGitRepository.class, data);
+            csarGit = alienDAO.findById(CsarGitRepository.class, data);
         } else {
             csarGit = getCsargitByUrl(data);
         }
@@ -127,7 +126,7 @@ public class CsarGithubService {
         csarFrom.setPassword(password);
         if (csarGit != null) {
             ReflectionUtil.mergeObject(csarFrom, csarGit);
-            alienCsarGitDao.save(csarGit);
+            alienDAO.save(csarGit);
         }
     };
 
@@ -144,7 +143,7 @@ public class CsarGithubService {
         CsarGitRepository csarGit = checkIfCsarExist(id);
         if (csarGit != null) {
             csarGit.getImportLocations().addAll(locations);
-            alienCsarGitDao.save(csarGit);
+            alienDAO.save(csarGit);
         }
     };
 
@@ -171,7 +170,7 @@ public class CsarGithubService {
             }
         }
         csarGit.setImportLocations(locations);
-        alienCsarGitDao.save(csarGit);
+        alienDAO.save(csarGit);
     };
 
     /**
@@ -181,7 +180,7 @@ public class CsarGithubService {
      * @return The Repository with the URL
      */
     public CsarGitRepository getCsargitByUrl(String url) {
-        return alienCsarGitDao.customFind(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+        return alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
     }
 
     /**
@@ -191,7 +190,7 @@ public class CsarGithubService {
      * @return The Repository with the URL
      */
     public void deleteCsargitByUrl(String url) {
-        alienCsarGitDao.delete(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+        alienDAO.delete(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
     }
 
     /**
@@ -201,7 +200,7 @@ public class CsarGithubService {
      * @return A CsarGitRepository object or a a new {@link NotFoundException}.
      */
     public CsarGitRepository checkIfCsarExist(String id) {
-        CsarGitRepository csarGit = alienCsarGitDao.findById(CsarGitRepository.class, id);
+        CsarGitRepository csarGit = alienDAO.findById(CsarGitRepository.class, id);
         if (csarGit == null) {
             throw new NotFoundException("CsarGit [" + id + "] does not exist");
         }
