@@ -188,9 +188,6 @@
     reference: relationshipType
     type: relationship_type_reference
   capability: capabilityName
-  constraints:
-    map: constraints
-    type: constraint
   node_filter:
     reference: nodeFilter
     type: node_filter_type # type: node_filter_parser
