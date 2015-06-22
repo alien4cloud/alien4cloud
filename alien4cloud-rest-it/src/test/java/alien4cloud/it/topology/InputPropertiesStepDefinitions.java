@@ -9,9 +9,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.topology.TopologyDTO;
+import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.topology.TopologyDTO;
+
+import com.fasterxml.jackson.databind.JavaType;
+
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -58,8 +63,10 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^The topology should have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_have_the_property_of_the_node_defined_as_input_property(String inputId) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
-                TopologyDTO.class).getData();
+        String response = Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId());
+        JavaType restResponseType = Context.getJsonMapper().getTypeFactory().constructParametricType(RestResponse.class, TopologyDTO.class);
+        TopologyDTO topologyDTO = ((RestResponse<TopologyDTO>) Context.getJsonMapper().readValue(response, restResponseType)).getData();
+
         Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertNotNull(inputProperties);
         PropertyDefinition inputPropertieDefinition = inputProperties.get(inputId);
@@ -68,7 +75,7 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_not_have_the_property_defined_as_input_property(String inputId) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class).getData();
         Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertFalse(inputProperties.containsKey(inputId));

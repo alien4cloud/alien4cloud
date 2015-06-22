@@ -66,7 +66,10 @@
   "name": "cloud_meta_NUMcpus",
   "target": "cloud",
   "required": false,
-  "password": false
+  "password": false,
+  "constraints": [{
+    "greaterThan": "0"
+  }]
 }, {
   "type": "string",
   "name": "cloud_meta_osARCH",

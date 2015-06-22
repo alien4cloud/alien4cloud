@@ -58,6 +58,10 @@ public enum RestErrorCode {
     APPLICATION_DEPLOYMENT_IO_ERROR(609),
     LAST_APPLICATION_VERSION_ERROR(610),
     MISSING_APPLICATION_VERSION_ERROR(611),
+    CANNOT_UPDATE_DEPLOYED_ENVIRONMENT(612),
+
+    // PaaS errors : code 650+
+    COMPUTE_CONFLICT_NAME(650),
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
@@ -76,7 +80,8 @@ public enum RestErrorCode {
     ELEMENT_NAME_PATTERN_CONSTRAINT(808),
     // bounds on the requirements or capabilities
     UPPER_BOUND_REACHED(810),
-    LOWER_BOUND_NOT_SATISFIED(811);
+    LOWER_BOUND_NOT_SATISFIED(811),
+    PROPERTY_DEFINITION_MATCH_ERROR(812);
 
     private final int code;
 

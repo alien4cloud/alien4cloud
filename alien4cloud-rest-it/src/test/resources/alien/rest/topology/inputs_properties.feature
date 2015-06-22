@@ -104,7 +104,7 @@ Feature: Topology inputs controller
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_distribution" defined as input property
     Then I set the property "password" of a relationship "HostedOn_Compute" for the node template "BlockStorage" to the input "os_distribution"
-    And I should receive a RestResponse with an error code 500
+    And I should receive a RestResponse with an error code 812
 
   Scenario: Set the property of a relationship template to an non existing input of the topology should failed
     Given I define the property "os_arch" of the node "Compute" as input property
@@ -138,7 +138,7 @@ Feature: Topology inputs controller
   Scenario: Set the property of a capability template to an input of the topology with different constraints must fail
     Given I define the property "os_arch" of the node "Compute" as input int property
     When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "os_arch"
-    Then I should receive a RestResponse with an error code 500
+    Then I should receive a RestResponse with an error code 812
 
   Scenario: Set the property of a capability template to an non existing input of the topology should failed
     Given I define the property "os_arch" of the node "Compute" as input property

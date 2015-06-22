@@ -3,7 +3,7 @@ package alien4cloud.plugin;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import alien4cloud.paas.exception.MissingPluginException;
+import alien4cloud.plugin.exception.MissingPluginException;
 
 import com.google.common.collect.Maps;
 

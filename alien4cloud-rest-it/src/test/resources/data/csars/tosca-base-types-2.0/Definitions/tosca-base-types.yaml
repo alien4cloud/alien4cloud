@@ -74,9 +74,11 @@ node_types:
       mem_size:
         type: scalar-unit.size
         required: false
+        default: 2048 MB
         constraints:
           - greater_than: 0 B
       os_arch:
+        default: "x86_64"
         type: string
       os_type:
         type: string
@@ -104,6 +106,7 @@ node_types:
       compute:
         type: tosca.capabilities.Container
         upper_bound: unbounded
+      scalable: tosca.capabilities.Scalable
 
   tosca.nodes.BlockStorage:
     derived_from: tosca.nodes.Root
@@ -256,6 +259,18 @@ capability_types:
         default: false
   tosca.capabilities.Connectivity:
     derived_from: tosca.capabilities.Root
+  tosca.capabilities.Scalable:
+    derived_from: tosca.capabilities.Root
+    properties:
+      min_instances:
+        type: integer
+        default: 1
+      max_instances:
+        type: integer
+        default: 1
+      default_instances:
+        type: integer
+        default: 1
 
 relationship_types:
   tosca.relationships.Root:

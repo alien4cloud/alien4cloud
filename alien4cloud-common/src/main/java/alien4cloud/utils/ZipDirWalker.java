@@ -22,14 +22,14 @@ public class ZipDirWalker extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         if (!dir.equals(inputPath)) {
-            zipOutputStream.putNextEntry(new ZipEntry(FileUtil.getChildEntryRelativePath(inputPath, dir)));
+            zipOutputStream.putNextEntry(new ZipEntry(FileUtil.getChildEntryRelativePath(inputPath, dir, true)));
         }
         return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        FileUtil.putZipEntry(zipOutputStream, new ZipEntry(FileUtil.getChildEntryRelativePath(inputPath, file)), file);
+        FileUtil.putZipEntry(zipOutputStream, new ZipEntry(FileUtil.getChildEntryRelativePath(inputPath, file, true)), file);
         return FileVisitResult.CONTINUE;
     }
 

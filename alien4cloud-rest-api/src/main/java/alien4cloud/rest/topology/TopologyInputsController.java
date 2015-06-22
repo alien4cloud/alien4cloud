@@ -8,10 +8,10 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import alien4cloud.topology.TopologyDTO;
-import alien4cloud.topology.TopologyService;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
@@ -41,6 +43,8 @@ import alien4cloud.rest.model.RestError;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 
@@ -64,6 +68,9 @@ public class TopologyInputsController {
 
     @Resource
     private ICSARRepositorySearchService csarRepoSearchService;
+
+    @Resource
+    private DeploymentSetupService deploymentSetupService;
 
     /**
      * Add a new input.
@@ -89,6 +96,16 @@ public class TopologyInputsController {
 
         log.debug("Add a new input <{}> for the topology <{}>.", inputId, topologyId);
         alienDAO.save(topology);
+        if (StringUtils.isNotEmpty(newPropertyDefinition.getDefault())) {
+            DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
+            for (DeploymentSetup deploymentSetup : deploymentSetups) {
+                if (deploymentSetup.getInputProperties() == null) {
+                    deploymentSetup.setInputProperties(Maps.<String, String> newHashMap());
+                }
+                deploymentSetup.getInputProperties().put(inputId, newPropertyDefinition.getDefault());
+                alienDAO.save(deploymentSetup);
+            }
+        }
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -100,12 +117,14 @@ public class TopologyInputsController {
      * @param newInputId
      */
     private void updateInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String oldInputId, final String newInputId) {
-        for (AbstractPropertyValue propertyValue : properties.values()) {
-            if (propertyValue instanceof FunctionPropertyValue) {
-                FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
-                if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
-                        && functionPropertyValue.getParameters().get(0).equals(oldInputId)) {
-                    functionPropertyValue.setParameters(Arrays.asList(newInputId));
+        if (MapUtils.isNotEmpty(properties)) {
+            for (AbstractPropertyValue propertyValue : properties.values()) {
+                if (propertyValue instanceof FunctionPropertyValue) {
+                    FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyValue;
+                    if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction())
+                            && functionPropertyValue.getParameters().get(0).equals(oldInputId)) {
+                        functionPropertyValue.setParameters(Arrays.asList(newInputId));
+                    }
                 }
             }
         }
@@ -151,10 +170,23 @@ public class TopologyInputsController {
                     updateInputIdInProperties(relationshipTemplate.getProperties(), inputId, newInputId);
                 }
             }
+            if (nodeTemp.getCapabilities() != null) {
+                for (Capability capability : nodeTemp.getCapabilities().values()) {
+                    updateInputIdInProperties(capability.getProperties(), inputId, newInputId);
+                }
+            }
         }
 
         log.debug("Change the name of an input parameter <{}> to <{}> for the topology ", inputId, newInputId, topologyId);
         alienDAO.save(topology);
+        DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
+        for (DeploymentSetup deploymentSetup : deploymentSetups) {
+            if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
+                String oldValue = deploymentSetup.getInputProperties().remove(inputId);
+                deploymentSetup.getInputProperties().put(newInputId, oldValue);
+                alienDAO.save(deploymentSetup);
+            }
+        }
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -164,7 +196,8 @@ public class TopologyInputsController {
      * @param properties
      * @param inputId
      */
-    private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final String inputId) {
+    private void removeInputIdInProperties(final Map<String, AbstractPropertyValue> properties, final Map<String, PropertyDefinition> propertyDefinitions,
+            final String inputId) {
         if (properties == null) {
             return;
         }
@@ -172,7 +205,12 @@ public class TopologyInputsController {
             if (propertyEntry.getValue() instanceof FunctionPropertyValue) {
                 FunctionPropertyValue functionPropertyValue = (FunctionPropertyValue) propertyEntry.getValue();
                 if (ToscaFunctionConstants.GET_INPUT.equals(functionPropertyValue.getFunction()) && functionPropertyValue.getTemplateName().equals(inputId)) {
-                    propertyEntry.setValue(null);
+                    String defaultValue = propertyDefinitions.get(propertyEntry.getKey()).getDefault();
+                    if (StringUtils.isNotEmpty(defaultValue)) {
+                        propertyEntry.setValue(new ScalarPropertyValue(defaultValue));
+                    } else {
+                        propertyEntry.setValue(null);
+                    }
                 }
             }
         }
@@ -199,17 +237,35 @@ public class TopologyInputsController {
         inputProperties.remove(inputId);
 
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
-        for (NodeTemplate nodeTemp : nodeTemplates.values()) {
-            removeInputIdInProperties(nodeTemp.getProperties(), inputId);
+        Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
+        Map<String, IndexedRelationshipType> relationshipTypes = topologyServiceCore.getIndexedRelationshipTypesFromTopology(topology);
+        Map<String, IndexedCapabilityType> capabilityTypes = topologyServiceCore.getIndexedCapabilityTypesFromTopology(topology);
+        for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
+            IndexedNodeType nodeType = nodeTypes.get(nodeTempEntry.getKey());
+            NodeTemplate nodeTemp = nodeTempEntry.getValue();
+            removeInputIdInProperties(nodeTemp.getProperties(), nodeType.getProperties(), inputId);
             if (nodeTemp.getRelationships() != null) {
                 for (RelationshipTemplate relationshipTemplate : nodeTemp.getRelationships().values()) {
-                    removeInputIdInProperties(relationshipTemplate.getProperties(), inputId);
+                    removeInputIdInProperties(relationshipTemplate.getProperties(), relationshipTypes.get(relationshipTemplate.getType()).getProperties(),
+                            inputId);
+                }
+            }
+            if (nodeTemp.getCapabilities() != null) {
+                for (Capability capability : nodeTemp.getCapabilities().values()) {
+                    removeInputIdInProperties(capability.getProperties(), capabilityTypes.get(capability.getType()).getProperties(), inputId);
                 }
             }
         }
 
         log.debug("Remove the input " + inputId + " from the topology " + topologyId);
         alienDAO.save(topology);
+        DeploymentSetup[] deploymentSetups = deploymentSetupService.getByTopologyId(topologyId);
+        for (DeploymentSetup deploymentSetup : deploymentSetups) {
+            if (deploymentSetup.getInputProperties() != null && deploymentSetup.getInputProperties().containsKey(inputId)) {
+                deploymentSetup.getInputProperties().remove(inputId);
+                alienDAO.save(deploymentSetup);
+            }
+        }
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topologyServiceCore.getMandatoryTopology(topologyId))).build();
     }
 

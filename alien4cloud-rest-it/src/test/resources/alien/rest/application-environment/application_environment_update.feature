@@ -43,7 +43,7 @@ Scenario: Update cloud id for a deployed environment must fail
   And I have the environment "Environment" with status "DEPLOYED" for the application "LAMP"
   Then I should receive a RestResponse with no error
   When I update the environment named "Environment" to use cloud "mock-paas-cloud-second" for application "LAMP"
-  Then I should receive a RestResponse with an error code 604
+  Then I should receive a RestResponse with an error code 612
 
 Scenario: Update cloud id for an environment with no rights on the underlying cloud must fail
   Given I remove a role "CLOUD_DEPLOYER" to user "frodon" on the resource type "CLOUD" named "mock-paas-cloud"

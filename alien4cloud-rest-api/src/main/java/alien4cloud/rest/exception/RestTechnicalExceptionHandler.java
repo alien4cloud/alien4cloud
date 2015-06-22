@@ -30,6 +30,8 @@ import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
+import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
+import alien4cloud.paas.exception.ComputeConflictNameException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
@@ -177,6 +179,17 @@ public class RestTechnicalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(value = ComputeConflictNameException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(ComputeConflictNameException e) {
+        log.error("Error in PaaS Deployment, computer name conflict ", e);
+        return RestResponseBuilder
+                .<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build())
+                .build();
+    }
+
     @ExceptionHandler(value = PaaSDeploymentException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
@@ -252,10 +265,10 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> deleteLastApplicationEnvironmentErrorHandler(DeleteLastApplicationEnvironmentException e) {
         log.error("Delete last application environment error", e);
-        return RestResponseBuilder.<Void> builder()
+        return RestResponseBuilder
+                .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR).message("Application environment error : " + e.getMessage())
-                        .build())
-                .build();
+                        .build()).build();
     }
 
     @ExceptionHandler(value = DeleteLastApplicationVersionException.class)
@@ -286,8 +299,8 @@ public class RestTechnicalExceptionHandler {
         log.error("Problem parsing right operand during the generation of PaasId : ", e);
         return RestResponseBuilder
                 .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR)
-                        .message("Problem parsing right operand : " + e.getMessage()).build()).build();
+                .error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_NAMING_POLICY_ERROR).message("Problem parsing right operand : " + e.getMessage())
+                        .build()).build();
     }
 
     @ExceptionHandler(value = EmptyMetaPropertyException.class)
@@ -295,10 +308,10 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> generateEmptyMetaPropertyErrorHandler(EmptyMetaPropertyException e) {
         log.error("One of meta property is empty and don't have a default value : ", e);
-        return RestResponseBuilder.<Void> builder()
+        return RestResponseBuilder
+                .<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.EMPTY_META_PROPERTY_ERROR)
-                        .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build())
-                .build();
+                        .message("One of meta property is empty and don't have a default value : " + e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ApplicationVersionNotFoundException.class)
@@ -307,8 +320,7 @@ public class RestTechnicalExceptionHandler {
     public RestResponse<Void> applicationVersionIsMissingErrorHandler(ApplicationVersionNotFoundException e) {
         log.error(e.getMessage());
         return RestResponseBuilder.<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.MISSING_APPLICATION_VERSION_ERROR).message(e.getMessage()).build())
-                .build();
+                .error(RestErrorBuilder.builder(RestErrorCode.MISSING_APPLICATION_VERSION_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = ConstraintViolationException.class)
@@ -328,4 +340,14 @@ public class RestTechnicalExceptionHandler {
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
     }
+
+    @ExceptionHandler(value = IncompatiblePropertyDefinitionException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> IncompatiblePropertyDefinitionExceptionHandler(IncompatiblePropertyDefinitionException e) {
+        log.error("Property definition doesn't match : " + e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_DEFINITION_MATCH_ERROR).message(e.getMessage()).build()).build();
+    }
+
 }

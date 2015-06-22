@@ -27,7 +27,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginConfiguration;
+import alien4cloud.plugin.model.PluginConfiguration;
 
 /**
  * Elastic Search DAO for alien 4 cloud application.

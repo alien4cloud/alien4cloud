@@ -173,7 +173,6 @@ public class ApplicationEnvironmentController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @Audit
     public RestResponse<String> create(@PathVariable String applicationId, @RequestBody ApplicationEnvironmentRequest request) throws CloudDisabledException {
-
         // User should be APPLICATIONS_MANAGER to create an application
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
         Application application = applicationService.getOrFail(applicationId);
@@ -181,8 +180,8 @@ public class ApplicationEnvironmentController {
         AuthorizationUtil.hasAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
 
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), request.getApplicationId(),
-                request.getName(), request.getDescription(), request.getEnvironmentType(), request.getVersionId());
+        ApplicationEnvironment appEnvironment = applicationEnvironmentService.createApplicationEnvironment(auth.getName(), applicationId, request.getName(),
+                request.getDescription(), request.getEnvironmentType(), request.getVersionId());
 
         if (request.getCloudId() != null) {
             Cloud cloud = cloudService.getMandatoryCloud(request.getCloudId());
@@ -238,7 +237,7 @@ public class ApplicationEnvironmentController {
                     .<Void> builder()
                     .data(null)
                     .error(RestErrorBuilder
-                            .builder(RestErrorCode.APPLICATION_ENVIRONMENT_ERROR)
+                            .builder(RestErrorCode.CANNOT_UPDATE_DEPLOYED_ENVIRONMENT)
                             .message(
                                     "Application environment with id <" + applicationEnvironmentId + "> is currently deployed on cloud <"
                                             + request.getCloudId() + ">. Cloud update is not possible.").build()).build();

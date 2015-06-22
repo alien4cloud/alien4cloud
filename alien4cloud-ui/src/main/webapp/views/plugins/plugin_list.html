@@ -1,0 +1,75 @@
+<div>
+  <div class="row">
+    <upload-directive target-url="'rest/plugin'" drag-and-drop-message="'PLUGINS.DRAG_DROP_UPLOAD'" button-message="'PLUGINS.UPLOAD'"
+                      upload-success-callback='search()' />
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-3 pull-right ">
+      <form role="search" ng-submit="search()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="..." ng-model="query"> <span class="input-group-btn">
+            <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+
+      <div class="table-resopnsive large-data-container" id="plugins-table">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th>{{ 'PLUGINS.ID' | translate}}</th>
+              <th>{{ 'PLUGINS.VERSION' | translate}}</th>
+              <th>{{ 'PLUGINS.NAME' | translate}}</th>
+              <th>{{ 'PLUGINS.DESCRIPTION' | translate}}</th>
+              <th>{{ 'PLUGINS.BEANS' | translate}}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="plugin in data.data" id='plugin_{{plugin.id}}'>
+              <td><i class="fa fa-circle fa-2x" ng-class="{'text-success': plugin.enabled,'text-danger': !plugin.enabled}"
+                  tooltip="{{'PLUGINS.ENABLED_' + plugin.enabled | translate }}"></i></td>
+              <td>{{plugin.descriptor.id}}</td>
+              <td>{{plugin.descriptor.version}}</td>
+              <td>{{plugin.descriptor.name}}</td>
+              <td>{{plugin.description}}</td>
+              <td>
+                  <div ng-repeat="component in plugin.descriptor.componentDescriptors">
+                    <i class="fa fa-cloud-upload" ng-if="component.type === 'IPaaSProvider'"></i> {{component.name}}
+                  </div>
+              </td>
+              <td>
+                <div class="pull-right">
+                  <a ng-click="enable(plugin.id)" ng-if="!plugin.enabled" class="btn btn-success btn-sm" tooltip="{{ 'PLUGINS.ENABLE' | translate}}"
+                     tooltip-append-to-body="true"> <i class="fa fa-circle fa-fw"></i>
+                  </a>
+                  <a ng-click="disable(plugin.id)" ng-if="plugin.enabled" class="btn btn-danger btn-sm" tooltip="{{ 'PLUGINS.DISABLE' | translate}}"
+                     tooltip-append-to-body="true"> <i class="fa fa-circle"></i>
+                  </a>
+                  <a id='plugin_{{plugin.id}}_configure' ng-click="openConfiguration(plugin.id)" ng-if="plugin.configurable" class="btn btn-default btn-sm"
+                     tooltip="{{ 'PLUGINS.CONFIGURE' | translate}}" tooltip-append-to-body="true">
+                    <i class="fa fa-cog"></i>
+                  </a>
+
+                  <!-- Remove a plugin -->
+                  <delete-confirm id="delete-plugin_{{plugin.id}}" func="remove(plugin.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  </delete-confirm>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- pagination bar -->
+        <pagination-directive pagination-info="searchService.pagination" />
+      </div>
+    </div>
+  </div>
+</div>

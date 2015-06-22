@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import alien4cloud.security.spring.Alien4CloudAccessDeniedHandler;
-import alien4cloud.security.spring.Alien4CloudAuthenticationProvider;
-import alien4cloud.security.spring.FailureAuthenticationEntryPoint;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,22 +24,25 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.google.common.collect.Lists;
 
 @Slf4j
 @Configuration
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-    @Autowired
+    @Resource
     private SecurityProperties security;
-
     @Resource
     private Alien4CloudAccessDeniedHandler accessDeniedHandler;
     @Resource
     private Alien4CloudAuthenticationProvider authenticationProvider;
 
+    @Autowired
+    private Environment env;
+   
     @Bean
     public Alien4CloudAuthenticationProvider authenticationProvider() {
         return new Alien4CloudAuthenticationProvider();
@@ -91,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/topologies/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/templates/**").hasAnyAuthority("ADMIN", "ARCHITECT", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/components/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
-        http.authorizeRequests().antMatchers("/csarrepository/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        http.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
         http.authorizeRequests().antMatchers("/rest/applications/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/runtime/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/suggest/**").authenticated();
@@ -120,6 +121,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/passprovider").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
+
         http.authorizeRequests().anyRequest().denyAll();
 
         http.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")
@@ -128,11 +130,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // handle non authenticated request
         http.exceptionHandling().authenticationEntryPoint(new FailureAuthenticationEntryPoint());
+        
+        if(env.acceptsProfiles("github-auth")){
+            log.info("GitHub profile is active - enabling Spring Social features");
+            http.apply(new SpringSocialConfigurer().postLoginUrl("/").alwaysUsePostLoginUrl(true));
+        }
     }
 
     @Override
     public void configure(WebSecurity web) throws Exception {
         log.debug("Configure ignore path");
-        web.ignoring().antMatchers("/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/scripts/**", "/styles/**", "/views/**");
+        web.ignoring().antMatchers("/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**", "/views/**");
     }
 }

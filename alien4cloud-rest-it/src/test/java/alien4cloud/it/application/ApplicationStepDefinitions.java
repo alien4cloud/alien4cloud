@@ -1,6 +1,10 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -541,7 +545,6 @@ public class ApplicationStepDefinitions {
         Assert.assertNotNull(appEnvName);
 
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
         appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);

@@ -246,8 +246,18 @@ public class CloudController {
     @ApiOperation(value = "Disable a cloud.", notes = "Note that if the method returns false as the RestResponse data, this means that disable is not possible because the cloud is used for some deployments.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id:.+}/disable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
+    @Deprecated
     public RestResponse<Boolean> disableCloud(@ApiParam(value = "Id of the cloud to disable.", required = true) @PathVariable String id) {
         boolean disabledSuccess = cloudService.disableCloud(id);
+        return RestResponseBuilder.<Boolean> builder().data(disabledSuccess).build();
+    }
+
+    @ApiOperation(value = "Disable a cloud.", notes = "Note that if the method returns false as the RestResponse data, this means that disable is not possible because the cloud is used for some deployments.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id:.+}/disable/{force}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Boolean> forceDisableCloud(@ApiParam(value = "Id of the cloud to disable.", required = true) @PathVariable String id,
+            @ApiParam(value = "Boolean who indicate if the cloud disable need to be forced or not.", required = true) @PathVariable boolean force) {
+        boolean disabledSuccess = cloudService.disableCloud(id, force);
         return RestResponseBuilder.<Boolean> builder().data(disabledSuccess).build();
     }
 

@@ -1,0 +1,652 @@
+<div class="row">
+  <!-- Topology and deployment detail section -->
+  <div class="col-md-6">
+    <div class="row" style="margin-top: 10px;">
+      <!--  Environment status -->
+      <div class="col-md-12">
+        <i class="fa fa-2x vertical-center" tooltip="{{'APPLICATIONS.' + selectedEnvironment.status | translate }}" tooltip-append-to-body="true" ng-class="{
+            'fa-circle text-success' : selectedEnvironment.status == 'DEPLOYED',
+            'fa-circle text-muted' : selectedEnvironment.status == 'UNDEPLOYED',
+            'fa-warning text-warning' : selectedEnvironment.status == 'WARNING',
+            'fa-circle text-danger' : selectedEnvironment.status == 'FAILURE',
+            'fa-question-circle text-muted' : selectedEnvironment.status == 'UNKNOWN',
+            'fa-spinner fa-spin' : selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' || selectedEnvironment.status == 'UNDEPLOYMENT_IN_PROGRESS'
+          }">
+        </i>
+        <h3 style="display:inline; padding-left:5px; vertical-align:middle;">{{'APPLICATIONS.' + selectedEnvironment.status | translate}}</h3>
+      </div>
+    </div>
+
+    <!-- Deployment -->
+    <div class="row" style="margin-top: 20px;" ng-if="isAllowedDeployment()">
+      <div class="col-md-8">
+        <select id="environment-select" class="form-control " ng-disabled="isDeploying" ng-model="selectedEnvironment" ng-options="env.name for env in envs" ng-change="changeEnvironment(selectedEnvironment)">
+          <option value="selectedEnvironment"></option>
+        </select>
+        <!-- ## Env {{selectedEnvironment.cloudId}} ## - SelectedCloud ID : **{{selectedCloud.id}}** -->
+        <select ng-disabled="!(selectedEnvironment.status === 'UNDEPLOYED')" id="cloud-select" class="form-control" ng-model="selectedCloud" ng-options="cloud.name for cloud in clouds" ng-change="changeCloud(selectedCloud)" style="margin-top: 10px;">
+          <option value="">{{'APPLICATIONS.TOPOLOGY.CLOUD_SELECT' | translate}}</option>
+        </select>
+
+        <!-- DEPLOYMENT_MANAGER specific -->
+        <div style="margin-top: 20px;" ng-if="!validTopologyDTO.valid && !isManager">
+          <p class="text-danger">{{ 'APPLICATIONS.DEPLOYMENT_MANAGER_INVALID' | translate }}</p>
+        </div>
+        <!-- END : DEPLOYMENT_MANAGER specific -->
+      </div>
+
+      <div class="col-md-4" style="padding-top: 25px;">
+        <!-- DEPLOY BUTTON -->
+        <button id="btn-deploy" type="button" class="btn btn-success application-deploy-button" ng-disabled="!validTopologyDTO.valid || !selectedCloud || isDeploying || hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage || hasUnmatchedGroup" ng-click="deploy()"
+        ng-show="selectedEnvironment.status === 'UNDEPLOYED'">
+          <i class="fa" ng-class="{'fa-play': !isDeploying, 'fa-spinner fa-spin': isDeploying}"></i> {{'APPLICATIONS.DEPLOY' | translate}}
+        </button>
+        <button id="btn-undeploy" type="button" class="btn btn-danger application-deploy-button" ng-click="undeploy()" ng-if="(selectedEnvironment.status === 'DEPLOYED' ||
+          selectedEnvironment.status === 'WARNING' ||
+          selectedEnvironment.status === 'DEPLOYMENT_IN_PROGRESS' ||
+          selectedEnvironment.status === 'FAILURE') &&
+          selectedCloud">
+          <i class="fa" ng-class="{'fa-stop': !isUnDeploying, 'fa-spinner fa-spin': isUnDeploying}"></i> {{'APPLICATIONS.UNDEPLOY' | translate}}
+        </button>
+      </div>
+    </div>
+
+  </div>
+  <div class="col-md-6">
+
+    <!-- todo list -->
+    <div class="row" ng-if="showTodoList()">
+      <div id="deploymentTodoList" class="col-md-12">
+        <h3 class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.TASK.LABEL' | translate}}</h3>
+
+        <div class="task-list-box">
+          <!-- case the topology is not created -->
+          <span ng-if="!topologyId">
+            {{'APPLICATIONS.TOPOLOGY.TASK.CREATE_TOPOLOGY_MESSAGE' | translate}}.
+          </span>
+
+          <!-- case the topology is empty -->
+          <span ng-if="!validTopologyDTO.taskList && topologyId">
+            {{'APPLICATIONS.TOPOLOGY.TASK.EMPTY_TOPOLOGY_MESSAGE' | translate}}.
+          </span>
+
+          <!--  Replacement tasks  -->
+          <div ng-if="(toReplaceNodeTasks = (validTopologyDTO.taskList | filter:{code:'REPLACE'})).length>0">
+
+            <div class="topology-node-expand clickable" ng-init="isToReplaceNodesCollapsed = false" ng-click="isToReplaceNodesCollapsed = !isToReplaceNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToReplaceNodesCollapsed, 'fa-chevron-right': isToReplaceNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.REPLACE_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToReplaceNodesCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>{{'SUGGESTIONS' | translate}}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat=" toReplaceNodeTask in toReplaceNodeTasks">
+                    <td>
+                      <span>{{toReplaceNodeTask.nodeTemplateName}}</span>
+                      <span>({{toReplaceNodeTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style" ng-if="toReplaceNodeTask.suggestedNodeTypes">
+                        <li ng-repeat="nodeType in toReplaceNodeTask.suggestedNodeTypes">
+                          {{nodeType.elementId}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--  Implementation tasks  -->
+          <div ng-if="(toImplementNodeTasks = (validTopologyDTO.taskList | filter:{code:'IMPLEMENT'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.IMPLEMENT_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToImplementNodesCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <tbody>
+                  <tr ng-repeat=" toImplementNodeTask in toImplementNodeTasks">
+                    <td>
+                      <span>{{toImplementNodeTask.nodeTemplateName}}</span>
+                      <span>({{toImplementNodeTask.component.elementId}})</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--  LowerBound not satisfied tasks  -->
+          <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToAddRelationsCollapsed , 'fa-chevron-right': isToAddRelationsCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.TOADD_RELATIONSHIP_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isToAddRelationsCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th></th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.REQUIREMENTS' | translate}}</th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat=" lowerBoundTask in lowerBoundTasks">
+                    <td>
+                      <span>{{lowerBoundTask.nodeTemplateName}}</span>
+                      <span>({{lowerBoundTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <div class="row" ng-repeat=" req in lowerBoundTask.requirementsToImplement">
+                        <div class="col-md-10">
+                          <span>{{req.name}}</span>
+                          <span>({{req.type}})</span>
+                        </div>
+                        <div class="col-md-2">
+                          <span>{{req.remainingBound}}</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!--  Required properties tasks  -->
+          <div ng-if="(requiredPropertiesTasks = (validTopologyDTO.taskList| filter:{code:'PROPERTIES'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isRequiredPropertiesCollapsed = false" ng-click="isRequiredPropertiesCollapsed = !isRequiredPropertiesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isRequiredPropertiesCollapsed , 'fa-chevron-right': isRequiredPropertiesCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.REQUIRED_PROPERTIES_LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isRequiredPropertiesCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th></th>
+                  <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.REQUIRED' | translate}}</th>
+                  <th><i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i> {{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                </thead>
+                <tbody>
+                  <tr ng-init="existsWarning = requiredPropertiesTask.properties['WARNING'].length>0" ng-repeat="requiredPropertiesTask in requiredPropertiesTasks" ng-class="{'bg-warning':existsWarning}">
+                    <td>
+                      <strong>{{requiredPropertiesTask.nodeTemplateName}}</strong>
+                      <span>({{requiredPropertiesTask.component.elementId}})</span>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in requiredPropertiesTask.properties['REQUIRED']">
+                          {{property}}
+                        </li>
+                      </ul>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in requiredPropertiesTask.properties['WARNING']">
+                          {{property}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div ng-if="(scalabilityTasks = (validTopologyDTO.taskList| filter:{code:'SCALABLE_CAPABILITY_INVALID'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isScalabilityCollapsed = false" ng-click="isScalabilityCollapsed = !isScalabilityCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isScalabilityCollapsed , 'fa-chevron-right': isScalabilityCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.LABEL' | translate}}</span>
+            </div>
+
+            <div collapse="isScalabilityCollapsed " class="topology-level">
+              <table class="table table-condensed">
+                <tbody>
+                  <tr ng-repeat="scalabilityTask in scalabilityTasks">
+                    <td>
+                      <strong>{{scalabilityTask.nodeTemplateName}}</strong>
+                    </td>
+                    <td>
+                      <ul class="td_list liste-no-style">
+                        <li ng-repeat="property in scalabilityTask.properties['ERROR']">
+                          {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.ERRORS.' + property | translate }}
+                        </li>
+                        <li ng-repeat="property in scalabilityTask.properties['REQUIRED']">
+                          {{property}} {{'APPLICATIONS.TOPOLOGY.TASK.SCALABLE_CAPABILITY_INVALID.MISSING' | translate}}
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- warning list -->
+    <div class="row" ng-if="showWarningList()">
+      <div id="deploymentWarningList" class="col-md-12">
+        <h3 class="text-warning"><i class="fa fa-exclamation-triangle"></i> {{'APPLICATIONS.TOPOLOGY.WARNING.LABEL' | translate}}</h3>
+
+        <div class="warning-list-box" ng-repeat="(taskCode, tasks) in validTopologyDTO.warningList" ng-switch="taskCode">
+
+          <!--HA warning list -->
+          <div ng-if="tasks.length>0" ng-switch-when="HA_INVALID">
+
+            <div class="topology-node-expand clickable" ng-init="isHAGroupWarningsCollapsed = false" ng-click="isHAGroupWarningsCollapsed = !isHAGroupWarningsCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isHAGroupWarningsCollapsed , 'fa-chevron-right': isHAGroupWarningsCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.LABEL' | translate}}</span>
+            </div>
+            <div collapse="isHAGroupWarningsCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.GROUP' | translate}}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.NODE' | translate}}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.ERROR' | translate}}</th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="haTask in tasks">
+                    <td>{{haTask.groupId || '---'}}</td>
+                    <td>{{haTask.nodeTemplateName || '---'}}</td>
+                    <td>{{'APPLICATIONS.TOPOLOGY.WARNING.HA_INVALID.' + haTask.errorCode | translate}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div> <!-- End : HA warning -->
+
+          <!-- Properties warning list -->
+          <div ng-if="tasks.length>0" ng-switch-when="PROPERTIES">
+
+            <div class="topology-node-expand clickable" ng-init="isPropertiesGroupWarningsCollapsed = false" ng-click="isPropertiesGroupWarningsCollapsed = !isPropertiesGroupWarningsCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isPropertiesGroupWarningsCollapsed , 'fa-chevron-right': isPropertiesGroupWarningsCollapsed }"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.LABEL' | translate}}</span>
+            </div>
+            <div collapse="isPropertiesGroupWarningsCollapsed" class="topology-level">
+              <table class="table table-condensed">
+                <thead>
+                  <th>{{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.NODENAME' | translate}}</th>
+                  <th>
+                    <i class="fa fa-exclamation-triangle" tooltip="{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING_MESSAGE' | translate}}"></i>
+                    {{'APPLICATIONS.TOPOLOGY.WARNING.PROPERTIES.PROP' | translate}}
+                  </th>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="task in tasks">
+                    <td>{{task.nodeTemplateName || '---'}}</td>
+                    <td>{{task.properties['WARNING'] | a2s:','}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div> <!-- End : properties warning -->
+
+        </div> <!-- End : warning list display -->
+
+      </div>
+    </div>
+
+    <!-- Plugin deployment properties -->
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-if="showProperty()" ng-init="isPropertiesCollapsed = false">
+          <h3><i class="fa fa-cog"> </i> {{'APPLICATIONS.TOPOLOGY.PROPERTIES' | translate}}</h3>
+          <table class="table table-condensed" id="nodeTemplateProperties" style="margin-left:10px;">
+            <tr ng-repeat="(propertyKey,propertyDefinition) in deploymentPropertyDefinitions">
+              <td id="p_deployment_{{propertyKey}}">
+                <property-display ng-init="condensed = true" definition="propertyDefinition" property-value="deploymentProperties[propertyKey]" on-save="updateDeploymentProperty(propertyDefinition,propertyValue)" editable="selectedEnvironment.status === 'UNDEPLOYED'"
+                condensed="condensed">
+                </property-display>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- END : Plugin deployment properties -->
+
+    <!-- Input properties  -->
+    <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
+      <div class="col-md-12">
+
+        <span>
+          <i class="fa fa-sign-in"></i>
+          <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
+        </span>
+
+        <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs | allowedInputs">
+          <hr/>
+          <div id="app_deployment_id_{{inputId}}" class="col-md-4">
+            {{inputId}}
+          </div>
+          <div id="app_deployment_value_{{inputId}}" class="col-md-8">
+            <property-display definition="inputDefinition" property-value="setup.inputProperties[inputId]" on-save="updateInputValue(propertyDefinition, propertyValue, inputId)" editable="!(selectedEnvironment.status === 'DEPLOYED')" condensed="true">
+            </property-display>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Input artifacts  -->
+    <div class="row" style="margin-top: 20px;" ng-if="inputArtifactsSize>0">
+      <div class="col-md-12">
+        <span>
+          <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate}}</strong>
+        </span>
+        <ul>
+          <li ng-repeat="(artifactKey,artifactValue) in inputArtifacts">
+            {{artifactKey}}
+            <div class="topology-level" collapse="isArtifactCollapsed">
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</div>
+                <div class="col-md-9">{{artifactValue.artifactType}}</div>
+              </div>
+              <div class="row">
+                <div class="col-md-3">{{'APPLICATIONS.TOPOLOGY.REFERENCE' | translate}}</div>
+                <div class="col-md-9">
+                  <div ng-if="!uploads[artifactKey].isUploading">
+                    <span tooltip="{{artifactValue.artifactName}}" tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[artifactValue.artifactName.length > 20]}}">{{artifactValue.artifactName | truncate:20}}</span>
+                     <div class="fileUploadImg btn" tooltip="{{'APPLICATIONS.TOPOLOGY.UPDATE_ARTIFACT' | translate}}">
+                      <span>
+                        <i class="fa fa-upload text-primary"></i>
+                      </span>
+                      <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactKey, inputArtifactValue)">
+                    </div>
+                  </div>
+                  <progressbar ng-if="uploads[artifactKey].isUploading" class="progress-striped active" value="uploads[artifactKey].uploadProgress" type="{{uploads[artifactKey].type}}" />
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Output properties  -->
+    <div class="row" style="margin-top: 20px;" ng-show="
+      selectedEnvironment.status == 'DEPLOYED' ||
+      selectedEnvironment.status == 'WARNING' ||
+      selectedEnvironment.status == 'DEPLOYMENT_IN_PROGRESS' ||
+      selectedEnvironment.status == 'FAILURE'">
+
+      <div class="col-md-12">
+        <display-outputs></display-outputs>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Matcher -->
+<div id="div-deployment-matcher" ng-if="!showTodoList() && selectedCloud" style="padding-top:10px;">
+  <div class="row">
+    <div class="col-md-12">
+      <legend class="text-center title-border">
+        <h3><i ng-class="{'fa fa-warning text-danger' : hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage, 'fa fa-random': !hasUnmatchedCompute || !hasUnmatchedNetwork || !hasUnmatchedStorage}"></i> {{'APPLICATIONS.DEPLOYMENT.NAME_MATCHER'
+          | translate}}</h3>
+      </legend>
+    </div>
+  </div>
+  <div class="row" ng-if="hasUnmatchedCompute || hasUnmatchedNetwork || hasUnmatchedStorage" style="margin-bottom: 10px;">
+    <div class="col-md-12">
+      <span><i class="fa fa-warning text-danger"></i> {{'APPLICATIONS.DEPLOYMENT.RESOURCES_NOT_MATCHED' | translate}}</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <tabset>
+
+        <!-- COMPUTE RESSOURCES -->
+        <tab id="tab-compute-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.COMPUTE_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedCompute">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4" style="padding-right: 0px;">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover table-responsive">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_IMAGE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_FLAVOR' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedComputeResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedComputeTemplates(key, templates)" class="clickable-media" ng-class="{'info': isSelectedComputeTemplate(key), 'danger': !selectedComputeTemplates[key]}">
+                      <td class="image-in-table-responsive">
+                        <img ng-src="{{getResourceIcon(computeImage, key)}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{images[selectedComputeTemplates[key].cloudImageId].name}}</td>
+                      <td>{{selectedComputeTemplates[key].cloudImageFlavorId}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedComputeTemplates">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover table-responsive">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_TYPE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DISTRIBUTION' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_VERSION' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ARCH' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_CPUS' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_SIZE_DISK' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_RAM' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DESCRIPTION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="template in currentMatchedComputeTemplates" class="clickable-media" ng-class="{'info' : isSelectedCompute(template)}" ng-click="changeSelectedImage(template)">
+                      <td ng-init="cloudImageId = images[template.cloudImageId].iconId" class="image-in-table-responsive">
+                        <i ng-if="!cloudImageId" class="fa fa-image fa-3x"></i>
+                        <img ng-if="cloudImageId" ng-src="{{cloudImageId?('img?id=' + cloudImageId + '&quality=QUALITY_64'):null}}" />
+                      </td>
+                      <td>{{images[template.cloudImageId].osType}}</td>
+                      <td>{{images[template.cloudImageId].osDistribution}}</td>
+                      <td>{{images[template.cloudImageId].osVersion}}</td>
+                      <td>{{images[template.cloudImageId].osArch}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].numCPUs}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].diskSize | bytes}}</td>
+                      <td>{{flavors[template.cloudImageFlavorId].memSize | bytes}}</td>
+                      <td>{{template.description}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+
+        <!-- NETWORK RESSOURCES -->
+        <tab id="tab-network-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.NETWORK_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedNetwork">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_NETWORK' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedNetworkResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedNetworks(key, templates)" class="clickable-media" ng-class="{'info': isSelectedNetworkName(key), 'danger': !selectedNetworks[key]}">
+                      <td class="image-in-table-responsive">
+                        <img ng-src="{{getResourceIcon(networkImage, key)}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{selectedNetworks[key].id}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedNetworks">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover table-responsive">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
+                      <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="network in currentMatchedNetworks" class="clickable-media" ng-class="{'info' : isSelectedNetwork(network)}" ng-click="changeSelectedNetwork(network)">
+                      <td>{{network.id}}</td>
+                      <td>{{network.cidr}}</td>
+                      <td>{{network.gatewayIp || '---'}}</td>
+                      <td>{{network.ipVersion}}</td>
+                      <td>{{network.description || '---'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+
+        <!-- STORAGE RESOURCES -->
+        <tab id="tab-storage-resources">
+          <tab-heading>
+            {{'APPLICATIONS.DEPLOYMENT.STORAGE_RESOURCES' | translate}}
+            <span ng-if="hasUnmatchedStorage">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover table-responsive">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_COMPONENT' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_STORAGE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, templates) in matchedStorageResources" id="{{'tr-node-' + key}}" ng-click="setCurrentMatchedStorages(key, templates)" class="clickable-media" ng-class="{'info': isSelectedStorageName(key), 'danger': !selectedStorages[key]}">
+                      <td class="image-in-table-responsive">
+                        <img ng-src="{{getResourceIcon(storageImage, key)}}" />
+                      </td>
+                      <td>{{key}}</td>
+                      <td>{{selectedStorages[key].id}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8" ng-if="currentMatchedStorages">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.LOCATION' | translate}}</th>
+                      <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                      <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="storage in currentMatchedStorages" class="clickable-media" ng-class="{'info' : isSelectedStorage(storage)}" ng-click="changeSelectedStorage(storage)">
+                      <td>{{storage.id}}</td>
+                      <td>{{storage.device || '---'}}</td>
+                      <td>{{storage.location || '---'}}</td>
+                      <td>{{storage.size | bytes}}</td>
+                      <td>{{storage.description || '---'}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+
+        <!-- ZONE RESOURCES -->
+        <tab id="tab-zone-resources">
+          <tab-heading>
+            {{'CLOUDS.ZONE' | translate}}
+            <span ng-if="hasUnmatchedGroup">
+              <i class="fa fa-warning text-danger"></i>
+            </span>
+          </tab-heading>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_GROUP' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="(key, zones) in matchedZoneResources" id="{{'tr-node-' + key}}" ng-click="setCurrentGroup(key)" class="clickable-media" ng-class="{'danger': !hasEnoughSelectedZones(key), 'info': isSelectedGroup(key)}">
+                      <td>{{key}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="table-responsive large-data-container">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_ZONE' | translate}}</th>
+                      <th>{{'APPLICATIONS.DEPLOYMENT.TITLE_DESCRIPTION' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="zone in currentMatchedZones track by zone.id" class="clickable-media" ng-class="{'info' : isSelectedZone(zone)}" ng-click="changeSelectedZone(zone)">
+                      <td><i class="{{ isSelectedZone(zone) ? 'fa fa-check-square-o' : 'fa fa-square-o' }}"></i></input>
+                      </td>
+                      <td>{{zone.id}}</td>
+                      <td>{{zone.description}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </tab>
+
+      </tabset>
+    </div>
+  </div>
+</div>

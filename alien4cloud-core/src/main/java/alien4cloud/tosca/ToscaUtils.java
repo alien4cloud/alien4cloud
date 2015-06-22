@@ -91,7 +91,7 @@ public class ToscaUtils {
     }
 
     public static String formatedOperationOutputName(String nodeName, String interfaceName, String operationName, String output) {
-        return AlienUtils.prefixWith(AlienConstants.COLON_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });
+        return AlienUtils.prefixWith(AlienConstants.OPERATION_NAME_SEPARATOR, output, new String[] { nodeName, interfaceName, operationName });
     }
 
 }

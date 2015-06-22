@@ -1,0 +1,89 @@
+<div class="modal-header">
+  <div ng-switch on="step">
+    <div ng-switch-when="1">
+      <h3>{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.SELECT_TARGET_HEADER' | translate}}</h3>
+    </div>
+    <div ng-switch-when="2">
+      <h3>{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.SELECT_RELATIONSHIP_HEADER' | translate}}</h3>
+    </div>
+    <div ng-switch-when="3">
+      <h3>{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.SELECT_NAME_HEADER' | translate}}</h3>
+    </div>
+  </div>
+</div>
+<div class="modal-body">
+  <div class="well">
+    <div class="row">
+      <div class="col-md-1">
+        <strong>{{'COMPONENTS.RELATIONSHIPS.SOURCE' | translate}}</strong>
+      </div>
+      <div class="col-md-5 text-info">
+        {{sourceElementName}}.{{requirementName}}
+      </div>
+      <div class="col-md-1">
+        <strong>{{'COMPONENTS.RELATIONSHIPS.TARGET' | translate}}</strong>
+      </div>
+      <div class="col-md-5 text-info">
+        {{relationshipModalData.target}}.{{relationshipModalData.targetedCapabilityName}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-1">
+        <strong>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</strong>
+      </div>
+      <div class="col-md-11 text-info">
+        {{relationshipModalData.relationship.elementId}}
+      </div>
+    </div>
+  </div>
+  <div ng-switch on="step">
+    <!-- Step = 1 selectTarget -->
+    <div ng-switch-when="1">
+      <div ng-show="!targets.length" class="text-danger">
+        {{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.NO_TARGETS' | translate}}
+      </div>
+      <div ng-repeat="match in targets">
+        <div class="topology-node-expand clickable" ng-click="isTargetCollapsed = !isTargetCollapsed" name="{{match.template.name}}">
+          <h4>
+            <i class="pull-left fa"
+              style="margin-top: 0px"
+              ng-class="{'fa-chevron-down' : !isTargetCollapsed, 'fa-chevron-right': isTargetCollapsed}"></i>
+            <span>{{match.template.name}}</span> ( {{match.template.type}} )
+          </h4>
+        </div>
+        <div collapse="isTargetCollapsed" name="{{match.template.name}}_capabilities">
+          <div ng-repeat="capability in  match.capabilities"
+            class="topology-level clickable "
+            ng-click="onSelectedTarget(match.template.name, capability.id)"
+            style="margin-bottom: 5px"
+            name="{{match.template.name}}_{{capability.id}}">
+            <span><em><strong>{{capability.id}}</strong></em></span>: <span>{{capability.type}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Step = 2 selectRelationship -->
+    <div ng-switch-when="2" class="row">
+      <alien-search-relationship-type refresh="refresh"
+        on-select-item="onSelectedRelationship(item)" hidden-filters="relationshipHiddenFilters">
+      </alien-search-relationship-type>
+    </div>
+    <!-- Step = 3 selectName -->
+    <div ng-switch-when="3" class="row">
+      <div class="form-group" style="margin: 10px;">
+        <label for="nameid" class="col-md-2 control-label">{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.NAME' | translate}}</label>
+        <div class="col-md-10">
+          <input type="text" class="form-control" id="nameid"
+            ng-model="relationshipModalData.name" name="name">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-success" ng-click="finish()"
+    ng-disabled="mustDisableFinish()" ng-show="step == totalStep" id="btn-modal-finish">{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.FINISH' | translate}}</button>
+  <button class="btn btn-default" ng-click="back()"
+    ng-disabled="step == 1" id="btn-modal-back">{{'APPLICATIONS.TOPOLOGY.SEARCH_RELATIONSHIP_MODAL.BACK' | translate}}</button>
+  <button class="btn btn-default" ng-click="cancel()" id="btn-modal-cancel">{{'CANCEL' | translate}}</button>
+</div>

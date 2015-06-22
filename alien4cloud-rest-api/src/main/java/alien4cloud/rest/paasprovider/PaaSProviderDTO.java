@@ -5,7 +5,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import alien4cloud.plugin.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
 import alien4cloud.model.components.ScalarPropertyValue;
 
 @Getter

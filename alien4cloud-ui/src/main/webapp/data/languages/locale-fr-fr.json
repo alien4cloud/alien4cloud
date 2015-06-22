@@ -1,0 +1,1015 @@
+{
+  "LANGUAGE": "Langue",
+  "DATE_FORMAT": "dd-MM-yyyy",
+  "BUTTON_RUN": "Lancer",
+  "CLOSE": "Fermer",
+  "CODE": "fr-fr",
+  "CANCEL": "Annuler",
+  "CREATE": "Créer",
+  "CLONE": "Cloner",
+  "DELETE": "Supprimer",
+  "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+  "CONFIRM_MESSAGE": "Êtes-vous sûr de vouloir effectuer cette action?",
+  "CONFIRM": "Confirmer",
+  "APPLICATION": "Application",
+  "CSAR": "Csar",
+  "TRUE": "Vrai",
+  "FALSE": "Faux",
+  "YES": "Oui",
+  "NO": "Non",
+  "NAME": "Nom",
+  "VALUE": "Valeur",
+  "NAVBAR": {
+    "BUTTON_LOGIN": "Connexion",
+    "BUTTON_LOGOUT": "Déconnexion",
+    "MENU_APPS": "Applications",
+    "MENU_COMPONENTS": "Composants",
+    "MENU_CSARS": "CSARS",
+    "MENU_ADMIN": "Administration",
+    "MENU_TOPOLOGY_TEMPLATE": "Modèles de topologie",
+    "INPUT_SEARCH_MESSAGE": "Que cherchez vous ?"
+  },
+  "HOME": {
+    "ADMIN": {
+      "TOUR": "Apprendre à configurer Alien 4 Cloud, les utilisateurs et leurs rôles, les clouds etc."
+    }
+  },
+  "MODAL": {
+    "TITLE": {
+      "PROPERTY": "Description de la propriété",
+      "REQUIREMENT": "Description du pré-requis",
+      "CAPABILITY": "Description de la capacité"
+    }
+  },
+  "NAVADMIN": {
+    "MENU_USERS": "Utilisateurs",
+    "MENU_PLUGINS": "Plugins",
+    "MENU_TAGS": "Méta-propriétés",
+    "MENU_CLOUDS": "Clouds",
+    "MENU_METRICS": "Métriques",
+    "MENU_CLOUD_IMAGES": "Cloud Images",
+    "MENU_AUDIT": "Audit"
+  },
+  "MAIN": {
+    "WELCOME": "Bienvenue sur",
+    "BUTTON_LOGIN": "Se connecter",
+    "CONTACT": "Veuillez contacter votre administrateur Alien 4 Cloud.",
+    "RESTRICTED_START": "Vous n'êtes pas assez",
+    "RESTRICTED_END": "pour accéder à cette ressource."
+  },
+  "UPLOAD": {
+    "COMPLETE": "Terminé"
+  },
+  "COMPONENTS": {
+    "UPLOAD": "Upload CSAR",
+    "DRAG_DROP_UPLOAD": "Déposer les archives à uploader ici",
+    "UPLOAD_ERROR": {
+      "LABEL": "Erreurs",
+      "FILE_PATH": "Fichier",
+      "ERRONEOUS_ARCHIVE_FILE": "L'Archive n'est pas parsable, merci de vérifier qu'il est de format zip",
+      "FAILED_TO_READ_FILE": "Impossible de lire le fichier à l'emplacement suivant {{note}}",
+      "ENTRY_DEFINITION_NOT_FOUND": "Le fichier de définitions n'a pas été trouvé. Le fichier de définitions yaml doit se trouver à la racine de l'archive",
+      "SINGLE_DEFINITION_SUPPORTED": "Alien 4 Cloud ne supporte actuellement qu'un unique fichier de definitions.",
+      "INVALID_YAML": "Le fichier reférencé n'est pas conforme au format YAML.",
+      "MISSING_TOSCA_VERSION": "La version de TOSCA n'est pas spécifiée et est obligatoire.",
+      "SYNTAX_ERROR": "Erreur de syntaxe. La définition Yaml pour le type {{note}} ne correspond pas à la spécification.",
+      "UNRECOGNIZED_PROPERTY": "La propriété [ {{note}} ] est inconnue et a été ignorée.",
+      "CSAR_ALREADY_EXISTS": "Une archive releasé ayant ce nom et cette version existe déjà dans le dépot. Afin de garantir la stabilité des projets les utilisants, les archives releasé ne peuvent pas être modifiées. Seule les archives SNAPSHOT peuvent être mise à jour.",
+      "MISSING_FILE": "Le fichier référencé {{note}} n'existe pas dans l'archive.",
+      "DUPLICATED_ELEMENT_DECLARATION": "L'Element [ {{note}} ] a déjà été déclaré ce fichier de définition",
+      "TYPE_NOT_FOUND": "Le type [ {{note}} ] référencé n'existe ni dans l'archive ni dans ses dépendances. Veuillez valider les imports de dépendances ou ajouter le type à votre archive.",
+      "INVALID_ICON_FORMAT": "L'icône n'est pas un fichier d'image supporté",
+      "ALIEN_MAPPING_ERROR": "Une erreur interne a fait échouer l'import de l'archive. Merci de nous remonter le problème.",
+      "UNKNOWN_CONSTRAINT": "La contrainte [{{note}}] n'est pas une contrainte valide.",
+      "MISSING_DEPENDENCY": "La dépendance [{{note}}] est introuvable dans le repository Alien4Cloud.",
+      "INVALID_SCALAR_UNIT": "Le type attendu est un Tosca scalar unit. L'unité et la valeur sont nécessaire.",
+      "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
+      "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
+      "TOPOLOGY_DETECTED": "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
+      "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
+      "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
+      "ToscaPropertyType": "Le type de la propriété [ {{path}} ] n'est pas un type TOSCA valide. Details [ {{message}} ]",
+      "ToscaPropertyConstraint": "La contrainte [ {{path}} ] n'est pas correctement définie ou ne peut-être appliquée sur la propriété (type).",
+      "ToscaPropertyConstraintDuplicate": "La contrainte [ {{path}} ] est déjà présente. Une même contrainte ne peut-être définie plusieurs fois.",
+      "ToscaPropertyDefaultValueType": "La valeur par défaut de la propriété [ {{path}} ] n'est pas du type de celle-ci.",
+      "ToscaPropertyDefaultValueConstraints": "La valeur par défaut de la propriété [ {{path}} ] ne respecte pas les contraintes définies sur celle-ci.",
+      "YAML_SEQUENCE_EXPECTED": "Une séquence YAML est attendu.",
+      "YAML_MAPPING_NODE_EXPECTED": "Un noeud de type mapping est attendu.",
+      "REQUIREMENT_TARGET_NODE_TEMPLATE_NAME_REQUIRED": "Le nom du node_template est requis pour la définition d'un requirement, il doit être définit en tant que valeur d'un noeud 'node'.",
+      "RELATIONSHIP_NOT_BUILT": "La relationship correspondant au requirement [{{note}}] n'a pas pu être contruite (consultez les erreurs).",
+      "REQUIREMENT_NOT_FOUND": "La définition du requirement [{{note}}] est introuvable.",
+      "REQUIREMENT_TARGET_NOT_FOUND": "La cible du requirement [{{note}}] n'exite pas.",
+      "REQUIREMENT_CAPABILITY_NOT_FOUND": "La capacité correspondant au requirement [{{note}}] n'a pas pu être identifée.",
+      "OUTPUTS_BAD_PARAMS_COUNT": "Le nombre d'arguments pour la fonction est incorrect",
+      "OUTPUTS_UNKNOWN_FUNCTION": "La fonction [{{note}}] est inconnue dans ce contexte",
+      "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
+      "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
+      "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
+    },
+    "UPLOAD_MODAL": {
+      "HEADER": "Upload Cloud Service Archive",
+      "OK": "Ok"
+    },
+    "COMPONENT": {
+      "NAME": "Nom du composant",
+      "DETAILS_TITLE": "Détails",
+      "DOC_TITLE": "Description",
+      "PROPERTIES": "Propriétés",
+      "ATTRIBUTES": "Attributs",
+      "INTERFACES": "Interfaces",
+      "OPERATION": "Opérations",
+      "RECOMMEND_MESSAGE": "Définir le composant comme composant par défaut pour cette capacité.",
+      "UNRECOMMEND_MESSAGE": "Supprimer ce composant comme composant par défaut pour cette capacité.",
+      "ABSTRACT_COMPONENT": "Composant abstrait"
+    },
+    "RELATIONSHIPS": {
+      "LABEL": "Relations",
+      "SOURCE": "Source",
+      "TARGET": "Cible"
+    },
+    "CONFIRM_RECOMMENDATION_MODAL": {
+      "HEADER": "Confirmer le composant par défaut.",
+      "MESSAGE": "Un composant [ {{componentId}} ] a déjà été défini comme défaut pour la capacité [ {{capability}} ]. Voulez-vous le remplacer?",
+      "OK": "Remplacer"
+    },
+    "FORM_ERRORS": {
+      "TAG_KEY": "Le nom d'un tag doit contenir des lettres de a-Z, -, _ sans espace"
+    },
+    "CAPABILITIES": {
+      "TYPE": "Capacités",
+      "CARDINALITIES_TOOLTIP": "maximum"
+    },
+    "ABSTRACT": "Composant abstrait",
+    "DEFAULTCAPABILITIES": "Capacités défaut",
+    "DERIVEDFROM": "Héritage",
+    "REQUIREMENTS": {
+      "TYPE": "Prérequis"
+    },
+    "SEARCH": {
+      "SHOW_ADV_SEARCH": "Recherche avancée...",
+      "SIMPLE_SEARCH": "Recherche simple...",
+      "SEARCH_COMP": "Rechercher des composants"
+    },
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "RESULT_TITLE": "Composants",
+    "ARCHIVE": "Archive",
+    "ARCHIVE_VERSION": "Version de l'archive",
+    "ARCHIVE_NAME": "Nom de l'archive",
+    "GET_DETAILS": "Détails",
+    "VALIDSOURCES": "Sources Valides",
+    "VALIDTARGET": "Cibles Valides",
+    "CARDINALITIES_TOOLTIP": "minimun..maximum"
+  },
+  "CSAR": {
+    "BUTTON_NEWCSAR": "Créer un CSAR SNAPSHOT",
+    "MODAL_NEWCSAR": "Nouveau CSAR",
+    "BUTTON_DELETE": "Supprimer",
+    "BUTTON_MODIFY": "Modifier",
+    "NAME": "Nom",
+    "DESCRIPTION": "Description",
+    "VERSION": "Version",
+    "BC_CSAR": "CSAR",
+    "DETAILS_TITLE": "Détails du CSAR",
+    "TEST_TOPOLOGY": "Statut du topology de test",
+    "AUTHOR": "Auteur",
+    "DETAILS": {
+      "BUTTON_ADD_NODE_TYPE": "Ajouter un nouveau composant",
+      "ARCHIVE_COMPONENTS": "Composants de l'archive",
+      "COMPONENT_FORM_TITLE": "Nouveau composant",
+      "LIST": "Liste de csars",
+      "RESOURCES": "Liste des ressources",
+      "NO_RESOURCES": "Aucune autre ressource liée",
+      "RESOURCE": {
+        "TYPE": "Type",
+        "NAME": "Nom",
+        "VERSION": "Version",
+        "CSAR_TEXT": "Détails du CSAR",
+        "APP_TEXT": "Détails de l'application",
+        "TOPOLOGY_TEXT": "Détails de la topology"
+      }
+    },
+    "DELETE": "Supprimé",
+    "ERRORS": {
+      "507_TITLE": "Suppression d'un CSAR",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
+    }
+  },
+  "GENERIC_FORM": {
+    "SAVE": "Sauvegarder",
+    "CANCEL": "Annuler",
+    "DELETE": "Supprimer",
+    "ADD": "Ajouter",
+    "EDIT": "Editer",
+    "GOTO": "Aller à",
+    "ROOT": "Racine",
+    "MAP_KEY_PLACEHOLDER": "Saisir une nouvelle clé",
+    "UNDEFINED": "Cliquer pour éditer",
+    "UNDEFINED_READ_ONLY": "Non défini",
+    "TRUE": "Vrai",
+    "FALSE": "Faux",
+    "REQUIRED": "Obligatoire",
+    "FORM_INVALID_MESSAGE": "Attention! Le formulaire est invalide et pourra être envoyé quand les problèmes suivant seront résolus :",
+    "SAVE_IS_DONE": "Sauvegardé",
+    "VALIDATION_ERROR": {
+      "greaterOrEqual": "La valeur doit être >= {{reference}}",
+      "greaterThan": "La valeur doit être > {{reference}}",
+      "inRange": "La valeur doit être comprise dans [ {{reference}} ]",
+      "length": "La taille de la valeur doit être {{reference}}",
+      "lessOrEqual": "La valeur doit être <= {{reference}}",
+      "lessThan": "La valeur doit être < {{reference}}",
+      "maxLength": "La taille maximale de la valeur est {{reference}}",
+      "minLength": "La taille minimale de la valeur est {{reference}}",
+      "pattern": "La valeur doit respecter le modèle {{reference}}"
+    }
+  },
+  "USERS": {
+    "NEW": "Nouvel Utilisateur",
+    "FIRST_NAME": "Prénom",
+    "LAST_NAME": "Nom",
+    "USERNAME": "Identifiant",
+    "PASSWORD": "Mot de passe",
+    "CONFIRM_PASSWORD": "Confirmer",
+    "CONFIRM_PASSWORD_HOLDER": "Confirmez",
+    "EMAIL": "Email",
+    "CONFIRM_PASSWORD_ERROR": "Les mots de passe ne se correspondent pas.",
+    "EMAIL_INVALID": "Email non valide.",
+    "GROUPS": "Groupes",
+    "EDIT_GROUPS": "Editer les groupes",
+    "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
+    "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
+    "ROLES": "Roles",
+    "OPERATIONS": "Opérations",
+    "DELETE": "Supprimer"
+  },
+  "GROUPS": {
+    "NEW": "Nouveau Groupe",
+    "NAME": "Nom",
+    "DESC": "Description",
+    "EMAIL": "Email",
+    "EMAIL_INVALID": "Email non valide.",
+    "GROUPS": "Groupes",
+    "EDIT_GROUPS": "Editer les groupes",
+    "NEW_GROUP_HEADER": "Ajouter un nouveau groupe",
+    "EDIT_GROUP_HEADER": "Ajouter ou retirer des groupes",
+    "ROLES": "Roles",
+    "DELETE": "Supprimer",
+    "OPERATIONS": "Opérations"
+  },
+  "EDIT_RIGHTS": {
+    "EDIT_ROLE_RESOURCE": "Editer les roles sur la ressource",
+    "EDIT_ROLE_HEADER_RESOURCE": "Ajouter ou retirer des roles à la ressource",
+    "EDIT_ROLE_ENV": "Editer les roles sur l'environnement",
+    "EDIT_ROLE_HEADER_ENV": "Ajouter ou retirer des roles à l'environnement"
+  },
+  "NAVAPPLICATIONS": {
+    "MENU_INFO": "Informations",
+    "MENU_TOPOLOGY": "Topologie",
+    "MENU_DEPLOYMENT": "Déploiement",
+    "MENU_RUNTIME": "Runtime",
+    "MENU_USERS": "Utilisateurs et Groupes",
+    "MENU_ENVIRONMENT": "Environnements",
+    "MENU_VERSIONS": "Version"
+  },
+  "ROLE_TABS": {
+    "USERS": "Utilisateurs",
+    "GROUPS": "Groupes"
+  },
+  "APPLICATIONS": {
+    "APPLICATION": "Application",
+    "APPLICATION_ROLES": "Rôles d'application",
+    "NEW": "Nouvelle Application",
+    "NAME": "Nom",
+    "DESC": "Description",
+    "RESULT_TITLE": "Applications",
+    "DETAILS_TITLE": "Détails de l'application",
+    "IMAGE_UPLOAD": "Uploader nouvelle image",
+    "OWNER": "Propriétaire",
+    "STATUS": "Statut",
+    "DEPLOYED": "Déployé",
+    "UNDEPLOYED": "Non déployé",
+    "DEPLOYMENT_IN_PROGRESS": "Déploiement en cours",
+    "UNDEPLOYMENT_IN_PROGRESS": "Arrêt en cours",
+    "UNKNOWN": "Inconnu",
+    "WARNING": "Alerte",
+    "FAILURE": "Echoué",
+    "DEPLOY": "Déployer",
+    "UNDEPLOY": "Désinstaller",
+    "MANAGE_ROLES": "Gérer les roles",
+    "DEPLOYMENT_MANAGER_INVALID": "La topology n'est pas valide, le déploiement est impossible. Contactez un manager de l'application pour la rendre valide.",
+    "META_PROPERTIES": "Méta-propriétés",
+    "RUNTIME": {
+      "RUNTIME": "Runtime",
+      "INSTANCE": "Instance",
+      "STATE": "Etat",
+      "STATUS": "Statut",
+      "KEY": "Clé",
+      "VALUE": "Valeur",
+      "BACK": "Retour",
+      "SCALE_BUTTON": "Scale le noeud",
+      "MAINTENANCE": "Mode maintenance",
+      "MAINTENANCE_BUTTON": {
+        "ON": "Souhaitez-vous activer le mode maintenance ?",
+        "OFF": "Souhaitez-vous sortir du mode maintenance ?"
+      },
+      "DEPLOYMENT": "Déploiement",
+      "SCALE": "Scale",
+      "INSTANCES": "Instances",
+      "PROPERTIES": "Propriétés",
+      "ATTRIBUTES": "Attributs",
+      "RUNTIMEPROPS": "Propertés d'exécution",
+      "INFORMATIONS_TAB": "Informations",
+      "INFORMATIONS": {
+        "APP_NAME": "Nom de l'application",
+        "DEPLOYMENT_ID": "ID du déploiement",
+        "CLOUD_NAME": "Nom du cloud",
+        "CLOUD_ID": "ID du cloud"
+      },
+      "EVENTS_TAB": "Evénèments",
+      "EVENTS": {
+        "ALL": "Tout type d'événèments",
+        "STATUS": "Statut de déploiement",
+        "INSTANCES": "Statut d'instance",
+        "STORAGE": "Statut d'instance(BlockStorage)",
+        "MESSAGES": "Message",
+        "DATE": "Date",
+        "TYPE": "Type",
+        "MESSAGE": "Message",
+        "DEPLOYMENT_STATUS_MESSAGE": "{{status | translate}}",
+        "INSTANCE_STATE_MESSAGE": "L'Etat de l'Instance {{nodeId}}/{{instanceId}} a changé à {{state}}",
+        "STORAGE_MESSAGE": "L'Etat de l'Instance {{nodeId}}/{{instanceId}} a changé à {{state}}. ID du volume: < {{volumeId}} >",
+        "INSTANCE_DELETED_MESSAGE": "L'Instance {{nodeId}}/{{instanceId}} a été supprimé",
+        "MESSAGE_EVENT": {
+          "STATUS_DEPLOYMENT_CHANGED": "Statut changé",
+          "INSTANCE_STATE_CHANGED": "L'Etat de l'Instance a changé"
+        }
+      },
+      "OPERATION_EXECUTION": {
+        "RESULT_TITLE": "Resultat de l'éxecution de l'opération {{operation}}",
+        "NO_RETURN": "Pas de retour"
+      }
+    },
+    "DEPLOYMENT": {
+      "NAME_MATCHER": "Association des ressources du cloud",
+      "TITLE_NODE_ICON": "Icône du noeud",
+      "TITLE_COMPONENT": "Nom du composant",
+      "TITLE_IMAGE": "Nom de l'image",
+      "TITLE_FLAVOR": "Nom du gabarit",
+      "TITLE_IMAGE_ICON": "Icône de l'image",
+      "TITLE_DISTRIBUTION": "Distribution",
+      "TITLE_TYPE": "Type",
+      "TITLE_VERSION": "Version",
+      "TITLE_ARCH": "Architecture",
+      "TITLE_CPUS": "CPUs",
+      "TITLE_SIZE_DISK": "Disque",
+      "TITLE_RAM": "RAM",
+      "TITLE_NETWORK": "Nom du réseau",
+      "TITLE_STORAGE": "Nom du volume",
+      "TITLE_GROUP": "Groupe",
+      "TITLE_ZONE": "Zone",
+      "TITLE_DESCRIPTION": "Description",
+      "RESOURCES_NOT_MATCHED": "La topologie de l'application contient des composants qui sont incompatible avec les resources du cloud",
+      "COMPUTE_RESOURCES": "Machine",
+      "NETWORK_RESOURCES": "Réseau",
+      "CLOUD_ERROR_TITLE": "Sélectionner un cloud",
+      "CLOUD_ERROR_MESSAGE": "Vous n'avez pas les droits suffisants sur le cloud associé ou le cloud n'est pas activé pour déployer. Veuillez contacter votre administrateur.",
+      "COMPUTE_RESOURCES": "Machines",
+      "NETWORK_RESOURCES": "Réseaux",
+      "STORAGE_RESOURCES": "Volumes",
+      "ENVIRONMENT_INVALID": "L'environnement sélectionné n'est pas valide pour lancer un déploiement. Veuillez le mettre à jour pour déployer.",
+      "PROPERTIES": {
+        "REQUIRED": "Obligatoire",
+        "WARNING": "Alerte",
+        "WARNING_MESSAGE": "Ces propriétés d'entrée n'ont pas de valeurs fournies par l'application, le cloud ou l'environnement. Veuillez contactez votre administrateur."
+      }
+    },
+    "TOPOLOGY": {
+      "LABEL": "Topologie",
+      "VISUAL_DETAILED": "vue détaillée",
+      "VISUAL_SIMPLE": "vue condensée",
+      "YAML": "yaml",
+      "PLAN": "Workflow",
+      "MODIFY_TOPOLOGY": "Modifier",
+      "ADD_NODETEMPLATE": "Ajouter un Noeud",
+      "DEPENDENCY": "Dépendances",
+      "DEPENDENCY_NAME": "Nom",
+      "DEPENDENCY_VERSION": "Version",
+      "SELECT_NODETYPE": "Sélectionner un Composant",
+      "TOPOLOGY": "Topologie",
+      "NODE_INFO": "Noeud sélectionné",
+      "TYPE": "Type",
+      "ARCHIVE": "Archive",
+      "PROPERTIES": "Propriétés",
+      "ATTRIBUTES": "Attributs",
+      "PROPERTIES_INPUTS": "Propriétés d'entrée",
+      "INPUTS": {
+        "ADD": "Ajouter aux Propriétés d'entrée",
+        "NAME": "Nom",
+        "TYPE": "Type",
+        "CONSTRAINT": "Contrainte"
+      },
+      "PROPERTIES_OUTPUTS": "Propriétés de sortie",
+      "NO_OUTPUTS": "Aucune propriété ou attribut en sortie",
+      "REQUIREMENTS": "Prérequis",
+      "CAPABILITIES": "Capacités",
+      "RELATIONSHIPS": "Relations",
+      "ADD_RELATIONSHIP": "Ajouter une relation",
+      "REMOVE_RELATIONSHIP": "Supprimer",
+      "REMOVE_NODE": "Supprimer le noeud",
+      "REFERENCE": "Référence",
+      "ARTIFACTS": "Artefacts",
+      "UPDATE_ARTIFACT": "Mettre à jour l'artefact",
+      "SCALE": "Scale",
+      "UNSCALE": "Unscale",
+      "SCALING_POLICY": "Scaling",
+      "NAME": "Nom",
+      "DESC": "Description",
+      "DESC_TEMPLATE": "Description du modèle",
+      "SEARCH_RELATIONSHIP_MODAL": {
+        "NO_TARGETS": "Aucun element de la topologie ne peut satisfaire la dépendance.",
+        "SELECT_TARGET_HEADER": "Sélectionnez la cible pour la relation",
+        "SELECT_RELATIONSHIP_HEADER": "Sélectionnez le type de relation",
+        "SELECT_NAME_HEADER": "Sélectionnez le nom de la relation",
+        "NAME": "Nom",
+        "FINISH": "Finir",
+        "BACK": "Retourner"
+      },
+      "TASK": {
+        "LABEL": "Tâches à faire",
+        "ABSTRACT_LABEL": "Composants abstraits",
+        "IMPLEMENT_LABEL": "A implémenter",
+        "IMPLEMENT": "Implémenter les noeuds",
+        "REPLACE_LABEL": "A remplacer",
+        "REPLACE": "Remplacer par l'un des noeuds suggérés",
+        "TOADD_RELATIONSHIP_LABEL": "Prérequis non statisfaits (ajoutez un lien)",
+        "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
+        "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
+        "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "SCALABLE_CAPABILITY_INVALID": {
+          "LABEL": "Politique de scalabilité invalide",
+          "MISSING": "Propriété obligatoire",
+          "ERRORS": {
+            "min_instances": "Propriété min_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "default_instances": "Propriété default_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances",
+            "max_instances": "Propriété max_instances invalide, merci de vérifier si 0 < min_instances < default_instances < max_instances"
+          }
+        }
+      },
+      "WARNING": {
+        "LABEL": "Alertes",
+        "HA_INVALID": {
+          "LABEL": "HA politique est invalide",
+          "GROUP": "Groupe",
+          "NODE": "Noeud",
+          "ERROR": "Erreur",
+          "NODE_NOT_ALLOCATED": "Aucune zone de disponibilité n'est allouée au noeud",
+          "NODE_BELONG_TO_MULTIPLE_HA_GROUPS": "Noeud appartient aux multiples groupes",
+          "NODE_HAS_VOLUME_NOT_IN_THE_SAME_ZONE": "Noeud n'est pas dans la même zone de disponibilité que son volume",
+          "ZONES_NOT_DISTRIBUTED_EQUALLY": "Zones de disponibilité ne sont pas distribuées de manière optimisée à cause des volumes existant",
+          "NODE_HAS_ALLOCATED_ZONE_NOT_IN_DEPLOYMENT_SETUP": "La zone de disponibilité du noeud a été attribué en fonction de son volume et ne se trouve pas dans la liste des zones sélectionnées",
+          "CONFIGURATION_ERROR": "La validation de la polique HA a échoué dû à une mauvaise configuration de zones de disponibilité",
+          "UNKNOWN_ERROR": "La validation de la polique HA a échoué dû à une erreur inconnue"
+        },
+        "PROPERTIES": {
+          "LABEL": "Propriétés de noeuds",
+          "NODENAME": "Noeud",
+          "PROP": "Propriétés"
+        }
+      },
+      "GROUPS": {
+        "TITLE": "Groupes",
+        "MEMBERS": "Membres",
+        "POLICIES": "Politiques",
+        "ADD": "Ajouter un groupe",
+        "TOOLTIP": "Gestion des groupes"
+      },
+      "ARTIFACTS": {
+        "TITLE": "Artefacts",
+        "ID": "Id",
+        "TYPE": "Type",
+        "INPUTS": "Artefacts en entrée",
+        "ADDINPUT": "Définir l'artefact comme entrée"
+      },
+      "REPLACE_NODETEMPLATE": "Remplacer",
+      "TEMPLATE_BASE": "Modèle de template",
+      "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
+      "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
+      "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
+      "CLOUD_SELECT": "-- Cloud --",
+      "NODETEMPLATE_PROPERTY_REQUIRED": "Propriété obligatoire"
+    },
+    "ENVIRONMENT": {
+      "ENV": "Environnement",
+      "ENV_ROLES": "Rôles d'environment",
+      "NEW": "Nouvel environnement",
+      "STATUS": "Etat",
+      "NAME": "Nom",
+      "TYPE": "Type",
+      "DESCRIPTION": "Description",
+      "CLOUD": "Cloud",
+      "VERSION": "Version",
+      "FORM": {
+        "NAME": "Nom",
+        "DESCRIPTION": "Description",
+        "CLOUD": "Cloud actif",
+        "CLOUD_SELECT": "-- Sélectionner le cloud cible --",
+        "ENV_TYPE": "Type d'environnement",
+        "ENV_TYPE_SELECT": "-- Sélectionner le type d'environnement --",
+        "ENV_VERSION": "Version de l'application",
+        "ENV_VERSION_SELECT": "-- Sélectionner la version de l'application --"
+      }
+    },
+    "VERSION": {
+      "NEW": "Créer une nouvelle version",
+      "VERSION": "Numéro de version",
+      "DESCRIPTION": "Description",
+      "ID": "ID de la version",
+      "TITLE": "Nouvelle version",
+      "MODAL": {
+        "SELECT-TITLE": "Topologie",
+        "DESC": "Sélectionnez une ancienne version pour dupliquer sa topologie",
+        "PATTERN": "Le format du numéro de version est invalide."
+      }
+    },
+    "ERRORS": {
+      "DELETE_TITLE": "Supprimer une application",
+      "DELETING_FAILED": "Impossible de supprimer l'application. Annuler son déploiement et réessayez."
+    }
+  },
+  "TEMPLATE": {
+    "NEW": "Nouveau Modèle",
+    "NAME": "Nom",
+    "DESCRIPTION": "Description",
+    "BREADCRUMB": {
+      "TEMPLATE_LIST": "Modèles de topologie"
+    }
+  },
+  "PLUGINS": {
+    "UPLOAD": "Uploader un plugin",
+    "DRAG_DROP_UPLOAD": "Déposer les plugins à uploader ici",
+    "ID": "Id",
+    "VERSION": "Version",
+    "NAME": "Nom",
+    "DESCRIPTION": "Description",
+    "BEANS": "Composants",
+    "ENABLED": "Actif",
+    "DEPRECATED": "Déprécié",
+    "ENABLE": "Activer",
+    "DISABLE": "Désactiver",
+    "CONFIGURE": "Configurer",
+    "ERRORS": {
+      "350_TITLE": "Supprimer / Désactiver un plugin",
+      "350": "La suppression ou la désactivation du plugin est impossible car il est utilisé par une ou plusieurs ressources"
+    },
+    "ENABLED_true": "Activé",
+    "ENABLED_false": "Désactivé",
+    "TYPES": {
+      "IPAASPROVIDER": "Connecteur PaaS"
+    }
+  },
+  "CLOUD_IMAGES": {
+    "NEW": "Nouvelle Image",
+    "NAME": "Nom",
+    "OS_DISTRIBUTION": "Distribution",
+    "OS_TYPE": "Type",
+    "OS_VERSION": "Version",
+    "OS_ARCH": "Architecture",
+    "ICON_UPLOAD": "Déposer l'icône",
+    "NUM_CPUS": "Nombre de CPUs requis",
+    "DISK_SIZE": "Taille du disque requise",
+    "MEM_SIZE": "Taille de la mémoire requise",
+    "LINKED_TO_CLOUDS": "Cette image est associée à plus d'un cloud, les possibilités d'édition sont donc limitées. Attention, les modifications vont impacter les clouds suivants : {{cloudNames}}."
+  },
+  "CLOUDS": {
+    "CLOUDS": "Clouds",
+    "NEW": "Nouveau cloud",
+    "NAME": "Nom",
+    "STATE": "État",
+    "PAAS_PROVIDER": "Fournisseur PaaS",
+    "PAAS_PROVIDER_SELECT": "-- Sélectionner un PaaS Provider --",
+    "DEPLOYMENTS": "Déploiements",
+    "DEPLOYMENT_SOURCE": "Source",
+    "DEPLOYMENT_TYPE": "Type",
+    "NO_PROVIDERS": "Aucun fournisseur PaaS n'a pu être trouvé. Veuillez ajouter un plugin.",
+    "DETAILS": "Détails",
+    "CLOUD": "Cloud",
+    "IAAS_TYPE": "Type de IaaS",
+    "ENVIRONMENT_TYPE": "Type d'environnement",
+    "ENABLE": "Activer",
+    "DISABLE": "Désactiver",
+    "FORCE-DISABLE": "Forcer l'arrêt",
+    "FORCE-DISABLE-TITLE": "Forcer l'arrêt du cloud",
+    "FORCE-DISABLE-CONTENT": "Souhaitez-vous désactiver le cloud alors que des applications l'utilisent encore ?",
+    "REFRESH": "Rafraichir",
+    "CONFIGURATION": "Configuration",
+    "CONFIGURATION_REQUIRES_DISABLE": "La configuration est sauvegardée mais n'est pas appliquée immédiatement. Celle-ci sera effectivement prise en compte lorsque le cloud sera ré-activé (désactiver puis réactiver ou lors du redémarrage de l'application).",
+    "MANAGE_ROLES": "Autorisations",
+    "AUTHORIZED_GROUPS": "Groupes autorisés",
+    "AUTHORIZED_USERS": "Utilisateurs autorisés",
+    "IMAGE": "Image",
+    "FLAVOR": "Gabarit",
+    "TEMPLATE": "Template",
+    "TEMPLATE_CONFIGURATION": "Images et gabarits",
+    "TEMPLATE_DETAILS": "Détails",
+    "PAAS_RESOURCE_ID": "Identifiant PaaS",
+    "RESOURCE_NOT_CONFIGURED": "Non Configuré(s)",
+    "RESOURCE_NOT_MAPPED": "Non mappé(s)",
+    "TEMPLATES": {
+      "ENABLE": "Activé",
+      "ENABLED": "Activé(s)",
+      "FILTERED": "Filtré(s)",
+      "IMAGE_NAME": "Image",
+      "FLAVOR_NAME": "Gabarit",
+      "DESCRIPTION": "Description"
+    },
+    "FLAVORS": {
+      "ID": "Nom",
+      "NUM_CPUS": "Nombre de CPUs",
+      "DISK_SIZE": "Taille du disque",
+      "MEM_SIZE": "Taille de la mémoire",
+      "NEW": "Ajouter",
+      "NEW_MODAL_TITLE": "Ajouter nouveau gabarit"
+    },
+    "IMAGES": {
+      "NEW": "Nouvelle",
+      "NO_SELECTED_IMAGES": "Cliquez ou glissez-déposez une image pour l'associer"
+    },
+    "NETWORK": "Réseaux",
+    "NETWORKS": {
+      "NEW": "Ajouter",
+      "NAME": "Nom",
+      "CIDR": "CIDR",
+      "GATEWAY_IP": "IP du Gateway",
+      "IP_VERSION": "Version d'IP",
+      "IS_EXTERNAL": "Réseau externe",
+      "IS_EXTERNAL_true": "Oui",
+      "IS_EXTERNAL_false": "Non",
+      "NEW_MODAL_TITLE": "Créer un nouveau réseau"
+    },
+    "STORAGE": "Volumes",
+    "STORAGES": {
+      "ID": "Id",
+      "DEVICE": "Périphérique",
+      "LOCATION": "Point de montage",
+      "SIZE": "Taille",
+      "NEW_MODAL_TITLE": "Créer un nouveau volume"
+    },
+    "ZONE": "Zones",
+    "ZONES": {
+      "ID": "Identifiant",
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
+    },
+    "IAAS": {
+      "OTHER": "Autre",
+      "OPENSTACK": "OpenStack",
+      "VMWARE": "VMware",
+      "AMAZON": "Amazon",
+      "VIRTUALBOX": "Virtual box",
+      "AZURE": "Microsoft Azure"
+    },
+    "ENVIRONMENT": {
+      "OTHER": "Autre",
+      "DEVELOPMENT": "Développement",
+      "INTEGRATION_TESTS": "Tests d'intégrations",
+      "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+      "PRE_PRODUCTION": "Pré-production",
+      "PRODUCTION": "production"
+    },
+    "ADMINISTRATION": {
+      "GLOBAL": {
+        "TITLE": "Configuration globale",
+        "DEPLOYMENT_NAME": "Nomenclature des noms de déploiement"
+      },
+      "DRIVER": {
+        "TITLE": "Configuration du driver"
+      },
+      "HELP": {
+        "TITLE": "Aide concernant la nomenclature des noms de déploiement",
+        "CONTENT": "Vous pouvez utiliser l'environment, l'application, les méta-propriétés de l'application et un timestamp. La syntaxe utilisée est Spring Expression Language, assurez-vous de définir une expression correcte. De plus, nous vous recommandons de définir un règle qui générera un nom unique pour chaque déploiement."
+      }
+    },
+    "DRIVER": {
+      "CLOUDIFY": {
+        "CLOUDIFY_CONNECTION_CONFIGURATION": "Configuration de la connexion",
+        "CONNECTION_CONFIGURATION": {
+          "CLOUDIFY_URLS": "URL de Cloudify (plusieurs URLs en cas de HA)",
+          "USER_NAME": "Nom d'utilisateur",
+          "PASSWORD": "Mot de passe",
+          "TIMEOUT": "Délai de connexion (Sec)"
+        },
+        "COMPUTE_TEMPLATES": "Modèles de machine",
+        "COMPUTE_TEMPLATE": {
+          "ID": "Identifiant",
+          "NUM_CPU": "Nombre de CPUs",
+          "DISK_SIZE": "Taille de disque",
+          "MEM_SIZE": "Taille de mémoire",
+          "OS_ARCH": "Architecture du Système d'Exploitation",
+          "OS_TYPE": "Type du Système d'Exploitation",
+          "OS_DISTRIBUTION": "Distribution du Système d'Exploitation",
+          "OS_VERSION": "Version du Système d'Exploitation",
+          "IP_ADDRESS": "Adresse IP"
+        },
+        "STORAGE_TEMPLATES": "Modèles de stockage",
+        "STORAGE_TEMPLATE": {
+          "ID": "Identifiant",
+          "SIZE": "Taille (Gb)",
+          "FS": "Système de fichier"
+        },
+        "PE": {
+          "MAIL_CONFIGURATION": "Configuration mail",
+          "MAIL": {
+            "ACTIVATED": "Activé",
+            "DEFAULT_ENCODING": "Encodage",
+            "FROM": "De",
+            "SMTP_HOST": "Hôte SMTP",
+            "SMTP_PORT": "Port SMTP",
+            "SUBJECT": "Sujet",
+            "TO": "Pour"
+          },
+          "POLLER_CONFIGURATION": "Congiguration du scanneur",
+          "POLLER": {
+            "FOLDER_TO_POLL": "Dossier à scanner"
+          },
+          "SKIP_CSV_VALIDATION": "Ne pas valider les CSV"
+        }
+      }
+    },
+    "ERRORS": {
+      "DELETING_FAILED_TITLE": "Supprimer un cloud",
+      "DELETING_FAILED": "Impossible de supprimer le cloud. Il est utilisé par des ressources.",
+      "ENABLING_FAILED_TITLE": "Activer un cloud",
+      "ENABLING_FAILED": "Impossible d'activer le cloud pour cause de mauvaise configuration.",
+      "REFRESHING_FAILED_TITLE": "Rafraichir un cloud",
+      "REFRESHING_FAILED": "Une erreur est survenue lors du rafraichissement.",
+      "352_TITLE": "Sauver la configuration du cloud",
+      "352": "La configuration du cloud est incorrecte. Veuillez faire les modifications nécessaires."
+    },
+    "ENABLED_true": "Activé",
+    "ENABLED_false": "Désactivé",
+    "DESCRIPTION": "Description"
+  },
+  "ERRORS": {
+    "INTERNAL": "Erreur interne",
+    "UNKNOWN": "Erreur inconnue",
+    "100": "Authentification requise",
+    "101": "Erreur d'authentification, vérifiez vos login et mot de passe",
+    "102": "Droits insuffisants pour ce module ou cette ressource",
+    "200": "Erreur inattendue lors de l'analyse du CSAR",
+    "300": "Erreur inattendue lors de l'accès au service d'indexation de CSAR",
+    "371": {
+      "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
+      "MESSAGE": "La valeur {{value}} pour le paramètre {{name}} de type {{type}} est invalide"
+    },
+    "372": "Erreur dans la nomenclature des noms de déploiement.",
+    "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
+    "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
+    "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
+    "391": "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",
+    "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
+    "401": "Vous devez être connecté pour éffectuer cette opération. Vous allez être automatiquement redirigé.",
+    "500": "Erreur inconnue",
+    "501": "Paramètre illégal",
+    "502": "Cet objet existe déjà sur le serveur",
+    "503": "L'upload de l'image a rencontré une erreur inattendue",
+    "504": "Cet objet n'existe pas sur le serveur",
+    "507": "La suppression de cet objet n'est pas autorisée parce qu'il est encore utilisé par d'autres objets",
+    "601": "Le déploiement de l'application a échoué",
+    "602": "L'Arrêt de l'application a échoué",
+    "604": "Une application doit nécéssairement avoir au moins un environnement",
+    "607": "Un environnement déployé ne peut être supprimé",
+    "605": "Le format de version saisie est invalide",
+    "608": "Seules les applications version en SNAPSHOT peuvent être modifiés",
+    "609": "Fournisseur PaaS inaccessible après le déclenchement du déploiement",
+    "610": "Une application doit nécéssairement avoir au moins une version",
+    "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
+    "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
+    "650": "Au moins deux de vos Compute ont un conflit de nom.",
+    "800": {
+      "equal": "Valeur constante égale à {{reference}}",
+      "greaterOrEqual": "La valeur doit être >= {{reference}}",
+      "greaterThan": "La valeur doit être > {{reference}}",
+      "inRange": "La valeur doit être comprise dans [ {{reference}} ]",
+      "length": "La taille de la valeur doit être {{reference}}",
+      "lessOrEqual": "La valeur doit être <= {{reference}}",
+      "lessThan": "La valeur doit être < {{reference}}",
+      "maxLength": "La taille maximale de la valeur est {{reference}}",
+      "minLength": "La taille minimale de la valeur est {{reference}}",
+      "pattern": "La valeur doit respecter le modèle {{reference}}",
+      "validValues": "La valeur doit être comprise dans [ {{reference}} ]"
+    },
+    "804": "{{value}} n'est pas du type {{type}}",
+    "805": {
+      "TITLE": "Erreur lors de l'execution de l'opération {{operation}}",
+      "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
+    },
+    "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
+    "808": "Le nom ne respecte pas le format attendu"
+  },
+  "TAG_CONFIG": {
+    "TAGS": "Méta-propriétés",
+    "TARGET": "Cible",
+    "NAME": "Nom",
+    "TYPE": "Type",
+    "DESCRIPTION": "Description",
+    "CREATE": "Nouvelle méta-propriété",
+    "DEFAULT": "Valeur par défaut"
+  },
+  "CONSTRAINT": {
+    "EQUAL": "Egal",
+    "GREATER_OR_EQUAL": "Plus grand ou égal",
+    "LESS_OR_EQUAL": "Plus petit ou égal",
+    "GREATER_THAN": "Plus grand que",
+    "LESS_THAN": "Plus petit que",
+    "IN_RANGE": "Borné",
+    "LENGTH": "Longeur égal",
+    "MIN_LENGTH": "Longeur minimum",
+    "MAX_LENGTH": "Longeur maximum",
+    "PATTERN": "Pattern",
+    "VALID_VALUES": "Valeurs valides"
+  },
+  "CREATION_DATE": "Date de création",
+  "UPDATE_DATE": "Date de mise à jour",
+  "START_DATE": "Date de début",
+  "END_DATE": "Date de fin",
+  "id": "Identifiant",
+  "final": "Inextensible",
+  "derivedFrom": "Héritage",
+  "properties": "Propriétés",
+  "attributes": "Attributs",
+  "requirements": "Prérequis",
+  "capabilities": "Capacités",
+  "instanceStates": "Etats du composant",
+  "interfaces": "Interfaces",
+  "type": "Type",
+  "scope": "Scope",
+  "default": "Par défaut",
+  "description": "Description",
+  "lowerBound": "Borne inférieure",
+  "upperBound": "Borne supérieure",
+  "operations": "Opérations",
+  "ACTIONS": "Actions",
+  "SUGGESTIONS": "suggestions",
+  "required": "Obligatoire",
+  "REQUIRED": "Obligatoire",
+  "OPTIONAL": "Optionnel",
+  "PROVIDED": "Fourni",
+  "INSTANCE": "Instance",
+  "EXECUTE": "Executer",
+  "DETAILS": "Détails",
+  "STATIC": "Statique",
+  "RUNTIME": "Runtime",
+  "BOUNDS": "Bornes",
+  "RECOMMEND": "Recommandé",
+  "name": "Nom",
+  "target": "Cible",
+  "constraints": "Contraintes",
+  "PROPERTY_RESET": "Réinitialiser à la valeur par défaut",
+  "CONSTRAINTS": {
+    "VALIDATION": {
+      "TYPE": "La valeur définie dans la contrainte n'est pas valide par rapport à son type",
+      "DEFAULT_VALUE_TYPE": "La valeur par défaut définie dans la contrainte n'est pas valide par rapport à son type",
+      "ROOT": "La contrainte n'est pas valide"
+    }
+  },
+  "SEARCH": "rechercher",
+  "STATES": {
+    "unknown": "En attente de l'orchestrateur",
+    "creating": "Création en cours",
+    "created": "Créé",
+    "configuring": "Configuration en cours",
+    "configured": "Configuré",
+    "starting": "Démarrage en cours",
+    "started": "Démarré",
+    "stopping": "Arrêt en cours",
+    "stopped": "Arrêté",
+    "deleting": "Suppression en cours",
+    "deleted": "Supprimé",
+    "uninstalling": "Désinstallation",
+    "uninstalled": "Désinstallé",
+    "initial": "Initial",
+    "available": "Disponible",
+    "uninitialized": "Non initialisé",
+    "maintenance": "Maintenance",
+    "error": "Erreur"
+  },
+  "metrics": {
+    "title": "Métriques d'Alien 4 Cloud",
+    "refresh.button": "Rafraichir",
+    "health": {
+      "title": "Diagnostics",
+      "database": "Base de données: ",
+      "email": "Email: ",
+      "stacktrace": "Stacktrace"
+    },
+    "jvm": {
+      "title": "Métriques de la JVM",
+      "memory": {
+        "title": "Mémoire",
+        "total": "Mémoire totale",
+        "heap": "Mémoire \"Heap\"",
+        "nonheap": "Mémoire \"Non-Heap\""
+      },
+      "threads": {
+        "title": "Threads",
+        "all": "Tous",
+        "runnable": "Executable",
+        "timedwaiting": "Temps d'attente",
+        "waiting": "En attente",
+        "blocked": "Bloqué",
+        "dump": {
+          "title": "Threads dump",
+          "id": "Id :",
+          "blockedtime": "Temps bloqué",
+          "blockedcount": "Nb fois bloqué",
+          "waitedtime": "Temps d'attente",
+          "waitedcount": "Nb fois en attente",
+          "lockname": "Nom du process bloquant",
+          "stacktrace": "Stacktrace",
+          "show": "Afficher",
+          "hide": "Cacher"
+        }
+      },
+      "gc": {
+        "title": "Garbage collections",
+        "marksweepcount": "Total de \"Mark Sweep\"",
+        "marksweeptime": "Temps \"Mark Sweep\"",
+        "scavengecount": "Total \"Scavenge\"",
+        "scavengetime": "Temps \"Scavenge\""
+      },
+      "http": {
+        "title": "Requêtes HTTP requests (évènements par seconde)",
+        "active": "Requêtes actives :",
+        "total": "Requêtes totales :",
+        "table": {
+          "code": "Code",
+          "count": "Total",
+          "mean": "Médian",
+          "average": "Moyenne"
+        },
+        "code": {
+          "ok": "Ok",
+          "notfound": "Not found",
+          "servererror": "Server Error"
+        }
+      }
+    },
+    "servicesstats": {
+      "title": "Statistiques des services (Temps en milliseconde)",
+      "table": {
+        "name": "Nom du server",
+        "count": "Total",
+        "mean": "Médian",
+        "min": "Min",
+        "max": "Max",
+        "p50": "p50",
+        "p75": "p75",
+        "p95": "p95",
+        "p99": "p99"
+      }
+    }
+  },
+  "HOPSCOTCH_MISSING": {
+    "TITLE": "Tour de présentation",
+    "CONTENT": "Aucun tour de présentation pour cette page."
+  },
+  "AUDIT": {
+    "CONFIGURATION": {
+      "ENABLED": {
+        "LABEL": "Activé",
+        "ON": "Oui",
+        "OFF": "Non"
+      },
+      "BACK_TO_AUDIT_LOG": "Retourner aux logs d'audit",
+      "LABEL": "Configuration d'Audit",
+      "ACTION_NAME": "Nom de l'action",
+      "RESET": "Réinitialiser",
+      "CONFIGURATION_IS_RESETED": "Configuration d'audit a été réinitialisé avec succès"
+    },
+    "LOG": "Audit des opérations",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "COLUMNS": {
+      "TIMESTAMP": "Date",
+      "CATEGORY": "Catégorie",
+      "ACTION": "Opération",
+      "ACTIONDESCRIPTION": "Description",
+      "USERNAME": "Identifiant",
+      "USEREMAIL": "Email",
+      "USERFIRSTNAME": "Prénom",
+      "USERLASTNAME": "Nom",
+      "PATH": "Appel",
+      "METHOD": "Méthode",
+      "REQUESTPARAMETERS": "Paramètres d'entrée",
+      "REQUESTBODY": "Contenu de la requête",
+      "RESPONSESTATUS": "Code réponse",
+      "SOURCEIP": "IP source"
+    }
+  },
+  "ENVIRONMENT_TYPE": {
+    "OTHER": "Autre",
+    "DEVELOPMENT": "Développement",
+    "INTEGRATION_TESTS": "Tests d'intégrations",
+    "USER_ACCEPTANCE_TESTS": "Tests utilisateurs",
+    "PRE_PRODUCTION": "Pré-production",
+    "PRODUCTION": "production"
+  }
+}

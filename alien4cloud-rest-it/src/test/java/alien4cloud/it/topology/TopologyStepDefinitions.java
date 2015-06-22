@@ -53,9 +53,10 @@ import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
+import alien4cloud.topology.TopologyUtils;
 import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.utils.FileUtil;
@@ -98,7 +99,7 @@ public class TopologyStepDefinitions {
     public void The_RestResponse_should_contain_an_id_string() throws Throwable {
         String response = Context.getInstance().getRestResponse();
         assertNotNull(response);
-        RestResponse<String> restResponse = JsonUtil.read(response, String.class);
+        RestResponse<String> restResponse = JsonTestUtil.read(response, String.class);
         assertNotNull(restResponse.getData());
         assertFalse(restResponse.getData().isEmpty());
     }
@@ -109,10 +110,15 @@ public class TopologyStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
     }
 
+    @Then("^I get a topology by id \"([^\"]*)\"$")
+    public void I_get_a_topology_by_id(String topologyId) throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + topologyId));
+    }
+
     @Then("^The RestResponse should contain a topology$")
     public void The_RestResponse_should_contain_a_topology() throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
         assertNotNull(topologyResponse.getData().getTopology().getId());
     }
@@ -121,7 +127,7 @@ public class TopologyStepDefinitions {
     public void There_is_a_with_element_name_and_archive_version(String elementType, String elementId, String archiveVersion) throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
+        IndexedToscaElement idnt = JsonTestUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -131,7 +137,7 @@ public class TopologyStepDefinitions {
             throws Throwable {
         String componentId = elementId.concat(":").concat(archiveVersion);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/components/" + componentId));
-        IndexedToscaElement idnt = JsonUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
+        IndexedToscaElement idnt = JsonTestUtil.read(Context.getInstance().takeRestResponse(), WORDS_TO_CLASSES.get(elementType)).getData();
         assertNotNull(idnt);
         assertEquals(componentId, idnt.getId());
     }
@@ -279,6 +285,24 @@ public class TopologyStepDefinitions {
                 Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
     }
 
+    @When("^I update the node template \"([^\"]*)\"'s capability \"([^\"]*)\" of type \"([^\"]*)\"'s property \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_update_the_node_template_s_capability_of_type_s_property_to(String nodeTempName, String capabilityName, String capabilityType,
+            String propertyName, String propertyValue) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        UpdateIndexedTypePropertyRequest req = new UpdateIndexedTypePropertyRequest(propertyName, propertyValue, capabilityType);
+        String json = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/capability/" + capabilityName + "/updateProperty", json));
+    }
+
+    @When("^I reset the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" to default value$")
+    public void I_reset_the_node_template_s_artifact_to_default_value(String nodeTemplateName, String artifactId) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId + "/reset";
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().put(url));
+    }
+
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_property_set_to(String nodeTemplateName, String propertyName, String propertyValue)
             throws Throwable {
@@ -287,8 +311,15 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
         assertNotNull(nodeTemp.getProperties());
-        assertNotNull(nodeTemp.getProperties().get(propertyName));
+        if (propertyValue != null) {
+            assertNotNull(nodeTemp.getProperties().get(propertyName));
+        }
         assertEquals(propertyValue, FunctionEvaluator.getScalarValue(nodeTemp.getProperties().get(propertyName)));
+    }
+
+    @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with property \"([^\"]*)\" set to null$")
+    public void The_topology_should_contain_a_nodetemplate_named_with_property_set_to_null(String nodeTemplateName, String propertyName) throws Throwable {
+        The_topology_should_contain_a_nodetemplate_named_with_property_set_to(nodeTemplateName, propertyName, null);
     }
 
     @Then("^I should have a relationship with type \"([^\"]*)\" from \"([^\"]*)\" to \"([^\"]*)\" in ALIEN$")
@@ -328,9 +359,9 @@ public class TopologyStepDefinitions {
 
     @Then("^I should receive a RestResponse with constraint data name \"([^\"]*)\" and reference \"([^\"]*)\"$")
     public void I_should_receive_a_RestResponse_with_constraint_data_name_and_reference(String name, String reference) throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse.getData());
-        ConstraintInformation constraint = JsonUtil.readObject(JsonUtil.toString(restResponse.getData()), ConstraintInformation.class);
+        ConstraintInformation constraint = JsonTestUtil.readObject(JsonTestUtil.toString(restResponse.getData()), ConstraintInformation.class);
         assertEquals(constraint.getName().toString(), name);
         assertEquals(constraint.getReference().toString(), reference);
     }
@@ -362,17 +393,17 @@ public class TopologyStepDefinitions {
 
     @Then("^the topology should be deployable$")
     public void the_topology_should_be_deployable() throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
-        Map<String, Object> dataMap = JsonUtil.toMap(JsonUtil.toString(restResponse.getData()));
+        Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertTrue(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
     @Then("^the topology should not be deployable$")
     public void the_topology_should_not_be_deployable() throws Throwable {
-        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        RestResponse<?> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse());
         assertNotNull(restResponse.getData());
-        Map<String, Object> dataMap = JsonUtil.toMap(JsonUtil.toString(restResponse.getData()));
+        Map<String, Object> dataMap = JsonTestUtil.toMap(JsonTestUtil.toString(restResponse.getData()));
         assertFalse(Boolean.valueOf(dataMap.get("valid").toString()));
     }
 
@@ -401,7 +432,7 @@ public class TopologyStepDefinitions {
         }
 
         esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(IndexedRelationshipType.class))
-                .setSource(JsonUtil.toString(relationship)).setRefresh(true).execute().actionGet();
+                .setSource(JsonTestUtil.toString(relationship)).setRefresh(true).execute().actionGet();
     }
 
     @Given("^I create a \"([^\"]*)\" \"([^\"]*)\" in an archive name \"([^\"]*)\" version \"([^\"]*)\"$")
@@ -418,7 +449,7 @@ public class TopologyStepDefinitions {
             throw new PendingException("creation of Type " + componentType + "not supported!");
         }
 
-        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonUtil.toString(element))
+        esClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, MappingBuilder.indexTypeFromClass(clazz)).setSource(JsonTestUtil.toString(element))
                 .setRefresh(true).execute().actionGet();
     }
 
@@ -444,10 +475,10 @@ public class TopologyStepDefinitions {
 
     @Then("^there should not be suggested nodetypes for the \"([^\"]*)\" node template$")
     public void there_should_not_be_suggested_nodetypes_for_the_node_template(String nodeTemplateName) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         assertNull(getSuggestedNodesFor(nodeTemplateName, tasklist));
@@ -458,7 +489,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> suggestedNodeTypes = (List<Object>) MapUtil.get(task, "suggestedNodeTypes");
             if (nodeTemp.equals(nodeTemplateName) && suggestedNodeTypes != null) {
-                return JsonUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class);
+                return JsonTestUtil.toArray(Context.getInstance().getJsonMapper().writeValueAsString(suggestedNodeTypes), IndexedNodeType.class);
             }
         }
         return null;
@@ -466,10 +497,10 @@ public class TopologyStepDefinitions {
 
     @Then("^the suggested nodes types for the abstracts nodes templates should be:$")
     public void the_suggested_nodes_types_for_the_abstracts_nodes_templates_should_be(DataTable expectedSuggestedElemntIds) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedSuggestedElemntIds.raw()) {
@@ -495,13 +526,30 @@ public class TopologyStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
     }
 
+    @When("^I associate the artifact \"([^\"]*)\" of node template \"([^\"]*)\" as an input artifact \"([^\"]*)\"$")
+    public void I_associate_the_artifact_of_node_template_as_an_input_artifact(String artifactId, String nodeTemplateName, String artifactInputName)
+            throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon(
+                        "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId + "/" + artifactInputName, ""));
+    }
+
+    @When("^I update the application's input artifact \"([^\"]*)\" with \"([^\"]*)\"$")
+    public void I_update_the_application_s_input_artifact_with(String artifactId, String artifactName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        String url = "/rest/topologies/" + topologyId + "/inputArtifacts/" + artifactId + "/upload";
+        InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
+    }
+
     @Then("^The topology should contain a nodetemplate named \"([^\"]*)\" with an artifact \"([^\"]*)\" with the specified UID and name \"([^\"]*)\"$")
     public void The_topology_should_contain_a_nodetemplate_named_with_an_artifact_with_the_specified_UID(String nodeTemplateName, String artifactId,
             String artifactName) throws Throwable {
         The_topology_should_contain_a_nodetemplate_named(nodeTemplateName);
 
         String topologyResponseText = Context.getInstance().getRestResponse();
-        NodeTemplate nodeTemp = JsonUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
+        NodeTemplate nodeTemp = JsonTestUtil.read(topologyResponseText, TopologyDTO.class).getData().getTopology().getNodeTemplates().get(nodeTemplateName);
         Assert.assertNotNull(nodeTemp.getArtifacts());
         Assert.assertFalse(nodeTemp.getArtifacts().isEmpty());
         DeploymentArtifact deploymentArtifact = nodeTemp.getArtifacts().get(artifactId);
@@ -512,10 +560,10 @@ public class TopologyStepDefinitions {
 
     @Then("^the node with requirements lowerbound not satisfied should be$")
     public void the_node_with_requirements_lowerbound_not_satisfied_should_be(DataTable expectedRequirementsNames) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequirementsNames.raw()) {
@@ -535,7 +583,7 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> resToImp = (List<Object>) MapUtil.get(task, "requirementsToImplement");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonUtil.toList(JsonUtil.toString(resToImp), RequirementToSatify.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatify.class);
             }
         }
         return null;
@@ -564,32 +612,10 @@ public class TopologyStepDefinitions {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             Map<TaskLevel, List<String>> resToImp = (Map<TaskLevel, List<String>>) MapUtil.get(task, "properties");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonUtil.toList(JsonUtil.toString(resToImp.get(TaskLevel.REQUIRED.toString())), String.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp.get(TaskLevel.REQUIRED.toString())), String.class);
             }
         }
         return null;
-    }
-
-    @When("^I add a scaling policy to the node \"([^\"]*)\"$")
-    public void I_add_a_scaling_policy_to_the_node(String nodeName) throws Throwable {
-        ScalingPolicy policy = new ScalingPolicy(1, 1, 1);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName,
-                        JsonUtil.toString(policy)));
-    }
-
-    @Given("^I have a already added a scaling policy to the node \"([^\"]*)\"$")
-    public void I_have_a_already_added_a_scaling_policy_to_the_node(String nodeName) throws Throwable {
-        I_add_a_scaling_policy_to_the_node(nodeName);
-    }
-
-    @When("^I change the scaling policy of the node \"([^\"]*)\" with max instances to (\\d+), initial instances to (\\d+) and min instances to (\\d+)$")
-    public void I_change_the_scaling_of_the_node_with_max_instances_to_initial_instances_to_and_min_instances_to(String nodeName, int maxInstancesValue,
-            int initialInstancesValue, int minInstancesValue) throws Throwable {
-        ScalingPolicy policy = new ScalingPolicy(minInstancesValue, maxInstancesValue, initialInstancesValue);
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().postJSon("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName,
-                        JsonUtil.toString(policy)));
     }
 
     @Then("^the scaling policy of the node \"([^\"]*)\" should match max instances equals to (\\d+), initial instances equals to (\\d+) and min instances equals to (\\d+)$")
@@ -599,19 +625,12 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
-        Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
-        assertTrue(policies != null && !policies.isEmpty());
-        ScalingPolicy computePolicy = policies.get(nodeName);
+        ScalingPolicy computePolicy = TopologyUtils.getScalingPolicy(TopologyUtils.getScalableCapability(topologyResponse.getData().getTopology(), nodeName,
+                true));
         assertNotNull(computePolicy);
         assertEquals(maxInstances, computePolicy.getMaxInstances());
         assertEquals(minInstances, computePolicy.getMinInstances());
         assertEquals(initialInstances, computePolicy.getInitialInstances());
-    }
-
-    @When("^I delete the policy of the node \"([^\"]*)\"$")
-    public void I_delete_the_policy(String nodeName) throws Throwable {
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/topologies/" + Context.getInstance().getTopologyId() + "/scalingPolicies/" + nodeName));
     }
 
     @Then("^There's no defined scaling policy for the node \"([^\"]*)\"$")
@@ -620,19 +639,17 @@ public class TopologyStepDefinitions {
         String topologyResponseText = Context.getInstance().getRestResponse();
         RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         assertNotNull(topologyResponse.getData());
-        Map<String, ScalingPolicy> policies = topologyResponse.getData().getTopology().getScalingPolicies();
-        if (policies != null) {
-            ScalingPolicy computePolicy = policies.get(nodeName);
-            assertNull(computePolicy);
-        }
+        ScalingPolicy computePolicy = TopologyUtils.getScalingPolicy(TopologyUtils.getScalableCapability(topologyResponse.getData().getTopology(), nodeName,
+                true));
+        assertEquals(ScalingPolicy.NOT_SCALABLE_POLICY, computePolicy);
     }
 
     @Then("^the node with required properties not set should be$")
     public void the_node_with_required_properties_not_set_should_be(DataTable expectedRequiredProperties) throws Throwable {
-        RestResponse<Map> restResponse = JsonUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
         assertNotNull(restResponse.getData());
-        String dataString = JsonUtil.toString(restResponse.getData());
-        Map<String, Object> validationDTOMap = JsonUtil.toMap(dataString);
+        String dataString = JsonTestUtil.toString(restResponse.getData());
+        Map<String, Object> validationDTOMap = JsonTestUtil.toMap(dataString);
         Object tasklist = MapUtil.get(validationDTOMap, "taskList");
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequiredProperties.raw()) {
@@ -697,7 +714,7 @@ public class TopologyStepDefinitions {
 
     private String getTopologyIdFromTemplateName(String topologyTemplateName) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
-        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        RestResponse<FacetedSearchResult> restResponse = JsonTestUtil.read(response, FacetedSearchResult.class);
         String topologyId = null;
         for (Object singleResult : restResponse.getData().getData()) {
             Map map = (Map) singleResult;
@@ -736,7 +753,7 @@ public class TopologyStepDefinitions {
     @And("^The RestResponse should contain a group named \"([^\"]*)\" whose members are \"([^\"]*)\" and policy is \"([^\"]*)\"$")
     public void The_RestResponse_should_contain_a_group_named_whose_members_are_and_policy_is(String groupName, String members, String policy) throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         Assert.assertNotNull(topologyResponse.getData().getTopology().getGroups());
         NodeGroup nodeGroup = topologyResponse.getData().getTopology().getGroups().get(groupName);
         Set<String> expectedMembers = Sets.newHashSet(members.split(","));
@@ -766,7 +783,7 @@ public class TopologyStepDefinitions {
     @Then("^The RestResponse should not contain any group$")
     public void The_RestResponse_should_not_contain_any_group() throws Throwable {
         String topologyResponseText = Context.getInstance().getRestResponse();
-        RestResponse<TopologyDTO> topologyResponse = JsonUtil.read(topologyResponseText, TopologyDTO.class);
+        RestResponse<TopologyDTO> topologyResponse = JsonTestUtil.read(topologyResponseText, TopologyDTO.class);
         Map<String, NodeGroup> groups = topologyResponse.getData().getTopology().getGroups();
         Assert.assertTrue(groups == null || groups.isEmpty());
     }
@@ -785,5 +802,31 @@ public class TopologyStepDefinitions {
         for (String member : members) {
             I_add_the_node_to_the_group(member, groupName);
         }
+    }
+
+    @And("^The topology should have scalability policy error concerning \"([^\"]*)\"$")
+    public void The_topology_should_have_scalability_policy_error_concerning(String scalabilityProperty) throws Throwable {
+        RestResponse<Map> restResponse = JsonTestUtil.read(Context.getInstance().getRestResponse(), Map.class);
+        assertNotNull(restResponse.getData());
+        List<Map<String, Object>> taskList = (List<Map<String, Object>>) restResponse.getData().get("taskList");
+        assertNotNull(taskList);
+        assertFalse(taskList.isEmpty());
+        for (Map<String, Object> task : taskList) {
+            if (task.get("code").equals(TaskCode.SCALABLE_CAPABILITY_INVALID.toString())) {
+                ((List<String>) ((Map<String, Object>) task.get("properties")).get(TaskLevel.ERROR.toString())).contains(scalabilityProperty);
+            }
+        }
+    }
+
+    @When("^I reset the the node template \"([^\"]*)\"'s property \"([^\"]*)\"$")
+    public void I_reset_the_the_node_template_s_property(String nodeTempName, String propertyName) throws Throwable {
+
+        String topologyId = Context.getInstance().getTopologyId();
+        // reset a property value = update it's value to null
+        UpdatePropertyRequest req = new UpdatePropertyRequest(propertyName, null);
+        String json = jsonMapper.writeValueAsString(req);
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTempName + "/properties", json));
+
     }
 }

@@ -1,9 +1,6 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,11 +22,9 @@ import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.collect.Sets;
 import org.junit.Assert;
 
-import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.exception.ITException;
-import alien4cloud.it.topology.TopologyStepDefinitions;
 import alien4cloud.it.utils.websocket.IStompDataFuture;
 import alien4cloud.it.utils.websocket.StompConnection;
 import alien4cloud.it.utils.websocket.StompData;
@@ -40,19 +35,13 @@ import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.PaaSDeploymentStatusMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStateMonitorEvent;
 import alien4cloud.paas.model.PaaSInstanceStorageMonitorEvent;
-import alien4cloud.rest.application.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.DeployApplicationRequest;
-import alien4cloud.rest.application.EnvironmentStatusDTO;
 import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
@@ -61,8 +50,6 @@ import cucumber.api.java.en.When;
 
 @Slf4j
 public class ApplicationsDeploymentStepDefinitions {
-    private Map<String, EnvironmentStatusDTO> applicationStatuses = Maps.newHashMap();
-    private TopologyStepDefinitions topologyStepDefinitions = new TopologyStepDefinitions();
     private CommonStepDefinitions commonSteps = new CommonStepDefinitions();
     private static Map<String, DeploymentStatus> pendingStatuses;
 
@@ -72,11 +59,21 @@ public class ApplicationsDeploymentStepDefinitions {
         pendingStatuses.put("undeployment", DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS);
     }
 
+    @When("I undeploy it")
+    public void I_undeploy_it() throws Throwable {
+        Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
+        String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
+    }
+
     @When("^I deploy it$")
     public void I_deploy_it() throws Throwable {
         // deploys the current application on default "Environment"
         DeployApplicationRequest deployApplicationRequest = getDeploymentAppRequest(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null);
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest)));
     }
 
     private DeployApplicationRequest getDeploymentAppRequest(String applicationName, String environmentName) throws IOException {
@@ -102,7 +99,7 @@ public class ApplicationsDeploymentStepDefinitions {
         return deployApplicationRequest;
     }
 
-    private void assertStatus(String applicationName, String environmentName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
+    private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
             String applicationEnvironmentName) throws Throwable {
         checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
     }
@@ -160,14 +157,12 @@ public class ApplicationsDeploymentStepDefinitions {
     @Then("^The application's deployment must succeed$")
     public void The_application_s_deployment_must_succeed() throws Throwable {
         // null value for environmentName => use default environment
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
-                15000L, null);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 15000L, null);
     }
 
     @Then("^The application's deployment must fail$")
     public void The_application_s_deployment_must_fail() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L,
-                null);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.FAILURE, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L, null);
     }
 
     @Then("^The deployment must succeed$")
@@ -184,8 +179,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @Then("^The application's deployment must finish with warning$")
     public void The_application_s_deployment_must_finish_with_warning() throws Throwable {
-        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), null, DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L,
-                null);
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.WARNING, DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L, null);
     }
 
     @When("^I can get applications statuses$")
@@ -235,7 +229,7 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
-    private String deploy(DeployApplicationRequest deployApplicationRequest) throws JsonProcessingException, IOException {
+    private String deploy(DeployApplicationRequest deployApplicationRequest) throws IOException {
         return Context.getRestClientInstance().postJSon("/rest/applications/deployment", JsonUtil.toString(deployApplicationRequest));
     }
 
@@ -244,7 +238,7 @@ public class ApplicationsDeploymentStepDefinitions {
         for (List<String> app : appsStatuses.raw()) {
             String name = app.get(0).trim();
             String expectedStatus = app.get(1).trim();
-            assertStatus(name, null, DeploymentStatus.valueOf(expectedStatus), pendingStatuses.get(operation), 15000L, null);
+            assertStatus(name, DeploymentStatus.valueOf(expectedStatus), pendingStatuses.get(operation), 15000L, null);
         }
     }
 
@@ -254,7 +248,7 @@ public class ApplicationsDeploymentStepDefinitions {
         The_application_s_deployment_must_succeed();
     }
 
-    @Given("^I give deployment properties$")
+    @Given("^I give deployment properties:$")
     public void I_give_deployment_properties(DataTable deploymentProperties) throws Throwable {
         String deploymentPropertyName = null;
         String deploymentPropertyValue = null;
@@ -273,6 +267,10 @@ public class ApplicationsDeploymentStepDefinitions {
                     .registerRestResponse(
                             Context.getRestClientInstance().postJSon("/rest/applications/check-deployment-property",
                                     JsonUtil.toString(checkDeploymentPropertyRequest)));
+            if (JsonUtil.read(Context.getInstance().getRestResponse()).getError() != null) {
+                log.info("Error in deployment properties for deployment property {} with value {}", deploymentPropertyName, deploymentPropertyValue);
+                break;
+            }
             finalDeploymentProperties.put(deploymentPropertyName, deploymentPropertyValue);
         }
         // register deployment application properties to use it
@@ -292,7 +290,6 @@ public class ApplicationsDeploymentStepDefinitions {
                 log.info("ENVIRONMENT to undeploy : {} - {}", env.getKey(), env.getValue());
                 Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + env.getValue() + "/deployment");
             }
-
         }
     }
 
@@ -504,6 +501,21 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @When("^I have the environment \"([^\"]*)\" with status \"([^\"]*)\" for the application \"([^\"]*)\"$")
     public void I_have_the_environment_with_status_for_the_application(String envName, String expectedStatus, String appName) throws Throwable {
-        assertStatus(appName, null, DeploymentStatus.valueOf(expectedStatus), DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L, envName);
+        assertStatus(appName, DeploymentStatus.valueOf(expectedStatus), DeploymentStatus.DEPLOYMENT_IN_PROGRESS, 10000L, envName);
+    }
+
+    @And("^The application's deployment must succeed after (\\d+) minutes$")
+    public void The_application_s_deployment_must_succeed_after_minutes(long numberOfMinutes) throws Throwable {
+        // null value for environmentName => use default environment
+        assertStatus(ApplicationStepDefinitions.CURRENT_APPLICATION.getName(), DeploymentStatus.DEPLOYED, DeploymentStatus.DEPLOYMENT_IN_PROGRESS,
+                numberOfMinutes * 60L * 1000L, null);
+    }
+
+    @And("^I re-deploy the application$")
+    public void I_re_deploy_the_application() throws Throwable {
+        I_undeploy_it();
+        // For asynchronous problem of cloudify 3
+        Thread.sleep(2000L);
+        I_deploy_it();
     }
 }

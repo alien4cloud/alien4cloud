@@ -96,6 +96,12 @@ public class RestClient {
         return ResponseUtil.toString(response);
     }
 
+    public InputStream getAsStream(String path) throws IOException {
+        HttpGet httpGet = new HttpGet(applicationUrl + path);
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+        return response.getEntity().getContent();
+    }
+
     public String getUrlEncoded(String path, List<NameValuePair> nvps) throws IOException, URISyntaxException {
         log.debug("Send get url encoded request to [" + path + "], params [" + nvps + "]");
         URI uri = new URIBuilder(applicationUrl + path).setParameters(nvps).build();

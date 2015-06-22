@@ -61,8 +61,13 @@ public final class FileUtil {
         }
     }
 
-    static String getChildEntryRelativePath(Path base, Path child) {
-        return base.toUri().relativize(child.toUri()).getPath();
+    public static String getChildEntryRelativePath(Path base, Path child, boolean convertToLinuxPath) {
+        String path = base.toUri().relativize(child.toUri()).getPath();
+        if (convertToLinuxPath && !"/".equals(base.getFileSystem().getSeparator())) {
+            return path.replace(base.getFileSystem().getSeparator(), "/");
+        } else {
+            return path;
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -34,6 +35,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import alien4cloud.application.ApplicationEnvironmentService;
+import alien4cloud.application.ApplicationService;
 import alien4cloud.application.DeploymentSetupService;
 import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.audit.annotation.Audit;
@@ -48,8 +51,8 @@ import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.AlreadyExistException;
-import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.application.Application;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.application.DeploymentSetupMatchInfo;
 import alien4cloud.model.cloud.Cloud;
@@ -57,6 +60,7 @@ import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.deployment.Deployment;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
@@ -65,6 +69,7 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.topology.CsarRelatedResourceDTO;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.topology.TopologyService;
@@ -88,6 +93,7 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Slf4j
 public class CloudServiceArchiveController {
     private static final String DEFAULT_TEST_FOLDER = "test";
+    private static final String CSAR_TYPE_NAME = "csar";
 
     @Resource
     private ArchiveUploadService csarUploadService;
@@ -110,6 +116,10 @@ public class CloudServiceArchiveController {
     private CloudResourceMatcherService cloudResourceMatcherService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
+    @Resource
+    private ApplicationService applicationService;
+    @Resource
+    private ApplicationEnvironmentService applicationEnvironmentService;
 
     @ApiOperation(value = "Upload a csar zip file.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -224,35 +234,119 @@ public class CloudServiceArchiveController {
     @ApiOperation(value = "Delete a CSAR given its id.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> delete(@PathVariable String csarId) {
+    public RestResponse<List<CsarRelatedResourceDTO>> delete(@PathVariable String csarId) {
         Csar csar = csarService.getMandatoryCsar(csarId);
+        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        boolean isCsarDeletable = relatedResourceList.isEmpty() ? true : false;
+
+        if (!isCsarDeletable) {
+            String errorMessage = "The csar named <" + csar.getName() + "> in version <" + csar.getVersion()
+                    + "> can not be deleted since it is referenced by other resources";
+            return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().data(relatedResourceList)
+                    .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(errorMessage).build()).build();
+        }
+
+        // latest version indicator will be recomputed to match this new reality
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
+        csarDAO.delete(Csar.class, csarId);
+
+        // physically delete files
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+        return RestResponseBuilder.<List<CsarRelatedResourceDTO>> builder().build();
+    }
+
+    /**
+     * Get resources related to a Csar
+     * 
+     * @param csar
+     * @return
+     */
+    private List<CsarRelatedResourceDTO> getCsarRelatedResourceList(Csar csar) {
+        List<CsarRelatedResourceDTO> relatedResourceList = Lists.newArrayList();
+
+        if (csar == null) {
+            log.warn("You have requested a resource list for a invalid csar object : <" + csar + ">");
+            return relatedResourceList;
+        }
 
         // a csar that is a dependency of another csar can not be deleted
-        Csar[] result = csarService.getDependantCsars(csar.getName(), csar.getVersion());
-        if (result != null && result.length > 0) {
-            throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+        Csar[] relatedCsars = csarService.getDependantCsars(csar.getName(), csar.getVersion());
+        if (relatedCsars != null && relatedCsars.length > 0) {
+            relatedResourceList.addAll(generateCsarsInfo(relatedCsars));
         }
 
         // check if some of the nodes are used in topologies.
         Topology[] topologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
         if (topologies != null && topologies.length > 0) {
-            throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+            relatedResourceList.addAll(generateTopologiesInfo(topologies));
         }
-        // latest version indicator will be recomputed to match this new reality
-        indexerService.deleteElements(csar.getName(), csar.getVersion());
 
-        csarDAO.delete(Csar.class, csarId);
+        return relatedResourceList;
+    }
 
-        // physically delete files
-        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
-        return RestResponseBuilder.<Void> builder().build();
+    /**
+     * Generate resources related to a csar list
+     * 
+     * @param csars
+     * @return
+     */
+    private List<CsarRelatedResourceDTO> generateCsarsInfo(Csar[] csars) {
+        String resourceName = null;
+        String resourceId = null;
+        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
+        for (Csar csar : csars) {
+            resourceName = csar.getName();
+            resourceId = csar.getId();
+            CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, CSAR_TYPE_NAME, resourceId);
+            resourceList.add(temp);
+        }
+        return resourceList;
+    }
+
+    /**
+     * Generate resources (application or template) related to a topology list
+     * 
+     * @param topologies
+     * @return
+     */
+    private List<CsarRelatedResourceDTO> generateTopologiesInfo(Topology[] topologies) {
+        String resourceName = null;
+        String resourceId = null;
+        boolean typeHandled = true;
+        List<CsarRelatedResourceDTO> resourceList = Lists.newArrayList();
+        for (Topology topology : topologies) {
+            String delegateType = topology.getDelegateType();
+            if (delegateType.equals("application")) {
+                // get the related application
+                Application application = applicationService.checkAndGetApplication(topology.getDelegateId());
+                resourceName = application.getName();
+            } else if (delegateType.equals("topologytemplate")) {
+                // get the related template
+                TopologyTemplate template = topologyService.getOrFailTopologyTemplate(topology.getDelegateId());
+                resourceName = template.getName();
+            } else {
+                typeHandled = false;
+                log.info("The topology <" + topology.getId() + "> of type <" + delegateType + " is not yet handled.");
+            }
+
+            if (typeHandled) {
+                resourceId = topology.getDelegateId();
+                CsarRelatedResourceDTO temp = new CsarRelatedResourceDTO(resourceName, delegateType, resourceId);
+                resourceList.add(temp);
+            } else {
+                typeHandled = true;
+            }
+        }
+        return resourceList;
     }
 
     @ApiOperation(value = "Get a CSAR given its id.", notes = "Returns a CSAR.")
     @RequestMapping(value = "/{csarId:.+?}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<Csar> read(@PathVariable String csarId) {
-        Csar data = csarDAO.findById(Csar.class, csarId);
-        return RestResponseBuilder.<Csar> builder().data(data).build();
+    public RestResponse<CsarInfoDTO> read(@PathVariable String csarId) {
+        Csar csar = csarDAO.findById(Csar.class, csarId);
+        List<CsarRelatedResourceDTO> relatedResourceList = getCsarRelatedResourceList(csar);
+        CsarInfoDTO csarInfo = new CsarInfoDTO(csar, relatedResourceList);
+        return RestResponseBuilder.<CsarInfoDTO> builder().data(csarInfo).build();
     }
 
     @ApiOperation(value = "Search for cloud service archives.")

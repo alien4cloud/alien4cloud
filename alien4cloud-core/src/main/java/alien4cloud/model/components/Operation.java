@@ -6,9 +6,13 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import org.apache.commons.collections4.CollectionUtils;
+
 import alien4cloud.json.deserializer.OperationParameterDeserializer;
 import alien4cloud.ui.form.annotation.FormProperties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Sets;
 
@@ -32,10 +36,11 @@ public class Operation {
     private Map<String, IValue> inputParameters;
 
     /**
-     * This OPTIONAL property contains a set of one or more outputs this operation execution might generate.
+     * This OPTIONAL property contains a map of one or more outputs this operation execution might generate.
      * This is not part of TOSCA, and is populated when building the plan, based on the use of the get_operation_output function in the types definition
      */
-    private Set<String> outputs = Sets.newHashSet();
+    @JsonIgnore
+    private Set<OperationOutput> outputs = Sets.newHashSet();
 
     /**
      * <p>
@@ -46,5 +51,30 @@ public class Operation {
      */
     @SuppressWarnings("PMD.UnusedFormalParameterRule")
     public Operation(String emptyString) {
+    }
+
+    @JsonIgnore
+    public OperationOutput getOutput(String name) {
+        OperationOutput toFind = new OperationOutput(name);
+        for (OperationOutput output : outputs) {
+            if (output.equals(toFind)) {
+                return output;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * add an output, merge if needed the related attributes
+     *
+     * @param output
+     */
+    public void addOutput(OperationOutput output) {
+        if (outputs.contains(output) && CollectionUtils.isNotEmpty(output.getRelatedAttributes())) {
+            // merge related attributes
+            getOutput(output.getName()).getRelatedAttributes().addAll(output.getRelatedAttributes());
+        } else {
+            outputs.add(output);
+        }
     }
 }
