@@ -73,14 +73,10 @@ define(function (require) {
        *  - inRange => slider
        */
       $scope.definitionObject = {};
-      var isReset = false;
 
       $scope.init = function() {
         $scope.$watch('propertyValue', function() {
           $scope.initScope();
-          if (isReset) { // could be an initScope after a reset property
-            $scope.propertySave($scope.definitionObject.uiValue, $scope.definitionObject.uiUnit);
-          }
         }, true);
 
         $scope.$watch('definition', function() {
@@ -187,9 +183,12 @@ define(function (require) {
 
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
-        isReset = true;
-        if (_.defined($scope.propertyValue)) {
+        $scope.initScope();
+        $scope.propertySave($scope.definition.default, $scope.definitionObject.uiUnit);
+        if ($scope.propertyValue.hasOwnProperty('value')) {
           $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
+        } else {
+          $scope.propertyValue = $scope.definition.default;
         }
       };
 
