@@ -515,8 +515,8 @@ public class ApplicationsDeploymentStepDefinitions {
     @And("^I re-deploy the application$")
     public void I_re_deploy_the_application() throws Throwable {
         I_undeploy_it();
-        // For asynchronous problem of cloudify 3
-        Thread.sleep(30L * 1000L);
+        // For asynchronous problem of cloudify
+        Thread.sleep(60L * 1000L);
         I_deploy_it();
     }
 
