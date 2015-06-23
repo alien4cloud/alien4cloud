@@ -35,14 +35,17 @@ Feature: Topology composition
     And I associate the property "db_user" of a node template "MyMysql" to the input "db_user"
     And I define the property "db_password" of the node "MyMysql" of typeId "alien.nodes.Mysql:2.0.0-SNAPSHOT" as input property
     And I associate the property "db_password" of a node template "MyMysql" to the input "db_password"
+    And I define the property "db_port" of the node "MyMysql" as output property
     And I add a node template "MyPHP" related to the "alien.nodes.PHP:2.0.0-SNAPSHOT" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyMysql" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyApache" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-normative-types" version "1.0.0.wd03-SNAPSHOT" with source "MyPHP" and target "MyCompute" for requirement "host" of type "tosca.nodes.Compute" and target capability "host"
 
-  Scenario: Expose the template as a type and check type properties 
+  Scenario: Expose the template as a type and check type properties and attributes 
     Given I expose the template as type "tosca.nodes.Root"
     Then I should receive a RestResponse with no error
+    Given I define the attribute "ip_address" of the node "MyCompute" as output attribute
+    And I define the property "port" of the capability "app_endpoint" of the node "MyApache" as output property
     When I try to get a component with id "net.sample.LAMP:0.1.0-SNAPSHOT" 
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
@@ -58,6 +61,9 @@ Feature: Topology composition
     And The SPEL boolean expression "properties.containsKey('db_name')" should return true
     And The SPEL boolean expression "properties.containsKey('db_user')" should return true
     And The SPEL boolean expression "properties.containsKey('db_password')" should return true
+    And The SPEL boolean expression "attributes.containsKey('ip_address')" should return true
+    And The SPEL boolean expression "attributes.containsKey('db_port')" should return true
+    And The SPEL boolean expression "attributes.containsKey('port')" should return true
     
   Scenario: Expose capabilities and check type capabilities 
     Given I expose the template as type "tosca.nodes.Root"
@@ -74,13 +80,15 @@ Feature: Topology composition
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
 
-Scenario: Expose capabilities and use it in a topology
+  Scenario: Expose capabilities and use it in a topology
     Given I expose the template as type "tosca.nodes.Root"
     And I expose the capability "host" for the node "MyMysql"
     And I rename the exposed capability "host" to "hostMysql"
     And I expose the capability "host" for the node "MyApache"
     And I rename the exposed capability "host" to "hostApache"
     And I expose the capability "attachWebsite" for the node "MyPHP"
+    And I define the attribute "ip_address" of the node "MyCompute" as output attribute
+    And I define the property "port" of the capability "app_endpoint" of the node "MyApache" as output property    
     Given I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
     And I add a node template "myLAMP" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
     And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
@@ -89,6 +97,9 @@ Scenario: Expose capabilities and use it in a topology
     And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
     And I update the node template "myLAMP"'s property "os_arch" to "x86_64"
     And I update the node template "myLAMP"'s property "os_type" to "linux"
+    And I define the attribute "ip_address" of the node "myLAMP" as output attribute
+    And I define the attribute "db_port" of the node "myLAMP" as output attribute
+    And I define the attribute "port" of the node "myLAMP" as output attribute
     Given I assign the cloud with name "mock cloud" for the application
     When I deploy it
     Then The application's deployment must succeed
@@ -104,6 +115,10 @@ Scenario: Expose capabilities and use it in a topology
     And The SPEL expression "topology.nodeTemplates['myWordpress'].relationships.^[value.type == 'alien.relationships.WordpressHostedOnApache'].values().iterator().next().target" should return "myLAMP_MyApache"
     # the apache should be connected to the compute
     And The SPEL expression "topology.nodeTemplates['myLAMP_MyApache'].relationships.^[value.type == 'tosca.relationships.HostedOn'].values().iterator().next().target" should return "myLAMP_MyCompute"
+    # the outputs should have been wired
+    And The SPEL expression "topology.outputProperties['myLAMP_MyMysql'][0]" should return "db_port"
+    And The SPEL expression "topology.outputAttributes['myLAMP_MyCompute'][0]" should return "ip_address"
+    And The SPEL expression "topology.outputCapabilityProperties['myLAMP_MyApache']['app_endpoint'][0]" should return "port"
     
 Scenario: Recursive composition
 # in this scenario we have 3 templates:

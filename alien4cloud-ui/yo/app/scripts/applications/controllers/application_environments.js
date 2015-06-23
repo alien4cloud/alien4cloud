@@ -36,7 +36,7 @@ angular.module('alienUiApp').controller('ApplicationEnvironmentsCtrl', ['$scope'
         'size': 50
       };
       applicationVersionServices.searchVersion({
-        applicationId: $state.params.id
+        delegateId: $state.params.id
       }, angular.toJson(searchRequestObject), function versionSearchResult(result) {
         $scope.versions = result.data.data;
       });
