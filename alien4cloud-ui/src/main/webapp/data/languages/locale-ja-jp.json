@@ -190,23 +190,23 @@
     }
   },
   "GENERIC_FORM": {
-    "SAVE": "Save",
-    "CANCEL": "Cancel",
-    "DELETE": "Delete",
-    "ADD": "Add",
-    "EDIT": "Edit",
-    "GOTO": "Go to",
-    "ROOT": "Root",
-    "MAP_KEY_PLACEHOLDER": "Enter a new key",
-    "UNDEFINED": "Click to edit",
-    "UNDEFINED_READ_ONLY": "Undefined",
+    "SAVE": "保存",
+    "CANCEL": "キャンセル",
+    "DELETE": "削除",
+    "ADD": "追加",
+    "EDIT": "編集",
+    "GOTO": "移動",
+    "ROOT": "ルート",
+    "MAP_KEY_PLACEHOLDER": "新しいキーの入力",
+    "UNDEFINED": "クリックして編集",
+    "UNDEFINED_READ_ONLY": "未定義",
     "TRUE": "Yes",
     "FALSE": "No",
     "YES": "Yes",
     "NO": "No",
-    "REQUIRED": "Mandatory fields",
-    "FORM_INVALID_MESSAGE": "Attention! Form is invalid and will not be saved until all problems are solved:",
-    "SAVE_IS_DONE": "Saved",
+    "REQUIRED": "必須フィールド",
+    "FORM_INVALID_MESSAGE": "注意!フォームは無効となり、すべての問題が解決されるまで保存されません:",
+    "SAVE_IS_DONE": "保存済み",
     "VALIDATION_ERROR": {
       "greaterOrEqual": "Value must be >= {{reference}}",
       "greaterThan": "Value must be > {{reference}}",
@@ -220,56 +220,56 @@
     }
   },
   "USERS": {
-    "NEW": "New User",
+    "NEW": "新しいユーザ",
     "FIRST_NAME": "First Name",
     "LAST_NAME": "Last Name",
     "USERNAME": "Username",
     "PASSWORD": "Password",
-    "CONFIRM_PASSWORD": "Confirm",
-    "CONFIRM_PASSWORD_HOLDER": "Confirm",
+    "CONFIRM_PASSWORD": "確認",
+    "CONFIRM_PASSWORD_HOLDER": "確認",
     "EMAIL": "Email",
-    "CONFIRM_PASSWORD_ERROR": "Passwords do not match.",
-    "EMAIL_INVALID": "Invalid Email.",
-    "GROUPS": "Groups",
-    "EDIT_GROUPS": "Edit groups",
-    "NEW_GROUP_HEADER": "Add new group",
-    "EDIT_GROUP_HEADER": "Add or remove groups",
-    "ROLES": "Roles",
-    "OPERATIONS": "Operations",
-    "DELETE": "Delete"
+    "CONFIRM_PASSWORD_ERROR": "パスワードが一致しません",
+    "EMAIL_INVALID": "Emailが無効です",
+    "GROUPS": "グループ",
+    "EDIT_GROUPS": "グループの編集",
+    "NEW_GROUP_HEADER": "新しいグループの追加",
+    "EDIT_GROUP_HEADER": "グループの追加もしくは削除",
+    "ROLES": "ロール",
+    "OPERATIONS": "オペレーション",
+    "DELETE": "削除"
   },
   "GROUPS": {
-    "NEW": "New Group",
+    "NEW": "新しいグループ",
     "NAME": "Name",
-    "DESC": "Description",
+    "DESC": "説明",
     "EMAIL": "Email",
-    "EMAIL_INVALID": "Invalid Email.",
-    "GROUPS": "Groups",
-    "EDIT_GROUPS": "Edit groups",
-    "NEW_GROUP_HEADER": "Add new group",
-    "EDIT_GROUP_HEADER": "Add or remove groups",
-    "ROLES": "Roles",
-    "DELETE": "Delete",
-    "OPERATIONS": "Operations"
+    "EMAIL_INVALID": "Emailが無効です",
+    "GROUPS": "グループ",
+    "EDIT_GROUPS": "グループの編集",
+    "NEW_GROUP_HEADER": "新しいグループの追加",
+    "EDIT_GROUP_HEADER": "グループの追加もしくは削除",
+    "ROLES": "ロール",
+    "DELETE": "削除",
+    "OPERATIONS": "オペレーション"
   },
   "EDIT_RIGHTS": {
-    "EDIT_ROLE_RESOURCE": "Edit roles for resource",
-    "EDIT_ROLE_HEADER_RESOURCE": "Add or remove roles to the resource",
-    "EDIT_ROLE_ENV": "Edit roles for environment",
-    "EDIT_ROLE_HEADER_ENV": "Add or remove roles to the environment"
+    "EDIT_ROLE_RESOURCE": "リソースロールの編集",
+    "EDIT_ROLE_HEADER_RESOURCE": "リソースロールの追加もしくは削除",
+    "EDIT_ROLE_ENV": "環境ロールの編集",
+    "EDIT_ROLE_HEADER_ENV": "環境ロールの追加もしくは削除"
   },
   "NAVAPPLICATIONS": {
-    "MENU_INFO": "Informations",
-    "MENU_TOPOLOGY": "Topology",
-    "MENU_DEPLOYMENT": "Deployments",
-    "MENU_RUNTIME": "Runtime",
-    "MENU_USERS": "Users and Groups",
-    "MENU_ENVIRONMENT": "Environments",
-    "MENU_VERSIONS": "Version"
+    "MENU_INFO": "情報",
+    "MENU_TOPOLOGY": "トポロジ",
+    "MENU_DEPLOYMENT": "配備",
+    "MENU_RUNTIME": "ランタイム",
+    "MENU_USERS": "ユーザとグループ",
+    "MENU_ENVIRONMENT": "環境",
+    "MENU_VERSIONS": "バージョン"
   },
   "ROLE_TABS": {
-    "USERS": "Users",
-    "GROUPS": "Groups"
+    "USERS": "ユーザ",
+    "GROUPS": "グループ"
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
@@ -439,7 +439,7 @@
         "TOADD_RELATIONSHIP_LABEL": "Unsatisfied requirements (relationship should be added)",
         "REQUIRED_PROPERTIES_LABEL": "Required properties",
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
-        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates"
+        "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Invalid scalability policy",
           "MISSING": "Madatory property",
@@ -885,7 +885,8 @@
     "initial": "Initial",
     "available": "Available",
     "uninitialized": "Uninitialized",
-    "maintenance": "Maintenance"
+    "maintenance": "Maintenance",
+    "error": "Error"
   },
   "metrics": {
     "title": "Alien 4 Cloud's Metrics",
