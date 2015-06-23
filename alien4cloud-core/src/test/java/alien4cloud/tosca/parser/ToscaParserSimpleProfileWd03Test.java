@@ -522,6 +522,7 @@ public class ToscaParserSimpleProfileWd03Test {
 
         NodeFilter nodeFilter = requirementHost.getNodeFilter();
         Map<String, List<PropertyConstraint>> properties = nodeFilter.getProperties();
+        // Map<String, ConstraintList> properties = nodeFilter.getProperties();
         Assert.assertEquals(1, properties.size());
         Map<String, FilterDefinition> capabilities = nodeFilter.getCapabilities();
         Assert.assertEquals(2, capabilities.size());
@@ -529,14 +530,17 @@ public class ToscaParserSimpleProfileWd03Test {
         // check constraints on properties & capabilities
         Assert.assertTrue(properties.containsKey("os_type"));
         List<PropertyConstraint> osTypeConstraints = properties.get("os_type");
+        // ConstraintList osTypeConstraints = properties.get("os_type");
         Assert.assertEquals(1, osTypeConstraints.size());
 
         Assert.assertTrue(capabilities.containsKey("host"));
         Map<String, List<PropertyConstraint>> listHostCapaConstraint = capabilities.get("host").getProperties();
+        // Map<String, ConstraintList> listHostCapaConstraint = capabilities.get("host").getProperties();
         Assert.assertEquals(2, listHostCapaConstraint.size());
 
         Assert.assertTrue(capabilities.containsKey("mytypes.capabilities.compute.encryption"));
         Map<String, List<PropertyConstraint>> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
+        // Map<String, ConstraintList> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
         Assert.assertEquals(2, listTypeCapaConstraint.size());
     }
 

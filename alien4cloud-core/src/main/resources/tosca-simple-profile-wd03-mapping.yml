@@ -154,10 +154,15 @@
     map: properties
     type: template_property
 
+# - constraint_list: alien4cloud.model.components.ConstraintList
+#   list: constraints
+#   type: constraint
+
 # Node filter related types
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
+    # type: constraint_list
     list_type: constraint
 
 - node_filter_type: alien4cloud.model.components.NodeFilter
@@ -167,6 +172,9 @@
   capabilities:
     sequence_to_map: capabilities
     type: filter_definition
+  # properties:
+  #   sequence_to_map: properties
+  #   list_type: constraint
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
