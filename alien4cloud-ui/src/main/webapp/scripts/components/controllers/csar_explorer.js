@@ -2,11 +2,15 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
   require('angular-ui-ace');
 
-  modules.get('a4c-components', ['ui.ace']).controller(
+  require('angular-tree-control');
+
+  modules.get('a4c-components', ['ui.ace', 'treeControl']).controller(
     'CsarExplorerController', ['$scope', '$modalInstance', '$http', 'archiveName', 'archiveVersion', 'openOnFile', function($scope, $modalInstance, $http, archiveName, archiveVersion, openOnFile) {
 
+    $scope.isImage = false;
     $scope.archiveName = archiveName;
     $scope.archiveVersion = archiveVersion;
 
@@ -49,7 +53,7 @@ define(function (require) {
       }
     }
 
-    $http({method: 'GET', url: '/csarrepository/'+archiveName+'/'+archiveVersion+'/content.json'}).success(function(data) {
+    $http({method: 'GET', url: '/static/tosca/'+archiveName+'/'+archiveVersion+'/content.json'}).success(function(data) {
       $scope.treedata.children = data.children[0].children;
       if(selected !== null) {
         $scope.showSelected(selected);
@@ -77,13 +81,24 @@ define(function (require) {
     };
 
     $scope.showSelected = function(node) {
-      $http({method: 'GET',
-        transformResponse: function(data) { return data; },
-        url: '/csarrepository/'+archiveName+'/'+archiveVersion+node.fullPath})
-        .success(function(data) {
-          $scope.editorContent = data;
-          updateMode(node);
-        });
+      var selectedUrl = '/static/tosca/'+archiveName+'/'+archiveVersion+node.fullPath;
+
+      _.isImage(selectedUrl).then(function(isImage) {
+        if(isImage) {
+          $scope.imageUrl = selectedUrl;
+          $scope.isImage = isImage;
+          $scope.$apply();
+        } else {
+          $scope.isImage = false;
+          $http({method: 'GET',
+            transformResponse: function(data) { return data; },
+            url: selectedUrl})
+            .success(function(data) {
+              $scope.editorContent = data;
+              updateMode(node);
+            });
+        }
+      });
     };
 
     $scope.cancel = function() {

@@ -92,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/topologies/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/templates/**").hasAnyAuthority("ADMIN", "ARCHITECT", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/components/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
-        http.authorizeRequests().antMatchers("/csarrepository/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
+        http.authorizeRequests().antMatchers("/static/tosca/**").hasAnyAuthority("ADMIN", "COMPONENTS_MANAGER", "COMPONENTS_BROWSER");
         http.authorizeRequests().antMatchers("/rest/applications/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/runtime/**").authenticated();
         http.authorizeRequests().antMatchers("/rest/suggest/**").authenticated();
@@ -121,6 +121,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/passprovider").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/admin/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/audit/**").hasAuthority("ADMIN");
+
         http.authorizeRequests().anyRequest().denyAll();
 
         http.formLogin().defaultSuccessUrl("/rest/auth/status").failureUrl("/rest/auth/authenticationfailed").loginProcessingUrl("/login")

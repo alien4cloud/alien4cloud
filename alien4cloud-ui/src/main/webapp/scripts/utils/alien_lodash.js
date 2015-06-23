@@ -3,6 +3,8 @@ define(function (require) {
   'use strict';
 
   var _ = require('lodash-base');
+  var $ = require('jquery');
+
   _.mixin({
     undefined : function(val) {
       return _.isUndefined(val) || _.isNull(val);
@@ -51,6 +53,18 @@ define(function (require) {
     },
     isNotEmpty: function(object) {
       return !_.isEmpty(object);
+    },
+    isImage: function(src) {
+      var deferred = $.Deferred();
+      var image = new Image();
+      image.onerror = function() {
+          deferred.resolve(false);
+      };
+      image.onload = function() {
+          deferred.resolve(true);
+      };
+      image.src = src;
+      return deferred;
     }
   });
   return _;
