@@ -640,4 +640,10 @@ public class ApplicationStepDefinitions {
             throws Throwable {
         createApplicationFromTemplateId(name, description, TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName));
     }
+
+    @Then("^The application update date has changed$")
+    public void The_application_update_date_has_changed() throws Throwable {
+        Application application = CURRENT_APPLICATION;
+        Assert.assertNotEquals(application.getCreationDate(), application.getLastUpdateDate());
+    }
 }
