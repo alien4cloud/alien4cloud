@@ -490,7 +490,21 @@
         "TYPE": "Type",
         "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Définir l'artefact comme entrée"
-      },
+      },   
+      "SUBSTITUTIONS": {
+        "TITLE": "Substitutions",
+        "TYPE": "Type",
+        "CAPABILITIES": "Capacités",
+        "CAPABILITY": "Capacité",
+        "REQUIREMENTS": "Pré-requis",
+        "REQUIREMENT": "Pré-requis",
+        "TARGET_NODE": "Cible",
+        "SOURCE_NODE": "Source",
+        "NOM": "Nom",
+        "VERSION": "Version",
+        "EXPOSE": "Exposer",
+        "DISPLAY": "Afficher la topology de substitution"
+      },   
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
@@ -805,7 +819,8 @@
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
     },
     "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
-    "808": "Le nom ne respecte pas le format attendu"
+    "808": "Le nom ne respecte pas le format attendu",
+    "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

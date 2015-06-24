@@ -5,24 +5,28 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.mapping.MappingBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
@@ -89,4 +93,19 @@ public class SuggestionController {
             }
         }
     }
+
+    @ApiIgnore
+    @RequestMapping(value = "/nodetypes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<String[]> nodeTypeSuggest(@RequestParam("text") String searchText) {
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return RestResponseBuilder.<String[]> builder().data(new String[0]).build();
+        }
+        QueryBuilder queryOnText = QueryBuilders.regexpQuery("elementId", ".*?" + searchText + ".*");
+        QueryBuilder queryOnHighest = QueryBuilders.termQuery("highestVersion", true);
+        QueryBuilder query = QueryBuilders.boolQuery().must(queryOnText).must(queryOnHighest);
+        return RestResponseBuilder.<String[]> builder()
+                .data(dao.selectPath("toscaelement", new String[] { "indexednodetype" }, query, SortOrder.ASC, "elementId", 0, 10))
+                .build();
+    }
+
 }

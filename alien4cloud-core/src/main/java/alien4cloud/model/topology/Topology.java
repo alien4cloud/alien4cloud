@@ -94,4 +94,9 @@ public class Topology implements IManagedSecuredResource {
 
     private Map<String, NodeGroup> groups;
 
+    /**
+     * When not null, describe how this topology can be used to substitute a node type in another topology (topology composition).
+     */
+    private SubstitutionMapping substitutionMapping;
+
 }

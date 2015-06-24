@@ -73,4 +73,21 @@ public final class MapUtil {
         }
         return reverted;
     }
+
+    /**
+     * Remove the entry with 'oldKey' and put it (if exists) using 'newKey' unless if an entry already exist for 'newKey'.
+     */
+    public static <K, V> void replaceKey(Map<K, V> map, K oldKey, K newKey) {
+        if (map == null || map.isEmpty()) {
+            return;
+        }
+        if (map.containsKey(newKey)) {
+            return;
+        }
+        V o = map.remove(oldKey);
+        if (o != null) {
+            map.put(newKey, o);
+        }
+    }
+
 }

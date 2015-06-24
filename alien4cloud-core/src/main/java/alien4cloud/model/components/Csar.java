@@ -48,6 +48,13 @@ public class Csar implements IDeploymentSource {
 
 	private String license;
 
+    /**
+     * When the CSAR is created from a topology template (substitution), contains the topology id.
+     */
+    @TermFilter
+    @StringField(indexType = IndexType.not_analyzed)
+    private String substitutionTopologyId;
+
 	/** Default constructor */
 	public Csar() {
 	}
