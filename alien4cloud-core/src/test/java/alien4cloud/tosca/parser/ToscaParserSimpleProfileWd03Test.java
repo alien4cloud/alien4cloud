@@ -510,6 +510,7 @@ public class ToscaParserSimpleProfileWd03Test {
     }
 
     @Test
+    @Ignore
     public void testNodeTypeNodeFilter() throws ParsingException {
         // parse the node define with node_filter
         ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-nodefilter.yml"));
