@@ -110,7 +110,7 @@ public class TopologyTemplateVersionController {
     public RestResponse<String> create(@PathVariable String topologyTemplateId, @RequestBody ApplicationVersionRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.ARCHITECT);
         TopologyTemplateVersion version = versionService.createVersion(topologyTemplateId, request.getTopologyId(), request.getVersion(),
-                request.getDescription());
+                request.getDescription(), null);
         Topology topology = topologyServiceCore.getTopology(version.getTopologyId());
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<String> builder().data(version.getId()).build();

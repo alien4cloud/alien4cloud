@@ -354,9 +354,9 @@ public class TopologyServiceCore {
         this.alienDAO.save(topology);
         this.alienDAO.save(topologyTemplate);
         if (version == null) {
-            topologyTemplateVersionService.createVersion(topologyTemplateId, topologyId);
+            topologyTemplateVersionService.createVersion(topologyTemplateId, null, topology);
         } else {
-            topologyTemplateVersionService.createVersion(topologyTemplateId, topologyId, version, null);
+            topologyTemplateVersionService.createVersion(topologyTemplateId, null, version, null, topology);
         }
 
         return topologyTemplate;
@@ -470,12 +470,52 @@ public class TopologyServiceCore {
                 for (String attributeName : oae.getValue()) {
                     IValue ivalue = nodeTemplateType.getAttributes().get(attributeName);
                     // we have an issue here : if several nodes have the same attribute name, there is a conflict
-                    if (!attributes.containsKey(attributeName)) {
+                    if (ivalue != null && !attributes.containsKey(attributeName)) {
                         attributes.put(attributeName, ivalue);
                     }
                 }
             }
         }
+        // output properties become attributes for the type
+        Map<String, Set<String>> outputProperties = topology.getOutputProperties();
+        if (outputProperties != null) {
+            for (Entry<String, Set<String>> ope : outputProperties.entrySet()) {
+                String nodeName = ope.getKey();
+                NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeName);
+                IndexedNodeType nodeTemplateType = csarRepoSearchService.getRequiredElementInDependencies(IndexedNodeType.class, nodeTemplate.getType(),
+                        topology.getDependencies());
+                for (String propertyName : ope.getValue()) {
+                    PropertyDefinition pd = nodeTemplateType.getProperties().get(propertyName);
+                    // we have an issue here : if several nodes have the same attribute name, there is a conflict
+                    if (pd != null && !attributes.containsKey(propertyName)) {
+                        attributes.put(propertyName, pd);
+                    }
+                }
+            }
+        }
+        // output capabilities properties also become attributes for the type
+        Map<String, Map<String, Set<String>>> outputCapabilityProperties = topology.getOutputCapabilityProperties();
+        if (outputCapabilityProperties != null) {
+            for (Entry<String, Map<String, Set<String>>> ocpe : outputCapabilityProperties.entrySet()) {
+                String nodeName = ocpe.getKey();
+                NodeTemplate nodeTemplate = topology.getNodeTemplates().get(nodeName);
+                for (Entry<String, Set<String>> cpe : ocpe.getValue().entrySet()) {
+                    String capabilityName = cpe.getKey();
+                    String capabilityTypeName = nodeTemplate.getCapabilities().get(capabilityName).getType();
+                    IndexedCapabilityType capabilityType = csarRepoSearchService.getRequiredElementInDependencies(IndexedCapabilityType.class,
+                            capabilityTypeName,
+                            topology.getDependencies());
+                    for (String propertyName : cpe.getValue()) {
+                        PropertyDefinition pd = capabilityType.getProperties().get(propertyName);
+                        // we have an issue here : if several nodes have the same attribute name, there is a conflict
+                        if (pd != null && !attributes.containsKey(propertyName)) {
+                            attributes.put(propertyName, pd);
+                        }
+                    }
+                }
+            }
+        }
+
         // capabilities substitution
         if (topology.getSubstitutionMapping().getCapabilities() != null) {
             for (Entry<String, SubstitutionTarget> e : topology.getSubstitutionMapping().getCapabilities().entrySet()) {

@@ -514,6 +514,23 @@ public class TopologyController {
                 capabilities.remove();
             }
         }
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
+    }
+
+    private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
+        if (substitutionTargets == null) {
+            return;
+        }
+        Iterator<Entry<String, SubstitutionTarget>> capabilities = substitutionTargets.entrySet().iterator();
+        while (capabilities.hasNext()) {
+            Entry<String, SubstitutionTarget> e = capabilities.next();
+            if (e.getValue().getNodeTemplateName().equals(nodeTemplateName)) {
+                capabilities.remove();
+            }
+        }
     }
 
     /**

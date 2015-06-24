@@ -28,6 +28,7 @@ import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 @Slf4j
 @Service
@@ -42,17 +43,18 @@ public class TopologyCompositionService {
     public void processTopologyComposition(Topology topology) {
         Deque<CompositionCouple> stack = new ArrayDeque<CompositionCouple>();
         recursivelyBuildSubstitutionStack(topology, stack, "");
-        // now this stack contains all the embeded topology templates
+        // now this stack contains all the embedded topology templates
         if (!stack.isEmpty()) {
             // iterate over the stack in descending order (manage the deepest topologies at a first time).
             Iterator<CompositionCouple> compositionIterator = stack.descendingIterator();
             while (compositionIterator.hasNext()) {
                 processComposition(compositionIterator.next());
             }
-            // TODO: finally compile the direct child of the main topology
-            // link between embeded child ?
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Topology composition has been processed for topology <%s> substituting %d embeded topologies", topology.getId(),
+                        stack.size()));
+            }
         }
-        log.debug("");
     }
 
     /**
@@ -107,6 +109,14 @@ public class TopologyCompositionService {
                 }
             }
         }
+        if (compositionCouple.parent.getOutputAttributes() != null) {
+            Set<String> outputAttributes = compositionCouple.parent.getOutputAttributes().remove(compositionCouple.nodeName);
+            if (outputAttributes != null) {
+                for (String proxyAttributeName : outputAttributes) {
+                    sustituteGetAttribute(compositionCouple.child, compositionCouple.parent, proxyAttributeName);
+                }
+            }
+        }
         // the parent itself expose stuffs, we eventually need to replace substitution targets
         if (compositionCouple.parent.getSubstitutionMapping() != null) {
             if (compositionCouple.parent.getSubstitutionMapping().getCapabilities() != null) {
@@ -131,6 +141,88 @@ public class TopologyCompositionService {
         }
         // merge each child nodes into the parent
         compositionCouple.parent.getNodeTemplates().putAll(compositionCouple.child.getNodeTemplates());
+    }
+
+    /**
+     * Ugly code : since we don't name outputs in alien topology, we are not able to determine if an output is related to a property, to an attribute or to a
+     * capability property. This is done in the same order than alien4cloud.topology.TopologyServiceCore.updateSubstitutionType(Topology) processes substitution
+     * outputs.
+     */
+    private void sustituteGetAttribute(Topology child, Topology parent, String proxyAttributeName) {
+        if (child.getOutputAttributes() != null) {
+            for (Entry<String, Set<String>> oae : child.getOutputAttributes().entrySet()) {
+                String nodeName = oae.getKey();
+                for (String oa : oae.getValue()) {
+                    if (oa.equals(proxyAttributeName)) {
+                        // ok the proxy attribute name matches the embedded node attribute
+                        Map<String, Set<String>> parentOas = parent.getOutputAttributes();
+                        if (parentOas == null) {
+                            parentOas = Maps.newHashMap();
+                            parent.setOutputAttributes(parentOas);
+                        }
+                        Set<String> parentNodeOas = parentOas.get(nodeName);
+                        if (parentNodeOas == null) {
+                            parentNodeOas = Sets.newHashSet();
+                            parentOas.put(nodeName, parentNodeOas);
+                        }
+                        parentNodeOas.add(proxyAttributeName);
+                        return;
+                    }
+                }
+            }
+        }
+        if (child.getOutputProperties() != null) {
+            for (Entry<String, Set<String>> ope : child.getOutputProperties().entrySet()) {
+                String nodeName = ope.getKey();
+                for (String op : ope.getValue()) {
+                    if (op.equals(proxyAttributeName)) {
+                        // ok the proxy attribute name matches the embedded node property
+                        Map<String, Set<String>> parentOps = parent.getOutputProperties();
+                        if (parentOps == null) {
+                            parentOps = Maps.newHashMap();
+                            parent.setOutputProperties(parentOps);
+                        }
+                        Set<String> parentNodeOps = parentOps.get(nodeName);
+                        if (parentNodeOps == null) {
+                            parentNodeOps = Sets.newHashSet();
+                            parentOps.put(nodeName, parentNodeOps);
+                        }
+                        parentNodeOps.add(proxyAttributeName);
+                        return;
+                    }
+                }
+            }
+        }
+        if (child.getOutputCapabilityProperties() != null) {
+            for (Entry<String, Map<String, Set<String>>> ocpe : child.getOutputCapabilityProperties().entrySet()) {
+                String nodeName = ocpe.getKey();
+                for (Entry<String, Set<String>> cpes : ocpe.getValue().entrySet()) {
+                    String embededCapabilityName = cpes.getKey();
+                    for (String op : cpes.getValue()) {
+                        if (op.equals(proxyAttributeName)) {
+                            // ok the embedded output capability property matches the proxy type output attribute
+                            Map<String, Map<String, Set<String>>> parentOcps = parent.getOutputCapabilityProperties();
+                            if (parentOcps == null) {
+                                parentOcps = Maps.newHashMap();
+                                parent.setOutputCapabilityProperties(parentOcps);
+                            }
+                            Map<String, Set<String>> parentNodeOcps = parentOcps.get(nodeName);
+                            if (parentNodeOcps == null) {
+                                parentNodeOcps = Maps.newHashMap();
+                                parentOcps.put(nodeName, parentNodeOcps);
+                            }
+                            Set<String> parentCapabilityOps = parentNodeOcps.get(embededCapabilityName);
+                            if (parentCapabilityOps == null) {
+                                parentCapabilityOps = Sets.newHashSet();
+                                parentNodeOcps.put(embededCapabilityName, parentCapabilityOps);
+                            }
+                            parentCapabilityOps.add(proxyAttributeName);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**

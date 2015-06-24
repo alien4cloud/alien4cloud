@@ -153,6 +153,12 @@ public class TopologyTemplateController {
                 Topology[] dependentTopologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
                 if (dependentTopologies != null && dependentTopologies.length > 0) {
                     throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+				}
+                if (csar != null) {
+                    Topology[] dependentTopologies = csarService.getDependantTopologies(csar.getName(), csar.getVersion());
+                    if (dependentTopologies != null && dependentTopologies.length > 0) {
+                        throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+                    }
                 }
             }
         }

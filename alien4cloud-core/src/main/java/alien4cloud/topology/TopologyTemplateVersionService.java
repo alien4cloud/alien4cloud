@@ -33,8 +33,27 @@ public class TopologyTemplateVersionService extends AbtractVersionService<Topolo
             String ttid = tt.getId();
             if (getByDelegateId(ttid).length == 0) {
                 // no versions found for this topology template, we create one per default
-                this.createVersion(ttid, tt.getTopologyId());
+                this.createVersion(ttid, tt.getTopologyId(), null);
             }
+        }
+    }
+
+    @Override
+    public void delete(String versionId) {
+        TopologyTemplateVersion ttv = getOrFail(versionId);
+        Topology topology = topologyServiceCore.getTopology(ttv.getTopologyId());
+        Csar csar = null;
+        if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+            // this topology expose substitution, we have to delete the related CSAR and type
+            csar = csarService.getTopologySubstitutionCsar(topology.getId());
+            // will fail if the stuff is used in a topology
+            if (csar != null && csarService.isDependency(csar.getName(), csar.getVersion())) {
+                throw new DeleteReferencedObjectException("This topology template version can not be deleted since it's already used.");
+            }
+        }
+        super.delete(versionId);
+        if (csar != null) {
+            csarService.deleteCsar(csar.getId());
         }
     }
 
