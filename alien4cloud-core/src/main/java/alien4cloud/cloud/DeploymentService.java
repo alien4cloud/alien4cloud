@@ -39,6 +39,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
@@ -143,7 +144,7 @@ public class DeploymentService {
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
         deployment.setId(UUID.randomUUID().toString());
-        deployment.setPaasId(generatePaasId(deploymentSetup.getEnvironmentId(), cloudId));
+        deployment.setPaasId(generatePaaSId(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -171,7 +172,7 @@ public class DeploymentService {
         return deployment.getId();
     }
 
-    private String generatePaasId(String envId, String cloudId) {
+    private String generatePaaSId(String envId, String cloudId) throws DeploymentPaaSIdConflictException {
         // Inner class to get value from multiples objects
         @Getter
         class ContextObjectToParse {
@@ -210,13 +211,25 @@ public class DeploymentService {
             }
         }
 
+        log.debug("Generating deployment paaS Id...");
+        log.debug("All spaces will be replaced by an \"_\" charactr. You might consider it while naming your applications.");
         ApplicationEnvironment env = applicationEnvironmentService.getOrFail(envId);
         Cloud cloud = cloudService.get(cloudId);
         String namePattern = cloud.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        return (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
+        String paaSId = (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
                 .contains("metaProperties[")));
+        paaSId = paaSId.trim().replaceAll(" ", "_");
+        checkPaaSIdUnicity(paaSId, cloud);
+
+        return paaSId;
+    }
+
+    private void checkPaaSIdUnicity(String paaSId, Cloud cloud) throws DeploymentPaaSIdConflictException {
+        if (isActiveDeployment(paaSId, cloud.getId())) {
+            throw new DeploymentPaaSIdConflictException("Conflict detected with the generated paasId <" + paaSId + ">.");
+        }
     }
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
@@ -478,6 +491,16 @@ public class DeploymentService {
                 new String[] { null } });
         GetMultipleDataResult<Deployment> dataResult = alienDao.search(Deployment.class, null, activeDeploymentFilters, 1);
         return dataResult.getData();
+    }
+
+    private boolean isActiveDeployment(String paaSId, String cloudId) {
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "paasId", "endDate" }, new String[][] {
+                new String[] { cloudId }, new String[] { paaSId }, new String[] { null } });
+        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, Integer.MAX_VALUE);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
+        }
+        return false;
     }
 
     public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String cloudId) {

@@ -59,6 +59,7 @@ public enum RestErrorCode {
     LAST_APPLICATION_VERSION_ERROR(610),
     MISSING_APPLICATION_VERSION_ERROR(611),
     CANNOT_UPDATE_DEPLOYED_ENVIRONMENT(612),
+    DEPLOYMENT_PAAS_ID_CONFLICT(613),
 
     // PaaS errors : code 650+
     COMPUTE_CONFLICT_NAME(650),
@@ -66,7 +67,7 @@ public enum RestErrorCode {
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
     COMPONENT_INTERNALTAG_ERROR(701),
-
+    
     // Topology management errors.
     // Node template properties handling errors
     PROPERTY_CONSTRAINT_VIOLATION_ERROR(800),
