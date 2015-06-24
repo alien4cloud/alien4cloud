@@ -467,6 +467,10 @@ public class TopologyController {
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
         removeOutputs(nodeTemplateName, topology);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
 
         // group members removal
         updateGroupMembers(topology, template, nodeTemplateName, null);
@@ -493,30 +497,6 @@ public class TopologyController {
                     }
                 }
             }
-        }
-    }
-
-    private void removeNodeRelatedStuffs(String nodeTemplateName, Topology topology) {
-        if (topology.getSubstitutionMapping() != null) {
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
-        }
-    }
-
-    private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
-        if (substitutionTargets == null) {
-            return;
-        }
-        Iterator<Entry<String, SubstitutionTarget>> capabilities = substitutionTargets.entrySet().iterator();
-        while (capabilities.hasNext()) {
-            Entry<String, SubstitutionTarget> e = capabilities.next();
-            if (e.getValue().getNodeTemplateName().equals(nodeTemplateName)) {
-                capabilities.remove();
-            }
-        }
-        if (topology.getSubstitutionMapping() != null) {
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
-            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
         }
     }
 
@@ -1005,6 +985,7 @@ public class TopologyController {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1065,6 +1046,7 @@ public class TopologyController {
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1088,6 +1070,7 @@ public class TopologyController {
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1123,6 +1106,7 @@ public class TopologyController {
 
         topology.setOutputProperties(removeValueFromMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 

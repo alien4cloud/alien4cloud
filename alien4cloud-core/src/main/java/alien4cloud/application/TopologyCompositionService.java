@@ -230,6 +230,9 @@ public class TopologyCompositionService {
      * BTW, rename the nodes by prefixing all the node names.
      */
     private void recursivelyBuildSubstitutionStack(Topology topology, Deque<CompositionCouple> stack, String prefix) {
+        if (topology == null || topology.getNodeTemplates() == null || topology.getNodeTemplates().isEmpty()) {
+            return;
+        }
         for (Entry<String, NodeTemplate> nodeEntry : topology.getNodeTemplates().entrySet()) {
             String nodeName = nodeEntry.getKey();
             String type = nodeEntry.getValue().getType();

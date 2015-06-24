@@ -38,6 +38,7 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
@@ -459,6 +460,10 @@ public class TopologyService {
             TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
             velocityCtx.put("template_name", template.getName());
             velocityCtx.put("application_description", template.getDescription());
+            TopologyTemplateVersion version = topologyTemplateVersionService.getByTopologyId(topology.getId());
+            if (version != null) {
+                velocityCtx.put("template_version", version.getVersion());
+            }
         }
 
         try {

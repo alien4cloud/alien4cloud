@@ -77,6 +77,7 @@ public class TopologyTemplateStepDefinitions {
 
         // create the topology
         I_create_a_new_topology_template_with_name_and_description(topologyTemplateName, topologyTemplateDesc);
+        I_can_get_the_last_version_for_the_registered_topology_template();
 
         // add all specified nodetemplate to a specific topology (from Application or Topology template)
         for (List<String> row : nodeTemplates.raw()) {
