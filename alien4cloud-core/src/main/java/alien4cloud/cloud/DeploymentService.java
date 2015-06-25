@@ -560,19 +560,4 @@ public class DeploymentService {
                 MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }), Integer.MAX_VALUE);
     }
 
-    /**
-     * Find the unique active deployment from it's deployment name.
-     *
-     * @param deploymentPaaSId The deployment name (must be unique for an active deployment.
-     * @return deployment which have the given deployment setup id
-     */
-    public Deployment getDeploymentByPaaSId(String deploymentPaaSId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class,
-                MapUtil.newHashMap(new String[] { "paasId", "endDate" }, new String[][] { new String[] { deploymentPaaSId }, new String[] { null } }),
-                Integer.MAX_VALUE);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
-        }
-        return null;
-    }
 }
