@@ -779,6 +779,7 @@
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
+    "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
     "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",

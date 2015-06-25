@@ -32,6 +32,7 @@ import alien4cloud.exception.VersionConflictException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
+import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MissingPluginException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
@@ -184,9 +185,16 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> paaSDeploymentErrorHandler(ComputeConflictNameException e) {
         log.error("Error in PaaS Deployment, computer name conflict ", e);
-        return RestResponseBuilder
-                .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build())
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.COMPUTE_CONFLICT_NAME).message("Compute name conflict " + e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(value = DeploymentPaaSIdConflictException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public RestResponse<Void> paaSDeploymentErrorHandler(DeploymentPaaSIdConflictException e) {
+        log.error("Error in PaaS Deployment, conflict with the generated deployment paaSId", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.DEPLOYMENT_PAAS_ID_CONFLICT).message(e.getMessage()).build())
                 .build();
     }
 
