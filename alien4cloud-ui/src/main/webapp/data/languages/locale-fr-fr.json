@@ -105,7 +105,8 @@
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
-      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
+      "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs"
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
