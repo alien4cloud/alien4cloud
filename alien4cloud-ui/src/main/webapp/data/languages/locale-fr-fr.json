@@ -105,7 +105,9 @@
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
-      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
+      "300": "Erreur inattendue lors de l'écriture du plugin.",
+      "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",

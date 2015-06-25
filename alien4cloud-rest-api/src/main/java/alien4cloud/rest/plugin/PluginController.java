@@ -3,14 +3,10 @@ package alien4cloud.rest.plugin;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import alien4cloud.plugin.IPluginConfigurator;
-import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginManager;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilder;
@@ -19,17 +15,31 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.plugin.IPluginConfigurator;
+import alien4cloud.plugin.Plugin;
+import alien4cloud.plugin.PluginManager;
+import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginConfigurationException;
 import alien4cloud.plugin.exception.PluginLoadingException;
 import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.plugin.model.PluginUsage;
-import alien4cloud.rest.model.*;
+import alien4cloud.rest.model.BasicSearchRequest;
+import alien4cloud.rest.model.RestError;
+import alien4cloud.rest.model.RestErrorBuilder;
+import alien4cloud.rest.model.RestErrorCode;
+import alien4cloud.rest.model.RestResponse;
+import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.FileUploadUtil;
 import alien4cloud.utils.FileUtil;
@@ -67,6 +77,12 @@ public class PluginController {
             if (plugin.isConfigurable()) {
                 tryReusePreviousVersionConf(plugin);
             }
+        } catch (MissingPlugingDescriptorFileException e) {
+            log.error("Your plugin don't have the META-INF/plugin.yml file.", e);
+            return RestResponseBuilder
+                    .<Void> builder()
+                    .error(new RestError(RestErrorCode.MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION.getCode(),
+                            "Your plugin don't have the META-INF/plugin.yml file.")).build();
         } catch (IOException | PluginLoadingException e) {
             log.error("Unexpected IO error on plugin upload.", e);
             return RestResponseBuilder
