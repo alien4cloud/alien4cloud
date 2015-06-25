@@ -2,7 +2,13 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +34,13 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
 import alien4cloud.plugin.exception.PluginLoadingException;
-import alien4cloud.plugin.model.*;
+import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginDescriptor;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -157,12 +168,22 @@ public class PluginManager {
      * @throws PluginLoadingException
      * @throws AlreadyExistException if a plugin with the same id already exists in the repository
      * @return the uploaded plugin
+     * @throws MissingPlugingDescriptorFileException
      */
-    public Plugin uploadPlugin(Path uploadedPluginPath) throws IOException, PluginLoadingException {
+    public Plugin uploadPlugin(Path uploadedPluginPath) throws PluginLoadingException, IOException, MissingPlugingDescriptorFileException {
         // load the plugin descriptor
         FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
+        PluginDescriptor descriptor = null;
         try {
-            PluginDescriptor descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
+            try {
+                descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
+            } catch (IOException e) {
+                if (e instanceof NoSuchFileException) {
+                    throw new MissingPlugingDescriptorFileException();
+                } else {
+                    throw e;
+                }
+            }
 
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
