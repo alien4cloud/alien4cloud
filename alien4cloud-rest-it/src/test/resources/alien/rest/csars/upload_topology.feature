@@ -381,3 +381,8 @@ Scenario: Upload CSAR containing embeded topology template with groups and HA po
   And The SPEL int expression "groups['compute_scaling_group'].policies.size()" should return 1
   And The SPEL expression "groups['compute_scaling_group'].policies[0].name" should return "my_scaling_ha_policy"
   And The SPEL expression "groups['compute_scaling_group'].policies[0].type" should return "tosca.policy.ha"
+
+Scenario: Upload CSAR containing embeded topology template with missing referenced inputs
+  Given I upload the archive "tosca-normative-types"
+  And I upload the archive "topology-missing-inputs"
+  Then I should receive a RestResponse with 2 alerts in 1 files : 2 errors 0 warnings and 0 infos
