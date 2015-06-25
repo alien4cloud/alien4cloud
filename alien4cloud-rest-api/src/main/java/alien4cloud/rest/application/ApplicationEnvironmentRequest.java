@@ -20,11 +20,9 @@ import alien4cloud.model.application.EnvironmentType;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class ApplicationEnvironmentRequest {
-    @NotNull
-    private String applicationId;
+    private String name;
     private EnvironmentType environmentType;
     private String cloudId;
-    private String name;
     private String description;
     private String versionId;
 }

@@ -326,6 +326,8 @@ public class ApplicationController {
         if (!currentName.equals(application.getName())) {
             applicationService.ensureNameUnicity(application.getName());
         }
+        // update updateDate
+        application.setLastUpdateDate(new Date());
         alienDAO.save(application);
         return RestResponseBuilder.<Void> builder().build();
     }

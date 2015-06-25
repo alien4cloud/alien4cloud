@@ -1,6 +1,10 @@
 package alien4cloud.it.application;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -541,7 +545,6 @@ public class ApplicationStepDefinitions {
         Assert.assertNotNull(appEnvName);
 
         ApplicationEnvironmentRequest appEnvRequest = new ApplicationEnvironmentRequest();
-        appEnvRequest.setApplicationId(CURRENT_APPLICATION.getId());
         appEnvRequest.setCloudId(Context.getInstance().getCloudId(appEnvCloudName));
         appEnvRequest.setEnvironmentType(EnvironmentType.valueOf(appEnvType));
         appEnvRequest.setName(appEnvName);
@@ -636,5 +639,11 @@ public class ApplicationStepDefinitions {
     public void I_create_a_new_application_with_name_and_description_based_on_the_template_with_name(String name, String description, String templateName)
             throws Throwable {
         createApplicationFromTemplateId(name, description, TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName));
+    }
+
+    @Then("^The application update date has changed$")
+    public void The_application_update_date_has_changed() throws Throwable {
+        Application application = CURRENT_APPLICATION;
+        Assert.assertNotEquals(application.getCreationDate(), application.getLastUpdateDate());
     }
 }

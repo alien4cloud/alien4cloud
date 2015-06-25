@@ -64,8 +64,14 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_undeploy_it() throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        String statusRequest = "/rest/applications/" + application.getId() + "/environments/" + envId + "/status";
+        RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
+        assertNull(statusResponse.getError());
+        DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
+        if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
+            Context.getInstance().registerRestResponse(
+                    Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        }
         assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
     }
 
@@ -514,10 +520,14 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @And("^I re-deploy the application$")
     public void I_re_deploy_the_application() throws Throwable {
+        log.info("Re-deploy : Un-deploying application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_undeploy_it();
-        // For asynchronous problem of cloudify 3
-        Thread.sleep(30L * 1000L);
+        log.info("Re-deploy : Finished undeployment the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        // TODO For asynchronous problem of cloudify
+        Thread.sleep(60L * 1000L);
+        log.info("Re-deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_deploy_it();
+        log.info("Re-deploy : Finished deployment of the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
     }
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")
