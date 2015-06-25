@@ -16,7 +16,7 @@ Scenario: Upload CSAR containing apache types and embeded topology template
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology apache"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "apache-type-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "apache-type" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
   And The SPEL int expression "nodeTemplates.size()" should return 2
   And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
@@ -48,10 +48,10 @@ Scenario: Upload CSAR containing apache types and embeded topology template
 Scenario: Re-Upload CSAR containing apache types and embeded topology template
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology apache"
-  And I export the YAML from topology template named "apache-type-1.1.0-SNAPSHOT" and build a test dataset named "apache-type-replay"
+  And I export the YAML from topology template named "apache-type" and build a test dataset named "apache-type-replay" changing the version from "1.1.0-SNAPSHOT" to "1.2.0-SNAPSHOT"
   When I upload the archive "apache-type-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "apache-type-1.1.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "apache-type" version "1.2.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'tosca-base-types'].version" should return "1.0"
   And The SPEL int expression "nodeTemplates.size()" should return 2
   And The SPEL expression "nodeTemplates['compute'].type" should return "tosca.nodes.Compute"
@@ -83,7 +83,7 @@ Scenario: Upload CSAR containing cutom types and embeded topology template using
   Given I upload the archive "tosca-normative-types"
   When I upload the archive "topology custom types"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "AllInclusiveArchive-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
   And The SPEL expression "dependencies.^[name == 'tosca-normative-types'].version" should return "1.0.0.wd03-SNAPSHOT"
   And The SPEL int expression "nodeTemplates['software'].relationships.size()" should return 1
@@ -96,10 +96,10 @@ Scenario: Upload CSAR containing cutom types and embeded topology template using
 Scenario: Re-Upload CSAR containing cutom types and embeded topology template using short notation for requirements  
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology custom types"
-  And I export the YAML from topology template named "AllInclusiveArchive-1.0.0-SNAPSHOT" and build a test dataset named "AllInclusiveArchive-replay"  
+  And I export the YAML from topology template named "AllInclusiveArchive" and build a test dataset named "AllInclusiveArchive-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
   When I upload the archive "AllInclusiveArchive-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "AllInclusiveArchive-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "AllInclusiveArchive" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "dependencies.^[name == 'AllInclusiveArchive'].version" should return "1.0.0-SNAPSHOT"
   And The SPEL expression "dependencies.^[name == 'tosca-normative-types'].version" should return "1.0.0.wd03-SNAPSHOT"
   And The SPEL int expression "nodeTemplates['software'].relationships.size()" should return 1
@@ -115,8 +115,8 @@ Scenario: Upload twice a CSAR SNAPSHOT containing embeded topology template resu
   And I upload the archive "topology custom types"
   When I upload the archive "topology custom types"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "AllInclusiveArchive-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
-  And If I search for topology templates I can find one with the name "AllInclusiveArchive-1.0.0-SNAPSHOT-1" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "AllInclusiveArchive" and store the related topology as a SPEL context
 
 Scenario: Upload a CSAR containing topology with a node referencing a unexisting type  
   Given I upload the archive "tosca-normative-types"
@@ -152,7 +152,7 @@ Scenario: Upload CSAR containing embeded topology template with inputs
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology_inputs"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-inputs-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-inputs" and store the related topology as a SPEL context
   And The SPEL expression "inputs['os_type'].type" should return "string"
   And The SPEL int expression "inputs['os_type'].constraints[0].validValues.size()" should return 4
   And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].function" should return "get_input"
@@ -165,10 +165,10 @@ Scenario: Upload CSAR containing embeded topology template with inputs
 Scenario: Re-Upload CSAR containing embeded topology template with inputs
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology_inputs"
-  And I export the YAML from topology template named "topology-inputs-1.0.0-SNAPSHOT" and build a test dataset named "topology-inputs-replay"  
+  And I export the YAML from topology template named "topology-inputs" and build a test dataset named "topology-inputs-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
   When I upload the archive "topology-inputs-replay"  
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-inputs-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-inputs" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "inputs['os_type'].type" should return "string"
   And The SPEL int expression "inputs['os_type'].constraints[0].validValues.size()" should return 4
   And The SPEL expression "nodeTemplates['compute1'].properties['os_type'].function" should return "get_input"
@@ -183,7 +183,7 @@ Scenario: Upload CSAR containing embeded topology template with outputs
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology_outputs"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos    
-  And If I search for topology templates I can find one with the name "topology-outputs-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-outputs" and store the related topology as a SPEL context
   And The SPEL int expression "outputProperties['apache'].size()" should return 1
   And The SPEL expression "outputProperties['apache'][0]" should return "port"
   And The SPEL int expression "outputProperties['apache'].size()" should return 1
@@ -192,10 +192,10 @@ Scenario: Upload CSAR containing embeded topology template with outputs
 Scenario: Re-Upload CSAR containing embeded topology template with outputs
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology_outputs"
-  And I export the YAML from topology template named "topology-outputs-1.0.0-SNAPSHOT" and build a test dataset named "topology-outputs-replay"   
+  And I export the YAML from topology template named "topology-outputs" and build a test dataset named "topology-outputs-replay" changing the version from "1.0.0-SNAPSHOT" to "2.0.0-SNAPSHOT"
   Given I upload the archive "topology-outputs-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos    
-  And If I search for topology templates I can find one with the name "topology-outputs-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-outputs" version "2.0.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL int expression "outputProperties['apache'].size()" should return 1
   And The SPEL expression "outputProperties['apache'][0]" should return "port"
   And The SPEL int expression "outputProperties['apache'].size()" should return 1
@@ -206,7 +206,7 @@ Scenario: Upload CSAR containing embeded topology template with capabilities pro
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology-capacility-prop"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-capacility-prop-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capacility-prop" and store the related topology as a SPEL context
   And The SPEL expression "nodeTemplates['compute1'].capabilities['compute'].properties['containee_types'].value" should return "something"
   And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].function" should return "get_input"
   And The SPEL int expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size()" should return 1
@@ -215,10 +215,10 @@ Scenario: Upload CSAR containing embeded topology template with capabilities pro
 Scenario: Re-Upload CSAR containing embeded topology template with capabilities properties
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology-capacility-prop"
-  And I export the YAML from topology template named "topology-capacility-prop-1.1.0-SNAPSHOT" and build a test dataset named "topology-capacility-prop-replay"   
+  And I export the YAML from topology template named "topology-capacility-prop" and build a test dataset named "topology-capacility-prop-replay" changing the version from "1.1.0-SNAPSHOT" to "1.2.0-SNAPSHOT"
   When I upload the archive "topology-capacility-prop-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-capacility-prop-1.1.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capacility-prop" version "1.2.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "nodeTemplates['compute1'].capabilities['compute'].properties['containee_types'].value" should return "something"
   And The SPEL expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].function" should return "get_input"
   And The SPEL int expression "nodeTemplates['compute2'].capabilities['compute'].properties['containee_types'].parameters.size()" should return 1
@@ -229,29 +229,29 @@ Scenario: Upload CSAR containing embeded topology template with unknown capabili
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology-capacility-unkown"
   Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-capacility-unkown-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capacility-unkown" and store the related topology as a SPEL context
  
 Scenario: Upload CSAR containing embeded topology template with unknown capabilities property
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology-capacility-prop-unkown"
   Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos  
-  And If I search for topology templates I can find one with the name "topology-capacility-prop-unkown-1.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capacility-prop-unkown" and store the related topology as a SPEL context
 
 Scenario: Upload CSAR containing embeded topology template with relationship property using get_input
   Given I upload the archive "tosca base types 1.0"
   When I upload the archive "topology-template-relationship-funtionprop"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos 
-  And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop" and store the related topology as a SPEL context
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
 
 Scenario: Re-Upload CSAR containing embeded topology template with relationship property using get_input
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology-template-relationship-funtionprop"
-  And I export the YAML from topology template named "topology-template-relationship-funtionprop-1.0.0-SNAPSHOT" and build a test dataset named "topology-template-relationship-funtionprop-replay"
+  And I export the YAML from topology template named "topology-template-relationship-funtionprop" and build a test dataset named "topology-template-relationship-funtionprop-replay" changing the version from "1.0.0-SNAPSHOT" to "1.0.1-SNAPSHOT"
   Given I upload the archive "topology-template-relationship-funtionprop-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos 
-  And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-template-relationship-funtionprop" version "1.0.1-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].function" should return "get_input"
   And The SPEL expression "nodeTemplates['software'].relationships['hostedOnCompute'].properties['password'].parameters[0]" should return "pwd"
   
@@ -259,7 +259,7 @@ Scenario: Upload CSAR containing embeded topology template with capability prope
   Given I upload the archive "tosca-normative-types"
   When I upload the archive "topology-capability-io"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos 
-  And If I search for topology templates I can find one with the name "topology-capability-io-0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capability-io" and store the related topology as a SPEL context
   And The SPEL expression "outputCapabilityProperties['Compute']['host'][0]" should return "valid_node_types"
   And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].function" should return "get_input"
   And The SPEL int expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size()" should return 1
@@ -268,10 +268,10 @@ Scenario: Upload CSAR containing embeded topology template with capability prope
 Scenario: Re-Upload CSAR containing embeded topology template with capability property using inputs and ouputs
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology-capability-io"
-  And I export the YAML from topology template named "topology-capability-io-0.1.0-SNAPSHOT" and build a test dataset named "topology-capability-io-replay"
+  And I export the YAML from topology template named "topology-capability-io" and build a test dataset named "topology-capability-io-replay" changing the version from "0.1.0-SNAPSHOT" to "0.2.0-SNAPSHOT"
   Given I upload the archive "topology-capability-io-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "topology-capability-io-0.1.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-capability-io" version "0.2.0-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL expression "outputCapabilityProperties['Compute']['host'][0]" should return "valid_node_types"
   And The SPEL expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].function" should return "get_input"
   And The SPEL int expression "nodeTemplates['Compute'].capabilities['host'].properties['valid_node_types'].parameters.size()" should return 1
@@ -292,7 +292,7 @@ Scenario: Upload and delete CSAR containing types and topology
   Given I upload the archive "tosca base types 1.0"
   And I upload the archive "topology apache"
   And I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos  
-  And I delete the topology template with name "apache-type-1.1.0-SNAPSHOT"
+  And I delete the topology template with name "apache-type"
   And I should receive a RestResponse with no error
   When I delete a CSAR with id "apache-type:1.1.0-SNAPSHOT"
   Then I should receive a RestResponse with no error 
@@ -303,7 +303,7 @@ Scenario: Upload CSAR containing a type declaring an artifact
   And I upload the archive "sample apache lb types 0.1"
   When I upload the archive "topology_artifact"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "topology_artifact-1.0.0-SNAPSHOT" and store the related topology as a SPEL context   
+  And If I search for topology templates I can find one with the name "topology_artifact" and store the related topology as a SPEL context   
   And The SPEL int expression "nodeTemplates['apache'].artifacts.size()" should return 1 
   And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactType" should return "fastconnect.artifacts.ResourceDirectory"
   And The SPEL expression "nodeTemplates['apache'].artifacts['scripts'].artifactRef" should return "scripts"
@@ -312,7 +312,7 @@ Scenario: Upload CSAR containing embeded topology template with groups and HA po
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology-groups"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "topology-groups-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-groups" and store the related topology as a SPEL context
   And The SPEL int expression "groups.size()" should return 2
   And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
   And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
@@ -338,10 +338,10 @@ Scenario: Upload CSAR containing embeded topology template with groups and HA po
 Scenario: Re-Upload CSAR containing embeded topology template with groups and HA policies
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology-groups"
-  And I export the YAML from topology template named "topology-groups-1.0.0-SNAPSHOT" and build a test dataset named "topology-groups-replay"
+  And I export the YAML from topology template named "topology-groups" and build a test dataset named "topology-groups-replay" changing the version from "1.0.0-SNAPSHOT" to "1.0.1-SNAPSHOT"
   Given I upload the archive "topology-groups-replay"
   Then I should receive a RestResponse with 1 alerts in 1 files : 0 errors 0 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "topology-groups-1.0.0-SNAPSHOT-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-groups" version "1.0.1-SNAPSHOT" and store the related topology as a SPEL context
   And The SPEL int expression "groups.size()" should return 2
   And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
   And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1
@@ -373,7 +373,7 @@ Scenario: Upload CSAR containing embeded topology template with groups and HA po
   Given I upload the archive "tosca-normative-types"
   And I upload the archive "topology-groups-unknown-member"
   Then I should receive a RestResponse with 2 alerts in 1 files : 0 errors 1 warnings and 1 infos
-  And If I search for topology templates I can find one with the name "topology-groups-unknown-member-1.0.0-SNAPSHOT" and store the related topology as a SPEL context
+  And If I search for topology templates I can find one with the name "topology-groups-unknown-member" and store the related topology as a SPEL context
   And The SPEL int expression "groups.size()" should return 1
   And The SPEL expression "groups['compute_scaling_group'].name" should return "compute_scaling_group"
   And The SPEL int expression "groups['compute_scaling_group'].members.size()" should return 1

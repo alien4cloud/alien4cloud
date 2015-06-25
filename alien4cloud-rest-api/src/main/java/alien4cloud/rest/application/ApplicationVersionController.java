@@ -1,10 +1,5 @@
 package alien4cloud.rest.application;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpStatus;
@@ -30,16 +25,14 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
-import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
 import alien4cloud.utils.VersionUtil;
 import alien4cloud.utils.version.InvalidVersionException;
 import alien4cloud.utils.version.UpdateApplicationVersionException;
 
-import com.google.common.collect.Lists;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -76,26 +69,6 @@ public class ApplicationVersionController {
     }
 
     /**
-     * Sort the ApplicationVersion from newest to oldest
-     *
-     * @param data
-     * @return a sorted array of ApplicationVersion
-     */
-    private ApplicationVersion[] sortArrayOfApplicationVersion(ApplicationVersion[] data) {
-        if (data == null || data.length <= 1) {
-            return data;
-        }
-        List<ApplicationVersion> sortedData = Lists.newArrayList(data);
-        Collections.sort(sortedData, new Comparator<ApplicationVersion>() {
-            @Override
-            public int compare(ApplicationVersion left, ApplicationVersion right) {
-                return VersionUtil.compare(right.getVersion(), left.getVersion());
-            }
-        });
-        return sortedData.toArray(new ApplicationVersion[data.length]);
-    }
-
-    /**
      * Search application versions for a given application id
      *
      * @param applicationId the targeted application id
@@ -108,8 +81,8 @@ public class ApplicationVersionController {
         Application application = applicationService.getOrFail(applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.values());
         GetMultipleDataResult<ApplicationVersion> searchResult = alienDAO.search(ApplicationVersion.class, null,
-                getApplicationVersionsFilters(applicationId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
-        searchResult.setData(sortArrayOfApplicationVersion(searchResult.getData()));
+                appVersionService.getVersionsFilters(applicationId, searchRequest.getQuery()), searchRequest.getFrom(), searchRequest.getSize());
+        searchResult.setData(appVersionService.sortArrayOfVersion(searchResult.getData()));
         return RestResponseBuilder.<GetMultipleDataResult<ApplicationVersion>> builder().data(searchResult).build();
     }
 
@@ -201,26 +174,6 @@ public class ApplicationVersionController {
         }
         appVersionService.delete(applicationVersionId);
         return RestResponseBuilder.<Boolean> builder().data(true).build();
-    }
-
-    /**
-     * Filter to search app versions only for an application id
-     *
-     * @param applicationId
-     * @return a filter for application versions
-     */
-    private Map<String, String[]> getApplicationVersionsFilters(String applicationId, String version) {
-        List<String> filterKeys = Lists.newArrayList();
-        List<String[]> filterValues = Lists.newArrayList();
-        if (applicationId != null) {
-            filterKeys.add("applicationId");
-            filterValues.add(new String[] { applicationId });
-        }
-        if (version != null && !version.equals("")) {
-            filterKeys.add("version");
-            filterValues.add(new String[] { version });
-        }
-        return MapUtil.newHashMap(filterKeys.toArray(new String[filterKeys.size()]), filterValues.toArray(new String[filterValues.size()][]));
     }
 
 }

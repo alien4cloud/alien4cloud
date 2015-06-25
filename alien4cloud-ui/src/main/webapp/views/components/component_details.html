@@ -49,10 +49,13 @@
               <div class="col-md-2">
                 <strong>{{'COMPONENTS.DERIVEDFROM' | translate }}</strong>
               </div>
-              <div class="col-md-8">
+              <div class="col-md-4">
                 <span ng-repeat="parent in component.derivedFrom" tooltip="{{parent}}">
                   <i class="fa fa-long-arrow-right"></i> {{parent | splitAndGet:'.':'last'}}
                 </span>
+              </div>
+              <div class="col-md-6">
+                <a href ng-if="component.substitutionTopologyId" ng-click="displaySubtitutionTopology(component.substitutionTopologyId)">{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}</a>
               </div>
             </div>
 
