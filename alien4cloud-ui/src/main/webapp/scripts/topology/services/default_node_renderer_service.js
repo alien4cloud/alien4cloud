@@ -11,10 +11,30 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'a4c-styles', 'a4c-common-graph']).factory('defaultNodeRendererService', ['commonNodeRendererService', 'toscaService', 'listToMapService', 'runtimeColorsService', 'd3Service',
     function(commonNodeRendererService, toscaService, listToMapService, runtimeColorsService, d3Service) {
+      var ConnectorRenderer = function(cssClass) {
+        this.cssClass = cssClass;
+      };
+
+      ConnectorRenderer.prototype = {
+        constructor: ConnectorRenderer,
+        enter: function(enterSelection) {
+          return enterSelection.append('g').attr('class', this.cssClass);
+        },
+        create: function(group, element) {
+          d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 5).attr('class', 'connector');
+          // actually create bigger circle for user interactions to make it easier.
+          var actionCircle = d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 10).attr('class', 'connectorAction');
+          actionCircle.on('mouseover', this.actions.mouseover).on('mouseout', this.actions.mouseout);
+        },
+        update: function(group, element) {
+        }
+      };
+
+      var requirementRenderer = new ConnectorRenderer('requirement');
+      var capabilityRenderer = new ConnectorRenderer('capability');
+
       return {
         isRuntime: false,
-        width: 200,
-        height: 50,
 
         setRuntime: function(isRuntime) {
           this.isRuntime = isRuntime;
@@ -29,17 +49,35 @@ define(function (require) {
           var connectorCount = Math.max(node.capabilities.length, node.requirements.length);
           var connectorHeight = connectorCount * 10 + (connectorCount+1) * 5;
           var height = Math.max(50, connectorHeight);
+          // inject the relative coordinates of the connectors
+          this.placeConnectors(node.capabilities);
+          this.placeConnectors(node.requirements);
           return {
             width: 200,
             height: height
           }
         },
 
-        createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
+        placeConnectors: function(connectors) {
+          var relativeY = 10;
+          _.each(connectors, function(connector) {
+            connector.coordinate = {
+              relative: {
+                x: 0,
+                y: relativeY
+              }
+            }
+            relativeY += 15;
+          });
+        },
+
+        createNode: function(nodeGroup, node, nodeTemplate, nodeType, topology, actions) {
+          d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'background');
+
           if (nodeType.tags) {
             var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
             if (tags.icon) {
-              nodeGroup.append('image').attr('x', oX + 8).attr('y', oY + 8).attr('width', '32').attr('height', '32').attr('xlink:href',
+              nodeGroup.append('image').attr('x', 8).attr('y', 8).attr('width', '32').attr('height', '32').attr('xlink:href',
                 'img?id=' + tags.icon + '&quality=QUALITY_32');
             }
           }
@@ -51,16 +89,35 @@ define(function (require) {
             nodeGroup.append('image').attr('x', x).attr('y', y).attr('width', icoSize).attr('height', icoSize).attr('xlink:href', 'images/abstract_ico.png');
           }
 
-          nodeGroup.append('text').attr('text-anchor', 'start').attr('class', 'title').attr('x', oX + 44).attr('y', oY + 20);
+          nodeGroup.append('text').attr('text-anchor', 'start').attr('class', 'title').attr('x', 44).attr('y', 20);
           nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', '80').attr('y', '20');
 
           // specific to the runtime view
           if (this.isRuntime) {
             nodeGroup.append('g').attr('id', 'runtime');
           }
+
+          // specific to networks
+          if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
+            var netX = this.nodeRenderer.width;
+            var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
+            var netY = (this.nodeRenderer.height/2) - 2;
+            var netStyle = node.networkId % this.networkStyles;
+            var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
+            nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');
+          }
+          d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'selector').attr('node-template-id', node.id)
+            .attr('id', 'rect_' + node.id).on('click', actions.click).on('mouseover', actions.mouseover).on('mouseout', actions.mouseout);
+
+          requirementRenderer.actions= actions;
+          capabilityRenderer.actions= actions;
+          d3Service.select(nodeGroup, node.requirements, '.requirement', requirementRenderer);
+          d3Service.select(nodeGroup, node.capabilities, '.capability', capabilityRenderer);
         },
 
-        updateNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY, topology) {
+        updateNode: function(nodeGroup, node, nodeTemplate, nodeType, topology) {
+          nodeGroup.select('.background').attr('width', node.bbox.width()).attr('height', node.bbox.height());
+          nodeGroup.select('.selector').attr('width', node.bbox.width()).attr('height', node.bbox.height());
           // update text
           nodeGroup.select('.title').text(commonNodeRendererService.getDisplayId(node, false));
 
@@ -89,7 +146,7 @@ define(function (require) {
 
             // TODO better draw network node
             if (!toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
-              this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, oX, oY, nodeScalingPolicies);
+              this.drawRuntimeInfos(runtimeGroup, nodeInstances, nodeInstancesCount, 0, 0, nodeScalingPolicies);
             }
           }
 
@@ -106,7 +163,7 @@ define(function (require) {
             // the group y is near the 2/3 of the height of the node
             var gY = oY + (2.2 * this.height / 3);
             // the end of the node square
-            var nodeEndX = oX + this.width - (gW / 2);
+            var nodeEndX = this.width - (gW / 2);
             angular.forEach(nodeTemplate.groups, function(value, key) {
               // let's place the group square regarding it's index and applying a 0.2 margin
               var gX = nodeEndX - (gIdx * 1.2 * gW);
@@ -118,7 +175,6 @@ define(function (require) {
               gIdx++;
             });
           }
-
         },
 
         drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY, scalingPolicies) {

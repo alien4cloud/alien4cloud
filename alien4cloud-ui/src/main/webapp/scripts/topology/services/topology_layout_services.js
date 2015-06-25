@@ -98,10 +98,17 @@ define(function (require) {
             var attached = node.attached[j];
             attached.nodeSize = renderer.size(attached);
             attached.nodeSize.width = node.bbox.width(); // the attached node must have the node width (should not have child ?).
+            attached.nodeSize.halfWidth = attached.nodeSize.width / 2;
+            attached.nodeSize.halfHeight = attached.nodeSize.height / 2;
             attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, attached.nodeSize.width, attached.nodeSize.height);
             attached.coordinate = {x: attached.bbox.minX, y: attached.bbox.minY};
             attachedY = attached.bbox.maxY;
           }
+
+          // update the capabilities relative x coordinate
+          _.each(node.requirements, function(requirement) {
+            requirement.coordinate.relative.x = node.bbox.width();
+          });
 
           return node.bbox;
         },
@@ -145,15 +152,16 @@ define(function (require) {
             var relationshipsLength = relationships.length;
             for (var i = 0; i < relationshipsLength; i++) {
               var relationship = relationships[i];
-              var targetNode = graph.nodeMap[relationship.target];
-              var source = {};
-              var target = {};
-              var isNetwork = false;
-              var networkId = null;
               if(toscaService.isAttachedToType(relationship.type, relationshipTypes) ||
                   toscaService.isHostedOnType(relationship.type, relationshipTypes)) {
                 continue;
               }
+              var targetNode = graph.nodeMap[relationship.target];
+              // if not found then take the node self connector.
+              var source = {};
+              var target = {};
+              var isNetwork = false;
+              var networkId = null;
               if(toscaService.isNetworkType(relationship.type, relationshipTypes)){
                 isNetwork = true;
                 networkCount++;
@@ -163,10 +171,21 @@ define(function (require) {
                 target.y = targetNode.coordinate.y + targetNode.bbox.height() / 2;
                 networkId = graph.nodeMap[relationship.target].networkId;
               } else {
-                source.x = node.coordinate.x + node.bbox.width() + 1;
-                source.y = node.coordinate.y + node.nodeSize.halfHeight;
-                target.x = targetNode.coordinate.x - 1;
-                target.y = targetNode.coordinate.y + targetNode.nodeSize.halfHeight;
+                // find the target capabilities / requirements
+                var sourceRequirement = node.requirementsMap[relationship.requirementName];
+                source.x = node.coordinate.x + node.bbox.width() + 5;
+                if(_.defined(sourceRequirement)) {
+                  source.y = node.coordinate.y + sourceRequirement.coordinate.relative.y;
+                } else {
+                  source.y = node.coordinate.y;
+                }
+                var targetCapability = targetNode.capabilitiesMap[relationship.targetedCapabilityName];
+                target.x = targetNode.coordinate.x - 5;
+                if(_.defined(targetCapability)) {
+                  target.y = targetNode.coordinate.y + targetCapability.coordinate.relative.y;;
+                } else {
+                  target.y = targetNode.coordinate.y;
+                }
                 source.direction = routerFactoryService.directions.right;
                 target.direction = routerFactoryService.directions.left;
               }

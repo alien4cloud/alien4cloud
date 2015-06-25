@@ -22,33 +22,31 @@ define(function (require) {
         */
         prepareNode: function(nodeTemplate, topology) {
           var nodeType = topology.nodeTypes[nodeTemplate.type]
-          var capabilities = [], requirements = [], capabilityTypes = topology.capabilityTypes;
-          _.each(nodeType.capabilities, function(capability) {
-            if(!toscaService.isOneOfType(['tosca.capabilities.Container', 'tosca.capabilities.Attachment', 'tosca.capabilities.Scalable'], capability.type, capabilityTypes)) {
-              capabilities.push({
-                template: capability,
-                type: capabilityTypes[capability.type]
-                });
-            }
-          });
-          _.each(nodeType.requirements, function(requirement) {
-            if(!toscaService.isOneOfType(['tosca.capabilities.Container', 'tosca.capabilities.Attachment', 'tosca.capabilities.Scalable'], requirement.type, capabilityTypes)) {
-              requirements.push({
-                template: requirement,
-                type: capabilityTypes[requirement.type]
-                });
-            }
-          });
+          var capabilities = [], capabilitiesMap = {}, requirements = [], requirementsMap = {}, capabilityTypes = topology.capabilityTypes;
+          this.processConnector(nodeType.capabilities, capabilities, capabilitiesMap, capabilityTypes, topology.relationshipTypes);
+          this.processConnector(nodeType.requirements, requirements, requirementsMap, capabilityTypes, topology.relationshipTypes);
           return {
             template: nodeTemplate,
             type: nodeType,
             capabilities: capabilities,
-            requirements: requirements,
-            coordinates: {
-              x: 0,
-              y: 0
-            }
+            capabilitiesMap: capabilitiesMap,
+            requirementsMap: requirementsMap,
+            requirements: requirements
           };
+        },
+
+        processConnector: function(connectors, array, map, capabilityTypes, relationshipTypes) {
+          _.each(connectors, function(connector) {
+            if(!toscaService.isOneOfType(['tosca.capabilities.Container', 'tosca.capabilities.Attachment', 'tosca.capabilities.Scalable'], connector.type, capabilityTypes) && !(_.defined(connector.relationshipType) && toscaService.isHostedOnType(connector.relationshipType, relationshipTypes))) {
+              connector = {
+                id: connector.id,
+                template: connector,
+                type: capabilityTypes[connector.type]
+                };
+              array.push(connector);
+              map[connector.id] = connector;
+            }
+          });
         },
 
         /**
