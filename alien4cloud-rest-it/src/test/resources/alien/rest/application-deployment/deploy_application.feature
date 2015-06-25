@@ -65,3 +65,15 @@ Feature: Deploy an application
     And I should receive a RestResponse with a boolean data "false"
     And the application can be found in ALIEN
     And The application's deployment must succeed
+    
+  Scenario: Create two app with similar names and deploy them on the same cloud should fail for the second app
+    Given I have an application with name "App Test"
+    And I deploy the application "App Test" with cloud "Mount doom cloud" for the topology
+    And I have an application with name "App_Test"
+    And I deploy the application "App_Test" with cloud "Mount doom cloud" for the topology without waiting for the end of deployment
+    Then I should receive a RestResponse with an error code 613
+    When I have an application with name "App-Test"
+    And I assign the cloud with name "Mount doom cloud" for the application
+    When I deploy it
+    Then I should receive a RestResponse with no error
+     

@@ -107,7 +107,9 @@
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
       "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
-      "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs"
+      "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
+      "300": "Erreur inattendue lors de l'écriture du plugin.",
+      "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -800,6 +802,7 @@
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
+    "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",

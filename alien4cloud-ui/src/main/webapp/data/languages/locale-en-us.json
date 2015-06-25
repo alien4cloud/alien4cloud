@@ -102,7 +102,9 @@
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
       "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
-      "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list"
+      "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
+      "300": "Unexpected IO error on plugin upload.",
+      "353": "The META-INF/plugin.yml file is missing in your plugin."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -796,6 +798,7 @@
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
+    "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
     "650": "At least two of your Compute have a conflict name.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
