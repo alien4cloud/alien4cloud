@@ -113,12 +113,12 @@ define(function (require) {
             maxWidth = Math.max(maxWidth, node.nodeSize.width);
           });
           var networkX = graph.bbox.minX - maxWidth - xSpacing;
-          var netYSpacing = 14;
+          var netYSpacing = 40;
           for(var i=0; i<tree.networks.length; i++) {
             var node = tree.networks[i];
             node.coordinate = {
               x: networkX,
-              y: graph.bbox.minY - node.nodeSize.height
+              y: graph.bbox.minY - node.nodeSize.height - netYSpacing
             };
             netYSpacing = 0;
             node.networkId = i;

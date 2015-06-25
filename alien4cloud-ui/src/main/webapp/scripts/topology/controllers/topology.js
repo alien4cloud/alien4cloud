@@ -263,9 +263,8 @@ define(function (require) {
           $scope.orderedNodeGroups.push(value);
         });
         $scope.orderedNodeGroups.sort(function(a, b){
-            return a.index - b.index;
+          return a.index - b.index;
         });
-
       };
 
       // Topology can comes from application OR topology template
@@ -422,27 +421,6 @@ define(function (require) {
         $scope.nodeNameObj.val = nodeTemplate.name;
         $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
       }
-
-      $scope.selectNodeTemplate = function(newSelectedName, oldSelectedName) {
-        // select the "Properties" <TAB> to see selected node details
-        document.getElementById('nodetemplate-details').click();
-
-        $timeout(function() {
-          if (oldSelectedName) {
-            var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
-            if (oldSelected) {
-              oldSelected.selected = false;
-            }
-          }
-
-          var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
-          newSelected.selected = true;
-
-          fillNodeSelectionVars(newSelected);
-          $scope.setDisplay('component', true);
-          $scope.$apply();
-        });
-      };
 
       $scope.deleteNodeTemplate = function(nodeTemplName) {
         topologyServices.nodeTemplate.remove({
@@ -1356,6 +1334,28 @@ define(function (require) {
         return runtimeColorsService.groupColorCss($scope.topology.topology, groupId);
       };
 
+      $scope.editorCallback = {
+        selectNodeTemplate: function(newSelectedName, oldSelectedName) {
+          // select the "Properties" <TAB> to see selected node details
+          document.getElementById('nodetemplate-details').click();
+
+          $timeout(function() {
+            if (oldSelectedName) {
+              var oldSelected = $scope.topology.topology.nodeTemplates[oldSelectedName];
+              if (oldSelected) {
+                oldSelected.selected = false;
+              }
+            }
+
+            var newSelected = $scope.topology.topology.nodeTemplates[newSelectedName];
+            newSelected.selected = true;
+
+            fillNodeSelectionVars(newSelected);
+            $scope.setDisplay('component', true);
+            $scope.$apply();
+          });
+        }
+      };
     }
   ]);
 }); // define

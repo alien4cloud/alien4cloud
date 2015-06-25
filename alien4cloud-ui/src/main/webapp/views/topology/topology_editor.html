@@ -20,7 +20,7 @@
         </div>
         <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
-                            callback="selectNodeTemplate(newSelectedName, oldSelectedName)" simple="simple" runtime="false"></topology-rendering>
+                            callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)" simple="simple" runtime="false"></topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology" dimensions="visualDimensions" topology="topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
