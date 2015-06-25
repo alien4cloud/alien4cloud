@@ -190,7 +190,7 @@ public class RestTechnicalExceptionHandler {
     }
 
     @ExceptionHandler(value = DeploymentPaaSIdConflictException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> paaSDeploymentErrorHandler(DeploymentPaaSIdConflictException e) {
         log.error("Error in PaaS Deployment, conflict with the generated deployment paaSId", e);
