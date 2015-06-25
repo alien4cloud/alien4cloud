@@ -14,8 +14,8 @@ define(function (require) {
 
   require('scripts/topology/services/topology_layout_services');
 
-  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service',
-    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service) {
+  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'relationshipMatchingService',
+    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, relationshipMatchingService) {
       function TopologySvg (clickCallback, containerElement, isRuntime, nodeRenderer) {
         this.networkStyles = 10;
         this.isGridDisplayed = false;
@@ -31,11 +31,73 @@ define(function (require) {
         this.svgGraph = svgServiceFactory.create(containerElement, 'topologySvgContainer', 'topology-svg');
         this.svg = this.svgGraph.svg;
         d3.selectAll('.d3-tip').remove();
-        var instance = this;
+        var self = this;
         this.tip = d3Tip().attr('class', 'd3-tip').html(function(element) {
-          return instance.tooltip(element);
+          return self.tooltip(element);
         });
         this.svg.call(this.tip);
+
+        var mouseCoordinate;
+        // capabilities drag and drop manager
+        this.connectorDrag = d3.behavior.drag()
+          .on("dragstart", function(element) {
+            relationshipMatchingService.getTargets(element.node.id, element.template, element.id, self.topology.topology.nodeTemplates,
+              self.topology.nodeTypes, self.topology.relationshipTypes, self.topology.capabilityTypes, self.topology.topology.dependencies).then(function(result) {
+              var connectTargets = [];
+              // TODO if drag & drop is still active
+              _.each(result.targets, function(target) {
+                var targetNode = self.layout.nodeMap[target.template.name];
+                _.each(target.capabilities, function(targetCapabilityInfo){
+                  var targetCapability = targetNode.capabilitiesMap[targetCapabilityInfo.id];
+                  if(_.defined(targetCapability)) {
+                    // add a drop target
+                    connectTargets.push({
+                      id: targetNode.id + '.' + targetCapability.id,
+                      target: targetCapability
+                    });
+                  }
+                });
+              });
+              //
+              var targetSelection = self.svg.selectAll(".connectorTarget").data(connectTargets);
+              targetSelection.enter().append("circle")
+                .attr("cx", function(d){ console.log(d); return d.target.coordinate.x })
+                .attr("cy", function(d){ return d.target.coordinate.y })
+                .attr("r", 10)
+                .attr('class', 'connectorTarget');
+              targetSelection.exit().remove();
+            });
+            mouseCoordinate = {
+              x: element.coordinate.x,
+              y: element.coordinate.y
+            };
+
+            // find relationship valid targets
+            d3.event.sourceEvent.stopPropagation();
+          }).on("drag", function(element) {
+            var data = [];
+            mouseCoordinate.x += d3.event.dx;
+            mouseCoordinate.y += d3.event.dy;
+            data = [{
+                source: {
+                    x: element.coordinate.x,
+                    y: element.coordinate.y
+                },
+                target: mouseCoordinate
+            }];
+            console.log(data);
+            var link = self.svg.selectAll('.connectorlink').data(data);
+            link.enter().append('path')
+                .attr('class', 'connectorlink')
+                .attr('d', d3.svg.diagonal())
+                .attr('pointer-events', 'none');
+            link.attr('d', d3.svg.diagonal());
+            link.exit().remove();
+          }).on("dragend", function(element) {
+            // remove all drag line and drag targets
+            self.svg.selectAll(".connectorTarget").data([]).exit().remove();
+            self.svg.selectAll(".connectorlink").data([]).exit().remove();
+          });
       }
 
       TopologySvg.prototype = {
@@ -64,7 +126,7 @@ define(function (require) {
         },
 
         reset: function(topology) {
-          var i, layout;
+          var i;
 
           this.topology = topology;
 
@@ -75,23 +137,22 @@ define(function (require) {
           // Compute the automatic layout for the topology.
           var nodeRenderer = this.nodeRenderer;
 
-          layout = topologyLayoutService.layout(this.topology.topology.nodeTemplates, this.topology, this.nodeRenderer);
+          this.layout = topologyLayoutService.layout(this.topology.topology.nodeTemplates, this.topology, this.nodeRenderer);
 
           // Update connector routing.
-          this.grid = routerFactoryService.create(layout.bbox, this.gridStep);
-          for(i = 0; i< layout.nodes.length;i++) {
-            this.grid.addObstacle(layout.nodes[i].bbox);
+          this.grid = routerFactoryService.create(this.layout.bbox, this.gridStep);
+          for(i = 0; i< this.layout.nodes.length;i++) {
+            this.grid.addObstacle(this.layout.nodes[i].bbox);
           }
-          for(i = 0; i< layout.links.length;i++) {
-            this.computeLinkRoute(layout.links[i]);
+          for(i = 0; i< this.layout.links.length;i++) {
+            this.computeLinkRoute(this.layout.links[i]);
           }
 
-          this.layout = layout;
           // draw the svg
-          this.draw(layout);
+          this.draw(this.layout);
           this.displayGrid();
 
-          this.svgGraph.controls.coordinateUtils.bbox = layout.bbox;
+          this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox;
           this.svgGraph.controls.coordinateUtils.reset();
           // this.svgGraph.controls.updateViewBox();
         },
@@ -128,7 +189,7 @@ define(function (require) {
         },
 
         draw: function(layout) {
-          var instance = this;
+          var self = this;
 
           var nodes = layout.nodes;
           var links = layout.links;
@@ -142,15 +203,15 @@ define(function (require) {
           // update existing nodes
           nodeSelection.each(function(node) {
             var nodeGroup = d3.select(this);
-            instance.updateNode(nodeGroup, node);
+            self.updateNode(nodeGroup, node);
           });
 
           // create new nodes
           var newNodeGroups = nodeSelection.enter().append('g').attr('class', 'node-template');
           newNodeGroups.each(function(node) {
             var nodeGroup = d3.select(this);
-            instance.createNode(nodeGroup, node);
-            instance.updateNode(nodeGroup, node);
+            self.createNode(nodeGroup, node);
+            self.updateNode(nodeGroup, node);
           });
 
           // remove destroyed nodes.
@@ -163,19 +224,20 @@ define(function (require) {
           var nodeTemplate = node.template;
           var nodeType = this.topology.nodeTypes[nodeTemplate.type];
 
-          var instance = this;
+          var self = this;
           var actions = {
             click: function() {
               // un-select last node and select the new one on click
-              instance.clickCallback({
+              self.clickCallback({
                 'newSelectedName': node.id,
-                'oldSelectedName': instance.selectedNodeId
+                'oldSelectedName': self.selectedNodeId
               });
 
-              instance.selectedNodeId = node.id;
+              self.selectedNodeId = node.id;
             },
             mouseover: this.tip.show,
-            mouseout: this.tip.hide
+            mouseout: this.tip.hide,
+            connectorDrag: this.connectorDrag
           };
 
           this.nodeRenderer.createNode(nodeGroup, node, nodeTemplate, nodeType, this.topology, actions);
@@ -227,7 +289,7 @@ define(function (require) {
         },
 
         drawLink: function(parent, links) {
-          var instance = this;
+          var self = this;
 
           var topology = this.topology;
 
@@ -237,7 +299,7 @@ define(function (require) {
           newLinks.each(function(link) {
             var linkPath = d3.select(this);
             if(link.isNetwork) {
-              var netStyle = link.networkId % instance.networkStyles;
+              var netStyle = link.networkId % self.networkStyles;
               linkPath.attr('class', 'link link-network link-network-' + netStyle);
             } else {
               linkPath.attr('class', 'link');
@@ -245,12 +307,12 @@ define(function (require) {
               linkPath.classed('link-hosted-on', function() { return isHostedOn; })
                 .classed('link-depends-on', function() { return !isHostedOn; });
             }
-            instance.drawLinkPath(linkPath);
+            self.drawLinkPath(linkPath);
           });
 
           linkSelection.each(function() {
             var linkPath = d3.select(this);
-            instance.drawLinkPath(linkPath);
+            self.drawLinkPath(linkPath);
           });
           linkSelection.exit().remove();
         },

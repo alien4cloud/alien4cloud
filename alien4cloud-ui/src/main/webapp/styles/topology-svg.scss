@@ -64,6 +64,18 @@
   fill: whitesmoke;
 }
 
+.connectorTarget {
+  fill: #ff0000;
+  fill-opacity: .6;
+}
+
+.connectorlink {
+  fill: none;
+  stroke: #555555;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+}
+
 .node-template {}
 
 .node-template .background {

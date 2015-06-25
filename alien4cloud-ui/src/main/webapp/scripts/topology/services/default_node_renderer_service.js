@@ -25,6 +25,7 @@ define(function (require) {
           // actually create bigger circle for user interactions to make it easier.
           var actionCircle = d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 10).attr('class', 'connectorAction');
           actionCircle.on('mouseover', this.actions.mouseover).on('mouseout', this.actions.mouseout);
+          actionCircle.call(this.actions.connectorDrag);
         },
         update: function(group, element) {
         }

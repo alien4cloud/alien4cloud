@@ -22,26 +22,28 @@ define(function (require) {
         */
         prepareNode: function(nodeTemplate, topology) {
           var nodeType = topology.nodeTypes[nodeTemplate.type]
-          var capabilities = [], capabilitiesMap = {}, requirements = [], requirementsMap = {}, capabilityTypes = topology.capabilityTypes;
-          this.processConnector(nodeType.capabilities, capabilities, capabilitiesMap, capabilityTypes, topology.relationshipTypes);
-          this.processConnector(nodeType.requirements, requirements, requirementsMap, capabilityTypes, topology.relationshipTypes);
-          return {
+          var node = {
             template: nodeTemplate,
             type: nodeType,
-            capabilities: capabilities,
-            capabilitiesMap: capabilitiesMap,
-            requirementsMap: requirementsMap,
-            requirements: requirements
+            capabilities: [],
+            capabilitiesMap: {},
+            requirements: [],
+            requirementsMap: {}
           };
+          var capabilityTypes = topology.capabilityTypes;
+          this.processConnector(node, nodeType.capabilities, node.capabilities, node.capabilitiesMap, capabilityTypes, topology.relationshipTypes);
+          this.processConnector(node, nodeType.requirements, node.requirements, node.requirementsMap, capabilityTypes, topology.relationshipTypes);
+          return node;
         },
 
-        processConnector: function(connectors, array, map, capabilityTypes, relationshipTypes) {
+        processConnector: function(node, connectors, array, map, capabilityTypes, relationshipTypes) {
           _.each(connectors, function(connector) {
             if(!toscaService.isOneOfType(['tosca.capabilities.Container', 'tosca.capabilities.Attachment', 'tosca.capabilities.Scalable'], connector.type, capabilityTypes) && !(_.defined(connector.relationshipType) && toscaService.isHostedOnType(connector.relationshipType, relationshipTypes))) {
               connector = {
                 id: connector.id,
                 template: connector,
-                type: capabilityTypes[connector.type]
+                type: capabilityTypes[connector.type],
+                node: node
                 };
               array.push(connector);
               map[connector.id] = connector;
