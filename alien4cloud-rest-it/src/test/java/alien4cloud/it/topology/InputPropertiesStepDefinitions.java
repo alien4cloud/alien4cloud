@@ -92,7 +92,7 @@ public class InputPropertiesStepDefinitions {
 
     @Then("^The topology should not have the property \"([^\"]*)\" defined as input property$")
     public void The_topology_should_not_have_the_property_defined_as_input_property(String inputId) throws Throwable {
-        TopologyDTO topologyDTO = JsonUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
+        TopologyDTO topologyDTO = JsonTestUtil.read(Context.getRestClientInstance().get("/rest/topologies/" + Context.getInstance().getTopologyId()),
                 TopologyDTO.class).getData();
         Map<String, PropertyDefinition> inputProperties = topologyDTO.getTopology().getInputs();
         Assert.assertFalse(inputProperties.containsKey(inputId));

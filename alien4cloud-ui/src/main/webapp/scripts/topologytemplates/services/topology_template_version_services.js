@@ -1,11 +1,12 @@
+
 define(function (require) {
   'use strict';
 
   var modules = require('modules');
 
-  modules.get('a4c-applications', ['ngResource']).factory('applicationVersionServices', ['$resource',
+  modules.get('a4c-topology-templates', ['ngResource']).factory('topologyTemplateVersionServices', ['$resource',
     function($resource) {
-      var searchVersionResource = $resource('rest/applications/:delegateId/versions/search', {}, {
+      var searchVersionResource = $resource('rest/templates/:delegateId/versions/search', {}, {
         'search': {
           method: 'POST',
           isArray: false,
@@ -15,7 +16,7 @@ define(function (require) {
         }
       });
 
-      var applicationVersionResource = $resource('rest/applications/:delegateId/versions', {}, {
+      var versionResource = $resource('rest/templates/:delegateId/versions', {}, {
         'create': {
           method: 'POST',
           isArray: false,
@@ -28,7 +29,7 @@ define(function (require) {
         }
       });
 
-      var applicationVersionMiscResource = $resource('rest/applications/:delegateId/versions/:versionId', {}, {
+      var versionMiscResource = $resource('rest/templates/:delegateId/versions/:versionId', {}, {
         'get': {
           method: 'GET'
         },
@@ -41,13 +42,14 @@ define(function (require) {
       });
 
       return {
-        'getFirst': applicationVersionResource.get,
-        'create': applicationVersionResource.create,
-        'get': applicationVersionMiscResource.get,
-        'delete': applicationVersionMiscResource.delete,
-        'update': applicationVersionMiscResource.update,
+        'getFirst': versionResource.get,
+        'create': versionResource.create,
+        'get': versionMiscResource.get,
+        'delete': versionMiscResource.delete,
+        'update': versionMiscResource.update,
         'searchVersion': searchVersionResource.search
       };
+
     }
-  ]);
-});
+  ]); // controller
+}); // define
