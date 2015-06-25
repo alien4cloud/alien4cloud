@@ -12,6 +12,12 @@ define(function (require) {
     url: '/versions',
     templateUrl: 'views/applications/application_versions.html',
     controller: 'ApplicationVersionsCtrl',
+    resolve: {
+      versionServices: ['applicationVersionServices', function(applicationVersionServices) { return applicationVersionServices }],
+      searchServiceUrl: ['application', function(application) { return 'rest/applications/' + application.data.id + '/versions/search' }],
+      delegateId: ['application', function(application) { return application.data.id }],
+      userCanModify: ['authService', function(authService) { return authService.hasRole('APPLICATIONS_MANAGER') }]
+    },
     menu: {
       id: 'am.applications.detail.versions',
       state: 'applications.detail.versions',
@@ -42,14 +48,14 @@ define(function (require) {
   }
   ];
 
-  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'applicationVersionServices', 'appVersions', 'searchServiceFactory',
-    function($scope, $state, $translate, toaster, authService, $modal, applicationVersionServices, appVersions, searchServiceFactory) {
-      $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
+  modules.get('a4c-applications').controller('ApplicationVersionsCtrl', ['$scope', '$state', '$translate', 'toaster', 'authService', '$modal', 'versionServices', 'appVersions', 'searchServiceFactory', 'searchServiceUrl', 'delegateId', 'userCanModify',
+    function($scope, $state, $translate, toaster, authService, $modal, versionServices, appVersions, searchServiceFactory, searchServiceUrl, delegateId, userCanModify) {
+      $scope.isManager = userCanModify;
       $scope.appVersions = appVersions.data;
       $scope.searchAppVersionResult = appVersions.data;
       $scope.versionPattern = new RegExp('^\\d+(?:\\.\\d+)*(?:[a-zA-Z0-9\\-_]+)*$');
 
-      $scope.searchService = searchServiceFactory('rest/applications/' + $scope.application.id + '/versions/search', false, $scope, 12);
+      $scope.searchService = searchServiceFactory(searchServiceUrl, false, $scope, 12);
       $scope.searchService.search();
       $scope.onSearchCompleted = function(searchResult) {
         $scope.searchAppVersionResult = searchResult.data.data;
@@ -60,8 +66,8 @@ define(function (require) {
           'from': 0,
           'size': 400
         };
-        applicationVersionServices.searchVersion({
-          applicationId: $scope.application.id
+        versionServices.searchVersion({
+          delegateId: delegateId
         }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
           appVersions.data = result.data.data;
           $scope.appVersions = appVersions.data;
@@ -75,8 +81,8 @@ define(function (require) {
           scope: $scope
         });
         modalInstance.result.then(function(appVersion) {
-          applicationVersionServices.create({
-            applicationId: $scope.application.id
+          versionServices.create({
+            delegateId: delegateId
           }, angular.toJson(appVersion), function(successResponse) {
             $scope.searchService.search();
             refreshAllAppVersions();
@@ -86,9 +92,9 @@ define(function (require) {
 
       $scope.delete = function deleteAppEnvironment(versionId) {
         if (!angular.isUndefined(versionId)) {
-          applicationVersionServices.delete({
-            applicationId: $scope.application.id,
-            applicationVersionId: versionId
+          versionServices.delete({
+            delegateId: delegateId,
+            versionId: versionId
           }, null, function deleteAppEnvironment(result) {
             if (result) {
               $scope.searchService.search();
@@ -101,9 +107,9 @@ define(function (require) {
       $scope.updateApplicationVersion = function(fieldName, fieldValue, versionId) {
         var applicationVersionUpdateRequest = {};
         applicationVersionUpdateRequest[fieldName] = fieldValue;
-        return applicationVersionServices.update({
-          applicationId: $scope.application.id,
-          applicationVersionId: versionId
+        return versionServices.update({
+          delegateId: delegateId,
+          versionId: versionId
         }, angular.toJson(applicationVersionUpdateRequest), undefined).$promise.then(
           function() {}, function(errorResponse) {
             return $translate('ERRORS.' + errorResponse.data.error.code);

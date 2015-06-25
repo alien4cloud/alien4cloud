@@ -34,9 +34,9 @@ define(function (require) {
   var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
     function($scope, $modalInstance, $resource) {
       $scope.app = {};
-      $scope.create = function(valid, templateId) {
+      $scope.create = function(valid, templateVersionId) {
         if (valid) {
-          $scope.app.topologyTemplateId = templateId;
+          $scope.app.topologyTemplateVersionId = templateVersionId;
           $modalInstance.close($scope.app);
         }
       };
@@ -56,6 +56,16 @@ define(function (require) {
         }
       });
 
+      var searchTopologyTemplateVersionResource = $resource('rest/templates/:topologyTemplateId/versions/search', {}, {
+        'search': {
+          method: 'POST',
+          isArray: false,
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        }
+      });
+      
       $scope.loadTopologyTemplates = function() {
 
         var searchRequestObject = {
@@ -69,6 +79,26 @@ define(function (require) {
         });
       };
 
+      $scope.loadTopologyTemplateVersions = function(selectedTemplateId) {
+        var searchRequestObject = {
+            'query': $scope.query,
+            'from': 0,
+            'size': 50
+          };
+        searchTopologyTemplateVersionResource.search({topologyTemplateId: selectedTemplateId}, angular.toJson(searchRequestObject), function(successResult) {
+          $scope.templateVersions = successResult.data.data;
+        });      
+      };
+      
+      $scope.templateSelected = function(selectedTemplate) {
+        $scope.templateVersions = undefined;
+        $scope.selectedTopologyTemplateVersion = undefined;
+        $scope.selectedTopologyTemplate = selectedTemplate;
+        if (selectedTemplate) {
+          $scope.loadTopologyTemplateVersions(selectedTemplate.id);      
+        }
+      };
+      
       // First template load
       $scope.loadTopologyTemplates();
     }

@@ -7,18 +7,23 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import alien4cloud.audit.annotation.Audit;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
@@ -31,7 +36,6 @@ import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
@@ -64,17 +68,17 @@ public class TopologySubstitutionsController {
     @Resource
     private CsarService csarService;
 
-    @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Define the type this topology can substitute. When this method is called, a new type is created : it is derived from this one.", notes = "Returns a topology with it's details. Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId}/substitutions/type", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    @ResponseStatus(value = HttpStatus.CREATED)
     public RestResponse<TopologyDTO> setSubstitutionType(@PathVariable String topologyId, @NotBlank @RequestParam("elementId") String elementId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
         if (!topology.getDelegateType().equals(TopologyTemplate.class.getSimpleName().toLowerCase())) {
-            // TODO: throw ex
+            throw new InvalidArgumentException("This operation is only allowed for topology templates");
         }
-        topologyService
-                .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
 
         if (topology.getSubstitutionMapping() == null) {
             topology.setSubstitutionMapping(new SubstitutionMapping());
@@ -92,7 +96,7 @@ public class TopologySubstitutionsController {
             if (result.getTotalResults() > 0) {
                 nodeType = (IndexedNodeType) result.getData()[0];
             }
-            // TODO: add in dependencies ?
+            // add in dependencies
             topology.getDependencies().add(new CSARDependency(nodeType.getArchiveName(), nodeType.getArchiveVersion()));
         }
         topology.getSubstitutionMapping().setSubstitutionType(nodeType);
@@ -101,14 +105,13 @@ public class TopologySubstitutionsController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Retrieve a topology from it's id.", notes = "Returns a topology with it's details. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Remove the substitution type, delete the corresponding type (if not already used)", notes = "Returns a topology with it's details. Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId}/substitutions/type", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TopologyDTO> removeSubstitution(@PathVariable String topologyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
         topologyService.throwsErrorIfReleased(topology);
-        topologyService
-                .checkAuthorizations(topology, ApplicationRole.APPLICATION_MANAGER, ApplicationRole.APPLICATION_DEVOPS, ApplicationRole.APPLICATION_USER);
         if (topology.getSubstitutionMapping() == null || topology.getSubstitutionMapping().getSubstitutionType() == null) {
             throw new NotFoundException("No substitution type has been found");
         }
@@ -138,24 +141,14 @@ public class TopologySubstitutionsController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    /**
-     * <p>
-     * Associate the property of a capability template to an input of the topology.
-     * </p>
-     *
-     * @param topologyId
-     * @param inputId
-     * @param nodeTemplateName
-     * @param capabilityId
-     * @param propertyId
-     * @throws IncompatiblePropertyDefinitionException
-     */
-    @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Expose the given capability as a capability for the substitution type associated with this topology.", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/capabilities/{substitutionCapabilityId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @Audit
     public RestResponse<TopologyDTO> exposeCapability(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId,
-            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
+            @ApiParam(value = "The node template id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
             @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("capabilityId") final String capabilityId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
@@ -178,22 +171,24 @@ public class TopologySubstitutionsController {
         if (substitutionCapabilities == null) {
             substitutionCapabilities = Maps.newHashMap();
             topology.getSubstitutionMapping().setCapabilities(substitutionCapabilities);
+        } else if (substitutionCapabilities.containsKey(substitutionCapabilityId)) {
+            // ensure name unicity
+            throw new AlreadyExistException(String.format("The substitution capability <%s> already exists", substitutionCapabilityId));
         }
-        // TODO: ensure name unicity
-        String targetId = substitutionCapabilityId;
-        substitutionCapabilities.put(targetId, new SubstitutionTarget(nodeTemplateName, capabilityId));
+        substitutionCapabilities.put(substitutionCapabilityId, new SubstitutionTarget(nodeTemplateName, capabilityId));
         alienDAO.save(topology);
-        // TODO: update the type
+        // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Update the substitution capability (typically change it's name).", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/capabilities/{substitutionCapabilityId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TopologyDTO> updateSubstitutionCapability(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId,
-            @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("newCapabilityId") final String newCapabilityId)
+            @ApiParam(value = "The new capability name.", required = true) @NotBlank @RequestParam("newCapabilityId") final String newCapabilityId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -215,17 +210,19 @@ public class TopologySubstitutionsController {
             throw new NotFoundException("No substitution capability or requirement has been found for key " + oldKey);
         }
         if (targetMap.containsKey(newKey)) {
-            // TODO throw ex (duplicate name)
+            throw new AlreadyExistException(String.format("Can not rename from <%s> to <%s> since capability or requirement <%s> already exists", oldKey,
+                    newKey, newKey));
         }
         targetMap.put(newKey, target);
         alienDAO.save(topology);
-        // TODO: update the type
+        // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Remove the substitution capability from the substitution type.", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/capabilities/{substitutionCapabilityId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TopologyDTO> removeSubstitutionCapability(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
             @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionCapabilityId)
@@ -250,16 +247,19 @@ public class TopologySubstitutionsController {
             throw new NotFoundException("No substitution capability or requirement has been found for key " + key);
         }
         alienDAO.save(topology);
-        // TODO: update the type
+        // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    @ApiOperation(value = "Expose the given requirement as a requirement for the substitution type associated with this topology.", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/requirements/{substitutionRequirementId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @Audit
     public RestResponse<TopologyDTO> exposeRequirement(@ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
-            @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId,
-            @ApiParam(value = "The node temlate id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
-            @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("requirementId") final String requirementId)
+            @ApiParam(value = "The substitution requirement name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId,
+            @ApiParam(value = "The node template id.", required = true) @NotBlank @RequestParam("nodeTemplateName") final String nodeTemplateName,
+            @ApiParam(value = "The source node requirement id.", required = true) @NotBlank @RequestParam("requirementId") final String requirementId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -281,21 +281,24 @@ public class TopologySubstitutionsController {
         if (substitutionRequirements == null) {
             substitutionRequirements = Maps.newHashMap();
             topology.getSubstitutionMapping().setRequirements(substitutionRequirements);
+        } else if (substitutionRequirements.containsKey(substitutionRequirementId)) {
+            // ensure name unicity
+            throw new AlreadyExistException(String.format("The substitution requirement <%s> already exists", substitutionRequirementId));
         }
-        // TODO: ensure name unicity
-        String targetId = substitutionRequirementId;
-        substitutionRequirements.put(targetId, new SubstitutionTarget(nodeTemplateName, requirementId));
+        substitutionRequirements.put(substitutionRequirementId, new SubstitutionTarget(nodeTemplateName, requirementId));
         alienDAO.save(topology);
-        // TODO: update the type
+        // update the type
         topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
+    @ApiOperation(value = "Update the substitution requirement (typically change it's name).", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/requirements/{substitutionRequirementId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TopologyDTO> updateSubstitutionRequirement(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
-            @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId,
-            @ApiParam(value = "The source node capability id.", required = true) @NotBlank @RequestParam("newRequirementId") final String newRequirementId)
+            @ApiParam(value = "The substitution requirement name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId,
+            @ApiParam(value = "The new substution requirement name.", required = true) @NotBlank @RequestParam("newRequirementId") final String newRequirementId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
@@ -308,11 +311,12 @@ public class TopologySubstitutionsController {
         return updateSubstitutionKey(topology, substitutionRequirements, substitutionRequirementId, newRequirementId);
     }
 
-    @ApiOperation(value = "Associate the property of a capability template to an input of the topology.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
+    @ApiOperation(value = "Remove the requirement from the substitution type associated to this topology.", notes = "Role required [ ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/substitutions/requirements/{substitutionRequirementId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
     public RestResponse<TopologyDTO> removeSubstitutionRequirement(
             @ApiParam(value = "The topology id.", required = true) @NotBlank @PathVariable final String topologyId,
-            @ApiParam(value = "The substitution capability name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId)
+            @ApiParam(value = "The substitution requirement name.", required = true) @NotBlank @PathVariable final String substitutionRequirementId)
             throws IncompatiblePropertyDefinitionException {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);

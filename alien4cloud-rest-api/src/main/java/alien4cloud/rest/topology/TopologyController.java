@@ -762,6 +762,10 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,

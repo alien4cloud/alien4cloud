@@ -90,7 +90,7 @@ public class TopologyTemplateVersionController {
      *
      * @param applicationId The application id
      */
-    @ApiOperation(value = "Get an topology template version based from its id.", notes = "Returns the topology template version details. Role required [ TBD ]")
+    @ApiOperation(value = "Get a topology template version based from its id.", notes = "Returns the topology template version details. Role required [ TBD ]")
     @RequestMapping(value = "/{versionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyTemplateVersion> getVersion(@PathVariable String topologyTemplateId, @PathVariable String versionId) {
         TopologyTemplateVersion version = versionService.getOrFail(versionId);
@@ -117,13 +117,13 @@ public class TopologyTemplateVersionController {
     }
 
     /**
-     * Update application version
+     * Update topology template version.
      *
      * @param applicationVersionId
      * @param request
      * @return
      */
-    @ApiOperation(value = "Updates by merging the given request into the given topology template version", notes = "Updates by merging the given request into the given topology template version. The logged-in user must have the architect role for this application. Application role required [ ARCHITECT ]")
+    @ApiOperation(value = "Updates by merging the given request into the given topology template version", notes = "The logged-in user must have the architect role for this application. Application role required [ ARCHITECT ]")
     @RequestMapping(value = "/{versionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<Void> update(@PathVariable String versionId, @RequestBody ApplicationVersionRequest request) {
@@ -150,10 +150,10 @@ public class TopologyTemplateVersionController {
     }
 
     /**
-     * Delete an application environment based on it's id. Should not be able to delete a deployed version.
+     * Delete an topology template version from its id.
      *
-     * @param applicationId
-     * @param applicationVersionId
+     * @param topologyTemplateId
+     * @param versionId
      * @return boolean is delete
      */
     @ApiOperation(value = "Delete an topology template version from its id", notes = "The logged-in user must have the architect role. Role required [ ARCHITECT ]")
