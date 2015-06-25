@@ -81,6 +81,7 @@
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
       "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
       "TOPOLOGY_DETECTED": "A topology template has been detected in the archive and created with name: {{note}}",
+      "TOPOLOGY_UPDATED": "A topology template has been detected in the archive and updated  : {{note}}",
       "NotNull": "The property [ {{path}} ] cannot be null",
       "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
       "ToscaPropertyType": "Property [ {{path}} ] has an invalid type, please check supported TOSCA types. Details [ {{message}} ]",
@@ -483,12 +484,27 @@
         "TITLE": "Artifacts",
         "ID": "Id",
         "TYPE": "Type",
-        "INPUTS": "Artefacts en entrée",
+        "INPUTS": "Input artifacts",
         "ADDINPUT": "Define artifact as input"
+      }, 
+      "SUBSTITUTIONS": {
+        "TITLE": "Substitutions",
+        "TYPE": "Type",
+        "CAPABILITIES": "Capabilities",
+        "CAPABILITY": "Capability",
+        "REQUIREMENTS": "Requirements",
+        "REQUIREMENT": "Requirement",
+        "TARGET_NODE": "Target",
+        "SOURCE_NODE": "Source",
+        "NOM": "Name",
+        "VERSION": "Version",
+        "EXPOSE": "Expose",
+        "DISPLAY": "Display substitution topology"
       },
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
+      "TEMPLATE_SELECT_VERSION": "-- Select a template version --",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
@@ -800,7 +816,8 @@
       "MESSAGE": "One or several parameters are required : {{value}}"
     },
     "807": "Only the topology of a SNAPSHOT version can be modified",
-    "808": "The name doesn't respect the expected pattern"
+    "808": "The name doesn't respect the expected pattern",
+    "820": "Cyclic reference : a topology template can not reference itself !"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

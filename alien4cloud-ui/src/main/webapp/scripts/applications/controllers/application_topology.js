@@ -13,7 +13,8 @@ define(function (require) {
     resolve: {
       topologyId: function() {
         return null;
-      }
+      },
+      preselectedVersion: function() { return undefined; }
     },
     menu: {
       id: 'am.applications.detail.topology',

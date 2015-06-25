@@ -32,7 +32,6 @@ import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
@@ -102,16 +101,8 @@ public class ComponentController {
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
         Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class : searchRequest.getType()
                 .getIndexedToscaElementClass();
-        if (!queryAllVersions) {
-            Map<String, String[]> filters = searchRequest.getFilters();
-            if (filters == null) {
-                filters = Maps.newHashMap();
-                searchRequest.setFilters(filters);
-            }
-            filters.put("highestVersion", new String[] { "true" });
-        }
-        FacetedSearchResult searchResult = dao.facetedSearch(classNameToQuery, searchRequest.getQuery(), searchRequest.getFilters(), "component_summary",
-                searchRequest.getFrom(), searchRequest.getSize());
+        FacetedSearchResult searchResult = searchService.search(classNameToQuery, searchRequest.getQuery(), searchRequest.getFrom(), searchRequest.getSize(),
+                searchRequest.getFilters(), queryAllVersions);
         return RestResponseBuilder.<FacetedSearchResult> builder().data(searchResult).build();
     }
 

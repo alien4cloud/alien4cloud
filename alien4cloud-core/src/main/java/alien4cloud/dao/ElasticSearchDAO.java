@@ -29,6 +29,7 @@ import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
@@ -74,6 +75,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(Plugin.class);
         initIndice(PluginConfiguration.class);
         initIndice(TopologyTemplate.class);
+        initIndice(TopologyTemplateVersion.class);
         initIndice(MetaPropConfiguration.class);
         initIndice(Cloud.class);
         initIndice(CloudConfiguration.class);

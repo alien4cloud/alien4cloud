@@ -131,6 +131,9 @@ define(function (require) {
     return function(text, separator, indexToReturn) {
       if (!_.undefined(text)) {
         separator = separator || '.'; // by defult . if not defined
+        if (text.indexOf(separator) < 0) {
+          return text;
+        }        
         var res = text.split(separator);
         if(indexToReturn === 'last') {
           indexToReturn = res.length - 1;

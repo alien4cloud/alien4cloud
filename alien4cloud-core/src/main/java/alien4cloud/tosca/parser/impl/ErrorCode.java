@@ -44,6 +44,7 @@ public enum ErrorCode {
     UNKNOWN_IMPLEMENTATION_ARTIFACT,
     /** A topology has been detected. */
     TOPOLOGY_DETECTED,
+    TOPOLOGY_UPDATED,
     /** A property defined as get_input has an issue */
     MISSING_TOPOLOGY_INPUT,
     YAML_SEQUENCE_EXPECTED,
