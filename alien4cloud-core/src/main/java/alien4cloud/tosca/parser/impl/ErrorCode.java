@@ -45,6 +45,8 @@ public enum ErrorCode {
     /** A topology has been detected. */
     TOPOLOGY_DETECTED,
     TOPOLOGY_UPDATED,
+    /** A property defined as get_input has an issue */
+    MISSING_TOPOLOGY_INPUT,
     YAML_SEQUENCE_EXPECTED,
     YAML_MAPPING_NODE_EXPECTED,
     YAML_SCALAR_NODE_EXPECTED,
