@@ -63,8 +63,7 @@ define(function (require) {
             this.svg.selectAll('.node-template').remove();
           }
           this.nodeRenderer = nodeRenderer;
-          var minDistance = this.nodeRenderer.distanceBetweenNodeHorizontal < this.nodeRenderer.distanceBetweenNodeVertical ? this.nodeRenderer.distanceBetweenNodeHorizontal : this.nodeRenderer.distanceBetweenNodeVertical;
-          this.gridStep = minDistance / 4;
+          this.gridStep = 10;
           this.reset(this.topology);
         },
 
@@ -79,19 +78,9 @@ define(function (require) {
 
           // Compute the automatic layout for the topology.
           var nodeRenderer = this.nodeRenderer;
-          var nodeSize = {
-            width: nodeRenderer.width,
-            height: nodeRenderer.height
-          };
-          var spacing = {
-            rootBranch: {x: nodeRenderer.distanceBetweenBranchHorizontal},
-            branch: {x: nodeRenderer.distanceBetweenNodeHorizontal, y: nodeRenderer.distanceBetweenNodeVertical},
-            node: {y: nodeRenderer.distanceBetweenNodeVertical},
-            network: 14
-          };
 
-          layout = topologyLayoutService.layout(topology.topology.nodeTemplates, topology.nodeTypes, topology.relationshipTypes, nodeSize,
-            spacing);
+          layout = topologyLayoutService.layout(this.topology.topology.nodeTemplates, this.topology, this.nodeRenderer);
+
           // Update connector routing.
           this.grid = routerFactoryService.create(layout.bbox, this.gridStep);
           for(i = 0; i< layout.nodes.length;i++) {
@@ -177,8 +166,8 @@ define(function (require) {
         createNode: function(nodeGroup, node) {
           var nodeTemplate = this.topology.topology.nodeTemplates[node.id];
           var nodeType = this.topology.nodeTypes[nodeTemplate.type];
-          var oX = -(this.nodeRenderer.width / 2);
-          var oY = -(this.nodeRenderer.height / 2);
+          var oX = 0;
+          var oY = 0;
 
           var instance = this;
           var onclick = function() {
@@ -191,9 +180,7 @@ define(function (require) {
             instance.selectedNodeId = node.id;
           };
 
-          this.nodeRenderer.draw(nodeGroup, node, nodeTemplate, nodeType, this.topology);
-
-          d3Service.rect(nodeGroup, oX, oY, this.nodeRenderer.width, this.nodeRenderer.height, 0, 0).attr('class', 'background');
+          d3Service.rect(nodeGroup, oX, oY, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'background');
 
           this.nodeRenderer.createNode(nodeGroup, node, nodeTemplate, nodeType, oX, oY);
           // specific to networks
@@ -211,8 +198,8 @@ define(function (require) {
         },
 
         updateNode: function(nodeGroup, node) {
-          var oX = -(this.nodeRenderer.width / 2);
-          var oY = -(this.nodeRenderer.height / 2);
+          var oX = 0;
+          var oY = 0;
           var nodeTemplate = this.topology.topology.nodeTemplates[node.id];
           var nodeType = this.topology.nodeTypes[nodeTemplate.type];
           var instance = this;

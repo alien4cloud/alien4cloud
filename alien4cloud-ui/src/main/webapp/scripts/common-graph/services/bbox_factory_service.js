@@ -45,6 +45,11 @@ define(function (require) {
         }
       },
 
+      add: function(bbox) {
+        this.addPoint(bbox.minX, bbox.minY);
+        this.addPoint(bbox.maxX, bbox.maxY);
+      },
+
       addRectFromCenter: function(x, y, width, height) {
         // left bottom point
         var rectMinX = x - width / 2;

@@ -332,10 +332,10 @@ define(function (require) {
         var i = Math.floor(x / this.gridSpacing);
         var j = Math.floor(y / this.gridSpacing);
         if(this.cells.length < i) {
-          i = this.cells.length;
+          i = this.cells.length - 1;
         }
         if(this.cells[i].length < j) {
-          j = this.cells[i].length;
+          j = this.cells[i].length - 1;
         }
 
         return {x: i, y: j};

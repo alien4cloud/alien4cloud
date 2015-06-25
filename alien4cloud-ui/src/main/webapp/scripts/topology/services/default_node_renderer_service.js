@@ -15,9 +15,6 @@ define(function (require) {
         isRuntime: false,
         width: 200,
         height: 50,
-        distanceBetweenBranchHorizontal: 40,
-        distanceBetweenNodeHorizontal: 20,
-        distanceBetweenNodeVertical: 20,
 
         setRuntime: function(isRuntime) {
           this.isRuntime = isRuntime;
@@ -28,22 +25,15 @@ define(function (require) {
           }
         },
 
-        draw: function(nodeGroup, node, nodeTemplate, nodeType, topology) {
-          var capabilitiesToDraw = []; // capabilities to draw are node type's capabilities but container and attached
-          var requirementsToDraw = []; // requirements to draw are node type's requirements but container and attached
-          _.each(nodeType.capabilities, function(capability) {
-            // if(!toscaService.isOneOfType(['tosca.capabilities.Container', 'tosca.capabilities.Attachment'], capability.type, topology.)) {
-            //
-            // }
-            // capabilitiesToDraw.push(capability);
-            console.log('processing capability', capability);
-          });
-          _.each(nodeType.requirements, function(requirement) {
-            console.log('processing requirement', requirement);
-          });
+        size: function(node) {
+          var connectorCount = Math.max(node.capabilities.length, node.requirements.length);
+          var connectorHeight = connectorCount * 10 + (connectorCount+1) * 5;
+          var height = Math.max(50, connectorHeight);
+          return {
+            width: 200,
+            height: height
+          }
         },
-
-
 
         createNode: function(nodeGroup, node, nodeTemplate, nodeType, oX, oY) {
           if (nodeType.tags) {
@@ -56,8 +46,8 @@ define(function (require) {
 
           if (nodeType.abstract) {
             var icoSize = 16;
-            var x = 80;
-            var y = -22;
+            var x = 180;
+            var y = 3;
             nodeGroup.append('image').attr('x', x).attr('y', y).attr('width', icoSize).attr('height', icoSize).attr('xlink:href', 'images/abstract_ico.png');
           }
 
