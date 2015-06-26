@@ -64,6 +64,7 @@ public enum RestErrorCode {
 
     // PaaS errors : code 650+
     COMPUTE_CONFLICT_NAME(650),
+    CONFLICT_BETWEEN_DELETABLE_OPTION_AND_VOLUME_ID(651),
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),

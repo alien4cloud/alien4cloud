@@ -203,9 +203,13 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> paaSDeploymentErrorHandler(PaaSDeploymentException e) {
         log.error("Error in PaaS Deployment", e);
+        RestErrorCode errorCode = RestErrorCode.APPLICATION_DEPLOYMENT_ERROR;
+        if (e.getPassErrorCode() != null) {
+            errorCode = e.getPassErrorCode();
+        }
         return RestResponseBuilder
                 .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR).message("Application cannot be deployed " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(errorCode).message("Application cannot be deployed " + e.getMessage()).build())
                 .build();
     }
 
