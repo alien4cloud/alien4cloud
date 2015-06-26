@@ -152,7 +152,8 @@ public class TopologyStepDefinitions {
         NodeTemplateRequest req = new NodeTemplateRequest(name, indexedNodeTypeId);
         String jSon = jsonMapper.writeValueAsString(req);
         String topologyId = Context.getInstance().getTopologyId();
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates", jSon));
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates", jSon);
+        Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I have added a node template \"([^\"]*)\" related to the \"([^\"]*)\" node type$")
@@ -721,6 +722,7 @@ public class TopologyStepDefinitions {
     public void searchForTopologyTemplateByName(String topologyTemplateName, String topologyTemplateVersion) throws Throwable {
         String topologyId = getTopologyIdFromTemplateName(topologyTemplateName, topologyTemplateVersion);
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
+        Context.getInstance().registerTopologyId(topologyId);
         String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
         RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
         Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());

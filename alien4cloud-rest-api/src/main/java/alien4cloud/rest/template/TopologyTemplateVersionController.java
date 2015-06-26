@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
@@ -70,11 +69,9 @@ public class TopologyTemplateVersionController {
     }
 
     /**
-     * Search topology template versions for a given topology template id
+     * Search topology template versions for a given topology template id.
      *
-     * @param applicationId the targeted application id
-     * @param searchRequest
-     * @return A rest response that contains a {@link FacetedSearchResult} containing application versions for an application id sorted by version
+     * @return A rest response that contains a {@link GetMultipleDataResult} containing topology template versions sorted by version
      */
     @ApiOperation(value = "Search topology template versions", notes = "Returns a search result with that contains application versions matching the request.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -87,8 +84,6 @@ public class TopologyTemplateVersionController {
 
     /**
      * Get topology template version from it's id.
-     *
-     * @param applicationId The application id
      */
     @ApiOperation(value = "Get a topology template version based from its id.", notes = "Returns the topology template version details. Role required [ TBD ]")
     @RequestMapping(value = "/{versionId:.+}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -100,8 +95,7 @@ public class TopologyTemplateVersionController {
     /**
      * Create a new topology template version.
      *
-     * @param request data to create an application environment
-     * @return application environment id
+     * @return topology template version id
      */
     @ApiOperation(value = "Create a new topology template version.", notes = "If successfull returns a rest response with the id of the created version in data. If not successful a rest response with an error content is returned. Role required [ ARCHITECT ]. ")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -118,10 +112,6 @@ public class TopologyTemplateVersionController {
 
     /**
      * Update topology template version.
-     *
-     * @param applicationVersionId
-     * @param request
-     * @return
      */
     @ApiOperation(value = "Updates by merging the given request into the given topology template version", notes = "The logged-in user must have the architect role for this application. Application role required [ ARCHITECT ]")
     @RequestMapping(value = "/{versionId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

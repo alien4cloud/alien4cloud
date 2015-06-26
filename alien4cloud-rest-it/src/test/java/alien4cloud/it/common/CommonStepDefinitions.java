@@ -125,6 +125,7 @@ public class CommonStepDefinitions {
     @Then("^I should receive a RestResponse with an error code (\\d+)$")
     public void I_should_receive_a_RestResponse_with_an_error_code(int expectedCode) throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
         Assert.assertNotNull(restResponse.getError());
         Assert.assertEquals(expectedCode, restResponse.getError().getCode());
     }
