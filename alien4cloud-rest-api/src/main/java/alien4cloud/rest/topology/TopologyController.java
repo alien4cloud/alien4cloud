@@ -30,12 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -130,6 +132,9 @@ public class TopologyController {
     @Resource
     private CloudService cloudService;
 
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
+
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
      *
@@ -181,12 +186,13 @@ public class TopologyController {
         if (indexedNodeType == null) {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR).build()).build();
         }
-        if (indexedNodeType.getSubstitutionTopologyId() != null && topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())
-                && indexedNodeType.getSubstitutionTopologyId().equals(topologyId)) {
-            return RestResponseBuilder.<TopologyDTO> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR)
-                            .message("Cyclic reference : a topology template can not reference itself").build())
-                    .build();
+        if (indexedNodeType.getSubstitutionTopologyId() != null && topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+            // it's a try to add this topology's type
+            if (indexedNodeType.getSubstitutionTopologyId().equals(topologyId)) {
+                throw new CyclicReferenceException("Cyclic reference : a topology template can not reference itself");
+            }
+            // detect try to add a substitution topology that indirectly reference this one
+            topologyCompositionService.recursivelyDetectTopologyCompositionCyclicReference(topologyId, indexedNodeType.getSubstitutionTopologyId());
         }
 
         if (topology.getNodeTemplates() == null) {

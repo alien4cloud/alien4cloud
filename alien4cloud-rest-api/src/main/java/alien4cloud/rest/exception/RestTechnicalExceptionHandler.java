@@ -21,6 +21,7 @@ import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
+import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
@@ -86,6 +87,15 @@ public class RestTechnicalExceptionHandler {
         log.error("Object is still referenced and cannot be deleted", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(CyclicReferenceException.class)
+    @ResponseStatus(HttpStatus.LOOP_DETECTED)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(CyclicReferenceException e) {
+        log.error("A node type that references a topology can not be added in this topology", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR).message(e.getMessage()).build()).build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)
