@@ -355,25 +355,22 @@ public class DeploymentSetupService {
                     FunctionPropertyValue function = (FunctionPropertyValue) propEntry.getValue();
                     if (ToscaFunctionConstants.GET_INPUT.equals(function.getFunction())) {
                         AbstractPropertyValue value;
-                        if (inputs != null) {
-                            String templateName = function.getTemplateName();
-                            // check if the template exists as meta property
-                            MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(templateName);
+                        if (MapUtils.isNotEmpty(inputs)) {
+                            String inputName = function.getTemplateName();
+                            // check if the input exists as meta property
+                            MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(inputName);
                             if (metaProperty != null) {
-                                templateName = metaProperty.getId();
+                                inputName = metaProperty.getId();
                             }
                             // recover the good value from inputs (from node inputs or metas)
-                            if (inputs.containsKey(templateName)) {
-                                value = new ScalarPropertyValue(inputs.get(templateName));
-                            } else {
-                                value = propEntry.getValue();
-                            }
+                            value = new ScalarPropertyValue(inputs.get(inputName));
                         } else {
                             value = new ScalarPropertyValue(null);
                         }
                         propEntry.setValue(value);
                     } else {
-                        log.warn("Function detected for property <{}> while only get_input should be authorized.", propEntry.getKey());
+                        log.warn("Function <{}> detected for property <{}> while only <get_input> should be authorized.", function.getFunction(),
+                                propEntry.getKey());
                     }
                 }
             }
@@ -566,7 +563,7 @@ public class DeploymentSetupService {
 
     /**
      * Get all deployment setup linked to a topology
-     * 
+     *
      * @param topologyId the topology id
      * @return all deployment setup that is linked to this topology
      */
