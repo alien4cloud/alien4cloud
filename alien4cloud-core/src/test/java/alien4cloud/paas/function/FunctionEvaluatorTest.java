@@ -180,9 +180,11 @@ public class FunctionEvaluatorTest {
         String warName = "war_1";
         String warName_2 = "war_2";
         String tomcatName = "tomcat";
+        String computeName = "comp_tomcat_war";
         PaaSNodeTemplate warPaaS = builtPaaSNodeTemplates.get(warName);
         PaaSNodeTemplate warPaaS_2 = builtPaaSNodeTemplates.get(warName_2);
         PaaSNodeTemplate tomcatPaaS = builtPaaSNodeTemplates.get(tomcatName);
+        PaaSNodeTemplate computePaaS = builtPaaSNodeTemplates.get(computeName);
         PaaSRelationshipTemplate hostedOnRelTemp = warPaaS.getRelationshipTemplate("hostedOnTomcat", "war_1");
         PaaSRelationshipTemplate hostedOnRelTemp_2 = warPaaS_2.getRelationshipTemplate("hostedOnTomcat", "war_2");
 
@@ -193,10 +195,18 @@ public class FunctionEvaluatorTest {
         IValue param = configOp.getInputParameters().get("contextPath");
         Assert.assertEquals(getPropertyValue(warPaaS, "context_path"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        // get prop from the host of the source node
+        param = configOp.getInputParameters().get("propFromSourceCompute");
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test TARGET keyword
         param = configOp.getInputParameters().get("tomcatVersion");
         Assert.assertEquals(getPropertyValue(tomcatPaaS, "version"),
+                FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
+        // get prop from the host of the source node
+        param = configOp.getInputParameters().get("propFromTargetCompute");
+        Assert.assertEquals(getPropertyValue(computePaaS, "customHostName"),
                 FunctionEvaluator.evaluateGetPropertyFunction((FunctionPropertyValue) param, hostedOnRelTemp, builtPaaSNodeTemplates));
 
         // test SELF keyword on relationship
