@@ -16,14 +16,13 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'relationshipMatchingService',
     function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, relationshipMatchingService) {
-      function TopologySvg (clickCallback, containerElement, isRuntime, nodeRenderer) {
-        this.networkStyles = 10;
+      function TopologySvg (callbacks, containerElement, isRuntime, nodeRenderer) {
         this.isGridDisplayed = false;
         this.firstRender = true;
 
         this.setNodeRenderer(nodeRenderer);
 
-        this.clickCallback = clickCallback;
+        this.clickCallback = callbacks.click;
         this.isRuntime = isRuntime;
 
         this.selectedNodeId = null;
@@ -37,6 +36,7 @@ define(function (require) {
         });
         this.svg.call(this.tip);
 
+        var selectedTarget;
         var mouseCoordinate;
         // capabilities drag and drop manager
         this.connectorDrag = d3.behavior.drag()
@@ -53,7 +53,8 @@ define(function (require) {
                     // add a drop target
                     connectTargets.push({
                       id: targetNode.id + '.' + targetCapability.id,
-                      target: targetCapability
+                      target: targetCapability,
+                      relationship: result.relationshipType
                     });
                   }
                 });
@@ -61,10 +62,14 @@ define(function (require) {
               //
               var targetSelection = self.svg.selectAll(".connectorTarget").data(connectTargets);
               targetSelection.enter().append("circle")
-                .attr("cx", function(d){ console.log(d); return d.target.coordinate.x })
+                .attr("cx", function(d){ return d.target.coordinate.x })
                 .attr("cy", function(d){ return d.target.coordinate.y })
                 .attr("r", 10)
-                .attr('class', 'connectorTarget');
+                .attr('class', 'connectorTarget')
+                .attr('pointer-events', 'mouseover')
+                .on("mouseover", function(node) { selectedTarget = node; })
+                .on("mouseout", function(node) { selectedTarget = null; });
+                selectedTarget
               targetSelection.exit().remove();
             });
             mouseCoordinate = {
@@ -85,7 +90,6 @@ define(function (require) {
                 },
                 target: mouseCoordinate
             }];
-            console.log(data);
             var link = self.svg.selectAll('.connectorlink').data(data);
             link.enter().append('path')
                 .attr('class', 'connectorlink')
@@ -97,6 +101,17 @@ define(function (require) {
             // remove all drag line and drag targets
             self.svg.selectAll(".connectorTarget").data([]).exit().remove();
             self.svg.selectAll(".connectorlink").data([]).exit().remove();
+            if(_.defined(selectedTarget)) {
+              var target = selectedTarget.target;
+              callbacks.addRelationship({
+                sourceId: element.node.id,
+                requirementName: element.id,
+                requirementType: element.template.type,
+                targetId: target.node.id,
+                capabilityName: target.id,
+                relationship: selectedTarget.relationship
+              });
+            }
           });
       }
 
@@ -165,8 +180,6 @@ define(function (require) {
           } else {
             route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
           }
-          route.unshift(link.source);
-          route.push(link.target);
           link.route = route;
         },
 
@@ -240,7 +253,7 @@ define(function (require) {
             connectorDrag: this.connectorDrag
           };
 
-          this.nodeRenderer.createNode(nodeGroup, node, nodeTemplate, nodeType, this.topology, actions);
+          this.nodeRenderer.createNode(this.layout, nodeGroup, node, nodeTemplate, nodeType, this.topology, actions);
         },
 
         updateNode: function(nodeGroup, node) {
@@ -260,9 +273,9 @@ define(function (require) {
           var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
 
           if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
-            var netX = oX + this.nodeRenderer.width;
-            var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
-            var netY = oY + (this.nodeRenderer.height/2) - 2;
+            var netX = node.bbox.width();
+            var netMaxX = this.layout.bbox.width();
+            var netY = node.bbox.height() / 2 - 2;
             var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
             nodeGroup.select('.link-network').attr('d', path);
           }
@@ -295,7 +308,12 @@ define(function (require) {
 
           var linkSelection = parent.selectAll('.link').data(links, function(link) { return link.id; });
 
-          var newLinks = linkSelection.enter().append('path');
+          linkSelection.each(function() {
+            var linkPath = d3.select(this);
+            self.drawLinkPath(linkPath, false);
+          });
+
+          var newLinks = linkSelection.enter().append('g');
           newLinks.each(function(link) {
             var linkPath = d3.select(this);
             if(link.isNetwork) {
@@ -307,28 +325,35 @@ define(function (require) {
               linkPath.classed('link-hosted-on', function() { return isHostedOn; })
                 .classed('link-depends-on', function() { return !isHostedOn; });
             }
-            self.drawLinkPath(linkPath);
+            self.drawLinkPath(linkPath, true);
           });
 
-          linkSelection.each(function() {
-            var linkPath = d3.select(this);
-            self.drawLinkPath(linkPath);
-          });
           linkSelection.exit().remove();
         },
 
-        drawLinkPath: function(linkPath) {
-          linkPath.attr('d', function(link) {
-              // compute the route path
-              var route = link.route;
-              var path = 'M' + route[0].x + ',' + route[0].y;
-              for (var i = 1; i < route.length - 1; i++) {
-                path = path + ' ' + route[i].x + ',' + route[i].y;
-              }
-              path = path + ' ' + route[route.length - 1].x + ',' + route[route.length - 1].y;
-
-              return path;
-            });
+        drawLinkPath: function(linkPath, create) {
+          var line = d3.svg.line()
+            .x(function(d) { return d.x; })
+            .y(function(d) { return d.y; })
+            .interpolate("basis");
+          var path;
+          if(create) {
+            path = linkPath.append('path');
+          } else {
+            path = linkPath.select('path');
+          }
+          path.attr('d', function(d){ return line(d.route)});
+          // linkPath.attr('d', function(link) {
+          //     // compute the route path
+          //     var route = link.route;
+          //     var path = 'M' + route[0].x + ',' + route[0].y;
+          //     for (var i = 1; i < route.length - 1; i++) {
+          //       path = path + ' ' + route[i].x + ',' + route[i].y;
+          //     }
+          //     path = path + ' ' + route[route.length - 1].x + ',' + route[route.length - 1].y;
+          //
+          //     return path;
+          //   });
           linkPath.classed('link-selected', function(link) { return link.selected; });
         }
       };

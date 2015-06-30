@@ -61,6 +61,7 @@ define(function (require) {
     };
 
     $scope.finish = function() {
+      console.log($scope.relationshipModalData);
       $modalInstance.close($scope.relationshipModalData);
     };
 

@@ -36,6 +36,7 @@ define(function (require) {
 
       return {
         isRuntime: false,
+        networkStyles: 10,
 
         setRuntime: function(isRuntime) {
           this.isRuntime = isRuntime;
@@ -72,8 +73,8 @@ define(function (require) {
           });
         },
 
-        createNode: function(nodeGroup, node, nodeTemplate, nodeType, topology, actions) {
-          d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'background');
+        createNode: function(layout, nodeGroup, node, nodeTemplate, nodeType, topology, actions) {
+          var backRect = d3Service.rect(nodeGroup, 0, 0, node.bbox.width(), node.bbox.height(), 0, 0).attr('class', 'background');
 
           if (nodeType.tags) {
             var tags = listToMapService.listToMap(nodeType.tags, 'name', 'value');
@@ -100,9 +101,9 @@ define(function (require) {
 
           // specific to networks
           if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, topology.nodeTypes)) {
-            var netX = this.nodeRenderer.width;
-            var netMaxX = netX + this.layout.bbox.width() - this.nodeRenderer.width;
-            var netY = (this.nodeRenderer.height/2) - 2;
+            var netX = node.bbox.width();
+            var netMaxX = layout.bbox.width();
+            var netY = node.bbox.height()/2 - 2;
             var netStyle = node.networkId % this.networkStyles;
             var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
             nodeGroup.append('path').attr('d', path).attr('class', 'link-network link-network-' + netStyle + ' link-selected');

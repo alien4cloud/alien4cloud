@@ -17,7 +17,8 @@ define(function (require) {
       return {
         restrict: 'E',
         scope: {
-          callback: '&',
+          selectCallback: '&',
+          addRelationshipCallback: '&',
           topology: '=',
           dimensions: '=',
           runtime: '=',
@@ -35,8 +36,12 @@ define(function (require) {
             return nodeRendererService;
           }
 
+          var callbacks = {
+            click: scope.selectCallback,
+            addRelationship: scope.addRelationshipCallback
+          };
           var nodeRenderer = getNodeRenderer();
-          var topologySvg = topologySvgFactory.create(scope.callback, topologyElement, scope.runtime, nodeRenderer);
+          var topologySvg = topologySvgFactory.create(callbacks, topologyElement, scope.runtime, nodeRenderer);
 
           scope.$watch('topology', function(topology) {
             topologySvg.reset(topology);

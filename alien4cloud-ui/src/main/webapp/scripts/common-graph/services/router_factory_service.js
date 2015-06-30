@@ -137,9 +137,9 @@ define(function (require) {
             }
           }
         } else {
-          // parallel directions we have to find free way
-          var way1 = this.findNextWay(gp1, dir1);
-          var way2 = this.findNextWay(gp2, dir2);
+          // parallel directions we have to find free ways
+          var way1 = this.findNextFreeWay(gp1, dir1);
+          var way2 = this.findNextFreeWay(gp2, dir2);
           var mergedWay = this.mergeWays(way1, way2, dir1);
           var nextPoint1, nextPoint2;
           if(mergedWay === null) {
@@ -147,24 +147,62 @@ define(function (require) {
             var directions = this.findNextDirections(gp1, gp2, dir1);
             nextPoint1 = this.pointFromWay(gp1, way1, dir1);
             nextPoint2 = this.pointFromWay(gp2, way2, dir2);
-            var linkWay = this.findNextWay(nextPoint1, directions.dir1);
+            // var linkWay = this.findNextFreeWay(nextPoint1, directions.dir1);
+            var linkWay = this.findNextWay(nextPoint1, nextPoint2, way1, way2);
             var nextPoint11 = this.pointFromWay(nextPoint1, linkWay, directions.dir1);
             var nextPoint21 = this.pointFromWay(nextPoint2, linkWay, directions.dir2);
 
-            return [p1, this.getRealCoordinates(nextPoint1), this.getRealCoordinates(nextPoint11),
+            // compute flexion points (only when same direction)
+            var sourceDirections = this.directions(nextPoint1, nextPoint11);
+            var targetDirections = this.directions(nextPoint2, nextPoint21);
+            var route = [p1, this.getRealCoordinates(nextPoint1), this.getRealCoordinates(nextPoint11),
               this.getRealCoordinates(nextPoint21), this.getRealCoordinates(nextPoint2), p2];
+            if(sourceDirections.vertical === targetDirections.vertical) { // TODO this is specific for vertical loop so alien specific..
+              // add vertical inflextion to the route
+              var y;
+              if(route[2].y-route[1].y > 0) {
+                y = route[2].y - 20;
+                route[2].y += 20;
+              } else {
+                y = route[2].y + 20
+                route[2].y -= 20;
+              }
+              var before2 = {
+                x: route[2].x,
+                y: y
+              };
+              if(route[3].y-route[4].y >0) {
+                y = route[3].y - 20;
+                route[3].y += 20;
+              } else {
+                y = route[3].y + 20
+                route[3].y -= 20;
+              }
+              var after3 = {
+                x: route[3].x,
+                y: y
+              };
+              route = [route[0], route[1], before2, route[2], route[3], after3, route[4], route[5]];
+            } else {
+              // TODO should add inflextion points also actually to avoid crossind nodes...
+            }
+            this.routeCoordinatesUpdate(route, p1, dir1, p2, dir2);
+            return route;
           } else {
-            nextPoint1 = this.pointFromWay(gp1, mergedWay, dir1);
-            nextPoint2 = this.pointFromWay(gp2, mergedWay, dir2);
             // we have a common way to use so just return the route.
-            return [p1, this.getRealCoordinates(nextPoint1), this.getRealCoordinates(nextPoint2), p2];
+            nextPoint1 = this.getRealCoordinates(this.pointFromWay(gp1, mergedWay, dir1));
+            nextPoint2 = this.getRealCoordinates(this.pointFromWay(gp2, mergedWay, dir2));
+            var route = [p1, nextPoint1, nextPoint2, p2];
+            this.routeCoordinatesUpdate(route, p1, dir1, p2, dir2);
+            return route;
           }
         }
         // we didn't managed to find simple route, let's use manhattan ?
         return [p1, p2];
       },
 
-      findNextWay: function(p, direction) {
+      // find a line that never cross any element.
+      findNextFreeWay: function(p, direction) {
         var ways, coordinateGetter;
         if(direction % 2 === directions.up % 2) {
           ways = this.horizontalWays;
@@ -178,6 +216,45 @@ define(function (require) {
           pTemp = this.move(pTemp, direction);
         }
         return coordinateGetter(pTemp);
+      },
+
+      // find the next segment that connects
+      findNextWay: function(sourcePoint, targetPoint, sourceWay,  targetWay) {
+        var src = {
+          x: sourcePoint.x,
+          y: sourcePoint.y
+        };
+        if(src.x === sourceWay) {
+          var target = {
+            x: targetWay,
+            y: src.y
+          };
+          var dirs = this.directions(sourcePoint, targetPoint);
+          var mover;
+          if(dirs.vertical === directions.up) {
+            mover = function(point) {point.y++};
+          } else {
+            mover = function(point) {point.y--};
+          }
+          mover(src);
+          mover(target);
+          while(this.isCrossingObstacle(src, target, dirs.horizontal)) {
+            mover(src);
+            mover(target);
+          }
+          return src.y;
+        } else {
+          // TODO, not used in current a4c rendering
+        }
+      },
+
+      directions: function(sourcePoint, targetPoint) {
+        var horizontalDir = sourcePoint.x < targetPoint.x ? directions.right : directions.left;
+        var verticalDir = sourcePoint.y < targetPoint.y ? directions.up : directions.down;
+        return {
+          horizontal: horizontalDir,
+          vertical: verticalDir
+        };
       },
 
       findNextDirections: function(p1, p2, direction) {

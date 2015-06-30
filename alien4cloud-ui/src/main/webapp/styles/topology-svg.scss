@@ -65,8 +65,13 @@
 }
 
 .connectorTarget {
-  fill: #ff0000;
+  fill: $brand-success;
   fill-opacity: .6;
+}
+
+.connectorTarget:hover {
+  fill: darken($brand-success, 5%);
+  fill-opacity: 1;
 }
 
 .connectorlink {

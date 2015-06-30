@@ -8,10 +8,10 @@ module.exports = {
       livereload: true
     }
   },
-  // compass: {
-  //   files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
-  //   tasks: ['compass:server', 'autoprefixer']
-  // },
+  compass: {
+    files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+    tasks: ['compass:server', 'autoprefixer']
+  },
   gruntfile: {
     files: ['Gruntfile.js']
   },

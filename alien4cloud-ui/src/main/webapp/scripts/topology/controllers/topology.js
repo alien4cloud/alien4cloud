@@ -1335,6 +1335,16 @@ define(function (require) {
       };
 
       $scope.editorCallback = {
+        addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
+          // generate relationship name
+          // var name = 'editorCreatedRelationship';
+          doAddRelationship(sourceId, {
+            name: 'editorCreatedRelationship',
+            target: targetId,
+            targetedCapabilityName: capabilityName,
+            relationship: relationship
+          }, requirementName, requirementType);
+        },
         selectNodeTemplate: function(newSelectedName, oldSelectedName) {
           // select the "Properties" <TAB> to see selected node details
           document.getElementById('nodetemplate-details').click();
