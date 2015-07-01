@@ -1,5 +1,7 @@
 package alien4cloud.csar.services;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,10 +29,11 @@ import alien4cloud.security.model.CsarGitRepository;
 import alien4cloud.tosca.ArchiveUploadService;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.ReflectionUtil;
 
 @Component
-public class CsarGithubService {
+public class CsarGitService {
     @Resource
     ArchiveUploadService uploadService;
 
@@ -69,8 +72,9 @@ public class CsarGithubService {
      * @return An response if the statement was successful or not
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
+     * @throws IOException
      */
-    public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException {
+    public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException {
         CsarGitRepository csarGit = new CsarGitRepository();
         Map<String, String> locationsMap = new HashMap<String, String>();
         String data = param.replaceAll("\"", "");
@@ -87,8 +91,8 @@ public class CsarGithubService {
         for (CsarGitCheckoutLocation location : csarGit.getImportLocations()) {
             locationsMap.put(location.getSubPath(), location.getBranchId());
         }
-        repoManager.createFolderAndClone(alienTpmPath, csarGit.getRepositoryUrl(), locationsMap, _LOCALDIRECTORY);
-        return triggerImportFromTmpFolder(repoManager.getPathToReach(), repoManager.getCsarsToImport());
+        String var = repoManager.createFolderAndClone(alienTpmPath, csarGit.getRepositoryUrl(), locationsMap, _LOCALDIRECTORY);
+        return triggerImportFromTmpFolder(var, repoManager.getCsarsToImport());
     }
 
     /**
@@ -98,15 +102,26 @@ public class CsarGithubService {
      * @return An response if the statement was successful or not
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
+     * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    public ParsingResult<Csar>[] triggerImportFromTmpFolder(Path pathToReach, ArrayList<Path> csarsToImport) throws CSARVersionAlreadyExistsException,
-            ParsingException {
+    public ParsingResult<Csar>[] triggerImportFromTmpFolder(String pathToReach, ArrayList<Path> csarsToImport) throws CSARVersionAlreadyExistsException,
+            ParsingException, IOException {
         ArrayList<ParsingResult<Csar>> parsingResult = new ArrayList<ParsingResult<Csar>>();
         ParsingResult<Csar> result = null;
         for (Path path : csarsToImport) {
             result = uploadService.upload(path);
             parsingResult.add(result);
+        }
+        try {
+            Path path = Paths.get(pathToReach);
+            Path pathZipped=Paths.get(pathToReach.concat("_ZIPPED"));
+            if(Files.exists(pathZipped)){
+                FileUtil.delete(pathZipped);
+            }
+            FileUtil.delete(path);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return parsingResult.toArray(new ParsingResult[parsingResult.size()]);
     }

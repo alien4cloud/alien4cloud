@@ -162,7 +162,10 @@
     "BUTTON_MODIFY": "Modify",
     "NAME": "Name",
     "ID":"Id",
+    "AJOUT": "The archive has been imported",
     "LEGEND":"Csars added",
+    "IMPORTALL":"Import all",
+    "IMPORT_SUCCESS":"CSAR have been imported",
     "FROMGIT":"Imported from Git",
     "ACTIONS":"Operations",
     "URL": "Repository URL",
@@ -170,7 +173,8 @@
     "BRANCHESLIST": "Branches list",
     "BRANCHE":"Branche",
     "ARCHIVEPATH":"Path of the archive",
-    "ARCHIVE":"Archive(s)",
+    "ARCHIVE":"Archive",
+    "ARCHIVELIST":"Archive list",
     "COUNTARCHIVES" : "Archives count",
     "DESCRIPTION": "Description",
     "VERSION": "Version",
@@ -192,13 +196,19 @@
         "CSAR_TEXT": "CSAR details",
         "APP_TEXT": "Application details",
         "TOPOLOGY_TEXT": "Topology template details"
-      },
+      }
+    },
       "DELETE": "Deleted",
       "ERRORS": {
+        "IMPORT":"CSAR cannot be imported",
         "507_TITLE": "Delete a CSAR",
-        "507": "CSAR deletion failed since it is referenced by other resources"
+        "501_TITLE": "CSAR with this URL already exists",
+        "507": "CSAR deletion failed since it is referenced by other resources",
+        "NO_DATA":{
+          "HEADER":"No CSAR to import",
+          "BODY":"Please add a new CSAR from a Git location"
+        }
       }
-    }
   },
   "GENERIC_FORM": {
     "SAVE": "Save",

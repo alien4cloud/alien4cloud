@@ -11,7 +11,7 @@ import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.CsarGitCheckoutLocation;
 import alien4cloud.security.model.CsarGitRepository;
 
-public class CsarGithubImport {
+public class CsarGitImport {
     private CsarGitRepository CSAR_GITHUB_REPOSITORY;
 
     @Test

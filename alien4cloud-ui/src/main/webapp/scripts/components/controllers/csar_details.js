@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/deployment/services/deployment_services');
 
   states.state('components.csars.csardetail', {
-    url: '/:csarId',
+    url: '/detail/:csarId',
     templateUrl: 'views/components/csar_details.html',
     controller: 'CsarDetailsCtrl'
   });
@@ -17,9 +17,12 @@ define(function (require) {
   modules.get('a4c-components', ['ui.router', 'ui.bootstrap', 'a4c-deployment']).controller(
     'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices', '$translate', 'toaster',
     function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
+      if ($stateParams.csarId === 'list') {
+        $state.go('components.csars.list');
+      }
+
       /* Retrieve CSAR to display */
       $scope.csarId = $stateParams.csarId;
-
       $scope.refreshDetails = function() {
         csarService.getAndDeleteCsar.get({
           csarId: $scope.csarId

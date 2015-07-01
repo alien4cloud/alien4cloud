@@ -168,6 +168,9 @@
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
     "ID":"Id",
+    "ARCHIVELIST":"Liste des archives",
+    "IMPORT_SUCCESS":"L'import a été effectué",
+    "IMPORTALL":"Importer tout",
     "LEGEND":"Csars ajoutés",
     "FROMGIT":"Importés depuis Git",
     "ACTIONS":"Opérations",
@@ -175,8 +178,9 @@
     "URL": "URL du repository",
     "BRANCHESLIST": "Liste des branches",
     "BRANCHE":"Branche",
-    "ARCHIVEPATH":"Chemin de l'archive",
-    "ARCHIVE":"Archive(s)",
+    "ARCHIVEPATH":"Archive",
+    "ARCHIVE":"Archive",
+    "AJOUT": "L'archive a été importé",
     "DESCRIPTION": "Description",
     "VERSION": "Version",
     "BC_CSAR": "CSAR",
@@ -201,8 +205,14 @@
     },
     "DELETE": "Supprimé",
     "ERRORS": {
+      "IMPORT":"Le CSAR ne peut être importé",
       "507_TITLE": "Suppression d'un CSAR",
-      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
+      "501_TITLE": "Un CSAR avec cette URL existe déjà",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources",
+      "NO_DATA":{
+        "HEADER":"Aucun CSAR à importer",
+        "BODY":"Veuillez renseigner un nouveau CSAR depuis Git"
+      }
     }
   },
   "GENERIC_FORM": {

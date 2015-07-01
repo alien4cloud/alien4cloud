@@ -29,8 +29,8 @@ public class CsarGitRepository {
      */
     @Id
     private String id;
-
-    @StringField(includeInAll = false, indexType = IndexType.no)
+   
+    @StringField(includeInAll = false, indexType = IndexType.not_analyzed)
     @TermFilter
     private String repositoryUrl;
 

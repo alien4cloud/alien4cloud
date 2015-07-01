@@ -16,7 +16,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Value;
 
-import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.utils.FileUtil;
 
 /**
@@ -33,6 +32,7 @@ public class RepositoryManager {
     @Value("${directories.alien}/${directories.upload_temp}")
     private String alienTempUpload;
     public static String _SUFFIXE = "_ZIPPED";
+    public static String _ALL = "_ALL";
     public static String _DEFAULTSEPARATOR = "/";
 
     public void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
@@ -60,25 +60,44 @@ public class RepositoryManager {
      * @param branchMap A Map of the sub-repositories with its branchId (i.e : master,develop etc)
      * @param localDirectory Static path to be resolved with targetDirectory
      */
-    public void createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) {
+    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) {
+        String var = "";
+        String cleanUrl;
         try {
+            if (repositoryUrl.endsWith(".git")) {
+                cleanUrl = repositoryUrl.replace(".git", "");
+                repositoryUrl = cleanUrl;
+            }
             this.pathToReach = alienTpmPath.resolve(localDirectory);
             Files.createDirectories(pathToReach);
             this.locations = branchMap;
             String folder = this.splitRepositoryName(repositoryUrl);
-            for (Map.Entry<String, String> location : locations.entrySet()) {
-                if (location.getKey() == null || location.getKey() == "") {
-                    cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder));
-                    zipRepository(this.pathToReach.resolve(folder));
-                } else {
-                    cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder));
-                    zipRepository(this.pathToReach.resolve(folder).resolve(location.getKey()), this.getLocations());
-                }
+            if (isCompleteimport()) {
+                cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder + _ALL));
+                var = pathToReach.resolve(folder + _ALL).toString();
+                zipRepositoryToRoot(this.pathToReach.resolve(folder + _ALL));
+            } else {
+                cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder + locations.size()));
+                zipRepository(pathToReach.resolve(folder + locations.size()), this.getLocations());
+                var = pathToReach.resolve(folder + locations.size()).toString();
             }
 
         } catch (IOException e) {
             log.error("Error while creating target directory ", e);
         }
+        return var;
+    }
+
+    private boolean isCompleteimport() {
+        if (locations.size() == 1) {
+            for (Map.Entry<String, String> location : locations.entrySet()) {
+                if (location.getKey() == null || location.getKey() == "") {
+                    return true;
+                }
+            }
+        }
+        return false;
+
     }
 
     private void cloneRepository(String url, String branch, Path targetPath) {
@@ -98,7 +117,6 @@ public class RepositoryManager {
         }
     }
 
-
     /**
      * Check and clone a repository from its url if the repository has already been checked-out
      * 
@@ -108,21 +126,16 @@ public class RepositoryManager {
      */
     private void cloneRepositoryWithCheck(String url, Path targetPath) {
         Git result;
-        if (!Files.exists(targetPath)) {
-            log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
+        log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
+        try {
+            result = Git.cloneRepository().setURI(url).setDirectory(targetPath.toFile()).call();
             try {
-                result = Git.cloneRepository().setURI(url).setDirectory(targetPath.toFile()).call();
-                try {
-                    log.info("Cloned: " + result.getRepository().getDirectory());
-                } finally {
-                    result.close();
-                }
-            } catch (GitAPIException e) {
-                log.error("Failed to clone git repository.", e);
+                log.info("Cloned: " + result.getRepository().getDirectory());
+            } finally {
+                result.close();
             }
-        } else {
-            log.error("Csar " + targetPath + " have been already cloned from Github");
-            throw new AlreadyExistException("Csar have been already cloned from Github");
+        } catch (GitAPIException e) {
+            log.error("Failed to clone git repository.", e);
         }
     }
 
@@ -136,8 +149,8 @@ public class RepositoryManager {
      * @param locations The sub-folders to zip
      */
     private void zipRepository(Path pathToFetch, Map<String, String> locations) {
-        File file = pathToFetch.toFile();
         for (Entry<String, String> entry : locations.entrySet()) {
+            File file = pathToFetch.resolve(entry.getKey()).toFile();
             try {
                 File[] listFiles = file.listFiles();
                 if (!isArchive(listFiles)) {
@@ -148,8 +161,9 @@ public class RepositoryManager {
                         }
                     }
                 } else {
-                    FileUtil.zip(pathToFetch, pathToFetch.resolve(entry.getKey() + _SUFFIXE));
-                    this.csarsToImport.add(pathToFetch.resolve(entry.getKey() + _SUFFIXE));
+                    Path locatePath=file.toPath();
+                    FileUtil.zip(locatePath,locatePath.resolve(entry.getKey() + _SUFFIXE));
+                    this.csarsToImport.add(locatePath.resolve(entry.getKey() + _SUFFIXE));
                 }
             } catch (IOException e) {
                 log.error("Error while zipping target directory ", e);
@@ -163,9 +177,9 @@ public class RepositoryManager {
      * If the repository is already and archive the folder is zipped directly
      * Else, only the sub-repos containing the Yaml file are zipped.
      * 
-     * @param pathToFetch The path where the parent folder is stored 
+     * @param pathToFetch The path where the parent folder is stored
      */
-    private void zipRepository(Path pathToFetch) {
+    private void zipRepositoryToRoot(Path pathToFetch) {
         File file = pathToFetch.toFile();
         try {
             File[] listFiles = file.listFiles();
@@ -177,8 +191,8 @@ public class RepositoryManager {
                     }
                 }
             } else {
-                FileUtil.zip(pathToFetch, pathToFetch.resolve(splitRepositoryName(file.getName() + _SUFFIXE)));
-                this.csarsToImport.add(pathToFetch.resolve(file.getName() + _SUFFIXE));
+                FileUtil.zip(pathToFetch, pathToFetch.resolve("../" + splitRepositoryName(file.getName() + _SUFFIXE)));
+                this.csarsToImport.add(pathToFetch.resolve("../" + file.getName() + _SUFFIXE));
             }
         } catch (IOException e) {
             log.error("Error while zipping target directory ", e);
@@ -204,11 +218,13 @@ public class RepositoryManager {
 
     /**
      * Retrieve the repository name of an url based on the last "/".
+     * 
      * @param url The url to parse
      * @return The repository name
      */
     private String splitRepositoryName(String url) {
         String[] urlSplit = url.split("/");
-        return url.split("/")[urlSplit.length-1];
+        // return url.split("/")[urlSplit.length - 1];
+        return urlSplit[urlSplit.length - 1];
     }
 }
