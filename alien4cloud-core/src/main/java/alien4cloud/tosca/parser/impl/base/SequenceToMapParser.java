@@ -24,6 +24,8 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the map. */
     private String toscaType;
+    /** If the sequence element mapping node is also the  */
+    private Boolean nodeIsValue;
 
     @Override
     public Map<String, T> parse(Node node, ParsingContextExecution context) {
@@ -34,7 +36,12 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
                 if (elementNode instanceof MappingNode) {
                     MappingNode mappingNode = (MappingNode) elementNode;
                     String key = ((ScalarNode) mappingNode.getValue().get(0).getKeyNode()).getValue();
-                    T value = valueParser.parse(mappingNode, context);
+                    T value;
+                    if (nodeIsValue) {
+                        value = valueParser.parse(mappingNode, context);
+                    } else {
+                        value = valueParser.parse(mappingNode.getValue().get(0).getValueNode(), context);
+                    }
                     sequenceMap.put(key, value);
                 } else {
                     ParserUtils.addTypeError(node, context.getParsingErrors(), toscaType);

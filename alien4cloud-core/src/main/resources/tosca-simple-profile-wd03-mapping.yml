@@ -112,6 +112,8 @@
     type: template_deployment_artifact
 
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+- constraint_list: list # This element must be parsed as a list
+  type: constraint # the elements in the list are constraints
 
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
   description: description
@@ -158,15 +160,18 @@
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
-    list_type: constraint
+    type: constraint_list
+    node_is_value: false
 
 - node_filter_type: alien4cloud.model.components.NodeFilter
   properties:
     sequence_to_map: properties
-    list_type: constraint
+    type: constraint_list
+    node_is_value: false
   capabilities:
     sequence_to_map: capabilities
     type: filter_definition
+    node_is_value: false
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
