@@ -241,6 +241,17 @@ public class ESGenericSearchDAO extends ESGenericIdDAO implements IGenericSearch
         return toGetMultipleDataResult(clazz, searchResponse, 0);
     }
 
+    @Override
+    public GetMultipleDataResult<Object> searchQueryString(String[] searchIndices, Class<?> clazz, String searchQueryString, Map<String, String[]> filters,
+            int maxElements) {
+        // allow wildcard usage ? and will handle the searchQueryString as it is (with * / OR / AND...)
+        QueryBuilder query = QueryBuilders.queryString(searchQueryString).analyzeWildcard(true);
+        String[] types = getTypesFromClass(clazz);
+        SearchResponse response = getClient().prepareSearch(searchIndices).setTypes(types).setSearchType(SearchType.DFS_QUERY_THEN_FETCH).setQuery(query)
+                .setFrom(0).setSize(maxElements).setExplain(true).execute().actionGet();
+        return toGetMultipleDataResult(Object.class, response, 0);
+    }
+
     /**
      * Convert a SearchResponse into a {@link GetMultipleDataResult} including json deserialization.
      *
