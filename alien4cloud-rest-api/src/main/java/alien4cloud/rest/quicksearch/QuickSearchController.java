@@ -85,9 +85,8 @@ public class QuickSearchController {
         Class<?> className = classes.iterator().next();
         // by default search in _all field
         String query = requestObject.getQuery() == null ? "" : "*" + requestObject.getQuery().trim() + "*";
-        GetMultipleDataResult searchResult = null;
         // make a specific queryString search
-        searchResult = alienDAO.searchQueryString(indices, className, query, filters, requestObject.getSize());
+        GetMultipleDataResult searchResult = alienDAO.searchQueryString(indices, className, query, filters, requestObject.getSize());
         return searchResult;
     }
 }
