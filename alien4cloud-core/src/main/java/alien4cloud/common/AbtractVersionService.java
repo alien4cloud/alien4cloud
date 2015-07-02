@@ -12,6 +12,8 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
+import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.Topology;
@@ -81,11 +83,34 @@ public abstract class AbtractVersionService<V extends AbstractTopologyVersion> {
         }
         topology.setDelegateId(delegateId);
         topology.setDelegateType(getDelegateClass().getSimpleName().toLowerCase());
+        // first of all, if the new version is a release, we have to ensure that all dependencies are released
+        if (!VersionUtil.isSnapshot(version)) {
+            checkTopologyReleasable(topology);
+        }
+
         alienDAO.save(topology);
 
         appVersion.setTopologyId(topology.getId());
         alienDAO.save(appVersion);
         return appVersion;
+    }
+
+    /**
+     * Check that the topology can be associated to a release version, actually : check that the topology doesn't reference SNAPSHOT
+     * dependencies.
+     * 
+     * @throws a @{@link ReleaseReferencingSnapshotException} if the topology references SNAPSHOT dependencies
+     *             version.
+     */
+    public void checkTopologyReleasable(Topology topology) {
+        if (topology.getDependencies() != null) {
+            for (CSARDependency dep : topology.getDependencies()) {
+                // we allow SNAPSHOTS only for tosca-normative-types (we don't expect to have a release soon !)
+                if (VersionUtil.isSnapshot(dep.getVersion()) && !dep.getName().equals("tosca-normative-types")) {
+                    throw new ReleaseReferencingSnapshotException(String.format("Can not release: %s dependency is a snapshot", dep.getName()));
+                }
+            }
+        }
     }
 
     /**

@@ -488,7 +488,7 @@
         "TYPE": "Type",
         "INPUTS": "Input artifacts",
         "ADDINPUT": "Define artifact as input"
-      }, 
+      },
       "SUBSTITUTIONS": {
         "TITLE": "Substitutions",
         "TYPE": "Type",
@@ -800,6 +800,7 @@
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
     "650": "At least two of your Compute have a conflict name.",
+    "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
@@ -820,7 +821,9 @@
     },
     "807": "Only the topology of a SNAPSHOT version can be modified",
     "808": "The name doesn't respect the expected pattern",
-    "820": "Cyclic reference : a topology template can not reference itself !"
+    "820": "Cyclic reference : a topology template can not reference itself !",
+    "830": "A released version can not reference SNAPSHOT dependencies",
+    "831": "This version can not be renamed since it's already used elsewhere"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

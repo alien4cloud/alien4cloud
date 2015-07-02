@@ -290,3 +290,42 @@ Scenario: Topology composition with interaction
     # the mysql should be connected to the compute
     And The SPEL expression "topology.nodeTemplates['myLAMP_DB_MyMysql'].relationships.^[value.type == 'tosca.relationships.HostedOn'].values().iterator().next().target" should return "myLAMP_WWW_MyCompute"
         
+Scenario: Cyclic reference
+# When a topology template is exposed as a type, we forbid the use of this type in the same topology template
+# (since it will cause endless recursive calls). Here we test this limitation.
+    Given I expose the template as type "tosca.nodes.Root"
+    Then I should receive a RestResponse with no error
+    When I add a node template "MyCompute" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
+    Then I should receive a RestResponse with an error code 820
+    
+Scenario: Indirect cyclic reference
+# Scenario:
+# - net.sample.LAMP is exposed as a type
+# - I cretae a template net.sample.LAMP2 that uses the type net.sample.LAMP and is exposed itself as a type
+# - I try to add a node of type net.sample.LAMP2 in the topo net.sample.LAMP
+# This is not allowed since it cause cyclic reference (LAMP -> LAMP2 -> LAMP)
+    Given I expose the template as type "tosca.nodes.Root"
+    Then I should receive a RestResponse with no error
+    Given I create a new topology template with name "net.sample.LAMP2" and description "A Linux Apache Mysql PHP stack as a embedable topology template"
+    And I should receive a RestResponse with no error
+    And The RestResponse should contain a topology template id
+    And I can get and register the topology for the last version of the registered topology template
+    And I add a node template "Lamp" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type    
+    And I expose the template as type "tosca.nodes.Root"
+    When If I search for topology templates I can find one with the name "net.sample.LAMP" version "0.1.0-SNAPSHOT" and store the related topology as a SPEL context
+    And I add a node template "Lamp2" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type    
+    Then I should receive a RestResponse with an error code 820
+    
+Scenario: Delete referenced topology template
+# A topology template that is exposed as a type and used in another topology can not be deleted
+    Given I expose the template as type "tosca.nodes.Root"
+    And I create a new topology template version named "0.2.0-SNAPSHOT" based on the current version
+    And I create a new application with name "myWebapp" and description "A webapp that use an embeded topology."
+    And I add a node template "myLAMP" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
+    When I delete the topology template named "net.sample.LAMP"
+    Then I should receive a RestResponse with an error code 507
+    When I delete the topology template named "net.sample.LAMP" version "0.1.0-SNAPSHOT"
+    Then I should receive a RestResponse with an error code 507
+    Given I delete the application "myWebapp"
+    When I delete the topology template named "net.sample.LAMP"
+    Then I should receive a RestResponse with no error

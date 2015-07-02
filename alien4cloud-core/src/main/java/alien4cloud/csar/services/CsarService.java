@@ -151,6 +151,10 @@ public class CsarService implements ICsarDependencyLoader {
     }
 
     public void deleteCsar(String csarId) {
+        deleteCsar(csarId, false);
+    }
+
+    public void deleteCsar(String csarId, boolean ignoreSubtisutionTopology) {
         Csar csar = getMandatoryCsar(csarId);
         // a csar that is a dependency of another csar can not be deleted
         if (isDependency(csar.getName(), csar.getVersion())) {
@@ -158,7 +162,7 @@ public class CsarService implements ICsarDependencyLoader {
         }
 
         // here we check that the csar is not a csar created by a topology template (substitution).
-        if (csar.getSubstitutionTopologyId() != null) {
+        if (!ignoreSubtisutionTopology && csar.getSubstitutionTopologyId() != null) {
             String linkedTopologyId = csar.getSubstitutionTopologyId();
             Topology topology = csarDAO.findById(Topology.class, linkedTopologyId);
             if (topology != null) {

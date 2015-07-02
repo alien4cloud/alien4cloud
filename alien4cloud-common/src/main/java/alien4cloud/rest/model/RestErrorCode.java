@@ -64,6 +64,7 @@ public enum RestErrorCode {
 
     // PaaS errors : code 650+
     COMPUTE_CONFLICT_NAME(650),
+    CONFLICT_BETWEEN_DELETABLE_OPTION_AND_VOLUME_ID(651),
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
@@ -85,7 +86,9 @@ public enum RestErrorCode {
     LOWER_BOUND_NOT_SATISFIED(811),
     PROPERTY_DEFINITION_MATCH_ERROR(812),
     //
-    CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR(820);
+    CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR(820),
+    RELEASE_REFERENCING_SNAPSHOT(830),
+    VERSION_USED(831);
 
     private final int code;
 

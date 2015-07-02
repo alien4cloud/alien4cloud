@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedNodeType;
@@ -313,6 +314,26 @@ public class TopologyCompositionService {
                 if (s.getNodeTemplateName().equals(oldName)) {
                     s.setNodeTemplateName(newName);
                 }
+            }
+        }
+    }
+
+    /**
+     * Deeply explore composition in order to detect cyclic reference: if a descendant references the mainTopologyId.
+     */
+    public void recursivelyDetectTopologyCompositionCyclicReference(String mainTopologyId, String substitutionTopologyId) {
+        Topology child = topologyServiceCore.getMandatoryTopology(substitutionTopologyId);
+        if (child == null || child.getNodeTemplates() == null || child.getNodeTemplates().isEmpty()) {
+            return;
+        }
+        for (Entry<String, NodeTemplate> nodeEntry : child.getNodeTemplates().entrySet()) {
+            String type = nodeEntry.getValue().getType();
+            IndexedNodeType nodeType = csarRepoSearchService.getElementInDependencies(IndexedNodeType.class, type, child.getDependencies());
+            if (nodeType.getSubstitutionTopologyId() != null) {
+                if (nodeType.getSubstitutionTopologyId().equals(mainTopologyId)) {
+                    throw new CyclicReferenceException("Cyclic reference : a topology template can not reference itself (even indirectly)");
+                }
+                recursivelyDetectTopologyCompositionCyclicReference(mainTopologyId, nodeType.getSubstitutionTopologyId());
             }
         }
     }
