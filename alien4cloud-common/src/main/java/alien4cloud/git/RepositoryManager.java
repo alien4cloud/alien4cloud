@@ -61,7 +61,7 @@ public class RepositoryManager {
      * @param localDirectory Static path to be resolved with targetDirectory
      */
     public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) {
-        String var = "";
+        String folderToReach = "";
         String cleanUrl;
         try {
             if (repositoryUrl.endsWith(".git")) {
@@ -72,23 +72,23 @@ public class RepositoryManager {
             Files.createDirectories(pathToReach);
             this.locations = branchMap;
             String folder = this.splitRepositoryName(repositoryUrl);
-            if (isCompleteimport()) {
-                cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder + _ALL));
-                var = pathToReach.resolve(folder + _ALL).toString();
+            if (isCompleteImport()) {
+                cloneEntireRepository(repositoryUrl, pathToReach.resolve(folder + _ALL));
+                folderToReach = pathToReach.resolve(folder + _ALL).toString();
                 zipRepositoryToRoot(this.pathToReach.resolve(folder + _ALL));
             } else {
-                cloneRepositoryWithCheck(repositoryUrl, pathToReach.resolve(folder + locations.size()));
+                cloneEntireRepository(repositoryUrl, pathToReach.resolve(folder + locations.size()));
                 zipRepository(pathToReach.resolve(folder + locations.size()), this.getLocations());
-                var = pathToReach.resolve(folder + locations.size()).toString();
+                folderToReach = pathToReach.resolve(folder + locations.size()).toString();
             }
 
         } catch (IOException e) {
             log.error("Error while creating target directory ", e);
         }
-        return var;
+        return folderToReach;
     }
 
-    private boolean isCompleteimport() {
+    private boolean isCompleteImport() {
         if (locations.size() == 1) {
             for (Map.Entry<String, String> location : locations.entrySet()) {
                 if (location.getKey() == null || location.getKey() == "") {
@@ -97,7 +97,6 @@ public class RepositoryManager {
             }
         }
         return false;
-
     }
 
     private void cloneRepository(String url, String branch, Path targetPath) {
@@ -124,7 +123,7 @@ public class RepositoryManager {
      * @param branch Specified branch to clone
      * @param targetPath Path of the folder to checkout the repository
      */
-    private void cloneRepositoryWithCheck(String url, Path targetPath) {
+    private void cloneEntireRepository(String url, Path targetPath) {
         Git result;
         log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
         try {
@@ -161,8 +160,8 @@ public class RepositoryManager {
                         }
                     }
                 } else {
-                    Path locatePath=file.toPath();
-                    FileUtil.zip(locatePath,locatePath.resolve(entry.getKey() + _SUFFIXE));
+                    Path locatePath = file.toPath();
+                    FileUtil.zip(locatePath, locatePath.resolve(entry.getKey() + _SUFFIXE));
                     this.csarsToImport.add(locatePath.resolve(entry.getKey() + _SUFFIXE));
                 }
             } catch (IOException e) {
@@ -224,7 +223,6 @@ public class RepositoryManager {
      */
     private String splitRepositoryName(String url) {
         String[] urlSplit = url.split("/");
-        // return url.split("/")[urlSplit.length - 1];
         return urlSplit[urlSplit.length - 1];
     }
 }

@@ -121,13 +121,11 @@ public class CsarGitController {
     @Audit
     public RestResponse<String> create(@Valid @RequestBody CreateCsarGithubRequest request) {
         CsarGitRepository csargit = csarGithubService.getCsargitByUrl(request.getRepositoryUrl());
-      
         if (csargit != null) {
             if(request.getRepositoryUrl().equals(csargit.getRepositoryUrl())){
                 return RestResponseBuilder.<String> builder()
                         .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("An existing CSAR with the same url and repository already exists").build())
                         .build();
-                
             }
         }
         String csarId = csarGithubService.createGithubCsar(request.getRepositoryUrl(), request.getUsername(), request.getPassword(),

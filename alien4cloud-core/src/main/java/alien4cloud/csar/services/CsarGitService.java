@@ -229,7 +229,7 @@ public class CsarGitService {
      * @return True is the pattern match the parameter with the regex, else false
      */
     public boolean paramIsUrl(String data) {
-        String regex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        String regex = "^(https?|git|http)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         Pattern urlPattern = Pattern.compile(regex);
         Matcher m = urlPattern.matcher(data);
         return m.matches();

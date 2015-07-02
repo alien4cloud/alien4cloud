@@ -16,11 +16,6 @@ define(function (require) {
 
   modules.get('a4c-components', ['ui.router', 'ui.bootstrap', 'a4c-deployment']).controller(
     'CsarDetailsCtrl', ['$scope', '$stateParams', '$state', 'csarService', 'deploymentServices', 'webSocketServices', '$translate', 'toaster',
-    function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
-      if ($stateParams.csarId === 'list') {
-        $state.go('components.csars.list');
-      }
-
       /* Retrieve CSAR to display */
       $scope.csarId = $stateParams.csarId;
       $scope.refreshDetails = function() {

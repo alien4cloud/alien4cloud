@@ -33,8 +33,8 @@ define(function (require) {
       $scope.csarGitTemplate = {};
       $scope.create = function(csarGit) {
 
-        var locations=$scope.importLocation;
-        var csargitDTO ={
+      var locations = $scope.importLocation;
+      var csargitDTO = {
           'username': 'empty',
           'password': 'empty',
           'repositoryUrl': csarGit.url,
@@ -43,7 +43,6 @@ define(function (require) {
         $modalInstance.close(csargitDTO);
       };
 
-
       $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
         $scope.id=0;
@@ -51,13 +50,11 @@ define(function (require) {
 
       var removeIfLocationExists=function(location){
         for (var i=0;i<$scope.importLocation.length;i++) {
-          //if ($scope.importLocation[i].hasOwnProperty(location)) {
-            var loc = $scope.importLocation[i];
-              if (loc.subPath === location.subPath && loc.branchId === location.branchId) {
-                $scope.importLocation.splice(i, 1);
-                return;
-              }
-        //  }
+          var loc = $scope.importLocation[i];
+            if (loc.subPath === location.subPath && loc.branchId === location.branchId) {
+              $scope.importLocation.splice(i, 1);
+              return;
+            }
         }
       };
 
@@ -79,8 +76,8 @@ define(function (require) {
   ];
 
   /* Main CSAR search controller */
-  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', 'csarGitService', '$translate', 'toaster','$window',
-   function($scope, $modal, $state, csarService, csarGitService, $translate, toaster,window) {
+  modules.get('a4c-components', ['ui.router', 'ui.bootstrap']).controller('CsarListCtrl', ['$scope', '$modal', '$state', 'csarService', 'csarGitService', '$translate', 'toaster',
+   function($scope, $modal, $state, csarService, csarGitService, $translate, toaster) {
       $scope.search = function() {
         var searchRequestObject = {
           'query': $scope.query,
@@ -156,22 +153,6 @@ define(function (require) {
       }
 
       $scope.triggerImportAllCsarGit = function(data) {
-        $scope.isImportingAll=true;
-        if (data.length > 0) {
-          for (var i=0; i<data.length; i++) {
-            csarGitService.fetch({
-              id: data[i].id
-            }, angular.toJson(data[i].id), function(result) {
-              $scope.buildParsingErrorToast(result);
-              $scope.isImportingAll=false;
-           });
-           $scope.search();
-          }
-        }
-      };
-
-      $scope.triggerImportAllCsarGit2 = function(data) {
-        $scope.isImportingAll=true;
         if (data.length > 0) {
           for (var i=0; i<data.length; i++) {
             $scope.triggerImport(data[i].id);
@@ -180,7 +161,6 @@ define(function (require) {
         else{
           var titleError = $translate('CSAR.ERRORS.NO_DATA.HEADER');
           var bodyError=$translate('CSAR.ERRORS.NO_DATA.BODY')
-          $scope.isImportingAll=false;
           toaster.pop('note', titleError, bodyError, 4000, 'trustedHtml',null);
         }
       };
@@ -212,30 +192,6 @@ define(function (require) {
           $scope.searchCsarsGit();
         });
       };
-
-
-      $scope.addTextFields=function(){
-
-
-      }
-    // $scope.addTextField=  function() {
-    //      var d = document.getElementById('importLocations');
-    //      var text = document.createElement('form');
-    //     // text.style.cssText='class: col-lg-8';
-    //      text.style.cssText ='class: col-lg-8 ;'
-    //      console.log($scope.id);
-    //      var text2 = document.createElement('form');
-    //      text.id = $scope.id++;
-    //      text2.id = text.id;
-    //      var placeHolder= $translate('CSAR.ARCHIVEPATH');
-    //      var placeHolder2= $translate('CSAR.BRANCHE');
-    //      var body=document.createElement('label');
-    //      text.innerHTML = "<div class='form-group'><label for='archive_id' class='col-lg-2 control-label'>"+placeHolder+" </label><div class='col-lg-8'><input type='text' class='form-control' id='archive_id' ng-model='csarGit.branchId_"+$scope.id+"' name='archive'  placeholder='"+placeHolder+"'></div></div>";
-    //      text2.innerHTML = "<div class='form-group' ng-class='{'has-error': newCsarGit.branchId.$invalid}'><label for='branche_id' class='col-lg-2 control-label'>  Branche </label><div class='col-lg-10' ><input type='text' class='form-control'  id='branchId' ng-model='csarGit.branchId_"+$scope.id+"' name='branchId' placeholder='"+placeHolder2+"'></div>";
-    //      d.appendChild(text);
-    //      d.appendChild(text2);
-    //
-    //   }
 
       $scope.openNewCsarGitTemplate = function() {
         var modalInstance = $modal.open({

@@ -75,9 +75,8 @@
           <button class="btn btn-success ng-binding" id="MODAL_NEWCSAR  " ng-click="openNewCsarGitTemplate()">
             <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
           </button>
-
-          <button  style="margin-top: 10px;" class="btn ng-binding"  id="IMPORT_CSARGIT"  ng-disabled="isImportingAll" ng-click="triggerImportAllCsarGit2(csarGitSearchResult.data.data)">
-            <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImportingAll, 'fa-spinner fa-spin': isImportingAll}"> </i>  {{'CSAR.IMPORTALL' | translate}}
+          <button  style="margin-top: 10px;" class="btn ng-binding"  id="IMPORT_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
+            <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"> </i>  {{'CSAR.IMPORTALL' | translate}}
           </button>
         </div>
       </div>
@@ -171,67 +170,60 @@
   </script>
 
   <script type="text/ng-template" id="newCsarGit.html">
-    <form name="newCsarGit" class="form-horizontal" role="form" novalidate>
-      <div class="modal-header">
-        <h3>{{'CSAR.MODAL_NEWCSAR' | translate}}</h3>
-      </div>
-      <div class="modal-body" >
-
-<div align="center">
-      <div class="form-group"  ng-class="{'has-error': newCsarGit.url.$invalid}">
-            <label for="name_id" class="control-label">
+    <form name="newCsarGit" class="form" role="form" novalidate>
+        <div class="modal-header">
+          <h3>{{'CSAR.MODAL_NEWCSAR' | translate}}</h3>
+        </div>
+        <div class="modal-body" >
+          <div class="form-group" >
+            <label for="csargit_url" class="control-label">
               {{'CSAR.URL' | translate}}
             </label>
-            <input type="text" class="form-control" id="csargit_url" ng-model="csarGit.url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}"
+            <input type="url" class="form-control"  id="csargit_url" ng-model="csarGit.url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}"
+          </div>
+            <div class="form-group">
+              <table class="table table-condensed" style="width: auto;margin-top:15px;" align="center">
+                <thead>
+                  <tr>
+                    <th data-field="archiveName">{{'CSAR.ARCHIVE_TO_IMPORT' | translate}}</th>
+                    <th data-field="branchName">{{'CSAR.BRANCHE_TO_IMPORT' | translate}}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="location in importLocation track by $index">
+                    <td >
+                      <span>
+                        <strong>{{location.subPath || '*'}}</strong>
+                      </span>
+                    </td>
+                    <td >
+                      <span>
+                      <strong>{{location.branchId}}</strong>
+                      </span>
+                    </td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="text" class="form-control" id="archive_id" ng-model="location.subPath" name="subPath"  placeholder="{{'CSAR.ARCHIVE' | translate}}">
+                    </td>
+                    <td>
+                      <input type="text"class="form-control" id="branchId" ng-model="location.branchId" name="branchId" placeholder="{{'CSAR.BRANCHE' | translate}}"></input>
+                    </td>
+                    <td>
+                      <button id="btn-createTextField" class="btn btn-info" ng bssize="btn-sm" ng-disabled="!csarGit.url || !location.branchId" ng-click="addLocation(location)">
+                        <i class="fa fa-plus-circle fa-lg"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <div class="modal-footer">
+          <button id="btn-create" ng-disabled="!csarGit.url || !importLocation" ng-click="create(csarGit)" class="btn btn-primary">{{'CREATE' | translate}}</button>
+          <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
         </div>
-      </div>
-        <div class="form-group">
-        <table class="table table-condensed" style="width: auto;margin-top:20px;" align="center">
-        <thead>
-          <tr>
-              <th data-field="archiveName">Nom archive</th>
-              <th data-field="branchName">Branche</th>
-              <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="location in importLocation track by $index">
-            <td >
-              <span>
-                <strong>{{location.subPath || '*'}}</strong>
-              </span>
-            </td>
-            <td >
-              <span>
-              <strong>{{location.branchId}}</strong>
-              </span>
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-
-          </tr>
-
-          <tr>
-            <td ng-class="{'has-error': newCsarGit.subPath.$invalid}">
-              <input type="text" class="form-control" id="archive_id" ng-model="location.subPath" name="subPath"  placeholder="{{'CSAR.ARCHIVEPATH' | translate}}">
-            </td>
-            <td  ng-class="{'has-error': newCsarGit.branchId.$invalid}">
-              <input type="text"class="form-control" id="branchId" ng-model="location.branchId" name="branchId" placeholder="{{'CSAR.BRANCHE' | translate}}"></input>
-            </td>
-            <td>
-              <button id="btn-createTextField" class="btn btn-info" ng bssize="btn-sm" ng-disabled="d" ng-click="addLocation(location)">
-                <i class="fa fa-plus-circle fa-lg"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-        </table>
-        </div>
-      </div>
-    <div class="modal-footer">
-      <button id="btn-create" ng-disabled="newCsarGit.$invalid" ng-click="create(csarGit)" class="btn btn-primary">{{'CREATE' | translate}}</button>
-      <button id="btn-cancel" type="button" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
-    </div>
-  </form>
+      </form>
   </script>
