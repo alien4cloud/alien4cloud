@@ -229,7 +229,7 @@ define(function (require) {
         cloudServices.refresh({
           id: $scope.cloud.id
         }, function(response) {
-          $scope.refreshPending = true;
+          $scope.refreshPending = false;
           if (response.data) {
             handleCloudResponse(response);
           } else {
@@ -237,7 +237,7 @@ define(function (require) {
             toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
           }
         }, function(response) {
-          $scope.refreshPending = true;
+          $scope.refreshPending = false;
           toaster.pop('error', $translate('CLOUDS.ERRORS.REFRESHING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.REFRESHING_FAILED'), 4000, 'trustedHtml', null);
         });
       };
