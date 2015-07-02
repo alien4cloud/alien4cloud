@@ -94,4 +94,12 @@ public class Topology implements IManagedSecuredResource {
 
     private Map<String, NodeGroup> groups;
 
+    /**
+     * Return true if the topology is an empty topology (won't be saved on import).
+     * 
+     * @return True if the topology is empty (doesn't contains any node).
+     */
+    public boolean isEmpty() {
+        return nodeTemplates == null || nodeTemplates.isEmpty();
+    }
 }

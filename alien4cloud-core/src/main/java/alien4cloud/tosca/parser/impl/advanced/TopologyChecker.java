@@ -45,7 +45,7 @@ public class TopologyChecker implements IChecker<Topology> {
     @Override
     public void before(ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-        
+
         // we need that node types inherited stuffs have to be merged before we start parsing node templates and requirements
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getCapabilityTypes(), archiveRoot);
@@ -55,6 +55,12 @@ public class TopologyChecker implements IChecker<Topology> {
 
     @Override
     public void check(Topology instance, ParsingContextExecution context, Node node) {
+        if (instance.isEmpty()) {
+            // if the topology doesn't contains any node template it won't be imported so add a warning.
+            context.getParsingErrors().add(
+                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
+        }
+
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
 
         Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());

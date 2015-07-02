@@ -44,7 +44,7 @@ public final class IndexedModelUtils {
             IndexedInheritableToscaElement parent = element;
             int levelCount = 0;
             while (true) {
-                if (parent.getDerivedFrom() == null) {
+                if (parent.getDerivedFrom() == null || parent.getDerivedFrom().isEmpty()) {
                     break;
                 }
                 IndexedInheritableToscaElement oldParent = parent;

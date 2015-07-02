@@ -399,8 +399,9 @@ public class ToscaParserSimpleProfileWd03Test {
         Mockito.when(
                 repositorySearchService.getElementInDependencies(Mockito.eq(IndexedNodeType.class), Mockito.eq("tosca.nodes.Compute"), Mockito.any(List.class)))
                 .thenReturn(mockedResult);
+        Mockito.when(mockedResult.getId()).thenReturn("tosca.nodes.Compute:1.0.0-SNAPSHOT-wd03");
 
-        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-inputs.yml"));
+        ParsingResult < ArchiveRoot > parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-inputs.yml"));
 
         Mockito.verify(csarService).getIfExists(csar.getName(), csar.getVersion());
 
@@ -561,22 +562,43 @@ public class ToscaParserSimpleProfileWd03Test {
 
         NodeFilter nodeFilter = requirementHost.getNodeFilter();
         Map<String, List<PropertyConstraint>> properties = nodeFilter.getProperties();
-        Assert.assertEquals(1, properties.size());
+        Assert.assertEquals(3, properties.size());
         Map<String, FilterDefinition> capabilities = nodeFilter.getCapabilities();
         Assert.assertEquals(2, capabilities.size());
 
         // check constraints on properties & capabilities
         Assert.assertTrue(properties.containsKey("os_type"));
-        List<PropertyConstraint> osTypeConstraints = properties.get("os_type");
-        Assert.assertEquals(1, osTypeConstraints.size());
+        List<PropertyConstraint> constraints = properties.get("os_type");
+        Assert.assertEquals(1, constraints.size());
+
+        Assert.assertTrue(properties.containsKey("os_mix"));
+        constraints = properties.get("os_mix");
+        Assert.assertEquals(2, constraints.size());
+
+        Assert.assertTrue(properties.containsKey("os_arch"));
+        constraints = properties.get("os_arch");
+        Assert.assertEquals(2, constraints.size());
 
         Assert.assertTrue(capabilities.containsKey("host"));
-        Map<String, List<PropertyConstraint>> listHostCapaConstraint = capabilities.get("host").getProperties();
-        Assert.assertEquals(2, listHostCapaConstraint.size());
+        properties = capabilities.get("host").getProperties();
+        Assert.assertEquals(2, properties.size());
+
+        Assert.assertTrue(properties.containsKey("num_cpus"));
+        constraints = properties.get("num_cpus");
+        Assert.assertEquals(1, constraints.size());
+        Assert.assertTrue(properties.containsKey("mem_size"));
+        constraints = properties.get("mem_size");
+        Assert.assertEquals(1, constraints.size());
 
         Assert.assertTrue(capabilities.containsKey("mytypes.capabilities.compute.encryption"));
-        Map<String, List<PropertyConstraint>> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
-        Assert.assertEquals(2, listTypeCapaConstraint.size());
+        properties = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
+        Assert.assertEquals(2, properties.size());
+        Assert.assertTrue(properties.containsKey("algorithm"));
+        constraints = properties.get("algorithm");
+        Assert.assertEquals(1, constraints.size());
+        Assert.assertTrue(properties.containsKey("keylength"));
+        constraints = properties.get("keylength");
+        Assert.assertEquals(2, constraints.size());
     }
 
     public static void assertNoBlocker(ParsingResult<?> parsingResult) {
