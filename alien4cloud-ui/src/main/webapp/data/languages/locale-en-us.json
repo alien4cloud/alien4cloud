@@ -821,7 +821,9 @@
     },
     "807": "Only the topology of a SNAPSHOT version can be modified",
     "808": "The name doesn't respect the expected pattern",
-    "820": "Cyclic reference : a topology template can not reference itself !"
+    "820": "Cyclic reference : a topology template can not reference itself !",
+    "830": "A released version can not reference SNAPSHOT dependencies",
+    "831": "This version can not be renamed since it's already used elsewhere"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",

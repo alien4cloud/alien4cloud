@@ -825,7 +825,9 @@
     },
     "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
     "808": "Le nom ne respecte pas le format attendu",
-    "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer"
+    "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer",
+    "830": "Une version releasée ne peut référencer des dépendances SNAPSHOT",
+    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

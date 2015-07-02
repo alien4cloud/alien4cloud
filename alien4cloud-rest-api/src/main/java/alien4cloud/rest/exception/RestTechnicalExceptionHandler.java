@@ -29,7 +29,9 @@ import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.exception.VersionConflictException;
+import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
@@ -89,6 +91,14 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
     }
 
+    @ExceptionHandler(VersionRenameNotPossibleException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(VersionRenameNotPossibleException e) {
+        log.error("Version is still referenced and cannot be renamed", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_USED).message(e.getMessage()).build()).build();
+    }
+
     @ExceptionHandler(CyclicReferenceException.class)
     @ResponseStatus(HttpStatus.LOOP_DETECTED)
     @ResponseBody
@@ -96,6 +106,15 @@ public class RestTechnicalExceptionHandler {
         log.error("A node type that references a topology can not be added in this topology", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(ReleaseReferencingSnapshotException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(ReleaseReferencingSnapshotException e) {
+        log.error("Can no release this version since it references SNAPSHOTs", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.RELEASE_REFERENCING_SNAPSHOT).message(e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)
