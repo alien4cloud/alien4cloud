@@ -204,7 +204,7 @@ public class TopologyController {
      * @param topologyId The id of the topology in which the node template to update lies.
      * @param nodeTemplateName The name of the node template to update.
      * @param newNodeTemplateName The new name for the node template.
-     * @return {@link RestResponse}<{@link Void}> an response with no data and no error if successful.
+     * @return {@link RestResponse}<{@link TopologyDTO}> an response with no data and no error if successful.
      */
     @ApiOperation(value = "Change the name of a node template in a topology.", notes = "Returns a response with no errors in case of success. Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/updateName/{newNodeTemplateName}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)

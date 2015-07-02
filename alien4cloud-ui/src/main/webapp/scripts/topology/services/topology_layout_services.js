@@ -41,10 +41,12 @@ define(function (require) {
             addNode: function(node) {
               this.nodes.push(node);
               this.nodeMap[node.id] = node;
+              node.isRoot = false;
             }
           };
           for (var i = 0; i < tree.children.length; i++) {
             this.addNodeToGraph(graph, tree.children[i]);
+            tree.children[i].isRoot = true;
           }
           return graph;
         },

@@ -155,17 +155,17 @@ define(function (require) {
           if(_.defined(nodeTemplate.groups)) {
             var gIdx = 1;
             // group square width is calculated using the node width (1/15)
-            var gW = this.width / 15;
+            var gW = node.bbox.width() / 15;
             if (nodeTemplate.groups.length > 10) {
               // reduce the size of bullets when too many groups
-              gW = this.width / (nodeTemplate.groups.length + 10);
+              gW = node.bbox.width() / (nodeTemplate.groups.length + 10);
             }
             // group square height is calculated using the node height (about 1/2)
-            var gH = this.height / 2.5;
+            var gH = node.bbox.height() / 2.5;
             // the group y is near the 2/3 of the height of the node
-            var gY = oY + (2.2 * this.height / 3);
+            var gY = 2.2 * node.bbox.height() / 3;
             // the end of the node square
-            var nodeEndX = this.width - (gW / 2);
+            var nodeEndX = node.bbox.width() - (gW / 2);
             angular.forEach(nodeTemplate.groups, function(value, key) {
               // let's place the group square regarding it's index and applying a 0.2 margin
               var gX = nodeEndX - (gIdx * 1.2 * gW);

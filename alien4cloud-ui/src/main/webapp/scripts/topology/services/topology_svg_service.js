@@ -13,9 +13,10 @@ define(function (require) {
   require('scripts/tosca/services/tosca_service');
 
   require('scripts/topology/services/topology_layout_services');
+  require('scripts/topology/services/connector_drag_service');
 
-  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'relationshipMatchingService',
-    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, relationshipMatchingService) {
+  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'relationshipMatchingService', 'connectorDragFactoryService',
+    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, relationshipMatchingService, connectorDragFactoryService) {
       function TopologySvg (callbacks, containerElement, isRuntime, nodeRenderer) {
         this.isGridDisplayed = false;
         this.firstRender = true;
@@ -36,83 +37,8 @@ define(function (require) {
         });
         this.svg.call(this.tip);
 
-        var selectedTarget;
-        var mouseCoordinate;
         // capabilities drag and drop manager
-        this.connectorDrag = d3.behavior.drag()
-          .on("dragstart", function(element) {
-            relationshipMatchingService.getTargets(element.node.id, element.template, element.id, self.topology.topology.nodeTemplates,
-              self.topology.nodeTypes, self.topology.relationshipTypes, self.topology.capabilityTypes, self.topology.topology.dependencies).then(function(result) {
-              var connectTargets = [];
-              // TODO if drag & drop is still active
-              _.each(result.targets, function(target) {
-                var targetNode = self.layout.nodeMap[target.template.name];
-                _.each(target.capabilities, function(targetCapabilityInfo){
-                  var targetCapability = targetNode.capabilitiesMap[targetCapabilityInfo.id];
-                  if(_.defined(targetCapability)) {
-                    // add a drop target
-                    connectTargets.push({
-                      id: targetNode.id + '.' + targetCapability.id,
-                      target: targetCapability,
-                      relationship: result.relationshipType
-                    });
-                  }
-                });
-              });
-              //
-              var targetSelection = self.svg.selectAll(".connectorTarget").data(connectTargets);
-              targetSelection.enter().append("circle")
-                .attr("cx", function(d){ return d.target.coordinate.x })
-                .attr("cy", function(d){ return d.target.coordinate.y })
-                .attr("r", 10)
-                .attr('class', 'connectorTarget')
-                .attr('pointer-events', 'mouseover')
-                .on("mouseover", function(node) { selectedTarget = node; })
-                .on("mouseout", function(node) { selectedTarget = null; });
-                selectedTarget
-              targetSelection.exit().remove();
-            });
-            mouseCoordinate = {
-              x: element.coordinate.x,
-              y: element.coordinate.y
-            };
-
-            // find relationship valid targets
-            d3.event.sourceEvent.stopPropagation();
-          }).on("drag", function(element) {
-            var data = [];
-            mouseCoordinate.x += d3.event.dx;
-            mouseCoordinate.y += d3.event.dy;
-            data = [{
-                source: {
-                    x: element.coordinate.x,
-                    y: element.coordinate.y
-                },
-                target: mouseCoordinate
-            }];
-            var link = self.svg.selectAll('.connectorlink').data(data);
-            link.enter().append('path')
-                .attr('class', 'connectorlink')
-                .attr('d', d3.svg.diagonal())
-                .attr('pointer-events', 'none');
-            link.attr('d', d3.svg.diagonal());
-            link.exit().remove();
-          }).on("dragend", function(element) {
-            // remove all drag line and drag targets
-            self.svg.selectAll(".connectorTarget").data([]).exit().remove();
-            self.svg.selectAll(".connectorlink").data([]).exit().remove();
-            if(_.defined(selectedTarget)) {
-              var target = selectedTarget.target;
-              callbacks.addRelationship({
-                sourceId: element.node.id,
-                requirementName: element.id,
-                requirementType: element.template.type,
-                targetId: target.node.id,
-                capabilityName: target.id,
-                relationship: selectedTarget.relationship
-              });
-            }
-          });
+        this.connectorDrag = connectorDragFactoryService.create(this);
       }
 
       TopologySvg.prototype = {

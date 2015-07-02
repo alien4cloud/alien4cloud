@@ -1338,8 +1338,9 @@ define(function (require) {
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
           // generate relationship name
           // var name = 'editorCreatedRelationship';
+          var name = toscaService.generateRelationshipName(relationship.elementId, targetId);
           doAddRelationship(sourceId, {
-            name: 'editorCreatedRelationship',
+            name: name,
             target: targetId,
             targetedCapabilityName: capabilityName,
             relationship: relationship
