@@ -15,4 +15,7 @@ import lombok.Setter;
 public class RequirementsTask extends TopologyTask {
     // list of requirements for which to satisfy lowerbound
     private List<RequirementToSatify> requirementsToImplement;
+
+    // list of node filter
+    private List<NodeFilterToSatify> nodeFiltersToSatisty;
 }
