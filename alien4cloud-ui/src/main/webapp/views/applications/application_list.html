@@ -65,9 +65,9 @@
         <div class="form-group" ng-show="templates">
           <label for="templateid" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
           <div class="col-lg-9">
-            <select class="form-control" id="templateid">
-              <option value="" ng-click="templateSelected(undefined)">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}</option>
-              <option value="{{t.id}}" ng-repeat="t in templates" ng-click="templateSelected(t)">{{t.name}}</option>
+            <select class="form-control" id="templateid" ng-model="selectedTemplateId" ng-change="templateSelected(selectedTemplateId)">
+              <option value="">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_SELECT' | translate}}</option>
+              <option value="{{t.id}}" ng-repeat="t in templates">{{t.name}}</option>
             </select>
           </div>
         </div>
@@ -75,7 +75,7 @@
           <label for="templateid" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.DESC_TEMPLATE' | translate}}</label>
           <p class="col-lg-9">{{selectedTopologyTemplate.description}}</p>
         </div>
-        <div class="form-group" ng-show="templateVersions"">
+        <div class="form-group" ng-show="templateVersions">
           <label for="templateVersionId" class="col-lg-3 control-label">{{'APPLICATIONS.TOPOLOGY.TEMPLATE_BASE' | translate}}</label>
           <div class="col-lg-9">
             <select class="form-control" id="templateVersionId" ng-model="selectedTopologyTemplateVersion" ng-options="tv.version for tv in templateVersions" placeholder="{{'APPLICATIONS.DESC' | translate}}">
@@ -85,7 +85,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button id="btn-create" ng-disabled="newApplication.name.$invalid" class="btn btn-primary">{{'CREATE' | translate}}</button>
+        <button id="btn-create" ng-disabled="newApplication.name.$invalid || (selectedTopologyTemplate && !selectedTopologyTemplateVersion)" class="btn btn-primary">{{'CREATE' | translate}}</button>
         <button id="btn-cancel" class="btn btn-default" ng-click="cancel()">{{'CANCEL' | translate}}</button>
       </div>
     </form>

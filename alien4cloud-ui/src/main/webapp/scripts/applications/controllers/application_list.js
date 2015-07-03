@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   var d3Tip = require('d3-tip');
   var d3 = require('d3');
@@ -90,12 +91,21 @@ define(function (require) {
         });      
       };
       
-      $scope.templateSelected = function(selectedTemplate) {
+      $scope.templateSelected = function(selectedTemplateId) {
         $scope.templateVersions = undefined;
         $scope.selectedTopologyTemplateVersion = undefined;
-        $scope.selectedTopologyTemplate = selectedTemplate;
-        if (selectedTemplate) {
-          $scope.loadTopologyTemplateVersions(selectedTemplate.id);      
+        
+        if (selectedTemplateId == "") {
+          $scope.selectedTopologyTemplate = undefined;
+        } else {
+          _.each($scope.templates, function(t) {
+            if (t.id === selectedTemplateId) {
+              $scope.selectedTopologyTemplate = t;
+            }
+          });
+        }
+        if ($scope.selectedTopologyTemplate) {
+          $scope.loadTopologyTemplateVersions($scope.selectedTopologyTemplate.id);      
         }
       };
       
