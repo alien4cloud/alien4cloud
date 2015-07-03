@@ -43,6 +43,7 @@ import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -299,18 +300,33 @@ public class DeploymentService {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public void scale(String applicationEnvironmentId, String nodeTemplateId, int instances) throws CloudDisabledException {
+    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances) throws CloudDisabledException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
-        Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
-        int initialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
-        TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, initialInstances + instances, capability);
+        final Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
+        final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
+        final int previousInitialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
+        final int newInitialInstances = previousInitialInstances + instances;
+        log.info("Scaling <{}> node from <{}> to <{}>. Updating runtime topology...", nodeTemplateId, previousInitialInstances, newInitialInstances);
+        TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, newInitialInstances, capability);
         alienMonitorDao.save(topology);
-        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances + instances, instances);
+        log.info("Delegating to the paas provider...");
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback<Void>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.info("Failed to scale <{}> node from <{}> to <{}>. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
+                        previousInitialInstances);
+                TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, previousInitialInstances, capability);
+                alienMonitorDao.save(topology);
+                throw (PaaSDeploymentException) throwable;
+            }
+
+            @Override
+            public void onSuccess(Void data) {
+            }
+        });
     }
 
     public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
