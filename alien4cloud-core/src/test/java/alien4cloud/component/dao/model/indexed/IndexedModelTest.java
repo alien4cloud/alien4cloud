@@ -3,6 +3,8 @@ package alien4cloud.component.dao.model.indexed;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -18,6 +20,8 @@ import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.utils.MapUtil;
 
@@ -203,4 +207,114 @@ public class IndexedModelTest {
         map.put(element.getElementId(), element);
         return element;
     }
+
+    @Test
+    public void testMergeInterfacesNull() {
+        assertNull(IndexedModelUtils.mergeInterfaces(null, null));
+        Map<String, Interface> from = Maps.newHashMap();
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, null);
+        assertNotNull(merged);
+        assertSame(from, merged);
+        Map<String, Interface> to = from;
+        merged = IndexedModelUtils.mergeInterfaces(null, to);
+        assertNotNull(merged);
+        assertSame(to, merged);
+    }
+
+    @Test
+    public void testMergeInterfacesBasic() {
+        Map<String, Interface> from = Maps.newHashMap();
+        Interface i1 = new Interface();
+        from.put("i1", i1);
+        Map<String, Interface> to = Maps.newHashMap();
+        Interface i2 = new Interface();
+        to.put("i2", i2);
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+        assertEquals(2, merged.size());
+        assertSame(merged.get("i1"), i1);
+        assertSame(merged.get("i2"), i2);
+    }
+
+    @Test
+    public void testMergeInterfaceOperationsKeepTo() {
+        // TO keeps it's own operation
+        Map<String, Interface> from = Maps.newHashMap();
+        Interface i1 = new Interface();
+        Map<String, Operation> ios1 = Maps.newHashMap();
+        Operation o1 = new Operation();
+        ios1.put("o1", o1);
+        i1.setOperations(ios1);
+        from.put("i1", i1);
+        Map<String, Interface> to = Maps.newHashMap();
+        Interface i2 = new Interface();
+        Map<String, Operation> ios2 = Maps.newHashMap();
+        Operation o2 = new Operation();
+        ios2.put("o1", o2);
+        i2.setOperations(ios2);
+        to.put("i1", i2);
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+        assertEquals(1, merged.size());
+        assertSame(merged.get("i1").getOperations().get("o1"), o2);
+    }
+
+    @Test
+    public void testMergeInterfaceOperationsToNull() {
+        // TO's operation is null
+        Map<String, Interface> from = Maps.newHashMap();
+        Interface i1 = new Interface();
+        Map<String, Operation> ios1 = Maps.newHashMap();
+        Operation o1 = new Operation();
+        ios1.put("o1", o1);
+        i1.setOperations(ios1);
+        from.put("i1", i1);
+        Map<String, Interface> to = Maps.newHashMap();
+        Interface i2 = new Interface();
+        to.put("i1", i2);
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+        assertEquals(1, merged.size());
+        assertSame(merged.get("i1").getOperations().get("o1"), o1);
+    }
+
+    @Test
+    public void testMergeInterfaceOperationsFromNull() {
+        // FROM's operation is null
+        Map<String, Interface> from = Maps.newHashMap();
+        Interface i1 = new Interface();
+        from.put("i1", i1);
+        Map<String, Interface> to = Maps.newHashMap();
+        Interface i2 = new Interface();
+        Map<String, Operation> ios2 = Maps.newHashMap();
+        Operation o2 = new Operation();
+        ios2.put("o1", o2);
+        i2.setOperations(ios2);
+        to.put("i1", i2);
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+        assertEquals(1, merged.size());
+        assertSame(merged.get("i1").getOperations().get("o1"), o2);
+    }
+
+    @Test
+    public void testMergeInterfaceOperationsMerge() {
+        // both are merged
+        Map<String, Interface> from = Maps.newHashMap();
+        Interface i1 = new Interface();
+        Map<String, Operation> ios1 = Maps.newHashMap();
+        Operation o1 = new Operation();
+        ios1.put("o1", o1);
+        i1.setOperations(ios1);
+        from.put("i1", i1);
+        Map<String, Interface> to = Maps.newHashMap();
+        Interface i2 = new Interface();
+        Map<String, Operation> ios2 = Maps.newHashMap();
+        Operation o2 = new Operation();
+        ios2.put("o2", o2);
+        i2.setOperations(ios2);
+        to.put("i1", i2);
+        Map<String, Interface> merged = IndexedModelUtils.mergeInterfaces(from, to);
+        assertEquals(1, merged.size());
+        assertEquals(2, merged.get("i1").getOperations().size());
+        assertSame(merged.get("i1").getOperations().get("o1"), o1);
+        assertSame(merged.get("i1").getOperations().get("o2"), o2);
+    }
+
 }
