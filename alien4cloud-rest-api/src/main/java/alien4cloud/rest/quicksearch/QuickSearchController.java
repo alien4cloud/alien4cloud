@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -64,7 +63,7 @@ public class QuickSearchController {
         // only filter on users roles on the application if the current user is not an ADMIN
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
 
-        GetMultipleDataResult searchResultApplications = searchByType(requestObject, authoIndexes, classes, null, authorizationFilter);
+        GetMultipleDataResult<?> searchResultApplications = searchByType(requestObject, authoIndexes, classes, null, authorizationFilter);
 
         // Final merge result : COMPONENTS + APPLICATIONS
         GetMultipleDataResult searchResult = new GetMultipleDataResult();
@@ -80,15 +79,14 @@ public class QuickSearchController {
             Map<String, String[]> filters, FilterBuilder filterBuilder) {
 
         String[] indices = authoIndexes.toArray(new String[authoIndexes.size()]);
-        if (indices.length == 0) {
+        if (indices.length == 0 || requestObject == null) {
             return new GetMultipleDataResult();
         }
-        Class<?>[] classesArray = classes.toArray(new Class<?>[classes.size()]);
-
-        GetMultipleDataResult searchResult = alienDAO.search(indices, classesArray, requestObject.getQuery(), filters, filterBuilder,
-                FetchContext.QUICK_SEARCH, requestObject.getFrom(), requestObject.getSize());
-
+        Class<?> className = classes.iterator().next();
+        // by default search in _all field
+        String query = requestObject.getQuery() == null ? "" : "*" + requestObject.getQuery().trim() + "*";
+        // make a specific queryString search
+        GetMultipleDataResult searchResult = alienDAO.searchQueryString(indices, className, query, filters, requestObject.getSize());
         return searchResult;
     }
-
 }

@@ -38,6 +38,8 @@ Feature: Update an application (image or tags)
     When I set the "name" of this application to "MyNewAppName"
     Then I should receive a RestResponse with no error
     And The application can be found in ALIEN with its "name" set to "MyNewAppName"
+    When I search for "MyNewAppName" application
+    Then The application update date has changed
     When I set the "description" of this application to "Great app which will succeed"
     Then I should receive a RestResponse with no error
     And The application can be found in ALIEN with its "description" set to "Great app which will succeed"

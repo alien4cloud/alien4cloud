@@ -31,6 +31,7 @@ import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.common.Tag;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.rest.application.ApplicationEnvironmentDTO;
 import alien4cloud.rest.application.ApplicationEnvironmentRequest;
@@ -162,7 +163,9 @@ public class ApplicationStepDefinitions {
         // recover the created template
         TopologyTemplate template = Context.getInstance().getTopologyTemplate();
         assertNotNull(template);
-        createApplicationFromTemplateId(name, description, template.getId());
+        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + template.getId() + "/versions/");
+        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+        createApplicationFromTemplateId(name, description, ttv.getId());
     }
 
     @Then("^The created application topology is the same as the one in the base topology template$")
@@ -176,7 +179,9 @@ public class ApplicationStepDefinitions {
 
         // base topology template
         authSteps.I_am_authenticated_with_role("ARCHITECT"); // quick win solution
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + template.getTopologyId()));
+        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + template.getId() + "/versions/");
+        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/topologies/" + ttv.getTopologyId()));
         TopologyDTO topologyTemplateBase = JsonTestUtil.read(Context.getInstance().getRestResponse(), TopologyDTO.class).getData();
 
         Map<String, NodeTemplate> nodeTemplates = topologyTemplateBase.getTopology().getNodeTemplates();
@@ -639,5 +644,11 @@ public class ApplicationStepDefinitions {
     public void I_create_a_new_application_with_name_and_description_based_on_the_template_with_name(String name, String description, String templateName)
             throws Throwable {
         createApplicationFromTemplateId(name, description, TopologyTemplateStepDefinitions.getTopologyTemplateIdFromName(templateName));
+    }
+
+    @Then("^The application update date has changed$")
+    public void The_application_update_date_has_changed() throws Throwable {
+        Application application = CURRENT_APPLICATION;
+        Assert.assertNotEquals(application.getCreationDate(), application.getLastUpdateDate());
     }
 }

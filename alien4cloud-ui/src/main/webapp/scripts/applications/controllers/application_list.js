@@ -4,6 +4,7 @@ define(function (require) {
   var modules = require('modules');
   var states = require('states');
   var angular = require('angular');
+  var _ = require('lodash');
 
   var d3Tip = require('d3-tip');
   var d3 = require('d3');
@@ -34,9 +35,9 @@ define(function (require) {
   var NewApplicationCtrl = ['$scope', '$modalInstance', '$resource',
     function($scope, $modalInstance, $resource) {
       $scope.app = {};
-      $scope.create = function(valid, templateId) {
+      $scope.create = function(valid, templateVersionId) {
         if (valid) {
-          $scope.app.topologyTemplateId = templateId;
+          $scope.app.topologyTemplateVersionId = templateVersionId;
           $modalInstance.close($scope.app);
         }
       };
@@ -56,6 +57,16 @@ define(function (require) {
         }
       });
 
+      var searchTopologyTemplateVersionResource = $resource('rest/templates/:topologyTemplateId/versions/search', {}, {
+        'search': {
+          method: 'POST',
+          isArray: false,
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        }
+      });
+      
       $scope.loadTopologyTemplates = function() {
 
         var searchRequestObject = {
@@ -69,6 +80,35 @@ define(function (require) {
         });
       };
 
+      $scope.loadTopologyTemplateVersions = function(selectedTemplateId) {
+        var searchRequestObject = {
+            'query': $scope.query,
+            'from': 0,
+            'size': 50
+          };
+        searchTopologyTemplateVersionResource.search({topologyTemplateId: selectedTemplateId}, angular.toJson(searchRequestObject), function(successResult) {
+          $scope.templateVersions = successResult.data.data;
+        });      
+      };
+      
+      $scope.templateSelected = function(selectedTemplateId) {
+        $scope.templateVersions = undefined;
+        $scope.selectedTopologyTemplateVersion = undefined;
+        
+        if (selectedTemplateId == "") {
+          $scope.selectedTopologyTemplate = undefined;
+        } else {
+          _.each($scope.templates, function(t) {
+            if (t.id === selectedTemplateId) {
+              $scope.selectedTopologyTemplate = t;
+            }
+          });
+        }
+        if ($scope.selectedTopologyTemplate) {
+          $scope.loadTopologyTemplateVersions($scope.selectedTopologyTemplate.id);      
+        }
+      };
+      
       // First template load
       $scope.loadTopologyTemplates();
     }

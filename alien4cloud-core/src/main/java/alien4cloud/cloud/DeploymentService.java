@@ -39,9 +39,11 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.IPaaSProvider;
 import alien4cloud.paas.exception.CloudDisabledException;
+import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -143,7 +145,7 @@ public class DeploymentService {
         Deployment deployment = new Deployment();
         deployment.setCloudId(cloudId);
         deployment.setId(UUID.randomUUID().toString());
-        deployment.setPaasId(generatePaasId(deploymentSetup.getEnvironmentId(), cloudId));
+        deployment.setPaasId(generatePaaSId(deploymentSetup.getEnvironmentId(), cloudId));
         deployment.setSourceId(deploymentSource.getId());
         String sourceName;
         if (deploymentSource.getName() == null) {
@@ -171,7 +173,7 @@ public class DeploymentService {
         return deployment.getId();
     }
 
-    private String generatePaasId(String envId, String cloudId) {
+    private String generatePaaSId(String envId, String cloudId) throws DeploymentPaaSIdConflictException {
         // Inner class to get value from multiples objects
         @Getter
         class ContextObjectToParse {
@@ -210,13 +212,25 @@ public class DeploymentService {
             }
         }
 
+        log.debug("Generating deployment paaS Id...");
+        log.debug("All spaces will be replaced by an \"_\" charactr. You might consider it while naming your applications.");
         ApplicationEnvironment env = applicationEnvironmentService.getOrFail(envId);
         Cloud cloud = cloudService.get(cloudId);
         String namePattern = cloud.getDeploymentNamePattern();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(namePattern);
-        return (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
+        String paaSId = (String) exp.getValue(new ContextObjectToParse(env, applicationService.getOrFail(env.getApplicationId()), namePattern
                 .contains("metaProperties[")));
+        paaSId = paaSId.trim().replaceAll(" ", "_");
+        checkPaaSIdUnicity(paaSId, cloud);
+
+        return paaSId;
+    }
+
+    private void checkPaaSIdUnicity(String paaSId, Cloud cloud) throws DeploymentPaaSIdConflictException {
+        if (isActiveDeployment(paaSId, cloud.getId())) {
+            throw new DeploymentPaaSIdConflictException("Conflict detected with the generated paasId <" + paaSId + ">.");
+        }
     }
 
     private PaaSDeploymentContext buildDeploymentContext(Deployment deployment) {
@@ -286,18 +300,33 @@ public class DeploymentService {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public void scale(String applicationEnvironmentId, String nodeTemplateId, int instances) throws CloudDisabledException {
+    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances) throws CloudDisabledException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
-        Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
-        Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
-        int initialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
-        TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, initialInstances + instances, capability);
+        final Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
+        final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
+        final int previousInitialInstances = TopologyUtils.getScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, capability);
+        final int newInitialInstances = previousInitialInstances + instances;
+        log.info("Scaling <{}> node from <{}> to <{}>. Updating runtime topology...", nodeTemplateId, previousInitialInstances, newInitialInstances);
+        TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, newInitialInstances, capability);
         alienMonitorDao.save(topology);
-        log.info("Scaling <{}> node from <{}> to <{}> (topology runtime updated)", nodeTemplateId, initialInstances + instances, instances);
+        log.info("Delegating to the paas provider...");
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, null);
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback<Void>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                log.info("Failed to scale <{}> node from <{}> to <{}>. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
+                        previousInitialInstances);
+                TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, previousInitialInstances, capability);
+                alienMonitorDao.save(topology);
+                throw (PaaSDeploymentException) throwable;
+            }
+
+            @Override
+            public void onSuccess(Void data) {
+            }
+        });
     }
 
     public void switchInstanceMaintenanceMode(String applicationEnvironmentId, String nodeTemplateId, String instanceId, boolean maintenanceModeOn)
@@ -480,6 +509,16 @@ public class DeploymentService {
         return dataResult.getData();
     }
 
+    private boolean isActiveDeployment(String paaSId, String cloudId) {
+        Map<String, String[]> activeDeploymentFilters = MapUtil.newHashMap(new String[] { "cloudId", "paasId", "endDate" }, new String[][] {
+                new String[] { cloudId }, new String[] { paaSId }, new String[] { null } });
+        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class, activeDeploymentFilters, Integer.MAX_VALUE);
+        if (dataResult.getData() != null && dataResult.getData().length > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public Map<String, PaaSTopologyDeploymentContext> getCloudActiveDeploymentContexts(String cloudId) {
         Deployment[] deployments = getCloudActiveDeployments(cloudId);
         Map<String, PaaSTopologyDeploymentContext> activeDeploymentContexts = Maps.newHashMap();
@@ -537,19 +576,4 @@ public class DeploymentService {
                 MapUtil.newHashMap(new String[] { "deploymentSetup.id" }, new String[][] { new String[] { deploymentSetupId } }), Integer.MAX_VALUE);
     }
 
-    /**
-     * Find the unique active deployment from it's deployment name.
-     *
-     * @param deploymentPaaSId The deployment name (must be unique for an active deployment.
-     * @return deployment which have the given deployment setup id
-     */
-    public Deployment getDeploymentByPaaSId(String deploymentPaaSId) {
-        GetMultipleDataResult<Deployment> dataResult = alienDao.find(Deployment.class,
-                MapUtil.newHashMap(new String[] { "paasId", "endDate" }, new String[][] { new String[] { deploymentPaaSId }, new String[] { null } }),
-                Integer.MAX_VALUE);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
-        }
-        return null;
-    }
 }

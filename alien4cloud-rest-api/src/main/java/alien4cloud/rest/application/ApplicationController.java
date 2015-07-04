@@ -39,7 +39,7 @@ import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.internal.PropertyRequest;
@@ -53,6 +53,7 @@ import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyService;
+import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -87,6 +88,8 @@ public class ApplicationController {
     @Resource
     private ApplicationVersionService applicationVersionService;
     @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
+    @Resource
     private ApplicationEnvironmentService applicationEnvironmentService;
     @Resource
     private DeploymentSetupService deploymentSetupService;
@@ -111,9 +114,9 @@ public class ApplicationController {
 
         // check the topology template id to recover the related topology id
         String topologyId = null;
-        if (request.getTopologyTemplateId() != null) {
-            TopologyTemplate template = topologyService.getOrFailTopologyTemplate(request.getTopologyTemplateId());
-            topologyId = template.getTopologyId();
+        if (request.getTopologyTemplateVersionId() != null) {
+            TopologyTemplateVersion ttv = topologyTemplateVersionService.getOrFail(request.getTopologyTemplateVersionId());
+            topologyId = ttv.getTopologyId();
         }
         // create the application with default environment and version
         String applicationId = applicationService.create(auth.getName(), request.getName(), request.getDescription(), null);
@@ -326,6 +329,8 @@ public class ApplicationController {
         if (!currentName.equals(application.getName())) {
             applicationService.ensureNameUnicity(application.getName());
         }
+        // update updateDate
+        application.setLastUpdateDate(new Date());
         alienDAO.save(application);
         return RestResponseBuilder.<Void> builder().build();
     }
