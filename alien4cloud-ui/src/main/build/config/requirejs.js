@@ -25,6 +25,7 @@ module.exports = function (grunt) {
               'angular-animate',
               'angular-xeditable',
               'angular-ui-select',
+              'angular-tree-control',
               'ng-table',
               'toaster',
               'hopscotch',

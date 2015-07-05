@@ -81,6 +81,7 @@
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Failed to find any Artifact Type for the extension [ {{note}} ]. The artifact type won't be supported.",
       "VALIDATION_ERROR": "Declared type is not valid: {{context | translate:note}}",
       "TOPOLOGY_DETECTED": "A topology template has been detected in the archive and created with name: {{note}}",
+      "TOPOLOGY_UPDATED": "A topology template has been detected in the archive and updated  : {{note}}",
       "NotNull": "The property [ {{path}} ] cannot be null",
       "Size": "The property [ {{path}} ]'s size does not satisfy constraint (empty)",
       "ToscaPropertyType": "Property [ {{path}} ] has an invalid type, please check supported TOSCA types. Details [ {{message}} ]",
@@ -100,7 +101,10 @@
       "UNKNOWN_CAPABILITY": "Capability [{{note}}] is unknown for this node.",
       "YAML_SCALAR_NODE_EXPECTED": "A YAML node of type scalar is expected here.",
       "UNKOWN_GROUP_POLICY": "Group policy [{{note}}] is not managed",
-      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored"
+      "UNKOWN_GROUP_MEMBER": "The group member [{{note}}] doesn't exist so is ignored",
+      "MISSING_TOPOLOGY_INPUT": "The input [{{problem}}] referenced by the property [{{problem}}] of [{{context}}] node was not found in the inputs list",
+      "300": "Unexpected IO error on plugin upload.",
+      "353": "The META-INF/plugin.yml file is missing in your plugin."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -115,7 +119,7 @@
       "INTERFACES": "Interfaces",
       "OPERATION": "Operations",
       "RECOMMEND_MESSAGE": "Define this component as default for this capability.",
-      "UNRECOMMEND_MESSAGE": "Undefine this component as default for this capability.",
+      "UNRECOMMEND_MESSAGE": "Undifine this component as default for this capability.",
       "ABSTRACT_COMPONENT": "Abstract component"
     },
     "RELATIONSHIPS": {
@@ -442,7 +446,7 @@
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Invalid scalability policy",
-          "MISSING": "Mandatory property",
+          "MISSING": "Madatory property",
           "ERRORS": {
             "min_instances": "Invalid min_instances property, please verify that 0 < min_instances < default_instances < max_instances",
             "default_instances": "Invalid default_instances property, please verify that 0 < min_instances < default_instances < max_instances",
@@ -482,12 +486,27 @@
         "TITLE": "Artifacts",
         "ID": "Id",
         "TYPE": "Type",
-        "INPUTS": "Entry into artifacts",
+        "INPUTS": "Input artifacts",
         "ADDINPUT": "Define artifact as input"
+      },
+      "SUBSTITUTIONS": {
+        "TITLE": "Substitutions",
+        "TYPE": "Type",
+        "CAPABILITIES": "Capabilities",
+        "CAPABILITY": "Capability",
+        "REQUIREMENTS": "Requirements",
+        "REQUIREMENT": "Requirement",
+        "TARGET_NODE": "Target",
+        "SOURCE_NODE": "Source",
+        "NOM": "Name",
+        "VERSION": "Version",
+        "EXPOSE": "Expose",
+        "DISPLAY": "Display substitution topology"
       },
       "REPLACE_NODETEMPLATE": "Replace",
       "TEMPLATE_BASE": "Topology template",
       "TEMPLATE_SELECT": "-- Select a topology template --",
+      "TEMPLATE_SELECT_VERSION": "-- Select a template version --",
       "CARDINALITIES_TOOLTIP": "lowerBound..upperBound (remaining)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "upperBound (remaining)",
       "CLOUD_SELECT": "-- Cloud --",
@@ -653,7 +672,7 @@
     "ZONE": "Zones",
     "ZONES": {
       "ID": "Identifiant",
-      "NEW_MODAL_TITLE": "Create a new zone"
+      "NEW_MODAL_TITLE": "Créer une nouvelle zone"
     },
     "IAAS": {
       "OTHER": "Other",
@@ -759,6 +778,7 @@
     "372": "Error in naming policy of deployment.",
     "373": "Unexpected error happened while switching on / off maintenance mode ",
     "374": "One of your meta-property is empty and does not have a default value.",
+    "375": "Error occuors on provider when trying to scale.",
     "390": "It's forbidden to remove the last admin user.",
     "391": "It's forbidden to remove the ADMIN role of the last admin user.",
     "400": "Unexpected error happened while accessing to CSAR repository",
@@ -779,7 +799,9 @@
     "610": "An application must necessarily have at least one version",
     "611": "An application environment must necessarily have an application version.",
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
+    "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
     "650": "At least two of your Compute have a conflict name.",
+    "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800": {
       "equal": "Value is constant equals to {{reference}}",
       "greaterOrEqual": "Value must be >= {{reference}}",
@@ -799,7 +821,10 @@
       "MESSAGE": "One or several parameters are required : {{value}}"
     },
     "807": "Only the topology of a SNAPSHOT version can be modified",
-    "808": "The name doesn't respect the expected pattern"
+    "808": "The name doesn't respect the expected pattern",
+    "820": "Cyclic reference : a topology template can not reference itself !",
+    "830": "A released version can not reference SNAPSHOT dependencies",
+    "831": "This version can not be renamed since it's already used elsewhere"
   },
   "TAG_CONFIG": {
     "TAGS": "Meta-properties",
@@ -869,7 +894,7 @@
   },
   "SEARCH": "Search",
   "STATES": {
-    "unknown": "Waiting for the orchestrator",
+    "unknown": "Wating for the orchestrator",
     "creating": "Creating",
     "created": "Created",
     "configuring": "Configuring",

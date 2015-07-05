@@ -7,11 +7,13 @@ define(function (require) {
   var angular = require('angular');
 
   require('scripts/topologytemplates/services/topology_template_service');
+  require('scripts/topologytemplates/services/topology_template_version_services');
   require('scripts/topology/controllers/topology');
+  require('scripts/applications/controllers/application_versions');
 
   // register components root state
   states.state('topologytemplates.detail', {
-    url: 'detail/:id',
+    url: '/detail/:id',
     templateUrl: 'views/topologytemplates/topology_template.html',
     resolve: {
       topologyTemplate: ['topologyTemplateService', '$stateParams',
@@ -20,6 +22,19 @@ define(function (require) {
             topologyTemplateId: $stateParams.id
           }).$promise;
         }
+      ],
+      appVersions: ['$http', 'topologyTemplate', 'topologyTemplateVersionServices',
+                    function($http, topologyTemplate, topologyTemplateVersionServices) {
+                      var searchAppVersionRequestObject = {
+                        'from': 0,
+                        'size': 400
+                      };
+                      return topologyTemplateVersionServices.searchVersion({
+                        delegateId: topologyTemplate.data.id
+                      }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
+                          return result.data;
+                        });
+                    }
       ]
     },
     controller: 'TopologyTemplateCtrl'
@@ -33,14 +48,35 @@ define(function (require) {
           return topologyTemplate.data.topologyId;
         }
       ],
-      appVersions: function() {
-        // TODO : handle versions for topology templates
-        return null;
-      }
+      preselectedVersion: function() { return undefined; }
     },
     controller: 'TopologyCtrl'
   });
-
+  states.state('topologytemplates.detail.topologyVersion', {
+    url: '/topology/:version',
+    templateUrl: 'views/topology/topology_editor.html',
+    resolve: {
+      topologyId: ['topologyTemplate',
+        function(topologyTemplate) {
+          return topologyTemplate.data.topologyId;
+        }
+      ],
+      preselectedVersion: ['$stateParams', function($stateParams) { return $stateParams.version; } ]
+    },
+    controller: 'TopologyCtrl'
+  });  
+  states.state('topologytemplates.detail.versions', {
+    url: '/versions',
+    templateUrl: 'views/applications/application_versions.html',
+    resolve: {
+      versionServices: ['topologyTemplateVersionServices', function(topologyTemplateVersionServices) { return topologyTemplateVersionServices }],
+      searchServiceUrl: ['topologyTemplate', function(topologyTemplate) { return 'rest/templates/' + topologyTemplate.data.id + '/versions/search' }],
+      delegateId: ['topologyTemplate', function(topologyTemplate) { return topologyTemplate.data.id }],
+      userCanModify: ['authService', function(authService) { return authService.hasRole('ARCHITECT') }]
+    },
+    controller: 'ApplicationVersionsCtrl'
+  });
+  
   var NewTopologyTemplateCtrl = ['$scope', '$modalInstance',
     function($scope, $modalInstance) {
       $scope.topologytemplate = {};
@@ -76,6 +112,21 @@ define(function (require) {
           }
         );
       };
+      
+      $scope.menu = [{
+        id: 'am.applications.detail.topology',
+        state: 'topologytemplates.detail.topology',
+        key: 'NAVAPPLICATIONS.MENU_TOPOLOGY',
+        icon: 'fa fa-sitemap',
+        show: true
+      }, {
+        id: 'am.applications.detail.versions',
+        state: 'topologytemplates.detail.versions',
+        key: 'NAVAPPLICATIONS.MENU_VERSIONS',
+        icon: 'fa fa-tasks',
+        show: true
+      }];
+      
     }
   ]); // controller
 }); // define

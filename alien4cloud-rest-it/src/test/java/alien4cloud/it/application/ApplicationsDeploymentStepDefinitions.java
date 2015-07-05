@@ -64,8 +64,14 @@ public class ApplicationsDeploymentStepDefinitions {
     public void I_undeploy_it() throws Throwable {
         Application application = ApplicationStepDefinitions.CURRENT_APPLICATION;
         String envId = Context.getInstance().getDefaultApplicationEnvironmentId(application.getName());
-        Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        String statusRequest = "/rest/applications/" + application.getId() + "/environments/" + envId + "/status";
+        RestResponse<String> statusResponse = JsonUtil.read(Context.getRestClientInstance().get(statusRequest), String.class);
+        assertNull(statusResponse.getError());
+        DeploymentStatus deploymentStatus = DeploymentStatus.valueOf(statusResponse.getData());
+        if (!DeploymentStatus.UNDEPLOYED.equals(deploymentStatus) || !DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS.equals(deploymentStatus)) {
+            Context.getInstance().registerRestResponse(
+                    Context.getRestClientInstance().delete("/rest/applications/" + application.getId() + "/environments/" + envId + "/deployment"));
+        }
         assertStatus(application.getName(), DeploymentStatus.UNDEPLOYED, DeploymentStatus.UNDEPLOYMENT_IN_PROGRESS, 10 * 60L * 1000L, null);
     }
 
@@ -101,7 +107,7 @@ public class ApplicationsDeploymentStepDefinitions {
     }
 
     private void assertStatus(String applicationName, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-                              String applicationEnvironmentName) throws Throwable {
+            String applicationEnvironmentName) throws Throwable {
         checkStatus(applicationName, null, expectedStatus, pendingStatus, timeout, applicationEnvironmentName);
     }
 
@@ -111,7 +117,7 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @SuppressWarnings("rawtypes")
     private void checkStatus(String applicationName, String deploymentId, DeploymentStatus expectedStatus, DeploymentStatus pendingStatus, long timeout,
-                             String applicationEnvironmentName) throws IOException, InterruptedException {
+            String applicationEnvironmentName) throws IOException, InterruptedException {
         String statusRequest = null;
         String applicationEnvironmentId = null;
         String applicationId = applicationName != null ? Context.getInstance().getApplicationId(applicationName) : null;
@@ -408,21 +414,21 @@ public class ApplicationsDeploymentStepDefinitions {
             stompConnection = new StompConnection(Context.HOST, Context.PORT, headers, Context.CONTEXT_PATH + Context.WEB_SOCKET_END_POINT);
         }
         switch (eventTopic) {
-            case "deployment-status":
-                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                        + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
-                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
-                break;
-            case "instance-state":
-                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                        + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
-                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
-                break;
-            case "storage":
-                topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
-                        + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
-                this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
-                break;
+        case "deployment-status":
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                    + PaaSDeploymentStatusMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSDeploymentStatusMonitorEvent.class));
+            break;
+        case "instance-state":
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                    + PaaSInstanceStateMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStateMonitorEvent.class));
+            break;
+        case "storage":
+            topic = "/topic/deployment-events/" + getActiveDeploymentId(Context.getInstance().getApplication().getName()) + "/"
+                    + PaaSInstanceStorageMonitorEvent.class.getSimpleName().toLowerCase();
+            this.stompDataFutures.put(eventTopic, stompConnection.getData(topic, PaaSInstanceStorageMonitorEvent.class));
+            break;
         }
     }
 
@@ -432,27 +438,27 @@ public class ApplicationsDeploymentStepDefinitions {
         List<String> actualEvents = Lists.newArrayList();
         try {
             switch (eventTopic) {
-                case "deployment-status":
-                    StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                            TimeUnit.SECONDS);
-                    for (StompData<PaaSDeploymentStatusMonitorEvent> data : deploymentStatusEvents) {
-                        actualEvents.add(data.getData().getDeploymentStatus().toString());
-                    }
-                    break;
-                case "instance-state":
-                    StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                            TimeUnit.SECONDS);
-                    for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
-                        actualEvents.add(data.getData().getInstanceState());
-                    }
-                    break;
-                case "storage":
-                    StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                            TimeUnit.SECONDS);
-                    for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
-                        actualEvents.add(data.getData().getInstanceState());
-                    }
-                    break;
+            case "deployment-status":
+                StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                        TimeUnit.SECONDS);
+                for (StompData<PaaSDeploymentStatusMonitorEvent> data : deploymentStatusEvents) {
+                    actualEvents.add(data.getData().getDeploymentStatus().toString());
+                }
+                break;
+            case "instance-state":
+                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                        TimeUnit.SECONDS);
+                for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
+                    actualEvents.add(data.getData().getInstanceState());
+                }
+                break;
+            case "storage":
+                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                        TimeUnit.SECONDS);
+                for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
+                    actualEvents.add(data.getData().getInstanceState());
+                }
+                break;
             }
             Assert.assertEquals(expectedEvents.size(), actualEvents.size());
             Assert.assertArrayEquals(expectedEvents.toArray(), actualEvents.toArray());
@@ -514,10 +520,14 @@ public class ApplicationsDeploymentStepDefinitions {
 
     @And("^I re-deploy the application$")
     public void I_re_deploy_the_application() throws Throwable {
+        log.info("Re-deploy : Un-deploying application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_undeploy_it();
-        // For asynchronous problem of cloudify 3
-        Thread.sleep(2000L);
+        log.info("Re-deploy : Finished undeployment the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
+        // TODO For asynchronous problem of cloudify
+        Thread.sleep(60L * 1000L);
+        log.info("Re-deploy : Deploying the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
         I_deploy_it();
+        log.info("Re-deploy : Finished deployment of the application " + ApplicationStepDefinitions.CURRENT_APPLICATION.getName());
     }
 
     @And("^The node \"([^\"]*)\" should contain (\\d+) instance\\(s\\)$")

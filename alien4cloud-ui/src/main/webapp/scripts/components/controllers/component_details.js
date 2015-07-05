@@ -63,6 +63,8 @@ define(function (require) {
         }
       });
 
+      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');
+
       ComponentResource.get({
         componentId: $stateParams.id
       }, function(successResult) {
@@ -308,6 +310,16 @@ define(function (require) {
           $modalInstance.dismiss('close');
         };
       }];
+
+      $scope.displaySubtitutionTopology = function(topologyId) {
+        topologyVersionResource.get({
+          topologyId: topologyId
+        }, {}, function(result) {
+          if (!result.error) {
+            window.open('/#/topologytemplates/detail/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+          }
+        });
+      };
 
     }
   ]); // controller

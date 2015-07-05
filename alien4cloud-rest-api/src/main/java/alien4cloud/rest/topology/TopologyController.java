@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +30,14 @@ import org.springframework.web.multipart.MultipartFile;
 import alien4cloud.application.ApplicationEnvironmentService;
 import alien4cloud.application.ApplicationVersionService;
 import alien4cloud.application.DeploymentSetupService;
+import alien4cloud.application.TopologyCompositionService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.component.repository.ArtifactRepositoryConstants;
 import alien4cloud.component.repository.IFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -47,12 +50,15 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.AbstractPolicy;
+import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.HaPolicy;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.SubstitutionTarget;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.plan.BuildPlanGenerator;
@@ -66,6 +72,7 @@ import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyService;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -117,10 +124,16 @@ public class TopologyController {
     private ApplicationVersionService applicationVersionService;
 
     @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
+
+    @Resource
     private DeploymentSetupService deploymentSetupService;
 
     @Resource
     private CloudService cloudService;
+
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
 
     /**
      * Retrieve an existing {@link alien4cloud.model.topology.Topology}
@@ -172,6 +185,14 @@ public class TopologyController {
         IndexedNodeType indexedNodeType = alienDAO.findById(IndexedNodeType.class, nodeTemplateRequest.getIndexedNodeTypeId());
         if (indexedNodeType == null) {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.COMPONENT_MISSING_ERROR).build()).build();
+        }
+        if (indexedNodeType.getSubstitutionTopologyId() != null && topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+            // it's a try to add this topology's type
+            if (indexedNodeType.getSubstitutionTopologyId().equals(topologyId)) {
+                throw new CyclicReferenceException("Cyclic reference : a topology template can not reference itself");
+            }
+            // detect try to add a substitution topology that indirectly reference this one
+            topologyCompositionService.recursivelyDetectTopologyCompositionCyclicReference(topologyId, indexedNodeType.getSubstitutionTopologyId());
         }
 
         if (topology.getNodeTemplates() == null) {
@@ -239,6 +260,23 @@ public class TopologyController {
             Set<String> oldPropertiesOutputs = topology.getOutputProperties().remove(oldNodeTemplateName);
             if (oldPropertiesOutputs != null) {
                 topology.getOutputProperties().put(newNodeTemplateName, oldPropertiesOutputs);
+            }
+        }
+        // substitution mapping
+        if (topology.getSubstitutionMapping() != null) {
+            if (topology.getSubstitutionMapping().getCapabilities() != null) {
+                for (SubstitutionTarget st : topology.getSubstitutionMapping().getCapabilities().values()) {
+                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
+                        st.setNodeTemplateName(newNodeTemplateName);
+                    }
+                }
+            }
+            if (topology.getSubstitutionMapping().getRequirements() != null) {
+                for (SubstitutionTarget st : topology.getSubstitutionMapping().getRequirements().values()) {
+                    if (st.getNodeTemplateName().equals(oldNodeTemplateName)) {
+                        st.setNodeTemplateName(newNodeTemplateName);
+                    }
+                }
             }
         }
     }
@@ -435,11 +473,16 @@ public class TopologyController {
         removeRelationShipReferences(nodeTemplateName, topology);
         nodeTemplates.remove(nodeTemplateName);
         removeOutputs(nodeTemplateName, topology);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
 
         // group members removal
         updateGroupMembers(topology, template, nodeTemplateName, null);
 
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -459,6 +502,19 @@ public class TopologyController {
                         nodeGroup.getMembers().add(newName);
                     }
                 }
+            }
+        }
+    }
+
+    private void removeNodeTemplateSubstitutionTargetMapEntry(String nodeTemplateName, Map<String, SubstitutionTarget> substitutionTargets) {
+        if (substitutionTargets == null) {
+            return;
+        }
+        Iterator<Entry<String, SubstitutionTarget>> capabilities = substitutionTargets.entrySet().iterator();
+        while (capabilities.hasNext()) {
+            Entry<String, SubstitutionTarget> e = capabilities.next();
+            if (e.getValue().getNodeTemplateName().equals(nodeTemplateName)) {
+                capabilities.remove();
             }
         }
     }
@@ -712,6 +768,10 @@ public class TopologyController {
         // Unload and remove old node template
         topologyService.unloadType(topology, oldNodeTemplate.getType());
         nodeTemplates.remove(nodeTemplateName);
+        if (topology.getSubstitutionMapping() != null) {
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getCapabilities());
+            removeNodeTemplateSubstitutionTargetMapEntry(nodeTemplateName, topology.getSubstitutionMapping().getRequirements());
+        }
 
         refreshNodeTempNameInRelationships(nodeTemplateName, nodeTemplateRequest.getName(), nodeTemplates);
         log.debug("Replacing the node template<{}> with <{}> bound to the node type <{}> on the topology <{}> .", nodeTemplateName,
@@ -822,6 +882,7 @@ public class TopologyController {
         // Perform check that authorization's ok
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         // Get the artifact to update
         Map<String, DeploymentArtifact> artifacts = topology.getInputArtifacts();
@@ -922,6 +983,7 @@ public class TopologyController {
     public RestResponse<TopologyDTO> addOutputProperty(@PathVariable String topologyId, @PathVariable String nodeTemplateName, @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -933,6 +995,7 @@ public class TopologyController {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -964,6 +1027,7 @@ public class TopologyController {
             @PathVariable String propertyId, @PathVariable String capabilityId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName,
                 propertyId, capabilityId);
@@ -992,6 +1056,7 @@ public class TopologyController {
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1001,6 +1066,7 @@ public class TopologyController {
             @PathVariable String capabilityId, @PathVariable String propertyId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, Map<String, Set<String>>> outputCapabilityProperties = getOutputCapabilityPropertiesOrThrowException(topology, nodeTemplateName,
                 propertyId, capabilityId);
@@ -1014,6 +1080,7 @@ public class TopologyController {
 
         topology.setOutputCapabilityProperties(outputCapabilityProperties);
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1023,6 +1090,7 @@ public class TopologyController {
             @PathVariable String attributeName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -1034,6 +1102,7 @@ public class TopologyController {
             return RestResponseBuilder.<TopologyDTO> builder().error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_MISSING_ERROR).build()).build();
         }
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1043,9 +1112,11 @@ public class TopologyController {
             @PathVariable String propertyName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         topology.setOutputProperties(removeValueFromMap(topology.getOutputProperties(), nodeTemplateName, propertyName));
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
@@ -1055,18 +1126,12 @@ public class TopologyController {
             @PathVariable String attributeName) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         topology.setOutputAttributes(removeValueFromMap(topology.getOutputAttributes(), nodeTemplateName, attributeName));
         alienDAO.save(topology);
+        topologyServiceCore.updateSubstitutionType(topology);
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
-    }
-
-    @Deprecated
-    @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> setInputArtifactDeprecated(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String artifactId, @PathVariable String inputArtifactId) {
-        return setInputArtifact(topologyId, nodeTemplateName, artifactId, inputArtifactId);
     }
 
     @ApiOperation(value = "Associate an artifact to an input artifact (create it if it doesn't exist).", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
@@ -1075,6 +1140,7 @@ public class TopologyController {
             @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -1105,20 +1171,13 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @Deprecated
-    @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactId}/{inputArtifactId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<TopologyDTO> unsetInputArtifactDeprecated(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String artifactId, @PathVariable String inputArtifactId) {
-        return unsetInputArtifact(topologyId, nodeTemplateName, artifactId, inputArtifactId);
-    }
-
     @ApiOperation(value = "Un-associate an artifact from the input artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactId}/{inputArtifactId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<TopologyDTO> unsetInputArtifact(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String artifactId, @PathVariable String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
@@ -1135,6 +1194,7 @@ public class TopologyController {
             @RequestParam final String newId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         if (topology.getInputArtifacts().containsKey(newId)) {
             // TODO: throw an exception
@@ -1163,6 +1223,7 @@ public class TopologyController {
     public RestResponse<TopologyDTO> deleteInputArtifact(@PathVariable final String topologyId, @PathVariable final String inputArtifactId) {
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
+        topologyService.throwsErrorIfReleased(topology);
 
         DeploymentArtifact inputArtifact = topology.getInputArtifacts().remove(inputArtifactId);
         if (inputArtifact != null) {
@@ -1184,19 +1245,10 @@ public class TopologyController {
         return RestResponseBuilder.<TopologyDTO> builder().data(topologyService.buildTopologyDTO(topology)).build();
     }
 
-    @Deprecated
-    @ApiOperation(value = "Get the list of input artifacts candidates for this node's artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
-    @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifact/{artifactName}/inputcandidates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<List<String>> getInputArtifactCandidateDeprecated(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
-            @PathVariable String artifactName) {
-        return getInputArtifactCandidate(topologyId, nodeTemplateName, artifactName);
-    }
-
     @ApiOperation(value = "Get the list of input artifacts candidates for this node's artifact.", notes = "Returns a response with no errors and no data in success case. Application role required [ APPLICATION_MANAGER | ARCHITECT ]")
     @RequestMapping(value = "/{topologyId:.+}/nodetemplates/{nodeTemplateName}/artifacts/{artifactName}/inputcandidates", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<List<String>> getInputArtifactCandidate(@PathVariable String topologyId, @PathVariable String nodeTemplateName,
             @PathVariable String artifactName) {
-
         Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
         topologyService.checkEditionAuthorizations(topology);
 
@@ -1427,4 +1479,24 @@ public class TopologyController {
 
         return RestResponseBuilder.<StartEvent> builder().data(startEvent).build();
     }
+
+    @ApiOperation(value = "Get the version of application or topology related to this topology.")
+    @RequestMapping(value = "/{topologyId:.+}/version", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public RestResponse<AbstractTopologyVersion> getVersion(@PathVariable String topologyId) {
+        Topology topology = topologyServiceCore.getMandatoryTopology(topologyId);
+        if (topology == null) {
+            throw new NotFoundException("No topology found for " + topologyId);
+        }
+        AbstractTopologyVersion version = null;
+        if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+            version = topologyTemplateVersionService.getByTopologyId(topologyId);
+        } else {
+            version = applicationVersionService.getByTopologyId(topologyId);
+        }
+        if (version == null) {
+            throw new NotFoundException("No version found for topology " + topologyId);
+        }
+        return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
+    }
+    
 }

@@ -1,7 +1,9 @@
 package alien4cloud.tosca.parser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +24,7 @@ import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.components.FilterDefinition;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IValue;
 import alien4cloud.model.components.IndexedArtifactType;
@@ -29,9 +32,11 @@ import alien4cloud.model.components.IndexedCapabilityType;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.Interface;
+import alien4cloud.model.components.NodeFilter;
 import alien4cloud.model.components.Operation;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.components.constraints.GreaterThanConstraint;
 import alien4cloud.model.components.constraints.LessThanConstraint;
@@ -40,6 +45,7 @@ import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -506,13 +512,75 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(4, function.getParameters().size());
     }
 
-    public static void assertNoBlocker(ParsingResult<?> parsingResult) {
+    @Ignore
+    @Test
+    public void testNodeTypeNodeFilter() throws ParsingException {
+        // parse the node define with node_filter
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-node-type-nodefilter.yml"));
+
+        // check the node_filter parsing
+        IndexedNodeType nodeType = parsingResult.getResult().getNodeTypes().get("my_company.my_types.MyAppNodeType");
+        // requirements for this snapshot
+        List<RequirementDefinition> requirements = nodeType.getRequirements();
+        RequirementDefinition requirementHost = requirements.get(0); // requirement host
+
+        NodeFilter nodeFilter = requirementHost.getNodeFilter();
+        Map<String, List<PropertyConstraint>> properties = nodeFilter.getProperties();
+        // Map<String, ConstraintList> properties = nodeFilter.getProperties();
+        Assert.assertEquals(1, properties.size());
+        Map<String, FilterDefinition> capabilities = nodeFilter.getCapabilities();
+        Assert.assertEquals(2, capabilities.size());
+
+        // check constraints on properties & capabilities
+        Assert.assertTrue(properties.containsKey("os_type"));
+        List<PropertyConstraint> osTypeConstraints = properties.get("os_type");
+        // ConstraintList osTypeConstraints = properties.get("os_type");
+        Assert.assertEquals(1, osTypeConstraints.size());
+
+        Assert.assertTrue(capabilities.containsKey("host"));
+        Map<String, List<PropertyConstraint>> listHostCapaConstraint = capabilities.get("host").getProperties();
+        // Map<String, ConstraintList> listHostCapaConstraint = capabilities.get("host").getProperties();
+        Assert.assertEquals(2, listHostCapaConstraint.size());
+
+        Assert.assertTrue(capabilities.containsKey("mytypes.capabilities.compute.encryption"));
+        Map<String, List<PropertyConstraint>> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
+        // Map<String, ConstraintList> listTypeCapaConstraint = capabilities.get("mytypes.capabilities.compute.encryption").getProperties();
+        Assert.assertEquals(2, listTypeCapaConstraint.size());
+    }
+
+    @Test
+    public void parseTopologyTemplateWithGetInputErrors() throws ParsingException, IOException {
+        // parse the node define with node_filter
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-topology-template-badinputs.yml"));
+        // there are 2 MISSING INPUT errors
+        Assert.assertEquals(2, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT));
+        // check 2 errors content
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
+            ParsingError parsingError = (ParsingError) iterator.next();
+            if (parsingError.getErrorLevel().equals(ParsingErrorLevel.ERROR) && parsingError.getErrorCode().equals(ErrorCode.MISSING_TOPOLOGY_INPUT)) {
+                if (parsingError.getProblem().equals("toto")) {
+                    Assert.assertEquals("os_distribution", parsingError.getNote());
+                }
+                if (parsingError.getProblem().equals("greatsize")) {
+                    Assert.assertEquals("size", parsingError.getNote());
+                }
+            }
+        }
+    }
+
+    public static int countErrorByLevelAndCode(ParsingResult<?> parsingResult, ParsingErrorLevel errorLevel, ErrorCode errorCode) {
+        int finalCount = 0;
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
-            if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
-                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
+            if (error.getErrorLevel().equals(errorLevel) && (error.getErrorCode().equals(errorCode) || errorCode == null)) {
+                finalCount++;
             }
-            Assert.assertNotEquals(ParsingErrorLevel.ERROR, error.getErrorLevel());
         }
+        return finalCount;
+    }
+
+    public static void assertNoBlocker(ParsingResult<?> parsingResult) {
+        Assert.assertFalse(countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, null) > 0);
     }
 }

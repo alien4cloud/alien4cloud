@@ -739,6 +739,7 @@ define(function (require) {
     var newElements = [];
     switch (type) {
       case 'string':
+      case 'text':
       case 'number':
       case 'date':
       case 'boolean':
