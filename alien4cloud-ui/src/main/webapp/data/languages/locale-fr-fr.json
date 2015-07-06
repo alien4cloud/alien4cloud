@@ -177,7 +177,7 @@
     "URL": "URL du repository",
     "BRANCHESLIST": "Liste des branches",
     "BRANCHE":"Branche",
-    "ARCHIVE":"Archive",
+    "ARCHIVE":"Nom du dossier",
     "ARCHIVE_TO_IMPORT":"Archive(s) à importer",
     "BRANCHE_TO_IMPORT":"Sur la branche",
     "AJOUT": "L'archive a été importé",
@@ -803,6 +803,7 @@
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
+    "613": "Le repository Git n'existe pas ou n'est pas valide.",
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",

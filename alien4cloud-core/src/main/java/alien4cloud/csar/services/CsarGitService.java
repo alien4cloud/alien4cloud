@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsException;
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.exception.GitCloneUriException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.git.RepositoryManager;
 import alien4cloud.model.components.Csar;
@@ -73,8 +74,9 @@ public class CsarGitService {
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
+     * @throws GitCloneUriException 
      */
-    public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException {
+    public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitCloneUriException {
         CsarGitRepository csarGit = new CsarGitRepository();
         Map<String, String> locationsMap = new HashMap<String, String>();
         String data = param.replaceAll("\"", "");

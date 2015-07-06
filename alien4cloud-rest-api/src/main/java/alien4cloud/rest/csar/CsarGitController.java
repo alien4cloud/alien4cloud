@@ -18,6 +18,7 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.csar.services.CsarGitService;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.GitCloneUriException;
 import alien4cloud.model.components.Csar;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestErrorBuilder;
@@ -79,7 +80,6 @@ public class CsarGitController {
     @ApiOperation(value = "Search csargits", notes = "Returns a search result with that contains CSARGIT matching the request.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public RestResponse<GetMultipleDataResult<CsarGitRepository>> search(@RequestBody SearchRequest searchRequest) {
-        // TODO Suport search request for csarsgit based on id ...
         GetMultipleDataResult<CsarGitRepository> searchResult = alienDAO.search(CsarGitRepository.class, searchRequest.getQuery(), null,
                 searchRequest.getFrom(), searchRequest.getSize());
         searchResult.setData(searchResult.getData());
@@ -94,12 +94,13 @@ public class CsarGitController {
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
+     * @throws GitCloneUriException 
      */
     @ApiOperation(value = "Specify a CSAR from Git and proceed to its import in Alien.")
     @RequestMapping(value = "/import/{id:.+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
     public RestResponse<GetMultipleDataResult<ParsingResult<Csar>>> specify(@Valid @RequestBody String param) throws CSARVersionAlreadyExistsException,
-            ParsingException, IOException {
+            ParsingException, IOException, GitCloneUriException {
         if (param == null || param.isEmpty()) {
             return RestResponseBuilder.<GetMultipleDataResult<ParsingResult<Csar>>> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("Url cannot be null or empty").build()).build();
@@ -127,6 +128,12 @@ public class CsarGitController {
                         .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("An existing CSAR with the same url and repository already exists").build())
                         .build();
             }
+        }
+        if(!csarGithubService.paramIsUrl(request.getRepositoryUrl()) ||  request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty() ){
+            return RestResponseBuilder.<String> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build())
+                    .build();
+            
         }
         String csarId = csarGithubService.createGithubCsar(request.getRepositoryUrl(), request.getUsername(), request.getPassword(),
                 request.getImportLocations());

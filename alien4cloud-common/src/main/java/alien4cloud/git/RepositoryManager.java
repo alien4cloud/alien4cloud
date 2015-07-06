@@ -14,8 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.springframework.beans.factory.annotation.Value;
 
+import alien4cloud.exception.GitCloneUriException;
 import alien4cloud.utils.FileUtil;
 
 /**
@@ -59,8 +61,10 @@ public class RepositoryManager {
      * @param repositoryUrl The GitHub url to reach the repository
      * @param branchMap A Map of the sub-repositories with its branchId (i.e : master,develop etc)
      * @param localDirectory Static path to be resolved with targetDirectory
+     * @throws GitCloneUriException 
+     * @throws GitAPIException 
      */
-    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) {
+    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) throws GitCloneUriException  {
         String folderToReach = "";
         String cleanUrl;
         try {
@@ -99,7 +103,7 @@ public class RepositoryManager {
         return false;
     }
 
-    private void cloneRepository(String url, String branch, Path targetPath) {
+    private void cloneRepository(String url, String branch, Path targetPath) throws IOException {
         // then clone
         log.info("Cloning from [" + url + "] branch [" + branch + "] to [" + targetPath.toString() + "]");
         Git result;
@@ -112,6 +116,7 @@ public class RepositoryManager {
                 result.close();
             }
         } catch (GitAPIException e) {
+            FileUtil.delete(targetPath);
             log.error("Failed to clone git repository.", e);
         }
     }
@@ -122,19 +127,25 @@ public class RepositoryManager {
      * @param url Github url of the repository
      * @param branch Specified branch to clone
      * @param targetPath Path of the folder to checkout the repository
+     * @throws GitCloneUriException 
+     * @throws IOException 
+     * @throws GitAPIException 
      */
-    private void cloneEntireRepository(String url, Path targetPath) {
+    private void cloneEntireRepository(String url, Path targetPath) throws GitCloneUriException {
         Git result;
         log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
         try {
             result = Git.cloneRepository().setURI(url).setDirectory(targetPath.toFile()).call();
-            try {
-                log.info("Cloned: " + result.getRepository().getDirectory());
-            } finally {
-                result.close();
+        } catch (Exception e) {
+            if (e instanceof JGitInternalException) {
+                log.info(e.getMessage());
+                try {
+                    FileUtil.delete(targetPath);
+                    throw new GitCloneUriException(e.getMessage());
+                } catch (IOException ioEx) {
+                    // do nothing
+                }
             }
-        } catch (GitAPIException e) {
-            log.error("Failed to clone git repository.", e);
         }
     }
 

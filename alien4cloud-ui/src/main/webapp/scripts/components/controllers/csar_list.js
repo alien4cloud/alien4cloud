@@ -106,6 +106,9 @@ define(function (require) {
            $scope.buildParsingErrorToast(result);
            $scope.isImporting = false;
            $scope.isImportingAll = false;
+       }, function(error) {
+           $scope.isImporting = false;
+           $scope.isImportingAll = false;
        });
       };
 
@@ -115,7 +118,6 @@ define(function (require) {
         var bodyImport;
         var title ;
         var titleSuccess ;
-        console.log(result);
         for(var i=0;i<result.data.data.length;i++){
          if(result.data.data[i].context.parsingErrors.length > 0){
            if(result.data.data[i].context.parsingErrors[0].errorCode !='TOPOLOGY_DETECTED'){
@@ -202,6 +204,7 @@ define(function (require) {
         modalInstance.result.then(function(csarGitTemplate) {
           csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
             var errorMessage = successResponse;
+            console.log(errorMessage);
             if (errorMessage.error != null) {
               var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
               toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
