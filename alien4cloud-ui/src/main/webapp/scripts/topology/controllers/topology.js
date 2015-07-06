@@ -1335,6 +1335,8 @@ define(function (require) {
       };
 
       $scope.editorCallback = {
+        autoOpenRelationshipModal: autoOpenRelationshipModal,
+        
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
           // generate relationship name
           // var name = 'editorCreatedRelationship';

@@ -28,6 +28,9 @@ define(function (require) {
           actionCircle.call(this.actions.connectorDrag);
         },
         update: function(group, element) {
+          // we have to update the drag behavior to work with the new selection element (if not it will keep the creation element).
+          var actionCircle = group.select('.connectorAction');
+          actionCircle.call(this.actions.connectorDrag);
         }
       };
 
@@ -177,6 +180,9 @@ define(function (require) {
               gIdx++;
             });
           }
+
+          d3Service.select(nodeGroup, node.requirements, '.requirement', requirementRenderer);
+          d3Service.select(nodeGroup, node.capabilities, '.capability', capabilityRenderer);
         },
 
         drawRuntimeInfos: function(runtimeGroup, nodeInstances, nodeInstancesCount, rectOriginX, rectOriginY, scalingPolicies) {

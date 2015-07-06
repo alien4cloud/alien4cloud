@@ -18,7 +18,7 @@ define(function (require) {
         // update existing nodes
         selection.each(function(element) {
           var group = d3.select(this);
-          processor.updateNode(group, element);
+          processor.update(group, element);
         });
 
         // create new nodes

@@ -48,8 +48,9 @@
 }
 
 .connectorAction {
-  fill-opacity: 0;
+  fill: none;
   stroke-width: 0px;
+  pointer-events: all;
 }
 
 .connector {
@@ -58,20 +59,24 @@
   stroke: #555555;
   stroke-width: 1px;
   stroke-opacity: 1;
+  pointer-events: all;
 }
 
-.connector:hover > .background {
+.connector:hover {
   fill: whitesmoke;
+  pointer-events: all;
 }
 
 .connectorTarget {
   fill: $brand-success;
   fill-opacity: .6;
+  pointer-events: all;
 }
 
 .connectorTarget:hover {
   fill: darken($brand-success, 5%);
   fill-opacity: 1;
+  pointer-events: all;
 }
 
 .connectorlink {
@@ -89,6 +94,7 @@
   stroke: #555555;
   stroke-width: 1px;
   stroke-opacity: 1;
+  pointer-events: all;
 }
 
 .node-template > .background:hover {
@@ -117,9 +123,10 @@
 }
 
 .node-template .selector {
-  fill-opacity: 0;
+  fill: none;
   stroke-width: 1px;
   stroke-opacity: 0;
+  pointer-events: all;
 }
 
 .link {

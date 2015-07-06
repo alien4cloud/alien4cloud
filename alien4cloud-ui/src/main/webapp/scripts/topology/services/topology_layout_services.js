@@ -110,12 +110,12 @@ define(function (require) {
           // update the capabilities relative x coordinate
           _.each(node.requirements, function(requirement) {
             requirement.coordinate.relative.x = node.bbox.width();
-            requirement.coordinate.x = node.bbox.minX + requirement.coordinate.relative.x;
-            requirement.coordinate.y = node.bbox.minY + requirement.coordinate.relative.y;
+            requirement.coordinate.x = node.coordinate.x + requirement.coordinate.relative.x;
+            requirement.coordinate.y = node.coordinate.y + requirement.coordinate.relative.y;
           });
           _.each(node.capabilities, function(capability) {
-            capability.coordinate.x = node.bbox.minX + capability.coordinate.relative.x;
-            capability.coordinate.y = node.bbox.minY + capability.coordinate.relative.y;
+            capability.coordinate.x = node.coordinate.x + capability.coordinate.relative.x;
+            capability.coordinate.y = node.coordinate.y + capability.coordinate.relative.y;
           });
 
           return node.bbox;

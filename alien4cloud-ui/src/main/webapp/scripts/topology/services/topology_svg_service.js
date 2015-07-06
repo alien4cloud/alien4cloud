@@ -24,6 +24,8 @@ define(function (require) {
         this.setNodeRenderer(nodeRenderer);
 
         this.clickCallback = callbacks.click;
+        this.addRelationship = callbacks.addRelationship;
+
         this.isRuntime = isRuntime;
 
         this.selectedNodeId = null;

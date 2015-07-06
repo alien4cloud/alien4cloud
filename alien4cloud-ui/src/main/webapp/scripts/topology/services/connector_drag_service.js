@@ -44,6 +44,7 @@ define(function (require) {
                   selectedTarget
                 targetSelection.exit().remove();
               });
+              console.log(element);
               mouseCoordinate = {
                 x: element.coordinate.x,
                 y: element.coordinate.y
@@ -75,7 +76,7 @@ define(function (require) {
               topologySvg.svg.selectAll(".connectorlink").data([]).exit().remove();
               if(_.defined(selectedTarget)) {
                 var target = selectedTarget.target;
-                callbacks.addRelationship({
+                topologySvg.addRelationship({
                   sourceId: element.node.id,
                   requirementName: element.id,
                   requirementType: element.template.type,

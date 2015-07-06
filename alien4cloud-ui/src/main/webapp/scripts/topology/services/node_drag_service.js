@@ -13,6 +13,8 @@ define(function (require) {
 
           var connectorDrag = d3.behavior.drag()
             .on("dragstart", function(element) {
+              // get the hosting requirement of the node if any.
+              var hostRequirement = null;
               // look for container capabilities matching the container requirement.
               relationshipMatchingService.getTargets(element.node.id, element.template, element.id, topologySvg.topology.topology.nodeTemplates,
                 topologySvg.topology.nodeTypes, topologySvg.topology.relationshipTypes, topologySvg.topology.capabilityTypes, topologySvg.topology.topology.dependencies).then(function(result) {
@@ -71,19 +73,11 @@ define(function (require) {
               link.attr('d', d3.svg.diagonal());
               link.exit().remove();
             }).on("dragend", function(element) {
-              // remove all drag line and drag targets
-              topologySvg.svg.selectAll(".connectorTarget").data([]).exit().remove();
-              topologySvg.svg.selectAll(".connectorlink").data([]).exit().remove();
+              // if drag is performed on a host target node
               if(_.defined(selectedTarget)) {
-                var target = selectedTarget.target;
-                callbacks.addRelationship({
-                  sourceId: element.node.id,
-                  requirementName: element.id,
-                  requirementType: element.template.type,
-                  targetId: target.node.id,
-                  capabilityName: target.id,
-                  relationship: selectedTarget.relationship
-                });
+                console.log('dragging node on');
+              } else if(isRootNode) {
+                // move the node
               }
             });
 
