@@ -126,7 +126,7 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
      * @return A {@link GetMultipleDataResult} instance that contains the result data. Empty instance if no data found.
      */
     GetMultipleDataResult<Object> searchQueryString(String[] searchIndices, Class<?> clazz, String searchQueryString, Map<String, String[]> filters,
-            int maxElements);
+            FilterBuilder customFilter, int maxElements);
 
     /**
      * Same as {@link IGenericSearchDAO#search(Class, String, Map, int)}, but with pagination supported.
