@@ -313,7 +313,7 @@ public class DeploymentService {
         // call the paas provider to scale the topology
         IPaaSProvider paaSProvider = cloudService.getPaaSProvider(deployment.getCloudId());
         PaaSDeploymentContext deploymentContext = buildDeploymentContext(deployment);
-        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback<Void>() {
+        paaSProvider.scale(deploymentContext, nodeTemplateId, instances, new IPaaSCallback() {
             @Override
             public void onFailure(Throwable throwable) {
                 log.info("Failed to scale <{}> node from <{}> to <{}>. rolling back to {}...", nodeTemplateId, previousInitialInstances, newInitialInstances,
@@ -324,7 +324,7 @@ public class DeploymentService {
             }
 
             @Override
-            public void onSuccess(Void data) {
+            public void onSuccess(Object data) {
             }
         });
     }
