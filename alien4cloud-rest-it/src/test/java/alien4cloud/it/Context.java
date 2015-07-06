@@ -118,6 +118,8 @@ public class Context {
 
     private ThreadLocal<TopologyTemplate> topologyTemplate;
 
+    private ThreadLocal<String> topologyTemplateVersionId;
+
     private ThreadLocal<EvaluationContext> spelEvaluationContext;
 
     private ThreadLocal<Application> applicationLocal;
@@ -150,6 +152,7 @@ public class Context {
         csarIdLocal = new ThreadLocal<String>();
         applicationLocal = new ThreadLocal<Application>();
         topologyTemplate = new ThreadLocal<TopologyTemplate>();
+        topologyTemplateVersionId = new ThreadLocal<String>();
         spelEvaluationContext = new ThreadLocal<EvaluationContext>();
         cloudInfos = new ThreadLocal<Map<String, String>>();
         topologyCloudInfos = new ThreadLocal<String>();
@@ -541,5 +544,13 @@ public class Context {
 
     public String getApplicationId(String applicationName) {
         return this.applicationInfos.get().get(applicationName);
+    }
+
+    public void registerTopologyTemplateVersionId(String versionId) {
+        topologyTemplateVersionId.set(versionId);
+    }
+
+    public String getTopologyTemplateVersionId() {
+        return topologyTemplateVersionId.get();
     }
 }

@@ -415,6 +415,58 @@ define(function (require) {
 
       var nodeGroupMembersResource = $resource('rest/topologies/:topologyId/nodeGroups/:groupId/members/:nodeTemplateName');
 
+      var substitutionTypeResource = $resource('rest/topologies/:topologyId/substitutions/type', {}, {
+        'set': {
+          method: 'PUT',
+          params: {
+            elementId: '@elementId'
+          }
+        },
+        'remove': {
+          method: 'DELETE'
+        }
+      });
+
+      var capabilitySubstitutionResource = $resource('rest/topologies/:topologyId/substitutions/capabilities/:substitutionCapabilityId', {}, {
+        'add': {
+          method: 'PUT',
+          params: {
+            nodeTemplateName: '@nodeTemplateName',
+            capabilityId: '@capabilityId'
+          }
+        },
+        'remove': {
+          method: 'DELETE'
+        },
+        'update': {
+          method: 'POST',
+          params: {
+            newCapabilityId: '@newCapabilityId'
+          }
+        }
+      });
+
+      var requirementSubstitutionResource = $resource('rest/topologies/:topologyId/substitutions/requirements/:substitutionRequirementId', {}, {
+        'add': {
+          method: 'PUT',
+          params: {
+            nodeTemplateName: '@nodeTemplateName',
+            requirementId: '@requirementId'
+          }
+        },
+        'remove': {
+          method: 'DELETE'
+        },
+        'update': {
+          method: 'POST',
+          params: {
+            newRequirementId: '@newRequirementId'
+          }        
+        }
+      });
+
+      var topologyVersionResource = $resource('rest/topologies/:topologyId/version');      
+
       return {
         'dao': topologyDAO,
         'inputs': updateInput,
@@ -464,9 +516,13 @@ define(function (require) {
           'rename': inputArtifacts.rename,
           'remove': inputArtifacts.remove
         },
+        'substitutionType': substitutionTypeResource,
+        'capabilitySubstitution' : capabilitySubstitutionResource,
+        'requirementSubstitution' : requirementSubstitutionResource,
         'isValid': isValid.get,
         'getYaml': yaml.get,
-        'cloud': cloudResource
+        'cloud': cloudResource,
+        'getTopologyVersion' : topologyVersionResource.get
       };
     }
   ]);

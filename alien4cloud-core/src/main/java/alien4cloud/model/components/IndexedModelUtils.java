@@ -6,11 +6,12 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import alien4cloud.model.common.Tag;
 import org.elasticsearch.common.collect.Maps;
 
 import alien4cloud.exception.IndexingServiceException;
+import alien4cloud.model.common.Tag;
 import alien4cloud.utils.CollectionUtils;
 
 import com.google.common.collect.Lists;
@@ -116,7 +117,7 @@ public final class IndexedModelUtils {
     private static void mergeNodeType(IndexedNodeType from, IndexedNodeType to) {
         to.setCapabilities(CollectionUtils.merge(from.getCapabilities(), to.getCapabilities()));
         to.setRequirements(CollectionUtils.merge(from.getRequirements(), to.getRequirements()));
-        to.setInterfaces(CollectionUtils.merge(from.getInterfaces(), to.getInterfaces(), false));
+        to.setInterfaces(mergeInterfaces(from.getInterfaces(), to.getInterfaces()));
         to.setArtifacts(CollectionUtils.merge(from.getArtifacts(), to.getArtifacts(), false));
         if (from.getAttributes() != null) {
             to.setAttributes(CollectionUtils.merge(from.getAttributes(), to.getAttributes(), false));
@@ -136,7 +137,60 @@ public final class IndexedModelUtils {
             to.setAttributes(CollectionUtils.merge(from.getAttributes(), to.getAttributes(), false));
         }
 
-        to.setInterfaces(CollectionUtils.merge(from.getInterfaces(), to.getInterfaces(), false));
+        to.setInterfaces(mergeInterfaces(from.getInterfaces(), to.getInterfaces()));
         to.setArtifacts(CollectionUtils.merge(from.getArtifacts(), to.getArtifacts(), false));
     }
+
+    /**
+     * Merge interface & operations.
+     */
+    public static Map<String, Interface> mergeInterfaces(Map<String, Interface> from, Map<String, Interface> to) {
+        Map<String, Interface> target = to;
+        if (target == null) {
+            return from;
+        }
+        if (from == null) {
+            return target;
+        }
+        for (Entry<String, Interface> fromEntry : from.entrySet()) {
+            Interface toInterface = target.get(fromEntry.getKey());
+            Interface fromInterface = fromEntry.getValue();
+            if (toInterface == null) {
+                // the target doesn't contain this key, just put it
+                target.put(fromEntry.getKey(), fromEntry.getValue());
+            } else {
+                // the target already have this entry, so we'll compare operations in detail
+                Map<String, Operation> toOperations = toInterface.getOperations();
+                if (toOperations == null) {
+                    toInterface.setOperations(fromInterface.getOperations());
+                } else if (fromInterface.getOperations() != null) {
+                    for (Entry<String, Operation> fromOperationEntry : fromInterface.getOperations().entrySet()) {
+                        if (!toOperations.containsKey(fromOperationEntry.getKey())) {
+                            toOperations.put(fromOperationEntry.getKey(), fromOperationEntry.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        return target;
+    }
+
+    public static CapabilityDefinition getCapabilityDefinitionById(List<CapabilityDefinition> list, String id) {
+        for (CapabilityDefinition cd : list) {
+            if (cd.getId().equals(id)) {
+                return cd;
+            }
+        }
+        return null;
+    }
+
+    public static RequirementDefinition getRequirementDefinitionById(List<RequirementDefinition> list, String id) {
+        for (RequirementDefinition cd : list) {
+            if (cd.getId().equals(id)) {
+                return cd;
+            }
+        }
+        return null;
+    }
+
 }

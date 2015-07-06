@@ -75,6 +75,54 @@
     </div>
   </div>
   <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
+       ng-switch-when="text">
+    <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
+           tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">
+      {{labelName | translate | truncate:configuration.labelSize}} </label>
+
+    <div id="{{idPrefix + 'input'}}" class="form-editable"
+         ng-class="{'col-md-5': isDeletable, 'col-md-8': !isDeletable}">
+      <div ng-if="!propertyType._isReadOnly">
+        <span ng-if="configuration.useXeditable"
+              class="form-input-editable"
+              editable-textarea="input.value"
+              buttons="no"
+              onbeforesave="inputCheck($data)"
+              onaftersave="inputChanged()"
+              e-typeahead="item for item in suggestion.get($viewValue)"
+              typeahead-min-length="suggestion.minLength"
+              blur="submit">
+            {{input.value}}
+            <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED'
+              | translate}}</em>
+            <i class="fa fa-pencil-square-o"></i>
+        </span>
+        <textarea ng-if="!configuration.useXeditable"
+               class="form-control"
+               type="text"
+               ng-model="input.newValue"
+               ng-change="inputCheckForNonXeditable(input.newValue)"
+               ng-blur="inputChangedForNonXeditable()"
+               typeahead="item for item in suggestion.get($viewValue)"></textarea>
+                <span ng-if="input.error && !configuration.useXeditable"
+                      class="help-inline text-danger">{{input.error}}</span>
+      </div>
+      <div ng-if="propertyType._isReadOnly">
+                <span ng-if="propertyType._isReadOnly">
+                {{input.value}}
+                    <em ng-if="input.value === null || input.value === undefined" class="text-muted">{{'GENERIC_FORM.UNDEFINED_READ_ONLY'
+                      | translate}}</em>
+                </span>
+      </div>
+    </div>
+    <div class="col-md-3" ng-if="isDeletable">
+      <button type="button" tooltip="{{ 'GENERIC_FORM.DELETE' | translate }}" class="btn btn-danger btn-sm"
+              ng-click="deleteForm()">
+        <i class="fa fa-trash-o"></i>
+      </button>
+    </div>
+  </div>
+  <div class="form-group" ng-class="{'has-error': !isInputValid && configuration.showErrors}"
        ng-switch-when="boolean">
     <label class="col-md-4 control-label" tooltip="{{labelName | translate}}"
            tooltip-trigger="{{{true: 'mouseenter', false: 'never'}[(labelName | translate).length > configuration.labelSize]}}">

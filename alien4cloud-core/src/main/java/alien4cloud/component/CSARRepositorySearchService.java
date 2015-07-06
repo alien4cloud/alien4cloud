@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -16,6 +17,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.FacetedSearchResult;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
@@ -23,6 +25,7 @@ import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.utils.CollectionUtils;
 import alien4cloud.utils.VersionUtil;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 @Component
@@ -91,4 +94,18 @@ public class CSARRepositorySearchService implements ICSARRepositorySearchService
         dependencies = CollectionUtils.merge(csar.getDependencies(), dependencies);
         return getRequiredElementInDependencies(elementClass, parentElementId, CollectionUtils.merge(csar.getDependencies(), dependencies));
     }
+
+    @Override
+    public FacetedSearchResult search(Class<? extends IndexedToscaElement> classNameToQuery, String query, Integer from, Integer size,
+            Map<String, String[]> filters, boolean queryAllVersions) {
+        if (!queryAllVersions) {
+            if (filters == null) {
+                filters = Maps.newHashMap();
+            }
+            filters.put("highestVersion", new String[] { "true" });
+        }
+        FacetedSearchResult searchResult = searchDAO.facetedSearch(classNameToQuery, query, filters, "component_summary", from, size);
+        return searchResult;
+    }
+
 }

@@ -112,7 +112,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-9">
               <div class="input-group">
               <span class="input-group-addon">
                 <span><i>{{'APPLICATIONS.TOPOLOGY.TYPE' | translate}}</i></span>
@@ -120,10 +120,20 @@
                 <span class="form-control"> {{selectedNodeTemplate.type}} </span>
               </div>
             </div>
-            <div class="col-md-2">
-              <a class=" btn btn-default"
-                 href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i
-                class="fa fa-eye text-primary"></i></a>
+            <div class="col-md-3">
+              <span class="btn-group pull-right">
+	              <button 
+	                ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId"
+	                ng-click="displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
+	                class="btn btn-default"
+	                tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
+	                tooltip-append-to-body="true">
+	                <i class="fa fa-sitemap text-primary"></i>
+	              </button>
+	              <a class=" btn btn-default"
+	                 href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i
+	                class="fa fa-eye text-primary"></i></a>
+              </span>
             </div>
           </div>
           <div class="row" style="margin-top: 5px;">
@@ -293,7 +303,7 @@
                     <span tooltip="{{requirementEntry.value.type}}"
                           tooltip-append-to-body="true">{{getShortName(requirementEntry.value.type)}}</span>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6" ng-init="reqComp = getComponent(selectedNodeTemplate, requirementEntry.value.type)">
                     <span class="btn-group pull-right">
                       <button tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
@@ -308,9 +318,6 @@
                           {{requirementEntry.value.lowerBound}}..{{requirementEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                           ({{requirementEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                       </span>
-                    </span>
-                    </div>
-                    <div class="col-md-1" ng-init="reqComp = getComponent(selectedNodeTemplate, requirementEntry.value.type)">
                       <button id="btn-component-description-{{requirementEntry.key}}"
                               ng-if="reqComp.data.description"
                               ng-click="openSimpleModal('MODAL.TITLE.REQUIREMENT', reqComp.data.description)"
@@ -318,6 +325,17 @@
                               tooltip-append-to-body="true">
                         <i class="fa fa-question-circle"></i>
                       </button>
+                      <button id="btn-expose-{{requirementEntry.key}}"
+                              ng-disabled="!requirementEntry.value.canAddRel.yes"
+                              ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                              ng-click="exposeRequirementForSubstitution(requirementEntry.key); $event.stopPropagation()"
+                              ng-class="{'active' : isRequirementExposed(requirementEntry.key)}"
+                              class="btn btn-default btn-xs"
+                              tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
+                              tooltip-append-to-body="true">
+                        <i class="fa fa-recycle"></i>
+                      </button>                      
+                    </span>
                     </div>
                   </div>
                 </div>
@@ -369,7 +387,7 @@
                     <span tooltip="{{capabilityEntry.value.type}}"
                           tooltip-append-to-body="true">{{getShortName(capabilityEntry.value.type)}}</span>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
                     <span class="btn-group pull-right">
                       <span class="btn btn-default btn-xs cardinalities_show"
                             tooltip="{{'APPLICATIONS.TOPOLOGY.CAPABILITY_CARDINALITIES_TOOLTIP' | translate}}"
@@ -377,9 +395,6 @@
                           {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                           ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                       </span>
-                    </span>
-                    </div>
-                    <div class="col-md-1" ng-init="capaComp = getComponent(selectedNodeTemplate, capabilityEntry.value.type)">
                       <button id="btn-description-{{capabilityEntry.value.type}}"
                               ng-if="capaComp.data.description"
                               ng-click="openSimpleModal('MODAL.TITLE.CAPABILITY', capaComp.data.description)"
@@ -388,6 +403,16 @@
                               tooltip-append-to-body="true">
                         <i class="fa fa-question-circle"></i>
                       </button>
+                      <button id="btn-expose-{{capabilityEntry.value.type}}"
+                              ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
+                              ng-click="exposeCapabilityForSubstitution(capabilityEntry.key); $event.stopPropagation()"
+                              class="btn btn-default btn-xs"
+                              ng-class="{'active' : isCapabilityExposed(capabilityEntry.key)}"
+                              tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
+                              tooltip-append-to-body="true">
+                        <i class="fa fa-recycle"></i>
+                      </button>
+                    </span>
                     </div>
                   </div>
                 </div>
@@ -846,6 +871,105 @@
       </div>
     </div>
 
+    <!-- Substitution -->
+    <div id="substitutions-box" ng-show="isTopologyTemplate && displays.substitutions.active" class="topology-column ui-resizable" style="width: {{displays.substitutions.size}}px;">
+      <div class="topology-column-box">
+        <div class="topology-column-menu">
+          <i id="artifacts-box-handler" class="fa fa-bars fa-rotate-90 ui-resizable-handle ui-resizable-w resizable-bar"></i>
+        </div>
+        <div class="topology-column-content">
+          <div class="topology-column-content-head">
+            <span>
+              <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
+            </span>
+            <span id='closeSubstitutions' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('substitutions')">
+              <i class="fa fa-remove close-panel"></i>
+            </span>
+          </div>
+          <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TYPE' | translate}}</h4>
+          <div class="row">
+            <div class="col-md-11">
+              <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" typeahead="item for item in getSubstitutionTypeSuggestions.get($viewValue)" typeahead-min-length="getSubstitutionTypeSuggestions.minLength" typeahead-on-select="selectSubstitutionType($item)" />
+            </div>
+            <div class="col-md-1">
+              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="removeSubstitution()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            </div>
+          </div>
+          </delete-confirm>
+          <div ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType">
+            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.VERSION' | translate}}</h4>
+            {{ topology.topology.substitutionMapping.substitutionType.archiveName }}
+            <div class="btn-group btn-group-sm"  >
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="substitution_versions">
+                {{topology.topology.substitutionMapping.substitutionType.archiveVersion}}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-left" role="menu" ng-init="itemIdex = $index">
+                <li class="option-selected"><a id="substitution_version_{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}" ng-click="$event.stopPropagation()">{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}</a></li>
+                <!-- TODO: it will probably be in deps so ... -->
+                <li ng-if="!isTypeInDependencies(topology.topology.substitutionMapping.substitutionType)" ng-repeat="olderVersion in topology.topology.substitutionMapping.substitutionType.olderVersions"><a id="substitution_version_{{olderVersion}}" ng-click="changeSubstitutionVersion(olderVersion)">{{olderVersion}}</a></li>
+              </ul>
+            </div>          
+            <br>
+            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITIES' | translate}}</h4>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.NOM' | translate }}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TARGET_NODE' | translate }}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITY' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="(capabilityId, target) in topology.topology.substitutionMapping.capabilities">
+                  <td>
+                    <span editable-text="capabilityId" buttons="no" e-required onbeforesave="updateSubstitutionCababilityKey(capabilityId, $data)" blur="submit">
+                      {{capabilityId}}
+                      <i class="fa fa-pencil-square-o"></i>
+                    </span>
+                  </td>
+                  <td>{{target.nodeTemplateName}}</td>
+                  <td>{{target.targetId}}</td>
+                  <td>
+                    <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="removeSubstitutionCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+                    </delete-confirm>
+                  </td>                
+                </tr>
+              </tbody>
+            </table>
+            <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENTS' | translate}}</h4>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.NOM' | translate }}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.SOURCE_NODE' | translate }}</th>
+                  <th>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.REQUIREMENT' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="(requirementId, target) in topology.topology.substitutionMapping.requirements">
+                  <td>
+                    <span editable-text="requirementId" buttons="no" e-required onbeforesave="updateSubstitutionRequirementKey(requirementId, $data)" blur="submit">
+                      {{requirementId}}
+                      <i class="fa fa-pencil-square-o"></i>
+                    </span>
+                  </td>              
+                  <td>{{target.nodeTemplateName}}</td>
+                  <td>{{target.targetId}}</td>
+                  <td>
+                    <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="removeSubstitutionRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+                    </delete-confirm>
+                  </td>                
+                </tr>
+              </tbody>
+            </table>   
+          </div>       
+        </div>
+      </div>
+    </div>
+
     <!-- Right vertical menu -->
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
@@ -872,6 +996,11 @@
         <li ng-show="!displays.artifacts.active" ng-click="toggleDisplay('artifacts')">
           <span id="topology-artifacts" >
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
+          </span>
+        </li>
+        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="toggleDisplay('substitutions')">
+          <span id="topology-substitutions" >
+            <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>
         </li>
       </ul>

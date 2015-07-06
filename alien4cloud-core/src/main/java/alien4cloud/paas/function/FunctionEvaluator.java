@@ -22,7 +22,6 @@ import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSTemplate;
 import alien4cloud.paas.exception.NotSupportedException;
-import alien4cloud.paas.exception.PaaSTechnicalException;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.paas.model.PaaSNodeTemplate;
 import alien4cloud.paas.model.PaaSRelationshipTemplate;
@@ -46,7 +45,7 @@ public final class FunctionEvaluator {
 
     /**
      * Post process / enrich instance information by parsing all function in attributes and replacing them with real values
-     * 
+     *
      * @param instanceInformations the instance information to post process
      * @param topology the topology
      * @param paaSTopology the pass topology
@@ -255,15 +254,16 @@ public final class FunctionEvaluator {
     public static List<? extends IPaaSTemplate> getPaaSTemplatesFromKeyword(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate, String keyword,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         switch (keyword) {
-        case ToscaFunctionConstants.HOST:
-            return getParentsNodes(basePaaSTemplate);
         case ToscaFunctionConstants.SELF:
             return Lists.<IPaaSTemplate> newArrayList(basePaaSTemplate);
+        case ToscaFunctionConstants.HOST:
+            return getWithParentsNodes(getHostNode(basePaaSTemplate));
         case ToscaFunctionConstants.SOURCE:
-            return Lists.<IPaaSTemplate> newArrayList(getSourceNode(basePaaSTemplate, builtPaaSTemplates));
+            return getWithParentsNodes(getSourceNode(basePaaSTemplate, builtPaaSTemplates));
         case ToscaFunctionConstants.TARGET:
-            return Lists.<IPaaSTemplate> newArrayList(getTargetNode(basePaaSTemplate, builtPaaSTemplates));
+            return getWithParentsNodes(getTargetNode(basePaaSTemplate, builtPaaSTemplates));
         default:
+            // FIXME if the keyword is in fact the name of a relationship??
             return Lists.<IPaaSTemplate> newArrayList(getPaaSNodeOrFail(keyword, builtPaaSTemplates));
         }
     }
@@ -351,25 +351,17 @@ public final class FunctionEvaluator {
         return toReturn;
     }
 
-    private static List<? extends IPaaSTemplate> getParentsNodes(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
-        if (!(basePaaSTemplate instanceof PaaSNodeTemplate)) {
-            throw new BadUsageKeywordException("The keyword <" + ToscaFunctionConstants.HOST + "> can only be used on a NodeTemplate level's parameter. Node<"
-                    + basePaaSTemplate.getId() + ">");
+    private static PaaSNodeTemplate getHostNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate) {
+        if (basePaaSTemplate instanceof PaaSNodeTemplate) {
+            // TODO Must review this management of host
+            PaaSNodeTemplate template = (PaaSNodeTemplate) basePaaSTemplate;
+            return template.getParent() != null ? template.getParent() : template;
         }
-        // TODO Must review this management of host
-        PaaSNodeTemplate template = (PaaSNodeTemplate) basePaaSTemplate;
-        if (template.getParent() == null) {
-            return Lists.<IPaaSTemplate> newArrayList(template);
-        }
-        try {
-            List<? extends IPaaSTemplate> parentList = ToscaUtils.getParents(template);
-            return parentList;
-        } catch (PaaSTechnicalException e) {
-            throw new FunctionEvaluationException("Failed to retrieve the root node of <" + basePaaSTemplate.getId() + ">.", e);
-        }
+        throw new BadUsageKeywordException("The keyword <" + ToscaFunctionConstants.HOST + "> can only be used on a NodeTemplate level's parameter. Node<"
+                + basePaaSTemplate.getId() + ">");
     }
 
-    private static IPaaSTemplate<? extends IndexedToscaElement> getSourceNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+    private static PaaSNodeTemplate getSourceNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getSource(), builtPaaSTemplates);
@@ -378,13 +370,23 @@ public final class FunctionEvaluator {
                 + basePaaSTemplate.getId() + ">");
     }
 
-    private static IPaaSTemplate<? extends IndexedToscaElement> getTargetNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+    private static PaaSNodeTemplate getTargetNode(IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         if (basePaaSTemplate instanceof PaaSRelationshipTemplate) {
             return getPaaSNodeOrFail(((PaaSRelationshipTemplate) basePaaSTemplate).getRelationshipTemplate().getTarget(), builtPaaSTemplates);
         }
         throw new BadUsageKeywordException("The keyword <" + ToscaFunctionConstants.TARGET + "> can only be used on a Relationship level's parameter. Node<"
                 + basePaaSTemplate.getId() + ">.");
+    }
+
+    private static List<PaaSNodeTemplate> getWithParentsNodes(final PaaSNodeTemplate paaSNodeTemplate) {
+        List<PaaSNodeTemplate> toReturn = Lists.newArrayList();
+        PaaSNodeTemplate parent = paaSNodeTemplate;
+        while (parent != null) {
+            toReturn.add(parent);
+            parent = parent.getParent();
+        }
+        return toReturn;
     }
 
     /**

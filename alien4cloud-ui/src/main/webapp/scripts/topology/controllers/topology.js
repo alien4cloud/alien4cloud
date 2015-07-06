@@ -24,8 +24,8 @@ define(function (require) {
   require('scripts/topology/directives/topology_rendering');
 
   modules.get('a4c-topology-editor', ['a4c-common', 'ui.bootstrap', 'toaster', 'pascalprecht.translate', 'a4c-tosca', 'a4c-styles']).controller('TopologyCtrl',
-    ['$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster', 'runtimeColorsService',
-    function($scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $translate, $upload, componentService, nodeTemplateService, $timeout, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster, runtimeColorsService) {
+    ['$scope', '$modal', 'topologyJsonProcessor', 'topologyServices', 'resizeServices', '$translate', '$upload', 'componentService', 'nodeTemplateService', '$timeout', 'appVersions', 'topologyId', 'toscaService', 'toscaCardinalitiesService', 'toaster', 'runtimeColorsService', 'suggestionServices', 'preselectedVersion',
+    function($scope, $modal, topologyJsonProcessor, topologyServices, resizeServices, $translate, $upload, componentService, nodeTemplateService, $timeout, appVersions, topologyId, toscaService, toscaCardinalitiesService, toaster, runtimeColorsService, suggestionServices, preselectedVersion) {
       $scope.view = 'RENDERED';
 
       // Size management
@@ -92,6 +92,10 @@ define(function (require) {
           active: false,
           size: 400
         },
+        substitutions: {
+          active: false,
+          size: 400
+        },
         component: {
           active: false,
           size: 400
@@ -151,6 +155,13 @@ define(function (require) {
                 displayOnly(['topology', 'component', 'inputs']);
               }
               break;
+            case 'substitutions':
+              if (!$scope.displays.component.active) {
+                displayOnly(['topology', 'substitutions']);
+              } else {
+                displayOnly(['topology', 'component', 'substitutions']);
+              }
+              break;
           }
         }
       };
@@ -184,24 +195,11 @@ define(function (require) {
         });
       };
 
-      // TODO : when topology templates edition with use also version, remove this IF statement
-      if (_.defined(appVersions) && _.defined(appVersions.data)) {
-        // default version loading
-        $scope.appVersions = appVersions.data;
-        $scope.selectedVersion = $scope.appVersions[0];
-        $scope.topologyId = $scope.selectedVersion.topologyId;
-      } else {
-        // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
-        $scope.topologyId = topologyId;
-      }
-
-      $scope.editorContent = '';
-      var outputKeys = ['outputProperties', 'outputAttributes'];
-
       var setSelectedVersionByName = function(name) {
-        $scope.selectedVersionName = name;
+        preselectedVersion = undefined;
         for (var i = 0; i < $scope.appVersions.length; i++) {
-          if ($scope.appVersions[i].version === $scope.selectedVersionName) {
+          if ($scope.appVersions[i].version === name) {
+            $scope.selectedVersionName = name;
             $scope.selectedVersion = $scope.appVersions[i];
             $scope.topologyId = $scope.selectedVersion.topologyId;
             break;
@@ -209,13 +207,22 @@ define(function (require) {
         }
       };
 
-      var updateSelectedVersionName = function(applicationVersions) {
-        if (_.defined(applicationVersions)) {
-            $scope.selectedVersionName = applicationVersions[0].version;
-            setSelectedVersionByName(applicationVersions[0].version);
+      // TODO : when topology templates edition with use also version, remove this IF statement
+      if (_.defined(appVersions) && _.defined(appVersions.data)) {
+        // default version loading
+        $scope.appVersions = appVersions.data;
+        $scope.selectedVersion = $scope.appVersions[0];
+        $scope.topologyId = $scope.selectedVersion.topologyId;
+        if (_.defined(preselectedVersion)) {
+          setSelectedVersionByName(preselectedVersion);
         }
-      };
-      updateSelectedVersionName($scope.appVersions);
+      } else {
+        // TODO : remove this part when apVersion will be given in state 'topologytemplates.detail.topology'
+        $scope.topologyId = topologyId;
+      }
+
+      $scope.editorContent = '';
+      var outputKeys = ['outputProperties', 'outputAttributes'];
 
       $scope.changeVersion = function(selectedVersion) {
         setSelectedVersionByName(selectedVersion.version);
@@ -233,6 +240,7 @@ define(function (require) {
           }
         }
         $scope.topology = topologyDTO;
+        $scope.isTopologyTemplate = ($scope.topology.topology.delegateType === 'topologytemplate');
 
         // enrich objects to add maps for the fields that are currently mapped as array of map entries.
         topologyJsonProcessor.process($scope.topology);
@@ -265,6 +273,15 @@ define(function (require) {
         $scope.orderedNodeGroups.sort(function(a, b){
           return a.index - b.index;
         });
+
+        // about substitution
+        if ($scope.topology.topology.substitutionMapping && $scope.topology.topology.substitutionMapping.substitutionType) {
+          $scope.substitutionType = $scope.topology.topology.substitutionMapping.substitutionType.elementId;
+          $scope.substitutionVersion = $scope.topology.topology.substitutionMapping.substitutionType.archiveVersion;
+        } else {
+          $scope.substitutionType = undefined;
+          $scope.substitutionVersion = undefined;
+        }
       };
 
       // Topology can comes from application OR topology template
@@ -406,10 +423,12 @@ define(function (require) {
         topologyServices.nodeTemplate.add({
           topologyId: $scope.topology.topology.id
         }, angular.toJson(nodeTemplateRequest), function(result) {
-          // for refreshing the ui
-          refreshTopology(result.data, nodeTemplateName);
-          if (targetNodeTemplateName) {
-            autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
+          if (!result.error) {
+            // for refreshing the ui
+            refreshTopology(result.data, nodeTemplateName);
+            if (targetNodeTemplateName) {
+              autoOpenRelationshipModal(nodeTemplateName, targetNodeTemplateName);
+            }
           }
         });
       }
@@ -1334,9 +1353,163 @@ define(function (require) {
         return runtimeColorsService.groupColorCss($scope.topology.topology, groupId);
       };
 
+      /**
+       * Substitution type suggest
+       */
+      var getSubstitutionTypeSuggestions = function(keyword) {
+        return suggestionServices.nodetypeSuggestions(keyword);
+      };
+
+      $scope.getSubstitutionTypeSuggestions = {
+        get: getSubstitutionTypeSuggestions,
+        waitBeforeRequest: 0,
+        minLength: 2
+      };
+
+      $scope.selectSubstitutionType = function(substitutionType) {
+        if (!$scope.topology.topology.substitutionMapping || $scope.topology.topology.substitutionMapping.substitutionType !== substitutionType) {
+          topologyServices.substitutionType.set({
+            topologyId: $scope.topology.topology.id,
+            elementId: substitutionType
+          }, {}, function(result) {
+            if (!result.error) {
+              refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+            }
+          });
+        }
+      };
+
+      $scope.removeSubstitution = function() {
+        topologyServices.substitutionType.remove({
+          topologyId: $scope.topology.topology.id
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+
+      $scope.isTypeInDependencies = function(nodeType) {
+        for (var i=0; i< $scope.topology.topology.dependencies.length; i++) {
+          if ($scope.topology.topology.dependencies[i].name === nodeType.archiveName) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      $scope.exposeCapabilityForSubstitution = function(capabilityId) {
+        if ($scope.isCapabilityExposed(capabilityId)) {
+          return;
+        }
+        topologyServices.capabilitySubstitution.add({
+          topologyId: $scope.topology.topology.id,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          substitutionCapabilityId: capabilityId,
+          capabilityId: capabilityId
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate.name);
+          }
+        });
+      }
+
+      $scope.isCapabilityExposed = function(capabilityId) {
+        var result = false;
+        angular.forEach($scope.topology.topology.substitutionMapping.capabilities, function(value, key) {
+          if (value.nodeTemplateName === $scope.selectedNodeTemplate.name && value.targetId === capabilityId) {
+            result = true;
+          }
+        });
+        return result;
+      }
+
+      $scope.updateSubstitutionCababilityKey = function(oldKey, newKey) {
+        topologyServices.capabilitySubstitution.update({
+          topologyId: $scope.topology.topology.id,
+          substitutionCapabilityId: oldKey,
+          newCapabilityId: newKey
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+
+      $scope.removeSubstitutionCabability = function(key) {
+        topologyServices.capabilitySubstitution.remove({
+          topologyId: $scope.topology.topology.id,
+          substitutionCapabilityId: key
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+
+      $scope.exposeRequirementForSubstitution = function(requirementId) {
+        if ($scope.isRequirementExposed(requirementId)) {
+          return;
+        }
+        topologyServices.requirementSubstitution.add({
+          topologyId: $scope.topology.topology.id,
+          nodeTemplateName: $scope.selectedNodeTemplate.name,
+          substitutionRequirementId: requirementId,
+          requirementId: requirementId
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate.name);
+          }
+        });
+      }
+
+      $scope.isRequirementExposed = function(requirementId) {
+        var result = false;
+        angular.forEach($scope.topology.topology.substitutionMapping.requirements, function(value, key) {
+          if (value.nodeTemplateName === $scope.selectedNodeTemplate.name && value.targetId === requirementId) {
+            result = true;
+          }
+        });
+        return result;
+      }
+
+      $scope.updateSubstitutionRequirementKey = function(oldKey, newKey) {
+        topologyServices.requirementSubstitution.update({
+          topologyId: $scope.topology.topology.id,
+          substitutionRequirementId: oldKey,
+          newRequirementId: newKey
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+
+      $scope.removeSubstitutionRequirement = function(key) {
+        topologyServices.requirementSubstitution.remove({
+          topologyId: $scope.topology.topology.id,
+          substitutionRequirementId: key
+        }, {}, function(result) {
+          if (!result.error) {
+            refreshTopology(result.data, $scope.selectedNodeTemplate ? $scope.selectedNodeTemplate.name : undefined);
+          }
+        });
+      }
+
+      $scope.displayEmbededTopology = function(topologyId) {
+        topologyServices.getTopologyVersion({
+          topologyId: topologyId
+        }, {}, function(result) {
+          if (!result.error) {
+            window.open('/#/topologytemplates/detail/' + result.data.topologyTemplateId + '/topology/' + result.data.version);
+          }
+        });
+      }
+
+
       $scope.editorCallback = {
         autoOpenRelationshipModal: autoOpenRelationshipModal,
-        
+
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
           // generate relationship name
           // var name = 'editorCreatedRelationship';

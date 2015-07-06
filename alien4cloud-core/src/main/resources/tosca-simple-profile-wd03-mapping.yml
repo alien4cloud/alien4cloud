@@ -22,6 +22,7 @@
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 - node_filter_parser: alien4cloud.tosca.parser.impl.advanced.NodeFilterParser
+- sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -66,6 +67,9 @@
   input_artifacts:
     map: inputArtifacts
     type: template_deployment_artifact
+  substitution_mappings: 
+    reference: substitutionMapping
+    type: sustitution_mapping_parser
   node_templates:
     map: nodeTemplates
     type: node_template
