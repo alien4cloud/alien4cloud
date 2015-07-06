@@ -40,7 +40,9 @@
               <td>{{csar.version}}</td>
               <td>{{csar.description || '---' }}</td>
               <td>
-                <delete-confirm id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm 
+                  ng-if="!csar.substitutionTopologyId"
+                  id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
             </tr>

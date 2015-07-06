@@ -40,3 +40,23 @@ Scenario: quick search should be able to return only what user has access (any a
     And I quickly search for "newAppli" from 0 with result size of 10
   Then I should receive a RestResponse with no error
     And The quickSearch response should contains 1 "applications"
+
+Scenario: quick search should be able to find applications or components regardless the query word
+  Given I am authenticated with "APPLICATIONS_MANAGER" role
+    And I create a new application with name "my.application.NewNode" and description "My application with keyword type."
+  When I authenticate with "ADMIN" role
+    And I quickly search for "application" from 0 with result size of 10
+  Then I should receive a RestResponse with no error
+    And The quickSearch response should only contains 2 "applications"
+  When I quickly search for "type" from 0 with result size of 10
+  	Then I should receive a RestResponse with no error
+  	And The quickSearch response should only contains 1 "applications" # 'type' is found in the application description
+  	And The quickSearch response should only contains 10 "node types"
+  When I quickly search for "node" from 0 with result size of 10
+  	Then I should receive a RestResponse with no error
+  	And The quickSearch response should only contains 1 "applications" # 'node' is found in the application name
+  	And The quickSearch response should only contains 10 "node types"
+  When I authenticate with "APPLICATIONS_MANAGER" role
+    And I quickly search for "newAppli" from 0 with result size of 10
+  Then I should receive a RestResponse with no error
+    And The quickSearch response should contains 1 "applications"

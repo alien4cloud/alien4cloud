@@ -75,6 +75,22 @@ topology_template:
 #end##if($inputArtifactEntry.value.description)
 #end##foreach($inputArtifactEntry in $topology.inputArtifacts.entrySet()) 
 #end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.inputArtifacts))
+#if($topology.substitutionMapping)
+  substitution_mappings:
+    node_type: ${topology.substitutionMapping.substitutionType.elementId}
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
+    capabilities:
+#foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
+      ${substitutionCapabilityEntry.key}: [ ${substitutionCapabilityEntry.value.nodeTemplateName}, ${substitutionCapabilityEntry.value.targetId} ]
+#end##foreach($substitutionCapabilityEntry in $topology.substitutionMapping.capabilities.entrySet())
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.capabilities))
+#if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
+    requirements:
+#foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
+      ${substitutionRequirementEntry.key}: [ ${substitutionRequirementEntry.value.nodeTemplateName}, ${substitutionRequirementEntry.value.targetId} ]
+#end##foreach($substitutionRequirementEntry in $topology.substitutionMapping.requirements.entrySet())
+#end##if($utils.mapIsNotEmptyAndContainsNotnullValues($topology.substitutionMapping.requirements))
+#end##if($topology.substitutionMapping)
   node_templates:
 #foreach($nodeTemplateEntry in ${topology.nodeTemplates.entrySet()})
     ${nodeTemplateEntry.key}:

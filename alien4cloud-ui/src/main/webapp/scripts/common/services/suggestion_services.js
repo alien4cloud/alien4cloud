@@ -16,6 +16,8 @@ define(function (require) {
       path : '@path'
     });
 
+    var nodetypeSuggestionResource = $resource('rest/suggest/nodetypes');
+
     var getSuggestions = function(index, type, path, text) {
       return genericSuggestionDAO.get({
         index : index,
@@ -38,9 +40,18 @@ define(function (require) {
       });
     };
 
+    var getNodetypeSuggestions = function(keyword) {
+      return nodetypeSuggestionResource.get({
+        text : keyword
+      }).$promise.then(function(result) {
+        return result.data;
+      });
+    };
+
     return {
       tagNameSuggestions : getTagNameSuggestions,
-      getSuggestions : getSuggestions
+      getSuggestions : getSuggestions,
+      nodetypeSuggestions : getNodetypeSuggestions
     };
 
   }]); // factory
