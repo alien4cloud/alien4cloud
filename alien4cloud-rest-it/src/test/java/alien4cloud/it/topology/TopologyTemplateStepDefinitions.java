@@ -3,6 +3,7 @@ package alien4cloud.it.topology;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,11 +62,16 @@ public class TopologyTemplateStepDefinitions {
         }
     }
 
+    public static TopologyTemplateVersion getLatestTopologyTemplateVersion(String topologyTemplateId) throws IOException {
+        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+        return ttv;
+    }
+
     @Then("^I can get and register the topology for the last version of the registered topology template$")
     public void I_can_get_the_last_version_for_the_registered_topology_template() throws Throwable {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
-        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplate.getId() + "/versions/");
-        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+        TopologyTemplateVersion ttv = getLatestTopologyTemplateVersion(topologyTemplate.getId());
         assertNotNull(ttv);
         assertNotNull(ttv.getTopologyId());
         Context.getInstance().registerTopologyId(ttv.getTopologyId());
