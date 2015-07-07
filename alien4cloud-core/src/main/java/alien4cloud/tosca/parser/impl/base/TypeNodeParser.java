@@ -136,7 +136,7 @@ public class TypeNodeParser<T> extends AbstractTypeNodeParser implements INodePa
         if (target == null) {
             context.getParsingErrors().add(
                     new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Ignored field during import", nodeTuple.getKeyNode()
-                            .getStartMark(), "tosca key is not recognized", nodeTuple.getKeyNode().getEndMark(), key));
+                            .getStartMark(), "tosca key is not recognized", nodeTuple.getValueNode().getEndMark(), key));
         } else {
             // set the value to the required path
             BeanWrapper targetBean = target.isRootPath() ? context.getRoot() : instance;

@@ -64,7 +64,7 @@ public class SequenceToMapParser<T> implements INodeParser<Map<String, T>> {
             for (int i = 1; i < mappingNode.getValue().size(); i++) {
                 NodeTuple entry = mappingNode.getValue().get(i);
                 ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Parsing a MappingNode as a Map", entry
-                        .getValueNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
+                        .getKeyNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
                         ((ScalarNode) entry.getKeyNode()).getValue());
                 context.getParsingErrors().add(err);
             }
