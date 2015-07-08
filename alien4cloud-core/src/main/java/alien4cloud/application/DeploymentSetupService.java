@@ -46,6 +46,7 @@ import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
@@ -287,11 +288,10 @@ public class DeploymentSetupService {
      * @param environment
      */
     private void processGetInput(DeploymentSetup deploymentSetup, Topology topology, ApplicationEnvironment environment) {
-        Cloud cloud = null;
         Map<String, String> mergedInputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
                 .getInputProperties();
         if (environment.getCloudId() != null) {
-            cloud = cloudService.get(environment.getCloudId());
+            Cloud cloud = cloudService.get(environment.getCloudId());
             Map<String, String> cloudMetaProperties = cloud.getMetaProperties() == null ? Maps.<String, String> newHashMap() : cloud.getMetaProperties();
             mergedInputs.putAll(cloudMetaProperties);
         }
@@ -306,6 +306,11 @@ public class DeploymentSetupService {
                 if (nodeTemplate.getCapabilities() != null) {
                     for (Capability capability : nodeTemplate.getCapabilities().values()) {
                         processGetInput(mergedInputs, capability.getProperties());
+                    }
+                }
+                if (nodeTemplate.getRequirements() != null) {
+                    for (Requirement requirement : nodeTemplate.getRequirements().values()) {
+                        processGetInput(mergedInputs, requirement.getProperties());
                     }
                 }
             }
