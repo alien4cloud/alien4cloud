@@ -116,19 +116,6 @@ public interface IGenericSearchDAO extends IGenericIdDAO {
     <T> GetMultipleDataResult<T> search(Class<T> clazz, String searchText, Map<String, String[]> filters, int maxElements);
 
     /**
-     * Query string search
-     * 
-     * @param searchIndices
-     * @param clazz The type of data to query.
-     * @param searchQueryString The query string search text
-     * @param filters The filters for the search or null if no filters.
-     * @param maxElements The maximum number of elements to return.
-     * @return A {@link GetMultipleDataResult} instance that contains the result data. Empty instance if no data found.
-     */
-    GetMultipleDataResult<Object> searchQueryString(String[] searchIndices, Class<?> clazz, String searchQueryString, Map<String, String[]> filters,
-            FilterBuilder customFilter, int maxElements);
-
-    /**
      * Same as {@link IGenericSearchDAO#search(Class, String, Map, int)}, but with pagination supported.
      *
      * @see IGenericSearchDAO#search(Class, String, Map, int)
