@@ -67,8 +67,8 @@ Feature: Topology composition
     
   Scenario: Expose capabilities and check type capabilities 
     Given I expose the template as type "tosca.nodes.Root"
-    And I expose the capability "host" for the node "MyMysql"
-    And I rename the exposed capability "host" to "hostMysql"
+    And I expose the capability "database_endpoint" for the node "MyMysql"
+    And I rename the exposed capability "database_endpoint" to "hostMysql"
     And I expose the capability "host" for the node "MyApache"
     And I rename the exposed capability "host" to "hostApache"
     And I expose the capability "attachWebsite" for the node "MyPHP"
@@ -76,7 +76,7 @@ Feature: Topology composition
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     When I register the rest response data as SPEL context of type "alien4cloud.model.components.IndexedNodeType"
-    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "alien.capabilities.MysqlDatabase"
+    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "tosca.capabilities.DatabaseEndpoint"
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
 

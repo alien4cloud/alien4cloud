@@ -13,6 +13,7 @@ import alien4cloud.model.components.AttributeDefinition;
 import alien4cloud.model.components.ConcatPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IValue;
+import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.ScalarPropertyValue;
@@ -29,6 +30,7 @@ import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.tosca.ToscaUtils;
 import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.utils.AlienUtils;
+import alien4cloud.utils.PropertyUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -277,7 +279,8 @@ public final class FunctionEvaluator {
      *            {@link PaaSNodeTemplate}s should have been built, thus referencing their related parents and relationships.
      * @return the String result of the function evalutation
      */
-    public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam, IPaaSTemplate<? extends IndexedToscaElement> basePaaSTemplate,
+    public static String evaluateGetPropertyFunction(FunctionPropertyValue functionParam,
+            IPaaSTemplate<? extends IndexedInheritableToscaElement> basePaaSTemplate,
             Map<String, PaaSNodeTemplate> builtPaaSTemplates) {
         List<? extends IPaaSTemplate> paaSTemplates = getPaaSTemplatesFromKeyword(basePaaSTemplate, functionParam.getTemplateName(), builtPaaSTemplates);
         String propertyId = functionParam.getElementNameToFetch();
@@ -306,11 +309,24 @@ public final class FunctionEvaluator {
      * @param elementName
      * @return
      */
-    private static AbstractPropertyValue getPropertyFromTemplateOrCapability(IPaaSTemplate paaSTemplate, String capabilityOrRequirementName, String elementName) {
+    private static AbstractPropertyValue getPropertyFromTemplateOrCapability(IPaaSTemplate<? extends IndexedInheritableToscaElement> paaSTemplate,
+            String capabilityOrRequirementName, String elementName) {
 
         // if no capability or requirement provided, return the value from the template property
         if (StringUtils.isBlank(capabilityOrRequirementName)) {
-            return paaSTemplate.getTemplate().getProperties().get(elementName);
+            Map<String, AbstractPropertyValue> properties = paaSTemplate.getTemplate().getProperties();
+            if (properties == null || !properties.containsKey(elementName)) {
+                // Attempt to see if default value exists
+                Map<String, PropertyDefinition> propertyDefinitionMap = paaSTemplate.getIndexedToscaElement().getProperties();
+                String defaultValue = PropertyUtil.getDefaultValueFromPropertyDefinitions(elementName, propertyDefinitionMap);
+                if (defaultValue != null) {
+                    return new ScalarPropertyValue(defaultValue);
+                } else {
+                    return null;
+                }
+            } else {
+                return paaSTemplate.getTemplate().getProperties().get(elementName);
+            }
         } else if (paaSTemplate instanceof PaaSNodeTemplate) {
             // if capability or requirement name provided:
             // FIXME how should I know that the provided name is capability or a requirement name?
