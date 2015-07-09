@@ -57,27 +57,4 @@ public class MetaPropertiesService {
         alienDAO.save(resource);
         return null;
     }
-
-    /**
-     * Remove an existing meta-property.
-     *
-     * @param resource The resource from which to remove the meta-property.
-     * @param key The key/name of the meta-property to remove.
-     */
-    public void removeMetaProperty(IMetaProperties resource, String key) {
-        if (resource.getMetaProperties() != null && resource.getMetaProperties().containsKey(key)) {
-            resource.getMetaProperties().remove(key);
-            alienDAO.save(resource);
-        }
-    }
-
-    /**
-     * Return the the meta property given its name
-     * 
-     * @param metaPropertyName
-     * @return meta property
-     */
-    public MetaPropConfiguration getMetaPropertyIdByName(String metaPropertyName) {
-        return alienDAO.customFind(MetaPropConfiguration.class, QueryBuilders.termQuery("name", metaPropertyName));
-    }
 }

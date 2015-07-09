@@ -101,7 +101,7 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        // Application version : check right on the version
+        // Get Application version
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // check that the environment is not already deployed
@@ -126,10 +126,7 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-        if (environment.getCloudId() == null) {
-            throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
-        }
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(topology, environment, version);
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.preProcessTopologyAndMatch(topology, environment, version);
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");

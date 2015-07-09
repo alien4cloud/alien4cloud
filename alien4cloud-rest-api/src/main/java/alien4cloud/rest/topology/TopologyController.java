@@ -657,11 +657,12 @@ public class TopologyController {
         if (StringUtils.isNotBlank(environmentId)) {
             ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(null, environmentId);
             ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
-            deploymentSetup = deploymentSetupService.getDeploymentSetupMatchInfo(topology, environment, version);
+            deploymentSetup = deploymentSetupService.preProcessTopologyAndMatch(topology, environment, version);
             if (StringUtils.isNotEmpty(environment.getCloudId())) {
                 cloudResourceMatcherConfig = cloudService.getCloudResourceMatcherConfig(cloudService.getMandatoryCloud(environment.getCloudId()));
             }
         }
+
         TopologyValidationResult dto = topologyValidationService.validateTopology(topology, deploymentSetup, cloudResourceMatcherConfig);
         return RestResponseBuilder.<TopologyValidationResult> builder().data(dto).build();
     }

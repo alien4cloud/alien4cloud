@@ -26,33 +26,11 @@ import alien4cloud.common.TagService;
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.AvailabilityZone;
-import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.common.InternalMetaProperties;
-import alien4cloud.model.common.MetaPropConfiguration;
-import alien4cloud.model.common.MetaPropertiesTarget;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.FilterDefinition;
-import alien4cloud.model.components.FunctionPropertyValue;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedInheritableToscaElement;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
-import alien4cloud.model.topology.Capability;
-import alien4cloud.model.topology.NodeTemplate;
-import alien4cloud.model.topology.RelationshipTemplate;
-import alien4cloud.model.topology.Requirement;
-import alien4cloud.model.topology.Topology;
+import alien4cloud.model.components.*;
+import alien4cloud.model.topology.*;
 import alien4cloud.paas.exception.AvailabilityZoneConfigurationException;
 import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.paas.ha.AllocationError;
@@ -60,18 +38,9 @@ import alien4cloud.paas.ha.AllocationErrorCode;
 import alien4cloud.paas.ha.AvailabilityZoneAllocator;
 import alien4cloud.paas.model.PaaSTopology;
 import alien4cloud.paas.plan.TopologyTreeBuilderService;
-import alien4cloud.topology.task.HAGroupTask;
-import alien4cloud.topology.task.PropertiesTask;
-import alien4cloud.topology.task.RequirementToSatify;
-import alien4cloud.topology.task.RequirementsTask;
-import alien4cloud.topology.task.ScalableTask;
-import alien4cloud.topology.task.SuggestionsTask;
-import alien4cloud.topology.task.TaskCode;
-import alien4cloud.topology.task.TaskLevel;
-import alien4cloud.topology.task.TopologyTask;
+import alien4cloud.topology.task.*;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.NormativeComputeConstants;
-import alien4cloud.tosca.normative.ToscaFunctionConstants;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -221,16 +190,11 @@ public class TopologyValidationService {
     }
 
     private List<PropertiesTask> validateProperties(Topology topology, DeploymentSetup deploymentSetup) {
-
         List<PropertiesTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
 
-        // get the related meta properties
-        Map<String, Map<String, String>> mergedMetaProperties = getMergedMetaProperties(deploymentSetup);
-
         // create task by nodetemplate
         for (Map.Entry<String, NodeTemplate> nodeTempEntry : nodeTemplates.entrySet()) {
-
             NodeTemplate nodeTemplate = nodeTempEntry.getValue();
             if (nodeTemplate.getProperties() == null || nodeTemplate.getProperties().isEmpty()) {
                 continue;
@@ -250,7 +214,7 @@ public class TopologyValidationService {
             task.setProperties(Maps.<TaskLevel, List<String>> newHashMap());
 
             // Check the properties of node template
-            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), mergedMetaProperties, task);
+            addRequiredPropertyIdToTaskProperties(nodeTemplate.getProperties(), relatedIndexedNodeType.getProperties(), task);
 
             // Check relationships PD
             if (nodeTemplate.getRelationships() != null && !nodeTemplate.getRelationships().isEmpty()) {
@@ -259,10 +223,9 @@ public class TopologyValidationService {
                     if (relationship.getProperties() == null || relationship.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate),
-                            mergedMetaProperties, task);
-                    }
+                    addRequiredPropertyIdToTaskProperties(relationship.getProperties(), getRelationshipPropertyDefinition(topology, nodeTemplate), task);
                 }
+            }
 
             // Check capabilities PD
             if (nodeTemplate.getCapabilities() != null && !nodeTemplate.getCapabilities().isEmpty()) {
@@ -271,24 +234,23 @@ public class TopologyValidationService {
                     if (capability.getProperties() == null || capability.getProperties().isEmpty()) {
                         continue;
                     }
-                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate),
-                            mergedMetaProperties, task);
+                    addRequiredPropertyIdToTaskProperties(capability.getProperties(), getCapabilitiesPropertyDefinition(topology, nodeTemplate), task);
                     if (capability.getType().equals(NormativeComputeConstants.SCALABLE_CAPABILITY_TYPE)) {
                         Map<String, AbstractPropertyValue> scalableProperties = capability.getProperties();
                         verifyScalableProperties(scalableProperties, toReturnTaskList, nodeTempEntry.getKey());
                     }
-                    }
+                }
             }
 
             if (MapUtils.isNotEmpty(task.getProperties())) {
                 if (CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.REQUIRED))
                         || CollectionUtils.isNotEmpty(task.getProperties().get(TaskLevel.WARNING))) {
                     toReturnTaskList.add(task);
-                    }
                 }
             }
-        return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
         }
+        return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
+    }
 
     private int verifyScalableProperty(Map<String, AbstractPropertyValue> scalableProperties, String propertyToVerify, Set<String> missingProperties,
             Set<String> errorProperties) {
@@ -309,7 +271,7 @@ public class TopologyValidationService {
             return -1;
         }
         return value;
-        }
+    }
 
     private void verifyScalableProperties(Map<String, AbstractPropertyValue> scalableProperties, List<PropertiesTask> toReturnTaskList, String nodeTemplateId) {
         Set<String> missingProperties = Sets.newHashSet();
@@ -332,8 +294,8 @@ public class TopologyValidationService {
                 if (max < min || max < init) {
                     errorProperties.add(NormativeComputeConstants.SCALABLE_MAX_INSTANCES);
                 }
-                }
             }
+        }
         if (!missingProperties.isEmpty()) {
             ScalableTask scalableTask = new ScalableTask(nodeTemplateId);
             scalableTask.getProperties().put(TaskLevel.REQUIRED, Lists.newArrayList(missingProperties));
@@ -344,45 +306,10 @@ public class TopologyValidationService {
             scalableTask.getProperties().put(TaskLevel.ERROR, Lists.newArrayList(errorProperties));
             toReturnTaskList.add(scalableTask);
         }
-        }
-
-    /**
-     * Recover meta properties from cloud, application
-     * 
-     * @param deploymentSetup
-     * @return
-     */
-    private Map<String, Map<String, String>> getMergedMetaProperties(DeploymentSetup deploymentSetup) {
-        ApplicationEnvironment environment = applicationEnvironmentService.getOrFail(deploymentSetup.getEnvironmentId());
-        Map<String, Map<String, String>> mergedMetaProperties = Maps.newHashMap();
-        Map<String, String> tempPropertyMap = Maps.newHashMap();
-
-        // meta or tags from cloud
-        if (environment.getCloudId() != null) {
-            Cloud cloud = cloudService.get(environment.getCloudId());
-            if (MapUtils.isNotEmpty(cloud.getMetaProperties())) {
-                mergedMetaProperties.put(MetaPropertiesTarget.cloud.toString(), cloud.getMetaProperties());
-            }
-            }
-        // meta or tags from application
-        if (environment.getApplicationId() != null) {
-            Application application = applicationService.getOrFail(environment.getApplicationId());
-            Map<String, String> metaProperties = application.getMetaProperties();
-            if (MapUtils.isNotEmpty(metaProperties)) {
-                tempPropertyMap.putAll(metaProperties);
-            }
-            Map<String, String> tags = tagService.tagListToMap(application.getTags());
-            if (MapUtils.isNotEmpty(tags)) {
-                tempPropertyMap.putAll(tags);
-            }
-            }
-        mergedMetaProperties.put(MetaPropertiesTarget.application.toString(), tempPropertyMap);
-        // TODO : environment
-        return mergedMetaProperties;
-        }
+    }
 
     private void addRequiredPropertyIdToTaskProperties(Map<String, AbstractPropertyValue> properties, Map<String, PropertyDefinition> relatedProperties,
-            Map<String, Map<String, String>> mergedMetaProperties, PropertiesTask task) {
+            PropertiesTask task) {
 
         for (Map.Entry<String, AbstractPropertyValue> propertyEntry : properties.entrySet()) {
 
@@ -398,40 +325,9 @@ public class TopologyValidationService {
             } else if (value instanceof ScalarPropertyValue) {
                 propertyValue = ((ScalarPropertyValue) value).getValue();
                 isScalar = true;
-            } else if (value instanceof FunctionPropertyValue) {
-
-                // non resolved property from : cloud / environment
-                String function = ((FunctionPropertyValue) value).getFunction();
-
-                if (ToscaFunctionConstants.GET_INPUT.equals(function)) {
-
-                    List<String> params = ((FunctionPropertyValue) value).getParameters();
-                    String metaPropertyName = params.get(0);
-                    isGetInputInternal = InternalMetaProperties.isInternalMeta(metaPropertyName);
-                    boolean isTagTarget = InternalMetaProperties.isTag(metaPropertyName);
-                    String baseMetaPropertyName = metaPropertyName;
-
-                    if (isGetInputInternal) {
-                        // get the thrid part of the propertyname : cloud_meta_XXXXXX_YYY => XXXXXX_YYY
-                        baseMetaPropertyName = metaPropertyName.split("_", 3)[2];
-                    }
-
-                    // check cloud/environment properties value
-                    MetaPropConfiguration metaProperty = metaPropertiesService.getMetaPropertyIdByName(baseMetaPropertyName);
-                    MetaPropertiesTarget target = InternalMetaProperties.isCloudMeta(metaPropertyName) ? MetaPropertiesTarget.cloud
-                            : MetaPropertiesTarget.application;
-                    if (metaProperty != null && MapUtils.isNotEmpty(mergedMetaProperties) || isTagTarget) {
-                        if (MapUtils.isNotEmpty(mergedMetaProperties.get(target.toString()))) {
-                            // the id in the map could be an UUID for a metaproperty or just a name for a tag
-                            String propertyId = isTagTarget ? baseMetaPropertyName : metaProperty.getId();
-                            propertyValue = mergedMetaProperties.get(target.toString()).get(propertyId);
-                        }
-                        }
-                    }
-
             } else {
                 throw new InvalidArgumentException("Topology validation only supports scalar value, get_input should be replaced before performing validation");
-                }
+            }
 
             if (StringUtils.isBlank(propertyValue)) {
                 if (propertyDef.isRequired()) {
@@ -443,14 +339,14 @@ public class TopologyValidationService {
                     if (!task.getProperties().containsKey(taskLevel)) {
                         task.getProperties().put(taskLevel, Lists.<String> newArrayList());
                     }
-                    }
+                }
                 // add required or warning property
                 if (TaskLevel.REQUIRED.equals(taskLevel) || isGetInputInternal || isScalar) {
                     task.getProperties().get(taskLevel).add(propertyEntry.getKey());
-                    }
                 }
             }
         }
+    }
 
     /**
      * Constructs a TopologyTask list given a Map (node template name => component) and the code
@@ -465,13 +361,13 @@ public class TopologyValidationService {
                 task.setCode(taskCode);
                 taskList.add(task);
             }
-            }
+        }
         if (taskList.isEmpty()) {
             return null;
         } else {
             return taskList;
-            }
         }
+    }
 
     /**
      * Find replacements components for abstract nodes in a Topology
@@ -487,7 +383,7 @@ public class TopologyValidationService {
         // processAbstractNodeTemplate(topology, nodeTempNameToAbstractIndexedNodeTypes, nodeTempEntry, nodeTemplatesToFilters);
         // relatedIndexedNodeTypes.put(nodeTempEntry.getKey(), nodeTempNameToAbstractIndexedNodeTypes.get(nodeTempEntry.getValue()));
         return topologyService.searchForNodeTypes(nodeTemplatesToFilters, nodeTempNameToAbstractIndexedNodeTypes);
-        }
+    }
 
     /**
      * Validate if a topology is valid for deployment or not
@@ -541,8 +437,8 @@ public class TopologyValidationService {
                 return false;
             }
         }
-            return true;
-        }
+        return true;
+    }
 
     /**
      * Define if a tasks list is valid or not regarding task types
@@ -559,9 +455,9 @@ public class TopologyValidationService {
             if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask) {
                 return false;
             }
-            }
-            return true;
         }
+        return true;
+    }
 
     private List<TopologyTask> validateHAGroup(Topology topology, DeploymentSetup deploymentSetup, CloudResourceMatcherConfig matcherConfig) {
         AvailabilityZoneAllocator allocator = new AvailabilityZoneAllocator();
@@ -579,31 +475,31 @@ public class TopologyValidationService {
             log.error("Unable to validate zones allocation due to unknown error", e);
             tasks.add(new HAGroupTask(null, null, AllocationErrorCode.UNKNOWN_ERROR));
             return tasks;
-            }
+        }
         for (AllocationError error : allocationErrors) {
             String nodeId = error.getNodeId();
             tasks.add(new HAGroupTask(nodeId, error.getGroupId(), error.getCode()));
-            }
-            return tasks;
         }
+        return tasks;
+    }
 
     private List<TopologyTask> validateAbstractRelationships(Topology topology) {
         Map<String, IndexedRelationshipType[]> abstractIndexedRelationshipTypes = getIndexedRelationshipTypesFromTopology(topology, true);
         return getTaskListFromMapArray(abstractIndexedRelationshipTypes, TaskCode.IMPLEMENT);
-        }
+    }
 
     private int countRelationshipsForRequirement(String requirementName, String requirementType, Map<String, RelationshipTemplate> relationships) {
         int count = 0;
         if (relationships == null) {
             return 0;
-            }
+        }
         for (Map.Entry<String, RelationshipTemplate> relEntry : relationships.entrySet()) {
             if (relEntry.getValue().getRequirementName().equals(requirementName) && relEntry.getValue().getRequirementType().equals(requirementType)) {
                 count++;
             }
-            }
-        return count;
         }
+        return count;
+    }
 
     private Map<String, PropertyDefinition> getCapabilitiesPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
@@ -614,10 +510,10 @@ public class TopologyValidationService {
             if (indexedCapabilityType.getProperties() != null && !indexedCapabilityType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedCapabilityType.getProperties());
             }
-            }
+        }
 
         return relatedProperties;
-        }
+    }
 
     private Map<String, PropertyDefinition> getRelationshipPropertyDefinition(Topology topology, NodeTemplate nodeTemplate) {
         Map<String, PropertyDefinition> relatedProperties = Maps.newTreeMap();
@@ -628,10 +524,10 @@ public class TopologyValidationService {
             if (indexedRelationshipType.getProperties() != null && !indexedRelationshipType.getProperties().isEmpty()) {
                 relatedProperties.putAll(indexedRelationshipType.getProperties());
             }
-            }
+        }
 
         return relatedProperties;
-        }
+    }
 
     private void chekCapability(String nodeTemplateName, String capabilityName, NodeTemplate nodeTemplate) {
         boolean capablityExists = false;
@@ -640,12 +536,12 @@ public class TopologyValidationService {
                 if (capaEntry.getKey().equals(capabilityName)) {
                     capablityExists = true;
                 }
-                }
             }
+        }
         if (!capablityExists) {
             throw new NotFoundException("A capability with name [" + capabilityName + "] cannot be found in the target node [" + nodeTemplateName + "].");
         }
-        }
+    }
 
     private RequirementDefinition getRequirementDefinition(Collection<RequirementDefinition> requirementDefinitions, String requirementName,
             String requirementType) {
@@ -654,10 +550,10 @@ public class TopologyValidationService {
             if (requirementDef.getId().equals(requirementName) && requirementDef.getType().equals(requirementType)) {
                 return requirementDef;
             }
-            }
+        }
 
         throw new NotFoundException("Requirement definition [" + requirementName + ":" + requirementType + "] cannot be found");
-        }
+    }
 
     private CapabilityDefinition getCapabilityDefinition(Collection<CapabilityDefinition> capabilityDefinitions, String capabilityName) {
 
@@ -665,10 +561,10 @@ public class TopologyValidationService {
             if (capabilityDef.getId().equals(capabilityName)) {
                 return capabilityDef;
             }
-            }
+        }
 
         throw new NotFoundException("Capability definition [" + capabilityName + "] cannot be found");
-        }
+    }
 
     /**
      * Check if the upperBound of a requirement is reached on a node template
@@ -712,17 +608,17 @@ public class TopologyValidationService {
         List<RelationshipTemplate> targetRelatedRelationships = topologyServiceCore.getTargetRelatedRelatonshipsTemplate(nodeTemplateName, nodeTemplates);
         if (targetRelatedRelationships == null || targetRelatedRelationships.isEmpty()) {
             return false;
-            }
+        }
 
         int count = 0;
         for (RelationshipTemplate rel : targetRelatedRelationships) {
             if (rel.getTargetedCapabilityName().equals(capabilityName)) {
                 count++;
             }
-            }
+        }
 
         return count >= capabilityDefinition.getUpperBound();
-        }
+    }
 
     /**
      * Get the relationships from a topology
@@ -735,7 +631,7 @@ public class TopologyValidationService {
         Map<String, IndexedRelationshipType[]> indexedRelationshipTypesMap = Maps.newHashMap();
         if (topology.getNodeTemplates() == null) {
             return indexedRelationshipTypesMap;
-            }
+        }
         for (Map.Entry<String, NodeTemplate> template : topology.getNodeTemplates().entrySet()) {
             if (template.getValue().getRelationships() == null) {
                 continue;
@@ -751,15 +647,15 @@ public class TopologyValidationService {
                     }
                 } else {
                     throw new NotFoundException("Relationship Type [" + relTemplate.getType() + "] cannot be found");
-                    }
                 }
+            }
             if (indexedRelationshipTypes.size() > 0) {
                 indexedRelationshipTypesMap.put(template.getKey(),
                         indexedRelationshipTypes.toArray(new IndexedRelationshipType[indexedRelationshipTypes.size()]));
             }
 
-            }
+        }
         return indexedRelationshipTypesMap;
     }
 
-    }
+}
