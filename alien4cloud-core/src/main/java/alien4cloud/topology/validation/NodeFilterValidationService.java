@@ -1,29 +1,22 @@
 package alien4cloud.topology.validation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.collect.Lists;
+import alien4cloud.rest.model.RestErrorCode;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.AbstractPropertyValue;
-import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.FilterDefinition;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.NodeFilter;
-import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.RequirementDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.*;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.task.NodeFilterConstraintViolation;
 import alien4cloud.topology.task.NodeFilterToSatisfy;
 import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
@@ -32,6 +25,7 @@ import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -43,8 +37,6 @@ public class NodeFilterValidationService {
     private CSARRepositorySearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
-
-    private NodeFiltersTask NODE_FILTERS_TASK;
 
     private Map<String, RequirementDefinition> getRequirementsAsMap(IndexedNodeType nodeType) {
         Map<String, RequirementDefinition> requirementDefinitionMap = Maps.newHashMap();
@@ -73,22 +65,23 @@ public class NodeFilterValidationService {
                 continue;
             }
 
-            NODE_FILTERS_TASK = new NodeFiltersTask();
-            NODE_FILTERS_TASK.setNodeTemplateName(nodeTempEntry.getKey());
-            NODE_FILTERS_TASK.setCode(TaskCode.NODE_FILTER_INVALID);
-            NODE_FILTERS_TASK.setComponent(sourceNodeType);
-            NODE_FILTERS_TASK.setNodeFiltersToSatisfy(Lists.<NodeFilterToSatisfy> newArrayList());
+            NodeFiltersTask task = new NodeFiltersTask();
+            task.setNodeTemplateName(nodeTempEntry.getKey());
+            task.setCode(TaskCode.NODE_FILTER_INVALID);
+            task.setComponent(sourceNodeType);
+            task.setNodeFiltersToSatisfy(Lists.<NodeFilterToSatisfy> newArrayList());
 
-            validateFiltersForNode(sourceNodeType, relationshipsMap, topology, nodeTypes, capabilityTypes);
-            if (!NODE_FILTERS_TASK.getNodeFiltersToSatisfy().isEmpty()) {
-                toReturnTaskList.add(NODE_FILTERS_TASK);
+            validateFiltersForNode(sourceNodeType, relationshipsMap, topology, nodeTypes, capabilityTypes, task);
+
+            if (!task.getNodeFiltersToSatisfy().isEmpty()) {
+                toReturnTaskList.add(task);
             }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
 
     private void validateFiltersForNode(IndexedNodeType sourceNodeType, Map<String, RelationshipTemplate> relationshipsMap, Topology topology,
-            Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedCapabilityType> capabilityTypes) {
+            Map<String, IndexedNodeType> nodeTypes, Map<String, IndexedCapabilityType> capabilityTypes, NodeFiltersTask task) {
         Map<String, RequirementDefinition> requirementDefinitionMap = getRequirementsAsMap(sourceNodeType);
         for (Map.Entry<String, RelationshipTemplate> relationshipEntry : relationshipsMap.entrySet()) {
             RequirementDefinition requirementDefinition = requirementDefinitionMap.get(relationshipEntry.getValue().getRequirementName());
@@ -96,32 +89,47 @@ public class NodeFilterValidationService {
             if (nodeFilter != null) {
                 NodeTemplate targetNode = topology.getNodeTemplates().get(relationshipEntry.getValue().getTarget());
                 IndexedNodeType targetType = nodeTypes.get(relationshipEntry.getValue().getTarget());
-                validateNodeFilter(nodeFilter, targetNode, targetType, capabilityTypes);
+
+                NodeFilterToSatisfy nodeFilterToSatisfy = new NodeFilterToSatisfy();
+                nodeFilterToSatisfy.setRelationshipName(relationshipEntry.getKey());
+                nodeFilterToSatisfy.setTargetName(targetNode.getName());
+
+                validateNodeFilter(nodeFilter, targetNode, targetType, capabilityTypes, nodeFilterToSatisfy);
+
+                if (!nodeFilterToSatisfy.getViolatedConstraints().isEmpty() || !nodeFilterToSatisfy.getMissingCapabilities().isEmpty()) {
+                    task.getNodeFiltersToSatisfy().add(nodeFilterToSatisfy);
+                }
             }
         }
     }
 
-    private void validateNodeFilter(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType, Map<String, IndexedCapabilityType> capabilityTypes) {
-        validateNodeFilterProperties(nodeFilter, target, targetType);
-        validateNodeFilterCapabilities(nodeFilter, target, targetType, capabilityTypes);
+    private void validateNodeFilter(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType, Map<String, IndexedCapabilityType> capabilityTypes,
+            NodeFilterToSatisfy nodeFilterToSatisfy) {
+        Map<String, List<NodeFilterConstraintViolation>> violatedConstraints = validateNodeFilterProperties(nodeFilter, target, targetType);
+        nodeFilterToSatisfy.setViolatedConstraints(violatedConstraints);
+
+        validateNodeFilterCapabilities(nodeFilter, target, targetType, capabilityTypes, nodeFilterToSatisfy);
     }
 
-    private void validateNodeFilterProperties(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType) {
+    private Map<String, List<NodeFilterConstraintViolation>> validateNodeFilterProperties(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType) {
         if (nodeFilter.getProperties() == null || nodeFilter.getProperties().isEmpty()) {
-            return;
+            return null;
         }
 
         Map<String, List<PropertyConstraint>> propertyFilters = nodeFilter.getProperties();
         Map<String, AbstractPropertyValue> propertyValues = target.getProperties();
-        validatePropertyFilters(propertyFilters, propertyValues, targetType.getProperties());
+        return validatePropertyFilters(propertyFilters, propertyValues, targetType.getProperties());
     }
 
-    private void validatePropertyFilters(Map<String, List<PropertyConstraint>> propertyFilters, Map<String, AbstractPropertyValue> propertyValues,
-            Map<String, PropertyDefinition> propertyDefinitionMap) {
+    private Map<String, List<NodeFilterConstraintViolation>> validatePropertyFilters(Map<String, List<PropertyConstraint>> propertyFilters,
+            Map<String, AbstractPropertyValue> propertyValues, Map<String, PropertyDefinition> propertyDefinitionMap) {
+        Map<String, List<NodeFilterConstraintViolation>> violatedConstraintsMap = Maps.newHashMap();
+
         for (Map.Entry<String, List<PropertyConstraint>> propertyEntry : propertyFilters.entrySet()) {
+            List<NodeFilterConstraintViolation> violatedConstraints = Lists.newArrayList();
+
             for (PropertyConstraint constraint : propertyEntry.getValue()) {
                 AbstractPropertyValue value = propertyValues.get(propertyEntry.getKey());
-
                 // the constraint need to be initiazed with the type of the property (to check that actual value type matches the definition type).
                 IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinitionMap.get(propertyEntry.getKey()).getType());
                 try {
@@ -136,28 +144,44 @@ public class NodeFilterValidationService {
                                 "Topology validation only supports scalar value, get_input should be replaced before performing validation");
                     }
                     constraint.validate(toscaType, propertyValue);
-                } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                    NODE_FILTERS_TASK.getNodeFiltersToSatisfy().add(new NodeFilterToSatisfy(propertyEntry.getKey(), toscaType.getTypeName()));
+                } catch (ConstraintViolationException e) {
+                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR, e.getConstraintInformation()));
+                } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR, null));
                 }
             }
+
+            if (!violatedConstraints.isEmpty()) {
+                violatedConstraintsMap.put(propertyEntry.getKey(), violatedConstraints);
+            }
         }
+
+        return violatedConstraintsMap;
     }
 
     private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType,
-            Map<String, IndexedCapabilityType> capabilityTypes) {
+            Map<String, IndexedCapabilityType> capabilityTypes, NodeFilterToSatisfy nodeFilterToSatisfy) {
+        Map<String, List<String>> violatedConstraintsMap = Maps.newHashMap();
         if (nodeFilter.getCapabilities() == null || !nodeFilter.getCapabilities().isEmpty()) {
             return;
         }
+
         Map<String, FilterDefinition> capabilities = nodeFilter.getCapabilities();
         for (Map.Entry<String, FilterDefinition> filterDefinitionEntry : capabilities.entrySet()) {
-            CapabilityDefinition definition = getCapabilityDefinition(targetType, filterDefinitionEntry.getKey());
+            String capabilityName = filterDefinitionEntry.getKey();
+            CapabilityDefinition definition = getCapabilityDefinition(targetType, capabilityName);
 
             if (definition == null) {
-                NODE_FILTERS_TASK.getNodeFiltersToSatisfy().add(new NodeFilterToSatisfy(filterDefinitionEntry.getKey(), targetType.getId()));
+                if (nodeFilterToSatisfy.getMissingCapabilities() == null) {
+                    nodeFilterToSatisfy.setMissingCapabilities(new ArrayList<String>());
+                }
+                nodeFilterToSatisfy.getMissingCapabilities().add(capabilityName);
             }
             IndexedCapabilityType capabilityType = capabilityTypes.get(definition.getType());
-            validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(), target.getCapabilities().get(definition.getId()).getProperties(),
-                    capabilityType.getProperties());
+
+            Map<String, List<NodeFilterConstraintViolation>> violations = validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(), target
+                    .getCapabilities().get(definition.getId()).getProperties(), capabilityType.getProperties());
+            nodeFilterToSatisfy.getViolatedConstraints().putAll(violations);
         }
     }
 
