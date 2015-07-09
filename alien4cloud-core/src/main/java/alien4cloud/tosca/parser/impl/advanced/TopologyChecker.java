@@ -94,6 +94,9 @@ public class TopologyChecker implements IChecker<Topology> {
         // check properties inputs validity
         for (Entry<String, NodeTemplate> nodes : instance.getNodeTemplates().entrySet()) {
             String nodeName = nodes.getKey();
+            if (nodes.getValue().getProperties() == null) {
+                continue;
+            }
             for (Entry<String, AbstractPropertyValue> properties : nodes.getValue().getProperties().entrySet()) {
                 AbstractPropertyValue abstractValue = properties.getValue();
                 if (abstractValue instanceof FunctionPropertyValue) {
