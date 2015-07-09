@@ -8,7 +8,7 @@ import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.function.FunctionEvaluator;
-import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.RequirementsTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.normative.IPropertyType;
@@ -84,12 +84,12 @@ public class TopologyRequirementBoundsValidationServices {
             task.setNodeTemplateName(nodeTempEntry.getKey());
             task.setCode(TaskCode.SATISFY_LOWER_BOUND);
             task.setComponent(relatedIndexedNodeType);
-            task.setRequirementsToImplement(Lists.<RequirementToSatify> newArrayList());
+            task.setRequirementsToImplement(Lists.<RequirementToSatisfy> newArrayList());
             if (CollectionUtils.isNotEmpty(relatedIndexedNodeType.getRequirements())) {
                 for (RequirementDefinition reqDef : relatedIndexedNodeType.getRequirements()) {
                     int count = countRelationshipsForRequirement(reqDef.getId(), reqDef.getType(), nodeTemp.getRelationships());
                     if (count < reqDef.getLowerBound()) {
-                        task.getRequirementsToImplement().add(new RequirementToSatify(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
+                        task.getRequirementsToImplement().add(new RequirementToSatisfy(reqDef.getId(), reqDef.getType(), reqDef.getLowerBound() - count));
                         continue;
                     }
                 }

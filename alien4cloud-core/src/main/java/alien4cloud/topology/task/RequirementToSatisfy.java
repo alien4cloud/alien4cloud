@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class RequirementToSatify {
+public class RequirementToSatisfy {
     private String name;
     private String type;
     private int remainingBound;

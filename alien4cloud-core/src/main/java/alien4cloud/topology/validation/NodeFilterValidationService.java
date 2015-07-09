@@ -1,31 +1,41 @@
 package alien4cloud.topology.validation;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.elasticsearch.common.collect.Lists;
+import org.springframework.stereotype.Component;
+
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.FilterDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.NodeFilter;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.paas.function.FunctionEvaluator;
 import alien4cloud.topology.TopologyServiceCore;
-import alien4cloud.topology.task.RequirementToSatify;
-import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.NodeFilterToSatisfy;
+import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
-import com.google.common.collect.Maps;
-import org.apache.commons.collections4.CollectionUtils;
-import org.elasticsearch.common.collect.Lists;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 /**
- *
+ * Performs validation of node filters for all relationship of topology.
  */
 @Component
 public class NodeFilterValidationService {
@@ -33,6 +43,8 @@ public class NodeFilterValidationService {
     private CSARRepositorySearchService csarRepoSearchService;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+
+    private NodeFiltersTask NODE_FILTERS_TASK;
 
     private Map<String, RequirementDefinition> getRequirementsAsMap(IndexedNodeType nodeType) {
         Map<String, RequirementDefinition> requirementDefinitionMap = Maps.newHashMap();
@@ -45,8 +57,8 @@ public class NodeFilterValidationService {
     /**
      * Performs validation of the node filters to check that relationships targets the filter requirements.
      */
-    private List<RequirementsTask> validateRequirementFilters(Topology topology) {
-        List<RequirementsTask> toReturnTaskList = Lists.newArrayList();
+    public List<NodeFiltersTask> validateRequirementFilters(Topology topology) {
+        List<NodeFiltersTask> toReturnTaskList = Lists.newArrayList();
         Map<String, NodeTemplate> nodeTemplates = topology.getNodeTemplates();
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, true);
         Map<String, IndexedCapabilityType> capabilityTypes = topologyServiceCore.getIndexedCapabilityTypesFromTopology(topology);
@@ -61,15 +73,16 @@ public class NodeFilterValidationService {
                 continue;
             }
 
-            // RequirementsTask task = new RequirementsTask();
-            // task.setNodeTemplateName(nodeTempEntry.getKey());
-            // task.setCode(TaskCode.SATISFY_LOWER_BOUND);
-            // task.setComponent(relatedIndexedNodeType);
-            // task.setRequirementsToImplement(Lists.<RequirementToSatify> newArrayList());
+            NODE_FILTERS_TASK = new NodeFiltersTask();
+            NODE_FILTERS_TASK.setNodeTemplateName(nodeTempEntry.getKey());
+            NODE_FILTERS_TASK.setCode(TaskCode.NODE_FILTER_INVALID);
+            NODE_FILTERS_TASK.setComponent(sourceNodeType);
+            NODE_FILTERS_TASK.setNodeFiltersToSatisfy(Lists.<NodeFilterToSatisfy> newArrayList());
 
             validateFiltersForNode(sourceNodeType, relationshipsMap, topology, nodeTypes, capabilityTypes);
-
-            // add the task in list if there is some nodeFiltersToSatisty(not empty).
+            if (!NODE_FILTERS_TASK.getNodeFiltersToSatisfy().isEmpty()) {
+                toReturnTaskList.add(NODE_FILTERS_TASK);
+            }
         }
         return toReturnTaskList.isEmpty() ? null : toReturnTaskList;
     }
@@ -82,7 +95,7 @@ public class NodeFilterValidationService {
             NodeFilter nodeFilter = requirementDefinition.getNodeFilter();
             if (nodeFilter != null) {
                 NodeTemplate targetNode = topology.getNodeTemplates().get(relationshipEntry.getValue().getTarget());
-                IndexedNodeType targetType = nodeTypes.get(targetNode.getType());
+                IndexedNodeType targetType = nodeTypes.get(relationshipEntry.getValue().getTarget());
                 validateNodeFilter(nodeFilter, targetNode, targetType, capabilityTypes);
             }
         }
@@ -124,8 +137,7 @@ public class NodeFilterValidationService {
                     }
                     constraint.validate(toscaType, propertyValue);
                 } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                    // TODO fill in the task with info
-                    task.getRequirementsToImplement().add(new RequirementToSatify(reqDef.getId(), propertyEntry.getKey(), reqDef.getLowerBound() - count));
+                    NODE_FILTERS_TASK.getNodeFiltersToSatisfy().add(new NodeFilterToSatisfy(propertyEntry.getKey(), toscaType.getTypeName()));
                 }
             }
         }
@@ -141,7 +153,7 @@ public class NodeFilterValidationService {
             CapabilityDefinition definition = getCapabilityDefinition(targetType, filterDefinitionEntry.getKey());
 
             if (definition == null) {
-                // TODO add a task to say that a required capability is not provided by the target node.
+                NODE_FILTERS_TASK.getNodeFiltersToSatisfy().add(new NodeFilterToSatisfy(filterDefinitionEntry.getKey(), targetType.getId()));
             }
             IndexedCapabilityType capabilityType = capabilityTypes.get(definition.getType());
             validatePropertyFilters(filterDefinitionEntry.getValue().getProperties(), target.getCapabilities().get(definition.getId()).getProperties(),

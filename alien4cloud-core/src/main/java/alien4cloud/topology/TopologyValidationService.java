@@ -1,13 +1,9 @@
 package alien4cloud.topology;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
-import alien4cloud.topology.validation.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -19,12 +15,20 @@ import alien4cloud.application.ApplicationService;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.common.MetaPropertiesService;
 import alien4cloud.common.TagService;
-import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
-import alien4cloud.model.components.*;
-import alien4cloud.model.topology.*;
-import alien4cloud.topology.task.*;
+import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.task.PropertiesTask;
+import alien4cloud.topology.task.RequirementsTask;
+import alien4cloud.topology.task.SuggestionsTask;
+import alien4cloud.topology.task.TaskLevel;
+import alien4cloud.topology.task.TopologyTask;
+import alien4cloud.topology.validation.HAGroupPolicyValidationService;
+import alien4cloud.topology.validation.NodeFilterValidationService;
+import alien4cloud.topology.validation.TopologyAbstractNodeValidationService;
+import alien4cloud.topology.validation.TopologyAbstractRelationshipValidationService;
+import alien4cloud.topology.validation.TopologyPropertiesValidationService;
+import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.utils.services.ConstraintPropertyService;
 
 @Service
@@ -53,6 +57,8 @@ public class TopologyValidationService {
     private TopologyAbstractNodeValidationService topologyAbstractNodeValidationService;
     @Resource
     private HAGroupPolicyValidationService haGroupPolicyValidationService;
+    @Resource
+    private NodeFilterValidationService nodeFilterValidationService;
 
     /**
      * Validate if a topology is valid for deployment or not
@@ -75,6 +81,9 @@ public class TopologyValidationService {
 
         // validate requirements lowerBounds
         dto.addToTaskList(topologyRequirementBoundsValidationServices.validateRequirementsLowerBounds(topology));
+
+        // validate the node filters for all relationships
+        dto.addToTaskList(nodeFilterValidationService.validateRequirementFilters(topology));
 
         // validate required properties (properties of NodeTemplate, Relationship and Capability)
         // check also CLOUD / ENVIRONMENT meta properties
