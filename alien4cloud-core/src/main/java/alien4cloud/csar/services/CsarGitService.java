@@ -74,7 +74,7 @@ public class CsarGitService {
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
-     * @throws GitCloneUriException 
+     * @throws GitCloneUriException
      */
     public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException, GitCloneUriException {
         CsarGitRepository csarGit = new CsarGitRepository();
@@ -117,8 +117,8 @@ public class CsarGitService {
         }
         try {
             Path path = Paths.get(pathToReach);
-            Path pathZipped=Paths.get(pathToReach.concat("_ZIPPED"));
-            if(Files.exists(pathZipped)){
+            Path pathZipped = Paths.get(pathToReach.concat("_ZIPPED"));
+            if (Files.exists(pathZipped)) {
                 FileUtil.delete(pathZipped);
             }
             FileUtil.delete(path);
@@ -170,7 +170,7 @@ public class CsarGitService {
      * @param id The unique id of the CsarGitRepository
      * @param branchId The unique branch id
      */
-    public void removeImportLocation(String id, String branchId) {
+    public void removeImportLocationById(String id, String branchId) {
         CsarGitRepository csarGit = checkIfCsarExist(id);
         if (csarGit == null) {
             throw new NotFoundException("CsarGit [" + id + "] cannot be found");
@@ -189,15 +189,32 @@ public class CsarGitService {
         csarGit.setImportLocations(locations);
         alienDAO.save(csarGit);
     };
-
+    
     /**
-     * Query elastic search to retrieve a CsarGit by its url
+     * Remove a location of an existing CsarGitRepository object
      * 
-     * @param url The unique URL of the repository
-     * @return The Repository with the URL
+     * @param url The unique id of the CsarGitRepository
+     * @param branchId The unique branch id
      */
-    public CsarGitRepository getCsargitByUrl(String url) {
-        return alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+    public void removeImportLocationByUrl(String url, String branchId) {
+        
+        CsarGitRepository csarGit = getCsargitByUrl(url);
+        if (csarGit == null) {
+            throw new NotFoundException("CsarGit [" + url + "] cannot be found");
+        }
+        List<CsarGitCheckoutLocation> locations = csarGit.getImportLocations();
+        if (CollectionUtils.isEmpty(locations)) {
+            throw new NotFoundException("CsarGit import locations[" + url + " " + branchId + "]+ cannot be found");
+        }
+        Iterator<CsarGitCheckoutLocation> it = locations.iterator();
+        while (it.hasNext()) {
+            if (it.next().getBranchId().equals(branchId)) {
+                it.remove();
+                break;
+            }
+        }
+        csarGit.setImportLocations(locations);
+        alienDAO.save(csarGit);
     }
 
     /**
@@ -206,8 +223,24 @@ public class CsarGitService {
      * @param url The unique URL of the repository
      * @return The Repository with the URL
      */
-    public void deleteCsargitByUrl(String url) {
-        alienDAO.delete(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+    public CsarGitRepository getCsargitByUrl(String url) {
+        CsarGitRepository csarGit = alienDAO.customFind(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+        return csarGit;
+    }
+
+    /**
+     * Query elastic search to retrieve a CsarGit by its url
+     * 
+     * @param url The unique URL of the repository
+     * @return The Repository with the URL
+     */
+    public String deleteCsargitByUrl(String url) {
+        CsarGitRepository csarGit = getCsargitByUrl(url);
+        if (csarGit != null) {
+            alienDAO.delete(CsarGitRepository.class, QueryBuilders.termQuery("repositoryUrl", url));
+            return url;
+        }
+        throw new NotFoundException("CsarGit [" + url + "] does not exist");
     }
 
     /**

@@ -187,6 +187,7 @@ define(function (require) {
       };
 
       $scope.removeCsarGit = function(id) {
+        console.log(id);
         csarGitService.remove({
           id: id
         }, function() {

@@ -29,6 +29,7 @@ import alien4cloud.security.model.CsarGitCheckoutLocation;
 import alien4cloud.security.model.CsarGitRepository;
 import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
+import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 
 import com.wordnik.swagger.annotations.ApiOperation;
 
@@ -94,7 +95,7 @@ public class CsarGitController {
      * @throws ParsingException
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
-     * @throws GitCloneUriException 
+     * @throws GitCloneUriException
      */
     @ApiOperation(value = "Specify a CSAR from Git and proceed to its import in Alien.")
     @RequestMapping(value = "/import/{id:.+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -123,17 +124,16 @@ public class CsarGitController {
     public RestResponse<String> create(@Valid @RequestBody CreateCsarGithubRequest request) {
         CsarGitRepository csargit = csarGithubService.getCsargitByUrl(request.getRepositoryUrl());
         if (csargit != null) {
-            if(request.getRepositoryUrl().equals(csargit.getRepositoryUrl())){
-                return RestResponseBuilder.<String> builder()
-                        .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("An existing CSAR with the same url and repository already exists").build())
-                        .build();
+            if (request.getRepositoryUrl().equals(csargit.getRepositoryUrl())) {
+                return RestResponseBuilder
+                        .<String> builder()
+                        .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER)
+                                .message("An existing CSAR with the same url and repository already exists").build()).build();
             }
         }
-        if(!csarGithubService.paramIsUrl(request.getRepositoryUrl()) ||  request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty() ){
+        if (!csarGithubService.paramIsUrl(request.getRepositoryUrl()) || request.getRepositoryUrl().isEmpty() || request.getImportLocations().isEmpty()) {
             return RestResponseBuilder.<String> builder()
-                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build())
-                    .build();
-            
+                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build()).build();
         }
         String csarId = csarGithubService.createGithubCsar(request.getRepositoryUrl(), request.getUsername(), request.getPassword(),
                 request.getImportLocations());
@@ -149,13 +149,40 @@ public class CsarGitController {
     @ApiOperation(value = "Delete a CSARGit in ALIEN.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @Audit
-    public RestResponse<Void> deleteCsarGit(@PathVariable String id) {
+    public RestResponse<String> deleteCsarGit(@PathVariable String id) {
         if (id == null) {
-            return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("id cannot be null").build())
+            return RestResponseBuilder.<String> builder().error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("id cannot be null").build())
                     .build();
         }
-        alienDAO.delete(CsarGitRepository.class, id);
-        return RestResponseBuilder.<Void> builder().build();
+        if (csarGithubService.checkIfCsarExist(id) != null) {
+            alienDAO.delete(CsarGitRepository.class, id);
+            return RestResponseBuilder.<String> builder().data(id).build();
+        }
+        return RestResponseBuilder.<String> builder().data(id)
+                .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("No csargit exists with this id").build()).build();
+    }
+
+    /**
+     * Retrieve a CsarGit from the system by this URL
+     *
+     * @param param The unique url of the CsarGit to retrieve.
+     * @return The CsarGit matching the requested id or url.
+     */
+    @ApiOperation(value = "Delete a CSARGit in ALIEN by url.")
+    @RequestMapping(value = "/delete/{url}", method = RequestMethod.POST)
+    @Audit
+    public RestResponse<String> deleteCsargitByUrl(@Valid @RequestBody String url) {
+        if (url == null || url.isEmpty()) {
+            return RestResponseBuilder.<String> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("url cannot be null or empty").build()).build();
+        }
+        String result = csarGithubService.deleteCsargitByUrl(url);
+        if (result.equals("not found")) {
+            return RestResponseBuilder.<String> builder().data(result)
+                    .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("No csargit exists with this url").build()).build();
+        } else {
+            return RestResponseBuilder.<String> builder().data(result).build();
+        }
     }
 
     /**
@@ -180,11 +207,26 @@ public class CsarGitController {
      * @param id The unique id of the CsarGit to reach
      * @return an empty (void) rest {@link RestResponse}.
      */
-    @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN.")
+    @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN by id.")
     @RequestMapping(value = "/{id}/importLocations/{branchId}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> deleteImportLocation(@Valid @PathVariable String id, @PathVariable String branchId) {
-        csarGithubService.removeImportLocation(id, branchId);
+    public RestResponse<Void> deleteImportLocationById(@Valid @PathVariable String id, @PathVariable String branchId) {
+        csarGithubService.removeImportLocationById(id, branchId);
+        return RestResponseBuilder.<Void> builder().build();
+    }
+    
+    /**
+     * Remove an importLocation from an existing CsarGit
+     * 
+     * @param branchId The unique id of the importLocation
+     * @param url The unique url of the CsarGit to reach
+     * @return an empty (void) rest {@link RestResponse}.
+     */
+    @ApiOperation(value = "Delete importLocation of a CSARGit in ALIEN by url.")
+    @RequestMapping(value = "/{url}/importLocations/{branchId}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Audit
+    public RestResponse<Void> deleteImportLocationbyUrl(@Valid @PathVariable String url, @PathVariable String branchId) {
+        csarGithubService.removeImportLocationByUrl(url, branchId);
         return RestResponseBuilder.<Void> builder().build();
     }
 

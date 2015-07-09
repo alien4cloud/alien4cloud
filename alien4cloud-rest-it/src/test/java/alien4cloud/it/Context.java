@@ -3,6 +3,7 @@ package alien4cloud.it;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,6 +111,8 @@ public class Context {
 
     private ThreadLocal<String> csarLocal;
 
+    private ThreadLocal<Map<String,String>> csarGitId;
+
     private ThreadLocal<Set<String>> componentsIdsLocal;
 
     private ThreadLocal<String> topologyIdLocal;
@@ -167,6 +170,7 @@ public class Context {
         applicationVersionNameToApplicationVersionIdMapping.set(new HashMap<String, String>());
         environmentInfos = new ThreadLocal<Map<String, Map<String, String>>>();
         applicationInfos = new ThreadLocal<Map<String, String>>();
+        csarGitId = new ThreadLocal<Map<String,String>>();
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
         List<Resource> resources = Lists.newArrayList();
@@ -235,6 +239,10 @@ public class Context {
 
     public String getCloudImageId(String cloudImageName) {
         return cloudImageNameToCloudImageIdMapping.get().get(cloudImageName);
+    }
+
+    public Map<String,String> getCsarGitId() {
+        return csarGitId.get();
     }
 
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
@@ -462,6 +470,15 @@ public class Context {
 
     public void registerCloudForTopology(String cloudId) {
         topologyCloudInfos.set(cloudId);
+    }
+
+    public void saveCsarGitId(String id,String url) {
+        if (this.csarGitId.get() != null) {
+            this.csarGitId.get().put(id,url);
+            return;
+        }
+        this.csarGitId.set(MapUtil.newHashMap(new String[] { id }, new String[] { url }));
+        csarGitId.get().put(id, url);
     }
 
     public String getCloudForTopology() {
