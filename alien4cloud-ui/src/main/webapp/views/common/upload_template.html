@@ -1,0 +1,60 @@
+<div ng-controller="UploadCtrl" class="col-md-12">
+  <div class="drop-box" ng-show="dropSupported" ng-file-drop="uploadCtrl.onFileSelect($files)">
+    <i class="fa fa-file-text fa-2x"></i> {{ dragAndDropMessage | translate }}
+  </div>
+
+  <div class="fileUploadBtn btn btn-success" ng-show="!dropSupported" >
+    <span>
+      <i class="fa fa-upload"></i> {{ buttonMessage | translate }}
+    </span>
+    <input id="fileUpload" type="file"
+      class="upload"
+      ng-file-drop-available="dropSupported=true"
+      ng-file-select="uploadCtrl.onFileSelect($files)"
+      multiple>
+  </div>
+  <div class="upload-infos-bloc" ng-repeat="uploadInfo in uploadInfos">
+    <alert type="uploadInfo.infoType" close="uploadCtrl.closeUploadInfos($index)" style="margin-top: 15px;">
+      <div class="col-md-5 upload-file-infos">
+        <div class=" show-error-link col-md-2"
+           ng-click="uploadInfo.isErrorBlocCollapsed = !uploadInfo.isErrorBlocCollapsed"
+           ng-show="uploadInfo.errors || uploadInfo.otherError">
+           <i ng-class="{'fa fa-angle-double-down fa-lg' : uploadInfo.isErrorBlocCollapsed,  'fa fa-angle-double-up fa-lg' : !uploadInfo.isErrorBlocCollapsed }"></i>
+           <i class="fa fa-exclamation-triangle"></i>
+        </div>
+        <span><strong>{{uploadInfo.name}}</strong></span>
+      </div>
+      <progressbar class="progress-striped active"
+        value="uploadInfo.progress" type="{{uploadInfo.infoType}}">{{uploadInfo.progress}}% {{'UPLOAD.COMPLETE' | translate}}</progressbar>
+    </alert>
+    <!-- Error details -->
+    <div ng-show="uploadInfo.errors || uploadInfo.otherError" collapse="uploadInfo.isErrorBlocCollapsed">
+      <div class="well well-sm">
+        <div class="panel panel-default" ng-repeat="(filePath, csrarErrors) in uploadInfo.errors">
+          <div class="panel-heading">
+             <i class="fa fa-file"></i> <b>{{'COMPONENTS.UPLOAD_ERROR.FILE_PATH' | translate}}</b> : {{filePath}}
+          </div>
+          <div class="panel-body table-responsive">
+            <table class="table table-condensed">
+              <tr ng-repeat="csarError in csrarErrors" ng-class="{'warning': csarError.errorLevel==='WARNING', 'info': csarError.errorLevel==='INFO', 'danger': csarError.errorLevel==='ERROR'}">
+                <td><i class="fa" ng-class="{'fa-warning': csarError.errorLevel==='WARNING', 'fa-info': csarError.errorLevel==='INFO', 'fa-minus-circle': csarError.errorLevel==='ERROR'}"></i></td>
+                <td>
+                  <span ng-if="csarError.startMark">
+                    l:{{csarError.startMark.line}} c: {{csarError.startMark.column}}</td>
+                  </span>
+                <td>{{'COMPONENTS.UPLOAD_ERROR.'+csarError.errorCode | translate:csarError}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div ng-show="uploadInfo.otherError"  class="input-group">
+          <span class="input-group-addon">
+            <span><i class="fa fa-info"></i></span>
+          </span>
+          <span class="form-control-noheightlimit">{{'COMPONENTS.UPLOAD_ERROR.'+uploadInfo.otherError.code | translate:csarError }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

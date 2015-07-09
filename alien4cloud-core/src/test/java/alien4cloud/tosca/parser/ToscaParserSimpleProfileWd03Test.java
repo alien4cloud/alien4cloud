@@ -1,7 +1,9 @@
 package alien4cloud.tosca.parser;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +45,7 @@ import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.paas.plan.ToscaNodeLifecycleConstants;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.tosca.model.ArchiveRoot;
+import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -601,13 +604,39 @@ public class ToscaParserSimpleProfileWd03Test {
         Assert.assertEquals(2, constraints.size());
     }
 
-    public static void assertNoBlocker(ParsingResult<?> parsingResult) {
+    @Test
+    public void parseTopologyTemplateWithGetInputErrors() throws ParsingException, IOException {
+        // parse the node define with node_filter
+        ParsingResult<ArchiveRoot> parsingResult = parser.parseFile(Paths.get(TOSCA_SPWD03_ROOT_DIRECTORY, "tosca-topology-template-badinputs.yml"));
+        // there are 2 MISSING INPUT errors
+        Assert.assertEquals(2, countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT));
+        // check 2 errors content
+        List<ParsingError> errors = parsingResult.getContext().getParsingErrors();
+        for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
+            ParsingError parsingError = (ParsingError) iterator.next();
+            if (parsingError.getErrorLevel().equals(ParsingErrorLevel.ERROR) && parsingError.getErrorCode().equals(ErrorCode.MISSING_TOPOLOGY_INPUT)) {
+                if (parsingError.getProblem().equals("toto")) {
+                    Assert.assertEquals("os_distribution", parsingError.getNote());
+                }
+                if (parsingError.getProblem().equals("greatsize")) {
+                    Assert.assertEquals("size", parsingError.getNote());
+                }
+            }
+        }
+    }
+
+    public static int countErrorByLevelAndCode(ParsingResult<?> parsingResult, ParsingErrorLevel errorLevel, ErrorCode errorCode) {
+        int finalCount = 0;
         for (int i = 0; i < parsingResult.getContext().getParsingErrors().size(); i++) {
             ParsingError error = parsingResult.getContext().getParsingErrors().get(i);
-            if (error.getErrorLevel().equals(ParsingErrorLevel.ERROR)) {
-                System.out.println(parsingResult.getContext().getFileName() + "\n" + error);
+            if (error.getErrorLevel().equals(errorLevel) && (error.getErrorCode().equals(errorCode) || errorCode == null)) {
+                finalCount++;
             }
-            Assert.assertNotEquals(ParsingErrorLevel.ERROR, error.getErrorLevel());
         }
+        return finalCount;
+    }
+
+    public static void assertNoBlocker(ParsingResult<?> parsingResult) {
+        Assert.assertFalse(countErrorByLevelAndCode(parsingResult, ParsingErrorLevel.ERROR, null) > 0);
     }
 }

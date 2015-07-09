@@ -1,8 +1,0 @@
-{
-    "directory": "app/bower_components",
-    "storage": {
-        "packages": "../target/bower-cache",
-        "registry": "../target/bower-registry"
-    },
-    "tmp": "../target/bower-tmp"
-}

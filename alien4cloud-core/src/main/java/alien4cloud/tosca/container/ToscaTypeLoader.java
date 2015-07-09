@@ -98,6 +98,7 @@ public class ToscaTypeLoader {
         if (VersionUtil.compare(dependency.getVersion(), currentDependency.getVersion()) > 0) {
             // The new version is more recent, we will override with new version with warning
             Set<String> typesLoadedByConflictingArchive = dependenciesMap.remove(currentDependency);
+            typesLoadedByConflictingArchive.add(type);
             dependenciesMap.put(dependency, typesLoadedByConflictingArchive);
             log.warn("Version conflicting for archive [" + dependency.getName() + "] override current version [" + currentDependency.getVersion() + "] with ["
                     + dependency.getVersion() + "]");

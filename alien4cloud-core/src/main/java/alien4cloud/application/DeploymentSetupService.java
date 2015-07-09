@@ -31,6 +31,8 @@ import alien4cloud.model.components.DeploymentArtifact;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.topology.NodeTemplate;
+import alien4cloud.model.topology.RelationshipTemplate;
+import alien4cloud.model.topology.Requirement;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.topology.TopologyServiceCore;
@@ -67,6 +69,8 @@ public class DeploymentSetupService {
     private MetaPropertiesService metaPropertiesService;
     @Resource
     private InputsPreProcessorService inputsPreProcessorService;
+    @Resource
+    private TopologyCompositionService topologyCompositionService;
 
     public DeploymentSetup get(ApplicationVersion version, ApplicationEnvironment environment) {
         return getById(generateId(version.getId(), environment.getId()));
@@ -132,6 +136,7 @@ public class DeploymentSetupService {
         if (deploymentSetup == null) {
             deploymentSetup = createOrFail(version, environment);
         }
+        topologyCompositionService.processTopologyComposition(topology);
         generateInputProperties(deploymentSetup, topology);
         inputsPreProcessorService.processGetInput(deploymentSetup, topology, environment);
         processInputArtifacts(topology);
@@ -302,6 +307,7 @@ public class DeploymentSetupService {
             }
         }
     }
+
 
     @AllArgsConstructor
     private static class MappingGenerationResult<T> {
@@ -489,7 +495,7 @@ public class DeploymentSetupService {
 
     /**
      * Get all deployment setup linked to a topology
-     * 
+     *
      * @param topologyId the topology id
      * @return all deployment setup that is linked to this topology
      */

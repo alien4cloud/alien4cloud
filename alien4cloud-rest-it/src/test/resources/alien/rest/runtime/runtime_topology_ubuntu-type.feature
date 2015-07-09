@@ -23,7 +23,6 @@ Feature: get runtime topology
     And I have an application "ALIEN" with a topology containing a nodeTemplate "apacheLBGroovy" related to "fastconnect.nodes.apacheLBGroovy:0.1"
     And I have added a node template "Ubuntu" related to the "alien.nodes.Ubuntu:0.1" node type
     And I add a relationship of type "tosca.relationships.HostedOn" defined in archive "tosca-base-types" version "1.0" with source "apacheLBGroovy" and target "Ubuntu" for requirement "host" of type "tosca.capabilities.Container" and target capability "Ubuntu"
-    And I add a scaling policy to the node "Ubuntu"
     And I deploy the application "ALIEN" with cloud "Mount doom cloud" for the topology
 
   Scenario: Getting the runtime version of the deployed topology

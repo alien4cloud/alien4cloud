@@ -38,6 +38,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.MaintenanceModeException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
@@ -45,9 +46,9 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
@@ -345,7 +346,10 @@ public class ApplicationDeploymentController {
             deploymentService.scale(environment.getId(), nodeTemplateId, instances);
         } catch (CloudDisabledException e) {
             return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+        } catch (PaaSDeploymentException e) {
+            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build();
         }
+
         return RestResponseBuilder.<Void> builder().build();
     }
 

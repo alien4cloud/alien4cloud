@@ -2,11 +2,18 @@ package alien4cloud.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -27,6 +34,13 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.plugin.exception.MissingPlugingDescriptorFileException;
+import alien4cloud.plugin.exception.PluginLoadingException;
+import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.plugin.model.PluginDescriptor;
+import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.FileUtil;
 import alien4cloud.utils.MapUtil;
 import alien4cloud.utils.ReflectionUtil;
@@ -34,6 +48,7 @@ import alien4cloud.utils.YamlParserUtil;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Manages plugins.
@@ -43,10 +58,15 @@ import com.google.common.collect.Maps;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class PluginManager {
     private static final String LIB_DIRECTORY = "lib";
+    private static final String UI_DIRECTORY = "ui";
     private static final String PLUGIN_DESCRIPTOR_FILE = "META-INF/plugin.yml";
 
-    @Value("${directories.alien}/${directories.plugins}")
-    private String pluginDirectory;
+    @Value("${directories.alien}/plugins")
+    private String pluginsDirectory; // directory in which plugins are placed so they are loaded when alien is starting - for initialization.
+    @Value("${directories.alien}/work/plugins/content")
+    private String pluginsWorkDirectory; // directory in which alien place plugins that are loaded.
+    @Value("${directories.alien}/work/plugins/ui")
+    private String pluginsUiDirectory; // directory in which alien place ui files from plugins so they are available from clients.
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
@@ -72,29 +92,68 @@ public class PluginManager {
         }
 
         // Ensure plugin directory exists.
-        Path path = FileSystems.getDefault().getPath(pluginDirectory);
+        Path path = FileSystems.getDefault().getPath(pluginsWorkDirectory);
         if (!Files.exists(path)) {
             Files.createDirectories(path);
             log.info("Plugin work directory created at <" + path.toAbsolutePath().toString() + ">");
         }
 
-        // Load enabled plugins in alien
-        int from = 0;
-        long totalResult = 0;
-        do {
-            GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
-                    100);
-            for (Plugin plugin : results.getData()) {
+        log.info("Initializing plugins");
+        // Load enabled plugins in alien, query using max value as anyway we must be able to load all plugins in memory.
+        GetMultipleDataResult<Plugin> results = alienDAO.find(Plugin.class, MapUtil.newHashMap(new String[] { "enabled" }, new String[][] { { "true" } }),
+                Integer.MAX_VALUE);
+        loadPlugins(results.getData());
+        log.info("Plugins initialized, looking for new plugins to load.");
+
+        // TODO look for plugins on disk and load them
+        // Files.walkFileTree()
+
+    }
+
+    /**
+     * Load all the plugins that have their dependencies fullfilled by loaded plugin.
+     *
+     * @param plugins the plugins to load.
+     */
+    private void loadPlugins(Plugin[] plugins) {
+        List<Plugin> missingDependencyPlugins = Lists.newArrayList();
+        for (Plugin plugin : plugins) {
+            // if the plugin has no unresolved dependency, load it
+            if (getMissingDependencies(plugin).size() == 0) {
                 try {
                     loadPlugin(plugin);
                 } catch (PluginLoadingException e) {
                     log.error("Alien server Initialization: failed to load plugin <" + plugin.getId() + ">");
+                    disablePlugin(plugin.getId());
+                }
+            } else {
+                missingDependencyPlugins.add(plugin);
+            }
+        }
+        if (missingDependencyPlugins.size() == plugins.length) {
+            // No plugins have been loaded meaning that remaining plugins are not loadable because some dependencies are missing
+            for (Plugin plugin : plugins) {
+                log.error("Failed to load plugin <" + plugin.getId() + "> as some dependencies are missing <" + getMissingDependencies(plugin) + ">");
+                disablePlugin(plugin.getId());
+            }
+        } else {
+            if (missingDependencyPlugins.size() > 0) {
+                loadPlugins(missingDependencyPlugins.toArray(new Plugin[missingDependencyPlugins.size()]));
+            }
+        }
+    }
+
+    private Set<String> getMissingDependencies(Plugin plugin) {
+        Set<String> missingDependencies = Sets.newHashSet();
+        String[] dependencies = plugin.getDescriptor().getDependencies();
+        if (dependencies != null && dependencies.length > 0) {
+            for (String dependency : dependencies) {
+                if (this.pluginContexts.get(dependency) == null) {
+                    missingDependencies.add(dependency);
                 }
             }
-            from += results.getData().length;
-            totalResult = results.getTotalResults();
-        } while (from < totalResult);
-
+        }
+        return missingDependencies;
     }
 
     private Class<?> getLinkedType(IPluginLinker<?> linker) {
@@ -109,18 +168,35 @@ public class PluginManager {
      * @throws PluginLoadingException
      * @throws AlreadyExistException if a plugin with the same id already exists in the repository
      * @return the uploaded plugin
+     * @throws MissingPlugingDescriptorFileException
      */
-    public Plugin uploadPlugin(Path uploadedPluginPath) throws IOException, PluginLoadingException {
+    public Plugin uploadPlugin(Path uploadedPluginPath) throws PluginLoadingException, IOException, MissingPlugingDescriptorFileException {
         // load the plugin descriptor
         FileSystem fs = FileSystems.newFileSystem(uploadedPluginPath, null);
+        PluginDescriptor descriptor = null;
         try {
-            PluginDescriptor descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
+            try {
+                descriptor = YamlParserUtil.parseFromUTF8File(fs.getPath(PLUGIN_DESCRIPTOR_FILE), PluginDescriptor.class);
+            } catch (IOException e) {
+                if (e instanceof NoSuchFileException) {
+                    throw new MissingPlugingDescriptorFileException();
+                } else {
+                    throw e;
+                }
+            }
 
             String pluginPathId = getPluginPathId();
             Plugin plugin = new Plugin(descriptor, pluginPathId);
 
             Path pluginPath = getPluginPath(pluginPathId);
             FileUtil.unzip(uploadedPluginPath, pluginPath);
+
+            // copy ui directory in case it exists
+            Path pluginUiSourcePath = pluginPath.resolve(UI_DIRECTORY);
+            Path pluginUiPath = getPluginUiPath(pluginPathId);
+            if(Files.exists(pluginUiPath)) {
+                FileUtil.copy(pluginUiSourcePath, pluginUiPath);
+            }
 
             // check plugin already exists
             long count = alienDAO.count(Plugin.class, QueryBuilders.idsQuery(MappingBuilder.indexTypeFromClass(Plugin.class)).ids(plugin.getId()));
@@ -230,7 +306,8 @@ public class PluginManager {
     private void loadPlugin(Plugin plugin) throws PluginLoadingException {
         try {
             Path pluginPath = getPluginPath(plugin.getPluginPathId());
-            loadPlugin(plugin, pluginPath);
+            Path pluginUiPath = getPluginUiPath(plugin.getPluginPathId());
+            loadPlugin(plugin, pluginPath, pluginUiPath);
         } catch (Throwable e) {
             log.error("Failed to load plugin <" + plugin.getId() + "> alien will ignore this plugin.", e);
             throw new PluginLoadingException("Failed to load plugin <" + plugin.getId() + ">", e);
@@ -250,23 +327,28 @@ public class PluginManager {
     }
 
     private Path getPluginPath(String pluginPathId) {
-        return FileSystems.getDefault().getPath(pluginDirectory, pluginPathId);
+        return FileSystems.getDefault().getPath(pluginsWorkDirectory, pluginPathId);
+    }
+
+    private Path getPluginUiPath(String pluginPathId) {
+        return FileSystems.getDefault().getPath(pluginsUiDirectory, pluginPathId);
     }
 
     private Path getPluginZipFilePath(String pluginId) {
         String pluginFileName = pluginId.replaceAll(":", "-");
-        return FileSystems.getDefault().getPath(pluginDirectory, pluginFileName + ".cpa");
+        return FileSystems.getDefault().getPath(pluginsWorkDirectory, pluginFileName + ".cpa");
     }
 
     /**
      * Actually load and link a plugin in Alien 4 Cloud.
      *
      * @param plugin The plugin the load and link.
-     * @param pluginPath the path to the directory that contains the un-zipped plugin.
+     * @param pluginPath The path to the directory that contains the un-zipped plugin.
+     * @param pluginUiPath The path in which the ui files are located.
      * @throws IOException In case there is an IO issue with the file.
      * @throws ClassNotFoundException If we cannot load the class
      */
-    private void loadPlugin(Plugin plugin, Path pluginPath) throws IOException, ClassNotFoundException {
+    private void loadPlugin(Plugin plugin, Path pluginPath, Path pluginUiPath) throws IOException, ClassNotFoundException {
         // create a class loader to manage this plugin.
         final List<URL> classPathUrls = Lists.newArrayList();
         classPathUrls.add(pluginPath.toUri().toURL());
@@ -288,22 +370,77 @@ public class PluginManager {
         AnnotationConfigApplicationContext pluginContext = new AnnotationConfigApplicationContext();
         pluginContext.setParent(alienContext);
         pluginContext.setClassLoader(pluginClassLoader);
+
+        // Register beans from dependencies
+        registerDependencies(plugin, pluginContext);
+
         pluginContext.register(pluginClassLoader.loadClass(plugin.getDescriptor().getConfigurationClass()));
         pluginContext.refresh();
 
-        ManagedPlugin managedPlugin = new ManagedPlugin(pluginContext, plugin.getDescriptor(), pluginPath);
+        ManagedPlugin managedPlugin = new ManagedPlugin(pluginContext, plugin, pluginPath, pluginUiPath);
 
-        // send events to plugin loading callbacks
+        Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
+
+        // expose plugin elements so they are available to plugins that depends from them.
+        expose(managedPlugin, componentDescriptors);
+        // register plugin elements in Alien
+        link(plugin, managedPlugin, componentDescriptors);
+
+        // install static resources to be available for the application.
+        pluginContexts.put(plugin.getId(), managedPlugin);
+    }
+
+    private void registerDependencies(Plugin plugin, AnnotationConfigApplicationContext pluginContext) {
+        if (plugin.getDescriptor().getDependencies() == null) {
+            return; // no dependencies for this plugin.
+        }
+
+        for (String dependency : plugin.getDescriptor().getDependencies()) {
+            ManagedPlugin dependencyPlugin = this.pluginContexts.get(dependency);
+            for (Entry<String, Object> exposed : dependencyPlugin.getExposedBeans().entrySet()) {
+                pluginContext.getBeanFactory().registerSingleton(exposed.getKey(), exposed.getValue());
+            }
+        }
+    }
+
+    /**
+     * Initialize the list of exposed beans for the given plugin.
+     *
+     * @param managedPlugin The plugin for which to configure exposed beans.
+     * @param componentDescriptors The components descriptor of the plugin.
+     */
+    private void expose(ManagedPlugin managedPlugin, Map<String, PluginComponentDescriptor> componentDescriptors) {
+        Map<String, Object> exposedBeans = Maps.newHashMap();
+        for (Entry<String, PluginComponentDescriptor> componentDescriptorEntry : componentDescriptors.entrySet()) {
+            String beanName = componentDescriptorEntry.getValue().getBeanName();
+            // TODO handle NoSuchBeanDefinitionException with a nice error message to the user.
+            Object bean = managedPlugin.getPluginContext().getBean(beanName);
+            if (bean == null) {
+                log.warn("Plugin bean <" + beanName + "> is referenced in descriptor but doesn't exist in context.");
+            } else {
+                exposedBeans.put(beanName, bean);
+            }
+        }
+        managedPlugin.setExposedBeans(exposedBeans);
+    }
+
+    /**
+     * Link the plugin against alien components that may need to use it.
+     * 
+     * @param plugin The plugin to link.
+     * @param managedPlugin The managed plugin related to the plugin.
+     * @param componentDescriptors The map of component descriptors.
+     */
+    private void link(Plugin plugin, ManagedPlugin managedPlugin, Map<String, PluginComponentDescriptor> componentDescriptors) {
+        // Global linking (rest-mapping for example)
         Map<String, IPluginLoadingCallback> beans = alienContext.getBeansOfType(IPluginLoadingCallback.class);
         for (IPluginLoadingCallback callback : beans.values()) {
             callback.onPluginLoaded(managedPlugin);
         }
 
-        Map<String, PluginComponentDescriptor> componentDescriptors = getPluginComponentDescriptorAsMap(plugin);
-
-        // register plugin elements in Alien
+        // Specific bean linking to bean types.
         for (PluginLinker linker : linkers) {
-            Map<String, ?> instancesToLink = pluginContext.getBeansOfType(linker.linkedType);
+            Map<String, ?> instancesToLink = managedPlugin.getPluginContext().getBeansOfType(linker.linkedType);
             for (Entry<String, ?> instanceToLink : instancesToLink.entrySet()) {
                 linker.linker.link(plugin.getId(), instanceToLink.getKey(), instanceToLink.getValue());
                 PluginComponentDescriptor componentDescriptor = componentDescriptors.get(instanceToLink.getKey());
@@ -315,11 +452,6 @@ public class PluginManager {
                 componentDescriptor.setType(linker.linkedType.getSimpleName());
             }
         }
-
-        // TODO get configurable elements from the plugin and get configuration from elastic-search
-
-        // install static resources to be available for the application.
-        pluginContexts.put(plugin.getId(), managedPlugin);
     }
 
     private Map<String, PluginComponentDescriptor> getPluginComponentDescriptorAsMap(Plugin plugin) {
@@ -340,7 +472,7 @@ public class PluginManager {
      * @return The plugin descriptor for the given plugin.
      */
     public PluginDescriptor getPluginDescriptor(String pluginId) {
-        return pluginContexts.get(pluginId).getDescriptor();
+        return pluginContexts.get(pluginId).getPlugin().getDescriptor();
     }
 
     private Class<?> getConfigurationType(IPluginConfigurator<?> configurator) {

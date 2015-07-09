@@ -8,15 +8,18 @@ import javax.annotation.Resource;
 
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
+import alien4cloud.component.ICSARRepositoryIndexerService;
+import alien4cloud.component.repository.CsarFileRepository;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
 import alien4cloud.model.topology.Topology;
-import alien4cloud.utils.VersionUtil;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -28,6 +31,12 @@ import com.google.common.collect.Sets;
 public class CsarService implements ICsarDependencyLoader {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO csarDAO;
+
+    @Resource
+    private ICSARRepositoryIndexerService indexerService;
+
+    @Resource
+    private CsarFileRepository alienRepository;
 
     /**
      * Get a cloud service if exists in Dao.
@@ -119,4 +128,68 @@ public class CsarService implements ICsarDependencyLoader {
             return csar;
         }
     }
+
+    public void deleteCsar(String name, String version) {
+        deleteCsar(new Csar(name, version).getId());
+    }
+
+    /**
+     * @return true if the CSar is a dependency for another or used in a topology.
+     */
+    public boolean isDependency(String csarName, String csarVersion) {
+        // a csar that is a dependency of another csar
+        Csar[] result = getDependantCsars(csarName, csarVersion);
+        if (result != null && result.length > 0) {
+            return true;
+        }
+        // check if some of the nodes are used in topologies.
+        Topology[] topologies = getDependantTopologies(csarName, csarVersion);
+        if (topologies != null && topologies.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public void deleteCsar(String csarId) {
+        deleteCsar(csarId, false);
+    }
+
+    public void deleteCsar(String csarId, boolean ignoreSubtisutionTopology) {
+        Csar csar = getMandatoryCsar(csarId);
+        // a csar that is a dependency of another csar can not be deleted
+        if (isDependency(csar.getName(), csar.getVersion())) {
+            throw new DeleteReferencedObjectException("This csar can not be deleted since it's a dependencie for others");
+        }
+
+        // here we check that the csar is not a csar created by a topology template (substitution).
+        if (!ignoreSubtisutionTopology && csar.getSubstitutionTopologyId() != null) {
+            String linkedTopologyId = csar.getSubstitutionTopologyId();
+            Topology topology = csarDAO.findById(Topology.class, linkedTopologyId);
+            if (topology != null) {
+                throw new DeleteReferencedObjectException(
+                        "The CSAR with id <"
+                                + csarId
+                                + "> is linked to a topology template (substitution) and can not be deleted by this way. The archive can be deleted by deleting the related topology template version.");
+            }
+        }
+
+        // latest version indicator will be recomputed to match this new reality
+        indexerService.deleteElements(csar.getName(), csar.getVersion());
+
+        csarDAO.delete(Csar.class, csarId);
+
+        // physically delete files
+        alienRepository.removeCSAR(csar.getName(), csar.getVersion());
+
+    }
+
+    public Csar getTopologySubstitutionCsar(String topologyId) {
+        Csar csarResult = csarDAO.customFind(Csar.class, QueryBuilders.termQuery("substitutionTopologyId", topologyId));
+        if (csarResult != null) {
+            return csarResult;
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -1,0 +1,873 @@
+<div class="row">
+  <div class="col-md-12">
+    <tabset>
+      <tab heading="{{'CLOUDS.DETAILS' | translate}}" id="tab-clouds-details">
+        <div class="row">
+          <div class="col-md-2 center visible-md visible-lg" style="height: 127px;">
+            <img ng-if="cloud.iaaSType" ng-src="images/cloud-{{cloud.iaaSType | lowercase}}.png" class="center" />
+          </div>
+          <div class="col-md-7">
+
+            <div id="cloud_name_input" class="h1" style="display: inline-block;">
+              <span editable-text="cloud.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateCloud({'name' : $data})" blur="submit">
+                {{cloud.name}} <i class="fa fa-edit fa-smaller"></i>
+              </span>
+            </div>
+
+            <div class="confirm-button-delete">
+              <delete-confirm id="btn-cloud-delete" func="removeCloud(cloud.id)" position="right" bssize="btn-sm" fastyle="fa-trash-o">
+              </delete-confirm>
+            </div>
+
+          </div>
+          <div class="col-md-3">
+            <button type="button" id="cloud-enable-button" class="btn btn-success {{ !enablePending ? '' : 'disabled'}}" ng-click="enableCloud()" ng-if="!cloud.enabled">
+              <i class="fa" ng-class="{'fa-play': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.ENABLE' | translate}}
+            </button>
+            <button type="button" id="cloud-disable-button" class="btn btn-danger {{ !enablePending ? '' : 'disabled'}}" ng-click="disableCloud(false)" ng-if="cloud.enabled && !showForceDisableCloud">
+              <i class="fa" ng-class="{'fa-stop': !enablePending, 'fa-spinner fa-spin': enablePending}"></i> {{'CLOUDS.DISABLE' | translate}}
+            </button>
+            <a id="force-cloud-disable-button"
+               ng-if="cloud.enabled && showForceDisableCloud"
+               class="btn btn-danger"
+               confirm="{{'CLOUDS.FORCE-DISABLE-CONTENT' | translate}}"
+               confirm-title="{{'CLOUDS.FORCE-DISABLE-TITLE' | translate }}"
+               confirm-placement="left"
+               confirm-handler="disableCloud(true)"
+               ng-click="$event.stopPropagation();">
+              <i class="fa fa-stop"></i> {{'CLOUDS.FORCE-DISABLE' | translate}}
+            </a>
+            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending && !refreshPending ? '' : 'disabled'}}" ng-click="refreshCloud()">
+              <i class="fa" ng-class="{'fa-refresh': !refreshPending, 'fa-spinner fa-spin': refreshPending}"></i> {{'CLOUDS.REFRESH' | translate}}
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <fieldset>
+              <legend>
+                <h4><i class="fa fa-cloud"></i> {{'CLOUDS.CLOUD' | translate }}</h4>
+              </legend>
+              <div class="row">
+                <div class="col-md-3">
+                  <strong>{{'CLOUDS.PAAS_PROVIDER' | translate }}</strong>
+                </div>
+                <div class="col-md-9">{{cloud.paasProviderName}}</div>
+              </div>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-3">
+                  <strong>{{'CLOUDS.IAAS_TYPE' | translate }}</strong>
+                </div>
+                <div class="col-md-7">
+                  <select ng-model="cloud.iaaSType" ng-change="updateCloud({'iaaSType': cloud.iaaSType})" ng-options="'CLOUDS.IAAS.'+iaas | translate for iaas in iaasTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': cloudSaving, 'text-success fa-check': cloudSavedSuccess, 'text-danger fa-times': cloudSavedError}"></i>
+                </div>
+              </div>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-3">
+                  <strong>{{'CLOUDS.ENVIRONMENT_TYPE' | translate }}</strong>
+                </div>
+                <div class="col-md-7">
+                  <select ng-model="cloud.environmentType" ng-change="updateCloud({'environmentType': cloud.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': cloudSaving, 'text-success fa-check': cloudSavedSuccess, 'text-danger fa-times': cloudSavedError}"></i>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class=col-md-6 id="deployments-div">
+            <fieldset>
+              <legend>
+                <h4><i class="fa fa-cloud-upload"></i> {{'CLOUDS.DEPLOYMENTS' | translate}}</h4>
+              </legend>
+              <div class="table-responsive topology-level">
+                <table class="table table-condensed">
+                  <thead>
+                    <tr>
+                      <th>{{'CLOUDS.DEPLOYMENT_SOURCE' | translate}}</th>
+                      <th>{{'CLOUDS.DEPLOYMENT_TYPE' | translate}}</th>
+                      <th>{{'START_DATE' | translate}}</th>
+                      <th>{{'END_DATE' | translate}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr ng-repeat="deploymentDTO in deployments" name="app_{{deploymentDTO.source.name}}">
+                      <td>
+                        {{deploymentDTO.source.name}}
+                      </td>
+                      <td>
+                        {{deploymentDTO.deployment.sourceType | translate}}
+                      </td>
+                      <td>
+                        {{deploymentDTO.deployment.startDate | date:'medium'}}
+                      </td>
+                      <td>
+                        {{deploymentDTO.deployment.endDate | date:'medium' || '---'}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+      <tab id="tab-clouds-image" select="initSearchImageService()" >
+        <tab-heading>
+          {{'CLOUDS.IMAGE' | translate}}
+          <span ng-if="imageNotConfiguredCount > 0">
+            <i class="fa fa-warning text-danger"></i>
+          </span>
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-image"></i> {{'CLOUDS.IMAGE' | translate }}
+                    <span ng-if="imageNotConfiguredCount > 0" style="font-size: 14px">
+                    ( <span> <i class="fa fa-warning text-danger"></i>
+                      {{imageNotConfiguredCount}} {{
+                      'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                  </span> )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row">
+                <div class="col-md-6" id="imagesAdded" alien-droppable drag-data="" drag-on-drop="onImageDragged(data)">
+                  <div class="panel panel-primary">
+                    <div class="panel-body">
+                      <div>
+                        <ul ng-if="cloud.images.length > 0" class="list-group">
+                          <li class="list-group-item clickable-media" ng-repeat="cloudImageId in cloud.images" id="cloudImage_{{images[cloudImageId].resource.name}}">
+                            <div class="media" id="li_{{images[cloudImageId].resource.name}}">
+                              <div class="media-body">
+                                <h4 class="media-heading">
+                                  <div class="row">
+                                    <div class="col-md-2">
+                                      <i ng-if="!images[cloudImageId].resource.iconId" class="fa fa-image fa-3x"></i>
+                                      <img ng-if="images[cloudImageId].resource.iconId" ng-src="{{images[cloudImageId].resource.iconId?('img?id=' + images[cloudImageId].resource.iconId + '&quality=QUALITY_64'):null}}" />
+                                    </div>
+                                    <div class="col-md-7">
+                                      <span>{{images[cloudImageId].resource.name}}</span>
+                                      <span class="small">{{images[cloudImageId].resource.osArch}}</span>
+                                      <p class="small" style="margin-top: 10px;">{{images[cloudImageId].resource.requirement.numCPUs | prefix:' cpu:' | suffix:' / '}}
+                                      {{images[cloudImageId].resource.requirement.diskSize | bytes | prefix:' disk:' | suffix:' / '}}
+                                      {{images[cloudImageId].resource.requirement.memSize | bytes | prefix:' mem:'}}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                      <os-icon os-type="images[cloudImageId].resource.osType" class="text-right" ></os-icon>
+                                      <p class="small text-right" style="margin-top: 10px;">{{images[cloudImageId].resource.osDistribution}} {{images[cloudImageId].resource.osVersion}}</p>
+                                    </div>
+                                  </div>
+
+                                  <div class="row">
+                                    <div class="col-md-10">
+                                      <div class="row-fluid">
+                                        <span class="small pull-left margin-top-05">{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}} : </span>
+                                        <div ng-class="{'has-error': !images[cloudImageId].paaSResourceId}" class="small pull-left margin-top-05">
+                                          <span ng-if="!cloud.enabled" >{{images[cloudImageId].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                                          <span ng-if="cloud.enabled && !paaSImageIds" editable-text="images[cloudImageId].paaSResourceId" buttons="no"
+                                          onaftersave="saveImageResourceId(cloudImageId, images[cloudImageId].paaSResourceId)" blur="submit">
+                                            {{images[cloudImageId].paaSResourceId}}
+                                            <em ng-if="images[cloudImageId].paaSResourceId === null || images[cloudImageId].paaSResourceId === undefined" class="text-muted">
+                                              {{'GENERIC_FORM.UNDEFINED' | translate}}
+                                            </em>
+                                            <i class="fa fa-pencil-square-o"></i>
+                                          </span>
+                                          <div ng-if="cloud.enabled && paaSImageIds" class="btn-group-vertical btn-group-xs">
+                                            <div class="btn-group btn-group-xs">
+                                               <button type="button"
+                                                 class="btn btn-default dropdown-toggle"
+                                                  id="{{images[cloudImageId].resource.name}}_resourceId">
+                                                  {{images[cloudImageId].paaSResourceId ||
+                                                  'GENERIC_FORM.UNDEFINED' | translate}} <span
+                                                    class="caret"></span>
+                                              </button>
+                                              <ul class="dropdown-menu dropdown-menu-left dropdownAsSelect">
+                                                <li ng-if="images[cloudImageId].paaSResourceId"><a
+                                                    id="{{images[cloudImageId].resource.name}}_resourceId_empty"
+                                                    ng-click="saveImageResourceId(cloudImageId, '')">&nbsp;</a></li>
+                                                <li ng-repeat="value in availaiblePaaSImageIds"><a
+                                                    id="{{images[cloudImageId].resource.name}}_resourceId_{{value}}"
+                                                    ng-click="saveImageResourceId(cloudImageId, value)">{{value}}</a></li>
+                                              </ul>
+                                              </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                      <button type="button" class="btn btn-danger btn-sm pull-right" ng-click="removeCloudImage(cloudImageId)" id="cloud_delete_cloud_image_{{images[cloudImageId].resource.name}}"><i class="fa fa-trash-o"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                </h4>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                        <span class="images-not-selected" ng-if="cloud.images.length === 0">{{'CLOUDS.IMAGES.NO_SELECTED_IMAGES' | translate}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-1">
+                  <a id="btn-add-cloud-image" class="btn {{(imageAddSelection.length > 0) ? 'btn-success' : 'btn-default'}} btn-sm center-block"
+                     ng-click="performAddCloudImageSelection();">
+                    <i class="fa fa-angle-double-left"></i>
+                  </a>
+                  <br/>
+                  <a id="clouds-image-create-button" class="btn btn-success btn-sm center-block"
+                     ng-click="createCloudImage();">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.IMAGES.NEW' | translate}}
+                  </a>
+                </div>
+                <div class="col-md-5" id="imagesToAdd">
+                  <div class="well">
+                    <div class="row" style="margin-bottom: 10px;">
+                      <div class="col-md-12">
+                        <form role="search" ng-submit="searchImage()">
+                          <div class="input-group">
+                            <input type="text" class="form-control" placeholder="..." ng-model="searchImageQuery" ng-change="imageQueryChanged(searchImageQuery)">
+                            <span class="input-group-btn">
+                              <button type="submit" class="btn btn-default" data-loading-text="Loading...">
+                                <i class="fa fa-search"></i>
+                              </button>
+                            </span>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-12">
+                        <ul class="list-group">
+                          <li class="list-group-item clickable-media {{isInCloudImageAddSelection(cloudImage.id) ? 'selected' : ''}}" ng-repeat="cloudImage in searchImageData.data">
+                            <div class="media" id="li_{{cloudImage.name}}" ng-click="switchCloudImageAddSelection(cloudImage.id)" alien-draggable drag-enabled="true" drag-data="cloudImage.id">
+                              <div class="media-body">
+                                <h4 class="media-heading">
+                                  <div class="row">
+                                    <div class="col-md-2">
+                                      <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                                      <img ng-if="cloudImage.iconId" ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+                                    </div>
+                                    <div class="col-md-7">
+                                      <span>{{cloudImage.name}}</span>
+                                      <span class="small">{{cloudImage.osArch}}</span>
+                                      <p class="small" style="margin-top: 10px;">{{cloudImage.requirement.numCPUs | prefix:' cpu:' | suffix:' / '}}
+                                      {{cloudImage.requirement.diskSize | bytes | prefix:' disk:' | suffix:' / '}}
+                                      {{cloudImage.requirement.memSize | bytes | prefix:' mem:'}}</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                      <os-icon os-type="cloudImage.osType" class="text-right"></os-icon>
+                                      <p class="small text-right" style="margin-top: 10px;">{{cloudImage.osDistribution}} {{cloudImage.osVersion}}</p>
+                                    </div>
+                                  </div>
+                                </h4>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                        <!-- pagination bar -->
+                        <pagination-directive pagination-info="searchImageService.pagination"></pagination-directive>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+      <tab heading="{{'CLOUDS.FLAVOR' | translate}}" id="tab-clouds-flavor">
+        <tab-heading>
+          {{'CLOUDS.FLAVOR' | translate}}
+          <span ng-if="flavorNotConfiguredCount > 0">
+            <i class="fa fa-warning text-danger"></i>
+          </span>
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-arrows-alt"></i> {{'CLOUDS.FLAVOR' | translate }}
+                  <span ng-if="flavorNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-warning text-danger"></i> {{flavorNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_CONFIGURED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-flavors-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.FLAVORS.ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</th>
+                          <th>{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</th>
+                          <th>{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="flavor in cloud.flavors" id='cloud_flavor_{{flavor.id}}'>
+                          <td>{{flavor.id}}</td>
+                          <td>{{flavor.numCPUs}}</td>
+                          <td>{{flavor.diskSize | bytes}}</td>
+                          <td>{{flavor.memSize | bytes}}</td>
+                          <td ng-class="{'has-error': !flavors[flavor.id].paaSResourceId}">
+                            <span ng-if="!cloud.enabled" >{{ flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="cloud.enabled && !paaSFlavorIds" editable-text="flavors[flavor.id].paaSResourceId" buttons="no" onaftersave="saveFlavorResourceId(flavor.id, flavors[flavor.id].paaSResourceId)" blur="submit" ng-disabled="true">
+                              {{flavors[flavor.id].paaSResourceId}}
+                              <em ng-if="flavors[flavor.id].paaSResourceId === null || flavors[flavor.id].paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                            <div ng-if="cloud.enabled && paaSFlavorIds" class="btn-group-vertical btn-group-sm">
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{flavor.id}}_resourceId">
+                                  {{flavors[flavor.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="flavors[flavor.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveFlavorResourceId(flavor.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSFlavorIds"><a
+                                    id="{{flavor.id}}_resourceId_{{value}}"
+                                    ng-click="saveFlavorResourceId(flavor.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteFlavor(flavor.id)" id="cloud_delete_flavor_{{flavor.id}}"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-flavor-add-button" class="btn btn-success btn-sm pull-right" ng-click="openFlavorCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.FLAVORS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+      <tab select="tabs.newTemplates = 0" id="tab-clouds-template">
+        <tab-heading>
+          {{'CLOUDS.TEMPLATE' | translate}}
+          <span ng-if="tabs.newTemplates != 0" class="badge">
+            <span ng-if="tabs.newTemplates > 0">+</span>{{tabs.newTemplates}}
+          </span>
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-6">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-desktop"></i> {{'CLOUDS.TEMPLATE' | translate }}
+                  <span style="font-size: 14px">
+                    (
+                      {{templateActiveCount}} / {{cloud.computeTemplates.length}} {{ 'CLOUDS.TEMPLATES.ENABLED' | translate }}
+                    <span ng-if="templateFilteredCount > 0">
+                      , {{templateFilteredCount}} {{ 'CLOUDS.TEMPLATES.FILTERED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-12" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th class="col-md-1">{{ 'CLOUDS.TEMPLATES.ENABLE' | translate}}</th>
+                          <th class="col-md-2"></th>
+                          <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.IMAGE_NAME' | translate}}</th>
+                          <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.FLAVOR_NAME' | translate}}</th>
+                          <th class="col-md-3">{{ 'CLOUDS.TEMPLATES.DESCRIPTION' | translate}}</th>
+                        </tr>
+                      </thead>
+                      <tbody ng-mouseleave="deleteTemplateSelection()">
+                        <tr ng-repeat="template in cloud.computeTemplates | orderBy:'cloudImageFlavorId'" ng-init="cloudImage = images[template.cloudImageId].resource; flavor = flavors[template.cloudImageFlavorId].resource" id='computeTemplate_{{cloudImage.name + "_" + template.cloudImageFlavorId}}'
+                        ng-class="{'warning text-muted' : !template.enabled}" ng-mouseover="selectTemplate(template)" style="height: 81px;">
+                          <td>
+                            <input type="checkbox" ng-checked="template.enabled" ng-click="toggleEnableTemplate(template)">
+                          </td>
+                          <td>
+                            <i ng-if="!cloudImage.iconId" class="fa fa-image fa-3x"></i>
+                            <img ng-if="cloudImage.iconId" ng-src="{{cloudImage.iconId?('img?id=' + cloudImage.iconId + '&quality=QUALITY_64'):null}}" />
+                          </td>
+                          <td>{{cloudImage.name}}</td>
+                          <td>{{flavor.id}}</td>
+                          <td>{{template.description}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div ng-if="selectedTemplate" class="col-md-6">
+            <div id="cloud-template-details">
+              <fieldset>
+                <legend class="text-center">
+                  <h4><i class="fa fa-file"></i> {{'CLOUDS.TEMPLATE_DETAILS' | translate }}</h4>
+                </legend>
+                <div class="row" style="margin-top: 10px;">
+                  <div class="col-md-12">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        {{images[selectedTemplate.cloudImageId].resource.name}}
+                      </div>
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.OS_DISTRIBUTION' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osDistribution}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.OS_TYPE' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osType}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.OS_VERSION' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osVersion}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.OS_ARCH' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.osArch}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.numCPUs">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.NUM_CPUS' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.numCPUs}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.diskSize">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.DISK_SIZE' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.diskSize | bytes}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px" ng-if="images[selectedTemplate.cloudImageId].requirement.memSize">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUD_IMAGES.MEM_SIZE' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{images[selectedTemplate.cloudImageId].resource.requirement.memSize | bytes}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        {{flavors[selectedTemplate.cloudImageFlavorId].resource.id}}
+                      </div>
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUDS.FLAVORS.NUM_CPUS' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.numCPUs}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUDS.FLAVORS.DISK_SIZE' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.diskSize | bytes}}</span>
+                          </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px">
+                          <div class="col-md-4">
+                            <span class="text-muted">{{ 'CLOUDS.FLAVORS.MEM_SIZE' | translate}}</span>
+                          </div>
+                          <div class="col-md-8">
+                            <span class="text-primary">{{flavors[selectedTemplate.cloudImageFlavorId].resource.memSize | bytes}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+      </tab>
+      <tab id="tab-clouds-network">
+        <tab-heading>
+          {{'CLOUDS.NETWORK' | translate}}
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-wifi"></i> {{'CLOUDS.NETWORK' | translate }}
+                  <span ng-if="networkNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-info-circle text-info"></i> {{networkNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_MAPPED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-network-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.NETWORKS.NAME' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.CIDR' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.GATEWAY_IP' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.IP_VERSION' | translate}}</th>
+                          <th>{{ 'CLOUDS.NETWORKS.IS_EXTERNAL' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="network in cloud.networks" id='cloud_network_{{network.networkName}}'>
+                          <td>{{network.id}}</td>
+                          <td>{{network.cidr}}</td>
+                          <td>{{network.gatewayIp || '---'}}</td>
+                          <td>{{network.ipVersion}}</td>
+                          <td>{{'CLOUDS.NETWORKS.IS_EXTERNAL_' + network.isExternal | translate}}</td>
+                          <td ng-class="{'has-error': !networks[network.id].paaSResourceId}">
+                            <span ng-if="!cloud.enabled" >{{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="!paaSNetworkIds && cloud.enabled" editable-text="networks[network.id].paaSResourceId" buttons="no" onaftersave="saveNetworkResourceId(network.id, networks[network.id].paaSResourceId)" blur="submit">
+                              {{networks[network.id].paaSResourceId}}
+                              <em ng-if="networks[network.id].paaSResourceId === null || networks[network.id].paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                            <div ng-if="paaSNetworkIds && cloud.enabled" class="btn-group-vertical btn-group-sm">
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{network.id}}_resourceId">
+                                  {{networks[network.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="networks[network.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveNetworkResourceId(network.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSNetworkIds"><a
+                                    id="{{network.id}}_resourceId_{{value}}"
+                                    ng-click="saveNetworkResourceId(network.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
+                            </div>
+                          </td>{{network.description || '---'}}<td>
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteNetwork(network)" id="cloud_delete_network_{{network.id}}"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-network-add-button" class="btn btn-success btn-sm pull-right" ng-click="openNetworkCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+      <tab id="tab-clouds-storage">
+        <tab-heading>
+          {{'CLOUDS.STORAGE' | translate}}
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-save"></i> {{'CLOUDS.STORAGE' | translate }}
+                  <span ng-if="storageNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-info-circle text-info"></i> {{storageNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_MAPPED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-storage-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.STORAGES.ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.STORAGES.DEVICE' | translate}}</th>
+                          <th>{{ 'CLOUDS.STORAGES.SIZE' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="storage in cloud.storages" id='cloud_storages_{{storage.id}}'>
+                          <td>{{storage.id}}</td>
+                          <td>{{storage.device || '---'}}</td>
+                          <td>{{storage.size | bytes}}</td>
+                          <td ng-class="{'has-error': !storages[storage.id].paaSResourceId}">
+                            <span ng-if="!cloud.enabled" >{{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="!paaSStorageIds && cloud.enabled" editable-text="storages[storage.id].paaSResourceId" buttons="no" onaftersave="saveStorageResourceId(storage.id, storages[storage.id].paaSResourceId)" blur="submit">
+                              {{storages[storage.id].paaSResourceId}}
+                              <em ng-if="storages[storage.id].paaSResourceId === null || storages[storage.id].paaSResourceId === undefined" class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                            <div ng-if="paaSStorageIds && cloud.enabled" class="btn-group-vertical btn-group-sm">
+                              <div class="btn-group btn-group-sm">
+                                <button type="button"
+                                  class="btn btn-default dropdown-toggle"
+                                  id="{{storage.id}}_resourceId">
+                                  {{storages[storage.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED' | translate}}
+                                  <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-left">
+                                  <li ng-if="storages[storage.id].paaSResourceId"><a
+                                    id="{{cloudImageId}}_resourceId_empty"
+                                    ng-click="saveStorageResourceId(storage.id, '')">&nbsp;</a></li>
+                                  <li ng-repeat="value in availaiblePaaSStorageIds"><a
+                                    id="{{storage.id}}_resourceId_{{value}}"
+                                    ng-click="saveStorageResourceId(storage.id, value)">{{value}}</a></li>
+                                </ul>
+                              </div>
+                            </div>
+                          </td>
+                          <td>{{storage.description || '---'}}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteStorage(storage)" id="cloud_delete_storage_{{storage.id}}"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-storage-add-button" class="btn btn-success btn-sm pull-right" ng-click="openStorageCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+      <tab id="tab-clouds-zone" disabled="cloud.iaaSType !== 'OPENSTACK' && cloud.iaaSType !== 'AMAZON'">
+        <tab-heading>
+          {{'CLOUDS.ZONE' | translate}}
+        </tab-heading>
+        <div class="row">
+          <div class="col-md-12">
+            <fieldset>
+              <legend class="text-center">
+                <h4>
+                  <i class="fa fa-th"></i> {{'CLOUDS.ZONE' | translate }}
+                  <span ng-if="zoneNotConfiguredCount > 0" style="font-size: 14px">
+                    (
+                    <span>
+                      <i class="fa fa-info-circle text-info"></i> {{zoneNotConfiguredCount}} {{ 'CLOUDS.RESOURCE_NOT_MAPPED' | translate }}
+                    </span>
+                    )
+                  </span>
+                </h4>
+              </legend>
+              <div class="row" style="margin-top: 10px;">
+                <div class="col-md-10" style="height: {{heightInfo.height - 240}}px; overflow: auto;">
+                  <div class="table-responsive large-data-container" id="cloud-storage-table">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>{{ 'CLOUDS.ZONES.ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.PAAS_RESOURCE_ID' | translate}}</th>
+                          <th>{{ 'CLOUDS.DESCRIPTION' | translate}}</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="zone in cloud.availabilityZones" id='cloud_zone_{{zone.id}}'>
+                          <td>{{zone.id}}</td>
+                          <td ng-class="{'has-error': !zones[zone.id].paaSResourceId}">
+                            <span ng-if="!cloud.enabled" >{{zones[zone.id].paaSResourceId || 'GENERIC_FORM.UNDEFINED_READ_ONLY' | translate}}</span>
+                            <span ng-if="cloud.enabled" editable-text="zones[zone.id].paaSResourceId" buttons="no" onaftersave="saveZoneResourceId(zone.id, zones[zone.id].paaSResourceId)" blur="submit">
+                              {{zones[zone.id].paaSResourceId}}
+                              <em ng-if="UTILS.isUndefinedOrNull(zones[zone.id].paaSResourceId) " class="text-muted">
+                                {{'GENERIC_FORM.UNDEFINED' | translate}}
+                              </em>
+                              <i class="fa fa-pencil-square-o"></i>
+                            </span>
+                          </td>
+                          <td>{{zone.description || '---'}}</td>
+                          <td>
+                            <button type="button" class="btn btn-danger btn-sm" ng-click="deleteZone(zone)" id="cloud_delete_zone_{{zone.id}}"><i class="fa fa-trash-o"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <button id="clouds-zone-add-button" class="btn btn-success btn-sm pull-right" ng-click="openZoneCreationModal()">
+                    <i class="fa fa-plus"></i> {{'CLOUDS.NETWORKS.NEW' | translate}}
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </tab>
+
+      <tab heading="{{'CLOUDS.CONFIGURATION' | translate}}" id="tab-clouds-configuration">
+        <div class="row" style="margin-bottom:20px;">
+          <div class=col-md-12>
+            <div class="form-horizontal" role="form">
+              <div class="panel panel-default form-panel">
+                <div class="panel-heading">
+                  <h4 class="ng-binding" style="display: inline;">{{'CLOUDS.ADMINISTRATION.GLOBAL.TITLE' | translate}}</h4>
+                </div>
+                <div class="panel-body">
+                  <div class="">
+                    <label class="ng-scope ng-binding" tooltip="{{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}" tooltip-trigger="mouseenter">
+                      {{'CLOUDS.ADMINISTRATION.GLOBAL.DEPLOYMENT_NAME' | translate}}
+                    </label>
+                    <button class="btn btn-primary btn-xs ng-scope pull-right" data-toggle="modal" ng-click="openSimpleModal()" tooltip="{{'CLOUDS.ADMINISTRATION.HELP.TITLE' | translate}}" tooltip-append-to-body="true" position="right">
+                      <i class="fa fa-question-circle"></i>
+                    </button>
+                  </div>
+                  <div editable-text="cloud.deploymentNamePattern" id="deploymentNamePattern" buttons="no" e-style="width:90%;" e-required e-class="input-sm;" onaftersave="updateCloud({'deploymentNamePattern' : cloud.deploymentNamePattern})" blur="submit">
+                    {{cloud.deploymentNamePattern}} <i class="fa fa-edit"></i>
+                  </div>
+                </div>
+                <meta-properties-display
+                  id="cloudMetaPropertiesDisplay"
+                  ng-if="configurationProperties"
+                  properties="configurationProperties"
+                  cloud="cloud">
+                </meta-properties-display>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class=col-md-12>
+            <generic-form ng-if="cloudConfig && cloudConfigDefinition" root-object="cloudConfig" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="cloudConfigDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
+            </generic-form>
+          </div>
+        </div>
+      </tab>
+      <!-- manage applications roles -->
+      <tab heading="{{'CLOUDS.MANAGE_ROLES' | translate}}" id="rights-tab">
+
+        <!-- Cloud roles lists -->
+        <div class="row">
+          <div class="col-md-3 resource-user-roles" ng-repeat="cloudRole in cloudRoles">
+            <div class="thumbnail">
+              <h5>{{cloudRole}}</h5>
+              <ul class="td_list liste-no-style">
+                <li ng-repeat="(username, userCloudRoles) in cloud.userRoles | orderBy:'username.toString()' " ng-show="userCloudRoles.indexOf(cloudRole) >=0">
+                  <i class="fa fa-user"></i>
+                  <span>{{ relatedUsers[username].firstName }}</span>
+                  <span>{{ relatedUsers[username].lastName}}</span>
+                  <span>({{username}})</span>
+                </li>
+                <li ng-repeat="(groupId, groupCloudRoles) in cloud.groupRoles | orderBy:'relatedGroups[groupId].name' " ng-show="groupCloudRoles.indexOf(cloudRole) >=0">
+                  <i class="fa fa-users"></i>
+                  <span>{{ relatedGroups[groupId].name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SubTabs : USERS / GROUPS -->
+        <div class="row" id="app-user-role">
+          <div class="col-md-12">
+            <hr class="separator-h">
+          </div>
+          <div class="col-md-12">
+            <tabset>
+              <tab heading="{{'ROLE_TABS.USERS' | translate}}" id="users-tab">
+                <alien-search-user
+                  crud-support="false"
+                  managed-app-role-list="cloudRoles"
+                  managed-env-role-list="null"
+                  check-app-role-selected-callback="checkCloudRoleSelectedForUser(user, role)"
+                  on-select-app-role-callback="handleRoleSelectionForUser(user, role)">
+                </alien-search-user>
+              </tab>
+              <tab heading="{{'ROLE_TABS.GROUPS' | translate}}" id="groups-tab">
+                <alien-search-group
+                  crud-support="false"
+                  managed-app-role-list="cloudRoles"
+                  managed-env-role-list="null"
+                  check-app-role-selected-callback="checkCloudRoleSelectedForGroup(group, role)"
+                  on-select-app-role-callback="handleRoleSelectionForGroup(group, role)">
+                </alien-search-group>
+              </tab>
+            </tabset>
+          </div>
+        </div>
+
+      </tab>
+    </tabset>
+  </div>
+</div>

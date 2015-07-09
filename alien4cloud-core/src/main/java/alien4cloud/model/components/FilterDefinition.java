@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.elasticsearch.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 @Getter
 @Setter

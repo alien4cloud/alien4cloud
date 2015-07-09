@@ -30,7 +30,7 @@ import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
-import alien4cloud.plugin.PluginConfiguration;
+import alien4cloud.plugin.model.PluginConfiguration;
 import alien4cloud.rest.exception.FieldErrorDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -125,6 +125,7 @@ public class CommonStepDefinitions {
     @Then("^I should receive a RestResponse with an error code (\\d+)$")
     public void I_should_receive_a_RestResponse_with_an_error_code(int expectedCode) throws Throwable {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
         Assert.assertNotNull(restResponse.getError());
         Assert.assertEquals(expectedCode, restResponse.getError().getCode());
     }
@@ -203,6 +204,12 @@ public class CommonStepDefinitions {
     @When("^I register the rest response data as SPEL context of type \"([^\"]*)\"$")
     public void I_register_the_rest_response_data_as_SPEL_context(String type) throws Throwable {
         RestResponse<?> response = JsonUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
+        Context.getInstance().buildEvaluationContext(response.getData());
+    }
+
+    @When("^I register the rest response data as SPEL context of type2 \"([^\"]*)\"$")
+    public void I_register_the_rest_response_data_as_SPEL_context2(String type) throws Throwable {
+        RestResponse<?> response = alien4cloud.it.utils.JsonTestUtil.read(Context.getInstance().getRestResponse(), Class.forName(type));
         Context.getInstance().buildEvaluationContext(response.getData());
     }
 

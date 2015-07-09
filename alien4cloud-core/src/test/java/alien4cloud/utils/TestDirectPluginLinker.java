@@ -3,7 +3,7 @@ package alien4cloud.utils;
 import java.util.List;
 
 import alien4cloud.plugin.IPluginLinker;
-import alien4cloud.plugin.PluginUsage;
+import alien4cloud.plugin.model.PluginUsage;
 
 public class TestDirectPluginLinker implements IPluginLinker<String> {
 

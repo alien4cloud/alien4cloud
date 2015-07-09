@@ -1,0 +1,52 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+  <!--<![endif]-->
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>ALIEN 4 Cloud</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <!-- build:css({.tmp,app}) styles/main.css -->
+    <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angular-tree-control/css/tree-control-attribute.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angularjs-toaster/toaster.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.css" type="text/css" />
+    <link rel="stylesheet" href="bower_components/angular-ui-select/dist/select.css" type="text/css" />
+    <link rel="stylesheet" href="styles/main.css" type="text/css" />
+    <!-- endbuild -->
+  </head>
+
+  <body>
+    <!--[if lt IE 7]>
+      <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+    <![endif]-->
+
+    <!--[if lt IE 9]>
+      <script src="bower_components/es5-shim/es5-shim.js"></script>
+      <script src="bower_components/json3/lib/json3.min.js"></script>
+    <![endif]-->
+
+    <alien-nav-bar></alien-nav-bar>
+
+    <!-- Display events (errors etc.) -->
+    <toaster-container toaster-options="{'position-class': 'toast-top-right', 'close-button':true}"></toaster-container>
+
+    <div class="main-view" ui-view></div>
+
+    <script src="bower_components/requirejs/require.js"></script>
+    <script src="scripts/require.config.js"></script>
+    <script>
+      require(['a4c-bootstrap'], function(bootstrap) {
+        bootstrap.startup();
+      });
+    </script>
+  </body>
+</html>

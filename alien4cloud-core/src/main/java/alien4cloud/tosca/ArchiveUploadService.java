@@ -11,10 +11,13 @@ import alien4cloud.component.repository.exception.CSARVersionAlreadyExistsExcept
 import alien4cloud.csar.services.CsarService;
 import alien4cloud.model.components.CSARDependency;
 import alien4cloud.model.components.Csar;
+import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyServiceCore;
+import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.parser.ParsingContext;
 import alien4cloud.tosca.parser.ParsingError;
@@ -41,6 +44,8 @@ public class ArchiveUploadService {
     private ArchiveIndexer archiveIndexer;
     @Resource
     private TopologyServiceCore topologyServiceCore;
+    @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
 
     /**
      * Upload a TOSCA archive and index it's components.
@@ -110,14 +115,38 @@ public class ArchiveUploadService {
                 topology.getDependencies().add(selfDependency);
             }
 
-            String topologyTemplateName = topologyServiceCore.ensureNameUnicity(archiveName + "-" + archiveVersion, 0);
-            simpleResult
-                    .getContext()
-                    .getParsingErrors()
-                    .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
-                            topologyTemplateName));
+            // TODO: here we should update the topology if it already exists
+            // TODO: the name should only contains the archiveName
+            TopologyTemplate existingTemplate = topologyServiceCore.searchTopologyTemplateByName(archiveRoot.getArchive().getName());
+            if (existingTemplate != null) {
+                // the topology template already exists
+                topology.setDelegateId(existingTemplate.getId());
+                topology.setDelegateType(TopologyTemplate.class.getSimpleName().toLowerCase());
+                String topologyId = topologyServiceCore.saveTopology(topology);
+                // now search the version
+                TopologyTemplateVersion ttv = topologyTemplateVersionService.searchByDelegateAndVersion(existingTemplate.getId(), archiveVersion);
+                if (ttv != null) {
+                    // the version exists, we will update it's topology id and delete the old topology
+                    topologyTemplateVersionService.changeTopology(ttv, topologyId);
+                } else {
+                    // we just create a new version
+                    topologyTemplateVersionService.createVersion(existingTemplate.getId(), null, archiveVersion, null, topology);
+                }
+                simpleResult
+                        .getContext()
+                        .getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_UPDATED, "", null, "A topology template has been detected", null,
+                                archiveName));
 
-            topologyServiceCore.createTopologyTemplate(topology, topologyTemplateName, parsingResult.getResult().getTopologyTemplateDescription());
+            } else {
+                simpleResult
+                        .getContext()
+                        .getParsingErrors()
+                        .add(new ParsingError(ParsingErrorLevel.INFO, ErrorCode.TOPOLOGY_DETECTED, "", null, "A topology template has been detected", null,
+                                archiveName));
+                topologyServiceCore.createTopologyTemplate(topology, archiveName, parsingResult.getResult().getTopologyTemplateDescription(), archiveVersion);
+            }
+            topologyServiceCore.updateSubstitutionType(topology);
         }
 
         return simpleResult;

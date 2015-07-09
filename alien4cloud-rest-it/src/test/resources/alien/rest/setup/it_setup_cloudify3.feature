@@ -19,7 +19,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I create a cloud with name "Cloudify 3" from cloudify 3 PaaS provider
     And I update cloudify 3 manager's url to "http://129.185.67.110:8100" for cloud with name "Cloudify 3"
     And I enable the cloud "Cloudify 3"
-    And I add the cloud image "Ubuntu Trusty" to the cloud "Cloudify 3" and match it to paaS image "727df994-2e1b-404e-9276-b248223a835d"
+    And I add the cloud image "Ubuntu Trusty" to the cloud "Cloudify 3" and match it to paaS image "02ddfcbb-9534-44d7-974d-5cfd36dfbcab"
     And I add the flavor with name "small", number of CPUs 2, disk size 34359738368 and memory size 2147483648 to the cloud "Cloudify 3" and match it to paaS flavor "2"
     And I add the network with name "private" and CIDR "192.168.1.0/24" and IP version 4 and gateway "192.168.1.1" to the cloud "Cloudify 3"
     And I add the public network with name "public" to the cloud "Cloudify 3" and match it to paaS network "net-pub"
