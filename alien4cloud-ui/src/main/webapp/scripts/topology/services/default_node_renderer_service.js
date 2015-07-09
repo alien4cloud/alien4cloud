@@ -98,9 +98,9 @@ define(function (require) {
           nodeGroup.append('text').attr('text-anchor', 'end').attr('class', 'version').attr('x', node.bbox.width()-10).attr('y', 40);
 
           // if the node has some children we should add the collapse bar.
-          if(_.defined(node.children) && node.children.length>0) {
-            d3Service.rect(nodeGroup, .5, 45, node.bbox.width()-1, 10, 0, 0).attr('class', 'collapsebar');
-          }
+          // if(_.defined(node.children) && node.children.length>0) {
+          //   d3Service.rect(nodeGroup, .5, 45, node.bbox.width()-1, 10, 0, 0).attr('class', 'collapsebar');
+          // }
 
           // specific to the runtime view
           if (this.isRuntime) {
