@@ -15,6 +15,8 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
+import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -107,6 +109,10 @@ public class TopologyController {
 
     @Resource
     private TopologyValidationService topologyValidationService;
+    @Resource
+    private TopologyCapabilityBoundsValidationServices topologyCapabilityBoundsValidationServices;
+    @Resource
+    private TopologyRequirementBoundsValidationServices topologyRequirementBoundsValidationServices;
 
     @Resource
     private TopologyServiceCore topologyServiceCore;
@@ -377,8 +383,8 @@ public class TopologyController {
         Map<String, NodeTemplate> nodeTemplates = topologyServiceCore.getNodeTemplates(topology);
         NodeTemplate nodeTemplate = topologyServiceCore.getNodeTemplate(topologyId, nodeTemplateName, nodeTemplates);
 
-        boolean upperBoundReachedSource = topologyValidationService.isRequirementUpperBoundReachedForSource(nodeTemplate, relationshipTemplateRequest
-                .getRelationshipTemplate().getRequirementName(), topology.getDependencies());
+        boolean upperBoundReachedSource = topologyRequirementBoundsValidationServices.isRequirementUpperBoundReachedForSource(nodeTemplate,
+                relationshipTemplateRequest.getRelationshipTemplate().getRequirementName(), topology.getDependencies());
         // return with a rest response error
         if (upperBoundReachedSource) {
             return RestResponseBuilder
@@ -390,7 +396,7 @@ public class TopologyController {
                                             + "> on node <" + nodeTemplateName + ">.").build()).build();
         }
 
-        boolean upperBoundReachedTarget = topologyValidationService.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest
+        boolean upperBoundReachedTarget = topologyCapabilityBoundsValidationServices.isCapabilityUpperBoundReachedForTarget(relationshipTemplateRequest
                 .getRelationshipTemplate().getTarget(), nodeTemplates, relationshipTemplateRequest.getRelationshipTemplate().getTargetedCapabilityName(),
                 topology.getDependencies());
         // return with a rest response error
@@ -1499,5 +1505,5 @@ public class TopologyController {
         }
         return RestResponseBuilder.<AbstractTopologyVersion> builder().data(version).build();
     }
-    
+
 }
