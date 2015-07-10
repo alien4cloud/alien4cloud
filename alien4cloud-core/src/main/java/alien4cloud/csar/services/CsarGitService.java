@@ -204,7 +204,7 @@ public class CsarGitService {
         }
         List<CsarGitCheckoutLocation> locations = csarGit.getImportLocations();
         if (CollectionUtils.isEmpty(locations)) {
-            throw new NotFoundException("CsarGit import locations[" + url + " " + branchId + "]+ cannot be found");
+            throw new NotFoundException("CsarGit import locations[" + url+"] is empty");
         }
         Iterator<CsarGitCheckoutLocation> it = locations.iterator();
         while (it.hasNext()) {
@@ -229,10 +229,10 @@ public class CsarGitService {
     }
 
     /**
-     * Query elastic search to retrieve a CsarGit by its url
+     * Delete an CsarGitRepository based on its URL
      * 
      * @param url The unique URL of the repository
-     * @return The Repository with the URL
+     * @return The URL deleted
      */
     public String deleteCsargitByUrl(String url) {
         CsarGitRepository csarGit = getCsargitByUrl(url);

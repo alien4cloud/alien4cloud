@@ -144,7 +144,7 @@ public class CsarGitController {
      * Delete a CsarGit in the system.
      * 
      * @param id The unique id of the CsarGit to delete.
-     * @return an empty (void) rest {@link RestResponse}.
+     * @return the id of the CsarGit deleted {@link RestResponse}.
      */
     @ApiOperation(value = "Delete a CSARGit in ALIEN.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
