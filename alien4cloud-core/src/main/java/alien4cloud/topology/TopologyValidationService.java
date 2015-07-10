@@ -18,6 +18,7 @@ import alien4cloud.common.TagService;
 import alien4cloud.model.application.DeploymentSetup;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.topology.task.NodeFiltersTask;
 import alien4cloud.topology.task.PropertiesTask;
 import alien4cloud.topology.task.RequirementsTask;
 import alien4cloud.topology.task.SuggestionsTask;
@@ -129,7 +130,7 @@ public class TopologyValidationService {
         }
         for (TopologyTask task : taskList) {
             // checking SuggestionsTask or RequirementsTask
-            if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask) {
+            if (task instanceof SuggestionsTask || task instanceof RequirementsTask || task instanceof PropertiesTask || task instanceof NodeFiltersTask) {
                 return false;
             }
         }

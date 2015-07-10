@@ -444,6 +444,15 @@
         "REQUIRED_PROPERTIES_LABEL": "Required properties",
         "EMPTY_TOPOLOGY_MESSAGE": "The current topology is empty. Add node templates",
         "CREATE_TOPOLOGY_MESSAGE": "No topology found! Create a new topology and fill it with node templates",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters not satisfy",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "One constraint on this property is not respected",
+          "CAPABILITY_NAME": "Capacity name",
+          "CAPABILITY_MISSING_ERROR": "The target has not this ability",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "The property has no such target",
+          "PROPERTY_NAME": "Property name"
+        },
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Invalid scalability policy",
           "MISSING": "Madatory property",

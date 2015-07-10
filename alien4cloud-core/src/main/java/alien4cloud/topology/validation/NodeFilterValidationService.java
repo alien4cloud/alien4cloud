@@ -137,6 +137,11 @@ public class NodeFilterValidationService {
             List<NodeFilterConstraintViolation> violatedConstraints = Lists.newArrayList();
 
             for (PropertyConstraint constraint : propertyEntry.getValue()) {
+                if (!propertyDefinitionMap.containsKey(propertyEntry.getKey())) {
+                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_MISSING_ERROR, null));
+                    continue;
+                }
+
                 AbstractPropertyValue value = propertyValues.get(propertyEntry.getKey());
                 // the constraint need to be initiazed with the type of the property (to check that actual value type matches the definition type).
                 IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinitionMap.get(propertyEntry.getKey()).getType());
@@ -170,7 +175,7 @@ public class NodeFilterValidationService {
     private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType,
             Map<String, IndexedCapabilityType> capabilityTypes, NodeFilterToSatisfy nodeFilterToSatisfy) {
         nodeFilterToSatisfy.setMissingCapabilities(Lists.<String> newArrayList());
-        if (nodeFilter.getCapabilities() == null || !nodeFilter.getCapabilities().isEmpty()) {
+        if (nodeFilter.getCapabilities() == null || nodeFilter.getCapabilities().isEmpty()) {
             return;
         }
 
@@ -181,6 +186,7 @@ public class NodeFilterValidationService {
 
             if (definition == null) {
                 nodeFilterToSatisfy.getMissingCapabilities().add(capabilityName);
+                continue;
             }
             IndexedCapabilityType capabilityType = capabilityTypes.get(definition.getType());
 
