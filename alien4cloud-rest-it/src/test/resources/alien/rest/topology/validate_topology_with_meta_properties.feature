@@ -37,7 +37,7 @@ Scenario: Use cloud metas to define a property on a node and check deployability
     Then the topology should not be deployable
 
   When I rename the input "os_arch" to "cloud_meta_osARCH"
-    And I rename the input "os_type" to "cloud_meta_CLOUD_META_1"
+    And I rename the input "os_type" to "CLOUD_META_1"
   When I check for the deployable status of the topology
     Then the topology should not be deployable
   When I set the property "containee_types" of capability "compute" the node "Compute" as input property name "cloud_meta_osARCH"
