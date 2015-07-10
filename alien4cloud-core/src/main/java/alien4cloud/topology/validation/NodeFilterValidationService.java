@@ -1,20 +1,28 @@
 package alien4cloud.topology.validation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.rest.model.RestErrorCode;
 import org.springframework.stereotype.Component;
 
 import alien4cloud.component.CSARRepositorySearchService;
 import alien4cloud.exception.InvalidArgumentException;
-import alien4cloud.model.components.*;
+import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.CapabilityDefinition;
+import alien4cloud.model.components.FilterDefinition;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.NodeFilter;
+import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.ScalarPropertyValue;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
+import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.task.NodeFilterConstraintViolation;
 import alien4cloud.topology.task.NodeFilterToSatisfy;
@@ -161,7 +169,7 @@ public class NodeFilterValidationService {
 
     private void validateNodeFilterCapabilities(NodeFilter nodeFilter, NodeTemplate target, IndexedNodeType targetType,
             Map<String, IndexedCapabilityType> capabilityTypes, NodeFilterToSatisfy nodeFilterToSatisfy) {
-        Map<String, List<String>> violatedConstraintsMap = Maps.newHashMap();
+        nodeFilterToSatisfy.setMissingCapabilities(Lists.<String> newArrayList());
         if (nodeFilter.getCapabilities() == null || !nodeFilter.getCapabilities().isEmpty()) {
             return;
         }
@@ -172,9 +180,6 @@ public class NodeFilterValidationService {
             CapabilityDefinition definition = getCapabilityDefinition(targetType, capabilityName);
 
             if (definition == null) {
-                if (nodeFilterToSatisfy.getMissingCapabilities() == null) {
-                    nodeFilterToSatisfy.setMissingCapabilities(new ArrayList<String>());
-                }
                 nodeFilterToSatisfy.getMissingCapabilities().add(capabilityName);
             }
             IndexedCapabilityType capabilityType = capabilityTypes.get(definition.getType());
