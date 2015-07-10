@@ -1,18 +1,14 @@
 package alien4cloud.it.csars;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.lucene.analysis.util.CharArrayMap.EntrySet;
 import org.junit.Assert;
-import org.junit.Test;
 
 import alien4cloud.it.Context;
-import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.csar.CreateCsarGithubRequest;
-import alien4cloud.rest.csar.CsarInfoDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.CsarGitCheckoutLocation;
@@ -22,7 +18,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class CsarGitCRUDStepDefinition {
@@ -56,9 +51,12 @@ public class CsarGitCRUDStepDefinition {
     @And("I delete a csargit with id")
     public void I_Delete_a_csargit_with_id() throws Throwable {
         String id = "";
-        for (Entry<String, String> entry : Context.getInstance().getCsarGitId().entrySet()) {
+        Iterator entries = Context.getInstance().getCsarGitId().entrySet().iterator();
+        while (entries.hasNext()) {
+            Entry entry = (Entry) entries.next();
             if (entry.getValue().equals("https://github.com/alien4cloud/tosca-normative-types")) {
-                id = entry.getKey();
+                id = (String) entry.getKey();
+                entries.remove();
             }
         }
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete("/rest/csarsgit/" + id));
@@ -74,6 +72,14 @@ public class CsarGitCRUDStepDefinition {
         Assert.assertNotEquals(sizeAfter, sizeBefore);
     }
 
+    @And("I delete a csargit with wrong url \"([^\"]*)\"")
+    public void I_Delete_a_csargit_with_wrong_url(String url) throws Throwable {
+        int sizeBefore = Context.getInstance().getCsarGitId().size();
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
+        int sizeAfter = Remove_CsarGitList(url);
+        Assert.assertEquals(sizeAfter, sizeBefore);
+    }
+
     public boolean I_have_CSARGIT_created_with_id(String csarId) throws Throwable {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().get("/rest/csarsgit/" + csarId));
         CsarGitRepository csargit = JsonUtil.read(Context.getInstance().takeRestResponse(), CsarGitRepository.class).getData();
@@ -84,9 +90,11 @@ public class CsarGitCRUDStepDefinition {
     }
 
     public int Remove_CsarGitList(Object obj) {
-        for (Entry<String, String> entry : Context.getInstance().getCsarGitId().entrySet()) {
+        Iterator entries = Context.getInstance().getCsarGitId().entrySet().iterator();
+        while (entries.hasNext()) {
+            Entry entry = (Entry) entries.next();
             if (entry.getValue().equals(obj)) {
-                Context.getInstance().getCsarGitId().remove(obj);
+                entries.remove();
             }
         }
         return Context.getInstance().getCsarGitId().size();
@@ -99,7 +107,7 @@ public class CsarGitCRUDStepDefinition {
 
     @And("I have no csargit created with url \"([^\"]*)\"")
     public void I_Have__csargit_created_with_url(String url) throws Throwable {
-        Assert.assertTrue(I_have_CSARGIT_created_with_url(url));
+        Assert.assertTrue(!I_have_CSARGIT_created_with_url(url));
     }
 
     @And("I have a csargit created with url \"([^\"]*)\"")
@@ -117,13 +125,16 @@ public class CsarGitCRUDStepDefinition {
         return true;
     }
 
-    @When("I trigger the import of the csars")
-    public void I_Trigger_the_import_of_the_csars() throws Throwable {
+    @When("I trigger the import of the csars with url \"([^\"]*)\" and \"([^\"]*)\"")
+    public void I_Trigger_the_import_of_the_csars(String url, String url2) throws Throwable {
         for (Entry<String, String> obj : Context.getInstance().getCsarGitId().entrySet()) {
-            Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/import/:id", obj.getKey()));
-            RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
-            Assert.assertNotNull(restResponse);
-            Assert.assertNotNull(restResponse.getError());
+            System.out.println("VALUE before ------->" + obj.getValue());
+            if (obj.getValue().equals(url) || obj.getValue().equals(url2)) {
+                Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/import/:id", obj.getKey()));
+                RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+                Assert.assertNotNull(restResponse);
+                Assert.assertNull(restResponse.getError());
+            }
         }
     }
 

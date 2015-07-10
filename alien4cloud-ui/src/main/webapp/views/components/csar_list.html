@@ -40,7 +40,7 @@
               <td>{{csar.version}}</td>
               <td>{{csar.description || '---' }}</td>
               <td>
-                <delete-confirm 
+                <delete-confirm
                   ng-if="!csar.substitutionTopologyId"
                   id="delete-csar_{{csar.id}}" func="remove(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
@@ -74,10 +74,10 @@
       </div>
       <div class="row">
         <div class="col-md-8">
-          <button class="btn btn-success ng-binding" id="MODAL_NEWCSAR  " ng-click="openNewCsarGitTemplate()">
+          <button class="btn btn-success" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
             <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
           </button>
-          <button  style="margin-top: 10px;" class="btn ng-binding"  id="IMPORT_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
+          <button  style="margin-top: 10px;" class="btn ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
             <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"> </i>  {{'CSAR.IMPORTALL' | translate}}
           </button>
         </div>
@@ -113,7 +113,7 @@
                 <button class=" btn-sm btn ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id)">
                   <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
                 </button>
-                <delete-confirm id="delete-csar_{{csar.id}}" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm id="delete-csargit" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </td>
             </tr>
@@ -187,7 +187,7 @@
               <table class="table table-condensed" style="width: auto;margin-top:15px;" align="center">
                 <thead>
                   <tr>
-                    <th data-field="archiveName">{{'CSAR.ARCHIVE_TO_IMPORT' | translate}}</th>
+                    <th data-field="archiveName" >{{'CSAR.ARCHIVE_TO_IMPORT' | translate}}</th>
                     <th data-field="branchName">{{'CSAR.BRANCHE_TO_IMPORT' | translate}}</th>
                     <th></th>
                   </tr>

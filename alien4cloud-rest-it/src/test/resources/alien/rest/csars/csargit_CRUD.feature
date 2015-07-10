@@ -29,39 +29,6 @@ Feature: Csargit crud feature
     When I create a csargit
     Then I should receive a RestResponse with an error code 501
 
-  Scenario: Delete a csargit with url
-    Given I have a csargit with the url "https://github.com/alien4cloud/tosca-normative-types" with username "admin" and password "admin"
-    And I add locations to the csar
-      | branchId | subPath |
-      | master   |         |
-    When I create a csargit
-    And I delete a csargit with url "https://github.com/alien4cloud/tosca-normative-types"
-    Then I should receive a RestResponse with no error
-
-  Scenario: Delete a csargit with a wrong url
-    Given I have a csargit with the url "https://github.com/alien4cloud/tosca-normative-types" with username "admin" and password "admin"
-    And I add locations to the csar
-      | branchId | subPath |
-      | master   |         |
-    When I create a csargit
-    And I delete a csargit with url "https://github.com/tosca-normative-types"
-    Then I should receive a RestResponse with an error code 504
-
-  Scenario: Import a set of csargit by id
-    Given I have a csargit with the url "https://github.com/alien4cloud/tosca-normative-types" with username "admin" and password "admin"
-    And I add locations to the csar
-      | branchId | subPath |
-      | master   |         |
-    When I create a csargit
-    Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "admin" and password "admin"
-    And I add locations to the csar
-      | branchId | subPath |
-      | master   |         |
-    When I create a csargit
-    When I trigger the import of the csars
-    Then I should receive a RestResponse with no error
-
-
   Scenario: Import a csargit with a wrong url
     Given I have a csargit with the url "https://github.com/a" with username "admin" and password "admin"
     And I add locations to the csar
@@ -78,4 +45,36 @@ Feature: Csargit crud feature
       | master   |         |
     When I create a csargit
     And I delete a csargit with id
+    Then I should receive a RestResponse with no error
+
+  Scenario: Delete a csargit with url
+    Given I have a csargit with the url "https://github.com/alien4cloud/tosca-normative-types-2" with username "admin" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    And I delete a csargit with url "https://github.com/alien4cloud/tosca-normative-types-2"
+    Then I should receive a RestResponse with no error
+
+  Scenario: Delete a csargit with a wrong url
+    Given I have a csargit with the url "https://github.com//tosca-normative-types-3" with username "admin" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    And I delete a csargit with wrong url "https://git.com/tosca-normative-type-3"
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Import a set of csargit by url
+    Given I have a csargit with the url "https://github.com/alien4cloud/tosca-normative-types" with username "admin" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    Given I have a csargit with the url "https://github.com/alien4cloud/alien4cloud-extended-types" with username "admin" and password "admin"
+    And I add locations to the csar
+      | branchId | subPath |
+      | master   |         |
+    When I create a csargit
+    When I trigger the import of the csars with url "https://github.com/alien4cloud/tosca-normative-types" and "https://github.com/alien4cloud/alien4cloud-extended-types"
     Then I should receive a RestResponse with no error
