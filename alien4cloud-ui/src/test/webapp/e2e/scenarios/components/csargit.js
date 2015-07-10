@@ -39,7 +39,6 @@ describe('Handle CSARS', function() {
     console.log('################# should not be able to add a new the csar by the modal if locations is empty');
     csarCommon.checkIfAllCreationStepsAreDisabled('https://github.com/alien4cloud/samples','','');
     var results = element.all(by.repeater('csar in csarGitSearchResult.data.data'));
-
     expect(results.count()).toEqual(1);
   });
 
@@ -47,10 +46,14 @@ describe('Handle CSARS', function() {
     console.log('################# should be able to import a csargit');
     csarCommon.goToCsarSearchPage();
     var results = element.all(by.repeater('csar in csarSearchResult.data.data'));
+    var lenght;
+    var sizeBefore=results.count().then(function(countBefore){
+      lenght=countBefore;
+    });
     var importButton=element(by.id('IMPORT_CSARGIT'));
     importButton.click();
     var length=results.count().then(function(count){
-      expect(count).toEqual(count+1);
+      expect(lenght+1).toEqual(count);
     });
   });
 
