@@ -8,7 +8,7 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(features = {
 //
-"classpath:alien/rest/topology"
+// "classpath:alien/rest/topology"
 // "classpath:alien/rest/topology/get_topology.feature"
 // "classpath:alien/rest/topology/out_properties.feature"
 // "classpath:alien/rest/topology/inputs_properties.feature"
@@ -16,7 +16,7 @@ import cucumber.api.junit.Cucumber;
 // "classpath:alien/rest/topology/nodetemplate_constraint.feature"
 // "classpath:alien/rest/topology/nodetemplate.feature"
 // "classpath:alien/rest/topology/nodetemplate_target_filter.feature"
-// "classpath:alien/rest/topology/relationships.feature"
+"classpath:alien/rest/topology/relationships.feature"
 // "classpath:alien/rest/topology/replace_node_template.feature"
 // "classpath:alien/rest/topology/roles_on_topologies.feature"
 // "classpath:alien/rest/topology/scaling_policy.feature"

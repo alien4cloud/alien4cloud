@@ -1,9 +1,12 @@
 package alien4cloud.deployment;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
+import alien4cloud.common.MetaPropertiesService;
+import alien4cloud.model.common.MetaPropConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections4.MapUtils;
@@ -45,6 +48,8 @@ public class InputsPreProcessorService {
     private ApplicationService applicationService;
     @Resource
     private TagService tagService;
+    @Resource
+    private MetaPropertiesService metaPropertiesService;
 
     /**
      * Process the get inputs functions of a topology to inject actual input provided by the deployer user (from deployment setup) or from the cloud,
@@ -87,20 +92,31 @@ public class InputsPreProcessorService {
         // initialize a map with input from the deployment setup
         Map<String, String> inputs = MapUtils.isEmpty(deploymentSetup.getInputProperties()) ? Maps.<String, String> newHashMap() : deploymentSetup
                 .getInputProperties();
+
+        // Map id -> value of meta properties from cloud or application.
+        Map<String, String> metaPropertiesValuesMap = Maps.newHashMap();
+
         // add the inputs from the cloud meta-properties
         if (environment.getCloudId() != null) {
             Cloud cloud = cloudService.get(environment.getCloudId());
-            // inputs from the cloud starts with
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, cloud.getMetaProperties());
+            if (cloud.getMetaProperties() != null) {
+                metaPropertiesValuesMap.putAll(cloud.getMetaProperties());
+            }
         }
         // and the ones from the application meta-properties
         // meta or tags from application
         if (environment.getApplicationId() != null) {
             Application application = applicationService.getOrFail(environment.getApplicationId());
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, application.getMetaProperties());
+            if (application.getMetaProperties() != null) {
+                metaPropertiesValuesMap.putAll(application.getMetaProperties());
+            }
+
             Map<String, String> tags = tagService.tagListToMap(application.getTags());
-            prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, tags);
+            prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, tags, false);
         }
+
+        // inputs from the cloud starts with
+        prefixAndAddContextInput(inputs, InputsPreProcessorService.CLOUD_META, metaPropertiesValuesMap, true);
 
         return inputs;
     }
@@ -112,12 +128,25 @@ public class InputsPreProcessorService {
      * @param prefix The prefix to be added to the context inputs.
      * @param contextInputs The map of inputs from context elements (cloud, application, environment).
      */
-    private void prefixAndAddContextInput(Map<String, String> inputs, String prefix, Map<String, String> contextInputs) {
-        if (contextInputs == null) {
+    private void prefixAndAddContextInput(Map<String, String> inputs, String prefix, Map<String, String> contextInputs, boolean isMeta) {
+        if (contextInputs == null || contextInputs.isEmpty()) {
             return; // no inputs to add.
         }
-        for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
-            inputs.put(prefix + contextInputEntry.getKey(), contextInputEntry.getValue());
+        if (isMeta) {
+            String[] ids = new String[contextInputs.size()];
+            int i = 0;
+            for (String id : contextInputs.keySet()) {
+                ids[i] = id;
+                i++;
+            }
+            Map<String, MetaPropConfiguration> configurationMap = metaPropertiesService.getByIds(ids);
+            for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
+                inputs.put(prefix + configurationMap.get(contextInputEntry.getKey()).getName(), contextInputEntry.getValue());
+            }
+        } else {
+            for (Map.Entry<String, String> contextInputEntry : contextInputs.entrySet()) {
+                inputs.put(prefix + contextInputEntry.getKey(), contextInputEntry.getValue());
+            }
         }
     }
 

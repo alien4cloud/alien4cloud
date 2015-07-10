@@ -2,6 +2,7 @@ package alien4cloud.common;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.model.GetMultipleDataResult;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInforma
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service that manage meta-property for resources with meta-properties.
@@ -56,5 +60,20 @@ public class MetaPropertiesService {
         resource.getMetaProperties().put(key, value);
         alienDAO.save(resource);
         return null;
+    }
+
+    /**
+     * Load a map of MetaPropConfiguration from given ids.
+     * 
+     * @param ids The ids to fetch
+     * @return The a map id -> MetaPropConfiguration
+     */
+    public Map<String, MetaPropConfiguration> getByIds(String[] ids) {
+        Map<String, MetaPropConfiguration> configurationMap = Maps.newHashMap();
+        List<MetaPropConfiguration> configurations = alienDAO.findByIds(MetaPropConfiguration.class, ids);
+        for (MetaPropConfiguration configuration : configurations) {
+            configurationMap.put(configuration.getId(), configuration);
+        }
+        return configurationMap;
     }
 }

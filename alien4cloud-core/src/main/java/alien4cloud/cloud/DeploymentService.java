@@ -184,7 +184,7 @@ public class DeploymentService {
 
             private Map<String, String> constructMapOfMetaProperties(final Application app) {
                 Map<String, String[]> filters = new HashMap<String, String[]>();
-                filters.put("application", new String[] { "id" });
+                filters.put("application", new String[] { "id" }); // TODO there is a bug HERE
                 FacetedSearchResult result = alienDao.facetedSearch(MetaPropConfiguration.class, null, filters, null, 0, 20);
                 MetaPropConfiguration metaProp;
                 Map<String, String> metaProperties = Maps.newHashMap();
