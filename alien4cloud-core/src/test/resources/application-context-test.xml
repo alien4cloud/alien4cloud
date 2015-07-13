@@ -16,6 +16,7 @@
 		alien4cloud.component,
 		alien4cloud.topology,
 		alien4cloud.common,
+		alien4cloud.deployment,
 		alien4cloud.rest.*,
 		alien4cloud.tosca.*,
 		alien4cloud.images,

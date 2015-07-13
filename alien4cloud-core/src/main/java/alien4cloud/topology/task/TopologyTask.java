@@ -19,12 +19,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
 public class TopologyTask {
-
     // task code
     private TaskCode code;
-
+    // Name of the node template that needs to be fixed.
     private String nodeTemplateName;
-
     // related component
     private IndexedInheritableToscaElement component;
 }

@@ -449,6 +449,15 @@
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters non statisfaits",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "L'une des contraintes sur cette propriété n'ai pas respectée",
+          "CAPABILITY_NAME": "Nom de la capacité",
+          "CAPABILITY_MISSING_ERROR": "La cible de posséde pas cette capacité",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "Le type de la propriété cible est invalide",
+          "PROPERTY_NAME": "Nom de la propriété"
+        },
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Politique de scalabilité invalide",
           "MISSING": "Propriété obligatoire",

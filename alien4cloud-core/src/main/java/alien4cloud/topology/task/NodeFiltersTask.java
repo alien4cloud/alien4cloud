@@ -12,10 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuppressWarnings("PMD.UnusedPrivateField")
-public class RequirementsTask extends TopologyTask {
-    // list of requirements for which to satisfy lowerbound
-    private List<RequirementToSatisfy> requirementsToImplement;
-
-    // list of node filter
-    private List<NodeFilterToSatisfy> nodeFiltersToSatisty;
+public class NodeFiltersTask extends TopologyTask {
+    // list of node filter with not satisfy
+    private List<NodeFilterToSatisfy> nodeFiltersToSatisfy;
 }
