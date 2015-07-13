@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import org.elasticsearch.annotation.BooleanField;
 import org.elasticsearch.annotation.DateField;
+import org.elasticsearch.annotation.ESAll;
 import org.elasticsearch.annotation.Id;
 import org.elasticsearch.annotation.StringField;
 import org.elasticsearch.annotation.query.FetchContext;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @EqualsAndHashCode(of = { "elementId", "archiveName", "archiveVersion" })
 @SuppressWarnings("PMD.UnusedPrivateField")
 @JsonInclude(Include.NON_NULL)
+@ESAll(analyser = "simple")
 public abstract class IndexedToscaElement {
     @FetchContext(contexts = { TAG_SUGGESTION }, include = { false })
     @StringField(indexType = IndexType.analyzed)

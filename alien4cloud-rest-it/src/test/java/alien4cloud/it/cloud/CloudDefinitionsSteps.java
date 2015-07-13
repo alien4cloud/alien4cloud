@@ -345,6 +345,8 @@ public class CloudDefinitionsSteps {
             break;
         case 3:
             config.put("url", cloudifyUrl);
+            config.put("cloudInit",
+                    "#!/bin/sh\nsudo cp /etc/hosts /tmp/hosts\necho 127.0.0.1 `hostname` | sudo tee /etc/hosts > /dev/null\ncat  /tmp/hosts | sudo tee -a /etc/hosts > /dev/null");
             break;
         default:
             throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);

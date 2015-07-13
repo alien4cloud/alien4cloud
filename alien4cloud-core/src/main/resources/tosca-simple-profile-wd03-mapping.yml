@@ -21,7 +21,6 @@
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
-- node_filter_parser: alien4cloud.tosca.parser.impl.advanced.NodeFilterParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 
 # declare standard mapping based parsers
@@ -202,7 +201,7 @@
   capability: capabilityName
   node_filter:
     reference: nodeFilter
-    type: node_filter_type # type: node_filter_parser
+    type: node_filter_type
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:
