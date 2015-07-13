@@ -139,7 +139,7 @@
                 <div ng-repeat=" nodeFilterToSatisfy in nodeFiltersTask.nodeFiltersToSatisfy">
                   <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
                     <!-- node_filters capabilities -->
-                    <table class="table table-condensed">
+                    <table class="table table-condensed" ng-if="nodeFilterToSatisfy.missingCapabilities">
                       <thead>
                         <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_NAME' | translate}}</th>
                         <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
@@ -156,7 +156,7 @@
                       </tbody>
                     </table>
                     <!-- node_filters properties -->
-                    <table class="table table-condensed">
+                    <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violatedConstraints">
                       <thead>
                         <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
                         <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
@@ -167,7 +167,7 @@
                             <span>{{violatedConstraintName}}</span>
                           </td>
                           <td>
-                            <span>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.' + violatedConstraint[0].errorCode | translate}}</span>
+                            <span>{{violatedConstraint[0].message}}</span>
                           </td>
                         </tr>
                       </tbody>

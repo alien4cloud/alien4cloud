@@ -45,7 +45,7 @@ public class ValidValuesConstraint extends AbstractPropertyConstraint {
             throw new ConstraintViolationException("Value to validate is null");
         }
         if (!validValuesTyped.contains(propertyValue)) {
-            throw new ConstraintViolationException("The value is not in the list of valid values");
+            throw new ConstraintViolationException("The value <" + propertyValue + "> is not in the list of valid values");
         }
     }
 }

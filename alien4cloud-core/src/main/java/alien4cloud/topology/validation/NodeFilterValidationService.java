@@ -157,9 +157,10 @@ public class NodeFilterValidationService {
                     }
                     constraint.validate(toscaType, propertyValue);
                 } catch (ConstraintViolationException e) {
-                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR, e.getConstraintInformation()));
+                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_CONSTRAINT_VIOLATION_ERROR, e.getMessage(), e
+                            .getConstraintInformation()));
                 } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR, null));
+                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR, e.getMessage(), null));
                 }
             }
 
