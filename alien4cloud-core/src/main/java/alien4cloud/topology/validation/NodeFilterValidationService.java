@@ -138,7 +138,6 @@ public class NodeFilterValidationService {
 
             for (PropertyConstraint constraint : propertyEntry.getValue()) {
                 if (!propertyDefinitionMap.containsKey(propertyEntry.getKey())) {
-                    violatedConstraints.add(new NodeFilterConstraintViolation(RestErrorCode.PROPERTY_MISSING_ERROR, null));
                     continue;
                 }
 
