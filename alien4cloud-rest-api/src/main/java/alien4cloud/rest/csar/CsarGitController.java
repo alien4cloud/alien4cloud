@@ -116,7 +116,7 @@ public class CsarGitController {
      * Create a new CsarGit in the system
      * 
      * @param request The CsarGit to save in the system.
-     * @return an empty (void) rest {@link RestResponse}.
+     * @return an the id of the created CsarGit {@link RestResponse}.
      */
     @ApiOperation(value = "Create a new CSARGit from a Git location in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,8 +135,7 @@ public class CsarGitController {
             return RestResponseBuilder.<String> builder()
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("CSAR's data are not valid").build()).build();
         }
-        String csarId = csarGithubService.createGithubCsar(request.getRepositoryUrl(), request.getUsername(), request.getPassword(),
-                request.getImportLocations());
+        String csarId = csarGithubService.createGitCsar(request.getRepositoryUrl(), request.getUsername(), request.getPassword(), request.getImportLocations());
         return RestResponseBuilder.<String> builder().data(csarId).build();
     }
 
@@ -214,7 +213,7 @@ public class CsarGitController {
         csarGithubService.removeImportLocationById(id, branchId);
         return RestResponseBuilder.<Void> builder().build();
     }
-    
+
     /**
      * Remove an importLocation from an existing CsarGit
      * 

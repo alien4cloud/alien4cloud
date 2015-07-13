@@ -125,7 +125,7 @@ public class Context {
 
     private Map<String, String> applicationInfos;
     
-    private Map<String,String> csarGitId;
+    private Map<String,String> csarGitInfos;
 
     private Map<String, String> cloudInfos;
 
@@ -216,8 +216,8 @@ public class Context {
         return cloudImageNameToCloudImageIdMapping.get(cloudImageName);
     }
 
-    public Map<String,String> getCsarGitId() {
-        return csarGitId;
+    public Map<String,String> getCsarGitInfos() {
+        return csarGitInfos;
     }
     
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
@@ -447,13 +447,13 @@ public class Context {
         topologyCloudInfos = cloudId;
     }
 
-    public void saveCsarGitId(String id,String url) {
-        if (this.csarGitId != null) {
-            this.csarGitId.put(id,url);
+    public void saveCsarGitInfos(String id,String url) {
+        if (this.csarGitInfos != null) {
+            this.csarGitInfos.put(id,url);
             return;
         }
-        this.csarGitId = MapUtil.newHashMap(new String[] { id }, new String[] { url });
-        csarGitId.put(id, url);
+        this.csarGitInfos = MapUtil.newHashMap(new String[] { id }, new String[] { url });
+        csarGitInfos.put(id, url);
     }
 
     public String getCloudForTopology() {

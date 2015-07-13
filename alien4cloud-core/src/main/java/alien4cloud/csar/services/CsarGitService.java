@@ -50,13 +50,13 @@ public class CsarGitService {
      * Create a CsarGitRepository in the system to store its informations
      * 
      * @param id The unique if of the CsarGitRepository
-     * @param repositoryUrl The unique Github url of the CsarGitRepository
+     * @param repositoryUrl The unique Git url of the CsarGitRepository
      * @param username The username of the user
      * @param password The password of the user
      * @param importLocations Locations where Csar's files are store
      * @return The auto-generated id of the CsarGitRepository object
      */
-    public String createGithubCsar(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations) {
+    public String createGitCsar(String repositoryUrl, String username, String password, List<CsarGitCheckoutLocation> importLocations) {
         CsarGitRepository csarGit = new CsarGitRepository();
         csarGit.setRepositoryUrl(repositoryUrl);
         csarGit.setUsername(username);
@@ -67,7 +67,7 @@ public class CsarGitService {
     };
 
     /**
-     * Method to trigger the checkout of a CsarGitRepository from Github
+     * Method to trigger the checkout of a CsarGitRepository from Git
      * 
      * @param param The unique id of the CsarGitRepository to trigger
      * @return An response if the statement was successful or not
@@ -132,7 +132,7 @@ public class CsarGitService {
      * Method to update a CsarGitRepository based on its unique id
      * 
      * @param id The unique id of the CsarGitRepository
-     * @param request UpdateCsarGithubRequest which contains all the required data to update the object
+     * @param request UpdateCsarGitRequest which contains all the required data to update the object
      */
     public void update(String id, String repositoryUrl, String username, String password) {
         CsarGitRepository csarGit = checkIfCsarExist(id);
@@ -189,7 +189,7 @@ public class CsarGitService {
         csarGit.setImportLocations(locations);
         alienDAO.save(csarGit);
     };
-    
+
     /**
      * Remove a location of an existing CsarGitRepository object
      * 
@@ -197,14 +197,14 @@ public class CsarGitService {
      * @param branchId The unique branch id
      */
     public void removeImportLocationByUrl(String url, String branchId) {
-        
+
         CsarGitRepository csarGit = getCsargitByUrl(url);
         if (csarGit == null) {
             throw new NotFoundException("CsarGit [" + url + "] cannot be found");
         }
         List<CsarGitCheckoutLocation> locations = csarGit.getImportLocations();
         if (CollectionUtils.isEmpty(locations)) {
-            throw new NotFoundException("CsarGit import locations[" + url+"] is empty");
+            throw new NotFoundException("CsarGit import locations[" + url + "] is empty");
         }
         Iterator<CsarGitCheckoutLocation> it = locations.iterator();
         while (it.hasNext()) {
