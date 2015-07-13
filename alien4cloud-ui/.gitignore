@@ -5,3 +5,4 @@ node_modules
 .sass-cache
 src/main/webapp/bower_components
 alien4cloud.log
+/yo/
