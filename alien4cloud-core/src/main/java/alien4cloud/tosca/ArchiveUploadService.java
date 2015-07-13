@@ -103,9 +103,9 @@ public class ArchiveUploadService {
         imageLoader.importImages(path, parsingResult);
         // index the archive content in elastic-search
         archiveIndexer.indexArchive(archiveName, archiveVersion, parsingResult.getResult(), archive != null);
-        
+
         // if a topology has been added we want to notify the user
-        if (parsingResult.getResult().getTopology() != null) {
+        if (parsingResult.getResult().getTopology() != null && !parsingResult.getResult().getTopology().isEmpty()) {
             Topology topology = parsingResult.getResult().getTopology();
             if (archiveRoot.hasToscaTypes()) {
                 // the archive contains types

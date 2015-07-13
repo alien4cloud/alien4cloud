@@ -1,5 +1,6 @@
 package alien4cloud.it;
 
+import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
+import alien4cloud.model.components.PropertyConstraint;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -73,8 +76,13 @@ public class Context {
 
     static {
         JSON_MAPPER = new RestMapper();
-        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null));
+        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
         module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+        try {
+            module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
+        } catch (ClassNotFoundException | IOException | IntrospectionException e) {
+            log.error("Unable to initialize test context.");
+        }
         JSON_MAPPER.registerModule(module);
 
         Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
@@ -139,9 +147,9 @@ public class Context {
 
     private Map<String, String> groupIdToGroupNameMapping = Maps.newHashMap();
 
-    private Map<String, String> cloudImageNameToCloudImageIdMapping= Maps.newHashMap();
+    private Map<String, String> cloudImageNameToCloudImageIdMapping = Maps.newHashMap();
 
-    private Map<String, String> applicationVersionNameToApplicationVersionIdMapping= Maps.newHashMap();
+    private Map<String, String> applicationVersionNameToApplicationVersionIdMapping = Maps.newHashMap();
 
     private Map<String, Map<String, String>> environmentInfos;
 

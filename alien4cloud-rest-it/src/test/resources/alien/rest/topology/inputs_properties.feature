@@ -45,7 +45,7 @@ Feature: Topology inputs controller
     Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     When The topology should have the property "os_arch" defined as input property
-    And I rename the property "os_arch" to "os_arch_new_name"
+    And I rename the input "os_arch" to "os_arch_new_name"
     Then I should receive a RestResponse with no error
 
   Scenario: Rename property input to an already existing name hould failed
@@ -53,14 +53,14 @@ Feature: Topology inputs controller
     Then I should receive a RestResponse with no error
     And The topology should have the property "os_arch" defined as input property
     And I define the property "os_distribution" of the node "Compute" as input property
-    When I rename the property "os_arch" to "os_distribution"
+    When I rename the input "os_arch" to "os_distribution"
     Then I should receive a RestResponse with an error code 502
 
   Scenario: Rename a non existing property input should failed
     Given I define the property "os_arch" of the node "Compute" as input property
     Then I should receive a RestResponse with no error
     When The topology should have the property "os_arch" defined as input property
-    And I rename the property "os_arch_should_failed" to "os_arch_new_name"
+    And I rename the input "os_arch_should_failed" to "os_arch_new_name"
     Then I should receive a RestResponse with an error code 504
 
   Scenario: Associate the property of a node template to an input of the topology
@@ -76,7 +76,7 @@ Feature: Topology inputs controller
     Then The topology should have the property "os_distribution" defined as input property
     Then I associate the property "os_version" of a node template "Compute" to the input "os_distribution"
     Then I should receive a RestResponse with no error
-    And I rename the property "os_distribution" to "os_distribution_new_name"
+    And I rename the input "os_distribution" to "os_distribution_new_name"
     Then I should receive a RestResponse with no error
 
   Scenario: Unset the property of a node template to an input of the topology

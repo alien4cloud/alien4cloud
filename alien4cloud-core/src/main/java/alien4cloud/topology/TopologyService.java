@@ -169,9 +169,15 @@ public class TopologyService {
     }
 
     /**
-     * Process a node template to retrieve filters for node replacements search
+     * Process a node template to retrieve filters for node replacements search.
+     *
+     * TODO cleanup this method, better return a filter for node rather than adding it to a parameter list.
+     *
+     * @param topology The topology for which to search filters.
+     * @param nodeTempEntry The node template for which to find replacement filter.
+     * @param nodeTemplatesToFilters The map of filters in which to add the filter for the new Node.
      */
-    void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
+    public void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
             Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
         String capabilityFilterKey = "capabilities.type";
         String requirementFilterKey = "requirements.type";
@@ -211,7 +217,7 @@ public class TopologyService {
     /**
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
-    List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
+    public List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
             Map<String, IndexedNodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;

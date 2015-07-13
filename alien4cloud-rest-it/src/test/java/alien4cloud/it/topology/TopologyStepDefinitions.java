@@ -60,7 +60,7 @@ import alien4cloud.rest.topology.UpdatePropertyRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -574,8 +574,8 @@ public class TopologyStepDefinitions {
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequirementsNames.raw()) {
             String[] expectedNames = expected.get(1).split(",");
-            List<RequirementToSatify> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
-            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatify[requirementsToSatify.size()]));
+            List<RequirementToSatisfy> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
+            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatisfy[requirementsToSatify.size()]));
             assertNotNull(requirementsNames);
             assertEquals(expectedNames.length, requirementsNames.length);
             Arrays.sort(expectedNames);
@@ -584,12 +584,12 @@ public class TopologyStepDefinitions {
         }
     }
 
-    private List<RequirementToSatify> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
+    private List<RequirementToSatisfy> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> resToImp = (List<Object>) MapUtil.get(task, "requirementsToImplement");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatify.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatisfy.class);
             }
         }
         return null;
@@ -603,9 +603,9 @@ public class TopologyStepDefinitions {
         return toReturn;
     }
 
-    public String[] getRequirementsNames(RequirementToSatify... requirementsToSatisfy) {
+    public String[] getRequirementsNames(RequirementToSatisfy... requirementsToSatisfy) {
         String[] toReturn = null;
-        for (RequirementToSatify requirementToSatisfy : requirementsToSatisfy) {
+        for (RequirementToSatisfy requirementToSatisfy : requirementsToSatisfy) {
             toReturn = ArrayUtils.add(toReturn, requirementToSatisfy.getName());
         }
 
