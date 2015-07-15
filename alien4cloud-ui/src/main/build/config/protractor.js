@@ -25,10 +25,12 @@ module.exports = function (grunt, options) {
           baseUrl: 'http://127.0.0.1:9999',
           specs: [
               '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
-              '<%= yeoman.test %>/e2e/scenarios/components/csar.js',
-              '<%= yeoman.test %>/e2e/scenarios/components/csargit.js'
+//              '<%= yeoman.test %>/e2e/scenarios/components/csar.js',
+//              '<%= yeoman.test %>/e2e/scenarios/components/csargit.js'
             //'<%= yeoman.test %>/e2e/scenarios/security/security_environments.js'
             // '<%= yeoman.test %>/e2e/scenarios/application/application.js'
+//            '<%= yeoman.test %>/e2e/scenarios/topology_templates/topology_templates.js'
+            '<%= yeoman.test %>/e2e/scenarios/application_topology/application_topology_runtime.js'
   //              '<%= yeoman.test %>/e2e/scenarios/admin/admin_groups_management.js',
   //              '<%= yeoman.test %>/e2e/scenarios/admin/admin_users_management.js',
   //              '<%= yeoman.test %>/e2e/scenarios/security/security_groups.js',
