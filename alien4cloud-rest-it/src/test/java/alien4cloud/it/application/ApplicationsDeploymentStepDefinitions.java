@@ -554,6 +554,7 @@ public class ApplicationsDeploymentStepDefinitions {
         while (true) {
             try {
                 The_node_should_contain_instance_s(nodeName, numberOfInstances);
+                log.info("The node " + nodeName + " contains " + numberOfInstances + " instances");
                 break;
             } catch (AssertionError e) {
                 long currentDuration = System.currentTimeMillis() - before;
