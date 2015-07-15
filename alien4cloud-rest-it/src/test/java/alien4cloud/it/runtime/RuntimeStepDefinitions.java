@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.common.collect.Lists;
@@ -24,6 +26,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+@Slf4j
 public class RuntimeStepDefinitions {
 
     private TopologyStepDefinitions topoSteps = new TopologyStepDefinitions();
@@ -100,11 +103,15 @@ public class RuntimeStepDefinitions {
 
     @When("^I scale up the node \"([^\"]*)\" by adding (\\d+) instance\\(s\\)$")
     public void I_scale_up_the_node_by_adding_instance_s(String nodeName, int instancesToAdd) throws Throwable {
+        log.info("Scaled up the node " + nodeName + " by adding " + instancesToAdd + " instance(s)");
         Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd));
+        log.info("Finished scaling up the node " + nodeName + " by adding " + instancesToAdd + " instance(s)");
     }
 
     @When("^I scale down the node \"([^\"]*)\" by removing (\\d+) instance\\(s\\)$")
     public void I_scale_down_the_node_by_removing_instance_s(String nodeName, int instancesToRemove) throws Throwable {
+        log.info("Scaling down the node " + nodeName + " by removing " + instancesToRemove + " instance(s)");
         Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove));
+        log.info("Finished scaling down the node " + nodeName + " by removing " + instancesToRemove + " instance(s)");
     }
 }
