@@ -36,7 +36,6 @@ public class RepositoryManager {
     public static String _SUFFIXE = "_ZIPPED";
     public static String _ALL = "_ALL";
     public static String _DEFAULTSEPARATOR = "/";
-    public static String _TOSCA_METADATA="TOSCA-Metadata";
 
     public void cloneOrCheckout(Path targetDirectory, String repositoryUrl, String branch, String localDirectory) {
         try {
@@ -62,11 +61,10 @@ public class RepositoryManager {
      * @param repositoryUrl The GitHub url to reach the repository
      * @param branchMap A Map of the sub-repositories with its branchId (i.e : master,develop etc)
      * @param localDirectory Static path to be resolved with targetDirectory
-     * @throws GitCloneUriException
-     * @throws GitAPIException
+     * @throws GitCloneUriException 
+     * @throws GitAPIException 
      */
-    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory)
-            throws GitCloneUriException {
+    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, Map<String, String> branchMap, String localDirectory) throws GitCloneUriException  {
         String folderToReach = "";
         String cleanUrl;
         try {
@@ -129,9 +127,9 @@ public class RepositoryManager {
      * @param url Github url of the repository
      * @param branch Specified branch to clone
      * @param targetPath Path of the folder to checkout the repository
-     * @throws GitCloneUriException
-     * @throws IOException
-     * @throws GitAPIException
+     * @throws GitCloneUriException 
+     * @throws IOException 
+     * @throws GitAPIException 
      */
     private void cloneEntireRepository(String url, Path targetPath) throws GitCloneUriException {
         Git result;
@@ -145,6 +143,7 @@ public class RepositoryManager {
                     FileUtil.delete(targetPath);
                     throw new GitCloneUriException(e.getMessage());
                 } catch (IOException ioEx) {
+                    // do nothing
                 }
             }
         }
@@ -173,8 +172,8 @@ public class RepositoryManager {
                     }
                 } else {
                     Path locatePath = file.toPath();
-                    FileUtil.zip(locatePath, pathToFetch.resolve(entry.getKey() + _SUFFIXE));
-                    this.csarsToImport.add(pathToFetch.resolve(entry.getKey() + _SUFFIXE));
+                    FileUtil.zip(locatePath, locatePath.resolve(entry.getKey() + _SUFFIXE));
+                    this.csarsToImport.add(locatePath.resolve(entry.getKey() + _SUFFIXE));
                 }
             } catch (IOException e) {
                 log.error("Error while zipping target directory ", e);
@@ -215,19 +214,16 @@ public class RepositoryManager {
      * 
      * @param listFiles Files of the directory
      * @return False if the repository isn't a directory
-     * @return Yes if the repository is a directory or if the repository is based on an older TOSCA recommendation
+     * @return Yes if the repository is a directory
      */
     private boolean isArchive(File[] listFiles) {
         int cpt = 0;
         for (int i = 0; i < listFiles.length; i++) {
-            if (listFiles[i].getName().equals(_TOSCA_METADATA) || listFiles[i].getName().endsWith(".yml")) {
-                return true;
-            }
             if (listFiles[i].isDirectory()) {
                 cpt++;
             }
         }
-        return cpt > 3 ? false : true;
+        return cpt > 2 ? false : true;
     }
 
     /**
