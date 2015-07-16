@@ -103,15 +103,15 @@ public class RuntimeStepDefinitions {
 
     @When("^I scale up the node \"([^\"]*)\" by adding (\\d+) instance\\(s\\)$")
     public void I_scale_up_the_node_by_adding_instance_s(String nodeName, int instancesToAdd) throws Throwable {
-        log.info("Scaled up the node " + nodeName + " by adding " + instancesToAdd + " instance(s)");
+        log.info("Scale up the node " + nodeName + " by " + instancesToAdd);
         Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd));
-        log.info("Finished scaling up the node " + nodeName + " by adding " + instancesToAdd + " instance(s)");
+        log.info("Finished scaling up the node " + nodeName + " by " + instancesToAdd);
     }
 
     @When("^I scale down the node \"([^\"]*)\" by removing (\\d+) instance\\(s\\)$")
     public void I_scale_down_the_node_by_removing_instance_s(String nodeName, int instancesToRemove) throws Throwable {
-        log.info("Scaling down the node " + nodeName + " by removing " + instancesToRemove + " instance(s)");
+        log.info("Scale down the node " + nodeName + " by " + instancesToRemove);
         Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove));
-        log.info("Finished scaling down the node " + nodeName + " by removing " + instancesToRemove + " instance(s)");
+        log.info("Finished scaling down the node " + nodeName + " by " + instancesToRemove);
     }
 }
