@@ -37,7 +37,7 @@
                ng-click="$event.stopPropagation();">
               <i class="fa fa-stop"></i> {{'CLOUDS.FORCE-DISABLE' | translate}}
             </a>
-            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending ? '' : 'disabled'}}" ng-click="refreshCloud()">
+            <button type="button" id="cloud-refresh-button" class="btn btn-success {{ cloud.enabled && !enablePending && !refreshPending ? '' : 'disabled'}}" ng-click="refreshCloud()">
               <i class="fa" ng-class="{'fa-refresh': !refreshPending, 'fa-spinner fa-spin': refreshPending}"></i> {{'CLOUDS.REFRESH' | translate}}
             </button>
           </div>

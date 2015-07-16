@@ -57,13 +57,13 @@
   "constraints": [{
     "maxLength": 10
   }],
-  "name": "cloud_meta_CLOUD_META_1",
+  "name": "CLOUD_META_1",
   "target": "cloud",
   "required": false,
   "password": false
 }, {
   "type": "integer",
-  "name": "cloud_meta_NUMcpus",
+  "name": "NUMcpus",
   "target": "cloud",
   "required": false,
   "password": false,
@@ -72,13 +72,13 @@
   }]
 }, {
   "type": "string",
-  "name": "cloud_meta_osARCH",
+  "name": "osARCH",
   "target": "cloud",
   "required": false,
   "password": false
 }, {
   "type": "integer",
-  "name": "cloud_meta_CLOUD_META_2",
+  "name": "CLOUD_META_2",
   "target": "cloud",
   "required": false,
   "password": false

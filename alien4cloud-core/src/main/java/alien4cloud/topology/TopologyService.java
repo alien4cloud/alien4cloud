@@ -38,12 +38,14 @@ import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
+import alien4cloud.model.topology.AbstractTopologyVersion;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.rest.utils.JsonUtil;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.security.model.User;
 import alien4cloud.topology.exception.UpdateTopologyException;
@@ -79,6 +81,9 @@ public class TopologyService {
     @Resource
     private ApplicationVersionService applicationVersionService;
 
+    @Resource
+    private TopologyTemplateVersionService topologyTemplateVersionService;
+
     private ToscaTypeLoader initializeTypeLoader(Topology topology) {
         ToscaTypeLoader loader = new ToscaTypeLoader(csarService);
         Map<String, IndexedNodeType> nodeTypes = topologyServiceCore.getIndexedNodeTypesFromTopology(topology, false, false);
@@ -95,6 +100,10 @@ public class TopologyService {
                     }
                 }
             }
+        }
+        if (topology.getSubstitutionMapping() != null && topology.getSubstitutionMapping().getSubstitutionType() != null) {
+            IndexedNodeType substitutionType = topology.getSubstitutionMapping().getSubstitutionType();
+            loader.loadType(substitutionType.getElementId(), new CSARDependency(substitutionType.getArchiveName(), substitutionType.getArchiveVersion()));
         }
         return loader;
     }
@@ -160,9 +169,15 @@ public class TopologyService {
     }
 
     /**
-     * Process a node template to retrieve filters for node replacements search
+     * Process a node template to retrieve filters for node replacements search.
+     *
+     * TODO cleanup this method, better return a filter for node rather than adding it to a parameter list.
+     *
+     * @param topology The topology for which to search filters.
+     * @param nodeTempEntry The node template for which to find replacement filter.
+     * @param nodeTemplatesToFilters The map of filters in which to add the filter for the new Node.
      */
-    void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
+    public void processNodeTemplate(final Topology topology, final Entry<String, NodeTemplate> nodeTempEntry,
             Map<String, Map<String, Set<String>>> nodeTemplatesToFilters) {
         String capabilityFilterKey = "capabilities.type";
         String requirementFilterKey = "requirements.type";
@@ -202,7 +217,7 @@ public class TopologyService {
     /**
      * Search for nodeTypes given some filters. Apply AND filter strategy when multiple values for a filter key.
      */
-    List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
+    public List<SuggestionsTask> searchForNodeTypes(Map<String, Map<String, Set<String>>> nodeTemplatesToFilters,
             Map<String, IndexedNodeType> toExcludeIndexedNodeTypes) throws IOException {
         if (nodeTemplatesToFilters == null || nodeTemplatesToFilters.isEmpty()) {
             return null;
@@ -393,30 +408,24 @@ public class TopologyService {
     }
 
     /**
-     * True when an topology is released
-     *
-     * @param topology topology to be checked
-     * @return true if the environment is currently deployed
+     * True when an topology is released.
      */
     public boolean isReleased(Topology topology) {
-        ApplicationVersion appVersion = getApplicationVersion(topology);
-        return !(appVersion == null || !appVersion.isReleased());
+        AbstractTopologyVersion appVersion = getApplicationVersion(topology);
+        return appVersion != null && appVersion.isReleased();
     }
 
     /**
-     * Get the released application version of a topology
+     * Get the delegates version of a topology.
      *
      * @param topology the topology
      * @return The application version associated with the environment.
      */
-    private ApplicationVersion getApplicationVersion(Topology topology) {
-        GetMultipleDataResult<ApplicationVersion> dataResult = alienDAO.search(
-                ApplicationVersion.class,
-                null,
-                MapUtil.newHashMap(new String[] { "applicationId", "topologyId" }, new String[][] { new String[] { topology.getDelegateId() },
-                        new String[] { topology.getId() } }), 1);
-        if (dataResult.getData() != null && dataResult.getData().length > 0) {
-            return dataResult.getData()[0];
+    private AbstractTopologyVersion getApplicationVersion(Topology topology) {
+        if (topology.getDelegateType().equalsIgnoreCase(Application.class.getSimpleName())) {
+            return applicationVersionService.getByTopologyId(topology.getId());
+        } else if (topology.getDelegateType().equalsIgnoreCase(TopologyTemplate.class.getSimpleName())) {
+            return topologyTemplateVersionService.getByTopologyId(topology.getId());
         }
         return null;
     }
@@ -457,6 +466,10 @@ public class TopologyService {
             TopologyTemplate template = getOrFailTopologyTemplate(topologyTemplateId);
             velocityCtx.put("template_name", template.getName());
             velocityCtx.put("application_description", template.getDescription());
+            TopologyTemplateVersion version = topologyTemplateVersionService.getByTopologyId(topology.getId());
+            if (version != null) {
+                velocityCtx.put("template_version", version.getVersion());
+            }
         }
 
         try {

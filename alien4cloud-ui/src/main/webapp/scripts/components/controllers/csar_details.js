@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/deployment/services/deployment_services');
 
   states.state('components.csars.csardetail', {
-    url: '/:csarId',
+    url: '/detail/:csarId',
     templateUrl: 'views/components/csar_details.html',
     controller: 'CsarDetailsCtrl'
   });
@@ -19,7 +19,6 @@ define(function (require) {
     function($scope, $stateParams, $state, csarService, deploymentServices, webSocketServices, $translate, toaster) {
       /* Retrieve CSAR to display */
       $scope.csarId = $stateParams.csarId;
-
       $scope.refreshDetails = function() {
         csarService.getAndDeleteCsar.get({
           csarId: $scope.csarId

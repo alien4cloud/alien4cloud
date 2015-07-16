@@ -46,7 +46,7 @@ define(function (require) {
             'size': 400
           };
           return applicationVersionServices.searchVersion({
-            applicationId: application.data.id
+            delegateId: application.data.id
           }, angular.toJson(searchAppVersionRequestObject)).$promise.then(function(result) {
             return result.data;
           });

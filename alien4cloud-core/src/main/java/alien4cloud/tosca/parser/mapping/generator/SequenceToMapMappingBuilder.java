@@ -21,6 +21,9 @@ import com.google.common.collect.Maps;
 public class SequenceToMapMappingBuilder implements IMappingBuilder {
     private static final String SEQUENCE_TO_MAP = "sequence_to_map";
     private static final String TYPE = "type";
+    // true if the node from the sequence contains both the key of the map (from first tuple key) and the value of the map (based on mapping node parsing)
+    // false if the node from the sequence contains only the key of the map and the value of the map should be parsed from the value of the first tuple.
+    private static final String NODE_IS_VALUE = "node_is_value";
 
     @Override
     public String getKey() {
@@ -35,6 +38,10 @@ public class SequenceToMapMappingBuilder implements IMappingBuilder {
             String value = ParserUtils.getScalar(tuple.getValueNode(), context);
             map.put(key, value);
         }
-        return new MappingTarget(map.get(SEQUENCE_TO_MAP), new SequenceToMapParser<>(new ReferencedParser(map.get(TYPE)), map.get(TYPE)));
+        if(map.get(NODE_IS_VALUE) == null) {
+            map.put(NODE_IS_VALUE, "true");
+        }
+        return new MappingTarget(map.get(SEQUENCE_TO_MAP), new SequenceToMapParser<>(new ReferencedParser(map.get(TYPE)), map.get(TYPE),
+                Boolean.parseBoolean(map.get(NODE_IS_VALUE))));
     }
 }

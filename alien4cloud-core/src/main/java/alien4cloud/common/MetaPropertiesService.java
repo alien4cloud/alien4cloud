@@ -2,6 +2,7 @@ package alien4cloud.common;
 
 import javax.annotation.Resource;
 
+import alien4cloud.dao.model.GetMultipleDataResult;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,9 @@ import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInforma
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
 import alien4cloud.utils.services.ConstraintPropertyService;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service that manage meta-property for resources with meta-properties.
@@ -59,25 +63,17 @@ public class MetaPropertiesService {
     }
 
     /**
-     * Remove an existing meta-property.
-     *
-     * @param resource The resource from which to remove the meta-property.
-     * @param key The key/name of the meta-property to remove.
-     */
-    public void removeMetaProperty(IMetaProperties resource, String key) {
-        if (resource.getMetaProperties() != null && resource.getMetaProperties().containsKey(key)) {
-            resource.getMetaProperties().remove(key);
-            alienDAO.save(resource);
-        }
-    }
-
-    /**
-     * Return the the meta property given its name
+     * Load a map of MetaPropConfiguration from given ids.
      * 
-     * @param metaPropertyName
-     * @return meta property
+     * @param ids The ids to fetch
+     * @return The a map id -> MetaPropConfiguration
      */
-    public MetaPropConfiguration getMetaPropertyIdByName(String metaPropertyName) {
-        return alienDAO.customFind(MetaPropConfiguration.class, QueryBuilders.termQuery("name", metaPropertyName));
+    public Map<String, MetaPropConfiguration> getByIds(String[] ids) {
+        Map<String, MetaPropConfiguration> configurationMap = Maps.newHashMap();
+        List<MetaPropConfiguration> configurations = alienDAO.findByIds(MetaPropConfiguration.class, ids);
+        for (MetaPropConfiguration configuration : configurations) {
+            configurationMap.put(configuration.getId(), configuration);
+        }
+        return configurationMap;
     }
 }

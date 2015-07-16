@@ -7,7 +7,7 @@
         <div class="col-md-12">
           <h1>{{csar.csar.name}}</h1>
           <div class="pull-right">
-            <delete-confirm id="delete-csar_{{csar.csar.id}}" func="remove(csarId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+            <delete-confirm ng-if="!csar.substitutionTopologyId" id="delete-csar_{{csar.csar.id}}" func="remove(csarId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
             </delete-confirm>
           </div>
         </div>

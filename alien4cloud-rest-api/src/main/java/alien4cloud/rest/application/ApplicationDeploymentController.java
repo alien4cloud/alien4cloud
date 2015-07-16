@@ -26,7 +26,6 @@ import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.application.ApplicationEnvironment;
 import alien4cloud.model.application.ApplicationVersion;
@@ -38,6 +37,7 @@ import alien4cloud.model.topology.Topology;
 import alien4cloud.paas.IPaaSCallback;
 import alien4cloud.paas.exception.CloudDisabledException;
 import alien4cloud.paas.exception.MaintenanceModeException;
+import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
 import alien4cloud.rest.model.RestError;
@@ -45,9 +45,9 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
-import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
@@ -101,7 +101,7 @@ public class ApplicationDeploymentController {
             AuthorizationUtil.checkAuthorizationForEnvironment(environment, ApplicationEnvironmentRole.DEPLOYMENT_MANAGER);
         }
 
-        // Application version : check right on the version
+        // Get Application version
         ApplicationVersion version = applicationVersionService.getVersionByIdOrDefault(environment.getApplicationId(), environment.getCurrentVersionId());
 
         // check that the environment is not already deployed
@@ -126,10 +126,7 @@ public class ApplicationDeploymentController {
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.values());
 
         Topology topology = topologyServiceCore.getMandatoryTopology(version.getTopologyId());
-        if (environment.getCloudId() == null) {
-            throw new InvalidArgumentException("Application [" + application.getId() + "] contains an environment with no cloud assigned");
-        }
-        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.getDeploymentSetupMatchInfo(topology, environment, version);
+        DeploymentSetupMatchInfo deploymentSetupMatchInfo = deploymentSetupService.preProcessTopologyAndMatch(topology, environment, version);
         if (!deploymentSetupMatchInfo.isValid()) {
             throw new InvalidDeploymentSetupException("Application [" + application.getId() + "] is not deployable on the cloud [" + cloud.getId()
                     + "] because it contains unmatchable resources");
@@ -339,17 +336,33 @@ public class ApplicationDeploymentController {
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/scale/{nodeTemplateId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @Audit
-    public RestResponse<Void> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId, @PathVariable String nodeTemplateId,
+    public DeferredResult<RestResponse<Void>> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
+            @PathVariable String nodeTemplateId,
             @RequestParam int instances) {
-
+        final DeferredResult<RestResponse<Void>> result = new DeferredResult<>(15L * 60L * 1000L);
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
 
         try {
-            deploymentService.scale(environment.getId(), nodeTemplateId, instances);
+            deploymentService.scale(environment.getId(), nodeTemplateId, instances, new IPaaSCallback<Object>() {
+                @Override
+                public void onSuccess(Object data) {
+                    result.setResult(RestResponseBuilder.<Void> builder().build());
+                }
+
+                @Override
+                public void onFailure(Throwable e) {
+                    result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage()))
+                            .build());
+                }
+            });
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage())).build();
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), e.getMessage()))
+                    .build());
+        } catch (PaaSDeploymentException e) {
+            result.setErrorResult(RestResponseBuilder.<Void> builder().error(new RestError(RestErrorCode.SCALING_ERROR.getCode(), e.getMessage())).build());
         }
-        return RestResponseBuilder.<Void> builder().build();
+
+        return result;
     }
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")

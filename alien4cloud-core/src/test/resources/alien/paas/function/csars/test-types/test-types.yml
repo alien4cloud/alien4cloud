@@ -91,7 +91,7 @@ node_types:
     properties:
       name:
         type: string
-
+        
   alien.test.TestComputeWithGetOperationOutput:
     derived_from: tosca.nodes.Compute
     properties:
@@ -123,7 +123,9 @@ relationship_types:
         post_configure_source:
           inputs:
             contextPath: { get_property: [SOURCE, context_path] }
+            propFromSourceCompute: { get_property: [SOURCE, customHostName] }
             tomcatVersion: { get_property: [TARGET, version] }
+            propFromTargetCompute: { get_property: [TARGET, customHostName] }
             tomcatIp: { get_attribute: [TARGET, ip_address] }
             warNodeContext: { get_attribute: [SOURCE, warNodeContext] }
             relName: { get_property: [SELF, relName] }

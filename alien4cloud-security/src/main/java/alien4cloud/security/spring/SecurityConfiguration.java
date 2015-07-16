@@ -107,7 +107,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/rest/formdescriptor/pluginConfig/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/formdescriptor/tagconfiguration/**").hasAuthority("ADMIN");
         http.authorizeRequests().antMatchers("/rest/formdescriptor/cloudConfig/**").hasAuthority("ADMIN");
-
+        http.authorizeRequests().antMatchers("/rest/csarsgit/**").hasAnyAuthority("ADMIN","COMPONENTS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/properties/**").hasAnyAuthority("ADMIN", "APPLICATIONS_MANAGER");
         http.authorizeRequests().antMatchers("/rest/enums/**").authenticated();
 
@@ -140,6 +140,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         log.debug("Configure ignore path");
-        web.ignoring().antMatchers("/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**", "/views/**");
+        web.ignoring().antMatchers("/api-doc/**", "/api-docs/**", "/data/**", "/bower_components/**", "/images/**", "/js-lib/**", "/scripts/**", "/styles/**", "/views/**");
     }
 }

@@ -196,9 +196,11 @@ define(function (require) {
         return applicationServices.update({
           applicationId: $scope.application.id
         }, angular.toJson(applicationUpdateRequest), undefined).$promise.then(
-          function() {}, // Success
-          function(errorResponse) {
-            // Error
+          function() { // Success
+            // reload the current application info page after update
+            $state.go($state.current, {}, {reload: true});
+          },
+          function(errorResponse) {// Error
             return $translate('ERRORS.' + errorResponse.data.error.code);
           }
         );

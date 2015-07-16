@@ -13,14 +13,18 @@ imports:
 dsl_definitions:
   # list of YAML alias anchors (or macros)
 
-inputs:
-  # list of global input parameters
+topology_template:
+  inputs:
+    # list of global input parameters
 
-node_templates:
-  # list of node templates
+  node_templates:
+    # list of node templates
 
-relationship_templates:
-  # list of relationship templates
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
 
 node_types:
   # list of node type definitions
@@ -34,8 +38,3 @@ relationship_types:
 artifact_types:
   # list of artifact type definitions
 
-groups:
-  # list of groups defined in service template
-
-outputs:
-  # list of output parameters

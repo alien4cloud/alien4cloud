@@ -99,6 +99,9 @@ public class RestClient {
     public InputStream getAsStream(String path) throws IOException {
         HttpGet httpGet = new HttpGet(applicationUrl + path);
         CloseableHttpResponse response = httpClient.execute(httpGet);
+        if (response.getStatusLine().getStatusCode() < 200 || response.getStatusLine().getStatusCode() > 300) {
+            throw new IOException("Unable to get the http resource, received non OK return code " + response.getStatusLine());
+        }
         return response.getEntity().getContent();
     }
 
