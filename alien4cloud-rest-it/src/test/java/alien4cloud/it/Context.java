@@ -59,6 +59,19 @@ import cucumber.runtime.io.ClasspathResourceLoader;
  */
 @Slf4j
 public class Context {
+
+    public static final String GIT_URL_SUFFIX = ".git";
+
+    public static final Path GIT_ARTIFACT_TARGET_PATH = Paths.get("target/gits");
+
+    public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
+
+    public static final String FASTCONNECT_NEXUS = "http://fastconnect.org/maven/service/local/artifact/maven/redirect?";
+
+    public static final Path LOCAL_TEST_DATA_PATH = Paths.get("src/test/resources");
+
+    public static final int SCP_PORT = 22;
+
     public static final String HOST = "localhost";
 
     public static final int PORT = 8088;
