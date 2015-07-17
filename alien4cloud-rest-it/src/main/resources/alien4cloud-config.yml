@@ -100,10 +100,10 @@ openstack:
   url: http://129.185.67.11:5000/v2.0
   region: RegionOne
   cfy3:
-    manager_name: mkv-cosmo-management-server
+    manager_name: jenkins-cosmo-management-server
     manager_user:
     manager_password:
   cfy2:
-    manager_name: mkv-cosmo-management-server
-    manager_user:
-    manager_password:
+    manager_name: alien-cloudify-manager-jenkins1
+    manager_user: Superuser
+    manager_password: Superuser
