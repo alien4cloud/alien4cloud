@@ -55,6 +55,11 @@ public class SearchDefinitionSteps {
         QUERY_TYPES.put("artifact types", QueryComponentType.ARTIFACT_TYPE);
     }
 
+    @Given("^There is (\\d+) \"([^\"]*)\" indexed in ALIEN$")
+    public void There_is_indexed_in_ALIEN(int count, String type) throws Throwable {
+        createAndIndexComponent(count, type, null, 0, null, null);
+    }
+
     @Given("^There is (\\d+) \"([^\"]*)\" with base name \"([^\"]*)\" indexed in ALIEN$")
     public void There_is_indexed_in_ALIEN(int count, String type, String baseName) throws Throwable {
         createAndIndexComponent(count, type, baseName, 0, null, null);
