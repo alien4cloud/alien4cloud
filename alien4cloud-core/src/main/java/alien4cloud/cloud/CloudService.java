@@ -432,7 +432,7 @@ public class CloudService {
      * Disable an existing cloud. Note that this can be done only when no more deployments are using the cloud to disable.
      *
      * @param id Id of the cloud to disable.
-     * @param boolean Boolean who indicate if the cloud disable need to be forced or not
+     * @param force Boolean who indicate if the cloud disable need to be forced or not
      * @return true if the cloud has been disabled, false if not (some deployments are using the cloud).
      */
     public synchronized boolean disableCloud(String id, boolean force) {
@@ -660,24 +660,24 @@ public class CloudService {
         }
         String[] compatibleFlavorIdsArray = paaSProvider.getAvailableResourceIds(CloudResourceType.FLAVOR, paaSImageId);
         Set<String> compatibleFlavorIds = compatibleFlavorIdsArray != null ? Sets.newHashSet(compatibleFlavorIdsArray) : null;
+        // It's for template managed paaS provider
+        PaaSComputeTemplate[] paaSManagedTemplates = null;
+        if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+            paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+        }
         for (CloudImageFlavor flavor : cloud.getFlavors()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the flavor
             String paaSFlavorId = matcherConfig.getFlavorMapping().get(flavor);
-            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
-                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
-                if (paaSManagedTemplates != null) {
-                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
-                        if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
-                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
-                            computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), paaSManagedTemplate.getDescription()));
-                        }
+            if (paaSManagedTemplates != null && paaSManagedTemplates.length > 0) {
+                for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                    if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                            && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                        computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), paaSManagedTemplate.getDescription()));
                     }
                 }
-            } else {
-                if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
-                        && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
-                    computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), null));
-                }
+            } else if (isFlavorMatchImageRequirement(cloudImage, flavor) && paaSFlavorId != null
+                    && (compatibleFlavorIds == null || compatibleFlavorIds.contains(paaSFlavorId))) {
+                computes.add(new ActivableComputeTemplate(cloudImageId, flavor.getId(), null));
             }
         }
     }
@@ -713,18 +713,19 @@ public class CloudService {
         if (paaSFlavorId == null) {
             throw new NotFoundException("Cannot add compute template as mapping not found for flavor [" + flavor.getId() + "]");
         }
+        PaaSComputeTemplate[] paaSManagedTemplates = null;
+        if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
+            paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
+        }
         for (String imageId : cloud.getImages()) {
             // Only add compute templates if it is matching image requirement and it exists mapping for the image
             CloudImage image = images.get(imageId);
             String paaSImageId = matcherConfig.getImageMapping().get(image);
-            if (paaSProvider instanceof ITemplateManagedPaaSProvider) {
-                PaaSComputeTemplate[] paaSManagedTemplates = ((ITemplateManagedPaaSProvider) paaSProvider).getAvailablePaaSComputeTemplates();
-                if (paaSManagedTemplates != null) {
-                    for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
-                        if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
-                                && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
-                            computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), paaSManagedTemplate.getDescription()));
-                        }
+            if (paaSManagedTemplates != null && paaSManagedTemplates.length > 0) {
+                for (PaaSComputeTemplate paaSManagedTemplate : paaSManagedTemplates) {
+                    if (isFlavorMatchImageRequirement(image, flavor) && paaSImageId != null && paaSManagedTemplate.getImageId().equals(paaSImageId)
+                            && paaSManagedTemplate.getFlavorId().equals(paaSFlavorId)) {
+                        computes.add(new ActivableComputeTemplate(imageId, flavor.getId(), paaSManagedTemplate.getDescription()));
                     }
                 }
             } else {

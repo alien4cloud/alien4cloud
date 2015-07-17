@@ -33,7 +33,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I match the availability zone with name "toulouse" of the cloud "Mock Cloud" to the PaaS resource "toulouse-zone"
 
     # Mock Application
-    And I create a new application with name "wordpress-mock" and description "Wordpress with Mock" based on the template with name "wordpress-template-1.1.0-SNAPSHOT"
+    And I create a new application with name "wordpress-mock" and description "Wordpress with Mock" based on the template with name "wordpress-template"
     And I assign the cloud with name "Mock Cloud" for the application
     And I add a node template "DbStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I update the node template "DbStorage"'s property "location" to "/var/mysql"

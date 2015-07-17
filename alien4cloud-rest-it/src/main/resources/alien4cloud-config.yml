@@ -92,3 +92,18 @@ documentation:
 
 audit:
   ttl: 1d
+
+openstack:
+  user: alien4cloud-os
+  password: Op3nSt@ck_@L1eN
+  tenant: ALIEN4Cloud
+  url: http://129.185.67.11:5000/v2.0
+  region: RegionOne
+  cfy3:
+    manager_name: mkv-cosmo-management-server
+    manager_user:
+    manager_password:
+  cfy2:
+    manager_name: mkv-cosmo-management-server
+    manager_user:
+    manager_password:
