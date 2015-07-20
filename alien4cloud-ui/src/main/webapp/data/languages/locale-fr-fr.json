@@ -171,6 +171,20 @@
     "BUTTON_DELETE": "Supprimer",
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
+    "ID":"Id",
+    "ARCHIVELIST":"Liste des archives",
+    "IMPORT_SUCCESS":"L'import a été effectué",
+    "IMPORTALL":"Importer tout",
+    "LEGEND":"Csars ajoutés",
+    "FROMGIT":"Importés depuis Git",
+    "ACTIONS":"Opérations",
+    "URL": "URL du repository",
+    "BRANCHESLIST": "Liste des branches",
+    "BRANCHE":"Branche",
+    "ARCHIVE":"Nom du dossier",
+    "ARCHIVE_TO_IMPORT":"Archive(s) à importer",
+    "BRANCHE_TO_IMPORT":"Sur la branche",
+    "AJOUT": "L'archive a été importé",
     "DESCRIPTION": "Description",
     "VERSION": "Version",
     "BC_CSAR": "CSAR",
@@ -195,8 +209,14 @@
     },
     "DELETE": "Supprimé",
     "ERRORS": {
+      "IMPORT":"Le CSAR ne peut être importé",
       "507_TITLE": "Suppression d'un CSAR",
-      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
+      "501_TITLE": "Un CSAR avec cette URL existe déjà",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources",
+      "NO_DATA":{
+        "HEADER":"Aucun CSAR à importer",
+        "BODY":"Veuillez renseigner un nouveau CSAR depuis Git"
+      }
     }
   },
   "GENERIC_FORM": {
@@ -449,6 +469,15 @@
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters non statisfaits",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "L'une des contraintes sur cette propriété n'ai pas respectée",
+          "CAPABILITY_NAME": "Nom de la capacité",
+          "CAPABILITY_MISSING_ERROR": "La cible de posséde pas cette capacité",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "Le type de la propriété cible est invalide",
+          "PROPERTY_NAME": "Nom de la propriété"
+        },
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Politique de scalabilité invalide",
           "MISSING": "Propriété obligatoire",
@@ -782,7 +811,6 @@
     "372": "Erreur dans la nomenclature des noms de déploiement.",
     "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
-    "375": "Erreur inattendue sur le PaaS lors de la tentative de scaling.",
     "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "391": "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
@@ -804,6 +832,7 @@
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
     "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
+    "615": "Le repository Git n'existe pas ou n'est pas valide.",    
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "651": "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800": {

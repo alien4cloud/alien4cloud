@@ -82,7 +82,11 @@ var createApplication = function(newAppName, newAppDescription, topologyTemplate
   // Template to select
   if (typeof topologyTemplateSelectNumber !== 'undefined') {
     // topologyTemplateSelectNumber should start at 2 since the one at 1 is (no template) first ins the list
-    var select = element(by.css('select option:nth-child(' + topologyTemplateSelectNumber + ')'));
+    var select = element(by.id('templateid')).element(by.css('select option:nth-child(' + topologyTemplateSelectNumber + ')'))
+    select.click();
+    
+    // take the first version
+    var select = element(by.id('templateVersionId')).element(by.css('select option:nth-child(2)'))
     select.click();
   }
 

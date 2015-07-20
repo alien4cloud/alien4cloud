@@ -61,17 +61,20 @@ public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
 
     private Collection<T> doParseFromMap(MappingNode node, ParsingContextExecution context) {
         Collection<T> collection = getCollectionInstance();
-        for (NodeTuple entry : node.getValue()) {
-            String key = ParserUtils.getScalar(entry.getKeyNode(), context);
-            T value = null;
-            value = valueParser.parse(entry.getValueNode(), context);
-            if (value != null) {
-                if (keyPath != null) {
+        if (keyPath != null) { // we parse a map into a list and must
+            for (NodeTuple entry : node.getValue()) {
+                String key = ParserUtils.getScalar(entry.getKeyNode(), context);
+                T value = null;
+                value = valueParser.parse(entry.getValueNode(), context);
+                if (value != null) {
                     BeanWrapper valueWrapper = new BeanWrapperImpl(value);
                     valueWrapper.setPropertyValue(keyPath, key);
+                    collection.add(value);
                 }
-                collection.add(value);
             }
+        } else { // we parse a list with a single value
+            T value = valueParser.parse(node, context);
+            collection.add(value);
         }
         return collection;
     }

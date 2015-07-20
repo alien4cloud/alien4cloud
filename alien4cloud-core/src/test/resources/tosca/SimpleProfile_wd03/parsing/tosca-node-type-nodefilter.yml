@@ -13,71 +13,50 @@ imports:
 dsl_definitions:
   # list of YAML alias anchors (or macros)
 
-inputs:
-  # list of global input parameters
+topology_template:
+  inputs:
+    # list of global input parameters
 
-node_templates:
-  # list of node templates
+  node_templates:
+    # list of node templates
 
-relationship_templates:
-  # list of relationship templates
+  groups:
+    # list of groups defined in service template
+
+  outputs:
+    # list of output parameters
 
 node_types:
   my_company.my_types.MyAppNodeType:
     derived_from: tosca.nodes.SoftwareComponent
     description: My company’s custom applicaton
-    properties:
-      my_app_password:
-        type: string
-        default: default
-        description: application password
-        constraints: [ min_length: 6, max_length: 10 ]
-        # constraints:
-        #   - min_length: 6
-        #   - max_length: 10
-      my_app_duration:
-        type: scalar-unit.time
-        default: 1 d
-        constraints:
-          - greater_than: 1 h
-      my_app_size:
-        type: scalar-unit.size
-        default: 1 GB
-        constraints:
-          - less_than: 1 TB
-      my_app_port:
-        type: integer
-        description: application port number
     requirements:
       - host: tosca.nodes.Compute
         relationship_type: tosca.relationships.HostedOn
         capability: host
-        lowerBound: 1
-        upperBound: 1
+        lower_bound: 1
+        upper_bound: 1
         node_filter:
           properties:
+            - os_type: { valid_values: [ "linux", "unix" ] }
             - os_mix:
               - valid_values: [ "linux", "unix" ]
               - in_range: [ 1, 4 ]
-            - os_type: [ valid_values: [ "linux", "unix" ], equal: unix ]
-            # - os_type: { valid_values: [ "linux", "unix" ] }
-            # - os_arch: [ valid_values: [ "x86_64", "x86_32" ], in_range: [ 1, 4 ] ]
+            - os_arch : [ valid_values: [ "x86_64", "x86_32" ], in_range: [ 1, 4 ] ]
           capabilities:
             # My “host” Compute node needs these properties:
             - host:
-              properties:
-                - num_cpus: { in_range: [ 1, 4 ] }
-                - num_cpus2: [ in_range: [ 1, 4 ], equal: aes ]
-                - mem_size: { greater_or_equal: 2 MB }
+                properties:
+                  - num_cpus: { in_range: [ 1, 4 ] }
+                  - mem_size: { greater_or_equal: 2 MB }
             # and should also support this type of encryption and properties:
             - mytypes.capabilities.compute.encryption:
-              properties:
-                - algorithm: { equal: aes }
-                - keylength: { valid_values: [ 128, 256 ] }
+                properties:
+                  - algorithm: { equal: aes }
+                  - keylength: [ valid_values: [ 128, 256 ], equal: 128 ]
       - other: tosca.capabilities.Endpoint
-        lowerBound: 0
-        upperBound: unbounded
-    interfaces: [ Standard ]
+        lower_bound: 0
+        upper_bound: unbounded
 
 capability_types:
   # list of capability type definitions
@@ -87,9 +66,3 @@ relationship_types:
 
 artifact_types:
   # list of artifact type definitions
-
-groups:
-  # list of groups defined in service template
-
-outputs:
-  # list of output parameters

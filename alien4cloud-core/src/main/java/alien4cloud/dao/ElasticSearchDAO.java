@@ -33,6 +33,10 @@ import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.model.PluginConfiguration;
+import alien4cloud.security.model.CsarGitRepository;
+
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -81,6 +85,7 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(CloudConfiguration.class);
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
+        initIndice(CsarGitRepository.class);
         initCompleted();
     }
 
