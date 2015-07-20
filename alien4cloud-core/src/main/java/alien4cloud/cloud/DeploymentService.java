@@ -43,7 +43,6 @@ import alien4cloud.paas.exception.DeploymentPaaSIdConflictException;
 import alien4cloud.paas.exception.EmptyMetaPropertyException;
 import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.OperationExecutionException;
-import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.AbstractMonitorEvent;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
@@ -300,7 +299,8 @@ public class DeploymentService {
      * @param instances the number of instances to be added (if positive) or removed (if negative)
      * @throws CloudDisabledException In case the cloud selected for the topology is disabled.
      */
-    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances) throws CloudDisabledException {
+    public void scale(String applicationEnvironmentId, final String nodeTemplateId, int instances, final IPaaSCallback<Object> callback)
+            throws CloudDisabledException {
         Deployment deployment = getActiveDeploymentFailIfNotExists(applicationEnvironmentId);
         final Topology topology = alienMonitorDao.findById(Topology.class, deployment.getId());
         final Capability capability = TopologyUtils.getScalableCapability(topology, nodeTemplateId, true);
@@ -320,11 +320,12 @@ public class DeploymentService {
                         previousInitialInstances);
                 TopologyUtils.setScalingProperty(NormativeComputeConstants.SCALABLE_DEFAULT_INSTANCES, previousInitialInstances, capability);
                 alienMonitorDao.save(topology);
-                throw (PaaSDeploymentException) throwable;
+                callback.onFailure(throwable);
             }
 
             @Override
             public void onSuccess(Object data) {
+                callback.onSuccess(data);
             }
         });
     }

@@ -1,8 +1,11 @@
 package alien4cloud.it.quicksearch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,17 +118,14 @@ public class QuickSearchDefinitionsSteps {
         assertNotNull(searchResp);
         assertNotNull(searchResp.getTypes());
         assertNotNull(searchResp.getData());
-        assertEquals(expectedSize, searchResp.getTypes().length);
-        assertEquals(expectedSize, searchResp.getData().length);
+        assertEquals(searchResp.getTypes().length, searchResp.getTypes().length);
 
         // check result types
         Set<String> resultTypes = Sets.newHashSet(searchResp.getTypes());
-        assertEquals(resultTypes.size(), 1);
-        if (searchedType.contains("application")) {
-            assertEquals("There should only be " + searchedType + " in the quicksearch result.", resultTypes.iterator().next(), "application");
-        } else {
-            assertEquals("There should only be " + searchedType + " in the quicksearch result.", resultTypes.iterator().next(), indexedTypes.get(searchedType));
-        }
+        String esType = indexedTypes.get(searchedType);
+        assertTrue(resultTypes.contains(esType));
+        int countObjectByType = Collections.frequency(Lists.newArrayList(searchResp.getTypes()), esType);
+        assertEquals(expectedSize, countObjectByType);
     }
 
     private void createAndIndexComponent(int count, String type, int countHavingProperty, String property, String propertyValue) throws Exception {

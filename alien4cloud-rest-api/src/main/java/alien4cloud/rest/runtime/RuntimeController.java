@@ -91,7 +91,7 @@ public class RuntimeController {
     @ResponseBody
     @Audit
     public DeferredResult<RestResponse<Object>> executeOperation(@PathVariable String applicationId, @RequestBody @Valid OperationExecRequest operationRequest) {
-        final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(5L * 60L * 1000L);
+        final DeferredResult<RestResponse<Object>> result = new DeferredResult<>(15L * 60L * 1000L);
         Application application = applicationService.getOrFail(applicationId);
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId,
                 operationRequest.getApplicationEnvironmentId());

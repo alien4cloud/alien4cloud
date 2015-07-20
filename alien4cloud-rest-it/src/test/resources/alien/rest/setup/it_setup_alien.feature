@@ -65,7 +65,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I upload the archive "samples topology wordpress"
 
     # Application CFY 3
-    And I create a new application with name "wordpress-cfy3" and description "Wordpress with CFY 3" based on the template with name "wordpress-template-1.1.0-SNAPSHOT"
+    And I create a new application with name "wordpress-cfy3" and description "Wordpress with CFY 3" based on the template with name "wordpress-template"
     And I assign the cloud with name "Cloudify 3" for the application
     And I add a node template "DbStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I update the node template "DbStorage"'s property "location" to "/var/mysql"
@@ -84,7 +84,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I select the network with name "private" for my node "privateNetwork"
 
     # Application CFY 2
-    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template-1.1.0-SNAPSHOT"
+    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template"
     And I assign the cloud with name "Cloudify 2" for the application
     And I set the input property "os_arch" of the topology to "x86_64"
     And I set the input property "os_type" of the topology to "linux"
@@ -102,7 +102,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I select the network with name "private" for my node "privateNetwork"
 
     # Mock Application
-    And I create a new application with name "wordpress-mock" and description "Wordpress with Mock" based on the template with name "wordpress-template-1.1.0-SNAPSHOT"
+    And I create a new application with name "wordpress-mock" and description "Wordpress with Mock" based on the template with name "wordpress-template"
     And I assign the cloud with name "Mock Cloud" for the application
     And I add a node template "DbStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I update the node template "DbStorage"'s property "location" to "/var/mysql"

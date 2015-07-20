@@ -17,6 +17,7 @@ import alien4cloud.it.plugin.ProviderConfig;
 import alien4cloud.model.application.EnvironmentType;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.cloud.IaaSType;
+import alien4cloud.paas.exception.NotSupportedException;
 import alien4cloud.rest.cloud.CloudDTO;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
@@ -266,7 +267,7 @@ public class CloudDefinitionsSteps {
 
     @Then("^The Response should contains cloud with name \"([^\"]*)\" and iass type \"([^\"]*)\" and environment type \"([^\"]*)\"$")
     public void the_Response_should_contains_cloud_with_name_and_iass_type_and_environment_type(String expectedName, String expectedIasSType,
-            String expectedEnvType) throws Throwable {
+                                                                                                String expectedEnvType) throws Throwable {
         // get cloud by id returns a CloudDTO whereas get cloud by name returns a Cloud object
         // This assert will be used only after a get by ID
         CloudDTO cloud = JsonUtil.read(Context.getInstance().getRestResponse(), CloudDTO.class).getData();
@@ -309,16 +310,16 @@ public class CloudDefinitionsSteps {
         String pluginId;
         String beanName;
         switch (cloudifyVersion) {
-        case 2:
-            pluginId = "alien-cloudify-2-paas-provider:" + Context.VERSION;
-            beanName = "cloudify-paas-provider";
-            break;
-        case 3:
-            pluginId = "alien-cloudify-3-paas-provider:" + Context.VERSION;
-            beanName = "cloudify-paas-provider";
-            break;
-        default:
-            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+            case 2:
+                pluginId = "alien-cloudify-2-paas-provider:" + Context.VERSION;
+                beanName = "cloudify-paas-provider";
+                break;
+            case 3:
+                pluginId = "alien-cloudify-3-paas-provider:" + Context.VERSION;
+                beanName = "cloudify-paas-provider";
+                break;
+            default:
+                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
         I_create_a_cloud_with_name_and_plugin_id_and_bean_name(cloudName, pluginId, beanName);
     }
@@ -330,28 +331,47 @@ public class CloudDefinitionsSteps {
 
     @And("^I update cloudify (\\d+) manager's url to \"([^\"]*)\" with login \"([^\"]*)\" and password \"([^\"]*)\" for cloud with name \"([^\"]*)\"$")
     public void I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(int cloudifyVersion, String cloudifyUrl, String login,
-            String password, String cloudName) throws Throwable {
+                                                                                               String password, String cloudName) throws Throwable {
         String cloudId = Context.getInstance().getCloudId(cloudName);
         Map<String, Object> config = Maps.newHashMap();
         switch (cloudifyVersion) {
-        case 2:
-            config.put("cloudifyURLs", Lists.newArrayList(cloudifyUrl));
-            if (StringUtils.isNotBlank(login)) {
-                config.put("username", login);
-            }
-            if (StringUtils.isNotBlank(password)) {
-                config.put("password", password);
-            }
-            break;
-        case 3:
-            config.put("url", cloudifyUrl);
-            config.put("cloudInit",
-                    "#!/bin/sh\nsudo cp /etc/hosts /tmp/hosts\necho 127.0.0.1 `hostname` | sudo tee /etc/hosts > /dev/null\ncat  /tmp/hosts | sudo tee -a /etc/hosts > /dev/null");
-            break;
-        default:
-            throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
+            case 2:
+                config.put("cloudifyURLs", Lists.newArrayList(cloudifyUrl));
+                if (StringUtils.isNotBlank(login)) {
+                    config.put("username", login);
+                }
+                if (StringUtils.isNotBlank(password)) {
+                    config.put("password", password);
+                }
+                break;
+            case 3:
+                config.put("url", cloudifyUrl);
+                config.put("cloudInit",
+                        "#!/bin/sh\nsudo cp /etc/hosts /tmp/hosts\necho 127.0.0.1 `hostname` | sudo tee /etc/hosts > /dev/null\ncat  /tmp/hosts | sudo tee -a /etc/hosts > /dev/null");
+                break;
+            default:
+                throw new IllegalArgumentException("Cloudify version not supported " + cloudifyVersion);
         }
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().putJSon("/rest/clouds/" + cloudId + "/configuration", JsonUtil.toString(config)));
+    }
+
+    @And("^I update cloudify (\\d+) manager's url to the OpenStack's jenkins management server for cloud with name \"([^\"]*)\"$")
+    public void I_update_cloudify_manager_s_url_to_the_OpenStack_s_jenkins_management_server_for_cloud_with_name(int cloudifyVersion, String cloudName)
+            throws Throwable {
+        switch (cloudifyVersion) {
+            case 2:
+                I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(2, Context.getInstance().getCloudify2ManagerUrl(), Context
+                                .getInstance().getAppProperty("openstack.cfy2.manager_user"), Context.getInstance().getAppProperty("openstack.cfy2.manager_password"),
+                        cloudName);
+                break;
+            case 3:
+                I_update_cloudify_manager_s_url_to_with_login_and_password_for_cloud_with_name(3, Context.getInstance().getCloudify3ManagerUrl(), Context
+                                .getInstance().getAppProperty("openstack.cfy3.manager_user"), Context.getInstance().getAppProperty("openstack.cfy3.manager_password"),
+                        cloudName);
+                break;
+            default:
+                throw new NotSupportedException("Version " + cloudifyVersion + " of provider cloudify is not supported");
+        }
     }
 }
