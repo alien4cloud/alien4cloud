@@ -588,7 +588,7 @@
     }
   },
   "PLUGINS": {
-    "UPLOAD": "Uploader a plugin",
+    "UPLOAD": "Upload plugin",
     "DRAG_DROP_UPLOAD": "Drop plugin files to upload here",
     "ID": "Id",
     "VERSION": "Version",
