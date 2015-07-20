@@ -10,24 +10,41 @@ import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.it.utils.JsonTestUtil;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class InputPropertiesStepDefinitions {
 
+    private final ObjectMapper jsonMapper = new ObjectMapper();
+
     @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" as input property$")
+    @Deprecated
+    // use alien4cloud.it.topology.InputPropertiesStepDefinitions.I_define_the_property_of_the_node_as_input_property(String, String, String) instead
     public void I_define_the_property_of_the_node_as_input_property(String inputId, String nodeName) throws Throwable {
         // TODO Use the real node
         String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("string");
+        String json = JsonUtil.toString(propertyDefinition);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
+    }
+
+    @When("^I define the property \"([^\"]*)\" of the node \"([^\"]*)\" of typeId \"([^\"]*)\" as input property$")
+    public void I_define_the_property_of_the_node_as_input_property(String inputId, String nodeName, String typeId) throws Throwable {
+        // get the component to use the right property definition
+        String componentResponse = Context.getRestClientInstance().get("/rest/components/" + typeId);
+        RestResponse<IndexedNodeType> componentResult = JsonTestUtil.read(componentResponse, IndexedNodeType.class);
+        PropertyDefinition propertyDefinition = componentResult.getData().getProperties().get(inputId);
+        String fullUrl = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), inputId);
         String json = JsonUtil.toString(propertyDefinition);
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
@@ -53,8 +70,8 @@ public class InputPropertiesStepDefinitions {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon(fullUrl, json));
     }
 
-    @When("^I rename the property \"([^\"]*)\" to \"([^\"]*)\"$")
-    public void I_rename_the_property_to(String oldInputId, String newInputId) throws Throwable {
+    @When("^I rename the input \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_rename_the_input_to(String oldInputId, String newInputId) throws Throwable {
         String url = String.format("/rest/topologies/%s/inputs/%s", Context.getInstance().getTopologyId(), oldInputId);
         List<NameValuePair> nvps = new ArrayList<NameValuePair>();
         nvps.add(new BasicNameValuePair("newInputId", newInputId));

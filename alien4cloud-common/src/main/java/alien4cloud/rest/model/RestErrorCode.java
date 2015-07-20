@@ -21,6 +21,7 @@ public enum RestErrorCode {
     PLUGIN_USED_ERROR(350),
     MISSING_PLUGIN_ERROR(351),
     INVALID_PLUGIN_CONFIGURATION(352),
+    MISSING_PLUGIN_DESCRIPTOR_FILE_EXCEPTION(353),
 
     // Cloud errors
     CLOUD_DISABLED_ERROR(370),
@@ -61,14 +62,16 @@ public enum RestErrorCode {
     MISSING_APPLICATION_VERSION_ERROR(611),
     CANNOT_UPDATE_DEPLOYED_ENVIRONMENT(612),
     DEPLOYMENT_PAAS_ID_CONFLICT(613),
+    GIT_REPOSITORY_INVALID(615),
 
     // PaaS errors : code 650+
     COMPUTE_CONFLICT_NAME(650),
+    CONFLICT_BETWEEN_DELETABLE_OPTION_AND_VOLUME_ID(651),
 
     // Component handling errors : code 700+
     COMPONENT_MISSING_ERROR(700),
     COMPONENT_INTERNALTAG_ERROR(701),
-    
+
     // Topology management errors.
     // Node template properties handling errors
     PROPERTY_CONSTRAINT_VIOLATION_ERROR(800),
@@ -83,7 +86,11 @@ public enum RestErrorCode {
     // bounds on the requirements or capabilities
     UPPER_BOUND_REACHED(810),
     LOWER_BOUND_NOT_SATISFIED(811),
-    PROPERTY_DEFINITION_MATCH_ERROR(812);
+    PROPERTY_DEFINITION_MATCH_ERROR(812),
+    //
+    CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR(820),
+    RELEASE_REFERENCING_SNAPSHOT(830),
+    VERSION_USED(831);
 
     private final int code;
 

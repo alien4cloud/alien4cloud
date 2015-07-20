@@ -1,7 +1,10 @@
 package alien4cloud.it.runtime;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -23,6 +26,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+@Slf4j
 public class RuntimeStepDefinitions {
 
     private TopologyStepDefinitions topoSteps = new TopologyStepDefinitions();
@@ -88,5 +92,26 @@ public class RuntimeStepDefinitions {
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().postJSon("/rest/runtime/" + Context.getInstance().getApplication().getId() + "/operations/", jSon));
 
+    }
+
+    private String scale(String nodeName, int instancesToScale) throws IOException {
+        return Context.getRestClientInstance().postUrlEncoded(
+                "/rest/applications/" + ApplicationStepDefinitions.CURRENT_APPLICATION.getId() + "/environments/"
+                        + Context.getInstance().getDefaultApplicationEnvironmentId(ApplicationStepDefinitions.CURRENT_APPLICATION.getName()) + "/scale/"
+                        + nodeName, Lists.<NameValuePair> newArrayList(new BasicNameValuePair("instances", String.valueOf(instancesToScale))));
+    }
+
+    @When("^I scale up the node \"([^\"]*)\" by adding (\\d+) instance\\(s\\)$")
+    public void I_scale_up_the_node_by_adding_instance_s(String nodeName, int instancesToAdd) throws Throwable {
+        log.info("Scale up the node " + nodeName + " by " + instancesToAdd);
+        Context.getInstance().registerRestResponse(scale(nodeName, instancesToAdd));
+        log.info("Finished scaling up the node " + nodeName + " by " + instancesToAdd);
+    }
+
+    @When("^I scale down the node \"([^\"]*)\" by removing (\\d+) instance\\(s\\)$")
+    public void I_scale_down_the_node_by_removing_instance_s(String nodeName, int instancesToRemove) throws Throwable {
+        log.info("Scale down the node " + nodeName + " by " + instancesToRemove);
+        Context.getInstance().registerRestResponse(scale(nodeName, -1 * instancesToRemove));
+        log.info("Finished scaling down the node " + nodeName + " by " + instancesToRemove);
     }
 }

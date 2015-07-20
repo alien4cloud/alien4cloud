@@ -25,12 +25,14 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.mapping.MappingBuilder;
 import org.junit.Assert;
 
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.model.FacetedSearchResult;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.it.Context;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.components.AddCommponentDefinitionSteps;
@@ -43,19 +45,22 @@ import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.components.IndexedToscaElement;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.RelationshipTemplate;
 import alien4cloud.model.topology.ScalingPolicy;
 import alien4cloud.paas.function.FunctionEvaluator;
+import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.topology.AddRelationshipTemplateRequest;
 import alien4cloud.rest.topology.NodeTemplateRequest;
 import alien4cloud.rest.topology.UpdateIndexedTypePropertyRequest;
 import alien4cloud.rest.topology.UpdatePropertyRequest;
+import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.topology.TopologyDTO;
 import alien4cloud.topology.TopologyUtils;
-import alien4cloud.topology.task.RequirementToSatify;
+import alien4cloud.topology.task.RequirementToSatisfy;
 import alien4cloud.topology.task.TaskCode;
 import alien4cloud.topology.task.TaskLevel;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -147,7 +152,8 @@ public class TopologyStepDefinitions {
         NodeTemplateRequest req = new NodeTemplateRequest(name, indexedNodeTypeId);
         String jSon = jsonMapper.writeValueAsString(req);
         String topologyId = Context.getInstance().getTopologyId();
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates", jSon));
+        String restResponse = Context.getRestClientInstance().postJSon("/rest/topologies/" + topologyId + "/nodetemplates", jSon);
+        Context.getInstance().registerRestResponse(restResponse);
     }
 
     @When("^I have added a node template \"([^\"]*)\" related to the \"([^\"]*)\" node type$")
@@ -568,8 +574,8 @@ public class TopologyStepDefinitions {
         assertNotNull(tasklist);
         for (List<String> expected : expectedRequirementsNames.raw()) {
             String[] expectedNames = expected.get(1).split(",");
-            List<RequirementToSatify> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
-            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatify[requirementsToSatify.size()]));
+            List<RequirementToSatisfy> requirementsToSatify = getRequirementsToSatisfy(expected.get(0), tasklist);
+            String[] requirementsNames = getRequirementsNames(requirementsToSatify.toArray(new RequirementToSatisfy[requirementsToSatify.size()]));
             assertNotNull(requirementsNames);
             assertEquals(expectedNames.length, requirementsNames.length);
             Arrays.sort(expectedNames);
@@ -578,12 +584,12 @@ public class TopologyStepDefinitions {
         }
     }
 
-    private List<RequirementToSatify> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
+    private List<RequirementToSatisfy> getRequirementsToSatisfy(String nodeTemplateName, Object taskList) throws IOException {
         for (Map<String, Object> task : (List<Map<String, Object>>) taskList) {
             String nodeTemp = (String) MapUtil.get(task, "nodeTemplateName");
             List<Object> resToImp = (List<Object>) MapUtil.get(task, "requirementsToImplement");
             if (nodeTemp.equals(nodeTemplateName) && resToImp != null) {
-                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatify.class);
+                return JsonTestUtil.toList(JsonTestUtil.toString(resToImp), RequirementToSatisfy.class);
             }
         }
         return null;
@@ -597,9 +603,9 @@ public class TopologyStepDefinitions {
         return toReturn;
     }
 
-    public String[] getRequirementsNames(RequirementToSatify... requirementsToSatisfy) {
+    public String[] getRequirementsNames(RequirementToSatisfy... requirementsToSatisfy) {
         String[] toReturn = null;
-        for (RequirementToSatify requirementToSatisfy : requirementsToSatisfy) {
+        for (RequirementToSatisfy requirementToSatisfy : requirementsToSatisfy) {
             toReturn = ArrayUtils.add(toReturn, requirementToSatisfy.getName());
         }
 
@@ -705,33 +711,74 @@ public class TopologyStepDefinitions {
 
     @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" and store the related topology as a SPEL context$")
     public void searchForTopologyTemplateByName(String topologyTemplateName) throws Throwable {
-        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName);
+        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName, null);
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
         String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
         RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
         Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
     }
 
-    private String getTopologyIdFromTemplateName(String topologyTemplateName) throws Throwable {
+    @And("^If I search for topology templates I can find one with the name \"([^\"]*)\" version \"([^\"]*)\" and store the related topology as a SPEL context$")
+    public void searchForTopologyTemplateByName(String topologyTemplateName, String topologyTemplateVersion) throws Throwable {
+        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName, topologyTemplateVersion);
+        assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
+        Context.getInstance().registerTopologyId(topologyId);
+        String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId);
+        RestResponse<TopologyDTO> topologyDto = alien4cloud.it.utils.JsonTestUtil.read(response, TopologyDTO.class);
+        Context.getInstance().buildEvaluationContext(topologyDto.getData().getTopology());
+    }
+
+    private String getTopologyIdFromTemplateName(String topologyTemplateName, String topologyTemplateVersion) throws Throwable {
         String response = Context.getRestClientInstance().postJSon("/rest/templates/topology/search", "{\"from\":0,\"size\":50}");
-        RestResponse<FacetedSearchResult> restResponse = JsonTestUtil.read(response, FacetedSearchResult.class);
-        String topologyId = null;
+        RestResponse<FacetedSearchResult> restResponse = JsonUtil.read(response, FacetedSearchResult.class);
+        String topologyTemplateId = null;
         for (Object singleResult : restResponse.getData().getData()) {
             Map map = (Map) singleResult;
             if (topologyTemplateName.equals(map.get("name"))) {
-                topologyId = map.get("topologyId").toString();
+                topologyTemplateId = map.get("id").toString();
             }
         }
-        return topologyId;
+        assertNotNull(topologyTemplateId);
+        if (topologyTemplateVersion != null) {
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.setQuery(topologyTemplateVersion);
+            searchRequest.setFrom(0);
+            searchRequest.setSize(Integer.MAX_VALUE);
+            String templateVersionJson = Context.getRestClientInstance().postJSon("/rest/templates/" + topologyTemplateId + "/versions/search",
+                    JsonUtil.toString(searchRequest));
+            GetMultipleDataResult<?> result = JsonUtil.read(templateVersionJson, GetMultipleDataResult.class).getData();
+            assertNotNull(result);
+            assertEquals(1, result.getTotalResults());
+            Map<?, ?> ttv = (Map) result.getData()[0];
+            assertNotNull(ttv);
+            assertTrue(ttv.containsKey("topologyId"));
+            return ttv.get("topologyId").toString();
+        } else {
+            // get the last known version of topology for this template
+            String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+            TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+            assertNotNull(ttv);
+            assertNotNull(ttv.getTopologyId());
+            return ttv.getTopologyId();
+        }
     }
 
     @And("^I export the YAML from topology template named \"([^\"]*)\" and build a test dataset named \"([^\"]*)\"$")
     public void exportTopologyYamlAndAddItInTestData(String topologyTemplateName, String testDataName) throws Throwable {
-        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName);
+        exportTopologyYamlAndAddItInTestDataReplacingVersion(topologyTemplateName, testDataName, null, null);
+    }
+
+    @Given("^I export the YAML from topology template named \"([^\"]*)\" and build a test dataset named \"([^\"]*)\" changing the version from \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void exportTopologyYamlAndAddItInTestDataReplacingVersion(String topologyTemplateName, String testDataName, String oldVersion, String newVersion)
+            throws Throwable {
+        String topologyId = getTopologyIdFromTemplateName(topologyTemplateName, null);
         assertNotNull("A topology template named " + topologyTemplateName + " can not be found", topologyId);
         String response = Context.getRestClientInstance().get("/rest/topologies/" + topologyId + "/yaml");
         RestResponse<String> restResponse = alien4cloud.it.utils.JsonTestUtil.read(response, String.class);
         String yaml = restResponse.getData();
+        if (oldVersion != null && newVersion != null) {
+            yaml = Strings.replace(yaml, "template_version: " + oldVersion, "template_version: " + newVersion);
+        }
         Path dir = Files.createTempDirectory("yamlTopo");
         Path filePath = Files.createFile(Paths.get(dir.toAbsolutePath() + File.separator + "service-template.yaml"));
         FileUtils.writeStringToFile(filePath.toFile(), yaml);
@@ -739,7 +786,6 @@ public class TopologyStepDefinitions {
         FileUtil.zip(dir, csarPath);
         FileUtil.delete(dir);
         TestDataRegistry.TEST_ARTIFACTS.put(testDataName, csarPath);
-
     }
 
     @When("^I add the node \"([^\"]*)\" to the group \"([^\"]*)\"$")

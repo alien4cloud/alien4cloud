@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.nodes.Node;
 
 import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
+import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.topology.NodeGroup;
@@ -45,7 +48,7 @@ public class TopologyChecker implements IChecker<Topology> {
     @Override
     public void before(ParsingContextExecution context, Node node) {
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-        
+
         // we need that node types inherited stuffs have to be merged before we start parsing node templates and requirements
         mergeHierarchy(archiveRoot.getArtifactTypes(), archiveRoot);
         mergeHierarchy(archiveRoot.getCapabilityTypes(), archiveRoot);
@@ -55,6 +58,12 @@ public class TopologyChecker implements IChecker<Topology> {
 
     @Override
     public void check(Topology instance, ParsingContextExecution context, Node node) {
+        if (instance.isEmpty()) {
+            // if the topology doesn't contains any node template it won't be imported so add a warning.
+            context.getParsingErrors().add(
+                    new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.EMPTY_TOPOLOGY, null, node.getStartMark(), null, node.getEndMark(), ""));
+        }
+
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
 
         Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
@@ -83,6 +92,31 @@ public class TopologyChecker implements IChecker<Topology> {
                             nodeTemplate.setGroups(groups);
                         }
                         groups.add(nodeGroup.getName());
+                    }
+                }
+            }
+        }
+
+        // check properties inputs validity
+        if (instance.getNodeTemplates() != null && !instance.getNodeTemplates().isEmpty()) {
+            for (Entry<String, NodeTemplate> nodes : instance.getNodeTemplates().entrySet()) {
+                String nodeName = nodes.getKey();
+                if (nodes.getValue().getProperties() == null) {
+                    continue;
+                }
+                for (Entry<String, AbstractPropertyValue> properties : nodes.getValue().getProperties().entrySet()) {
+                    AbstractPropertyValue abstractValue = properties.getValue();
+                    if (abstractValue instanceof FunctionPropertyValue) {
+                        FunctionPropertyValue function = (FunctionPropertyValue) abstractValue;
+                        String parameters = function.getParameters().get(0);
+                        // check get_input only
+                        if (function.getFunction().equals("get_input")) {
+                            if (instance.getInputs() == null || !instance.getInputs().keySet().contains(parameters)) {
+                                context.getParsingErrors().add(
+                                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.MISSING_TOPOLOGY_INPUT, nodeName, node.getStartMark(), parameters,
+                                                node.getEndMark(), properties.getKey()));
+                            }
+                        }
                     }
                 }
             }

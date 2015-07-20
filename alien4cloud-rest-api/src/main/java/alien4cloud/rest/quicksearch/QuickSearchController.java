@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.rest.model.BasicSearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -64,7 +64,7 @@ public class QuickSearchController {
         // only filter on users roles on the application if the current user is not an ADMIN
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
 
-        GetMultipleDataResult searchResultApplications = searchByType(requestObject, authoIndexes, classes, null, authorizationFilter);
+        GetMultipleDataResult<?> searchResultApplications = searchByType(requestObject, authoIndexes, classes, null, authorizationFilter);
 
         // Final merge result : COMPONENTS + APPLICATIONS
         GetMultipleDataResult searchResult = new GetMultipleDataResult();
@@ -90,5 +90,4 @@ public class QuickSearchController {
 
         return searchResult;
     }
-
 }

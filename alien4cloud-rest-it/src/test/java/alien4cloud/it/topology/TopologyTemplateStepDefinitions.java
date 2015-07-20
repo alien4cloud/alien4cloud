@@ -3,9 +3,13 @@ package alien4cloud.it.topology;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.elasticsearch.common.collect.Maps;
 import org.junit.Assert;
 
@@ -15,6 +19,7 @@ import alien4cloud.it.Entry;
 import alien4cloud.it.common.CommonStepDefinitions;
 import alien4cloud.it.utils.JsonTestUtil;
 import alien4cloud.model.templates.TopologyTemplate;
+import alien4cloud.model.templates.TopologyTemplateVersion;
 import alien4cloud.rest.component.SearchRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.template.CreateTopologyTemplateRequest;
@@ -43,6 +48,9 @@ public class TopologyTemplateStepDefinitions {
         String topologyTemplateId = JsonUtil.read(Context.getInstance().getRestResponse(), String.class).getData();
         // assertNotNull(topologyTemplateId);
 
+        // get the last version of this topology template
+        // String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+        // TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
         // recover the created template to register it
         String templateTopologyJson = Context.getRestClientInstance().get("/rest/templates/topology/" + topologyTemplateId);
         TopologyTemplate template = JsonUtil.read(templateTopologyJson, TopologyTemplate.class).getData();
@@ -50,8 +58,23 @@ public class TopologyTemplateStepDefinitions {
 
         if (template != null) {
             Context.getInstance().registerTopologyTemplate(template);
-            Context.getInstance().registerTopologyId(template.getTopologyId());
+            // Context.getInstance().registerTopologyId(ttv.getTopologyId());
         }
+    }
+
+    public static TopologyTemplateVersion getLatestTopologyTemplateVersion(String topologyTemplateId) throws IOException {
+        String templateVersionJson = Context.getRestClientInstance().get("/rest/templates/" + topologyTemplateId + "/versions/");
+        TopologyTemplateVersion ttv = JsonUtil.read(templateVersionJson, TopologyTemplateVersion.class).getData();
+        return ttv;
+    }
+
+    @Then("^I can get and register the topology for the last version of the registered topology template$")
+    public void I_can_get_the_last_version_for_the_registered_topology_template() throws Throwable {
+        TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
+        TopologyTemplateVersion ttv = getLatestTopologyTemplateVersion(topologyTemplate.getId());
+        assertNotNull(ttv);
+        assertNotNull(ttv.getTopologyId());
+        Context.getInstance().registerTopologyId(ttv.getTopologyId());
     }
 
     @Given("^I create a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\" and node templates$")
@@ -60,6 +83,7 @@ public class TopologyTemplateStepDefinitions {
 
         // create the topology
         I_create_a_new_topology_template_with_name_and_description(topologyTemplateName, topologyTemplateDesc);
+        I_can_get_the_last_version_for_the_registered_topology_template();
 
         // add all specified nodetemplate to a specific topology (from Application or Topology template)
         for (List<String> row : nodeTemplates.raw()) {
@@ -88,7 +112,6 @@ public class TopologyTemplateStepDefinitions {
     public void I_can_get_this_newly_created_topology_template() throws Throwable {
         TopologyTemplate topologyTemplate = Context.getInstance().getTopologyTemplate();
         assertNotNull(topologyTemplate);
-        assertNotNull(topologyTemplate.getTopologyId());
     }
 
     @Given("^I have created a new topology template with name \"([^\"]*)\" and description \"([^\"]*)\"$")
@@ -153,4 +176,57 @@ public class TopologyTemplateStepDefinitions {
         assertNotNull(topologyTemplateUpdated);
         assertEquals(fieldValue, ReflectionUtil.getPropertyValue(topologyTemplateUpdated, fieldName).toString());
     }
+
+    @Given("^I expose the template as type \"([^\"]*)\"$")
+    public void I_expose_the_template_as_type(String type) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        assertNotNull(topologyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("elementId", type));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/type", nvps));
+    }
+
+    @Given("^I expose the capability \"([^\"]*)\" for the node \"([^\"]*)\"$")
+    public void I_expose_the_capability_for_the_node(String capabilityName, String nodeName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        assertNotNull(topologyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("nodeTemplateName", nodeName));
+        nvps.add(new BasicNameValuePair("capabilityId", capabilityName));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
+    }
+
+    @Given("^I rename the exposed capability \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_rename_the_exposed_capability_to(String capabilityName, String newName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        assertNotNull(topologyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("newCapabilityId", newName));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/capabilities/" + capabilityName, nvps));
+    }
+
+    @Given("^I expose the requirement \"([^\"]*)\" for the node \"([^\"]*)\"$")
+    public void I_expose_the_requirement_for_the_node(String requirementName, String nodeName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        assertNotNull(topologyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("nodeTemplateName", nodeName));
+        nvps.add(new BasicNameValuePair("requirementId", requirementName));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().putUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
+    }
+
+    @Given("^I rename the exposed requirement \"([^\"]*)\" to \"([^\"]*)\"$")
+    public void I_rename_the_exposed_requirement_to(String requirementName, String newName) throws Throwable {
+        String topologyId = Context.getInstance().getTopologyId();
+        assertNotNull(topologyId);
+        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+        nvps.add(new BasicNameValuePair("newRequirementId", newName));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postUrlEncoded("/rest/topologies/" + topologyId + "/substitutions/requirements/" + requirementName, nvps));
+    }
+
 }

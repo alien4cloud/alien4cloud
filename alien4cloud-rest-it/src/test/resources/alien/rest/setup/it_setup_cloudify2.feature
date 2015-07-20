@@ -33,7 +33,8 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I match the availability zone with name "toulouse" of the cloud "Cloudify 2" to the PaaS resource "A4C-zone"
 
     # Application CFY 2
-    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template-1.1.0-SNAPSHOT"
+    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template"
+#    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template"
     And I assign the cloud with name "Cloudify 2" for the application
     And I add a node template "DbStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I update the node template "DbStorage"'s property "location" to "/var/mysql"

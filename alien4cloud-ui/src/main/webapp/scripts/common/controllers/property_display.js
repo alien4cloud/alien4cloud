@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var modules = require('modules');
@@ -56,6 +56,24 @@ define(function (require) {
         }
       };
 
+      $scope.saveReset = function(resetValue) {
+        var resetUnit = null;
+        if (_.defined($scope.definitionObject.units) && !_.undefined(resetValue)) {
+          // reset value de la forme : "VALUE UNIT" > split by space
+          var splitedValueUnit = resetValue.split(' ');
+          resetValue = splitedValueUnit[0];
+          resetUnit = splitedValueUnit[1];
+        }
+        var savePromise = $scope.propertySave(resetValue, resetUnit);
+        if (_.defined(savePromise)) {
+          savePromise.then(function(error) {
+            if (_.defined(error)) {
+              $scope.unitError = error;
+            }
+          });
+        }
+      };
+
       // specific wrapper for boolean type to handle "css checkbox"
       $scope.propertySaveBoolean = function(propertyValue) {
         $scope.propertySave(propertyValue);
@@ -97,7 +115,7 @@ define(function (require) {
             // Here handle scalar value
             shownValue = $scope.propertyValue.value;
           } else if ($scope.propertyValue.hasOwnProperty('function') && $scope.propertyValue.hasOwnProperty('parameters') && $scope.propertyValue.parameters.length > 0) {
-            shownValue = $scope.propertyValue.function + ': ' + _($scope.propertyValue.parameters).toString();
+            shownValue = $scope.propertyValue.function+': ' + _($scope.propertyValue.parameters).toString();
           }
         }
 
@@ -141,14 +159,15 @@ define(function (require) {
             $scope.definitionObject.uiValue = shownValue;
           }
         };
+        $scope.splitScalarUnitValue = splitScalarUnitValue;
 
         // Second phase : regardless constraints
         switch ($scope.definition.type) {
           case 'boolean':
             $scope.definitionObject.uiName = 'checkbox';
-            if(_.undefined(shownValue)) {
+            if (_.undefined(shownValue)) {
               $scope.definitionObject.uiValue = false;
-            } else if(typeof shownValue === 'boolean') {
+            } else if (typeof shownValue === 'boolean') {
               $scope.definitionObject.uiValue = shownValue;
             } else {
               $scope.definitionObject.uiValue = (shownValue === 'true');
@@ -184,7 +203,7 @@ define(function (require) {
       /** Reset the property to the default value if any */
       $scope.resetProperty = function resetPropertyToDefault() {
         $scope.initScope();
-        $scope.propertySave($scope.definition.default, $scope.definitionObject.uiUnit);
+        $scope.saveReset($scope.definition.default);
         if ($scope.propertyValue.hasOwnProperty('value')) {
           $scope.propertyValue.value = $scope.definition.default; // if same value affected, no watch applied
         } else {

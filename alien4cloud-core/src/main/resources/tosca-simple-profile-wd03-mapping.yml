@@ -21,6 +21,7 @@
 - outputs_type: alien4cloud.tosca.parser.impl.advanced.OuputsParser
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
+- sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -65,6 +66,9 @@
   input_artifacts:
     map: inputArtifacts
     type: template_deployment_artifact
+  substitution_mappings: 
+    reference: substitutionMapping
+    type: sustitution_mapping_parser
   node_templates:
     map: nodeTemplates
     type: node_template
@@ -111,6 +115,8 @@
     type: template_deployment_artifact
 
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+- constraint_list: list # This element must be parsed as a list
+  type: constraint # the elements in the list are constraints
 
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
   description: description
@@ -153,9 +159,22 @@
     map: properties
     type: template_property
 
-#- property_filter_definition:
-#  reference: propertyFilterDefinition
-#  type: constraint
+# Node filter related types
+- filter_definition: alien4cloud.model.components.FilterDefinition
+  properties:
+    sequence_to_map: properties
+    type: constraint_list
+    node_is_value: false
+
+- node_filter_type: alien4cloud.model.components.NodeFilter
+  properties:
+    sequence_to_map: properties
+    type: constraint_list
+    node_is_value: false
+  capabilities:
+    sequence_to_map: capabilities
+    type: filter_definition
+    node_is_value: false
 
 - requirement_definition: alien4cloud.model.components.RequirementDefinition
   __0: # define mapping for the first tuple of a requirement_definition. Both key and values must be mapped to different fields.
@@ -177,16 +196,9 @@
     reference: relationshipType
     type: relationship_type_reference
   capability: capabilityName
-  constraints:
-    map: constraints
-    type: constraint
-#  node_filter:
-#    properties:
-#      key: elementId
-#      type: property_filter_definition
-#      map: propertyFilters
-#    capabilities:
-
+  node_filter:
+    reference: nodeFilter
+    type: node_filter_type
 
 - deployment_artifact: alien4cloud.model.components.DeploymentArtifact
   __0:

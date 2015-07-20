@@ -126,6 +126,58 @@
             </div>
           </div>
 
+          <!--  Node Filter tasks  -->
+          <div ng-if="(nodeFiltersTasks = (validTopologyDTO.taskList | filter:{code:'NODE_FILTER_INVALID'})).length>0">
+            <div class="topology-node-expand clickable" ng-init="isToImplementNodesCollapsed = false" ng-click="isToImplementNodesCollapsed = !isToImplementNodesCollapsed">
+              <i class="pull-left fa" ng-class="{'fa-chevron-down' : !isToImplementNodesCollapsed, 'fa-chevron-right': isToImplementNodesCollapsed}"></i>
+              <span>{{'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.NODE_FILTER_INVALID' | translate}} :</span>
+            </div>
+
+            <div collapse="isToImplementNodesCollapsed" class="topology-level">
+              <div ng-repeat=" nodeFiltersTask in nodeFiltersTasks">
+                <span>{{nodeFiltersTask.nodeTemplateName}} :</span>
+                <div ng-repeat=" nodeFilterToSatisfy in nodeFiltersTask.nodeFiltersToSatisfy">
+                  <span style="padding-left: 5px;">{{nodeFilterToSatisfy.relationshipName}} :</span>
+                    <!-- node_filters capabilities -->
+                    <table class="table table-condensed" ng-if="nodeFilterToSatisfy.missingCapabilities">
+                      <thead>
+                        <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_NAME' | translate}}</th>
+                        <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="(missingCapabilityName, missingCapability) in nodeFilterToSatisfy.missingCapabilities">
+                          <td>
+                            <span>{{missingCapability}}</span>
+                          </td>
+                          <td>
+                            <span>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.CAPABILITY_MISSING_ERROR' | translate}}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!-- node_filters properties -->
+                    <table class="table table-condensed" ng-if="nodeFilterToSatisfy.violatedConstraints">
+                      <thead>
+                        <th>{{ 'APPLICATIONS.TOPOLOGY.TASK.NODE_FILTER.PROPERTY_NAME' | translate}}</th>
+                        <th>{{'APPLICATIONS.DEPLOYMENT.PROPERTIES.WARNING' | translate}}</th>
+                      </thead>
+                      <tbody>
+                        <tr ng-repeat="(violatedConstraintName, violatedConstraint) in nodeFilterToSatisfy.violatedConstraints">
+                          <td>
+                            <span>{{violatedConstraintName}}</span>
+                          </td>
+                          <td>
+                            <span>{{violatedConstraint[0].message}}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!--  LowerBound not satisfied tasks  -->
           <div ng-if="(lowerBoundTasks = (validTopologyDTO.taskList | filter:{code:'SATISFY_LOWER_BOUND'})).length>0">
             <div class="topology-node-expand clickable" ng-init="isToAddRelationsCollapsed = false" ng-click="isToAddRelationsCollapsed = !isToAddRelationsCollapsed">

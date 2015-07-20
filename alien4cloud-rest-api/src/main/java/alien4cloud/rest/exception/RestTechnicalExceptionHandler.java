@@ -21,14 +21,18 @@ import alien4cloud.application.InvalidDeploymentSetupException;
 import alien4cloud.component.repository.exception.RepositoryTechnicalException;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.ApplicationVersionNotFoundException;
+import alien4cloud.exception.CyclicReferenceException;
 import alien4cloud.exception.DeleteDeployedException;
 import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
+import alien4cloud.exception.GitCloneUriException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
+import alien4cloud.exception.ReleaseReferencingSnapshotException;
 import alien4cloud.exception.VersionConflictException;
+import alien4cloud.exception.VersionRenameNotPossibleException;
 import alien4cloud.images.exception.ImageUploadException;
 import alien4cloud.model.components.IncompatiblePropertyDefinitionException;
 import alien4cloud.paas.exception.ComputeConflictNameException;
@@ -71,6 +75,15 @@ public class RestTechnicalExceptionHandler {
                 .error(RestErrorBuilder.builder(RestErrorCode.INVALID_DEPLOYMENT_SETUP).message("The deployment setup is invalid.").build()).build();
     }
 
+    @ExceptionHandler(GitCloneUriException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public RestResponse<Void> gitCloneUriInvalid(GitCloneUriException e) {
+        log.error(e.getMessage());
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.GIT_REPOSITORY_INVALID).message(e.getMessage()).build()).build();
+    }
+    
     @ExceptionHandler(AlreadyExistException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
@@ -86,6 +99,32 @@ public class RestTechnicalExceptionHandler {
         log.error("Object is still referenced and cannot be deleted", e);
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.DELETE_REFERENCED_OBJECT_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(VersionRenameNotPossibleException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(VersionRenameNotPossibleException e) {
+        log.error("Version is still referenced and cannot be renamed", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.VERSION_USED).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(CyclicReferenceException.class)
+    @ResponseStatus(HttpStatus.LOOP_DETECTED)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(CyclicReferenceException e) {
+        log.error("A node type that references a topology can not be added in this topology", e);
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.CYCLIC_TOPOLOGY_TEMPLATE_REFERENCE_ERROR).message(e.getMessage()).build()).build();
+    }
+
+    @ExceptionHandler(ReleaseReferencingSnapshotException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public RestResponse<Void> processDeleteReferencedObject(ReleaseReferencingSnapshotException e) {
+        log.error("Can no release this version since it references SNAPSHOTs", e);
+        return RestResponseBuilder.<Void> builder().error(RestErrorBuilder.builder(RestErrorCode.RELEASE_REFERENCING_SNAPSHOT).message(e.getMessage()).build())
+                .build();
     }
 
     @ExceptionHandler(value = MissingPluginException.class)
@@ -190,7 +229,7 @@ public class RestTechnicalExceptionHandler {
     }
 
     @ExceptionHandler(value = DeploymentPaaSIdConflictException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
     public RestResponse<Void> paaSDeploymentErrorHandler(DeploymentPaaSIdConflictException e) {
         log.error("Error in PaaS Deployment, conflict with the generated deployment paaSId", e);
@@ -203,9 +242,13 @@ public class RestTechnicalExceptionHandler {
     @ResponseBody
     public RestResponse<Void> paaSDeploymentErrorHandler(PaaSDeploymentException e) {
         log.error("Error in PaaS Deployment", e);
+        RestErrorCode errorCode = RestErrorCode.APPLICATION_DEPLOYMENT_ERROR;
+        if (e.getPassErrorCode() != null) {
+            errorCode = e.getPassErrorCode();
+        }
         return RestResponseBuilder
                 .<Void> builder()
-                .error(RestErrorBuilder.builder(RestErrorCode.APPLICATION_DEPLOYMENT_ERROR).message("Application cannot be deployed " + e.getMessage()).build())
+                .error(RestErrorBuilder.builder(errorCode).message("Application cannot be deployed " + e.getMessage()).build())
                 .build();
     }
 

@@ -51,7 +51,7 @@ public final class ParserUtils {
             if (!(entry.getValueNode() instanceof ScalarNode)) {
                 if (!ArrayUtils.contains(ignoredKeys, getScalar(entry.getKeyNode(), context))) {
                     ParsingError err = new ParsingError(ParsingErrorLevel.WARNING, ErrorCode.UNRECOGNIZED_PROPERTY, "Parsing a MappingNode as a Map", entry
-                            .getValueNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
+                            .getKeyNode().getStartMark(), "The value of this tuple should be a scalar", entry.getValueNode().getEndMark(),
                             ((ScalarNode) entry.getKeyNode()).getValue());
                     context.getParsingErrors().add(err);
                 }
@@ -64,7 +64,7 @@ public final class ParserUtils {
         }
         return result;
     }
-    
+
     /**
      * Add an invalid type {@link ParsingError} to the given parsing errors list.
      * 

@@ -86,6 +86,7 @@
       "UNKNOWN_IMPLEMENTATION_ARTIFACT": "Impossible de trouver un type d'artifact pour l'extension [ {{note}} ]. Le script ne sera pas supporté.",
       "VALIDATION_ERROR": "Le type déclaré n'est pas valide: {{context | translate:note}}",
       "TOPOLOGY_DETECTED": "Un modèle de topologie à été détecté dans l'archive et créé avec le nom : {{note}}",
+      "TOPOLOGY_UPDATED": "Un modèle de topologie à été détecté dans l'archive et mis à jour : {{note}}",
       "NotNull": "La propriété [ {{path}} ] n'est pas nullable",
       "Size": "La taille de la propriété [ {{path}} ] ne statisfait pas la contrainte (vide)",
       "ToscaPropertyType": "Le type de la propriété [ {{path}} ] n'est pas un type TOSCA valide. Details [ {{message}} ]",
@@ -105,7 +106,10 @@
       "UNKNOWN_CAPABILITY": "La capabilié [{{note}}] est inconnue pour ce node.",
       "YAML_SCALAR_NODE_EXPECTED": "Un noeud YAML de type scalar est attendu ici.",
       "UNKOWN_GROUP_POLICY": "La politique de groupe [{{note}}] n'est pas gérée",
-      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré"
+      "UNKOWN_GROUP_MEMBER": "Le membre du group [{{note}}] n'existe pas et est ignoré",
+      "MISSING_TOPOLOGY_INPUT": "L'input [{{problem}}] référéncé part la propriété [{{problem}}] du noeud [{{context}}] est introuvable dans la liste des inputs",
+      "300": "Erreur inattendue lors de l'écriture du plugin.",
+      "353": "Votre plugin doit nécessairement avoir le fichier META-INF/plugin.yml."
     },
     "UPLOAD_MODAL": {
       "HEADER": "Upload Cloud Service Archive",
@@ -167,6 +171,20 @@
     "BUTTON_DELETE": "Supprimer",
     "BUTTON_MODIFY": "Modifier",
     "NAME": "Nom",
+    "ID":"Id",
+    "ARCHIVELIST":"Liste des archives",
+    "IMPORT_SUCCESS":"L'import a été effectué",
+    "IMPORTALL":"Importer tout",
+    "LEGEND":"Csars ajoutés",
+    "FROMGIT":"Importés depuis Git",
+    "ACTIONS":"Opérations",
+    "URL": "URL du repository",
+    "BRANCHESLIST": "Liste des branches",
+    "BRANCHE":"Branche",
+    "ARCHIVE":"Nom du dossier",
+    "ARCHIVE_TO_IMPORT":"Archive(s) à importer",
+    "BRANCHE_TO_IMPORT":"Sur la branche",
+    "AJOUT": "L'archive a été importé",
     "DESCRIPTION": "Description",
     "VERSION": "Version",
     "BC_CSAR": "CSAR",
@@ -191,8 +209,14 @@
     },
     "DELETE": "Supprimé",
     "ERRORS": {
+      "IMPORT":"Le CSAR ne peut être importé",
       "507_TITLE": "Suppression d'un CSAR",
-      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources"
+      "501_TITLE": "Un CSAR avec cette URL existe déjà",
+      "507": "La suppression du CSAR a échoué car elle est utilisée par d'autres resources",
+      "NO_DATA":{
+        "HEADER":"Aucun CSAR à importer",
+        "BODY":"Veuillez renseigner un nouveau CSAR depuis Git"
+      }
     }
   },
   "GENERIC_FORM": {
@@ -445,6 +469,15 @@
         "REQUIRED_PROPERTIES_LABEL": "Propriétés obligatoires",
         "EMPTY_TOPOLOGY_MESSAGE": "La topologie actuelle est vide. Ajoutez y des noeuds",
         "CREATE_TOPOLOGY_MESSAGE": "Pas de topologie trouvée! Créez en une et ajoutez y des noeuds",
+        "NODE_FILTER": {
+          "NODE_FILTER_INVALID": "NodeFilters non statisfaits",
+          "PROPERTY_CONSTRAINT_VIOLATION_ERROR": "L'une des contraintes sur cette propriété n'ai pas respectée",
+          "CAPABILITY_NAME": "Nom de la capacité",
+          "CAPABILITY_MISSING_ERROR": "La cible de posséde pas cette capacité",
+          "PROPERTY_MISSING_ERROR": "La cible de posséde pas cette propriété",
+          "PROPERTY_TYPE_VIOLATION_ERROR": "Le type de la propriété cible est invalide",
+          "PROPERTY_NAME": "Nom de la propriété"
+        },
         "SCALABLE_CAPABILITY_INVALID": {
           "LABEL": "Politique de scalabilité invalide",
           "MISSING": "Propriété obligatoire",
@@ -490,9 +523,24 @@
         "INPUTS": "Artefacts en entrée",
         "ADDINPUT": "Définir l'artefact comme entrée"
       },
+      "SUBSTITUTIONS": {
+        "TITLE": "Substitutions",
+        "TYPE": "Type",
+        "CAPABILITIES": "Capacités",
+        "CAPABILITY": "Capacité",
+        "REQUIREMENTS": "Pré-requis",
+        "REQUIREMENT": "Pré-requis",
+        "TARGET_NODE": "Cible",
+        "SOURCE_NODE": "Source",
+        "NOM": "Nom",
+        "VERSION": "Version",
+        "EXPOSE": "Exposer",
+        "DISPLAY": "Afficher la topology de substitution"
+      },
       "REPLACE_NODETEMPLATE": "Remplacer",
       "TEMPLATE_BASE": "Modèle de template",
       "TEMPLATE_SELECT": "-- Sélectionner un modèle de topologie --",
+      "TEMPLATE_SELECT_VERSION": "-- Sélectionner une version de modèle --",
       "CARDINALITIES_TOOLTIP": "minimun..maximum (restant)",
       "CAPABILITY_CARDINALITIES_TOOLTIP": "maximum (restant)",
       "CLOUD_SELECT": "-- Cloud --",
@@ -763,7 +811,6 @@
     "372": "Erreur dans la nomenclature des noms de déploiement.",
     "373": "Erreur inattendue lorsde l'activation / désactivationdu mode maintenance",
     "374": "L'une de vos méta-propriété est vide et n'as pas de valeur pas défaut.",
-    "375": "Erreur inattendue sur le PaaS lors de la tentative de scaling.",
     "390": "Il est interdit de supprimer le dernier utilisateur ayant les droits d'administration.",
     "391": "Il est interdit de supprimer le role ADMIN du dernier utilisateur ayant les droits d'administration.",
     "400": "Erreur inattendue lors de l'accès au référentiel de CSAR",
@@ -785,7 +832,9 @@
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
     "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
+    "615": "Le repository Git n'existe pas ou n'est pas valide.",    
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
+    "651": "Un BlockStorage ne peut pas avoir un volumeId lorsque le cloud a l'option 'deletable' d'activée.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
       "greaterOrEqual": "La valeur doit être >= {{reference}}",
@@ -805,7 +854,10 @@
       "MESSAGE": "Un ou plusieurs paramètres sont obligatoires : {{value}}"
     },
     "807": "Seule la topologie d'une version SNAPSHOT peut être modifiée",
-    "808": "Le nom ne respecte pas le format attendu"
+    "808": "Le nom ne respecte pas le format attendu",
+    "820": "Référence cyclique : un template de topologie ne peut pas s'auto-référencer",
+    "830": "Une version releasée ne peut référencer des dépendances SNAPSHOT",
+    "831": "Cette version ne peut être renomée car elle est déjà utilisée par ailleur"
   },
   "TAG_CONFIG": {
     "TAGS": "Méta-propriétés",

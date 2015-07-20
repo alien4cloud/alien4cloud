@@ -1,0 +1,33 @@
+tosca_definitions_version: tosca_simple_yaml_1_0_0_wd03
+
+tosca_default_namespace: Tosca default namespace value
+template_name: Template name value
+template_author: Temlate author value
+template_version: 1.0.0-SNAPSHOT
+
+description: A single topology with only one compute node and 2 bad get_input references
+
+imports:
+  - tosca-normative-types:1.0.0.wd03-SNAPSHOT
+
+topology_template:
+  inputs:
+    linux_type:
+      type: string
+      default: linux
+    size:
+      type: scalar-unit.size
+      required: true
+      default: 30 GiB
+  node_templates:
+    compute:
+      type: tosca.nodes.Compute
+      properties:
+        # incorrect get_input for os_type and size
+        os_type: { get_input: linux_type }
+        os_distribution: { get_input: toto }
+        os_version: 14.10
+        size: { get_input: greatsize }
+        size_good: { get_input: size }
+      requirements:
+        - host: apache
