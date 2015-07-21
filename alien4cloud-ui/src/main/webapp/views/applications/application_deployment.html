@@ -373,12 +373,10 @@
     <!-- Input properties  -->
     <div class="row" style="margin-top: 20px;" ng-if="isAllowedInputDeployment()">
       <div class="col-md-12">
-
         <span>
           <i class="fa fa-sign-in"></i>
           <strong>{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}</strong>
         </span>
-
         <div id="inputsTable" ng-if="setup" class="col-md-12" ng-repeat="(inputId, inputDefinition) in inputs | allowedInputs">
           <hr/>
           <div id="app_deployment_id_{{inputId}}" class="col-md-4">
@@ -389,7 +387,6 @@
             </property-display>
           </div>
         </div>
-
       </div>
     </div>
 
