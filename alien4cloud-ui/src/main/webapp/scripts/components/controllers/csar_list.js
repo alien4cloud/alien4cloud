@@ -14,8 +14,8 @@ define(function (require) {
     url: '/csars',
     template: '<ui-view/>',
     menu: {
-      id: 'cm.components.csars.list',
-      state: 'components.csars.list',
+      id: 'cm.components.csars',
+      state: 'components.csars',
       key: 'NAVBAR.MENU_CSARS',
       icon: 'fa fa-archive',
       priority: 20

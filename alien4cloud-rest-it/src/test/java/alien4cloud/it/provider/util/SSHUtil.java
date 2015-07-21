@@ -70,9 +70,9 @@ public class SSHUtil {
             doWithScpAction.doScpAction(scpClient);
         } finally {
             if (session != null) {
-                session.close(false);
+                session.close(true);
             }
-            client.close(false);
+            client.close(true);
         }
     }
 
