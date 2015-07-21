@@ -13,7 +13,7 @@ var navigationIds = {
     users: 'am.admin.users',
     plugins: 'am.admin.plugins',
     meta: 'am.admin.metaprops',
-    clouds: 'am.admin.clouds.list',
+    clouds: 'am.admin.clouds',
     'cloud-images': 'am.admin.cloud-images.list'
   },
   applications: {
@@ -27,8 +27,8 @@ var navigationIds = {
     environments: 'am.applications.detail.environments'
   },
   components: {
-    components: 'cm.components.list',
-    csars: 'cm.components.csars.list'
+    components: 'cm.components',
+    csars: 'cm.components.csars'
   }
 };
 
