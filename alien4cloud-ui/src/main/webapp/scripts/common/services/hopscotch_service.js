@@ -2,12 +2,12 @@
 
 'use strict';
 
-define(function (require) {
+define(function(require) {
   var modules = require('modules');
   require('toaster');
   var _ = require('lodash');
   var angular = require('angular');
-  var hopscotch = require('hopscotch');
+  require('hopscotch');
 
   modules.get('ng-hopscotch', ['toaster']).factory('hopscotchService', ['$http', '$translate', '$state', '$interval', 'toaster',
     function($http, $translate, $state, $interval, toaster) {

@@ -1,4 +1,4 @@
-define(function (require) {
+define(function(require) {
   'use strict';
 
   var states = require('states');
@@ -43,6 +43,16 @@ define(function (require) {
     templateUrl: 'views/authentication/restricted.html'
   });
 
+  states.state('user_home_admin', {
+    templateUrl: 'views/admin/home.html',
+    controller: function($scope, hopscotchService, $state) {
+      $scope.adminTour = function() {
+        $state.go('admin');
+        hopscotchService.startTour('admin.home');
+      };
+    }
+  });
+
   require('scripts/common/services/rest_technical_error_interceptor');
 
   alien4cloud.startup = function() {
@@ -51,13 +61,14 @@ define(function (require) {
 
     alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$parseProvider',
       function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
-      $parseProvider.unwrapPromises(true);
-      $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
+        $parseProvider.unwrapPromises(true);
+        $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
 
-      $urlRouterProvider.otherwise('/');
+        $urlRouterProvider.otherwise('/');
 
-      states.config($stateProvider);
-    }]);
+        states.config($stateProvider);
+      }
+    ]);
 
     // TODO load more modules
     alien4cloud.config(['$translateProvider',
@@ -78,49 +89,50 @@ define(function (require) {
     ]);
 
     alien4cloud.run(['$rootScope', '$state', 'editableOptions', 'editableThemes', 'authService',
-     function($rootScope, $state, editableOptions, editableThemes, authService) {
-       // check when the state is about to change
-      $rootScope.$on('$stateChangeStart', function(event, toState) {
-        authService.getStatus().$promise.then(function() {
-          // FIXME role based homepage and tours...
-          if (toState.name.indexOf('home') === 0 && authService.hasRole('ADMIN')) {
-          //  $state.go('user_home_admin');
-          }
-          // check all the menu array & permissions
-          authService.menu.forEach(function(menuItem) {
-            var menuType = menuItem.id.split('.')[1];
-            var foundMenuIndex = toState.name.indexOf(menuType);
-            if (foundMenuIndex === 0 && menuItem.hasRole === false) {
-              $state.go('restricted');
+      function($rootScope, $state, editableOptions, editableThemes, authService) {
+        // check when the state is about to change
+        $rootScope.$on('$stateChangeStart', function(event, toState) {
+          authService.getStatus().$promise.then(function(status) {
+            // FIXME role based homepage and tours...
+            if (toState.name.indexOf('home') === 0 && authService.hasRole('ADMIN')) {
+              // $state.go('user_home_admin');
             }
+            // check all the menu array & permissions
+            authService.menu.forEach(function(menuItem) {
+              var menuType = menuItem.id.split('.')[1];
+              var foundMenuIndex = toState.name.indexOf(menuType);
+              if (foundMenuIndex === 0 && menuItem.hasRole === false) {
+                $state.go('restricted');
+              }
+            });
           });
         });
-      });
 
-      // state routing
-      $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-        var forward = states.stateForward[toState.name];
-        if (_.defined(forward)) {
-          $state.go(forward);
-        }
-      });
+        // state routing
+        $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+          var forward = states.stateForward[toState.name];
+          if (_.defined(forward)) {
+            $state.go(forward);
+          }
+        });
 
-      /* angular-xeditable config */
-      editableThemes.bs3.inputClass = 'input-sm';
-      editableThemes.bs3.buttonsClass = 'btn-sm';
-      editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
-      ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
-      ' confirm-title="{{\'CONFIRM\' | translate }}"' +
-      ' confirm-placement="left"' +
-      ' cancel-handler="$form.$cancel()"' +
-      ' ng-click="$event.stopPropagation();">' +
-      '<span class="fa fa-check"></span>' +
-      '</button>';
-      editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
-      '<span class="fa fa-times"></span>' +
-      '</button>';
-      editableOptions.theme = 'bs3';
-    }]);
+        /* angular-xeditable config */
+        editableThemes.bs3.inputClass = 'input-sm';
+        editableThemes.bs3.buttonsClass = 'btn-sm';
+        editableThemes.bs3.submitTpl = '<button type="button" class="btn btn-primary"' +
+          ' confirm="{{\'CONFIRM_MESSAGE\' | translate}}"' +
+          ' confirm-title="{{\'CONFIRM\' | translate }}"' +
+          ' confirm-placement="left"' +
+          ' cancel-handler="$form.$cancel()"' +
+          ' ng-click="$event.stopPropagation();">' +
+          '<span class="fa fa-check"></span>' +
+          '</button>';
+        editableThemes.bs3.cancelTpl = '<button type="button" class="btn btn-default" ng-click="$form.$cancel()">' +
+          '<span class="fa fa-times"></span>' +
+          '</button>';
+        editableOptions.theme = 'bs3';
+      }
+    ]);
 
     angular.bootstrap(document, ['alien4cloud']);
   };
