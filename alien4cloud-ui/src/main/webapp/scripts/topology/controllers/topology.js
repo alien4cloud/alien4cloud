@@ -267,7 +267,7 @@ define(function (require) {
         autoOpenRelationshipModal: $scope.relationships.autoOpenRelationshipModal,
 
         addRelationship: function(sourceId, requirementName, requirementType, targetId, capabilityName, relationship) {
-          if(_.isDefined(relationship)) {
+          if(_.defined(relationship)) {
             // generate relationship name
             var name = toscaService.generateRelationshipName(relationship.elementId, targetId);
             // add the relationship.

@@ -78,8 +78,6 @@ define(function (require) {
           }
 
           // Compute the automatic layout for the topology.
-          var nodeRenderer = this.nodeRenderer;
-
           this.layout = topologyLayoutService.layout(this.topology.topology.nodeTemplates, this.topology, this.nodeRenderer);
 
           // Update connector routing.
@@ -156,6 +154,9 @@ define(function (require) {
 
           // remove destroyed nodes.
           nodeSelection.exit().remove();
+
+          // TODO trigger that only on node rename.
+          nodeSelection.order();
 
           this.drawLink(this.svg, links);
         },
@@ -262,14 +263,14 @@ define(function (require) {
           var line = d3.svg.line()
             .x(function(d) { return d.x; })
             .y(function(d) { return d.y; })
-            .interpolate("basis");
+            .interpolate('basis');
           var path;
           if(create) {
             path = linkPath.append('path');
           } else {
             path = linkPath.select('path');
           }
-          path.attr('d', function(d){ return line(d.route)});
+          path.attr('d', function(d){ return line(d.route);});
           linkPath.classed('link-selected', function(link) { return link.selected; });
         }
       };
