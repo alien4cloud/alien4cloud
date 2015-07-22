@@ -110,6 +110,7 @@ public class CommonStepDefinitions {
         Context.getInstance().clearComponentsIds();
         Context.getInstance().takeTopologyId();
         Context.getInstance().takeApplication();
+        Context.getInstance().takeDeployApplicationProperties();
         Context.getRestClientInstance().clearCookies();
     }
 
