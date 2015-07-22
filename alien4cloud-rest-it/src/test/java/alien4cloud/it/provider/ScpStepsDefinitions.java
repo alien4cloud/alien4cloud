@@ -3,6 +3,7 @@ package alien4cloud.it.provider;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 import junitx.framework.FileAssert;
 import alien4cloud.it.Context;
@@ -18,6 +19,17 @@ public class ScpStepsDefinitions {
             String keypair, String user) throws Throwable {
         SSHUtil.upload(user, AttributeUtil.getAttribute(nodeName, "public_ip_address"), Context.SCP_PORT, Context.LOCAL_TEST_DATA_PATH.resolve(keypair)
                 .toString(), remotePath, Context.LOCAL_TEST_DATA_PATH.resolve(localFile).toString());
+    }
+
+    @When("^I upload to a node's remote path the local file with the keypair \"([^\"]*)\" and user \"([^\"]*)\"$")
+    public void i_upload_to_a_node_s_remote_path_the_local_file_with_the_keypair_and_user(String keypair, String user, List<List<String>> uploadInfos)
+            throws Throwable {
+        for (List<String> uploadInfo : uploadInfos) {
+            String nodeName = uploadInfo.get(0);
+            String remotePath = uploadInfo.get(1);
+            String localFile = uploadInfo.get(2);
+            I_upload_the_local_file_to_the_node_s_remote_path_with_the_keypair_and_user(localFile, nodeName, remotePath, keypair, user);
+        }
     }
 
     private static final String CURRENT_DOWNLOADED_FILE_PATH;
