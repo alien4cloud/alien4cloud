@@ -31,7 +31,7 @@ define(function (require) {
                     }
                   });
                 });
-                //
+                
                 var targetSelection = topologySvg.svg.selectAll(".connectorTarget").data(connectTargets);
                 targetSelection.enter().append("circle")
                   .attr("cx", function(d){ return d.target.coordinate.x })
@@ -44,7 +44,6 @@ define(function (require) {
                   selectedTarget
                 targetSelection.exit().remove();
               });
-              console.log(element);
               mouseCoordinate = {
                 x: element.coordinate.x,
                 y: element.coordinate.y

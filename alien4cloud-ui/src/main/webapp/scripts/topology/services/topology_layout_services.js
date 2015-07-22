@@ -2,7 +2,6 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
-  var $ = require('jquery');
   var _ = require('lodash');
 
   require('scripts/tosca/services/tosca_service');
@@ -75,7 +74,7 @@ define(function (require) {
           }
         },
 
-        nodeLayout: function(node, position, renderer, initial) {
+        nodeLayout: function(node, position, renderer) {
           node.nodeSize = renderer.size(node);
           node.nodeSize.halfWidth = node.nodeSize.width / 2;
           node.nodeSize.halfHeight = node.nodeSize.height / 2;
@@ -105,9 +104,19 @@ define(function (require) {
             attached.bbox = bboxFactory.create(node.bbox.minX, attachedY, attached.nodeSize.width, attached.nodeSize.height);
             attached.coordinate = {x: attached.bbox.minX, y: attached.bbox.minY};
             attachedY = attached.bbox.maxY;
-          }
 
-          // update the capabilities relative x coordinate
+            // process the capabilites and requirements of the attached node as we don't perform recursive layout for these nodes
+            this.requirementAndCapabilitiesLayout(attached);
+          }
+          this.requirementAndCapabilitiesLayout(node);
+
+          return node.bbox;
+        },
+
+        /**
+        * Update the requirements and capabilities relative x coordinate.
+        */
+        requirementAndCapabilitiesLayout: function(node) {
           _.each(node.requirements, function(requirement) {
             requirement.coordinate.relative.x = node.bbox.width();
             requirement.coordinate.x = node.coordinate.x + requirement.coordinate.relative.x;
@@ -117,8 +126,6 @@ define(function (require) {
             capability.coordinate.x = node.coordinate.x + capability.coordinate.relative.x;
             capability.coordinate.y = node.coordinate.y + capability.coordinate.relative.y;
           });
-
-          return node.bbox;
         },
 
         networkLayout: function(tree, graph, renderer) {
@@ -190,7 +197,7 @@ define(function (require) {
                 var targetCapability = targetNode.capabilitiesMap[relationship.targetedCapabilityName];
                 target.x = targetNode.coordinate.x - 5;
                 if(_.defined(targetCapability)) {
-                  target.y = targetNode.coordinate.y + targetCapability.coordinate.relative.y;;
+                  target.y = targetNode.coordinate.y + targetCapability.coordinate.relative.y;
                 } else {
                   target.y = targetNode.coordinate.y;
                 }

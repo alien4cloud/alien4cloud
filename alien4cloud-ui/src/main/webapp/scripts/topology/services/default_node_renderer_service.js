@@ -11,8 +11,13 @@ define(function (require) {
 
   modules.get('a4c-topology-editor', ['a4c-common', 'a4c-styles', 'a4c-common-graph']).factory('defaultNodeRendererService', ['commonNodeRendererService', 'toscaService', 'listToMapService', 'runtimeColorsService', 'd3Service',
     function(commonNodeRendererService, toscaService, listToMapService, runtimeColorsService, d3Service) {
-      var ConnectorRenderer = function(cssClass) {
-        this.cssClass = cssClass;
+      var ConnectorRenderer = function(isRequirement) {
+        if(isRequirement) {
+          this.cssClass = 'requirement';
+        } else {
+          this.cssClass = 'capability';
+        }
+        this.isRequirement = isRequirement;
       };
 
       ConnectorRenderer.prototype = {
@@ -25,17 +30,27 @@ define(function (require) {
           // actually create bigger circle for user interactions to make it easier.
           var actionCircle = d3Service.circle(group, element.coordinate.relative.x, element.coordinate.relative.y, 10).attr('class', 'connectorAction');
           actionCircle.on('mouseover', this.actions.mouseover).on('mouseout', this.actions.mouseout);
-          actionCircle.call(this.actions.connectorDrag);
+          if(this.isRequirement) {
+            actionCircle.call(this.actions.connectorDrag);
+          }
         },
         update: function(group, element) {
+          // we have to update the location of the circle
+          var circle = group.select('.connector');
+          circle.attr("cx", element.coordinate.relative.x);
+          circle.attr("cy", element.coordinate.relative.y);
           // we have to update the drag behavior to work with the new selection element (if not it will keep the creation element).
           var actionCircle = group.select('.connectorAction');
-          actionCircle.call(this.actions.connectorDrag);
+          if(this.isRequirement) {
+            actionCircle.call(this.actions.connectorDrag);
+          }
+          actionCircle.attr("cx", element.coordinate.relative.x);
+          actionCircle.attr("cy", element.coordinate.relative.y);
         }
       };
 
-      var requirementRenderer = new ConnectorRenderer('requirement');
-      var capabilityRenderer = new ConnectorRenderer('capability');
+      var requirementRenderer = new ConnectorRenderer(true);
+      var capabilityRenderer = new ConnectorRenderer(false);
 
       return {
         isRuntime: false,

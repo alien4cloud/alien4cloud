@@ -1,4 +1,4 @@
-/* global by, element */
+/* global by, element, browser, expect */
 'use strict';
 
 var applications = require('../applications/applications');
@@ -149,7 +149,7 @@ var addNodeTemplate = function(ntype, expectedId, archiveVersion, selectedVersio
     '\
 var typeScope = angular.element(arguments[0]).scope();\
 var mainScope = angular.element(arguments[1]).scope();\
-mainScope.nodeTypeSelected(typeScope.component);',
+mainScope.nodes.add(typeScope.component);',
     nodeTypeElement.getWebElement(), topologyVisuElement.getWebElement()).then(function() {
       browser.waitForAngular();
     });
@@ -341,7 +341,7 @@ var replaceNodeTemplates = function(nodeName, replacementElementId) {
   var node = element(by.id('rect_' + nodeName));
   browser.actions().click(node).perform();
   browser.executeScript('window.scrollTo(0,0);').then(function() {
-    browser.actions().click(element(by.css('.btn[ng-click^="getPossibleReplacements"]'))).perform();
+    browser.actions().click(element(by.css('.btn[ng-click^="nodesswap.getPossibleReplacements"]'))).perform();
     browser.actions().click(element(by.id('newnode_' + replacementElementId))).perform();
   });
 };

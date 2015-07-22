@@ -2,14 +2,14 @@
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column" ng-show="displays.topology.active">
-      <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="onComponentDragged(data)" ng-init="visual = true; simple = false">
+      <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true; simple = false">
         <div class="btn-toolbar">
           <div class="btn-group">
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="displayYaml()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="yaml.display()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
-            <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="changeVersion(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
+            <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
               <ui-select-match placeholder="Select or search a version...">{{$select.selected.version | limitTo: 20}}{{$select.selected.version.length > 20 ? '...' : ''}}</ui-select-match>
               <ui-select-choices repeat="appVersion in appVersions | filter: $select.search">
                 <span ng-bind-html="appVersion.version | limitTo: 20 | highlight: $select.search"></span>
@@ -18,7 +18,7 @@
             </ui-select>
           </div>
         </div>
-        <div ng-if="view === 'YAML'" ng-model="editorContent" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
+        <div ng-if="view === 'YAML'" ng-model="yaml.content" ui-ace="{onLoad: aceLoaded, mode: 'yaml'}" style="height: {{visualDimensions.height}}px;"></div>
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
@@ -38,7 +38,7 @@
             <span>
               <i class="fa fa-info-circle"></i> {{'APPLICATIONS.TOPOLOGY.NODE_INFO' | translate}}
             </span>
-            <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="setDisplay('component', false)">
+            <span id='closeNodeTemplateDetails' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.set('component', false)">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -47,7 +47,7 @@
             <!-- nodeTemplateName div -->
             <div class="col-md-7">
               <h3 class="pull-left" style="margin-top: 10px; margin-bottom: 20px;">
-              <span editable-text="nodeNameObj.val" buttons="no" e-required onbeforesave="updateNodeName($data)" blur="submit">
+              <span editable-text="nodeNameObj.val" buttons="no" e-required onbeforesave="nodes.updateName($data)" blur="submit">
                 {{ selectedNodeTemplate.name | split }}
                 <i class="fa fa-pencil-square-o"></i>
               </span>
@@ -67,14 +67,14 @@
                   <a tooltip="{{'APPLICATIONS.TOPOLOGY.REPLACE_NODETEMPLATE' | translate}}"
                      tooltip-append-to-body="true"
                      class="btn btn-default btn-sm dropdown-toggle"
-                     ng-click="getPossibleReplacements(selectedNodeTemplate)">
+                     ng-click="nodesswap.getPossibleReplacements(selectedNodeTemplate)">
                     <i class="fa fa-exchange"></i>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.SELECT_NODETYPE' | translate }}</li>
                     <li ng-repeat="suggestedNode in suggestedReplacements">
                       <a id="newnode_{{suggestedNode.elementId}}"
-                         ng-click="swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
+                         ng-click="nodesswap.swapNodeTemplate(selectedNodeTemplate, suggestedNode)">
                         <img ng-src="img?id={{getIcon(suggestedNode.tags)}}&quality=QUALITY_32" />&nbsp;
                         {{suggestedNode.elementId}}
                       </a>
@@ -90,20 +90,20 @@
                   </a>
                   <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li>
-                      <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="createGroupWithMember(selectedNodeTemplate.name)">
+                      <a id="createGroupWithMember_{{selectedNodeTemplate.name}}" ng-click="groups.create(selectedNodeTemplate.name)">
                         <strong>{{'APPLICATIONS.TOPOLOGY.GROUPS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                       </a>
                     </li>
                     <li ng-repeat="group in orderedNodeGroups">
-                      <a id="{{selectedNodeTemplate.name}}_memberOf_{{group.name}}" ng-click="toggleNodeGroupMember(group.name, selectedNodeTemplate.name)">
-                        <i class="fa fa-fw {{isNodeMemberOf(selectedNodeTemplate.name, group.name) ? 'fa-check-square-o' : 'fa-square-o'}}"></i>
+                      <a id="{{selectedNodeTemplate.name}}_memberOf_{{group.name}}" ng-click="groups.toggleMember(group.name, selectedNodeTemplate.name)">
+                        <i class="fa fa-fw {{groups.isMemberOf(selectedNodeTemplate.name, group.name) ? 'fa-check-square-o' : 'fa-square-o'}}"></i>
                         {{group.name}}
                       </a>
                     </li>
                   </ul>
                 </span>
                 <!-- Delete selected nodetemplate with confirm -->
-                <delete-confirm id="btn-delete-node" func="deleteNodeTemplate(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm id="btn-delete-node" func="nodes.delete(selectedNodeTemplate.name)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </div>
             </div>
@@ -122,9 +122,9 @@
             </div>
             <div class="col-md-3">
               <span class="btn-group pull-right">
-	              <button 
+	              <button
 	                ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId"
-	                ng-click="displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
+	                ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
 	                class="btn btn-default"
 	                tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
 	                tooltip-append-to-body="true">
@@ -162,9 +162,9 @@
               <ul class="nav facet-choice">
                 <li ng-repeat="groupId in selectedNodeTemplate.groups">
                   <a href="" id="removeGroup_{{groupId}}_from_{{selectedNodeTemplate.name}}"  confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                    confirm-handler="deleteNodeGroupMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom"
+                    confirm-handler="groups.removeMember(groupId, selectedNodeTemplate.name)" confirm-placement="bottom"
                     ng-click="$event.stopPropagation();">
-                    <span class="{{getGroupColorCss(groupId)}}">{{groupId}}</span>&nbsp;
+                    <span class="{{groups.getColorCss(groupId)}}">{{groupId}}</span>&nbsp;
                     <i class="fa fa-times"></i>
                   </a>
                 </li>
@@ -183,33 +183,33 @@
             </div>
             <div id="node-details-properties-panel" collapse="isPropertiesCollapsed" class="topology-level">
               <table class="table table-condensed" id="nodeTemplateProperties">
-                <tr ng-repeat="propEntry in selectedProperties">
+                <tr ng-repeat="propEntry in selectedNodeTemplate.properties">
                   <td>
                     <div class="btn-group" data-toggle="buttons">
                       <a id="p_input_pro_{{propEntry.key}}"
-                         ng-click="getInputCandidatesForProperty(propEntry.key)"
+                         ng-click="inputs.getCandidatesForProperty(propEntry.key)"
                          class="btn btn-default btn-xs dropdown-toggle"
-                         ng-class="{'active' : isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                         ng-class="{'active' : properties.isInputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                          tooltip-append-to-body="true">
                         <i class="fa fa-sign-in"></i>
                       </a>
                       <ul class="dropdown-menu dropdown-menu-left" role="menu">
                         <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                         <li>
-                          <a id="addToInputBtn_pro_{{propEntry.key}}" ng-click="createInputFromProperty(propEntry.key)">
+                          <a id="addToInputBtn_pro_{{propEntry.key}}" ng-click="inputs.createFromProperty(propEntry.key)">
                             <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                           </a>
                         </li>
                         <li ng-repeat="inputId in currentInputCandidatesForProperty | orderBy:'toString()'">
-                          <a id="{{selectedNodeTemplate.name}}_{{propEntry.key}}_toAssociate_{{inputId}}" ng-click="togglePropertyInput(propEntry.key, inputId)">
+                          <a id="{{selectedNodeTemplate.name}}_{{propEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleProperty(propEntry.key, inputId)">
                             <i class="fa fa-fw"
-                               ng-class="{'fa-check-square-o' : isPropertyAssociatedToInput(propEntry.key, inputId),  'fa-square-o': !isPropertyAssociatedToInput(propEntry.key, inputId)}"></i>
+                               ng-class="inputs.isPropertyAssociatedToInput(propEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
                             {{inputId}}
                           </a>
                         </li>
                       </ul>
-                      <a id="p_output_pro_{{propEntry.key}}" ng-click="toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
-                         ng-class="{'active' : isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                      <a id="p_output_pro_{{propEntry.key}}" ng-click="outputs.toggleOutputProperty(propEntry.key)" class="btn btn-default btn-xs"
+                         ng-class="{'active' : properties.isOutputProperty(propEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
                         <i class="fa fa-sign-out"></i>
                       </a>
@@ -217,28 +217,28 @@
                   </td>
                   <td>
                     <property-display
-                      ng-if="isInputProperty(propEntry.key)"
+                      ng-if="properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
-                      definition="getFormatedProperty(propEntry.key)"
+                      definition="properties.getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition, propertyValue)"
+                      on-save="nodes.updateProperty(propertyDefinition, propertyValue)"
                       editable="false"
                       condensed="condensed">
                     </property-display>
                     <property-display
-                      ng-if="!isInputProperty(propEntry.key)"
+                      ng-if="!properties.isInputProperty(propEntry.key)"
                       ng-init="condensed = true"
-                      definition="getFormatedProperty(propEntry.key)"
+                      definition="properties.getFormatedProperty(propEntry.key)"
                       property-value="propEntry.value"
-                      on-save="updateProperty(propertyDefinition, propertyValue)"
+                      on-save="nodes.updateProperty(propertyDefinition, propertyValue)"
                       editable="true"
                       condensed="condensed">
                     </property-display>
                   </td>
                   <td>
                     <button id="btn-description-{{propEntry.key}}"
-                            ng-if="getPropertyDescription(propEntry.key)"
-                            ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', getPropertyDescription(propEntry.key))"
+                            ng-if="properties.getPropertyDescription(propEntry.key)"
+                            ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', properties.getPropertyDescription(propEntry.key))"
                             class="btn btn-default btn-xs"
                             tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
                             tooltip-append-to-body="true">
@@ -263,8 +263,8 @@
                 <tr ng-repeat="attrEntry in selectedNodeTemplate.attributes">
                   <td class="col-md-2">
                     <div class="btn-group" data-toggle="buttons">
-                      <a id="a_output_{{attrEntry.key}}" ng-click="toggleOutputAttribute(attrEntry.key)" class="btn btn-default btn-xs"
-                         ng-class="{'active' : isOutputAttribute(attrEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                      <a id="a_output_{{attrEntry.key}}" ng-click="outputs.toggleOutputAttribute(attrEntry.key)" class="btn btn-default btn-xs"
+                         ng-class="{'active' : properties.isOutputAttribute(attrEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                          tooltip-append-to-body="true">
                         <i class="fa fa-sign-out"></i>
                       </a>
@@ -308,7 +308,7 @@
                       <button tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
                               tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                              ng-click="openSearchRelationshipModal(selectedNodeTemplate.name, selectedNodeTemplate, requirementEntry.key, requirementEntry.value); $event.stopPropagation();"
+                              ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, selectedNodeTemplate, requirementEntry.key, requirementEntry.value); $event.stopPropagation();"
                               id="btn-add-relationship-{{requirementEntry.key}}">
                         <i class="fa fa-link"></i>
                       </button>
@@ -328,13 +328,13 @@
                       <button id="btn-expose-{{requirementEntry.key}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
                               ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                              ng-click="exposeRequirementForSubstitution(requirementEntry.key); $event.stopPropagation()"
-                              ng-class="{'active' : isRequirementExposed(requirementEntry.key)}"
+                              ng-click="substitution.exposeRequirement(requirementEntry.key); $event.stopPropagation()"
+                              ng-class="{'active' : substitution.isRequirementExposed(requirementEntry.key)}"
                               class="btn btn-default btn-xs"
                               tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
                               tooltip-append-to-body="true">
                         <i class="fa fa-recycle"></i>
-                      </button>                      
+                      </button>
                     </span>
                     </div>
                   </div>
@@ -405,9 +405,9 @@
                       </button>
                       <button id="btn-expose-{{capabilityEntry.value.type}}"
                               ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
-                              ng-click="exposeCapabilityForSubstitution(capabilityEntry.key); $event.stopPropagation()"
+                              ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
                               class="btn btn-default btn-xs"
-                              ng-class="{'active' : isCapabilityExposed(capabilityEntry.key)}"
+                              ng-class="{'active' : substitution.isCapabilityExposed(capabilityEntry.key)}"
                               tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.EXPOSE' | translate}}"
                               tooltip-append-to-body="true">
                         <i class="fa fa-recycle"></i>
@@ -421,28 +421,28 @@
                     <td>
                       <div class="btn-group" data-toggle="buttons">
                         <a id="p_input_cap_{{propertyEntry.key}}"
-                           ng-click="getInputCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
+                           ng-click="inputs.getCandidatesForCapabilityProperty(capabilityEntry.key, propertyEntry.key)"
                            class="btn btn-default btn-xs dropdown-toggle"
-                           ng-class="{'active' : isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
+                           ng-class="{'active' : properties.isInputPropertyValue(propertyEntry.value)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-sign-in"></i>
                         </a>
-                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
-                           ng-class="{'active' : isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
+                        <a id="p_output_cap_{{propertyEntry.key}}" ng-click="outputs.toggleCapabilityOutput(capabilityEntry.key, propertyEntry.key)" class="btn btn-default btn-xs"
+                           ng-class="{'active' : properties.isOutputCapabilityProperty(capabilityEntry.key, propertyEntry.key)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_OUTPUTS' | translate}}"
                            tooltip-append-to-body="true">
                           <i class="fa fa-sign-out"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-left" role="menu">
                           <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                           <li>
-                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="createInputFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
+                            <a id="addToInputBtn_cap_{{propertyEntry.key}}" ng-click="inputs.createFromCapabilityProperty(capabilityEntry.key, propertyEntry.key)">
                               <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                             </a>
                           </li>
                           <li ng-repeat="inputId in currentInputCandidatesForCapabilityProperty | orderBy:'toString()'">
-                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="toggleCapabilityPropertyInput(capabilityEntry.key, propertyEntry.key, inputId)">
+                            <a id="{{selectedNodeTemplate.name}}_{{propertyEntry.key}}_toAssociate_{{inputId}}" ng-click="inputs.toggleCapabilityProperty(capabilityEntry.key, propertyEntry.key, inputId)">
                               <i class="fa fa-fw"
-                                 ng-class="{'fa-check-square-o' : isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId),  'fa-square-o': !isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId)}"></i>
+                                 ng-class="inputs.isCapabilityPropertyAssociatedToInput(capabilityEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
                               {{inputId}}
                             </a>
                           </li>
@@ -451,20 +451,20 @@
                     </td>
                     <td>
                       <property-display
-                        ng-if="isInputPropertyValue(propertyEntry.value)"
+                        ng-if="properties.isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
-                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
                         property-value="propertyEntry.value"
-                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        on-save="properties.updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="false"
                         condensed="condensed">
                       </property-display>
                       <property-display
-                        ng-if="!isInputPropertyValue(propertyEntry.value)"
+                        ng-if="!properties.isInputPropertyValue(propertyEntry.value)"
                         ng-init="condensed = true"
-                        definition="getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
+                        definition="properties.getFormatedCapabilityProperty(capabilityEntry.value.type, propertyEntry.key)"
                         property-value="propertyEntry.value"
-                        on-save="updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
+                        on-save="properties.updateCapabilityProperty(propertyEntry.key, propertyValue, capabilityEntry.value.type, capabilityEntry.key)"
                         editable="true"
                         condensed="condensed">
                       </property-display>
@@ -493,14 +493,14 @@
                      ng-class="{'fa-chevron-down' : !isRelationshipCollapsed, 'fa-chevron-right': isRelationshipCollapsed}"></i>
                 <span
                   ng-init="relNameObj[relationshipEntry.key] = relationshipEntry.key"
-                  editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="updateRelationshipName(relationshipEntry.key, $data)"
+                  editable-text="relNameObj[relationshipEntry.key]" buttons="no" e-required onbeforesave="relationships.updateRelationshipName(relationshipEntry.key, $data)"
                   blur="submit" ng-click="$event.stopPropagation();"
                   tooltip="{{relationshipEntry.key | split:15}}" tooltip-append-to-body="true">
                   {{relationshipEntry.key | truncate:25}}
                   <i class="fa fa-pencil-square-o"></i>
                 </span>
                 <span class="pull-right">
-                  <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="removeRelationship(relationshipEntry.key, selectedNodeTemplate)"
+                  <delete-confirm id="btn-delete-rl-{{relationshipEntry.key}}" func="relationships.remove(relationshipEntry.key, selectedNodeTemplate)"
                                   position="left" bssize="btn-xs" fastyle="fa-unlink">
                   </delete-confirm>
                 </span>
@@ -524,9 +524,9 @@
                           <td class="col-md-1">
                             <div class="btn-group" data-toggle="buttons">
                               <a id="p_input_rel_{{propertyEntry.key}}"
-                                 ng-click="getInputCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
+                                 ng-click="inputs.getCandidatesForRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                                  class="btn btn-default btn-xs dropdown-toggle"
-                                 ng-class="{'active' : isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"
+                                 ng-class="{'active' : properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)}"
                                  tooltip="{{ 'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate}}"
                                  tooltip-append-to-body="true">
                                 <i class="fa fa-sign-in"></i>
@@ -534,14 +534,14 @@
                               <ul class="dropdown-menu dropdown-menu-left" role="menu">
                                 <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.PROPERTIES_INPUTS' | translate }}</li>
                                 <li>
-                                  <a ng-click="createInputFromRelationshipProperty(relationshipEntry.key, propertyEntry.key)">
+                                  <a ng-click="inputs.createFromRelationshipProperty(relationshipEntry.key, propertyEntry.key)">
                                     <strong>{{'APPLICATIONS.TOPOLOGY.INPUTS.ADD' | translate }} <i class="fa fa-plus"></i></strong>
                                   </a>
                                 </li>
                                 <li ng-repeat="inputId in currentInputCandidatesForRelationshipProperty | orderBy:'toString()' ">
-                                  <a ng-click="toggleRelationshipPropertyInput(relationshipEntry.key, propertyEntry.key, inputId)">
+                                  <a ng-click="inputs.toggleRelationshipProperty(relationshipEntry.key, propertyEntry.key, inputId)">
                                     <i class="fa fa-fw"
-                                       ng-class="{'fa-check-square-o' : isRelationshipPropertyAssociatedToInput(relationshipEntry.key, propertyEntry.key, inputId),  'fa-square-o': !isRelationshipPropertyAssociatedToInput(relationshipEntry.key, propertyEntry.key, inputId)}"></i>
+                                       ng-class="inputs.isRelationshipPropertyAssociatedToInput(relationshipEntry.key, propertyEntry.key, inputId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
                                     {{inputId}}
                                   </a>
                                 </li>
@@ -550,20 +550,20 @@
                           </td>
                           <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-11">
                             <property-display
-                              ng-if="isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
+                              ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
                               definition="propertyEntry.value"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                               editable="false"
                               condensed="condensed">
                             </property-display>
                             <property-display
-                              ng-if="!isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
+                              ng-if="!properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
                               definition="propertyEntry.value"
                               property-value="relationshipEntry.value.propertiesMap[propertyEntry.key].value"
-                              on-save="updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
+                              on-save="relationships.updateRelationshipProperty(propertyEntry.value, propertyValue, relationshipEntry.value.type, relationshipEntry.key)"
                               editable="true"
                               condensed="condensed">
                             </property-display>
@@ -593,28 +593,29 @@
                   <i class="pull-left fa"
                      ng-class="{'fa-chevron-down' : !isArtifactCollapsed, 'fa-chevron-right': isArtifactCollapsed}"></i>
                   <span>{{artifactId}}</span>
-                  <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="resetArtifact(artifactId); $event.stopPropagation();">
+                  <span id='reset-artifact-{{artifactId}}' class="btn btn-xs" ng-click="artifacts.reset(artifactId); $event.stopPropagation();">
                     <i class="fa fa-undo text-default" tooltip="{{ 'PROPERTY_RESET' | translate }}"></i>
                   </span>
                   <span class="pull-right btn-group" data-toggle="buttons">
                     <a id="p_input_art_{{artifactId}}"
-                       ng-click="$event.stopPropagation(); getInputCandidatesForArtifact(artifactId); "
+                       ng-click="$event.stopPropagation(); inputs.getCandidatesForArtifact(artifactId); "
                        class="btn btn-default btn-xs dropdown-toggle"
-                       ng-class="{'active' : isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
+                       ng-class="{'active' : inputs.isInputArtifact(artifactId)}" tooltip="{{ 'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate}}"
                        tooltip-append-to-body="true">
                       <i class="fa fa-file"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-left" role="menu">
                       <li role="presentation" class="dropdown-header">{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.INPUTS' | translate }}</li>
                       <li>
-                        <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); createInputFromArtifact(artifactId)">
+                        <a id="addToInputBtn_art_{{artifactId}}" ng-click="$event.stopPropagation(); inputs.createFromArtifact(artifactId)">
                           <strong>{{'APPLICATIONS.TOPOLOGY.ARTIFACTS.ADDINPUT' | translate }} <i class="fa fa-plus"></i></strong>
                         </a>
                       </li>
+                      <!-- TODO Maybe improve the isArtifactAssociatedToInput  -->
                       <li ng-repeat="inputArtifactId in currentInputCandidatesForArtifact | orderBy:'toString()'">
-                        <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); toggleArtifactInput(artifactId, inputArtifactId)">
+                        <a id="{{selectedNodeTemplate.name}}_{{artifactId}}_toAssociate_{{inputArtifactId}}" ng-click="$event.stopPropagation(); inputs.toggleArtifact(artifactId, inputArtifactId)">
                           <i class="fa fa-fw"
-                             ng-class="{'fa-check-square-o' : isArtifactAssociatedToInput(artifactId, inputArtifactId),  'fa-square-o': !isArtifactAssociatedToInput(artifactId, inputArtifactId)}"></i>
+                             ng-class="inputs.isArtifactAssociatedToInput(artifactId, inputArtifactId) ? 'fa-check-square-o' : 'fa-square-o'"></i>
                           {{inputArtifactId}}
                         </a>
                       </li>
@@ -636,7 +637,7 @@
                         <span>
                           <i class="fa fa-upload text-primary"></i>
                         </span>
-                          <input type="file" class="upload" ng-file-select="onArtifactSelected($files, artifactId)">
+                          <input type="file" class="upload" ng-file-select="artifacts.onSelected($files, artifactId)">
                         </div>
 
 
@@ -664,7 +665,7 @@
             <span>
               <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
             </span>
-            <span id='closeComponentsSearch' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('catalog')">
+            <span id='closeComponentsSearch' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('catalog')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -672,7 +673,6 @@
           <div id="slide-side-bar" style="overflow: auto;">
             <alien-search-node-type refresh="refresh"
               display-detail-pannel="false"
-              on-select-item="nodeTypeSelected(item)"
               drag-and-drop-enabled="true"
               height-info="dimensions">
             </alien-search-node-type>
@@ -692,7 +692,7 @@
             <span>
               <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
             </span>
-            <span id='closeDependencies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('dependencies')">
+            <span id='closeDependencies' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('dependencies')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -726,7 +726,7 @@
             <span>
               <i class="fa fa-sign-in"></i> Inputs
             </span>
-            <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('inputs')">
+            <span id='closeInputs' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('inputs')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -743,7 +743,7 @@
             <tbody>
               <tr ng-repeat="(inputId, inputDefinition) in topology.topology.inputs">
                 <td id="td_{{inputId}}">
-                  <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="updateInput(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
+                  <span id="span_{{inputId}}" editable-text="inputDefinition.inputId" buttons="no" onaftersave="inputs.update(inputId, inputDefinition.inputId, inputDefinition)" blur="submit">
                     {{inputDefinition.inputId}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>
@@ -751,7 +751,7 @@
                 <td>{{inputDefinition.type}}</td>
                 <td>{{inputDefinition.constraints}}</td>
                 <td>
-                  <delete-confirm id="{{inputId}}_delete" class="pull-right" func="removeInput(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  <delete-confirm id="{{inputId}}_delete" class="pull-right" func="inputs.remove(inputId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                   </delete-confirm>
                 </td>
               </tr>
@@ -772,20 +772,20 @@
             <span>
               <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
             </span>
-            <span id='closeGroups' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('groups')">
+            <span id='closeGroups' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('groups')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
           <div ng-repeat="group in orderedNodeGroups">
             <div id="group-details-{{group.name}}-header" class="topology-node-expand clickable">
               <h4>
-                <i class="pull-left fa clickable {{getGroupColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
+                <i class="pull-left fa clickable {{groups.getColorCss(group.name)}}" ng-class="{'fa-chevron-down' : !groupCollapsed[group.name].main, 'fa-chevron-right': groupCollapsed[group.name].main}"
                 ng-click="groupCollapsed[group.name].main = !groupCollapsed[group.name].main"></i>
-                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="updateNodeGroupName(group.name, $data)" blur="submit">
+                <span editable-text="group.name" id="nodeGroupName_{{group.name}}" buttons="no" e-required onbeforesave="groups.updateName(group.name, $data)" blur="submit">
                   {{group.name}}
                   <i class="fa fa-pencil-square-o"></i>
                 </span>
-                <delete-confirm id="btn-delete-group-{{group.name}}" func="deleteNodeGroup(group.name)" position="left" class="pull-right" bssize="btn-sm" fastyle="fa-trash-o">
+                <delete-confirm id="btn-delete-group-{{group.name}}" func="groups.delete(group.name)" position="left" class="pull-right" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
               </h4>
             </div>
@@ -801,7 +801,7 @@
                 <ul class="nav facet-choice">
                   <li ng-repeat="member in group.members">
                     <a href="" id="removeMember_{{member}}_from_{{group.name}}" confirm="{{'DELETE_CONFIRM' | translate}}" confirm-title="{{'DELETE' | translate }}"
-                      confirm-handler="deleteNodeGroupMember(group.name, member)" confirm-placement="bottom"
+                      confirm-handler="groups.removeMember(group.name, member)" confirm-placement="bottom"
                       ng-click="$event.stopPropagation();" >
                       <span>{{member}}</span>&nbsp;
                       <i class="fa fa-times"></i>
@@ -839,7 +839,7 @@
             <span>
               <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
             </span>
-            <span id='closeArtifacts' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('artifacts')">
+            <span id='closeArtifacts' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('artifacts')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
@@ -854,14 +854,14 @@
             <tbody>
               <tr ng-repeat="(inputArtifactId, inputArtifact) in topology.topology.inputArtifacts">
                 <td>
-                  <span editable-text="inputArtifactId" buttons="no" onbeforesave="updateInputArtifactId(inputArtifactId, $data)" blur="submit">
+                  <span editable-text="inputArtifactId" buttons="no" onbeforesave="inputs.updateArtifactId(inputArtifactId, $data)" blur="submit">
                     {{inputArtifactId}}
                     <i class="fa fa-pencil-square-o"></i>
                   </span>
                 </td>
                 <td>{{inputArtifact.artifactType}}</td>
                 <td>
-                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="removeInputArtifact(inputArtifactId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+                  <delete-confirm id="inputArtifact_{{inputArtifactId}}_delete" class="pull-right" func="inputs.removeArtifact(inputArtifactId)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                   </delete-confirm>
                 </td>
               </tr>
@@ -882,17 +882,17 @@
             <span>
               <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
             </span>
-            <span id='closeSubstitutions' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="toggleDisplay('substitutions')">
+            <span id='closeSubstitutions' class="btn btn-default btn-xs pull-right close-btn-panel" ng-click="display.toggle('substitutions')">
               <i class="fa fa-remove close-panel"></i>
             </span>
           </div>
           <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TYPE' | translate}}</h4>
           <div class="row">
             <div class="col-md-11">
-              <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" typeahead="item for item in getSubstitutionTypeSuggestions.get($viewValue)" typeahead-min-length="getSubstitutionTypeSuggestions.minLength" typeahead-on-select="selectSubstitutionType($item)" />
+              <input type="text" class="form-control" id="substitution-type" ng-model="substitutionType" typeahead="item for item in substitution.getTypeSuggestions.get($viewValue)" typeahead-min-length="substitution.getTypeSuggestions.minLength" typeahead-on-select="substitution.selectType($item)" />
             </div>
             <div class="col-md-1">
-              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="removeSubstitution()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
+              <delete-confirm id="substitutionType_delete" ng-if="topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType" class="pull-right" func="substitution.remove()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
             </div>
           </div>
           </delete-confirm>
@@ -907,9 +907,9 @@
               <ul class="dropdown-menu dropdown-menu-left" role="menu" ng-init="itemIdex = $index">
                 <li class="option-selected"><a id="substitution_version_{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}" ng-click="$event.stopPropagation()">{{topology.topology.substitutionMapping.substitutionType.archiveVersion}}</a></li>
                 <!-- TODO: it will probably be in deps so ... -->
-                <li ng-if="!isTypeInDependencies(topology.topology.substitutionMapping.substitutionType)" ng-repeat="olderVersion in topology.topology.substitutionMapping.substitutionType.olderVersions"><a id="substitution_version_{{olderVersion}}" ng-click="changeSubstitutionVersion(olderVersion)">{{olderVersion}}</a></li>
+                <li ng-if="!substitution.isTypeInDependencies(topology.topology.substitutionMapping.substitutionType)" ng-repeat="olderVersion in topology.topology.substitutionMapping.substitutionType.olderVersions"><a id="substitution_version_{{olderVersion}}" ng-click="changeSubstitutionVersion(olderVersion)">{{olderVersion}}</a></li>
               </ul>
-            </div>          
+            </div>
             <br>
             <h4>{{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.CAPABILITIES' | translate}}</h4>
             <table class="table table-hover">
@@ -924,7 +924,7 @@
               <tbody>
                 <tr ng-repeat="(capabilityId, target) in topology.topology.substitutionMapping.capabilities">
                   <td>
-                    <span editable-text="capabilityId" buttons="no" e-required onbeforesave="updateSubstitutionCababilityKey(capabilityId, $data)" blur="submit">
+                    <span editable-text="capabilityId" buttons="no" e-required onbeforesave="substitution.updateCababilityKey(capabilityId, $data)" blur="submit">
                       {{capabilityId}}
                       <i class="fa fa-pencil-square-o"></i>
                     </span>
@@ -932,9 +932,9 @@
                   <td>{{target.nodeTemplateName}}</td>
                   <td>{{target.targetId}}</td>
                   <td>
-                    <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="removeSubstitutionCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+                    <delete-confirm id="substitutionCapa_{{capabilityId}}_delete" class="pull-right" func="substitution.removeCabability(capabilityId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                     </delete-confirm>
-                  </td>                
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -951,21 +951,21 @@
               <tbody>
                 <tr ng-repeat="(requirementId, target) in topology.topology.substitutionMapping.requirements">
                   <td>
-                    <span editable-text="requirementId" buttons="no" e-required onbeforesave="updateSubstitutionRequirementKey(requirementId, $data)" blur="submit">
+                    <span editable-text="requirementId" buttons="no" e-required onbeforesave="substitution.updateRequirementKey(requirementId, $data)" blur="submit">
                       {{requirementId}}
                       <i class="fa fa-pencil-square-o"></i>
                     </span>
-                  </td>              
+                  </td>
                   <td>{{target.nodeTemplateName}}</td>
                   <td>{{target.targetId}}</td>
                   <td>
-                    <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="removeSubstitutionRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
+                    <delete-confirm id="substitutionReq_{{requirementId}}_delete" class="pull-right" func="substitution.removeRequirement(requirementId)" position="left" bssize="btn-xs" fastyle="fa-trash-o">
                     </delete-confirm>
-                  </td>                
+                  </td>
                 </tr>
               </tbody>
-            </table>   
-          </div>       
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -974,31 +974,31 @@
     <div id="topology-vertical-menu" class="topology-column">
       <ul>
         <li ng-show="!displays.catalog.active">
-          <span id="topology-components-search" ng-click="toggleDisplay('catalog')">
+          <span id="topology-components-search" ng-click="display.toggle('catalog')">
             <i class="fa fa-plus"></i> {{'APPLICATIONS.TOPOLOGY.ADD_NODETEMPLATE' | translate}}
           </span>
         </li>
         <li ng-show="!displays.dependencies.active">
-          <span id="topology-dependencies" ng-click="toggleDisplay('dependencies')">
+          <span id="topology-dependencies" ng-click="display.toggle('dependencies')">
             <i class="fa fa-archive"></i> {{'APPLICATIONS.TOPOLOGY.DEPENDENCY' | translate}}
           </span>
         </li>
         <li ng-show="!displays.inputs.active">
-          <span id="topology-inputs" ng-click="toggleDisplay('inputs')">
+          <span id="topology-inputs" ng-click="display.toggle('inputs')">
             <i class="fa fa-sign-in"></i> Inputs
           </span>
         </li>
-        <li ng-show="!displays.groups.active" ng-click="toggleDisplay('groups')">
+        <li ng-show="!displays.groups.active" ng-click="display.toggle('groups')">
           <span id="topology-groups" >
             <i class="fa fa-list-alt"></i> {{'APPLICATIONS.TOPOLOGY.GROUPS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="!displays.artifacts.active" ng-click="toggleDisplay('artifacts')">
+        <li ng-show="!displays.artifacts.active" ng-click="display.toggle('artifacts')">
           <span id="topology-artifacts" >
             <i class="fa fa-file"></i> {{'APPLICATIONS.TOPOLOGY.ARTIFACTS.TITLE' | translate}}
           </span>
         </li>
-        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="toggleDisplay('substitutions')">
+        <li ng-show="isTopologyTemplate && !displays.substitutions.active" ng-click="display.toggle('substitutions')">
           <span id="topology-substitutions" >
             <i class="fa fa-recycle"></i> {{'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.TITLE' | translate}}
           </span>

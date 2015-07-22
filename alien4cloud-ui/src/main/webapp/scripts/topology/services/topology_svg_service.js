@@ -97,14 +97,13 @@ define(function (require) {
 
           this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox;
           this.svgGraph.controls.coordinateUtils.reset();
-          // this.svgGraph.controls.updateViewBox();
         },
 
         computeLinkRoute: function(link) {
           // compute the route path
           var route;
           if(link.isNetwork) {
-            route = [];
+            route = [link.source, link.target];
           } else {
             route = this.grid.route(link.source, link.source.direction, link.target, link.target.direction);
           }
@@ -212,9 +211,9 @@ define(function (require) {
             scalingPolicySelection = nodeGroup.select('#scalingPolicy');
             if(scalingPolicySelection.empty()) {
               var scalingPolicyGroup = nodeGroup.append('g').attr('id', 'scalingPolicy');
-              scalingPolicyGroup.append('circle').attr('cx', oX + this.nodeRenderer.width).attr('cy', oY).attr('r', '12').attr('class', 'topology-svg-icon-circle');
-              scalingPolicyGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center').attr('x', oX + this.nodeRenderer.width).attr('y', oY)
-                .attr('transform', 'rotate(90 '+(oX + this.nodeRenderer.width)+' '+oY+')')
+              scalingPolicyGroup.append('circle').attr('cx', this.nodeRenderer.width).attr('cy', 0).attr('r', '12').attr('class', 'topology-svg-icon-circle');
+              scalingPolicyGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center').attr('x', this.nodeRenderer.width).attr('y', 0)
+                .attr('transform', 'rotate(90 ' + (this.nodeRenderer.width) + ' 0)')
                 .text(function() { return '\uf112'; });
             }
           } else {
@@ -245,7 +244,7 @@ define(function (require) {
           newLinks.each(function(link) {
             var linkPath = d3.select(this);
             if(link.isNetwork) {
-              var netStyle = link.networkId % self.networkStyles;
+              var netStyle = link.networkId % self.nodeRenderer.networkStyles;
               linkPath.attr('class', 'link link-network link-network-' + netStyle);
             } else {
               linkPath.attr('class', 'link');
@@ -271,17 +270,6 @@ define(function (require) {
             path = linkPath.select('path');
           }
           path.attr('d', function(d){ return line(d.route)});
-          // linkPath.attr('d', function(link) {
-          //     // compute the route path
-          //     var route = link.route;
-          //     var path = 'M' + route[0].x + ',' + route[0].y;
-          //     for (var i = 1; i < route.length - 1; i++) {
-          //       path = path + ' ' + route[i].x + ',' + route[i].y;
-          //     }
-          //     path = path + ' ' + route[route.length - 1].x + ',' + route[route.length - 1].y;
-          //
-          //     return path;
-          //   });
           linkPath.classed('link-selected', function(link) { return link.selected; });
         }
       };
