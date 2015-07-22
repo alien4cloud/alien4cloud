@@ -12,8 +12,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import lombok.Getter;
-import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
-import alien4cloud.model.components.PropertyConstraint;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,10 +32,12 @@ import org.springframework.util.PropertyPlaceholderHelper;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
 import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
@@ -149,8 +149,8 @@ public class Context {
     private Application applicationLocal;
 
     private Map<String, String> applicationInfos;
-    
-    private Map<String,String> csarGitInfos;
+
+    private Map<String, String> csarGitInfos;
 
     private Map<String, String> cloudInfos;
 
@@ -246,10 +246,10 @@ public class Context {
         return cloudImageNameToCloudImageIdMapping.get(cloudImageName);
     }
 
-    public Map<String,String> getCsarGitInfos() {
+    public Map<String, String> getCsarGitInfos() {
         return csarGitInfos;
     }
-    
+
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
         applicationVersionNameToApplicationVersionIdMapping.put(applicationVersionName, applicationVersionId);
     }
@@ -477,9 +477,9 @@ public class Context {
         topologyCloudInfos = cloudId;
     }
 
-    public void saveCsarGitInfos(String id,String url) {
+    public void saveCsarGitInfos(String id, String url) {
         if (this.csarGitInfos != null) {
-            this.csarGitInfos.put(id,url);
+            this.csarGitInfos.put(id, url);
             return;
         }
         this.csarGitInfos = MapUtil.newHashMap(new String[] { id }, new String[] { url });
@@ -496,6 +496,12 @@ public class Context {
 
     public Map<String, String> getDeployApplicationProperties() {
         return deployApplicationProperties;
+    }
+
+    public Map<String, String> takeDeployApplicationProperties() {
+        Map<String, String> tmp = deployApplicationProperties;
+        deployApplicationProperties = null;
+        return tmp;
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
