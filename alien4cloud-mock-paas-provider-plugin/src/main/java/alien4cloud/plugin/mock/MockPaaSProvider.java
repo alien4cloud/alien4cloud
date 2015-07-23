@@ -339,7 +339,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
 
     private String getNextState(String currentState) {
         if (providerConfiguration != null && providerConfiguration.isShuffleStateChange() && randomSkipStateChange.nextBoolean()) {
-            return currentState;
+            return null;
         }
         switch (currentState) {
         case ToscaNodeLifecycleConstants.INITIAL:
