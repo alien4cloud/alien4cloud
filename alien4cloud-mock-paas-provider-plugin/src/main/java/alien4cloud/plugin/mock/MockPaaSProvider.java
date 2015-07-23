@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,6 +28,7 @@ import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.cloud.CloudResourceMatcherConfig;
 import alien4cloud.model.cloud.CloudResourceType;
 import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Capability;
 import alien4cloud.model.topology.NodeTemplate;
@@ -135,7 +137,8 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         if (scalableCapability == null) {
             if (nodeTemplates.get(id).getRelationships() != null) {
                 for (RelationshipTemplate rel : nodeTemplates.get(id).getRelationships().values()) {
-                    if (NormativeRelationshipConstants.HOSTED_ON.equals(rel.getType())) {
+                    IndexedRelationshipType relType = getRelationshipType(rel.getType());
+                    if (ToscaUtils.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
                         return getScalingPolicy(rel.getTarget(), nodeTemplates);
                     }
                 }
@@ -332,7 +335,12 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         }
     }
 
+    private Random randomSkipStateChange = new Random();
+
     private String getNextState(String currentState) {
+        if (providerConfiguration != null && providerConfiguration.isShuffleStateChange() && randomSkipStateChange.nextBoolean()) {
+            return currentState;
+        }
         switch (currentState) {
         case ToscaNodeLifecycleConstants.INITIAL:
             return "creating";
@@ -361,12 +369,19 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
         void visit(String nodeTemplateId);
     }
 
+    private IndexedRelationshipType getRelationshipType(String typeName) {
+        Map<String, String[]> filters = Maps.newHashMap();
+        filters.put("elementId", new String[] { typeName });
+        return (IndexedRelationshipType) csarRepoSearchService.search(IndexedRelationshipType.class, null, 0, 1, filters, false).getData()[0];
+    }
+
     private void doScaledUpNode(ScalingVisitor scalingVisitor, String nodeTemplateId, Map<String, NodeTemplate> nodeTemplates) {
         scalingVisitor.visit(nodeTemplateId);
         for (Entry<String, NodeTemplate> nEntry : nodeTemplates.entrySet()) {
             if (nEntry.getValue().getRelationships() != null) {
                 for (Entry<String, RelationshipTemplate> rt : nEntry.getValue().getRelationships().entrySet()) {
-                    if (nodeTemplateId.equals(rt.getValue().getTarget()) && "tosca.relationships.HostedOn".equals(rt.getValue().getType())) {
+                    IndexedRelationshipType relType = getRelationshipType(rt.getValue().getType());
+                    if (nodeTemplateId.equals(rt.getValue().getTarget()) && ToscaUtils.isFromType(NormativeRelationshipConstants.HOSTED_ON, relType)) {
                         doScaledUpNode(scalingVisitor, nEntry.getKey(), nodeTemplates);
                     }
                 }
