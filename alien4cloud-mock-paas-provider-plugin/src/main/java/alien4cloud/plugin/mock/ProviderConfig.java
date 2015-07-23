@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @Setter
 @NoArgsConstructor
 @FormProperties({ "firstArgument", "secondArgument", "thirdArgument", "withBadConfiguraton", "tags", "properties", "javaVersion", "provideResourceIds",
-        "resourceIdsCount" })
+        "resourceIdsCount", "shuffleStateChange" })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuppressWarnings("PMD.UnusedPrivateField")
@@ -45,4 +45,5 @@ public class ProviderConfig {
 
     private int resourceIdsCount;
 
+    private boolean shuffleStateChange;
 }
