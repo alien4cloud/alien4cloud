@@ -76,7 +76,7 @@ Feature: Topology composition
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     When I register the rest response data as SPEL context of type "alien4cloud.model.components.IndexedNodeType"
-    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "alien.capabilities.Mysql.DatabaseEndpoint"
+    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "alien.capabilities.MysqlDatabaseEndpoint"
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
 
@@ -93,7 +93,7 @@ Feature: Topology composition
     And I add a node template "myLAMP" related to the "net.sample.LAMP:0.1.0-SNAPSHOT" node type
     And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
     And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabase" and target capability "hostMysql"
+    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "hostMysql"
     And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
     And I update the node template "myLAMP"'s property "os_arch" to "x86_64"
     And I update the node template "myLAMP"'s property "os_type" to "linux"
@@ -187,7 +187,7 @@ Scenario: Recursive composition
     And I add a node template "myLAMP" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
     And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
     And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabase" and target capability "hostMysql"
+    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "hostMysql"
     And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
     And I update the node template "myLAMP"'s property "sys_arch" to "x86_64"
     And I update the node template "myLAMP"'s property "sys_type" to "linux"
@@ -268,7 +268,7 @@ Scenario: Topology composition with interaction
     And I add a node template "myLAMP" related to the "net.sample.LAMP2:0.1.0-SNAPSHOT" node type
     And I add a node template "myWordpress" related to the "alien.nodes.Wordpress:2.0.0-SNAPSHOT" node type
     And I add a relationship of type "alien.relationships.WordpressHostedOnApache" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "host" of type "alien.capabilities.ApacheContainer" and target capability "hostApache"
-    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabase" and target capability "hostMysql"
+    And I add a relationship of type "alien.relationships.WordpressConnectToMysql" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "database" of type "alien.capabilities.MysqlDatabaseEndpoint" and target capability "hostMysql"
     And I add a relationship of type "alien.relationships.WordpressConnectToPHP" defined in archive "wordpress-type" version "2.0.0-SNAPSHOT" with source "myWordpress" and target "myLAMP" for requirement "php" of type "alien.capabilities.PHPModule" and target capability "attachWebsite"
     And I update the node template "myLAMP"'s property "sys_arch" to "x86_64"
     And I update the node template "myLAMP"'s property "sys_type" to "linux"

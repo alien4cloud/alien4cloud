@@ -19,9 +19,9 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     # Cloudify 2
     And I upload a plugin from "../../alien4cloud-cloudify2-provider"
     And I create a cloud with name "Cloudify 2" from cloudify 2 PaaS provider
-    And I update cloudify 2 manager's url to "http://129.185.67.68:8100" for cloud with name "Cloudify 2"
+    And I update cloudify 2 manager's url to "https://129.185.67.41:8100" with login "Superuser" and password "Superuser" for cloud with name "Cloudify 2"
     And I enable the cloud "Cloudify 2"
-    And I add the cloud image "Ubuntu Trusty" to the cloud "Cloudify 2" and match it to paaS image "RegionOne/2b4475df-b6d6-49b7-a062-a3a20d45ab7c"
+    And I add the cloud image "Ubuntu Trusty" to the cloud "Cloudify 2" and match it to paaS image "RegionOne/c3fcd822-0693-4fac-b8bb-c0f268225800"
     And I add the flavor with name "small", number of CPUs 2, disk size 34359738368 and memory size 2147483648 to the cloud "Cloudify 2" and match it to paaS flavor "RegionOne/2"
     And I add the network with name "private" and CIDR "192.168.1.0/24" and IP version 4 and gateway "192.168.1.1" to the cloud "Cloudify 2"
     And I match the network with name "private" of the cloud "Cloudify 2" to the PaaS resource "APPLICATION_NET"
@@ -34,9 +34,8 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
 
     # Application CFY 2
     And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template"
+#    And I create a new application with name "wordpress-cfy2" and description "Wordpress with CFY 2" based on the template with name "wordpress-template"
     And I assign the cloud with name "Cloudify 2" for the application
-    And I set the input property "os_arch" of the topology to "x86_64"
-    And I set the input property "os_type" of the topology to "linux"
     And I add a node template "DbStorage" related to the "alien.nodes.ConfigurableBlockStorage:1.0-SNAPSHOT" node type
     And I update the node template "DbStorage"'s property "location" to "/var/mysql"
     And I update the node template "DbStorage"'s property "device" to "/dev/vdb"
@@ -49,3 +48,10 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     And I set the input property "os_arch" of the topology to "x86_64"
     And I set the input property "os_type" of the topology to "linux"
     And I select the network with name "private" for my node "privateNetwork"
+    
+        # Tomcat application
+    And I create a new application with name "Tomcat-cdf2" and description "Tomcat test app" based on the template with name "tomcat-war-0.1.0-SNAPSHOT"
+    And I assign the cloud with name "Cloudify 2" for the application
+    And I set the input property "os_arch" of the topology to "x86_64"
+    And I set the input property "os_type" of the topology to "linux"
+    

@@ -33,9 +33,9 @@ public class PaaSNodeTemplate implements IPaaSTemplate<IndexedNodeType> {
     /** List of node templates that are hosted on this node template. */
     private List<PaaSNodeTemplate> children = Lists.newArrayList();
 
-    /** node template attached on this node template. */
+    /** node template attached on this node template. Usually block storages */
     // TODO separate the simple PaaSNodeTemplate from the ComputePaaSNodeTemplate
-    private PaaSNodeTemplate attachedNode;
+    private List<PaaSNodeTemplate> storageNodes = Lists.newArrayList();
 
     // TODO put it in ComputePaaSNodeTemplate + must manage multiple network
     private List<PaaSNodeTemplate> networkNodes;

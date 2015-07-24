@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/deployment/services/deployment_services');
 
   states.state('components.csars.csardetail', {
-    url: '/detail/:csarId',
+    url: '/details/:csarId',
     templateUrl: 'views/components/csar_details.html',
     controller: 'CsarDetailsCtrl'
   });
@@ -85,7 +85,7 @@ define(function (require) {
             var title = $translate('CSAR.ERRORS.' + result.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
           } else {
-            $state.go('components.csars.list');
+            $state.go('components.csars');
           }
         });
       };

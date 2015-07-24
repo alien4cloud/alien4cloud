@@ -6,7 +6,7 @@ define(function (require) {
   var angular = require('angular');
 
   states.state('components.detail', {
-    url: '/component/:id',
+    url: '/details/:id',
     templateUrl: 'views/components/component_details.html',
     controller: 'ComponentDetailsCtrl'
   });

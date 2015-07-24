@@ -25,7 +25,7 @@ define(function (require) {
   require('scripts/cloud-images/controllers/new_cloud_image');
 
   states.state('admin.clouds.detail', {
-    url: '/:id',
+    url: '/details/:id',
     templateUrl: 'views/clouds/cloud_detail.html',
     controller: 'CloudDetailController'
   });
@@ -276,7 +276,7 @@ define(function (require) {
           id: cloudId
         }, function(response) {
           if (response.data === true) {
-            $state.go('admin.clouds.list');
+            $state.go('admin.clouds');
           } else {
             // toaster message
             toaster.pop('error', $translate('CLOUDS.ERRORS.DELETING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DELETING_FAILED'), 4000, 'trustedHtml', null);
