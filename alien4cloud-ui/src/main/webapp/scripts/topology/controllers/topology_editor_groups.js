@@ -37,6 +37,8 @@ define(function (require) {
               }
             }
           });
+          // FIXME at this moment you may have errors in the browser console due to the fact that the topology has not been refreshed.
+          // Scope apply should be suspended and triggered only when topology is refreshed.
         },
         removeMember: function(groupId, member) {
           var instance = this;
@@ -72,7 +74,7 @@ define(function (require) {
         },
         toggleMember: function(groupId, nodeName) {
           var instance = this;
-          if (this.isNodeMemberOf(nodeName, groupId)) {
+          if (this.isMemberOf(nodeName, groupId)) {
             this.removeMember(groupId, nodeName);
           } else {
             topologyServices.nodeGroups.addMember({

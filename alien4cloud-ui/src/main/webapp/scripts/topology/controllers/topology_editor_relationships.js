@@ -50,19 +50,23 @@ define(function (require) {
           scope.display.set('component', true);
         },
 
-        openSearchRelationshipModal: function(openedOnElementName, openedOnElement, requirementName, requirement, targetNodeTemplateName) {
+        openSearchRelationshipModal: function(sourceNodeTemplateName, requirementName, targetNodeTemplateName,
+          targetedCapability) {
           var scope = this.scope;
           var instance = this;
 
-          if (!openedOnElement.requirementsMap[requirementName].value.canAddRel.yes) {
-            return;
+          var sourceNodeTemplate = scope.topology.topology.nodeTemplates[sourceNodeTemplateName];
+          var requirement = sourceNodeTemplate.requirementsMap[requirementName].value;
+          if (!requirement.canAddRel.yes) {
+            return; // TODO we must display an error message...
           }
 
-          scope.sourceElement = openedOnElement;
-          scope.sourceElementName = openedOnElementName;
+          scope.sourceElement = sourceNodeTemplate;
+          scope.sourceElementName = sourceNodeTemplateName;
           scope.requirementName = requirementName;
           scope.requirement = requirement;
           scope.targetNodeTemplateName = targetNodeTemplateName;
+          scope.targetedCapability = targetedCapability;
 
           var modalInstance = $modal.open({
             templateUrl: 'views/topology/search_relationship_modal.html',
@@ -72,7 +76,7 @@ define(function (require) {
           });
 
           modalInstance.result.then(function(relationshipResult) {
-            instance.doAddRelationship(openedOnElementName, relationshipResult, requirementName, requirement.type);
+            instance.doAddRelationship(sourceNodeTemplateName, relationshipResult, requirementName, requirement.type);
           });
         },
 
@@ -83,7 +87,7 @@ define(function (require) {
           if (_.defined(sourceNodeTemplate) && _.defined(targetNodeTemplate)) {
             // let's try to find the requirement / for now we just support hosted on but we should improve that...
             var requirementName = nodeTemplateService.getContainerRequirement(sourceNodeTemplate, scope.topology.nodeTypes, scope.topology.relationshipTypes, scope.topology.capabilityTypes);
-            this.openSearchRelationshipModal(sourceNodeTemplateName, sourceNodeTemplate, requirementName, sourceNodeTemplate.requirementsMap[requirementName].value, targetNodeTemplateName);
+            this.openSearchRelationshipModal(sourceNodeTemplateName, requirementName, targetNodeTemplateName);
           }
         },
 

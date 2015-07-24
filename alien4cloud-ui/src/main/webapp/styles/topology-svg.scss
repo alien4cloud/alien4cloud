@@ -30,7 +30,7 @@
 
 .topology-svg-icon {
   font-family: FontAwesome;
-  font-size: 14px;
+  font-size: 10px;
   font-style: normal;
 }
 
@@ -210,4 +210,32 @@
   bottom: 11px;
   left: 49%;
   content: "\f0d7";
+}
+
+.runtime-state-no {
+  fill-opacity: 0;
+}
+.runtime-state-deployed {
+  fill: $state-success-text;
+  fill-opacity: 1;
+}
+.runtime-state-maintenance {
+  fill: $state-info-text;
+  fill-opacity: 1;
+}
+.runtime-state-undeployed {
+  fill: $gray-light;
+  fill-opacity: 1;
+}
+.runtime-state-warning {
+  fill: $state-warning-text;
+  fill-opacity: 1;
+}
+.runtime-state-failure {
+  fill: $state-danger-text;
+  fill-opacity: 1;
+}
+.runtime-state-unknown {
+  fill: #ffffff;
+  fill-opacity: 1;
 }

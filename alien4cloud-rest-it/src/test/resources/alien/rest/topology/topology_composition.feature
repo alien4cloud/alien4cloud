@@ -76,7 +76,7 @@ Feature: Topology composition
     Then I should receive a RestResponse with no error
     And I should have a component with id "net.sample.LAMP:0.1.0-SNAPSHOT"
     When I register the rest response data as SPEL context of type "alien4cloud.model.components.IndexedNodeType"
-    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "tosca.capabilities.DatabaseEndpoint"
+    Then The SPEL expression "capabilities.^[id == 'hostMysql'].type" should return "alien.capabilities.Mysql.DatabaseEndpoint"
     And The SPEL expression "capabilities.^[id == 'hostApache'].type" should return "alien.capabilities.ApacheContainer"
     And The SPEL expression "capabilities.^[id == 'attachWebsite'].type" should return "alien.capabilities.PHPModule"
 

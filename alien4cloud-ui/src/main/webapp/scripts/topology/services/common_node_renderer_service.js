@@ -47,20 +47,6 @@ define(function (require) {
           }
         },
 
-        appendCount: function(runtimeGroup, nodeInstancesCount, deletedCount, rectOriginX, rectOriginY, x, y, width) {
-          var fontSize = nodeInstancesCount >= 100 ? 'x-small' : 'small';
-          var shiftLeftBigCount = nodeInstancesCount >= 100 ? 4 : 0;
-          runtimeGroup.append('text').attr('text-anchor', 'start')
-            .attr('x', rectOriginX + width - x - shiftLeftBigCount)
-            .attr('y', rectOriginY + y)
-            .attr('font-weight', 'bold')
-            .attr('font-size', fontSize)
-            .attr('fill', 'white')
-            .text(function() {
-              return nodeInstancesCount ? nodeInstancesCount - deletedCount : 0;
-            });
-        },
-
         getNumberOfInstanceByStatus: function(nodeInstances, instanceStatus, state) {
           var count = 0;
           for (var instanceId in nodeInstances) {

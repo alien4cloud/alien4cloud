@@ -15,8 +15,8 @@ define(function (require) {
   require('scripts/topology/services/topology_layout_services');
   require('scripts/topology/services/connector_drag_service');
 
-  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'relationshipMatchingService', 'connectorDragFactoryService',
-    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, relationshipMatchingService, connectorDragFactoryService) {
+  modules.get('a4c-topology-editor', ['a4c-tosca', 'a4c-common-graph']).factory('topologySvgFactory', ['svgServiceFactory', 'topologyLayoutService', 'routerFactoryService', 'toscaService', 'd3Service', 'connectorDragFactoryService',
+    function(svgServiceFactory, topologyLayoutService, routerFactoryService, toscaService, d3Service, connectorDragFactoryService) {
       function TopologySvg (callbacks, containerElement, isRuntime, nodeRenderer) {
         this.isGridDisplayed = false;
         this.firstRender = true;
@@ -93,7 +93,7 @@ define(function (require) {
           this.draw(this.layout);
           this.displayGrid();
 
-          this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox;
+          this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox.cloneWithPadding(50);
           this.svgGraph.controls.coordinateUtils.reset();
         },
 
@@ -197,31 +197,12 @@ define(function (require) {
 
           this.nodeRenderer.updateNode(nodeGroup, node, nodeTemplate, nodeType, this.topology);
 
-          var scalingPolicySelection = null;
-          var scalingPolicy = toscaService.getScalingPolicy(nodeTemplate);
-
           if (toscaService.isOneOfType(['tosca.nodes.Network'], nodeTemplate.type, this.topology.nodeTypes)) {
             var netX = node.bbox.width();
             var netMaxX = this.layout.bbox.width();
             var netY = node.bbox.height() / 2 - 2;
             var path = 'M '+netX+','+netY+' '+netMaxX+','+netY;
             nodeGroup.select('.link-network').attr('d', path);
-          }
-
-          if(_.defined(scalingPolicy)) {
-            scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-            if(scalingPolicySelection.empty()) {
-              var scalingPolicyGroup = nodeGroup.append('g').attr('id', 'scalingPolicy');
-              scalingPolicyGroup.append('circle').attr('cx', this.nodeRenderer.width).attr('cy', 0).attr('r', '12').attr('class', 'topology-svg-icon-circle');
-              scalingPolicyGroup.append('text').attr('class', 'topology-svg-icon topology-svg-icon-center').attr('x', this.nodeRenderer.width).attr('y', 0)
-                .attr('transform', 'rotate(90 ' + (this.nodeRenderer.width) + ' 0)')
-                .text(function() { return '\uf112'; });
-            }
-          } else {
-            scalingPolicySelection = nodeGroup.select('#scalingPolicy');
-            if(!scalingPolicySelection.empty()) {
-              scalingPolicySelection.remove();
-            }
           }
         },
 

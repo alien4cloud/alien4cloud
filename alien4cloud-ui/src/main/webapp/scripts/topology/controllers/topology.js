@@ -270,7 +270,7 @@ define(function (require) {
           if(_.defined(relationship)) {
             // generate relationship name
             var name = toscaService.generateRelationshipName(relationship.elementId, targetId);
-            // add the relationship.
+            // add the relationship
             $scope.relationships.doAddRelationship(sourceId, {
               name: name,
               target: targetId,
@@ -279,7 +279,7 @@ define(function (require) {
             }, requirementName, requirementType);
           } else {
             // open the modal so user can choose the target relationship.
-
+            $scope.relationships.openSearchRelationshipModal(sourceId, requirementName, targetId, capabilityName);
           }
         },
         selectNodeTemplate: function(newSelectedName, oldSelectedName) {

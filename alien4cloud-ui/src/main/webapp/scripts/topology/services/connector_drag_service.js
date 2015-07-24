@@ -1,3 +1,4 @@
+/* global d3 */
 define(function (require) {
   'use strict';
 
@@ -12,7 +13,7 @@ define(function (require) {
           var mouseCoordinate;
 
           var connectorDrag = d3.behavior.drag()
-            .on("dragstart", function(element) {
+            .on('dragstart', function(element) {
               relationshipMatchingService.getTargets(element.node.id, element.template, element.id, topologySvg.topology.topology.nodeTemplates,
                 topologySvg.topology.nodeTypes, topologySvg.topology.relationshipTypes, topologySvg.topology.capabilityTypes, topologySvg.topology.topology.dependencies).then(function(result) {
                 var connectTargets = [];
@@ -31,17 +32,16 @@ define(function (require) {
                     }
                   });
                 });
-                
-                var targetSelection = topologySvg.svg.selectAll(".connectorTarget").data(connectTargets);
-                targetSelection.enter().append("circle")
-                  .attr("cx", function(d){ return d.target.coordinate.x })
-                  .attr("cy", function(d){ return d.target.coordinate.y })
-                  .attr("r", 10)
+
+                var targetSelection = topologySvg.svg.selectAll('.connectorTarget').data(connectTargets);
+                targetSelection.enter().append('circle')
+                  .attr('cx', function(d){ return d.target.coordinate.x; })
+                  .attr('cy', function(d){ return d.target.coordinate.y; })
+                  .attr('r', 10)
                   .attr('class', 'connectorTarget')
                   .attr('pointer-events', 'mouseover')
-                  .on("mouseover", function(node) { selectedTarget = node; })
-                  .on("mouseout", function(node) { selectedTarget = null; });
-                  selectedTarget
+                  .on('mouseover', function(node) { selectedTarget = node; })
+                  .on('mouseout', function() { selectedTarget = null; });
                 targetSelection.exit().remove();
               });
               mouseCoordinate = {
@@ -51,7 +51,7 @@ define(function (require) {
 
               // find relationship valid targets
               d3.event.sourceEvent.stopPropagation();
-            }).on("drag", function(element) {
+            }).on('drag', function(element) {
               var data = [];
               mouseCoordinate.x += d3.event.dx;
               mouseCoordinate.y += d3.event.dy;
@@ -69,10 +69,10 @@ define(function (require) {
                   .attr('pointer-events', 'none');
               link.attr('d', d3.svg.diagonal());
               link.exit().remove();
-            }).on("dragend", function(element) {
+            }).on('dragend', function(element) {
               // remove all drag line and drag targets
-              topologySvg.svg.selectAll(".connectorTarget").data([]).exit().remove();
-              topologySvg.svg.selectAll(".connectorlink").data([]).exit().remove();
+              topologySvg.svg.selectAll('.connectorTarget').data([]).exit().remove();
+              topologySvg.svg.selectAll('.connectorlink').data([]).exit().remove();
               if(_.defined(selectedTarget)) {
                 var target = selectedTarget.target;
                 topologySvg.addRelationship({

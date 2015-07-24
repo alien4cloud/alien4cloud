@@ -2,11 +2,10 @@
   <div class="topology-row" style="height: {{dimensions.height}}px;">
     <!-- TOPOLOGY display -->
     <div id="topology" class="topology-column" ng-show="displays.topology.active">
-      <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true; simple = false">
+      <div class="topology topology-column-box" alien-droppable drag-data="" drag-on-drop="nodes.onDragged(data)" ng-init="visual = true;">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED';">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="yaml.display()">{{'APPLICATIONS.TOPOLOGY.YAML' | translate}}</a>
             <a class="btn btn-default btn-xs" ng-click="view = 'PLAN'" id="btn-app-topology-plan">{{'APPLICATIONS.TOPOLOGY.PLAN' | translate}}</a>
             <ui-select id="app-version-select" ng-if="appVersions != null" ng-model="selectedVersion" theme="bootstrap" ng-disabled="disabled" append-to-body="true" on-select="versions.change(selectedVersion, appVersions)" reset-search-input="true" close-on-select="true">
@@ -22,7 +21,7 @@
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
-                            simple="simple" runtime="false"></topology-rendering>
+                            runtime="false" />
         <topology-plan ng-if="view === 'PLAN' && topology" dimensions="visualDimensions" topology="topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
@@ -308,7 +307,7 @@
                       <button tooltip="{{'APPLICATIONS.TOPOLOGY.ADD_RELATIONSHIP' | translate}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
                               tooltip-append-to-body="true" class="btn btn-default btn-xs"
-                              ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, selectedNodeTemplate, requirementEntry.key, requirementEntry.value); $event.stopPropagation();"
+                              ng-click="relationships.openSearchRelationshipModal(selectedNodeTemplate.name, requirementEntry.key); $event.stopPropagation();"
                               id="btn-add-relationship-{{requirementEntry.key}}">
                         <i class="fa fa-link"></i>
                       </button>

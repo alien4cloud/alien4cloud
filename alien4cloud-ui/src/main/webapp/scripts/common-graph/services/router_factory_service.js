@@ -119,6 +119,7 @@ define(function (require) {
       },
 
       route: function(p1, dir1, p2, dir2) {
+        var route;
         var gp1 = this.getCellCoordinates(p1); // grid p1
         var gp2 = this.getCellCoordinates(p2); // grid p2
 
@@ -131,7 +132,7 @@ define(function (require) {
             // check that segments doesn't cross obstacles.
             if(!this.isCrossingObstacle(gp1, intersection, dir1) && !this.isCrossingObstacle(gp2, intersection, dir2)) {
               // return a simple route.
-              var route = [p1, this.getRealCoordinates(intersection), p2];
+              route = [p1, this.getRealCoordinates(intersection), p2];
               this.routeCoordinatesUpdate(route, p1, dir1, p2, dir2);
               return route;
             }
@@ -155,7 +156,7 @@ define(function (require) {
             // compute flexion points (only when same direction)
             var sourceDirections = this.directions(nextPoint1, nextPoint11);
             var targetDirections = this.directions(nextPoint2, nextPoint21);
-            var route = [p1, this.getRealCoordinates(nextPoint1), this.getRealCoordinates(nextPoint11),
+            route = [p1, this.getRealCoordinates(nextPoint1), this.getRealCoordinates(nextPoint11),
               this.getRealCoordinates(nextPoint21), this.getRealCoordinates(nextPoint2), p2];
             if(sourceDirections.vertical === targetDirections.vertical) { // TODO this is specific for vertical loop so alien specific..
               // add vertical inflextion to the route
@@ -164,7 +165,7 @@ define(function (require) {
                 y = route[2].y - 20;
                 route[2].y += 20;
               } else {
-                y = route[2].y + 20
+                y = route[2].y + 20;
                 route[2].y -= 20;
               }
               var before2 = {
@@ -175,7 +176,7 @@ define(function (require) {
                 y = route[3].y - 20;
                 route[3].y += 20;
               } else {
-                y = route[3].y + 20
+                y = route[3].y + 20;
                 route[3].y -= 20;
               }
               var after3 = {
@@ -192,7 +193,7 @@ define(function (require) {
             // we have a common way to use so just return the route.
             nextPoint1 = this.getRealCoordinates(this.pointFromWay(gp1, mergedWay, dir1));
             nextPoint2 = this.getRealCoordinates(this.pointFromWay(gp2, mergedWay, dir2));
-            var route = [p1, nextPoint1, nextPoint2, p2];
+            route = [p1, nextPoint1, nextPoint2, p2];
             this.routeCoordinatesUpdate(route, p1, dir1, p2, dir2);
             return route;
           }
@@ -232,9 +233,9 @@ define(function (require) {
           var dirs = this.directions(sourcePoint, targetPoint);
           var mover;
           if(dirs.vertical === directions.up) {
-            mover = function(point) {point.y++};
+            mover = function(point) {point.y++;};
           } else {
-            mover = function(point) {point.y--};
+            mover = function(point) {point.y--;};
           }
           mover(src);
           mover(target);

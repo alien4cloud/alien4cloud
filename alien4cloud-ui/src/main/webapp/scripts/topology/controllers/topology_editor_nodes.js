@@ -30,7 +30,6 @@ define(function (require) {
         },
         /** this has to be exposed to the scope as we cannot rely on drag and drop callbacks for ui tests */
         add: function(nodeType, hostNodeName) {
-          console.log(this.scope);
           var nodeTemplName = toscaService.generateNodeTemplateName(nodeType.elementId, this.scope.topology.topology.nodeTemplates);
           this.doAddNodeTemplate(nodeTemplName, nodeType, hostNodeName);
         },

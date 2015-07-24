@@ -20,7 +20,7 @@ define(function (require) {
       unknown: '#2183b2',
       groupColorCss: function(topology, groupId) {
         // 10 colors max (cf. topology-svg.scss)
-        return "groupColor-" + topology.groups[groupId].index % 10;
+        return 'groupColor-' + topology.groups[groupId].index % 10;
       }
     };
   });

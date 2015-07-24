@@ -27,7 +27,7 @@ define(function (require) {
           var widthScale = this.canvasWidth / this.bbox.width();
           var heightScale = this.canvasHeight / this.bbox.height();
           var newScale = widthScale < heightScale ? widthScale : heightScale;
-          newScale = this.scale < newScale ? this.scale : newScale;
+          // newScale = this.scale < newScale ? this.scale : newScale;
 
           this.scale = newScale;
           var halfWidth = this.width() / 2;
