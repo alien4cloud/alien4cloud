@@ -28,19 +28,19 @@ define(function (require) {
       roles: ['COMPONENTS_MANAGER', 'COMPONENTS_BROWSER']
     }
   });
-  states.state('components.list', {
-    url: '/list',
+  states.state('components.components', {
+    url: '/components/list',
     templateUrl: 'views/components/component_list.html',
     controller: 'SearchComponentCtrl',
     menu: {
-      id: 'cm.components.list',
-      state: 'components.list',
+      id: 'cm.components.components',
+      state: 'components.components',
       key: 'NAVBAR.MENU_COMPONENTS',
       icon: 'fa fa-cubes',
       priority: 10
     }
   });
-  states.forward('components', 'components.list');
+  states.forward('components', 'components.components');
 
   modules.get('a4c-components', ['ui.router', 'a4c-auth', 'a4c-common']).controller('SearchComponentCtrl', ['authService', '$scope', '$state', 'resizeServices',
     function(authService, $scope, $state, resizeServices) {
@@ -51,7 +51,7 @@ define(function (require) {
       };
 
       $scope.openComponent = function(component) {
-        $state.go('components.detail', { id: component.id });
+        $state.go('components.components.detail', { id: component.id });
       };
 
       function onResize(width, height) {
