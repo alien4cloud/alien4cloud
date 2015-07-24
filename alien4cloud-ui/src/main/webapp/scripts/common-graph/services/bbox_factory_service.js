@@ -87,6 +87,20 @@ define(function (require) {
         clone.maxX = this.maxX + padding;
         clone.maxY = this.maxY + padding;
         return clone;
+      },
+
+      containsBBox: function(bbox) {
+        return this.contains({x: bbox.minX, y: bbox.minY}) && this.contains({x: bbox.maxX, y: bbox.maxY});
+      },
+
+      contains: function(point) {
+        if(point.x < this.minX || this.maxX < point.x) {
+          return false;
+        }
+        if(point.y < this.minY || this.maxY < point.y) {
+          return false;
+        }
+        return true;
       }
     };
 

@@ -90,11 +90,14 @@ define(function (require) {
           }
 
           // draw the svg
-          this.draw(this.layout);
+          var requiresViewBoxUpdate = this.draw(this.layout);
           this.displayGrid();
 
           this.svgGraph.controls.coordinateUtils.bbox = this.layout.bbox.cloneWithPadding(50);
           this.svgGraph.controls.coordinateUtils.reset();
+          if(requiresViewBoxUpdate) {
+            this.svgGraph.controls.updateViewBox(true);
+          }
         },
 
         computeLinkRoute: function(link) {
@@ -144,12 +147,15 @@ define(function (require) {
             self.updateNode(nodeGroup, node);
           });
 
+          var requiresViewBoxUpdate = false;
           // create new nodes
           var newNodeGroups = nodeSelection.enter().append('g').attr('class', 'node-template');
           newNodeGroups.each(function(node) {
             var nodeGroup = d3.select(this);
             self.createNode(nodeGroup, node);
             self.updateNode(nodeGroup, node);
+            // when there is a new node we may have to update the view port
+            requiresViewBoxUpdate = true;
           });
 
           // remove destroyed nodes.
@@ -159,6 +165,7 @@ define(function (require) {
           nodeSelection.order();
 
           this.drawLink(this.svg, links);
+          return requiresViewBoxUpdate;
         },
 
         createNode: function(nodeGroup, node) {
