@@ -21,7 +21,7 @@ define(function (require) {
   require('scripts/applications/controllers/topology_runtime');
 
   states.state('applications.detail', {
-    url: 'detail/:id',
+    url: '/details/:id',
     resolve: {
       application: ['applicationServices', '$stateParams',
         function(applicationServices, $stateParams) {

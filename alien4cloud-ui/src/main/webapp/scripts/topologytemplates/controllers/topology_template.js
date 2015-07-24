@@ -11,7 +11,7 @@ define(function (require) {
 
   // register components root state
   states.state('topologytemplates.detail', {
-    url: 'detail/:id',
+    url: 'details/:id',
     templateUrl: 'views/topologytemplates/topology_template.html',
     resolve: {
       topologyTemplate: ['topologyTemplateService', '$stateParams',
