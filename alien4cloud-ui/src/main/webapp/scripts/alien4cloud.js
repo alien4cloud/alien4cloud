@@ -36,21 +36,18 @@ define(function(require) {
   // bootstrap angular js application
   states.state('home', {
     url: '/',
-    templateUrl: 'views/main.html'
-  });
-  states.state('restricted', {
-    url: '/restricted',
-    templateUrl: 'views/authentication/restricted.html'
-  });
-
-  states.state('user_home_admin', {
-    templateUrl: 'views/admin/home.html',
-    controller: function($scope, hopscotchService, $state) {
+    templateUrl: 'views/main.html',
+    controller: function($scope, authService, hopscotchService, $state) {
+      $scope.ISADMIN = authService.hasRole('ADMIN');
       $scope.adminTour = function() {
         $state.go('admin');
         hopscotchService.startTour('admin.home');
       };
     }
+  });
+  states.state('restricted', {
+    url: '/restricted',
+    templateUrl: 'views/authentication/restricted.html'
   });
 
   require('scripts/common/services/rest_technical_error_interceptor');
@@ -93,10 +90,6 @@ define(function(require) {
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState) {
           authService.getStatus().$promise.then(function(status) {
-            // FIXME role based homepage and tours...
-            if (toState.name.indexOf('home') === 0 && authService.hasRole('ADMIN')) {
-              // $state.go('user_home_admin');
-            }
             // check all the menu array & permissions
             authService.menu.forEach(function(menuItem) {
               var menuType = menuItem.id.split('.')[1];
