@@ -12,7 +12,7 @@ define(function (require) {
 
   // register the state to access the metrics
   states.state('admin.metaprops', {
-    url: '/audit',
+    url: '/metaproperties',
     template: '<ui-view/>',
     menu: {
       id: 'am.admin.metaprops',

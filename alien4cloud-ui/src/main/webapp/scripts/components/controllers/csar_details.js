@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/deployment/services/deployment_services');
 
   states.state('components.csars.csardetail', {
-    url: '/detail/:csarId',
+    url: '/details/:csarId',
     templateUrl: 'views/components/csar_details.html',
     controller: 'CsarDetailsCtrl'
   });

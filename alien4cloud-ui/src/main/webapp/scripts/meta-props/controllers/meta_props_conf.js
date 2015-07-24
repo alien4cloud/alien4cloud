@@ -10,7 +10,7 @@ define(function (require) {
   var state = 'admin.metaprops.detail';
 
   states.state(state, {
-    url: '/:id',
+    url: '/details/:id',
     templateUrl: 'views/meta-props/meta_props_conf.html',
     controller: 'MetaPropsConfCtrl'
   });

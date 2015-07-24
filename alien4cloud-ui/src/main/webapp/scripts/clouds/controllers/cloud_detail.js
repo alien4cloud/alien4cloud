@@ -25,7 +25,7 @@ define(function (require) {
   require('scripts/cloud-images/controllers/new_cloud_image');
 
   states.state('admin.clouds.detail', {
-    url: '/:id',
+    url: '/details/:id',
     templateUrl: 'views/clouds/cloud_detail.html',
     controller: 'CloudDetailController'
   });
