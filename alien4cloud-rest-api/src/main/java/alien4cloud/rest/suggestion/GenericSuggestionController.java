@@ -8,6 +8,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +40,7 @@ public class GenericSuggestionController {
      */
     @ApiIgnore
     @RequestMapping(value = "/{index}/{type}/{path}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<String[]> getSuggestions(@PathVariable("index") String index, @PathVariable("type") String type, @PathVariable("path") String path,
             @RequestParam("text") String searchText) throws IOException {
         QueryBuilder queryBuilder;

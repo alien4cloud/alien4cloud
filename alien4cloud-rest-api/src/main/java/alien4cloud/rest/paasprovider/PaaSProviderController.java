@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,7 @@ public class PaaSProviderController {
 
     @ApiOperation(value = "Retrieve a list of available PaaSProvider .", notes = "")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<List<PaaSProviderDTO>> listPaaSProviders() {
         RestResponse<List<PaaSProviderDTO>> response = RestResponseBuilder.<List<PaaSProviderDTO>> builder().build();
         Map<String, Map<String, IPaaSProviderFactory>> instancesByPlugins = paaSProviderFactoriesService.getInstancesByPlugins();

@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -107,6 +108,7 @@ public class ApplicationController {
             + "By default the application creator will have application roles [APPLICATION_MANAGER, DEPLOYMENT_MANAGER]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<String> create(@Valid @RequestBody CreateApplicationRequest request) {
         AuthorizationUtil.checkHasOneRoleIn(Role.APPLICATIONS_MANAGER);
@@ -134,6 +136,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Get an application based from its id.", notes = "Returns the application details. Application role required [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<Application> get(@PathVariable String applicationId) {
         Application data = alienDAO.findById(Application.class, applicationId);
         AuthorizationUtil.checkAuthorizationForApplication(data, ApplicationRole.values());
@@ -148,6 +151,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Search for applications", notes = "Returns a search result with that contains applications matching the request. A application is returned only if the connected user has at least one application role in [ APPLICATION_MANAGER | APPLICATION_USER | APPLICATION_DEVOPS | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest) {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
         FacetedSearchResult searchResult = alienDAO.facetedSearch(Application.class, searchRequest.getQuery(), searchRequest.getFilters(), authorizationFilter,
@@ -163,6 +167,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Delete an application from its id.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Boolean> delete(@PathVariable String applicationId) {
         Application application = applicationService.getOrFail(applicationId);
@@ -191,6 +196,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Updates the image for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<String> updateImage(@PathVariable String applicationId, @RequestParam("file") MultipartFile image) {
         Application data = applicationService.getOrFail(applicationId);
@@ -218,6 +224,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Add a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to another user. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> addUserRole(@PathVariable String applicationId, @PathVariable String username, @PathVariable String role) {
         Application application = applicationService.getOrFail(applicationId);
@@ -236,6 +243,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Add a role to a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to a group of users. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> addGroupRole(@PathVariable String applicationId, @PathVariable String groupId, @PathVariable String role) {
         Application application = applicationService.getOrFail(applicationId);
@@ -254,6 +262,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Remove a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can unassign any role to another user. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> removeUserRole(@PathVariable String applicationId, @PathVariable String username, @PathVariable String role) {
         Application application = applicationService.getOrFail(applicationId);
@@ -272,6 +281,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Remove a role of a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can un-assign any role to a group. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> removeGroupRole(@PathVariable String applicationId, @PathVariable String groupId, @PathVariable String role) {
         Application application = applicationService.getOrFail(applicationId);
@@ -282,6 +292,7 @@ public class ApplicationController {
 
     @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })
     @RequestMapping(value = "/check-deployment-property", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<ConstraintInformation> checkPluginDeploymentProperties(
             @RequestBody CloudDeploymentPropertyValidationRequest deploymentPropertyValidationRequest) {
         Map<String, PropertyDefinition> deploymentPropertyDefinitions = cloudService.getDeploymentPropertyDefinitions(deploymentPropertyValidationRequest
@@ -317,6 +328,7 @@ public class ApplicationController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application .", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{applicationId:.+}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> update(@PathVariable String applicationId, @RequestBody UpdateApplicationRequest applicationUpdateRequest) {
         Application application = applicationService.getOrFail(applicationId);
@@ -345,6 +357,7 @@ public class ApplicationController {
      * @throws ConstraintViolationException
      */
     @RequestMapping(value = "/{applicationId:.+}/properties", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<ConstraintInformation> upsertProperty(@PathVariable String applicationId, @RequestBody PropertyRequest propertyRequest)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
@@ -363,6 +376,5 @@ public class ApplicationController {
                     .error(RestErrorBuilder.builder(RestErrorCode.PROPERTY_TYPE_VIOLATION_ERROR).message(e.getMessage()).build()).build();
         }
         return RestResponseBuilder.<ConstraintInformation> builder().data(null).error(null).build();
-
     }
 }

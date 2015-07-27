@@ -9,28 +9,16 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import alien4cloud.application.ApplicationEnvironmentService;
-import alien4cloud.application.ApplicationService;
-import alien4cloud.application.ApplicationVersionService;
-import alien4cloud.application.DeploymentSetupService;
-import alien4cloud.application.InvalidDeploymentSetupException;
+import alien4cloud.application.*;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.cloud.CloudService;
 import alien4cloud.cloud.DeploymentService;
 import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.model.application.Application;
-import alien4cloud.model.application.ApplicationEnvironment;
-import alien4cloud.model.application.ApplicationVersion;
-import alien4cloud.model.application.DeploymentSetup;
-import alien4cloud.model.application.DeploymentSetupMatchInfo;
+import alien4cloud.model.application.*;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.model.topology.Topology;
@@ -40,11 +28,7 @@ import alien4cloud.paas.exception.MaintenanceModeException;
 import alien4cloud.paas.exception.PaaSDeploymentException;
 import alien4cloud.paas.model.DeploymentStatus;
 import alien4cloud.paas.model.InstanceInformation;
-import alien4cloud.rest.model.RestError;
-import alien4cloud.rest.model.RestErrorBuilder;
-import alien4cloud.rest.model.RestErrorCode;
-import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.model.RestResponseBuilder;
+import alien4cloud.rest.model.*;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.model.ApplicationEnvironmentRole;
 import alien4cloud.security.model.ApplicationRole;
@@ -90,6 +74,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Deploys the application on the configured Cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/deployment", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> deploy(@Valid @RequestBody DeployApplicationRequest deployApplicationRequest) throws CloudDisabledException {
 
@@ -150,6 +135,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Un-Deploys the application on the configured PaaS.", notes = "The logged-in user must have the [ APPLICATION_MANAGER ] role for this application. Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> undeploy(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         ApplicationEnvironment environment = applicationEnvironmentService.getEnvironmentByIdOrDefault(applicationId, applicationEnvironmentId);
@@ -178,6 +164,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Get active deployment for the given application on the given cloud.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/active-deployment", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<Deployment> getActiveDeployment(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
         // get the topology from the version and the cloud from the environment
@@ -193,6 +180,7 @@ public class ApplicationDeploymentController {
 
     @ApiOperation(value = "Get the deployment status for the environements that the current user is allowed to see for a given application.", notes = "Returns the current status of an application list from the PaaS it is deployed on for all environments.")
     @RequestMapping(value = "/statuses", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<Map<String, Map<String, EnvironmentStatusDTO>>> getApplicationsStatuses(@RequestBody List<String> applicationIds) {
         Map<String, Map<String, EnvironmentStatusDTO>> statuses = Maps.newHashMap();
 
@@ -226,6 +214,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Get detailed informations for every instances of every node of the application on the PaaS.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ APPLICATION_USER | DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/informations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public DeferredResult<RestResponse<Map<String, Map<String, InstanceInformation>>>> getInstanceInformation(@PathVariable String applicationId,
             @PathVariable String applicationEnvironmentId) {
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -260,6 +249,8 @@ public class ApplicationDeploymentController {
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/maintenance", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
     public RestResponse<Void> switchMaintenanceModeOn(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
@@ -273,6 +264,8 @@ public class ApplicationDeploymentController {
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/maintenance", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
     public RestResponse<Void> switchMaintenanceModeOff(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
         try {
@@ -286,6 +279,8 @@ public class ApplicationDeploymentController {
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/{nodeTemplateId}/{instanceId}/maintenance", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
     public RestResponse<Void> switchInstanceMaintenanceModeOn(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
@@ -300,6 +295,8 @@ public class ApplicationDeploymentController {
     }
 
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment/{nodeTemplateId}/{instanceId}/maintenance", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    @Audit
     public RestResponse<Void> switchInstanceMaintenanceModeOff(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @PathVariable String nodeTemplateId, @PathVariable String instanceId) {
         ApplicationEnvironment environment = getAppEnvironmentAndCheckAuthorization(applicationId, applicationEnvironmentId);
@@ -335,6 +332,7 @@ public class ApplicationDeploymentController {
     @ApiOperation(value = "Scale the application on a particular node.", notes = "Returns the detailed informations of the application on the PaaS it is deployed."
             + " Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/scale/{nodeTemplateId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public DeferredResult<RestResponse<Void>> scale(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @PathVariable String nodeTemplateId,
@@ -367,6 +365,7 @@ public class ApplicationDeploymentController {
 
     @ApiOperation(value = "Get the deployment setup for an application", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<DeploymentSetupMatchInfo> getDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId)
             throws CloudDisabledException {
         Application application = applicationService.checkAndGetApplication(applicationId);
@@ -386,6 +385,7 @@ public class ApplicationDeploymentController {
      */
     @ApiOperation(value = "Updates by merging the given request into the given application's deployment setup.", notes = "Application role required [ APPLICATION_MANAGER | APPLICATION_DEVOPS ] and Application environment role required [ DEPLOYMENT_MANAGER ]")
     @RequestMapping(value = "/{applicationId}/environments/{applicationEnvironmentId}/deployment-setup", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<?> updateDeploymentSetup(@PathVariable String applicationId, @PathVariable String applicationEnvironmentId,
             @RequestBody UpdateDeploymentSetupRequest updateRequest) throws CloudDisabledException {

@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,6 +42,7 @@ public class QuickSearchController {
 
     @ApiOperation(value = "Search for applications or tosca elements in ALIEN's repository.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult> search(@RequestBody BasicSearchRequest requestObject) {
 
         Set<String> authoIndexes = Sets.newHashSet();

@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +56,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Create a new cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<String> create(
             @ApiParam(value = "The instance of cloud image to add.", required = true) @Valid @RequestBody CloudImageCreateRequest request) {
@@ -84,6 +86,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Update an existing cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> update(@ApiParam(value = "The cloud image id to update.", required = true) @PathVariable String id,
             @ApiParam(value = "The update request.", required = true) @Valid @RequestBody CloudImageUpdateRequest request) {
@@ -115,6 +118,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Delete an existing cloud image. The operation fails in case a cloud is still using the image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> delete(@ApiParam(value = "Id of the cloud image to delete.", required = true) @PathVariable String id) {
         String[] cloudsUsingImage = cloudImageService.getCloudsUsingImage(id);
@@ -133,6 +137,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Get details of a cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<CloudImage> get(@ApiParam(value = "Id of the cloud image for which to get details.", required = true) @PathVariable String id) {
         return RestResponseBuilder.<CloudImage> builder().data(cloudImageService.getCloudImageFailIfNotExist(id)).build();
     }
@@ -145,6 +150,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Search for cloud images.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/search", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult> search(@RequestBody CloudImageSearchRequest searchRequest) {
         GetMultipleDataResult result = cloudImageService.get(searchRequest.getQuery(), searchRequest.getExclude(), searchRequest.getFrom(),
                 searchRequest.getSize());
@@ -160,6 +166,7 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Updates the icon for the cloud image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/icon", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<String> updateImage(@PathVariable String id, @RequestParam("file") MultipartFile image) {
         CloudImage cloudImage = cloudImageService.getCloudImageFailIfNotExist(id);
@@ -182,9 +189,9 @@ public class CloudImageController {
      */
     @ApiOperation(value = "Get the cloud names related to this image.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(value = "/{id}/clouds", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<String[]> getCloudImageClouds(@PathVariable String id) {
         String[] cloudNames = cloudImageService.getCloudsNameUsingImage(id);
         return RestResponseBuilder.<String[]> builder().data(cloudNames).build();
     }
-
 }
