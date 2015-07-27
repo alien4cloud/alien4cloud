@@ -21,7 +21,7 @@
         <topology-rendering ng-if="view === 'RENDERED' && topology" dimensions="visualDimensions" topology="topology"
                             select-callback="editorCallback.selectNodeTemplate(newSelectedName, oldSelectedName)"
                             add-relationship-callback="editorCallback.addRelationship(sourceId, requirementName, requirementType, targetId, capabilityName, relationship)"
-                            runtime="false" />
+                            runtime="false"></topology-rendering>
         <topology-plan ng-if="view === 'PLAN' && topology" dimensions="visualDimensions" topology="topology" id="plan-graph-container"></topology-plan>
       </div>
     </div>
@@ -121,17 +121,17 @@
             </div>
             <div class="col-md-3">
               <span class="btn-group pull-right">
-	              <button
-	                ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId"
-	                ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
-	                class="btn btn-default"
-	                tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
-	                tooltip-append-to-body="true">
-	                <i class="fa fa-sitemap text-primary"></i>
-	              </button>
-	              <a class=" btn btn-default"
-	                 href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i
-	                class="fa fa-eye text-primary"></i></a>
+                <button
+                  ng-if="topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId"
+                  ng-click="substitution.displayEmbededTopology(topology.nodeTypes[selectedNodeTemplate.type].substitutionTopologyId)"
+                  class="btn btn-default"
+                  tooltip="{{ 'APPLICATIONS.TOPOLOGY.SUBSTITUTIONS.DISPLAY' | translate}}"
+                  tooltip-append-to-body="true">
+                  <i class="fa fa-sitemap text-primary"></i>
+                </button>
+                <a class=" btn btn-default"
+                   href="/#/components/component/{{selectedNodeTemplate.type}}:{{topology.nodeTypes[selectedNodeTemplate.type].archiveVersion}}" target="_blank"><i
+                  class="fa fa-eye text-primary"></i></a>
               </span>
             </div>
           </div>

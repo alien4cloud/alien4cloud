@@ -19,7 +19,7 @@ Feature: This is not a test, it reuses integration test step to set up Alien wit
     # Cloudify 2
     And I upload a plugin from "../../alien4cloud-cloudify2-provider"
     And I create a cloud with name "Cloudify 2" from cloudify 2 PaaS provider
-    And I update cloudify 2 manager's url to "https://129.185.67.41:8100" with login "Superuser" and password "Superuser" for cloud with name "Cloudify 2"
+    And I update cloudify 2 manager's url to the OpenStack's jenkins management server for cloud with name "Cloudify 2"
     And I enable the cloud "Cloudify 2"
     And I add the cloud image "Ubuntu Trusty" to the cloud "Cloudify 2" and match it to paaS image "RegionOne/c3fcd822-0693-4fac-b8bb-c0f268225800"
     And I add the flavor with name "small", number of CPUs 2, disk size 34359738368 and memory size 2147483648 to the cloud "Cloudify 2" and match it to paaS flavor "RegionOne/2"

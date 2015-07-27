@@ -10,10 +10,7 @@
     "title": "Configurer Alien 4 Cloud",
     "content": "Cliquez ici pour configurer vos utilisateurs, les clouds disponibles ainsi que visualiser les métriques d'Alien 4 Cloud.",
     "target": "menu.admin",
-    "placement": "bottom",
-    "multipage": true,
-    "nextOnTargetClick": true,
-    "showNextButton": false
+    "placement": "bottom"
   }, {
     "title": "Configurer les utilisateurs",
     "content": "Cliquez ici pour configurer les utilisateurs ainsi que leur rôles.",
@@ -45,9 +42,14 @@
     "target": "homepage.am.admin.metaprops.list",
     "placement": "right"
   }, {
-    "title": "Optionnel : métriques de A4C",
+    "title": "Suivi : métriques de A4C",
     "content": "Visualisez ici des informations techniques concernant votre instance d'Alien 4 Cloud (mémoire, processeur,...)",
     "target": "homepage.am.admin.metrics",
+    "placement": "left"
+  }, {
+    "title": "Suivi : audit des opérations",
+    "content": "Paramétrez et visualisez ici les informations sur les opérations effectuées (catégorie, requête http, auteur,...)",
+    "target": "homepage.am.admin.audit",
     "placement": "left"
   }]
 }

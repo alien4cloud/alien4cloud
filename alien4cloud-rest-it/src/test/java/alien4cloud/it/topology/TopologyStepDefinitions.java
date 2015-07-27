@@ -1,11 +1,6 @@
 package alien4cloud.it.topology;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -526,10 +521,16 @@ public class TopologyStepDefinitions {
 
     @When("^I update the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" with \"([^\"]*)\"$")
     public void I_update_the_node_template_s_artifact_with(String nodeTemplateName, String artifactId, String artifactName) throws Throwable {
+        I_update_the_node_template_s_artifact_with_file_at_path(nodeTemplateName, artifactId, Paths.get(ARTIFACT_PATH, artifactName).toString());
+    }
+
+    @When("^I update the node template \"([^\"]*)\"'s artifact \"([^\"]*)\" with file at path \"([^\"]*)\"$")
+    public void I_update_the_node_template_s_artifact_with_file_at_path(String nodeTemplateName, String artifactId, String artifactPath) throws Throwable {
         String topologyId = Context.getInstance().getTopologyId();
         String url = "/rest/topologies/" + topologyId + "/nodetemplates/" + nodeTemplateName + "/artifacts/" + artifactId;
-        InputStream artifactStream = Files.newInputStream(Paths.get(ARTIFACT_PATH, artifactName));
-        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postMultipart(url, artifactName, artifactStream));
+        InputStream artifactStream = Files.newInputStream(Paths.get(artifactPath));
+        Context.getInstance().registerRestResponse(
+                Context.getRestClientInstance().postMultipart(url, Paths.get(artifactPath).getFileName().toString(), artifactStream));
     }
 
     @When("^I associate the artifact \"([^\"]*)\" of node template \"([^\"]*)\" as an input artifact \"([^\"]*)\"$")
