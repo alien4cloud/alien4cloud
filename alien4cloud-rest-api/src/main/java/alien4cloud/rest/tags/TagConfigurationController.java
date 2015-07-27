@@ -55,7 +55,7 @@ public class TagConfigurationController {
      */
     private void ensureNameAndTypeUnicity(final String name, final String target, final String id) {
         @SuppressWarnings("unchecked")
-        GetMultipleDataResult<MetaPropConfiguration> result = dao.facetedSearch(MetaPropConfiguration.class, null, MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }), 
+        GetMultipleDataResult<MetaPropConfiguration> result = dao.facetedSearch(MetaPropConfiguration.class, null, MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }),
                 null, 0, 5);
 
         if (result.getData().length > 0 && !result.getData()[0].getId().equals(id)) {
@@ -95,7 +95,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Search for tag configurations registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("authenticated()")
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest request) {
         FacetedSearchResult result = dao.facetedSearch(MetaPropConfiguration.class, request.getQuery(), request.getFilters(), null, request.getFrom(),
                 request.getSize());
