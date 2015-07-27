@@ -1,12 +1,38 @@
 <div class="container">
-  <div class="text-center main-view">
-    <div class="row">
-      <div class="col-md-12">
-        <img alt="" src="images/cloudalien.png">
+  <div class="row">
+
+    <!-- Alien Welcoming logo/text -->
+    <div ng-class="{'col-md-12':!ISADMIN, 'col-md-8':ISADMIN}">
+
+      <div class="text-center main-view">
+        <div class="row">
+          <div class="col-md-12">
+            <img alt="" src="images/cloudalien.png">
+          </div>
+        </div>
+        <div class="row">
+          <h1>{{ 'MAIN.WELCOME' | translate }} ALIEN 4 Cloud
+            <small>
+              <br><b>A</b>pplication <b>Li</b>fecycle <b>En</b>abler 4 Cloud</small>
+          </h1>
+        </div>
+      </div>
+
+    </div>
+
+    <!--  Help tour for admin only -->
+    <div ng-if="ISADMIN" ng-class="{'col-md-4':ISADMIN}">
+      <div class="row well">
+        <div class="col-md-10">
+          {{'HOME.ADMIN.TOUR' | translate}}
+        </div>
+        <div class="col-md-2">
+          <button id="new-cloud-button" class="btn btn-primary" ng-click="adminTour()">
+            <i class="fa fa-question-circle"></i>
+          </button>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <h1>{{ 'MAIN.WELCOME' | translate }} ALIEN 4 Cloud <small><br><b>A</b>pplication <b>Li</b>fecycle <b>En</b>abler 4 Cloud</small></h1>
-    </div>
+
   </div>
 </div>

@@ -36,7 +36,7 @@
   }, {
     "title": "Create new application",
     "content": "<p>You can use the selector to choose a topology template in order to bootstrap your application with an initial topology that you will be able to update later.</p><p>Topology templates are created globally by users having the 'Architect' role.</p>",
-    "target": "templateid",
+    "target": "descid",
     "placement": "right"
   }, {
     "title": "Create new application",
