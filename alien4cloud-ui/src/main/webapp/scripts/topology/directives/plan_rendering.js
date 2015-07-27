@@ -20,7 +20,7 @@ define(function (require) {
           topology: '=',
           dimensions: '='
         },
-        link : function(scope, element) {
+        link : function(scope) {
           // Default parent svg markup to render the topology
           var containerElement = d3.select('#plan-graph-container');
 
@@ -67,6 +67,7 @@ define(function (require) {
 
           function processStep(graph, currentStep, previousStep) {
             var type = currentStep.type ? simpleName(currentStep.type) : 'StartEvent';
+            console.log(type);
             return eventProcessors[type](graph, currentStep, previousStep);
           }
 
@@ -157,6 +158,36 @@ define(function (require) {
                   fullpath: opCallActivity.implementationArtifact.artifactRef,
                   archiveName: opCallActivity.implementationArtifact.archiveName,
                   archiveVersion: opCallActivity.implementationArtifact.archiveVersion
+                }
+              });
+              graph.edges.push({from: previousStep.id, to: opCallActivity.id, def: {label: ''}});
+              return processNextStep(graph, opCallActivity);
+            }
+            return processNextStep(graph, opCallActivity, previousStep);
+          };
+
+          eventProcessors.RelationshipTriggerEvent = function(graph, opCallActivity, previousStep) {
+            if(_.defined(opCallActivity.sideOperationImplementationArtifact)) {
+              idGenerator++;
+              opCallActivity.id = 'oca_'+idGenerator;
+              var htmlLabel = '<div class="plan-box plan-operation">';
+              htmlLabel += '<div><span class="plan-icon">\uf1b2</span><span class="text-info"> '+opCallActivity.nodeTemplateId+'</span></div>';
+              if(_.defined(opCallActivity.relationshipId)) {
+                htmlLabel += '<div><span class="plan-icon">\uf0c1</span><span class="text-info"> '+opCallActivity.relationshipId+'</span></div>';
+              }
+              htmlLabel += '<div><span class="plan-icon">\uf085</span><span class="text-info"> '+$filter('splitAndGet')(opCallActivity.interfaceName, '.', 'last')+'</span></div>';
+              htmlLabel += '<div><span class="plan-icon">\uf013</span><span class="text-info"> '+opCallActivity.sideOperationName+'</span></div>';
+              htmlLabel += '</div>';
+              graph.nodes.push(
+              {
+                id: opCallActivity.id,
+                def: {
+                  label: htmlLabel,
+                  nodeTemplateId: opCallActivity.nodeTemplateId,
+                  clickable: true,
+                  fullpath: opCallActivity.sideOperationImplementationArtifact.artifactRef,
+                  archiveName: opCallActivity.sideOperationImplementationArtifact.archiveName,
+                  archiveVersion: opCallActivity.sideOperationImplementationArtifact.archiveVersion
                 }
               });
               graph.edges.push({from: previousStep.id, to: opCallActivity.id, def: {label: ''}});
