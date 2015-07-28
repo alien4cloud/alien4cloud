@@ -86,7 +86,7 @@ define(function (require) {
             var title = $translate('CSAR.ERRORS.' + result.error.code + '_TITLE');
             toaster.pop('error', title, errorMessage, 4000, 'trustedHtml', null);
           } else {
-            $state.go('components.csars.list');
+            $state.go('components.csars');
           }
         });
       };
