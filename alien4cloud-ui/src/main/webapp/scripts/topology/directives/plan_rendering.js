@@ -4,8 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
-
-  var d3 = require('d3');
+  require('d3');
   require('js-lib/dagre-d3');
 
   require('scripts/common-graph/services/runtime_color_service');
