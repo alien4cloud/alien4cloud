@@ -126,7 +126,7 @@ define(function (require) {
             stateUpdateEvent.id = stateUpdateEvent.elementId+'::'+stateUpdateEvent.state;
 
             var htmlLabel = '<div class="plan-box plan-state" style="border-color: '+runtimeColorsService[stateUpdateEvent.state]+'">';
-            htmlLabel += '<div>'+stateUpdateEvent.elementId+'</div>';
+            htmlLabel += '<div id="plan-state-'+stateUpdateEvent.id+'">'+stateUpdateEvent.elementId+'</div>';
             htmlLabel += '<div>'+stateUpdateEvent.state+'</div>';
             htmlLabel += '</div>';
             graph.nodes.push({id: stateUpdateEvent.id, def: { label: htmlLabel, clickable: false}});
