@@ -1,7 +1,7 @@
 // Utility module that query a4c to get the base url of a given plugin.
 define(function (require) {
   'use strict';
-  
+
   var $ = require('jquery');
   var _ = require('lodash');
 
@@ -13,10 +13,13 @@ define(function (require) {
         self.plugins = data;
         // init returns the list of entry points for the plugins.
         var entryPoints = [];
-        _.each(self.plugins, function(value){
+        var pluginNames = [];
+        _.each(self.plugins, function(value, key){
+          // load the plugins entry points.
           entryPoints.push(value.entryPoint);
+          pluginNames.push(key);
         });
-        deferred.resolve(entryPoints);
+        deferred.resolve(entryPoints, pluginNames);
       });
       return deferred;
     },
