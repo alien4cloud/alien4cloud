@@ -37,13 +37,13 @@ define(function(require) {
   states.state('home', {
     url: '/',
     templateUrl: 'views/main.html',
-    controller: function($scope, authService, hopscotchService, $state) {
+    controller: ['$scope', 'authService', 'hopscotchService', '$state', function($scope, authService, hopscotchService, $state) {
       $scope.ISADMIN = authService.hasRole('ADMIN');
       $scope.adminTour = function() {
         $state.go('admin');
         hopscotchService.startTour('admin.home');
       };
-    }
+    }]
   });
   states.state('restricted', {
     url: '/restricted',
