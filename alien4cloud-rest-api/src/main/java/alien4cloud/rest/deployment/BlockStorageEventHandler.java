@@ -38,6 +38,8 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
+    @Resource(name = "alien-monitor-es-dao")
+    private IGenericSearchDAO alienMonitorDao;
     @Resource
     private TopologyServiceCore topoServiceCore;
     @Resource
@@ -51,16 +53,29 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
 
     @Override
     public void eventHappened(AbstractMonitorEvent event) {
-        checkAndProcessBlockStorageEvent((PaaSInstanceStorageMonitorEvent) event);
+        processBlockStorageEvent((PaaSInstanceStorageMonitorEvent) event);
     }
 
-    private void checkAndProcessBlockStorageEvent(PaaSInstanceStorageMonitorEvent storageEvent) {
+    private void processBlockStorageEvent(PaaSInstanceStorageMonitorEvent storageEvent) {
         if (StringUtils.isBlank(storageEvent.getVolumeId())) {
             return;
         }
 
+        Topology runtimeTopo = alienMonitorDao.findById(Topology.class, storageEvent.getDeploymentId());
+        String volumeIdss = getAggregatedVolumeIds(runtimeTopo, storageEvent);
+
+        if (StringUtils.isBlank(volumeIdss)) {
+            return;
+        }
+
+        updateRuntimeTopology(runtimeTopo, storageEvent, volumeIdss);
+        updateApplicationTopology(storageEvent, volumeIdss);
+
+    }
+
+    private void updateApplicationTopology(PaaSInstanceStorageMonitorEvent storageEvent, final String volumeIds) {
         if (storageEvent.isDeletable()) {
-            log.info("Delete blockstorage is activated. Skipping topology volumeId update...");
+            log.info("Delete blockstorage is activated. Skipping application topology volumeId update...");
             return;
         }
 
@@ -68,6 +83,7 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         ApplicationEnvironment applicationEnvironment = applicationEnvironmentService.getOrFail(deployment.getDeploymentSetup().getEnvironmentId());
         ApplicationVersion applicationVersion = applicationVersionService.getOrFail(applicationEnvironment.getCurrentVersionId());
         Topology topology = topoServiceCore.getMandatoryTopology(applicationVersion.getTopologyId());
+
         NodeTemplate nodeTemplate;
         try {
             nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
@@ -77,26 +93,16 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
         }
 
         AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
-        if (abstractPropertyValue == null) { // the value is set in the topology
-            updateNodeTemplate(topology, nodeTemplate, storageEvent, storageEvent.getVolumeId());
-        } else if (abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
-            String volumeIds = ((ScalarPropertyValue) abstractPropertyValue).getValue();
-            volumeIds = getAggregatedVolumeIds(volumeIds, storageEvent);
-            if (volumeIds == null) {
-                return;
-            }
-            updateNodeTemplate(topology, nodeTemplate, storageEvent, volumeIds);
-
+        if (abstractPropertyValue == null || abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
+            log.info("Updating application topology: Storage NodeTemplate <{}.{}> to add a new volumeId", topology.getId(), storageEvent.getNodeTemplateId());
+            log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
+            nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(volumeIds));
+            alienDAO.save(topology);
         } else {
             FunctionPropertyValue function = (FunctionPropertyValue) abstractPropertyValue;
             if (function.getFunction().equals(ToscaFunctionConstants.GET_INPUT)) {
                 // the value is set in the input (deployment setup)
                 DeploymentSetup deploymentSetup = deploymentSetupService.get(applicationVersion, applicationEnvironment);
-                String volumeIds = deploymentSetup.getInputProperties().get(function.getTemplateName());
-                volumeIds = getAggregatedVolumeIds(volumeIds, storageEvent);
-                if (volumeIds == null) {
-                    return;
-                }
                 log.info("Updating deploymentsetup <{}> input properties <{}> to add a new VolumeId", deploymentSetup.getId(), function.getTemplateName());
                 log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
                 deploymentSetup.getInputProperties().put(function.getTemplateName(), volumeIds);
@@ -106,6 +112,31 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
                 log.warn("Failed to store the id of the created block storage <{}> for deployment <{}> application <{}> environment <{}>");
             }
         }
+    }
+
+    private void updateRuntimeTopology(Topology runtimeTopo, PaaSInstanceStorageMonitorEvent storageEvent, String volumeIds) {
+        NodeTemplate nodeTemplate = topoServiceCore.getNodeTemplate(runtimeTopo, storageEvent.getNodeTemplateId());
+        log.info("Updating Runtime topology: Storage NodeTemplate <{}.{}> to add a new volumeId", runtimeTopo.getId(), storageEvent.getNodeTemplateId());
+        nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(volumeIds));
+        log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
+        alienMonitorDao.save(runtimeTopo);
+    }
+
+    private String getAggregatedVolumeIds(Topology topology, PaaSInstanceStorageMonitorEvent storageEvent) {
+        NodeTemplate nodeTemplate;
+        try {
+            nodeTemplate = topoServiceCore.getNodeTemplate(topology, storageEvent.getNodeTemplateId());
+        } catch (NotFoundException e) {
+            log.warn("Fail to update volumeIds for node " + storageEvent.getNodeTemplateId(), e);
+            return null;
+        }
+
+        AbstractPropertyValue abstractPropertyValue = nodeTemplate.getProperties().get(NormativeBlockStorageConstants.VOLUME_ID);
+        if (abstractPropertyValue instanceof ScalarPropertyValue) { // the value is set in the topology
+            String volumeIds = ((ScalarPropertyValue) abstractPropertyValue).getValue();
+            return getAggregatedVolumeIds(volumeIds, storageEvent);
+        }
+        return storageEvent.getVolumeId();
     }
 
     private String getAggregatedVolumeIds(String volumeIds, PaaSInstanceStorageMonitorEvent storageEvent) {
@@ -122,13 +153,6 @@ public class BlockStorageEventHandler extends DeploymentEventHandler {
             volumeIds = volumeIds + "," + storageEvent.getVolumeId();
         }
         return volumeIds;
-    }
-
-    private void updateNodeTemplate(Topology topology, NodeTemplate nodeTemplate, PaaSInstanceStorageMonitorEvent storageEvent, String volumeIds) {
-        nodeTemplate.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(volumeIds));
-        log.info("Updating Storage NodeTemplate <{}.{}> to add a new volumeId", topology.getId(), nodeTemplate.getName());
-        log.debug("VolumeId to add: <{}>. New value is <{}>", storageEvent.getVolumeId(), volumeIds);
-        alienDAO.save(topology);
     }
 
     @Override
