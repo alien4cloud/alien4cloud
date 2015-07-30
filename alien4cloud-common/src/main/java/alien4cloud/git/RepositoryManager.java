@@ -16,8 +16,10 @@ import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.NoRemoteRepositoryException;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.SshSessionFactory;
@@ -152,8 +154,9 @@ public class RepositoryManager {
      */
     private void cloneEntireRepository(String url, String username, final String password, Path targetPath) throws GitCloneUriException,
             GitNotAuthorizedException {
-        Git result;
+        Git result = null;
         log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
+
         if (username != "" || password != "") {
             try {
                 UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, password);
@@ -164,20 +167,7 @@ public class RepositoryManager {
                     result.close();
                 }
             } catch (Exception e) {
-                if (e instanceof JGitInternalException) {
-                    try {
-                        FileUtil.delete(targetPath);
-                        throw new GitCloneUriException(e.getMessage());
-                    } catch (IOException ioEx) {
-                    }
-                }
-                if (e instanceof TransportException) {
-                    try {
-                        FileUtil.delete(targetPath);
-                        throw new GitCloneUriException(e.getMessage());
-                    } catch (IOException ioEx) {
-                    }
-                }
+                this.handleGitException(e, targetPath);
             }
         } else {
             try {
@@ -188,20 +178,7 @@ public class RepositoryManager {
                     result.close();
                 }
             } catch (Exception e) {
-                if (e instanceof JGitInternalException) {
-                    try {
-                        FileUtil.delete(targetPath);
-                        throw new GitCloneUriException(e.getMessage());
-                    } catch (IOException ioEx) {
-                    }
-                }
-                if (e instanceof TransportException) {
-                    try {
-                        FileUtil.delete(targetPath);
-                        throw new GitNotAuthorizedException(e.getMessage());
-                    } catch (IOException ioEx) {
-                    }
-                }
+                this.handleGitException(e, targetPath);
             }
         }
     }
@@ -300,5 +277,37 @@ public class RepositoryManager {
     private String splitRepositoryName(String url) {
         String[] urlSplit = url.split("/");
         return urlSplit[urlSplit.length - 1];
+    }
+
+    /**
+     * Handle exception's throw regarding Git callback
+     * 
+     * @param gitException Git exception when cloning
+     * @throws GitCloneUriException Exception when the repository doesn't exists
+     * @throws GitNotAuthorizedException Exception when the user doesn't the sufficient privileges
+     */
+    private void handleGitException(Exception gitException, Path targetPath) throws GitCloneUriException, GitNotAuthorizedException {
+        if (gitException instanceof JGitInternalException) {
+            try {
+                FileUtil.delete(targetPath);
+                throw new GitCloneUriException(gitException.getMessage());
+            } catch (IOException ioEx) {
+            }
+        }
+        if (gitException instanceof InvalidRemoteException) {
+            try {
+                FileUtil.delete(targetPath);
+                throw new GitCloneUriException(gitException.getMessage());
+            } catch (IOException ioEx) {
+            }
+        }
+        if (gitException instanceof TransportException) {
+            try {
+                FileUtil.delete(targetPath);
+                throw new GitNotAuthorizedException(gitException.getMessage());
+            } catch (IOException ioEx) {
+            }
+        }
+
     }
 }

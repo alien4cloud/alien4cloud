@@ -144,12 +144,13 @@ public class CsarGitService {
      */
     public void update(String id, String repositoryUrl, String username, String password) {
         CsarGitRepository csarGitTo = checkIfCsarExist(id);
-        if (getCsargitByUrl(repositoryUrl) == null) {
+        if (getCsargitByUrl(repositoryUrl) == null && !username.equals(csarGitTo.getUsername()) || !password.equals(csarGitTo.getPassword())) {
             CsarGitRepository csarGitFrom = new CsarGitRepository();
             csarGitFrom.setId(id);
             csarGitFrom.setRepositoryUrl(repositoryUrl);
             csarGitFrom.setUsername(username);
-            csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+//            csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+            csarGitFrom.setPassword(password);
             if (csarGitTo != null) {
                 ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
                 alienDAO.save(csarGitTo);
