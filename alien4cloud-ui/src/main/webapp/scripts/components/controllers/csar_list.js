@@ -14,8 +14,8 @@ define(function (require) {
     url: '/csars',
     template: '<ui-view/>',
     menu: {
-      id: 'cm.components.csars',
-      state: 'components.csars',
+      id: 'cm.components.csars.list',
+      state: 'components.csars.list',
       key: 'NAVBAR.MENU_CSARS',
       icon: 'fa fa-archive',
       priority: 20
@@ -32,11 +32,10 @@ define(function (require) {
     function($scope, $modalInstance) {
       $scope.csarGitTemplate = {};
       $scope.create = function(csarGit) {
-
       var locations = $scope.importLocation;
       var csargitDTO = {
-          'username': 'empty',
-          'password': 'empty',
+          'username': csarGit.username,
+          'password': csarGit.password,
           'repositoryUrl': csarGit.url,
           'importLocations': locations
         };
@@ -45,9 +44,18 @@ define(function (require) {
 
       $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
-        $scope.id=0;
+        $scope.id = 0;
       };
 
+      $scope.removeCsarLocation = function(subPath){
+        for (var i=0;i<$scope.importLocation.length;i++) {
+          var loc = $scope.importLocation[i];
+            if (loc.subPath === subPath) {
+              $scope.importLocation.splice(i, 1);
+              return;
+            }
+        }
+      }
       var removeIfLocationExists=function(location){
         for (var i=0;i<$scope.importLocation.length;i++) {
           var loc = $scope.importLocation[i];
@@ -59,8 +67,8 @@ define(function (require) {
       };
 
       var resetLocationForm=function(location){
-        location.subPath='';
-        location.branchId='';
+        location.subPath = '';
+        location.branchId = '';
       };
 
       $scope.addLocation=function(location){
@@ -71,6 +79,34 @@ define(function (require) {
           branchId: location.branchId
         });
         resetLocationForm(location);
+      };
+    }
+  ];
+
+  var EditCsarGitController = ['$scope', '$modalInstance','csar',
+    function($scope, $modalInstance,csar) {
+      $scope.csarGitTemplate = {};
+      $scope.url = csar.repositoryUrl;
+      $scope.username = csar.username;
+      $scope.password = csar.password;
+      $scope.id = csar.id;
+
+      $scope.update = function(url,username,password) {
+      var csargitDTO = {
+          'repositoryUrl': url,
+          'username': username,
+          'password': password,
+        };
+        var id = $scope.id;
+        var dtoData = {
+          'dto':csargitDTO,
+          'id':id
+        }
+        $modalInstance.close(dtoData);
+      };
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
       };
     }
   ];
@@ -86,8 +122,13 @@ define(function (require) {
         };
         $scope.csarSearchResult = csarService.searchCsar.search([], angular.toJson(searchRequestObject));
       };
-
-      $scope.id=0;
+      var statesToClasses = {
+        'error': 'danger',
+        'success': 'success',
+        'progress': 'info'
+      };
+      $scope.uploadErrors = [];
+      $scope.id = 0;
       $scope.searchCsarsGit = function() {
         var searchRequestObject = {
           'query': $scope.queryCsarGit,
@@ -97,13 +138,13 @@ define(function (require) {
         $scope.csarGitSearchResult = csarGitService.search([],angular.toJson(searchRequestObject));
       };
 
-      $scope.triggerImport = function(id) {
+      $scope.triggerImport = function(id,url) {
         $scope.isImporting = true;
         csarGitService.fetch({
           id: id
         }, angular.toJson(id),
          function(result) {
-           $scope.buildParsingErrorToast(result);
+           $scope.handleResult(result,url);
            $scope.isImporting = false;
            $scope.isImportingAll = false;
        }, function(error) {
@@ -112,52 +153,36 @@ define(function (require) {
        });
       };
 
-      $scope.buildParsingErrorToast=function(result){
-        var responseBody='';
-        var responseSuccessBody='';
-        var bodyImport;
-        var title ;
-        var titleSuccess ;
-        for(var i=0;i<result.data.data.length;i++){
-         if(result.data.data[i].context.parsingErrors.length > 0){
-           if(result.data.data[i].context.parsingErrors[0].errorCode !='TOPOLOGY_DETECTED'){
-            responseBody+='<ul>';
-            responseBody+=' <li>'
-            responseBody+=result.data.data[i].result.name +' '+result.data.data[i].context.parsingErrors[0].errorCode;
-            responseBody+=' </li>';
-            responseBody+=result.data.data[i].context.parsingErrors[0].note;
-            responseBody+=' </ul>';
-            title  = $translate('CSAR.ERRORS.IMPORT');
+      $scope.handleResult = function(result,url){
+        var state = statesToClasses.progress;
+        var progress = 100;
+        var index = $scope.uploadErrors.length;
+          for(var j=0;j<result.data.data.length;j++){
+            if(result.data.data[j].context.parsingErrors.length >0){
+              state = statesToClasses.error;
             }
-          }
-          else{
-            responseSuccessBody+='<ul>';
-            responseSuccessBody+=' <li>';
-            responseSuccessBody+=result.data.data[i].context.fileName;
-            responseSuccessBody+=' </li>';
-            responseSuccessBody+=' </ul>';
-            titleSuccess=$translate('CSAR.IMPORT_SUCCESS');
-          }
+            else{
+              state = statesToClasses.success;
+            }
         }
-        if(responseBody != '' && responseSuccessBody != ''){
-          toaster.pop('warning', title, responseBody, 4000, 'trustedHtml', null);
-          toaster.pop('success', titleSuccess ,responseSuccessBody, 4000, 'trustedHtml', null);
-        }
-        else{
-          if(responseBody!=''){
-            toaster.pop('warning', title, responseBody, 4000, 'trustedHtml', null);
+        $scope.uploadErrors.push({
+          'url': url,
+          'isErrorBlocCollapsed': true,
+          'data': result.data,
+          'infoType': state,
+          'progress': progress
           }
-          if(responseSuccessBody!=''){
-            toaster.pop('success', titleSuccess ,responseSuccessBody, 4000, 'trustedHtml', null);
-          }
-        }
+        );
         $scope.search();
       }
 
+      $scope.closeUploadInfos = function(index) {
+        $scope.uploadErrors.splice(index, 1);
+      };
       $scope.triggerImportAllCsarGit = function(data) {
         if (data.length > 0) {
           for (var i=0; i<data.length; i++) {
-            $scope.triggerImport(data[i].id);
+            $scope.triggerImport(data[i].id,data[i].repositoryUrl);
           }
         }
         else{
@@ -187,7 +212,6 @@ define(function (require) {
       };
 
       $scope.removeCsarGit = function(id) {
-        console.log(id);
         csarGitService.remove({
           id: id
         }, function() {
@@ -205,13 +229,36 @@ define(function (require) {
         modalInstance.result.then(function(csarGitTemplate) {
           csarGitService.create([], angular.toJson(csarGitTemplate), function(successResponse) {
             var errorMessage = successResponse;
-            console.log(errorMessage);
             if (errorMessage.error != null) {
               var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
               toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
             }
            $scope.searchCsarsGit();
            $scope.id=0;
+          });
+        });
+      };
+
+      $scope.openCsarGit = function(csar) {
+        var modalInstance = $modal.open({
+          templateUrl: 'editCsarGit.html',
+          controller: EditCsarGitController,
+          scope: $scope,
+            resolve:{
+              csar: function () {
+              return csar;
+            }
+          }
+        });
+        modalInstance.result.then(function(DTOObject) {
+          var JsonId=angular.toJson(DTOObject.id);
+          csarGitService.update({id: DTOObject.id },angular.toJson(DTOObject.dto), function(successResponse) {
+              var errorMessage = successResponse;
+              if (errorMessage.error != null) {
+                var title = $translate('CSAR.ERRORS.' + errorMessage.error.code + '_TITLE');
+                toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
+              }
+            $scope.searchCsarsGit();
           });
         });
       };
