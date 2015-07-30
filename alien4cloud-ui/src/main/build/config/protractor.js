@@ -45,7 +45,7 @@ module.exports = function (grunt, options) {
     runAdmin: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -57,7 +57,7 @@ module.exports = function (grunt, options) {
     runApplication: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -69,7 +69,7 @@ module.exports = function (grunt, options) {
     runApplicationTopology: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -81,7 +81,7 @@ module.exports = function (grunt, options) {
     runDeploymentAndSecurity: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -94,7 +94,7 @@ module.exports = function (grunt, options) {
     runComponents: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -106,7 +106,7 @@ module.exports = function (grunt, options) {
     runCommon: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
@@ -118,7 +118,7 @@ module.exports = function (grunt, options) {
     runTopologyTemplates: {
       options: {
         args: {
-          browser: grunt.option('browser'),
+          browser: 'chrome',
           baseUrl: 'http://localhost:8088',
           specs: [
             '<%= yeoman.test %>/e2e/setup-scenario/before-all.js',
