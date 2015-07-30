@@ -43,7 +43,7 @@
         <em ng-if="!editable">{{definitionObject.uiValue}}</em>
       </span>
 
-      <span ng-switch-default id="p_{{efinitionObject.uiValue}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
+      <span ng-switch-default id="p_{{definition.name}}" ng-class="{'editable-empty': !definitionObject.uiValue}">
         <!-- Default case : string -->
         <span ng-if="!definitionObject.uiPassword && !definitionObject.units && editable" editable-text="definitionObject.uiValue" buttons="no" onbeforesave="propertySave($data)" blur="submit">
           {{definitionObject.uiValue}}

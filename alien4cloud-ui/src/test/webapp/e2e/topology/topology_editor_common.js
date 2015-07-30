@@ -440,6 +440,13 @@ var removeInput = function(inputName) {
 };
 module.exports.removeInput = removeInput;
 
+var renameInput = function(oldInputName, newInputName) {
+  showInputsTab();
+  common.sendValueToXEditable('td_' + oldInputName, newInputName, false);
+  closeInputsTab();
+};
+module.exports.renameInput = renameInput;
+
 var togglePropertyInput = function(nodeTemplateName, propertyName, componentType) {
   componentType = (componentType === undefined || componentType === null) ? 'pro' : componentType;
   toggleIOProperty(nodeTemplateName, propertyName, 'input', componentType);
