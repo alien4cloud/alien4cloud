@@ -216,7 +216,6 @@ define(function (require) {
                 // We should never validate this condition
                 console.error('Error in disableCloud with force option');
               }
-              toaster.pop('error', $translate('CLOUDS.ERRORS.DISABLING_FAILED_TITLE'), $translate('CLOUDS.ERRORS.DISABLING_FAILED'), 4000, 'trustedHtml', null);
             }
             $scope.enablePending = false;
           }).error(function() {
