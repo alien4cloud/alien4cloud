@@ -425,6 +425,8 @@ public class ApplicationsDeploymentStepDefinitions {
         }
     }
 
+    private static final long WAIT_TIME = 20;
+
     @And("^I should receive \"([^\"]*)\" events that containing$")
     public void I_should_receive_events_that_containing(String eventTopic, List<String> expectedEvents) throws Throwable {
         Assert.assertTrue(this.stompDataFutures.containsKey(eventTopic));
@@ -432,21 +434,21 @@ public class ApplicationsDeploymentStepDefinitions {
         try {
             switch (eventTopic) {
             case "deployment-status":
-                StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                        TimeUnit.SECONDS);
+                StompData<PaaSDeploymentStatusMonitorEvent>[] deploymentStatusEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(),
+                        WAIT_TIME, TimeUnit.SECONDS);
                 for (StompData<PaaSDeploymentStatusMonitorEvent> data : deploymentStatusEvents) {
                     actualEvents.add(data.getData().getDeploymentStatus().toString());
                 }
                 break;
             case "instance-state":
-                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
-                        TimeUnit.SECONDS);
+                StompData<PaaSInstanceStateMonitorEvent>[] instanceStateEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(),
+                        WAIT_TIME, TimeUnit.SECONDS);
                 for (StompData<PaaSInstanceStateMonitorEvent> data : instanceStateEvents) {
                     actualEvents.add(data.getData().getInstanceState());
                 }
                 break;
             case "storage":
-                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), 10,
+                StompData<PaaSInstanceStorageMonitorEvent>[] storageEvents = this.stompDataFutures.get(eventTopic).getData(expectedEvents.size(), WAIT_TIME,
                         TimeUnit.SECONDS);
                 for (StompData<PaaSInstanceStorageMonitorEvent> data : storageEvents) {
                     actualEvents.add(data.getData().getInstanceState());

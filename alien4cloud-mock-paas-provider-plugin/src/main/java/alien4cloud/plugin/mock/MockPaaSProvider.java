@@ -91,7 +91,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                     doChangeInstanceInformations(runtimeDeloymentInfoEntry.getKey(), runtimeDeloymentInfoEntry.getValue().getInstanceInformations());
                 }
             }
-        }, 1L, 1L, TimeUnit.SECONDS);
+        }, 2L, 2L, TimeUnit.SECONDS);
 
     }
 
@@ -239,7 +239,7 @@ public class MockPaaSProvider extends AbstractPaaSProvider {
                 messageMonitorEvent.setMessage("APPLICATIONS.RUNTIME.EVENTS.MESSAGE_EVENT.STATUS_DEPLOYMENT_CHANGED");
                 toBeDeliveredEvents.add(messageMonitorEvent);
             }
-        }, 1, TimeUnit.SECONDS);
+        }, 2, TimeUnit.SECONDS);
 
         return oldDeploymentStatus;
     }
