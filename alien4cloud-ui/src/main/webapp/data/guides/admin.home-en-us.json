@@ -10,10 +10,7 @@
     "title": "Configure Alien 4 Cloud",
     "content": "Click here to setup users, clouds as well as monitor Alien 4 Cloud.",
     "target": "menu.admin",
-    "placement": "bottom",
-    "multipage": true,
-    "nextOnTargetClick": true,
-    "showNextButton": false
+    "placement": "bottom"
   }, {
     "title": "Users configuration",
     "content": "Click here to setup users, groups and their roles.",
