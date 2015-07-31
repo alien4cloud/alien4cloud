@@ -1,8 +1,6 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,27 +13,23 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedArtifactType;
-import alien4cloud.model.components.IndexedCapabilityType;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedRelationshipType;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Tag;
+import alien4cloud.model.components.IndexedArtifactType;
+import alien4cloud.model.components.IndexedCapabilityType;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedRelationshipType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,15 +43,12 @@ import com.google.common.collect.Lists;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
-public class EsDaoSuggestionTest {
+public class EsDaoSuggestionTest extends AbstractDAOTest {
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
     private static final String FETCH_CONTEXT = "tag_suggestion";
     private static final String TAG_NAME_PATH = "tags.name";
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
-    @Resource
-    ElasticSearchClient esclient;
-    Client nodeClient;
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO dao;
 
@@ -77,8 +68,8 @@ public class EsDaoSuggestionTest {
             "version_1", "Tag2 content"), new Tag("potatoe", "patate"), new Tag("potatoe_version", "de patate"));
 
     @Before
-    public void before() throws JsonProcessingException, InterruptedException {
-        nodeClient = esclient.getClient();
+    public void before() throws Exception {
+        super.before();
         prepareToscaElement();
         saveDataToES(true);
     }
@@ -124,6 +115,7 @@ public class EsDaoSuggestionTest {
 
             assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, datum.getId(), true);
         }
+        refresh();
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
@@ -134,16 +126,5 @@ public class EsDaoSuggestionTest {
 
     private GetResponse getDocument(String indexName, String typeName, String id) {
         return nodeClient.prepareGet(indexName, typeName, id).execute().actionGet();
-    }
-
-    private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
-    }
-
-    @After
-    public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
 }

@@ -5,8 +5,6 @@ import java.util.Date;
 import javax.annotation.Resource;
 
 import org.elasticsearch.common.collect.Lists;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,10 +13,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import alien4cloud.Constants;
 import alien4cloud.component.NodeTypeScoreService;
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
 import alien4cloud.utils.MapUtil;
@@ -28,17 +25,12 @@ import alien4cloud.utils.MapUtil;
 public class NodeTypeScoreServiceTest {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
-    @Resource
-    private ElasticSearchClient esclient;
 
     @Resource
     NodeTypeScoreService scoreService;
 
     @Test
     public void testScoreService() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
-        clearIndex(Topology.class.getSimpleName().toLowerCase(), Topology.class);
-
         // Initialize test data
         IndexedNodeType indexedNodeType = new IndexedNodeType();
         indexedNodeType.setElementId("mordor");
@@ -95,11 +87,6 @@ public class NodeTypeScoreServiceTest {
         Assert.assertEquals(1000, ((IndexedNodeType) data.getData()[2]).getAlienScore());
         Assert.assertEquals(mordor100Id, ((IndexedNodeType) data.getData()[3]).getId());
         Assert.assertEquals(10, ((IndexedNodeType) data.getData()[3]).getAlienScore());
-    }
-
-    private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = clazz.getSimpleName().toLowerCase();
-        esclient.getClient().prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
     }
 
 }
