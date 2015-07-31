@@ -60,10 +60,10 @@ describe('Topology input/output properties', function() {
     navigation.go('applications', 'deployment');
     var selected = cloudsCommon.selectApplicationCloud('testcloud');
     expect(selected).toBe(true); // testcloud is in the select
-    browser.sleep(1000);
+    browser.sleep(2000);
     var deployButton = browser.element(by.binding('APPLICATIONS.DEPLOY'));
     browser.actions().click(deployButton).perform();
-    browser.sleep(9000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
+    browser.sleep(13000); // DO NOT REMOVE, output visible few seconds after DEPLOY click
 
     var outputTable = browser.element(by.id('outputPropertiesTable'));
     var outputTableText = outputTable.getText();
@@ -79,14 +79,13 @@ describe('Topology input/output properties', function() {
     expect(inputTableText).toContain('');
 
     var undeployButton = browser.element(by.binding('APPLICATIONS.UNDEPLOY'));
-    browser.sleep(1000);
+    browser.sleep(2000);
     browser.actions().click(undeployButton).perform();
-    browser.sleep(9000); // DO NOT REMOVE, wait for UNDEPLOY
+    browser.sleep(13000); // DO NOT REMOVE, wait for UNDEPLOY
     outputTableText = outputTable.getText();
     expect(outputTableText).not.toContain('disk_size');
     expect(outputTableText).not.toContain('1024');
     expect(outputTableText).not.toContain('ip_address');
     expect(outputTableText).not.toContain('10.52.0.');
-
   });
 });
