@@ -9,6 +9,7 @@ import org.junit.Assert;
 
 import alien4cloud.it.Context;
 import alien4cloud.rest.csar.CreateCsarGithubRequest;
+import alien4cloud.rest.csar.UpdateCsarGitWithUrlRequest;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.security.model.CsarGitCheckoutLocation;
@@ -143,5 +144,17 @@ public class CsarGitCRUDStepDefinition {
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
         Assert.assertNotNull(restResponse.getError());
+    }
+
+    @When("I update a csargit with url \"([^\"]*)\" and username \"([^\"]*)\" and password \"([^\"]*)\" and target url \"([^\"]*)\"$")
+    public void I_Update_a_csargit_with_url(String url, String username, String password, String repositoryUrlToUpdate) throws Throwable {
+        UpdateCsarGitWithUrlRequest request = new UpdateCsarGitWithUrlRequest();
+        request.setRepositoryUrl(url);
+        request.setUsername(username);
+        request.setPassword(password);
+        request.setRepositoryUrlToUpdate(repositoryUrlToUpdate);
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/update/:url", JsonUtil.toString(request)));
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse);
     }
 }
