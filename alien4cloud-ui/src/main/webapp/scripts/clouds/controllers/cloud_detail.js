@@ -211,7 +211,6 @@ define(function (require) {
                 $timeout(function() {
                   angular.element( document.querySelector( '#force-cloud-disable-button' ) ).triggerHandler('click');
                   }, 0);
-                console.log(angular.element( document.querySelector( '#force-cloud-disable-button' ) ));
               } else {
                 // We should never validate this condition
                 console.error('Error in disableCloud with force option');
