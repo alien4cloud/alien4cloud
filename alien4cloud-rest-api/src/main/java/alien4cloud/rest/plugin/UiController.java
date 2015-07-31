@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import alien4cloud.webconfiguration.StaticResourcesConfiguration;
 import alien4cloud.plugin.Plugin;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.plugin.model.ManagedPlugin;
+import alien4cloud.webconfiguration.StaticResourcesConfiguration;
 
 import com.google.common.collect.Maps;
 import com.wordnik.swagger.annotations.ApiOperation;
@@ -48,7 +48,7 @@ public class UiController {
             if (uiEntryPoint != null) {
                 String pluginBase = root + plugin.getPluginPathId() + "/";
                 String entryPoint = pluginBase + uiEntryPoint;
-                entryPoints.put(managedPlugin.getPlugin().getId(), new PluginInfo(entryPoint, pluginBase));
+                entryPoints.put(managedPlugin.getPlugin().getDescriptor().getId(), new PluginInfo(entryPoint, pluginBase));
             }
         }
         return entryPoints;

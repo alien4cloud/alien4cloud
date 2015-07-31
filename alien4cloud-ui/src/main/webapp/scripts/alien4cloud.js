@@ -38,7 +38,15 @@ define(function(require) {
     url: '/',
     templateUrl: 'views/main.html',
     controller: ['$scope', 'authService', 'hopscotchService', '$state', function($scope, authService, hopscotchService, $state) {
-      $scope.ISADMIN = authService.hasRole('ADMIN');
+      $scope.isAdmin = false;
+      var isAdmin = authService.hasRole('ADMIN');
+      if(_.defined(isAdmin.then)) {
+        authService.hasRole('ADMIN').then(function(result) {
+          $scope.isAdmin = result;
+        });
+      } else {
+        $scope.isAdmin = isAdmin;
+      }
       $scope.adminTour = function() {
         $state.go('admin');
         hopscotchService.startTour('admin.home');
@@ -56,13 +64,10 @@ define(function(require) {
     // add requirements to alien4cloud
     modules.link(alien4cloud);
 
-    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$parseProvider',
-      function($stateProvider, $urlRouterProvider, $httpProvider, $parseProvider) {
-        $parseProvider.unwrapPromises(true);
+    alien4cloud.config(['$stateProvider', '$urlRouterProvider', '$httpProvider',
+      function($stateProvider, $urlRouterProvider, $httpProvider) {
         $httpProvider.interceptors.push('restTechnicalErrorInterceptor');
-
         $urlRouterProvider.otherwise('/');
-
         states.config($stateProvider);
       }
     ]);
@@ -70,9 +75,7 @@ define(function(require) {
     // TODO load more modules
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        $translateProvider.translations({
-          CODE: 'fr-fr'
-        });
+        $translateProvider.translations({CODE: 'fr-fr'});
         // Default language to load
         // $translateProvider.preferredLanguage('en-us');
         $translateProvider.preferredLanguage('fr-fr');
@@ -89,7 +92,7 @@ define(function(require) {
       function($rootScope, $state, editableOptions, editableThemes, authService) {
         // check when the state is about to change
         $rootScope.$on('$stateChangeStart', function(event, toState) {
-          authService.getStatus().$promise.then(function(status) {
+          authService.getStatus().$promise.then(function() {
             // check all the menu array & permissions
             authService.menu.forEach(function(menuItem) {
               var menuType = menuItem.id.split('.')[1];
