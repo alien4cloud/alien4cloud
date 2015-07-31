@@ -28,8 +28,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('ApplicationDeploymentCtrl',
-    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster',
-    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster) {
+    ['$scope', 'authService', '$upload', 'applicationServices', 'toscaService', '$resource', '$http', '$translate', 'application', '$state', 'applicationEnvironmentServices', 'appEnvironments', 'toaster', '$filter',
+    function($scope, authService, $upload, applicationServices, toscaService, $resource, $http, $translate, applicationResult, $state, applicationEnvironmentServices, appEnvironments, toaster, $filter) {
       var pageStateId = $state.current.name;
 
       var minimumZoneCountPerGroup = 1;
@@ -260,6 +260,7 @@ define(function (require) {
             $scope.selectedCloud = switchToCloud;
             $scope.selectedEnvironment.cloudId = switchToCloud.id;
             refreshDeploymentSetup();
+            checkTopology();
           });
         }
       };
@@ -399,7 +400,7 @@ define(function (require) {
       };
 
       $scope.isAllowedInputDeployment = function() {
-        return $scope.inputsSize > 0 && ($scope.isDeployer || $scope.isManager);
+        return ! _.isEmpty($filter('allowedInputs')($scope.inputs));
       };
 
       $scope.isAllowedDeployment = function() {

@@ -334,7 +334,7 @@ define(function (require) {
           if (newInput === oldInput) {
             return;
           }
-          topologyServices.updateInput({
+          topologyServices.inputs.update({
             topologyId: scope.topology.topology.id,
             inputId: oldInput,
             newInputId: newInput

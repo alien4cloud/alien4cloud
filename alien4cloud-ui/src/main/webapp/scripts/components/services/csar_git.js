@@ -34,6 +34,16 @@ define(function (require) {
        }
      });
 
+     var update = $resource('rest/csarsgit/:id',{},{
+        'update':{
+          method: 'PUT',
+          isArray: false,
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8'
+          }
+        }
+      });
+
      var fetch = $resource('rest/csarsgit/import/:id',{}, {
         'import':{
           method: 'POST',
@@ -48,7 +58,8 @@ define(function (require) {
         'remove': remove.remove,
         'search': search.search,
         'create': create.create,
-        'fetch': fetch.import
+        'fetch': fetch.import,
+        'update':update.update
       };
   }]);
 });

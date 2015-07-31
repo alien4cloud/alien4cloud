@@ -4,8 +4,7 @@ define(function (require) {
 
   var modules = require('modules');
   var _ = require('lodash');
-
-  var d3 = require('d3');
+  require('d3');
   require('js-lib/dagre-d3');
 
   require('scripts/common-graph/services/runtime_color_service');
@@ -127,7 +126,7 @@ define(function (require) {
             stateUpdateEvent.id = stateUpdateEvent.elementId+'::'+stateUpdateEvent.state;
 
             var htmlLabel = '<div class="plan-box plan-state" style="border-color: '+runtimeColorsService[stateUpdateEvent.state]+'">';
-            htmlLabel += '<div>'+stateUpdateEvent.elementId+'</div>';
+            htmlLabel += '<div id="plan-state-'+stateUpdateEvent.id+'">'+stateUpdateEvent.elementId+'</div>';
             htmlLabel += '<div>'+stateUpdateEvent.state+'</div>';
             htmlLabel += '</div>';
             graph.nodes.push({id: stateUpdateEvent.id, def: { label: htmlLabel, clickable: false}});

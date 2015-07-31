@@ -9,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +27,7 @@ import alien4cloud.exception.DeleteLastApplicationEnvironmentException;
 import alien4cloud.exception.DeleteLastApplicationVersionException;
 import alien4cloud.exception.DeleteReferencedObjectException;
 import alien4cloud.exception.GitCloneUriException;
+import alien4cloud.exception.GitNotAuthorizedException;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.exception.NotFoundException;
@@ -84,6 +83,14 @@ public class RestTechnicalExceptionHandler {
         log.error(e.getMessage());
         return RestResponseBuilder.<Void> builder()
                 .error(RestErrorBuilder.builder(RestErrorCode.GIT_REPOSITORY_INVALID).message(e.getMessage()).build()).build();
+    }
+    
+    @ExceptionHandler(GitNotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    public RestResponse<Void> gitCloneNotAuthorized(GitNotAuthorizedException e) {
+        return RestResponseBuilder.<Void> builder()
+                .error(RestErrorBuilder.builder(RestErrorCode.GIT_UNAUTHORIZED).message(e.getMessage()).build()).build();
     }
     
     @ExceptionHandler(AlreadyExistException.class)

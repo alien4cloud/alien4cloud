@@ -26,5 +26,6 @@ describe('NodeTemplate relationships edition', function() {
     navigation.go('applications', 'topology');
     browser.element(by.id('btn-app-topology-plan')).click();
     expect(element(by.id('plan-svg')).isDisplayed()).toBe(true);
+    expect(element(by.id('plan-state-JavaRPM::configured')).isDisplayed()).toBe(true);
   });
 });
