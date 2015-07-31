@@ -14,9 +14,11 @@ import org.hibernate.validator.constraints.NotBlank;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateCsarGithubRequest {
+public class UpdateCsarGitWithUrlRequest {
 
     @SuppressWarnings("PMD.UnusedPrivateField")
+    @NotBlank
+    private String repositoryUrlToUpdate;
     @NotBlank
     private String repositoryUrl;
     @NotBlank

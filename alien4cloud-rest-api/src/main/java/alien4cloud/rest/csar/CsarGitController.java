@@ -242,7 +242,7 @@ public class CsarGitController {
     }
 
     /**
-     * Update an existing CsarGit
+     * Update an existing CsarGit by id
      * 
      * @param request The CsarGit data to update
      * @return an empty (void) rest {@link RestResponse}.
@@ -253,6 +253,21 @@ public class CsarGitController {
     @Audit
     public RestResponse<Void> update(@PathVariable String id, @RequestBody UpdateCsarGitRequest request) {
         csarGitService.update(id, request.getRepositoryUrl(), request.getUsername(), request.getPassword());
+        return RestResponseBuilder.<Void> builder().build();
+    }
+    
+    /**
+     * Update an existing CsarGit by url
+     * 
+     * @param request The CsarGit data to update
+     * @return an empty (void) rest {@link RestResponse}.
+     */
+    @ApiOperation(value = "Update a CSARGit by url.")
+    @RequestMapping(value = "/update/{url}", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'ARCHITECT')")
+    @Audit
+    public RestResponse<Void> updateByUrl(@Valid @RequestBody UpdateCsarGitWithUrlRequest request) {
+        csarGitService.updateByUrl(request.getRepositoryUrlToUpdate(), request.getRepositoryUrl(), request.getUsername(), request.getPassword());
         return RestResponseBuilder.<Void> builder().build();
     }
 }

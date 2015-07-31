@@ -63,7 +63,7 @@ public class CsarGitService {
         CsarGitRepository csarGit = new CsarGitRepository();
         csarGit.setRepositoryUrl(repositoryUrl);
         csarGit.setUsername(username);
-//        csarGit.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+        // csarGit.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
         // Here, we don't hash the password because we will have to 'decrypt' the password when the import is triggered
         csarGit.setPassword(password);
         csarGit.setImportLocations(importLocations);
@@ -83,7 +83,7 @@ public class CsarGitService {
      * @throws GitNotAuthorizedException
      */
     public ParsingResult<Csar>[] specifyCsarFromGit(String param) throws CSARVersionAlreadyExistsException, ParsingException, IOException,
-            GitCloneUriException, GitNotAuthorizedException,NotFoundException {
+            GitCloneUriException, GitNotAuthorizedException, NotFoundException {
         CsarGitRepository csarGit = new CsarGitRepository();
         Map<String, String> locationsMap = new HashMap<String, String>();
         String data = param.replaceAll("\"", "");
@@ -144,14 +144,38 @@ public class CsarGitService {
      */
     public void update(String id, String repositoryUrl, String username, String password) {
         CsarGitRepository csarGitTo = checkIfCsarExist(id);
-        if (getCsargitByUrl(repositoryUrl) == null && !username.equals(csarGitTo.getUsername()) || !password.equals(csarGitTo.getPassword())) {
+        if (getCsargitByUrl(repositoryUrl) == null || !username.equals(csarGitTo.getUsername()) || !password.equals(csarGitTo.getPassword())) {
             CsarGitRepository csarGitFrom = new CsarGitRepository();
             csarGitFrom.setId(id);
             csarGitFrom.setRepositoryUrl(repositoryUrl);
             csarGitFrom.setUsername(username);
-//            csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+            // csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             csarGitFrom.setPassword(password);
             if (csarGitTo != null) {
+                ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
+                alienDAO.save(csarGitTo);
+            }
+        } else {
+            throw new AlreadyExistException("Csar git already exists");
+        }
+    };
+
+    /**
+     * Method to update a CsarGitRepository based on its unique url
+     * 
+     * @param id The unique url of the CsarGitRepository
+     * @param request UpdateCsarGitRequest which contains all the required data to update the object
+     */
+    public void updateByUrl(String url, String repositoryUrl, String username, String password) {
+        CsarGitRepository csarGitTo = getCsargitByUrl(url);
+        if (getCsargitByUrl(repositoryUrl) == null && (!username.equals(csarGitTo.getUsername()) || !password.equals(csarGitTo.getPassword()))) {
+            CsarGitRepository csarGitFrom = new CsarGitRepository();
+            csarGitFrom.setRepositoryUrl(repositoryUrl);
+            csarGitFrom.setUsername(username);
+            // csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
+            csarGitFrom.setPassword(password);
+            if (csarGitTo != null) {
+                csarGitFrom.setId(csarGitTo.getId());
                 ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
                 alienDAO.save(csarGitTo);
             }

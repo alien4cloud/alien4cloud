@@ -23,7 +23,7 @@ describe('Handle CSARS', function() {
     csarCommon.checkIfCreationStepIsEnabled('https://github.com/alien4cloud/tosca-normative-types','','master');
     var results = element.all(by.repeater('csar in csarGitSearchResult.data.data'));
     expect(results.count()).toEqual(1);
-1
+
   });
 
   it('should not be able to add a new the csar by the modal if data are not correct', function() {
