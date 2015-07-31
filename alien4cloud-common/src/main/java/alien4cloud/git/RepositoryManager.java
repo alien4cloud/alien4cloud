@@ -294,6 +294,13 @@ public class RepositoryManager {
             } catch (IOException ioEx) {
             }
         }
+        if (gitException instanceof NoRemoteRepositoryException) {
+            try {
+                FileUtil.delete(targetPath);
+                throw new GitCloneUriException(gitException.getMessage());
+            } catch (IOException ioEx) {
+            }
+        }
         if (gitException instanceof InvalidRemoteException) {
             try {
                 FileUtil.delete(targetPath);

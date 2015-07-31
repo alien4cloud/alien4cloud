@@ -5,7 +5,7 @@ var common = require('../../common/common');
 var authentication = require('../../authentication/authentication');
 var csarCommon = require('../../csars/csars_commons');
 
-describe('Handle CSARS', function() {
+describe('Handle CSARS git', function() {
 
   beforeEach(function() {
     common.before();
@@ -21,6 +21,29 @@ describe('Handle CSARS', function() {
   it('should be able to add a new the csar by the modal', function() {
     console.log('################# should be able to add a new the csar by the modal');
     csarCommon.checkIfCreationStepIsEnabled('https://github.com/alien4cloud/tosca-normative-types','','master');
+    var results = element.all(by.repeater('csar in csarGitSearchResult.data.data'));
+    expect(results.count()).toEqual(1);
+  });
+
+
+  it('should not be able to add a new the csar by the modal if an importlocation is removed', function() {
+    console.log('################# should be able to add a new the csar by the modal');
+    csarCommon.checkIfCreationIsDisabledWhenRemovingLocation('https://github.com/alien4cloud/csar','','master');
+    var results = element.all(by.repeater('csar in csarGitSearchResult.data.data'));
+  });
+
+  it('should be able to edit a csar', function() {
+    console.log('################# should be able to edit a csar');
+    csarCommon.goToCsarSearchPage();
+    var editCsarGitButton =element(by.id('UPDATE_CSARGIT'));
+    editCsarGitButton.click();
+    browser.driver.switchTo().activeElement();
+    element(by.id('csargit_url')).clear();
+    element(by.id('csargit_url')).sendKeys('https://github.com/alien4cloud/tosca-normative-types');
+    element(by.id('username')).sendKeys('test');
+    element(by.id('password')).sendKeys('test');
+    var editBtn=element(by.id('btn-create'));
+    editBtn.click();
     var results = element.all(by.repeater('csar in csarGitSearchResult.data.data'));
     expect(results.count()).toEqual(1);
 

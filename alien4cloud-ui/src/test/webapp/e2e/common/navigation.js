@@ -28,7 +28,7 @@ var navigationIds = {
   },
   components: {
     components: 'cm.components',
-    csars: 'cm.components.csars'
+    csars: 'cm.components.csars.list'
   }
 };
 

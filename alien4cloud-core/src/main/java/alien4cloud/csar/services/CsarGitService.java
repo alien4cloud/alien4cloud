@@ -63,9 +63,6 @@ public class CsarGitService {
         CsarGitRepository csarGit = new CsarGitRepository();
         csarGit.setRepositoryUrl(repositoryUrl);
         csarGit.setUsername(username);
-        // csarGit.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
-        // Here, we don't hash the password because we will have to 'decrypt' the password when the import is triggered
-        csarGit.setPassword(password);
         csarGit.setImportLocations(importLocations);
         alienDAO.save(csarGit);
         return csarGit.getId();
@@ -149,7 +146,6 @@ public class CsarGitService {
             csarGitFrom.setId(id);
             csarGitFrom.setRepositoryUrl(repositoryUrl);
             csarGitFrom.setUsername(username);
-            // csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             csarGitFrom.setPassword(password);
             if (csarGitTo != null) {
                 ReflectionUtil.mergeObject(csarGitFrom, csarGitTo);
@@ -172,7 +168,6 @@ public class CsarGitService {
             CsarGitRepository csarGitFrom = new CsarGitRepository();
             csarGitFrom.setRepositoryUrl(repositoryUrl);
             csarGitFrom.setUsername(username);
-            // csarGitFrom.setPassword(BCrypt.hashpw(password, BCrypt.gensalt()));
             csarGitFrom.setPassword(password);
             if (csarGitTo != null) {
                 csarGitFrom.setId(csarGitTo.getId());

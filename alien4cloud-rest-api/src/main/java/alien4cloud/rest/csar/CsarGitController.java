@@ -41,7 +41,6 @@ public class CsarGitController {
 
     @Resource
     private CsarGitService csarGitService;
-    
 
     /**
      * Retrieve a CsarGit from the system
@@ -100,7 +99,7 @@ public class CsarGitController {
      * @throws CSARVersionAlreadyExistsException
      * @throws IOException
      * @throws GitCloneUriException
-     * @throws GitNotAuthorizedException 
+     * @throws GitNotAuthorizedException
      */
     @ApiOperation(value = "Specify a CSAR from Git and proceed to its import in Alien.")
     @RequestMapping(value = "/import/{id:.+}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -255,7 +254,7 @@ public class CsarGitController {
         csarGitService.update(id, request.getRepositoryUrl(), request.getUsername(), request.getPassword());
         return RestResponseBuilder.<Void> builder().build();
     }
-    
+
     /**
      * Update an existing CsarGit by url
      * 

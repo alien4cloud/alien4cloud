@@ -156,6 +156,7 @@ define(function (require) {
       $scope.handleResult = function(result,url){
         var state = statesToClasses.progress;
         var progress = 100;
+        var isCollapsed=false;
         var index = $scope.uploadErrors.length;
           for(var j=0;j<result.data.data.length;j++){
             if(result.data.data[j].context.parsingErrors.length >0){
@@ -163,11 +164,13 @@ define(function (require) {
             }
             else{
               state = statesToClasses.success;
+              isCollapsed = true;
+
             }
         }
         $scope.uploadErrors.push({
           'url': url,
-          'isErrorBlocCollapsed': true,
+          'isErrorBlocCollapsed': isCollapsed,
           'data': result.data,
           'infoType': state,
           'progress': progress
