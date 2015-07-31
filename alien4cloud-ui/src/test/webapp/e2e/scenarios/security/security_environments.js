@@ -60,6 +60,7 @@ describe('Application environments security check', function() {
 
     // Deploy the app
     applications.deploy('Alien', null, null, null, applications.mockPaaSDeploymentProperties);
+    browser.sleep(10000); // Wait for mock deployment to finish
 
     // checking deployment page
     applications.expectOutputValue('deployment', null, 'attribute', 'Compute', 1, 'ip_address', '10.52.0.1');
