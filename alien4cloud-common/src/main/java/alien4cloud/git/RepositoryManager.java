@@ -154,10 +154,9 @@ public class RepositoryManager {
      */
     private void cloneEntireRepository(String url, String username, final String password, Path targetPath) throws GitCloneUriException,
             GitNotAuthorizedException {
-        Git result = null;
+        Git result;
         log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
-
-        if (username != "" || password != "") {
+        if (username != "" && password != "" && username != null && password != null) {
             try {
                 UsernamePasswordCredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, password);
                 result = Git.cloneRepository().setURI(url).setDirectory(targetPath.toFile()).setCredentialsProvider(cp).call();
