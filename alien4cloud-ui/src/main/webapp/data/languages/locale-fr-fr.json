@@ -784,7 +784,7 @@
     "610": "Une application doit nécéssairement avoir au moins une version",
     "611": "Un environment d'application doit nécéssairement avoir une version d'applivation.",
     "612": "Le cloud d'un environnement ne peut pas être modifié lorsqu'il est déployé.",
-    "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
+    "613": "Conflit détecté sur l'Id PaaS généré. Vérifiez les noms de vos applications. (Voir <a target='_blank'href = 'http://alien4cloud.github.io/#/documentation/1.0.0/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/1.0.0/user_guide/cloud_management.html, naming policy</a>, pour plus de details)",
     "650": "Au moins deux de vos Compute ont un conflit de nom.",
     "800": {
       "equal": "Valeur constante égale à {{reference}}",
