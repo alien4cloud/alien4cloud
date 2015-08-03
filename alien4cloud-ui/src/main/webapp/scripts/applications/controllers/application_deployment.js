@@ -460,6 +460,8 @@ define(function (require) {
           $scope.selectedEnvironment.status = 'UNDEPLOYMENT_IN_PROGRESS';
           $scope.isUnDeploying = false;
           $scope.stopEvent();
+        }, function() {
+          $scope.isUnDeploying = false;
         });
       };
 
