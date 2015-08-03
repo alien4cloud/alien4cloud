@@ -3,6 +3,7 @@ package alien4cloud.rest.application;
 import javax.annotation.Resource;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,7 @@ public class ApplicationTagsController {
      */
     @ApiOperation(value = "Update/Create a tag for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> upsertTag(@PathVariable String applicationId, @RequestBody UpdateTagRequest updateApplicationTagRequest) {
         Application application = applicationService.getOrFail(applicationId);
@@ -57,6 +59,7 @@ public class ApplicationTagsController {
      */
     @ApiOperation(value = "Delete a tag for the application.", notes = "The logged-in user must have the application manager role for this application. Application role required [ APPLICATION_MANAGER ]")
     @RequestMapping(value = "/{tagId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     @Audit
     public RestResponse<Void> deleteTag(@PathVariable String applicationId, @PathVariable String tagId) {
         Application application = applicationService.getOrFail(applicationId);

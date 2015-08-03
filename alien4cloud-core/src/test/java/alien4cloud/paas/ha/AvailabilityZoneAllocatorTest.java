@@ -77,7 +77,7 @@ public class AvailabilityZoneAllocatorTest {
             wrappedVolume.getProperties().put(NormativeBlockStorageConstants.VOLUME_ID, new ScalarPropertyValue(zones.iterator().next().getId() + "/abcde"));
             PaaSNodeTemplate volume = new PaaSNodeTemplate("volume_" + compute.getId(), wrappedVolume);
             volume.setParent(compute);
-            compute.setAttachedNode(volume);
+            compute.getStorageNodes().add(volume);
             volumes.put(compute.getId(), volume);
         }
         try {

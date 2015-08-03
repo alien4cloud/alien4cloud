@@ -10,10 +10,7 @@
     "title": "Configure Alien 4 Cloud",
     "content": "Click here to setup users, clouds as well as monitor Alien 4 Cloud.",
     "target": "menu.admin",
-    "placement": "bottom",
-    "multipage": true,
-    "nextOnTargetClick": true,
-    "showNextButton": false
+    "placement": "bottom"
   }, {
     "title": "Users configuration",
     "content": "Click here to setup users, groups and their roles.",
@@ -32,7 +29,7 @@
   }, {
     "title": "Clouds configuration",
     "content": "Click here to create a cloud associated to PaaS provider plugin added previously.",
-    "target": "am.admin.clouds.list",
+    "target": "am.admin.clouds",
     "placement": "right"
   }, {
     "title": "Cloud images configuration",
@@ -45,9 +42,14 @@
     "target": "homepage.am.admin.metaprops.list",
     "placement": "right"
   }, {
-    "title": "Optional : A4C metrics",
+    "title": "Monitoring : A4C metrics",
     "content": "Technical informations about your running Alien 4 Cloud (memory, cpu,...)",
     "target": "homepage.am.admin.metrics",
+    "placement": "left"
+  }, {
+    "title": "Monitoring : operations audit",
+    "content": "Configure and check informations about operations done (category, http request, author,...)",
+    "target": "homepage.am.admin.audit",
     "placement": "left"
   }]
 }

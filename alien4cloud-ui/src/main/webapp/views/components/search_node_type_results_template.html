@@ -2,7 +2,7 @@
 <ul class="list-group" style="overflow: auto; margin-bottom: 0px; {{listHeight}}">
   <li class="list-group-item clickable-media overflowmedia" ng-repeat="component in searchResult.data.data">
     <div class="media" ng-mouseover="setComponent(component)" id="li_{{component.id}}" alien-draggable drag-enabled="dragAndDropEnabled" drag-data="component" ng-click="handleItemSelection(component)">
-      <a class="pull-left" href="/#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank">
+      <a class="pull-left" href="/#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank">
         <img ng-src="img?id={{getIcon(component.tags)}}&quality=QUALITY_64" />
       </a>
       <div class="media-body">
@@ -17,7 +17,7 @@
                tooltip-append-to-body="true"
                src="images/abstract_ico.png"/>
           <small ng-if="!globalContext">
-            <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/component/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
+            <a class=" btn btn-default btn-xs" id="btn-{{component.elementId}}" ng-href="#/components/details/{{component.elementId}}:{{component.archiveVersion}}" target="_blank"><i class="fa fa-eye text-primary"></i></a>
           </small>
           <div class="pull-right center">
             <div class="btn-group-vertical btn-group-xs">

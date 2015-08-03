@@ -15,6 +15,7 @@ import org.elasticsearch.mapping.MappingBuilder;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +65,7 @@ public class PluginController {
 
     @ApiOperation(value = "Upload a plugin archive.", notes = "Error code can be 300 (INDEXING_SERVICE_ERROR) in case of a backend IO issue.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> upload(@RequestParam("file") MultipartFile pluginArchive) {
         Path pluginPath = null;
@@ -134,6 +136,7 @@ public class PluginController {
 
     @ApiOperation(value = "Search for plugins registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<GetMultipleDataResult> search(@RequestBody BasicSearchRequest request) {
         GetMultipleDataResult result = this.alienDAO.search(Plugin.class, request.getQuery(), null, request.getFrom(), request.getSize());
         return RestResponseBuilder.<GetMultipleDataResult> builder().data(result).build();
@@ -141,6 +144,7 @@ public class PluginController {
 
     @ApiOperation(value = "Enable a plugin.", notes = "Enable and load a plugin. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/enable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> enablePlugin(@PathVariable String pluginId) {
         try {
@@ -154,6 +158,7 @@ public class PluginController {
 
     @ApiOperation(value = "Disable a plugin.", notes = "Disable a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/disable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<List<PluginUsage>> disablePlugin(@PathVariable String pluginId) {
         List<PluginUsage> usages = this.pluginManager.disablePlugin(pluginId, false);
@@ -169,6 +174,7 @@ public class PluginController {
 
     @ApiOperation(value = "Remove a plugin.", notes = "Remove a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<List<PluginUsage>> removePlugin(@PathVariable String pluginId) {
         List<PluginUsage> usages = this.pluginManager.disablePlugin(pluginId, true);
@@ -190,6 +196,7 @@ public class PluginController {
 
     @ApiOperation(value = "Get a plugin configuration object.", notes = "Retrieve a plugin configuration object.  Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Object> getPluginConfiguration(@PathVariable String pluginId) {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();
 
@@ -216,6 +223,7 @@ public class PluginController {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @ApiOperation(value = "Save a configuration object for a plugin.", notes = "Save a configuration object for a plugin. Returns the newly saved configuration.  Role required [ ADMIN ]")
     @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Object> savePluginConfiguration(@PathVariable String pluginId, @RequestBody Object configObjectRequest) {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();

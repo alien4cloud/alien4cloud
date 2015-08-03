@@ -1,11 +1,6 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.springframework.util.Assert.isNull;
 import static org.springframework.util.Assert.isTrue;
 
@@ -28,28 +23,24 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.types.TypesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import alien4cloud.model.components.IndexedNodeType;
-import alien4cloud.model.components.IndexedToscaElement;
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.ElasticSearchDAO;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.FetchContext;
 import alien4cloud.exception.IndexingServiceException;
 import alien4cloud.model.application.Application;
-import alien4cloud.rest.utils.JsonUtil;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.components.CapabilityDefinition;
-import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.model.components.IndexedToscaElement;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.model.components.RequirementDefinition;
+import alien4cloud.rest.utils.JsonUtil;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -60,7 +51,7 @@ import com.google.common.collect.Lists;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
-public class EsDaoCrudTest {
+public class EsDaoCrudTest extends AbstractDAOTest {
     private static final String APPLICATION_INDEX = Application.class.getSimpleName().toLowerCase();
 
     private final ObjectMapper jsonMapper = new ObjectMapper();
@@ -68,17 +59,14 @@ public class EsDaoCrudTest {
     private List<Tag> threeTags = Lists.newArrayList(new Tag("node.icon", "my-icon.png"), new Tag("tag1", "My free tag with my free content (tag-0)"), new Tag(
             "tag2", "Tag2 content"));
 
-    @Resource
-    private ElasticSearchClient esclient;
-    private Client nodeClient;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO dao;
 
     private IndexedNodeType indexedNodeTypeTest = null;
 
     @Before
-    public void before() {
-        nodeClient = esclient.getClient();
+    public void before() throws Exception {
+        super.before();
         prepareToscaElement();
     }
 
@@ -102,6 +90,7 @@ public class EsDaoCrudTest {
         IndexedNodeType nt = jsonMapper.readValue(resp.getSourceAsString(), IndexedNodeType.class);
 
         assertBeanEqualsToOriginal(nt);
+        refresh();
     }
 
     @Test(expected = IndexingServiceException.class)
@@ -177,6 +166,7 @@ public class EsDaoCrudTest {
         app.setName("app3");
         app.setDescription("this is app3");
         dao.save(app);
+        refresh();
     }
 
     @Test
@@ -276,6 +266,7 @@ public class EsDaoCrudTest {
         nodeClient.prepareIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName).setSource(json).setRefresh(true).execute().actionGet();
 
         assertDocumentExisit(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, typeName, element.getId(), true);
+        refresh();
     }
 
     private <T> void assertBeanEqualsToOriginal(T bean) {
@@ -288,17 +279,5 @@ public class EsDaoCrudTest {
             assertEquals(indexedNodeTypeTest.getTags().size(), indexedNodeType.getTags().size());
             assertEquals(indexedNodeTypeTest.getTags(), threeTags);
         }
-    }
-
-    private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = clazz.getSimpleName().toLowerCase();
-        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
-    }
-
-    @After
-    public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
-        clearIndex(APPLICATION_INDEX, Application.class);
     }
 }

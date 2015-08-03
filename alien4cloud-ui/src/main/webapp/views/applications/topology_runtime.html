@@ -1,15 +1,14 @@
 <div>
   <div class="row">
-
     <div class="col-md-7 col-lg-8">
-      <div class="well topology" ng-init="visual = false; simple = false">
+      <div class="well topology" ng-init="visual = false;">
         <div class="btn-toolbar">
           <div class="btn-group">
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = false;">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
-            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; simple = true;">{{'APPLICATIONS.TOPOLOGY.VISUAL_SIMPLE' | translate}}</a>
+            <a class="btn btn-default btn-xs" ng-click="view = 'RENDERED'; ">{{'APPLICATIONS.TOPOLOGY.VISUAL_DETAILED' | translate}}</a>
           </div>
         </div>
-        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions" callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true" simple="simple"/>
+        <topology-rendering ng-if="topology" topology="topology" dimensions="dimensions"
+          select-callback="selectNodeTemplate(newSelectedName, oldSelectedName)" runtime="true"/>
       </div>
     </div>
     <div class="col-md-5 col-lg-4">
@@ -370,7 +369,6 @@
             </div>
           </div>
         </tab>
-
       </tabset>
     </div>
   </div>

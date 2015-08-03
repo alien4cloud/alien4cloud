@@ -2,6 +2,7 @@ define(function (require) {
   'use strict';
 
   var modules = require('modules');
+  var _ = require('lodash');
 
   var d3 = require('d3');
   require('scripts/common-graph/services/coordinates_util_service');
@@ -98,20 +99,29 @@ define(function (require) {
 
       SvgControls.prototype = {
         constructor: SvgControls,
+        bbox: null,
 
         /**
         * Update the view box of the svg element to match the current coordinates.
         */
-        updateViewBox: function() {
-          this.svgElement.attr('viewBox',
-            this.coordinateUtils.x + ' ' + this.coordinateUtils.y + ' ' + this.coordinateUtils.width() + ' ' + this.coordinateUtils.height());
-          var version = navigator.userAgent.match(/Version\/(.*?)\s/) || navigator.userAgent.match(/Chrome\/(\d+)/);
-          if ((navigator.vendor === 'Apple Computer, Inc.') ||
-            (navigator.vendor === 'Google Inc.' && version && version[1] < 8)) {
-            var rect = this.svgElement.append('rect');
-            setTimeout(function() {
-              rect.remove();
-            });
+        updateViewBox: function(ifNotFitting) {
+          var update = true;
+          if(_.defined(ifNotFitting) && _.defined(this.bbox)) {
+            // we should update only if the new bbox doesn't fit in previous
+            update = !this.bbox.containsBBox(this.coordinateUtils.bbox);
+          }
+          if(update) {
+            this.svgElement.attr('viewBox',
+              this.coordinateUtils.x + ' ' + this.coordinateUtils.y + ' ' + this.coordinateUtils.width() + ' ' + this.coordinateUtils.height());
+            this.bbox = this.coordinateUtils.bbox;
+            var version = navigator.userAgent.match(/Version\/(.*?)\s/) || navigator.userAgent.match(/Chrome\/(\d+)/);
+            if ((navigator.vendor === 'Apple Computer, Inc.') ||
+              (navigator.vendor === 'Google Inc.' && version && version[1] < 8)) {
+              var rect = this.svgElement.append('rect');
+              setTimeout(function() {
+                rect.remove();
+              });
+            }
           }
         },
 

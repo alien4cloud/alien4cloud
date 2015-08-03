@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +59,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Get details for a component (tosca type).")
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<IndexedToscaElement> getComponent(@PathVariable String id) {
         IndexedToscaElement component = dao.findById(IndexedToscaElement.class, id.trim());
         return RestResponseBuilder.<IndexedToscaElement> builder().data(component).build();
@@ -65,6 +67,7 @@ public class ComponentController {
 
     @ApiOperation(value = "Get details for a component (tosca type).")
     @RequestMapping(value = "/getInArchives", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<IndexedToscaElement> getComponent(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
         Class<? extends IndexedToscaElement> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
         IndexedToscaElement element = searchService.getElementInDependencies(elementClass, checkElementExistRequest.getElementName(),
@@ -81,6 +84,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Verify that a component (tosca element) exists in alien's repository.")
     @RequestMapping(value = "/exist", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<Boolean> checkElementExist(@RequestBody ElementFromArchiveRequest checkElementExistRequest) throws ClassNotFoundException {
         Class<? extends IndexedToscaElement> elementClass = checkElementExistRequest.getComponentType().getIndexedToscaElementClass();
         Boolean found = searchService.isElementExistInDependencies(elementClass, checkElementExistRequest.getElementName(),
@@ -98,6 +102,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Search for components (tosca types) in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest searchRequest, @RequestParam(defaultValue = "false") boolean queryAllVersions) {
         Class<? extends IndexedToscaElement> classNameToQuery = searchRequest.getType() == null ? IndexedToscaElement.class : searchRequest.getType()
                 .getIndexedToscaElementClass();
@@ -114,6 +119,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Get details for an indexed node type..")
     @RequestMapping(value = "/recommendation/{capability:.+}", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER', 'COMPONENTS_BROWSER')")
     public RestResponse<IndexedNodeType> getRecommendedForCapability(@PathVariable String capability) {
         IndexedNodeType component = getDefaultNodeForCapability(capability);
         return RestResponseBuilder.<IndexedNodeType> builder().data(component).build();
@@ -128,9 +134,9 @@ public class ComponentController {
      */
     @ApiOperation(value = "Set the given node type as default for the given capability.")
     @RequestMapping(value = "/recommendation", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<IndexedNodeType> recommendComponentForCapability(@RequestBody RecommendationRequest recommendationRequest) {
-
         removeFromDefaultCapabilities(recommendationRequest.getCapability());
 
         IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
@@ -153,6 +159,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Remove a recommendation for a node type.", notes = "If a node type is set as default for a given capability, you can remove this setting by calling this operation with the right request parameters.")
     @RequestMapping(value = "/unflag", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<IndexedNodeType> unflagAsDefaultForCapability(@RequestBody RecommendationRequest recommendationRequest) {
         IndexedNodeType component = dao.findById(IndexedNodeType.class, recommendationRequest.getComponentId());
@@ -173,6 +180,7 @@ public class ComponentController {
      */
     @ApiOperation(value = "Update or insert a tag for a component (tosca element).")
     @RequestMapping(value = "/{componentId:.+}/tags", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> upsertTag(@PathVariable String componentId, @RequestBody UpdateTagRequest updateTagRequest) {
         RestError updateComponantTagError = null;
@@ -203,9 +211,9 @@ public class ComponentController {
 
     @ApiOperation(value = "Delete a tag for a component (tosca element).")
     @RequestMapping(value = "/{componentId:.+}/tags/{tagId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'COMPONENTS_MANAGER')")
     @Audit
     public RestResponse<Void> deleteTag(@PathVariable String componentId, @PathVariable String tagId) {
-
         RestError deleteComponantTagError = null;
         IndexedNodeType component = dao.findById(IndexedNodeType.class, componentId);
         if (component != null) {

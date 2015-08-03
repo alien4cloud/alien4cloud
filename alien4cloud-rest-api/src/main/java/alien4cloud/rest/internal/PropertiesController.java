@@ -2,9 +2,11 @@ package alien4cloud.rest.internal;
 
 import javax.annotation.Resource;
 
+import com.mangofactory.swagger.annotations.ApiIgnore;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -31,9 +33,10 @@ public class PropertiesController {
     @Resource
     private ConstraintPropertyService constraintPropertyService;
 
+    @ApiIgnore
     @RequestMapping(value = "/check", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'APPLICATIONS_MANAGER')")
     public RestResponse<ConstraintInformation> checkPropertyDefinition(@RequestBody PropertyRequest propertyRequest) {
-
         if (propertyRequest.getPropertyDefinition() != null) {
             try {
                 constraintPropertyService.checkPropertyConstraint(propertyRequest.getDefinitionId(), propertyRequest.getValue(),

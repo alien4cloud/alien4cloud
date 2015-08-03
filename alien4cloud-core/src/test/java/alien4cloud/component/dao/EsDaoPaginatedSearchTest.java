@@ -1,8 +1,6 @@
 package alien4cloud.component.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,20 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.mapping.ElasticSearchClient;
 import org.elasticsearch.mapping.MappingBuilder;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,14 +37,12 @@ import alien4cloud.model.components.IndexedNodeType;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:application-context-test.xml")
 @Slf4j
-public class EsDaoPaginatedSearchTest {
+public class EsDaoPaginatedSearchTest extends AbstractDAOTest {
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public EsDaoPaginatedSearchTest() {
@@ -58,23 +50,15 @@ public class EsDaoPaginatedSearchTest {
         jsonMapper.setVisibility(PropertyAccessor.ALL, Visibility.PUBLIC_ONLY);
     }
 
-    @Resource
-    ElasticSearchClient esclient;
-    Client nodeClient;
     @Resource(name = "alien-es-dao")
     IGenericSearchDAO dao;
 
     List<IndexedNodeType> testDataList = new ArrayList<>();
     List<IndexedNodeType> jndiTestDataList = new ArrayList<>();
 
-    @PostConstruct
-    public void init() {
-        nodeClient = esclient.getClient();
-    }
-
     @Before
-    public void before() throws Throwable {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
+    public void before() throws Exception {
+        super.before();
         saveDataToES(true);
     }
 
@@ -106,7 +90,7 @@ public class EsDaoPaginatedSearchTest {
     }
 
     @Test
-    public void textBasedSearchPaginatedTest() throws IndexingServiceException, JsonParseException, JsonMappingException, IOException, InterruptedException {
+    public void textBasedSearchPaginatedTest() throws IndexingServiceException, IOException, InterruptedException {
 
         // text search based
         String searchText = "jndi";
@@ -140,7 +124,7 @@ public class EsDaoPaginatedSearchTest {
 
     // @Ignore
     @Test
-    public void facetedSearchPaginatedTest() throws IndexingServiceException, JsonParseException, JsonMappingException, IOException, InterruptedException {
+    public void facetedSearchPaginatedTest() throws IndexingServiceException, IOException, InterruptedException {
         String searchText = "jndi";
         int maxElement = getCount(QueryBuilders.matchPhrasePrefixQuery("_all", searchText).maxExpansions(10));
         int size = 7;
@@ -323,6 +307,7 @@ public class EsDaoPaginatedSearchTest {
                 }
             }
         }
+        refresh();
     }
 
     private void assertDocumentExisit(String indexName, String typeName, String id, boolean expected) {
@@ -333,16 +318,5 @@ public class EsDaoPaginatedSearchTest {
 
     private GetResponse getDocument(String indexName, String typeName, String id) {
         return nodeClient.prepareGet(indexName, typeName, id).execute().actionGet();
-    }
-
-    private void clearIndex(String indexName, Class<?> clazz) throws InterruptedException {
-        String typeName = MappingBuilder.indexTypeFromClass(clazz);
-        log.info("Cleaning ES Index " + ElasticSearchDAO.TOSCA_ELEMENT_INDEX + " and type " + typeName);
-        nodeClient.prepareDeleteByQuery(indexName).setQuery(QueryBuilders.matchAllQuery()).setTypes(typeName).execute().actionGet();
-    }
-
-    @After
-    public void cleanup() throws InterruptedException {
-        clearIndex(ElasticSearchDAO.TOSCA_ELEMENT_INDEX, IndexedNodeType.class);
     }
 }

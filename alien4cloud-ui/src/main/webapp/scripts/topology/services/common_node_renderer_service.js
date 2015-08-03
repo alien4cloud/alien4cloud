@@ -4,24 +4,26 @@ define(function (require) {
 
   var modules = require('modules');
 
+  var _ = require('lodash');
+
   modules.get('a4c-topology-editor').factory('commonNodeRendererService', [ 'd3Service',
     function(d3Service) {
       return {
         //----------------------
         // Services
         //----------------------
-        tooltip: function(node, nodeTemplate, nodeType) {
+        tooltip: function(element) {
           var tooltipContent = '<div>';
 
-          tooltipContent += '<div>' + node.id;
-          if (nodeType.abstract) {
+          tooltipContent += '<div>' + element.id;
+          if (_.defined(element.type) && element.type.abstract) {
             var icoSize = 16;
             tooltipContent += ' <img src="images/abstract_ico.png" height="' + icoSize + '" width="' + icoSize + '"></img>';
           }
           tooltipContent += '</div>';
-          if (nodeTemplate.properties) {
-            if (typeof nodeTemplate.properties.version === 'string') {
-              tooltipContent += '<div>' + 'v' + nodeTemplate.properties.version + '</div>';
+          if (_.defined(element.template.properties)) {
+            if (typeof element.template.properties.version === 'string') {
+              tooltipContent += '<div>' + 'v' + element.template.properties.version + '</div>';
             }
           }
           tooltipContent += '</div>';
@@ -43,20 +45,6 @@ define(function (require) {
           if (!groupSelection.empty()) {
             groupSelection.remove();
           }
-        },
-
-        appendCount: function(runtimeGroup, nodeInstancesCount, deletedCount, rectOriginX, rectOriginY, x, y, width) {
-          var fontSize = nodeInstancesCount >= 100 ? 'x-small' : 'small';
-          var shiftLeftBigCount = nodeInstancesCount >= 100 ? 4 : 0;
-          runtimeGroup.append('text').attr('text-anchor', 'start')
-            .attr('x', rectOriginX + width - x - shiftLeftBigCount)
-            .attr('y', rectOriginY + y)
-            .attr('font-weight', 'bold')
-            .attr('font-size', fontSize)
-            .attr('fill', 'white')
-            .text(function() {
-              return nodeInstancesCount ? nodeInstancesCount - deletedCount : 0;
-            });
         },
 
         getNumberOfInstanceByStatus: function(nodeInstances, instanceStatus, state) {

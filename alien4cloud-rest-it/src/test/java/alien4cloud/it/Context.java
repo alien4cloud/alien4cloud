@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
-import alien4cloud.model.components.PropertyConstraint;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +19,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.NodeBuilder;
+import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ClassPathResource;
@@ -29,11 +29,15 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.PropertyPlaceholderHelper;
 
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.it.exception.ITException;
+import alien4cloud.it.provider.util.OpenStackClient;
+import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.json.deserializer.PropertyValueDeserializer;
 import alien4cloud.model.application.Application;
 import alien4cloud.model.common.MetaPropConfiguration;
 import alien4cloud.model.components.AbstractPropertyValue;
+import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.templates.TopologyTemplate;
 import alien4cloud.rest.utils.RestClient;
 import alien4cloud.rest.utils.RestMapper;
@@ -55,6 +59,19 @@ import cucumber.runtime.io.ClasspathResourceLoader;
  */
 @Slf4j
 public class Context {
+
+    public static final String GIT_URL_SUFFIX = ".git";
+
+    public static final Path GIT_ARTIFACT_TARGET_PATH = Paths.get("target/gits");
+
+    public static final Path CSAR_TARGET_PATH = Paths.get("target/csars");
+
+    public static final String FASTCONNECT_NEXUS = "http://fastconnect.org/maven/service/local/artifact/maven/redirect?";
+
+    public static final Path LOCAL_TEST_DATA_PATH = Paths.get("src/test/resources");
+
+    public static final int SCP_PORT = 22;
+
     public static final String HOST = "localhost";
 
     public static final int PORT = 8088;
@@ -132,8 +149,8 @@ public class Context {
     private Application applicationLocal;
 
     private Map<String, String> applicationInfos;
-    
-    private Map<String,String> csarGitInfos;
+
+    private Map<String, String> csarGitInfos;
 
     private Map<String, String> cloudInfos;
 
@@ -153,6 +170,9 @@ public class Context {
 
     private Map<String, Map<String, String>> environmentInfos;
 
+    @Getter
+    private OpenStackClient openStackClient;
+
     private Context() {
         ClasspathResourceLoader classpathResourceLoader = new ClasspathResourceLoader(Thread.currentThread().getContextClassLoader());
         Iterable<cucumber.runtime.io.Resource> properties = classpathResourceLoader.resources("", "alien4cloud-config.yml");
@@ -169,8 +189,10 @@ public class Context {
             resources = Lists.<Resource> newArrayList(new ClassPathResource("alien4cloud-config.yml"));
         }
         factory.setResources(resources.toArray(new Resource[resources.size()]));
-        appProps = new TestPropertyPlaceholderConfigurer();
-        appProps.setProperties(factory.getObject());
+        this.appProps = new TestPropertyPlaceholderConfigurer();
+        this.appProps.setProperties(factory.getObject());
+        this.openStackClient = new OpenStackClient(this.appProps.getProperty("openstack.user"), this.appProps.getProperty("openstack.password"),
+                this.appProps.getProperty("openstack.tenant"), this.appProps.getProperty("openstack.url"), this.appProps.getProperty("openstack.region"));
     }
 
     private static class TestPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
@@ -224,10 +246,10 @@ public class Context {
         return cloudImageNameToCloudImageIdMapping.get(cloudImageName);
     }
 
-    public Map<String,String> getCsarGitInfos() {
+    public Map<String, String> getCsarGitInfos() {
         return csarGitInfos;
     }
-    
+
     public void registerApplicationVersionId(String applicationVersionName, String applicationVersionId) {
         applicationVersionNameToApplicationVersionIdMapping.put(applicationVersionName, applicationVersionId);
     }
@@ -455,9 +477,9 @@ public class Context {
         topologyCloudInfos = cloudId;
     }
 
-    public void saveCsarGitInfos(String id,String url) {
+    public void saveCsarGitInfos(String id, String url) {
         if (this.csarGitInfos != null) {
-            this.csarGitInfos.put(id,url);
+            this.csarGitInfos.put(id, url);
             return;
         }
         this.csarGitInfos = MapUtil.newHashMap(new String[] { id }, new String[] { url });
@@ -474,6 +496,12 @@ public class Context {
 
     public Map<String, String> getDeployApplicationProperties() {
         return deployApplicationProperties;
+    }
+
+    public Map<String, String> takeDeployApplicationProperties() {
+        Map<String, String> tmp = deployApplicationProperties;
+        deployApplicationProperties = null;
+        return tmp;
     }
 
     public void registerConfigurationTag(String configurationTagName, MetaPropConfiguration tagConfiguration) {
@@ -552,5 +580,23 @@ public class Context {
 
     public String getTopologyTemplateVersionId() {
         return topologyTemplateVersionId;
+    }
+
+    private String getManagementServerPublicIp(String managerPropertyName) {
+        String managementServerName = getAppProperty(managerPropertyName);
+        Server managementServer = this.openStackClient.findServerByName(managementServerName);
+        if (managementServer == null) {
+            throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
+        }
+        String publicIp = this.openStackClient.getServerFloatingIP(managementServer).getFloatingIpAddress();
+        return publicIp;
+    }
+
+    public String getCloudify3ManagerUrl() {
+        return "http://" + getManagementServerPublicIp("openstack.cfy3.manager_name") + ":8100";
+    }
+
+    public String getCloudify2ManagerUrl() {
+        return "https://" + getManagementServerPublicIp("openstack.cfy2.manager_name") + ":8100";
     }
 }

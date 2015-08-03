@@ -218,7 +218,7 @@ public class TopologyTreeBuilderService {
         if (attachTo != null) {
             String target = attachTo.getRelationshipTemplate().getTarget();
             PaaSNodeTemplate parent = nodeTemplates.get(target);
-            parent.setAttachedNode(paaSNodeTemplate);
+            parent.getStorageNodes().add(paaSNodeTemplate);
             paaSNodeTemplate.setParent(parent);
         }
     }

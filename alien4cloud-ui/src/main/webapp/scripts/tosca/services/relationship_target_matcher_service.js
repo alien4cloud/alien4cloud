@@ -20,27 +20,26 @@ define(function (require) {
         * @param relationshipTypes: A map of relationship types used in the topology.
         * @param capabilityTypes: A map of relationship types used by nodes in the topology.
         * @param dependencies: Array of CSAR dependencies in which types should exists.
-        * @param preferedTargetName: Optional name of a prefered target node template that will be placed in prefered field of the result object.
+        * @param preferedTarget: Optional name of a prefered target node template that will be placed in prefered field of the result object.
         */
-        getTargets: function(sourceElementName, requirement, requirementName, nodeTemplates, nodeTypes, relationshipTypes, capabilityTypes, dependencies, preferedTargetName) {
+        getTargets: function(sourceElementName, requirement, requirementName, nodeTemplates, nodeTypes, relationshipTypes, capabilityTypes, dependencies, preferedTarget) {
           var instance = this;
-          // create a promise as the result may be asynchronous...
+          // create a promise as the result may be asynchronous.
           var deferred = $q.defer();
 
           var requirementDefinition = this.getRequirementDefinition(nodeTypes[nodeTemplates[sourceElementName].type], requirementName);
 
-          if(_.defined(requirementDefinition.relationshipType)) {
+          if(_.defined(requirementDefinition.relationshipType)) { // There is a relationship type specified for the requirement.
             var relationshipType = relationshipTypes[requirementDefinition.relationshipType];
-            if(_.defined(relationshipType)) {
-              deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType, preferedTargetName));
-            } else {
-              // valid target for the relationship type
+            if(_.defined(relationshipType)) { // we didn't found the matching relationship type let's look for all.
+              deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType, preferedTarget));
+            } else { // We have found a valid relationship type
               componentService.getInArchives(requirementDefinition.relationshipType, 'RELATIONSHIP_TYPE', dependencies).success(function(result) {
-                deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, result.data, preferedTargetName));
+                deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, result.data, preferedTarget));
               });
             }
-          } else {
-            deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, null, preferedTargetName));
+          } else { // no relationship type specified
+            deferred.resolve(instance.doGetTargets(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, null, preferedTarget));
           }
           // return the promise.
           return deferred.promise;
@@ -55,7 +54,8 @@ define(function (require) {
           return null;
         },
 
-        doGetTargets: function(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType, preferedTargetName) {
+        doGetTargets: function(sourceElementName, requirement, nodeTemplates, nodeTypes, capabilityTypes, relationshipType,
+          preferedTarget) {
           var matches = [];
           var preferedMatch = null;
 
@@ -76,9 +76,21 @@ define(function (require) {
               }
               if(match !== null) {
                 matches.push(match);
-              }
-              if(templateName === preferedTargetName) {
-                preferedMatch = match;
+                if(_.defined(preferedTarget) && match.template.name === preferedTarget.name) {
+                  if(_.defined(preferedTarget.capability)) {
+                    if(_.includes(match.capabilitiesIds, preferedTarget.capability) ) {
+                      preferedMatch = {
+                        node: match.template.name,
+                        capability: preferedTarget.capability
+                      };
+                    }
+                  } else if(match.capabilities.length === 1) {
+                    preferedMatch = {
+                      node: match.template.name,
+                      capability: match.capabilities[0].id
+                    };
+                  }
+                }
               }
             }
           }
@@ -116,9 +128,10 @@ define(function (require) {
             if(candidateTemplate.capabilitiesMap[capabilityId].value.canAddRel.yes &&
               this.isValidTarget(validTargets, candidateTemplate.type, i, nodeTypes, capabilityTypes)) {
               if(match === null) {
-                match = { template: candidateTemplate, capabilities: [] };
+                match = { template: candidateTemplate, capabilities: [], capabilitiesIds: []};
               }
               match.capabilities.push({id: capabilityId, type: candidateTemplate.capabilitiesMap[capabilityId].value.type});
+              match.capabilitiesIds.push(capabilityId);
             }
           }
           return match;

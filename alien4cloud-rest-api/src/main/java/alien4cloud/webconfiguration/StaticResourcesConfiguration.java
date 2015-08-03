@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class StaticResourcesConfiguration extends WebMvcConfigurerAdapter {
     @Value("file:///${directories.alien}/${directories.csar_repository}/")
     private String toscaRepo;
-    @Value("file:///${directories.alien}/work/plugins/ui")
+    @Value("file:///${directories.alien}/work/plugins/ui/")
     private String pluginsUi;
 
     public final static String PLUGIN_STATIC_ENDPOINT = "/static/plugins/";

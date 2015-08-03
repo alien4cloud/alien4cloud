@@ -45,3 +45,4 @@ alien4cloud.log
 alien4cloud-rest-api/data/
 alien4cloud-security/.gitignore
 alien4cloud-ui/data/
+alien4cloud-security/bin/

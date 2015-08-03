@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateCsarGithubRequest {
+public class UpdateCsarGitRequest {
 
     @SuppressWarnings("PMD.UnusedPrivateField")
     @NotBlank

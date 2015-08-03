@@ -3,6 +3,7 @@
 
 // TODO : update for new CSAR UI pages
 var navigation = require('../common/navigation');
+var common = require('../common/common');
 
 var goToCsarSearchPage = function() {
   navigation.go('main', 'components');
@@ -58,7 +59,6 @@ var checkIfCreationStepIsEnabled = function(urlContent,subPath,branchId){
 };
 module.exports.checkIfCreationStepIsEnabled = checkIfCreationStepIsEnabled;
 
-
 var checkIfCreationIsDisabled = function(urlContent,subPath,branchId,createCsarGitBtn,addLocationBtn){
   goToCsarSearchPage();
   var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
@@ -70,6 +70,22 @@ var checkIfCreationIsDisabled = function(urlContent,subPath,branchId,createCsarG
 
 };
 module.exports.checkIfCreationIsDisabled = checkIfCreationIsDisabled;
+
+var checkIfCreationIsDisabledWhenRemovingLocation = function(urlContent,subPath,branchId){
+  goToCsarSearchPage();
+  var openModal = browser.element(by.binding('CSAR.MODAL_NEWCSAR'));
+  openModal.click();
+  browser.driver.switchTo().activeElement();
+  fillCsargitModalWithData(urlContent,subPath,branchId);
+  var addLocationButton =element(by.id('btn-createTextField'));
+  addLocationButton.click();
+  common.deleteWithConfirm('delete-csargit-location', true);
+  var createCsarGitButton = element(by.id('btn-create'));
+  expect(createCsarGitButton.isEnabled()).toBe(false);
+
+};
+module.exports.checkIfCreationIsDisabledWhenRemovingLocation = checkIfCreationIsDisabledWhenRemovingLocation;
+
 
 var checkIfAllCreationStepsAreDisabled = function(urlContent,subPath,branchId){
   goToCsarSearchPage();

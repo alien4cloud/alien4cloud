@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import alien4cloud.Constants;
@@ -36,27 +37,22 @@ import com.wordnik.swagger.annotations.ApiOperation;
 @Slf4j
 @RequestMapping("/rest/groups")
 public class GroupController {
-
     @Resource
     private IAlienGroupDao alienGroupDao;
-
     @Resource
     private GroupService groupService;
-
     @Resource
     private ResourceRoleService resourceRoleService;
 
     /**
      * Create a new group in the system.
      *
-     * @param request
-     *            A {@link CreateGroupRequest} with information of the new group
-     *            to create.
-     * @return a rest {@link RestResponse} containing the id of the newly
-     *         created group.
+     * @param request A {@link CreateGroupRequest} with information of the new group to create.
+     * @return a rest {@link RestResponse} containing the id of the newly created group.
      */
     @ApiOperation(value = "Create a new group in ALIEN.")
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<String> create(@Valid @RequestBody CreateGroupRequest request) {
         String groupId = groupService.createGroup(request.getName(), request.getEmail(), request.getDescription(), request.getRoles(), request.getUsers());
@@ -65,6 +61,7 @@ public class GroupController {
 
     @RequestMapping(value = "/{groupId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation("Update a group by merging the groupUpdateRequest into the existing group")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> update(@PathVariable String groupId, @RequestBody UpdateGroupRequest groupUpdateRequest) {
         if (!isInternalAllUserGroup(groupId)) {
@@ -93,6 +90,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Get a group based on it's id.", notes = "Returns a rest response that contains the group's details.")
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Group> getGroup(@PathVariable String groupId) {
         if (groupId == null || groupId.isEmpty()) {
             throw new InvalidArgumentException("Group with id <" + groupId + "> does not exist");
@@ -112,6 +110,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Delete an existing group from the repository.")
     @RequestMapping(value = "/{groupId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> deleteGroup(@PathVariable String groupId) throws ClassNotFoundException, IOException {
         if (groupId == null || groupId.isEmpty()) {
@@ -145,10 +144,30 @@ public class GroupController {
      */
     @ApiOperation(value = "Search for user's registered in alien.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<GetMultipleDataResult> searchGroups(@RequestBody FilteredSearchRequest searchRequest) {
         GetMultipleDataResult searchResult = alienGroupDao.search(searchRequest.getQuery(), searchRequest.getFilters(), searchRequest.getFrom(),
                 searchRequest.getSize());
         return RestResponseBuilder.<GetMultipleDataResult> builder().data(searchResult).build();
+    }
+
+    /**
+     * Get multiple groups from their names.
+     *
+     * @param ids
+     *            The list of ids of the groups to retrieve.
+     * @return a rest {@link RestResponse} containing the group matching the
+     *         given names.
+     */
+    @ApiOperation(value = "Get multiple groups from their ids.", notes = "Returns a rest response that contains the list of requested groups.")
+    @RequestMapping(value = "/getGroups", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
+    public RestResponse<List<Group>> getGroups(@RequestBody List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new InvalidArgumentException("ids cannot be null or empty");
+        }
+        List<Group> groups = alienGroupDao.find(ids.toArray(new String[ids.size()]));
+        return RestResponseBuilder.<List<Group>> builder().data(groups).build();
     }
 
     /**
@@ -161,6 +180,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Add a role to a group.")
     @RequestMapping(value = "/{groupId}/roles/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> addRoleToGroup(@PathVariable String groupId, @PathVariable String role) {
         if (groupId == null || groupId.isEmpty()) {
@@ -181,6 +201,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Remove a role from a group.")
     @RequestMapping(value = "/{groupId}/roles/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeRoleFromGroup(@PathVariable String groupId, @PathVariable String role) {
         if (groupId == null || groupId.isEmpty()) {
@@ -201,6 +222,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Add a user to a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<User> addUserToGroup(@PathVariable String groupId, @PathVariable String username) {
         if (groupId == null || groupId.isEmpty()) {
@@ -234,6 +256,7 @@ public class GroupController {
      */
     @ApiOperation(value = "Remove a user from a group.")
     @RequestMapping(value = "/{groupId}/users/{username}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<User> removeUserFromGroup(@PathVariable String groupId, @PathVariable String username) {
         if (groupId == null || groupId.isEmpty()) {
@@ -254,24 +277,6 @@ public class GroupController {
                                             + Constants.GROUP_NAME_ALL_USERS + ">").build()).build();
         }
         return RestResponseBuilder.<User> builder().data(user).build();
-    }
-
-    /**
-     * Get multiple groups from their names.
-     *
-     * @param ids
-     *            The list of ids of the groups to retrieve.
-     * @return a rest {@link RestResponse} containing the group matching the
-     *         given names.
-     */
-    @ApiOperation(value = "Get multiple groups from their ids.", notes = "Returns a rest response that contains the list of requested groups.")
-    @RequestMapping(value = "/getGroups", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RestResponse<List<Group>> getGroups(@RequestBody List<String> ids) {
-        if (ids == null || ids.isEmpty()) {
-            throw new InvalidArgumentException("ids cannot be null or empty");
-        }
-        List<Group> groups = alienGroupDao.find(ids.toArray(new String[ids.size()]));
-        return RestResponseBuilder.<List<Group>> builder().data(groups).build();
     }
 
     /**

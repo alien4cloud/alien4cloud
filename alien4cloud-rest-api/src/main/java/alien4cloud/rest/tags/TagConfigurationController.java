@@ -10,6 +10,7 @@ import javax.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,7 +55,7 @@ public class TagConfigurationController {
      */
     private void ensureNameAndTypeUnicity(final String name, final String target, final String id) {
         @SuppressWarnings("unchecked")
-        GetMultipleDataResult<MetaPropConfiguration> result = dao.facetedSearch(MetaPropConfiguration.class, null, MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }), 
+        GetMultipleDataResult<MetaPropConfiguration> result = dao.facetedSearch(MetaPropConfiguration.class, null, MapUtil.newHashMap(new String[] { "name", "target" }, new String[][] { new String[] { name }, new String[] { target } }),
                 null, 0, 5);
 
         if (result.getData().length > 0 && !result.getData()[0].getId().equals(id)) {
@@ -65,6 +66,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Save tag configuration.")
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<TagConfigurationSaveResponse> saveConfiguration(@RequestBody MetaPropConfiguration configuration) {
         if (configuration.getName() != null && configuration.getTarget() != null) {
@@ -93,6 +95,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Search for tag configurations registered in ALIEN.")
     @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public RestResponse<FacetedSearchResult> search(@RequestBody SearchRequest request) {
         FacetedSearchResult result = dao.facetedSearch(MetaPropConfiguration.class, request.getQuery(), request.getFilters(), null, request.getFrom(),
                 request.getSize());
@@ -101,6 +104,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Remove tag configuration.")
     @RequestMapping(value = "/{tagConfigurationId}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> removeConfiguration(@PathVariable String tagConfigurationId) {
         dao.delete(MetaPropConfiguration.class, tagConfigurationId);
@@ -109,6 +113,7 @@ public class TagConfigurationController {
 
     @ApiOperation(value = "Get tag configuration.")
     @RequestMapping(value = "/{tagConfigurationId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<MetaPropConfiguration> getConfiguration(@PathVariable String tagConfigurationId) {
         MetaPropConfiguration configuration = dao.findById(MetaPropConfiguration.class, tagConfigurationId);
         if (configuration == null) {
