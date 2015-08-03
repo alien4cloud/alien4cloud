@@ -15,8 +15,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
-import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
-import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +76,8 @@ import alien4cloud.topology.TopologyServiceCore;
 import alien4cloud.topology.TopologyTemplateVersionService;
 import alien4cloud.topology.TopologyValidationResult;
 import alien4cloud.topology.TopologyValidationService;
+import alien4cloud.topology.validation.TopologyCapabilityBoundsValidationServices;
+import alien4cloud.topology.validation.TopologyRequirementBoundsValidationServices;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintViolationException;
@@ -604,10 +604,15 @@ public class TopologyController {
         if (propertyValue == null) {
             propertyValue = node.getProperties().get(propertyName).getDefault();
         }
-        nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+
+        // if the default value is also empty, we set the property value to null
+        if (propertyValue == null) {
+            nodeTemp.getProperties().put(propertyName, null);
+        } else {
+            nodeTemp.getProperties().put(propertyName, new ScalarPropertyValue(propertyValue));
+        }
 
         alienDAO.save(topology);
-
         return RestResponseBuilder.<ConstraintInformation> builder().build();
     }
 
