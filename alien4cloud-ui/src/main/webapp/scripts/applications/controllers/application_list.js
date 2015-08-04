@@ -66,7 +66,7 @@ define(function (require) {
           }
         }
       });
-      
+
       $scope.loadTopologyTemplates = function() {
 
         var searchRequestObject = {
@@ -88,13 +88,13 @@ define(function (require) {
           };
         searchTopologyTemplateVersionResource.search({topologyTemplateId: selectedTemplateId}, angular.toJson(searchRequestObject), function(successResult) {
           $scope.templateVersions = successResult.data.data;
-        });      
+        });
       };
-      
+
       $scope.templateSelected = function(selectedTemplateId) {
         $scope.templateVersions = undefined;
         $scope.selectedTopologyTemplateVersion = undefined;
-        
+
         if (selectedTemplateId == "") {
           $scope.selectedTopologyTemplate = undefined;
         } else {
@@ -105,10 +105,10 @@ define(function (require) {
           });
         }
         if ($scope.selectedTopologyTemplate) {
-          $scope.loadTopologyTemplateVersions($scope.selectedTopologyTemplate.id);      
+          $scope.loadTopologyTemplateVersions($scope.selectedTopologyTemplate.id);
         }
       };
-      
+
       // First template load
       $scope.loadTopologyTemplates();
     }
@@ -118,6 +118,7 @@ define(function (require) {
     ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster',
     function($scope, $modal, $state, authService, applicationServices, $translate, toaster) {
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
+      $scope.applicationStatuses = new Array();
       d3.selectAll('.d3-tip').remove();
 
       $scope.openNewApp = function() {
@@ -161,8 +162,8 @@ define(function (require) {
 
           var pie = new d3pie('pieChart-' + appName, {
             'size': {
-              'canvasWidth': 100,
-              'canvasHeight': 100
+              'canvasWidth': 60,
+              'canvasHeight': 60
             },
             'data': {
               'sortOrder': 'label-asc',
@@ -214,6 +215,7 @@ define(function (require) {
                 segment.name = tmpArray[key].environmentName;
                 data.push(segment);
               }
+              $scope.applicationStatuses[app.name] = data;
               drawPieChart(app.name, data);
             });
           });
@@ -241,6 +243,13 @@ define(function (require) {
 
       $scope.openApplication = function(applicationId) {
         $state.go('applications.detail.info', {
+          id: applicationId
+        });
+      };
+
+      $scope.openDeploymentPage = function(applicationId) {
+        $scope.openApplication(applicationId);
+        $state.go('applications.detail.deployment', {
           id: applicationId
         });
       };
