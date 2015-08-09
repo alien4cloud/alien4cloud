@@ -118,7 +118,8 @@ define(function (require) {
     ['$scope', '$modal', '$state', 'authService', 'applicationServices', '$translate', 'toaster',
     function($scope, $modal, $state, authService, applicationServices, $translate, toaster) {
       $scope.isManager = authService.hasRole('APPLICATIONS_MANAGER');
-      $scope.applicationStatuses = new Array();
+      $scope.applicationStatuses = [];
+      $scope.onlyShowDeployedApplications = undefined;
       d3.selectAll('.d3-tip').remove();
 
       $scope.openNewApp = function() {
@@ -151,6 +152,16 @@ define(function (require) {
         'FAILURE': '#C51919',
         'DEPLOYMENT_IN_PROGRESS': '#2C80D3',
         'UNDEPLOYMENT_IN_PROGRESS': '#D0ADAD'
+      };
+
+      var priorityToOrder = {
+        'DEPLOYED': '8',
+        'UNDEPLOYED': '7',
+        'UNKNOWN': '6',
+        'WARNING': '5',
+        'FAILURE': '4',
+        'DEPLOYMENT_IN_PROGRESS': '3',
+        'UNDEPLOYMENT_IN_PROGRESS': '2'
       };
 
       var drawPieChart = function(appName, data) {
@@ -211,9 +222,29 @@ define(function (require) {
                 var segment = {};
                 segment.label = tmpArray[key].environmentStatus;
                 segment.color = colors[tmpArray[key].environmentStatus];
+                segment.indexToOrder = priorityToOrder[tmpArray[key].environmentStatus];
                 segment.value = 1;
                 segment.name = tmpArray[key].environmentName;
-                data.push(segment);
+
+                // Initial the counter of number deployed environment by applications to sort
+                if (!_.isNumber(app.countDeployedEnvironment)) {
+                  app.countDeployedEnvironment = 0;
+                  applicationSearchResult.data.data[key] = app;
+                }
+
+                if (segment.label === 'DEPLOYED') {
+                  app.countDeployedEnvironment++;
+                }
+
+                // Here we manage a filter to display the deployed applications
+                if ($scope.onlyShowDeployedApplications && segment.label === 'DEPLOYED') {
+                  app.isDeployed = true;
+                  data.push(segment);
+                } else if (!$scope.onlyShowDeployedApplications) {
+                  data.push(segment);
+                }
+
+                applicationSearchResult.data.data[key] = app;
               }
               $scope.applicationStatuses[app.name] = data;
               drawPieChart(app.name, data);
@@ -223,7 +254,10 @@ define(function (require) {
         return applicationSearchResult;
       };
 
-
+      $scope.toogleShowDeployedApplications = function() {
+        $scope.onlyShowDeployedApplications = ($scope.onlyShowDeployedApplications) ? undefined : true;
+        $scope.search();
+      };
 
       $scope.search = function() {
         var searchRequestObject = {

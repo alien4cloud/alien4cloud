@@ -305,6 +305,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "SHOW_DEPLOYED_APP": "Only show deployed applications.",
     "APPLICATION_ROLES": "Application roles",
     "NEW": "New Application",
     "NAME": "Name",
