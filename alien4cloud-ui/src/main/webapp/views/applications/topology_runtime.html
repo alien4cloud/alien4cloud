@@ -302,10 +302,21 @@
                   <div collapse="isOpCollapsed[operationName]" ng-if="!emptyInputs">
                     <table class="table table-condensed" id="op_{{operationName}}_inputParams">
                       <tr ng-repeat="(inputParameterName, inputParameter) in operation.inputParameters">
-                        <td class="col-md-12" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
+                        <td class="col-md-11" id="op_{{interfaceName}}_{{operationName}}_param_{{inputParameterName}}_value" ng-class="{'property-required' : inputParameter.required}">
                           <!-- ### {{operation.inputParameters[inputParameterName]}} ** -->
                           <property-display ng-init="condensed = true" definition="inputParameter.definitionModel" property-value="" on-save="checkProperty(propertyDefinition, propertyValue, interfaceName)" editable="true" condensed="condensed">
                           </property-display>
+                        </td>
+                        <td class="col-md-1">
+                          <div class="btn-group" data-toggle="buttons">
+                            <button id="btn-component-description-relationship-prop-desc-{{propertyEntry.key}}"
+                                    ng-if="inputParameter.description"
+                                    ng-click="openSimpleModal('MODAL.TITLE.CUSTOM_COMMAND', inputParameter.description)"
+                                    class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.CUSTOM_COMMAND' | translate}}"
+                                    tooltip-append-to-body="true">
+                              <i class="fa fa-question-circle"></i>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     </table>

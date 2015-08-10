@@ -34,6 +34,14 @@
       "TOUR": "Learn how to configure Alien 4 Cloud, users and roles, clouds etc."
     }
   },
+  "MODAL": {
+    "TITLE": {
+      "PROPERTY": "Property description",
+      "REQUIREMENT": "Requirement description",
+      "CAPABILITY": "Capability description",
+      "CUSTOM_COMMAND": "Custom command description"
+    }
+  },
   "NAVADMIN": {
     "MENU_USERS": "Users",
     "MENU_PLUGINS": "Plugins",
