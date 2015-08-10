@@ -468,6 +468,17 @@
                         condensed="condensed">
                       </property-display>
                     </td>
+                    <td>
+                      <div class="btn-group" data-toggle="buttons">
+                        <button id="btn-component-description-capability-prop-desc-{{propertyEntry.key}}"
+                                ng-if="topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description"
+                                ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description)"
+                                class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
+                                tooltip-append-to-body="true">
+                          <i class="fa fa-question-circle"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </table>
               </div>
@@ -547,7 +558,7 @@
                               </ul>
                             </div>
                           </td>
-                          <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-11">
+                          <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
                             <property-display
                               ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
@@ -566,6 +577,17 @@
                               editable="true"
                               condensed="condensed">
                             </property-display>
+                          </td>
+                          <td class="col-md-1">
+                            <div class="btn-group" data-toggle="buttons">
+                              <button id="btn-component-description-relationship-prop-desc-{{propertyEntry.key}}"
+                                      ng-if="propertyEntry.value.description"
+                                      ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', propertyEntry.value.description)"
+                                      class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
+                                      tooltip-append-to-body="true">
+                                <i class="fa fa-question-circle"></i>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       </table>
