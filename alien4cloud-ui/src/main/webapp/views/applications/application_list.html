@@ -31,11 +31,11 @@
           <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
             <div class="row clickable-media">
               <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed">
-                <i class="pull-left fa fa-chevron-right" ng-class="{'fa-chevron-down' : !isEnvironmentsCollapsed, 'fa-chevron-right': isEnvironmentsCollapsed}"></i>
+                <i style="padding: 8px;" class="pull-left fa fa-chevron-right" ng-class="{'fa-chevron-down' : !isEnvironmentsCollapsed, 'fa-chevron-right': isEnvironmentsCollapsed}"></i>
               </div>
               <div class="col-md-4" ng-click="openApplication(application.id)"><i class="pull-left media-object fa fa-desktop fa-2x" ng-show="!application.imageId"></i>{{application.name}}</div>
-              <div class="col-md-6" class=""ng-click="openApplication(application.id)">{{application.description}}</div>
-              <div class="col-md-1" style="width: 130px;" ng-click="openApplication(application.id)" ng-if="isManager" style="width: 115px;">
+              <div class="col-md-5" class=""ng-click="openApplication(application.id)">{{application.description}}</div>
+              <div class="col-md-2" style="width: 130px;" ng-click="openApplication(application.id)" ng-if="isManager" style="width: 115px;">
                 <delete-confirm class="pull-right" id='delete-app_{{application.name}}' func="removeApplication(application.id)" position="left" bssize="btn-sm" fastyle="fa-trash-o">
                 </delete-confirm>
                 <span id="pieChart-{{application.name}}" class="pull-right" style="margin-top: -18px;"></span>
