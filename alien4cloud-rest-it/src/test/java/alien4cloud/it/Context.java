@@ -85,27 +85,13 @@ public class Context {
 
     private static final Context INSTANCE = new Context();
 
-    private static final Client ES_CLIENT_INSTANCE;
+    private static Client ES_CLIENT_INSTANCE;
 
-    private static final RestClient REST_CLIENT_INSTANCE;
+    private static RestClient REST_CLIENT_INSTANCE;
 
-    private static final ObjectMapper JSON_MAPPER;
+    private static ObjectMapper JSON_MAPPER;
 
     static {
-        JSON_MAPPER = new RestMapper();
-        SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
-        module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
-        try {
-            module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
-        } catch (ClassNotFoundException | IOException | IntrospectionException e) {
-            log.error("Unable to initialize test context.");
-        }
-        JSON_MAPPER.registerModule(module);
-
-        Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
-                .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
-        ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
-        REST_CLIENT_INSTANCE = new RestClient("http://" + HOST + ":" + PORT + CONTEXT_PATH);
         YamlPropertiesFactoryBean propertiesFactoryBean = new YamlPropertiesFactoryBean();
         propertiesFactoryBean.setResources(new Resource[] { new ClassPathResource("version.yml") });
         Properties properties = propertiesFactoryBean.getObject();
@@ -113,10 +99,18 @@ public class Context {
     }
 
     public static Client getEsClientInstance() {
+        if (ES_CLIENT_INSTANCE == null) {
+            Settings settings = ImmutableSettings.settingsBuilder().put("discovery.zen.ping.multicast.enabled", false)
+                    .put("discovery.zen.ping.unicast.hosts", "localhost").put("discovery.zen.ping.unicast.enabled", true).build();
+            ES_CLIENT_INSTANCE = NodeBuilder.nodeBuilder().client(true).clusterName("escluster").local(false).settings(settings).node().client();
+        }
         return ES_CLIENT_INSTANCE;
     }
 
     public static RestClient getRestClientInstance() {
+        if (REST_CLIENT_INSTANCE == null) {
+            REST_CLIENT_INSTANCE = new RestClient("http://" + HOST + ":" + PORT + CONTEXT_PATH);
+        }
         return REST_CLIENT_INSTANCE;
     }
 
@@ -125,6 +119,17 @@ public class Context {
     }
 
     public static ObjectMapper getJsonMapper() {
+        if (JSON_MAPPER == null) {
+            JSON_MAPPER = new RestMapper();
+            SimpleModule module = new SimpleModule("PropDeser", new Version(1, 0, 0, null, null, null));
+            module.addDeserializer(AbstractPropertyValue.class, new PropertyValueDeserializer());
+            try {
+                module.addDeserializer(PropertyConstraint.class, new PropertyConstraintDeserializer());
+            } catch (ClassNotFoundException | IOException | IntrospectionException e) {
+                log.error("Unable to initialize test context.");
+            }
+            JSON_MAPPER.registerModule(module);
+        }
         return JSON_MAPPER;
     }
 
