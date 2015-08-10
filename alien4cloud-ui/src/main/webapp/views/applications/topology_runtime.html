@@ -308,15 +308,7 @@
                           </property-display>
                         </td>
                         <td class="col-md-1">
-                          <div class="btn-group" data-toggle="buttons">
-                            <button id="btn-component-description-relationship-prop-desc-{{propertyEntry.key}}"
-                                    ng-if="inputParameter.description"
-                                    ng-click="openSimpleModal('MODAL.TITLE.CUSTOM_COMMAND', inputParameter.description)"
-                                    class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.CUSTOM_COMMAND' | translate}}"
-                                    tooltip-append-to-body="true">
-                              <i class="fa fa-question-circle"></i>
-                            </button>
-                          </div>
+                          <simple-modal title="{{ 'MODAL.TITLE.CUSTOM_COMMAND' | translate}}" content="{{inputParameter.description}}" key="{{propertyEntry.key}}"> </simple-modal>
                         </td>
                       </tr>
                     </table>

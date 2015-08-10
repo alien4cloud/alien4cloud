@@ -21,8 +21,8 @@ define(function (require) {
   });
 
   modules.get('a4c-applications').controller('TopologyRuntimeCtrl',
-    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor', '$modal', '$filter',
-    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval, toscaService, topologyJsonProcessor, $modal, $filter) {
+    ['$scope', 'applicationServices', '$translate', 'resizeServices', 'deploymentServices', 'applicationEventServicesFactory', '$state', 'propertiesServices', 'toaster', 'cloudServices', 'appEnvironments', '$interval', 'toscaService', 'topologyJsonProcessor',
+    function($scope, applicationServices, $translate, resizeServices, deploymentServices, applicationEventServicesFactory, $state, propertiesServices, toaster, cloudServices, appEnvironments, $interval, toscaService, topologyJsonProcessor) {
       var pageStateId = $state.current.name;
       var applicationId = $state.params.id;
 
@@ -545,29 +545,6 @@ define(function (require) {
       $scope.changeEnvironment = function(){
         $scope.loadTopologyRuntime();
         $scope.clearNodeSelection();
-      };
-
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
-        $scope.title = title;
-        $scope.content = content;
-        $scope.close = function() {
-          $modalInstance.dismiss('close');
-        };
-      }];
-
-      $scope.openSimpleModal = function(modalTitle, modalContent) {
-        $modal.open({
-          templateUrl: 'views/common/simple_modal.html',
-          controller: ModalInstanceCtrl,
-          resolve: {
-            title: function() {
-              return modalTitle;
-            },
-            content: function() {
-              return modalContent;
-            }
-          }
-        });
       };
 
       // first topology load

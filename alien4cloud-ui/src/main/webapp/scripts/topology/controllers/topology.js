@@ -11,6 +11,7 @@ define(function (require) {
 
   require('scripts/common/directives/drag_drop');
   require('scripts/common/directives/property_display');
+  require('scripts/common/directives/simple_modal');
   require('scripts/common/services/resize_services');
   require('scripts/components/services/component_services');
   require('scripts/tosca/services/tosca_service');
@@ -156,28 +157,6 @@ define(function (require) {
         $scope.nodeNameObj.val = nodeTemplate.name;
         $scope.selectionabstract = $scope.topology.nodeTypes[nodeTemplate.type].abstract;
       }
-
-      $scope.openSimpleModal = function(modalTitle, modalContent) {
-        $modal.open({
-          templateUrl: 'views/common/simple_modal.html',
-          controller: ModalInstanceCtrl,
-          resolve: {
-            title: function() {
-              return modalTitle;
-            },
-            content: function() {
-              return modalContent;
-            }
-          }
-        });
-      };
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', 'title', 'content', function($scope, $modalInstance, title, content) {
-        $scope.title = title;
-        $scope.content = content;
-        $scope.close = function() {
-          $modalInstance.dismiss('close');
-        };
-      }];
 
       $scope.updateInputArtifactList = function(artifactName) {
         var nodeTemplateName = $scope.selectedNodeTemplate.name;
