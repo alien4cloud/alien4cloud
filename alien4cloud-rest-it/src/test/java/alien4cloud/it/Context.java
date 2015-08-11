@@ -196,8 +196,6 @@ public class Context {
         factory.setResources(resources.toArray(new Resource[resources.size()]));
         this.appProps = new TestPropertyPlaceholderConfigurer();
         this.appProps.setProperties(factory.getObject());
-        this.openStackClient = new OpenStackClient(this.appProps.getProperty("openstack.user"), this.appProps.getProperty("openstack.password"),
-                this.appProps.getProperty("openstack.tenant"), this.appProps.getProperty("openstack.url"), this.appProps.getProperty("openstack.region"));
     }
 
     private static class TestPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
@@ -587,13 +585,21 @@ public class Context {
         return topologyTemplateVersionId;
     }
 
+    public OpenStackClient getOpenStackClient() {
+        if (this.openStackClient == null) {
+            this.openStackClient = new OpenStackClient(this.appProps.getProperty("openstack.user"), this.appProps.getProperty("openstack.password"),
+                    this.appProps.getProperty("openstack.tenant"), this.appProps.getProperty("openstack.url"), this.appProps.getProperty("openstack.region"));
+        }
+        return this.openStackClient;
+    }
+
     private String getManagementServerPublicIp(String managerPropertyName) {
         String managementServerName = getAppProperty(managerPropertyName);
-        Server managementServer = this.openStackClient.findServerByName(managementServerName);
+        Server managementServer = this.getOpenStackClient().findServerByName(managementServerName);
         if (managementServer == null) {
             throw new NotFoundException("Management server is not found for cloudify 3 with name " + managementServerName);
         }
-        String publicIp = this.openStackClient.getServerFloatingIP(managementServer).getFloatingIpAddress();
+        String publicIp = this.getOpenStackClient().getServerFloatingIP(managementServer).getFloatingIpAddress();
         return publicIp;
     }
 
