@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -175,7 +174,6 @@ public class Context {
 
     private Map<String, Map<String, String>> environmentInfos;
 
-    @Getter
     private OpenStackClient openStackClient;
 
     private Context() {
