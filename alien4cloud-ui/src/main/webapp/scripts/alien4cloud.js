@@ -75,10 +75,9 @@ define(function(require) {
     // TODO load more modules
     alien4cloud.config(['$translateProvider',
       function($translateProvider) {
-        $translateProvider.translations({CODE: 'fr-fr'});
+        $translateProvider.translations({CODE: 'en-us'});
         // Default language to load
-        // $translateProvider.preferredLanguage('en-us');
-        $translateProvider.preferredLanguage('fr-fr');
+        $translateProvider.preferredLanguage('en-us');
 
         // Static file loader
         $translateProvider.useStaticFilesLoader({
