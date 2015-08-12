@@ -139,11 +139,11 @@ public class PluginController {
     @ApiOperation(value = "Search for plugins registered in ALIEN.")
     @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<GetMultipleDataResult> search(@ApiParam(value = "Query text.") @RequestParam(required = false) String query,
+    public RestResponse<GetMultipleDataResult<Plugin>> search(@ApiParam(value = "Query text.") @RequestParam(required = false) String query,
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
-        GetMultipleDataResult result = this.alienDAO.search(Plugin.class, query, null, from, size);
-        return RestResponseBuilder.<GetMultipleDataResult> builder().data(result).build();
+        GetMultipleDataResult<Plugin> result = this.alienDAO.search(Plugin.class, query, null, from, size);
+        return RestResponseBuilder.<GetMultipleDataResult<Plugin>> builder().data(result).build();
     }
 
     @ApiOperation(value = "Enable a plugin.", notes = "Enable and load a plugin. Role required [ ADMIN ]")

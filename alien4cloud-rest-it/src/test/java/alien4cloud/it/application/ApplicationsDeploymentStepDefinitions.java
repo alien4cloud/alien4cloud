@@ -41,7 +41,7 @@ import alien4cloud.rest.application.UpdateApplicationEnvironmentRequest;
 import alien4cloud.rest.application.UpdateDeploymentSetupRequest;
 import alien4cloud.rest.deployment.DeploymentDTO;
 import alien4cloud.rest.model.RestResponse;
-import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
+import alien4cloud.rest.application.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.rest.utils.JsonUtil;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;

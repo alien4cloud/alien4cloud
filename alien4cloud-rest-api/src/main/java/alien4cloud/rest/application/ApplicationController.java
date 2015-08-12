@@ -48,7 +48,6 @@ import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
-import alien4cloud.rest.plugin.CloudDeploymentPropertyValidationRequest;
 import alien4cloud.security.AuthorizationUtil;
 import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationRole;
