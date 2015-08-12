@@ -39,6 +39,10 @@
     map: nodeTypes
     key: elementId
     type: node_type
+  data_types:
+    map: capabilityTypes
+    key: elementId
+    type: capability_type
   capability_types:
     map: capabilityTypes
     key: elementId
@@ -298,6 +302,19 @@
   artifacts:
     sequence_to_map: artifacts
     type: deployment_artifact
+
+- data_type: alien4cloud.model.components.IndexedDataType|toscaElementChecker
+  description: description
+  abstract: abstract
+  tags:
+    reference: tags
+    type: tag
+  derived_from:
+    reference: derivedFrom
+    type: derived_from_capability_type
+  properties:
+    map: properties
+    type: property_definition
 
 - capability_type: alien4cloud.model.components.IndexedCapabilityType|toscaElementChecker
   description: description
