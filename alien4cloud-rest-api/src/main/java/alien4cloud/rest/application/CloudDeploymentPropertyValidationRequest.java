@@ -1,4 +1,4 @@
-package alien4cloud.rest.plugin;
+package alien4cloud.rest.application;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
