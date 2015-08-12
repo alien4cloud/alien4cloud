@@ -7,6 +7,9 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.Authorization;
 import lombok.extern.slf4j.Slf4j;
 
 import org.elasticsearch.index.query.QueryBuilder;
@@ -49,12 +52,11 @@ import com.wordnik.swagger.annotations.ApiOperation;
 
 /**
  * Controller for plugins.
- *
- * @author luc boutier
  */
 @RestController
-@RequestMapping("/rest/plugin")
+@RequestMapping(value = "/rest/plugins", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
+@Api(value = "Plugins", description = "Manages plugins.", authorizations = { @Authorization("ADMIN") })
 public class PluginController {
     @Resource
     private PluginManager pluginManager;
@@ -63,11 +65,11 @@ public class PluginController {
     private IGenericSearchDAO alienDAO;
     private Path tempDirPath;
 
-    @ApiOperation(value = "Upload a plugin archive.", notes = "Error code can be 300 (INDEXING_SERVICE_ERROR) in case of a backend IO issue.")
+    @ApiOperation(value = "Upload a plugin archive.", notes = "Content of the zip file must be compliant with the expected alien 4 cloud plugin structure.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public RestResponse<Void> upload(@RequestParam("file") MultipartFile pluginArchive) {
+    public RestResponse<Void> upload(@ApiParam(value = "Zip file that contains the plugin.", required = true) @RequestParam("file") MultipartFile pluginArchive) {
         Path pluginPath = null;
         try {
             // save the plugin archive in the temp directory
@@ -135,15 +137,17 @@ public class PluginController {
     }
 
     @ApiOperation(value = "Search for plugins registered in ALIEN.")
-    @RequestMapping(value = "/search", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
-    public RestResponse<GetMultipleDataResult> search(@RequestBody BasicSearchRequest request) {
-        GetMultipleDataResult result = this.alienDAO.search(Plugin.class, request.getQuery(), null, request.getFrom(), request.getSize());
+    public RestResponse<GetMultipleDataResult> search(@ApiParam(value = "Query text.") @RequestParam(required = false) String query,
+            @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
+            @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
+        GetMultipleDataResult result = this.alienDAO.search(Plugin.class, query, null, from, size);
         return RestResponseBuilder.<GetMultipleDataResult> builder().data(result).build();
     }
 
     @ApiOperation(value = "Enable a plugin.", notes = "Enable and load a plugin. Role required [ ADMIN ]")
-    @RequestMapping(value = "/{pluginId:.+}/enable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{pluginId:.+}/enable", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Void> enablePlugin(@PathVariable String pluginId) {
@@ -157,7 +161,7 @@ public class PluginController {
     }
 
     @ApiOperation(value = "Disable a plugin.", notes = "Disable a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
-    @RequestMapping(value = "/{pluginId:.+}/disable", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{pluginId:.+}/disable", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<List<PluginUsage>> disablePlugin(@PathVariable String pluginId) {
@@ -173,7 +177,7 @@ public class PluginController {
     }
 
     @ApiOperation(value = "Remove a plugin.", notes = "Remove a plugin (and unloads it if enabled). Note that if the plugin is used (deployment plugin for example) it won't be disabled but will be marked as deprecated. In such situation an error code 350 is returned as part of the error and a list of plugin usages will be returned as part of the returned data. Role required [ ADMIN ]")
-    @RequestMapping(value = "/{pluginId:.+}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{pluginId:.+}", method = RequestMethod.DELETE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<List<PluginUsage>> removePlugin(@PathVariable String pluginId) {
@@ -188,14 +192,8 @@ public class PluginController {
                 .build();
     }
 
-    @Required
-    @Value("${directories.alien}/${directories.upload_temp}")
-    public void setTempDirPath(String tempDirPath) throws IOException {
-        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
-    }
-
     @ApiOperation(value = "Get a plugin configuration object.", notes = "Retrieve a plugin configuration object.  Role required [ ADMIN ]")
-    @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.GET)
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Object> getPluginConfiguration(@PathVariable String pluginId) {
         RestResponse<Object> response = RestResponseBuilder.<Object> builder().build();
@@ -222,7 +220,7 @@ public class PluginController {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @ApiOperation(value = "Save a configuration object for a plugin.", notes = "Save a configuration object for a plugin. Returns the newly saved configuration.  Role required [ ADMIN ]")
-    @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/{pluginId:.+}/config", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
     public RestResponse<Object> savePluginConfiguration(@PathVariable String pluginId, @RequestBody Object configObjectRequest) {
@@ -247,5 +245,11 @@ public class PluginController {
             }
         }
         return response;
+    }
+
+    @Required
+    @Value("${directories.alien}/${directories.upload_temp}")
+    public void setTempDirPath(String tempDirPath) throws IOException {
+        this.tempDirPath = FileUtil.createDirectoryIfNotExists(tempDirPath);
     }
 }
