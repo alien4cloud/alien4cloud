@@ -13,12 +13,14 @@ define(function (require) {
   states.state('components.csars', {
     url: '/csars',
     template: '<ui-view/>',
+    controller: 'LayoutCtrl',
     menu: {
       id: 'cm.components.csars.list',
       state: 'components.csars.list',
       key: 'NAVBAR.MENU_CSARS',
       icon: 'fa fa-archive',
-      priority: 20
+      priority: 20,
+      roles: ['COMPONENTS_MANAGER']
     }
   });
   states.state('components.csars.list', {
