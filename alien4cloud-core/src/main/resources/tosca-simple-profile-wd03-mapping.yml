@@ -10,6 +10,7 @@
 - derived_from_relationship_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromRelationshipTypeParser
 - derived_from_artifact_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromArtifactTypeParser
 - derived_from_capability_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromCapabilityTypeParser
+- derived_from_data_type: alien4cloud.tosca.parser.impl.advanced.DerivedFromDataTypeParser
 - capability_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedCapabilityTypeParser
 - relationship_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedRelationshipTypeParser
 - artifact_type_reference: alien4cloud.tosca.parser.impl.advanced.ReferencedArtifactTypeParser
@@ -40,9 +41,9 @@
     key: elementId
     type: node_type
   data_types:
-    map: capabilityTypes
+    map: dataTypes
     key: elementId
-    type: capability_type
+    type: data_type
   capability_types:
     map: capabilityTypes
     key: elementId
@@ -147,6 +148,7 @@
     type: schema
 
 - property_definition: __validated
+  deferred: true
   type: non_validated_property_definition
 
 # capability definition supports a simple definition or more advanced.
@@ -311,7 +313,7 @@
     type: tag
   derived_from:
     reference: derivedFrom
-    type: derived_from_capability_type
+    type: derived_from_data_type
   properties:
     map: properties
     type: property_definition
