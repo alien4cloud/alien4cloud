@@ -7,14 +7,21 @@ define(function (require) {
   var alien4cloud = modules.get('alien4cloud');
 
   // defines layout controller
-  alien4cloud.controller('LayoutCtrl', ['$injector', '$scope', 'menu', 'context',
-    function($injector, $scope, menu, context) {
+  alien4cloud.controller('LayoutCtrl', ['$scope', 'menu', 'authService', 'context',
+    function( $scope, menu, context, authService) {
       $scope.context = context;
       _.each(menu, function(menuItem) {
-        if(_.has(menuItem, 'roles')) {
-          // TODO check roles to see if we can display the element.
-          console.log('Role management is not yet implemented...');
-        } else { // if there is no rôles requirement then the menu is visible
+        menuItem.show = false;
+        if (authService.hasRole('ADMIN')) {
+          menuItem.show = true;
+        } else if(_.has(menuItem, 'roles')) {
+          for (var role in menuItem.roles) {
+            if (authService.hasRole(role)) {
+              menuItem.show = true;
+              break;
+            }
+          }
+        } else { // if there is no roles requirement or if it's an ADMIN then the menu is visible
           menuItem.show = true;
         }
       });

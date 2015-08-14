@@ -29,7 +29,7 @@
     <div class="col-md-10" id="apps-container">
       <div class="well">
           <div ng-repeat="application in searchResult.data.data | filter:{ isDeployed: onlyShowDeployedApplications } | orderBy: '-countDeployedEnvironment'" class="alien-table-row" ng-init="isEnvironmentsCollapsed = true">
-            <div class="row clickable-media">
+            <div style="margin-top: -4px; padding-top: 8px;" class="row clickable-media">
               <div class="col-md-1" style="width: 36px;" ng-click="isEnvironmentsCollapsed = !isEnvironmentsCollapsed">
                 <i style="padding: 8px;" class="pull-left fa fa-chevron-right" ng-class="{'fa-chevron-down' : !isEnvironmentsCollapsed, 'fa-chevron-right': isEnvironmentsCollapsed}"></i>
               </div>
