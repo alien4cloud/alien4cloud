@@ -1,6 +1,7 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -15,6 +16,7 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.components.PropertyConstraint;
+import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
 import alien4cloud.model.components.constraints.GreaterThanConstraint;
@@ -26,6 +28,8 @@ import alien4cloud.model.components.constraints.MaxLengthConstraint;
 import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.components.constraints.ValidValuesConstraint;
+import alien4cloud.tosca.normative.IPropertyType;
+import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.AbstractTypeNodeParser;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
@@ -37,8 +41,10 @@ import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
+import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Parse a constraint based on the specified operator
@@ -73,12 +79,14 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
 
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
-        return false;
+        return true;
     }
 
     @Override
     public int getDefferedOrder(ParsingContextExecution context) {
-        return 0;
+        // the deferred parser order will be :
+        // [PropertyTypeParser - 1] => [PropertyDefaultValueParser - 2] => [ConstraintParser - 3]
+        return 2;
     }
 
     @Override
@@ -115,7 +123,35 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         }
         BeanWrapper target = new BeanWrapperImpl(constraint);
         parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.expressionPropertyName, info.expressionParser));
+        validate(constraint, context, operator, keyNode);
         return constraint;
+    }
+
+    private void validate(PropertyConstraint constraint, ParsingContextExecution context, String operator, Node keyNode) {
+        PropertyDefinition propertyDefinition = (PropertyDefinition) context.getParent();
+        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
+        if (toscaType == null) {
+            context.getParsingErrors().add(
+                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_CONSTRAINT, "Constraint parsing issue", keyNode.getStartMark(),
+                            "Constraint invalid for type " + propertyDefinition.getType(), keyNode.getEndMark(), operator));
+        } else {
+            try {
+                constraint.initialize(toscaType);
+            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
+                context.getParsingErrors().add(
+                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintValidator", keyNode.getStartMark(),
+                                "Constraint value do not match type " + propertyDefinition.getType(), keyNode.getEndMark(), "constraints"));
+                return;
+            }
+            Set<String> definedConstraints = Sets.newHashSet();
+            for (int i = 0; i < propertyDefinition.getConstraints().size(); i++) {
+                PropertyConstraint existing = propertyDefinition.getConstraints().get(i);
+                definedConstraints.add(existing.getClass().getName());
+            }
+            if (definedConstraints.contains(constraint.getClass().getName())) {
+
+            }
+        }
     }
 
     @AllArgsConstructor

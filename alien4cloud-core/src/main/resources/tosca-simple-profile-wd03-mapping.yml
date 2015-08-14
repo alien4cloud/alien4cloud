@@ -23,6 +23,8 @@
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
+- property_type: alien4cloud.tosca.parser.impl.advanced.PropertyTypeParser
+- property_default_type: alien4cloud.tosca.parser.impl.advanced.PropertyDefaultTypeParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -135,21 +137,21 @@
     map: properties
     type: property_definition
 
-- non_validated_property_definition: alien4cloud.model.components.PropertyDefinition
-  type: type
+- property_definition: alien4cloud.model.components.PropertyDefinition
+  type:
+    reference: type
+    type: property_type_type
   required: required
   description: description
-  default: default
+  default:
+    reference: default
+    type: property_default_type
   constraints:
     list: constraints
     type: constraint
   entry_schema:
     reference: entrySchema
     type: schema
-
-- property_definition: __validated
-  deferred: true
-  type: non_validated_property_definition
 
 # capability definition supports a simple definition or more advanced.
 - capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
