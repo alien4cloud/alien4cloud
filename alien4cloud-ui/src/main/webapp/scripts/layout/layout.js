@@ -7,8 +7,9 @@ define(function (require) {
   var alien4cloud = modules.get('alien4cloud');
 
   // defines layout controller
-  alien4cloud.controller('LayoutCtrl', ['$scope', 'menu',
-    function($scope, menu) {
+  alien4cloud.controller('LayoutCtrl', ['$injector', '$scope', 'menu', 'context',
+    function($injector, $scope, menu, context) {
+      $scope.context = context;
       _.each(menu, function(menuItem) {
         if(_.has(menuItem, 'roles')) {
           // TODO check roles to see if we can display the element.

@@ -1,0 +1,26 @@
+package alien4cloud.rest.plugin;
+
+import alien4cloud.plugin.model.PluginComponentDescriptor;
+import com.wordnik.swagger.annotations.ApiModel;
+import com.wordnik.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@SuppressWarnings("PMD.UnusedPrivateField")
+@ApiModel("Result for a request for specific plugin components.")
+public class PluginComponentDTO {
+    @ApiModelProperty(value = "Id of the plugin that contains the component.")
+    private String pluginId;
+    @ApiModelProperty(value = "Name of the plugin that contains the component.")
+    private String pluginName;
+    @ApiModelProperty(value = "Version of the plugin that contains the component.")
+    private String version;
+    @ApiModelProperty(value = "Description of the component within the plugin.")
+    private PluginComponentDescriptor componentDescriptor;
+}

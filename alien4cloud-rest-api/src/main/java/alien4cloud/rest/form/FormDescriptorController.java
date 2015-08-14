@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.orchestrators.services.OrchestratorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,8 @@ public class FormDescriptorController {
     private PluginManager pluginManager;
     @Resource
     private CloudService cloudService;
+    @Resource
+    private OrchestratorService orchestratorService;
 
     @ApiIgnore
     @RequestMapping(value = "/nodetype", method = RequestMethod.GET, produces = "application/json")
@@ -42,13 +45,13 @@ public class FormDescriptorController {
     }
 
     @RequestMapping(value = "/tagconfiguration", method = RequestMethod.GET, produces = "application/json")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Map<String, Object>> getTagConfigurationFormDescriptor() throws IntrospectionException {
         return RestResponseBuilder.<Map<String, Object>> builder().data(formDescriptorGenerator.generateDescriptor(MetaPropConfiguration.class)).build();
     }
 
     @RequestMapping(value = "/pluginConfig/{pluginId:.+}", method = RequestMethod.GET, produces = "application/json")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Map<String, Object>> getPluginConfigurationFormDescriptor(@PathVariable String pluginId) throws IntrospectionException {
         if (pluginManager.isPluginConfigurable(pluginId)) {
             Class<?> configType = pluginManager.getConfigurationType(pluginId);
@@ -58,10 +61,20 @@ public class FormDescriptorController {
     }
 
     @RequestMapping(value = "/cloudConfig/{cloudId:.+}", method = RequestMethod.GET, produces = "application/json")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Map<String, Object>> getCloudConfigurationFormDescriptor(@PathVariable String cloudId) throws IntrospectionException {
         Class<?> configurationClass = cloudService.getConfigurationType(cloudId);
 
+        if (configurationClass != null) {
+            return RestResponseBuilder.<Map<String, Object>> builder().data(formDescriptorGenerator.generateDescriptor(configurationClass)).build();
+        }
+        return RestResponseBuilder.<Map<String, Object>> builder().build();
+    }
+
+    @RequestMapping(value = "/orchestratorConfig/{orchestratorId:.+}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<Map<String, Object>> getOrchestratorConfigurationFormDescriptor(@PathVariable String orchestratorId) throws IntrospectionException {
+        Class<?> configurationClass = orchestratorService.getConfigurationType(orchestratorId);
         if (configurationClass != null) {
             return RestResponseBuilder.<Map<String, Object>> builder().data(formDescriptorGenerator.generateDescriptor(configurationClass)).build();
         }

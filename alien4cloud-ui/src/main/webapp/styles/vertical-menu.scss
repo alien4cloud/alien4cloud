@@ -5,14 +5,20 @@
 .vertical-navbar {
   position: fixed;
   overflow: hidden;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
   height: 100%;
   list-style-type: none;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
   background: #2d87af;
   z-index: 1000;
+}
+
+.vertical-panel-shift .vertical-navbar {
+  top: 0px;
+  left: 34px;
+  background: #dddddd;
 }
 
 .vertical-navbar li a {
@@ -30,7 +36,7 @@
 }
 
 .vertical-navbar li:first-child a {
-  margin-top: 74px;
+  margin-top: 64px;
 }
 
 .vertical-navbar li a:hover {

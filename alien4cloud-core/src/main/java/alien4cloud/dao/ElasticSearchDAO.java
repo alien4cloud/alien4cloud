@@ -5,6 +5,10 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResource;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Component;
@@ -81,8 +85,15 @@ public class ElasticSearchDAO extends ESGenericSearchDAO {
         initIndice(TopologyTemplate.class);
         initIndice(TopologyTemplateVersion.class);
         initIndice(MetaPropConfiguration.class);
+
         initIndice(Cloud.class);
         initIndice(CloudConfiguration.class);
+
+        initIndice(Orchestrator.class);
+        initIndice(OrchestratorConfiguration.class);
+        initIndice(Location.class);
+        initIndice(LocationResource.class);
+
         initIndice(Deployment.class);
         initIndice(CloudImage.class);
         initIndice(CsarGitRepository.class);

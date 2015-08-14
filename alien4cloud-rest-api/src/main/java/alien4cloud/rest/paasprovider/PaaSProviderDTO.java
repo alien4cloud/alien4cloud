@@ -17,5 +17,4 @@ public class PaaSProviderDTO {
     private String pluginName;
     private String version;
     private PluginComponentDescriptor componentDescriptor;
-    private Map<String, ScalarPropertyValue> deploymentProperties;
 }
