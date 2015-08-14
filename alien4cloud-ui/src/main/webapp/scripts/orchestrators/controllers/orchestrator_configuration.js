@@ -8,13 +8,13 @@ define(function (require) {
 
   require('scripts/orchestrators/services/orchestrator_configuration_service');
 
-  states.state('admin.orchestrators.detail.configuration', {
+  states.state('admin.orchestrators.details.configuration', {
     url: '/configuration',
     templateUrl: 'views/orchestrators/orchestrator_configuration.html',
     controller: 'OrchestratorConfigurationCtrl',
     menu: {
       id: 'menu.orchestrators.configuration',
-      state: 'admin.orchestrators.detail.configuration',
+      state: 'admin.orchestrators.details.configuration',
       key: 'NAVBAR.MENU_APPS',
       icon: 'fa fa-cog',
       priority: 300

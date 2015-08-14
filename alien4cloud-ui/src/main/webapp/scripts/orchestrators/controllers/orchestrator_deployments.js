@@ -6,13 +6,13 @@ define(function (require) {
   var angular = require('angular');
   var _ = require('lodash');
 
-  states.state('admin.orchestrators.detail.deployments', {
+  states.state('admin.orchestrators.details.deployments', {
     url: '/deployments',
     templateUrl: 'views/orchestrators/orchestrator_deployments.html',
     controller: 'OrchestratorDeploymentsCtrl',
     menu: {
       id: 'menu.orchestrators.deployments',
-      state: 'admin.orchestrators.detail.deployments',
+      state: 'admin.orchestrators.details.deployments',
       key: 'NAVBAR.MENU_APPS',
       icon: 'fa fa-rocket',
       priority: 200

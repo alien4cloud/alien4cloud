@@ -5,22 +5,21 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.orchestrators.OrchestratorConfiguration;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.paas.IConfigurablePaaSProviderFactory;
-import alien4cloud.utils.MapUtil;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
+import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorStatus;
+import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
+import alien4cloud.utils.MapUtil;
 
 /**
  * Manages orchestrators
@@ -83,6 +82,10 @@ public class OrchestratorService {
      * @param name Name of the orchestrators.
      */
     public void updateName(String id, String name) {
+        // check that the orchestrator doesn't already exists
+        if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", name)) > 0) {
+            throw new AlreadyExistException("an orchestrator with the given name already exists.");
+        }
         Orchestrator orchestrator = getOrFail(id);
         orchestrator.setName(name);
         saveAndEnsureNameUnicity(orchestrator);

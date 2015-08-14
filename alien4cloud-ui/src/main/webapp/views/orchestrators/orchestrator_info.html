@@ -1,9 +1,23 @@
-<div>
-  <h1>Orchestrator info</h1>
+<div class="row">
+  <div class="col-md-12">
+    <i class="fa fa-2x ng-scope fa-circle text-muted" tooltip="Undeployed" tooltip-append-to-body="true" ng-class="{
+            'fa-circle text-success' : context.orchestrator.status == 'DEPLOYED',
+            'fa-circle text-muted' : context.orchestrator.status == 'DISABLED',
+            'fa-warning text-warning' : context.orchestrator.status == 'WARNING',
+            'fa-circle text-danger' : context.orchestrator.status == 'FAILURE',
+            'fa-question-circle text-muted' : context.orchestrator.status == 'UNKNOWN',
+            'fa-spinner fa-spin' : context.orchestrator.status == 'DEPLOYMENT_IN_PROGRESS' || context.orchestrator.status == 'UNDEPLOYMENT_IN_PROGRESS'
+          }">
+    </i>
+    <div class="h2" style="display: inline-block;" id="app-name">
+      <span editable-text="context.orchestrator.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateOrchestrator($data)" blur="submit">
+        {{context.orchestrator.name}} <i class="fa fa-edit"></i>
+      </span>
+    </div>
+  </div>
+  <h3>Orchestrator info</h3>
   TODO list:
   <ul>
-    <li>View the status of the orchestrator</li>
-    <li>Update the name of the orchestrator</li>
     <li>Display an icon of the orchestrator if the IOrchestrator plugin provides one.</li>
     <li>Manage meta-properties for the orchestrator</li>
   </ul>
