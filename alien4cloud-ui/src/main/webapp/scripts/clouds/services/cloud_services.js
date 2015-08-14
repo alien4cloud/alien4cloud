@@ -213,7 +213,7 @@ define(function (require) {
 
 
       /* Users/groups roles on an clouds */
-      var manageCloudUserRoles = $resource('rest/clouds/:cloudId/userRoles/:username/:role', {}, {
+      var manageCloudUserRoles = $resource('rest/clouds/:cloudId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -238,7 +238,7 @@ define(function (require) {
         }
       });
 
-      var manageCloudGroupRoles = $resource('rest/clouds/:cloudId/groupRoles/:groupId/:role', {}, {
+      var manageCloudGroupRoles = $resource('rest/clouds/:cloudId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

@@ -49,7 +49,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.topology.TopologyService;
@@ -80,9 +79,6 @@ public class ApplicationController {
     private IImageDAO imageDAO;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
-    @Resource
-    private ResourceRoleService resourceRoleService;
-
     @Resource
     private ApplicationService applicationService;
     @Resource
@@ -211,82 +207,6 @@ public class ApplicationController {
         data.setLastUpdateDate(new Date());
         alienDAO.save(data);
         return RestResponseBuilder.<String> builder().data(imageId).build();
-    }
-
-    /**
-     * Add a role to a user on a specific application
-     *
-     * @param applicationId The id of the application.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the application.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to another user. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> addUserRole(@PathVariable String applicationId, @PathVariable String username, @PathVariable String role) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.addUserRole(application, username, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Add a role to a group on a specific application
-     *
-     * @param applicationId The id of the application.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the group on the application.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can assign any role to a group of users. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> addGroupRole(@PathVariable String applicationId, @PathVariable String groupId, @PathVariable String role) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.addGroupRole(application, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a user on a specific application
-     *
-     * @param applicationId The id of the application.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the application.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Remove a role to a user on a specific application", notes = "Any user with application role APPLICATION_MANAGER can unassign any role to another user. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> removeUserRole(@PathVariable String applicationId, @PathVariable String username, @PathVariable String role) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.removeUserRole(application, username, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a user on a specific application
-     *
-     * @param applicationId The id of the application.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the user on the application.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Remove a role of a group on a specific application", notes = "Any user with application role APPLICATION_MANAGER can un-assign any role to a group. Application role required [ APPLICATION_MANAGER ]")
-    @RequestMapping(value = "/{applicationId}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("isAuthenticated()")
-    @Audit
-    public RestResponse<Void> removeGroupRole(@PathVariable String applicationId, @PathVariable String groupId, @PathVariable String role) {
-        Application application = applicationService.getOrFail(applicationId);
-        AuthorizationUtil.checkAuthorizationForApplication(application, ApplicationRole.APPLICATION_MANAGER);
-        resourceRoleService.removeGroupRole(application, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Validate deployment property constraint.", authorizations = { @Authorization("APPLICATION_MANAGER") })

@@ -66,7 +66,7 @@ define(function (require) {
       });
 
       /*Users roles on an environment*/
-      var manageEnvUserRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/userRoles/:username/:role', {}, {
+      var manageEnvUserRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -93,7 +93,7 @@ define(function (require) {
         }
       });
 
-      var manageEnvGroupRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/groupRoles/:groupId/:role', {}, {
+      var manageEnvGroupRoles = $resource('rest/applications/:applicationId/environments/:applicationEnvironmentId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {

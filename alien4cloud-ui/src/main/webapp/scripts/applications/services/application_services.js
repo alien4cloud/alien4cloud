@@ -112,7 +112,7 @@ define(function (require) {
       });
 
       // Handle roles on application
-      var manageAppUserRoles = $resource('rest/applications/:applicationId/userRoles/:username/:role', {}, {
+      var manageAppUserRoles = $resource('rest/applications/:applicationId/roles/users/:username/:role', {}, {
         'addUserRole': {
           method: 'PUT',
           headers: {
@@ -137,7 +137,7 @@ define(function (require) {
         }
       });
 
-      var manageAppGroupRoles = $resource('rest/applications/:applicationId/groupRoles/:groupId/:role', {}, {
+      var manageAppGroupRoles = $resource('rest/applications/:applicationId/roles/groups/:groupId/:role', {}, {
         'addGroupRole': {
           method: 'PUT',
           headers: {
