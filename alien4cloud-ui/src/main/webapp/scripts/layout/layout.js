@@ -8,7 +8,7 @@ define(function (require) {
 
   // defines layout controller
   alien4cloud.controller('LayoutCtrl', ['$scope', 'menu', 'authService', 'context',
-    function( $scope, menu, context, authService) {
+    function( $scope, menu, authService, context) {
       $scope.context = context;
       _.each(menu, function(menuItem) {
         menuItem.show = false;

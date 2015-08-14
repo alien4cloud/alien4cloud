@@ -2,6 +2,8 @@ package alien4cloud.orchestrators.rest;
 
 import javax.annotation.Resource;
 
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.Authorization;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(value = "/rest/orchestrators/{id}/configuration", produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = { @Authorization("ADMIN") })
 public class OrchestratorConfigurationController {
     @Resource
     private OrchestratorService orchestratorService;
