@@ -12,19 +12,12 @@ import java.util.Map.Entry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.NoRemoteRepositoryException;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig.Host;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.SshTransport;
-import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -32,8 +25,6 @@ import alien4cloud.exception.GitCloneUriException;
 import alien4cloud.exception.GitNotAuthorizedException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.utils.FileUtil;
-
-import com.jcraft.jsch.Session;
 
 /**
  * Utility to manage git repositories.
@@ -57,14 +48,25 @@ public class RepositoryManager {
         try {
             Files.createDirectories(targetDirectory);
             Path targetPath = targetDirectory.resolve(localDirectory);
-
             if (Files.exists(targetPath)) {
                 Git.open(targetPath.toFile()).checkout();
             } else {
                 Files.createDirectories(targetPath);
                 cloneRepository(repositoryUrl, branch, targetPath);
             }
+        } catch (IOException e) {
+            log.error("Error while creating target directory ", e);
+        }
+    }
 
+    /**
+     * Process to a pull request if the repository has been updated based on its hash
+     * 
+     * @param targetDirectory The Csar path to pull
+     */
+    public void pullRequest(Path targetDirectory) {
+        try {
+            Git.open(targetDirectory.resolve(".git").toFile()).pull();
         } catch (IOException e) {
             log.error("Error while creating target directory ", e);
         }
@@ -83,8 +85,8 @@ public class RepositoryManager {
      * @throws GitNotAuthorizedException
      * @throws GitAPIException
      */
-    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, String username, String password, Map<String, String> branchMap,
-            String localDirectory) throws GitCloneUriException, GitNotAuthorizedException {
+    public String createFolderAndClone(Path alienTpmPath, String repositoryUrl, String username, String password, boolean isStoredLocally,
+            Map<String, String> branchMap, String localDirectory) throws GitCloneUriException, GitNotAuthorizedException {
         String folderToReach = "";
         try {
             this.pathToReach = alienTpmPath.resolve(localDirectory);
@@ -92,15 +94,14 @@ public class RepositoryManager {
             this.locations = branchMap;
             String folder = this.splitRepositoryName(repositoryUrl);
             if (isCompleteImport()) {
-                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + _ALL));
+                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + _ALL), isStoredLocally);
                 folderToReach = pathToReach.resolve(folder + _ALL).toString();
                 zipRepositoryToRoot(this.pathToReach.resolve(folder + _ALL));
             } else {
-                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + locations.size()));
+                cloneEntireRepository(repositoryUrl, username, password, pathToReach.resolve(folder + locations.size()), isStoredLocally);
                 zipRepository(pathToReach.resolve(folder + locations.size()), this.getLocations());
                 folderToReach = pathToReach.resolve(folder + locations.size()).toString();
             }
-
         } catch (IOException | NotFoundException e) {
             log.error("Error while creating target directory ", e);
         }
@@ -152,8 +153,8 @@ public class RepositoryManager {
      * @throws IOException
      * @throws GitAPIException
      */
-    private void cloneEntireRepository(String url, String username, final String password, Path targetPath) throws GitCloneUriException,
-            GitNotAuthorizedException {
+    private void cloneEntireRepository(String url, String username, final String password, Path targetPath, boolean isStoredLocally)
+            throws GitCloneUriException, GitNotAuthorizedException {
         Git result;
         log.info("Cloning from [" + url + "] to [" + targetPath.toString() + "]");
         if (username != "" && password != "" && username != null && password != null) {
@@ -166,7 +167,7 @@ public class RepositoryManager {
                     result.close();
                 }
             } catch (Exception e) {
-                this.handleGitException(e, targetPath);
+                this.handleGitException(e, targetPath, isStoredLocally);
             }
         } else {
             try {
@@ -177,7 +178,7 @@ public class RepositoryManager {
                     result.close();
                 }
             } catch (Exception e) {
-                this.handleGitException(e, targetPath);
+                this.handleGitException(e, targetPath, isStoredLocally);
             }
         }
     }
@@ -285,7 +286,7 @@ public class RepositoryManager {
      * @throws GitCloneUriException Exception when the repository doesn't exists
      * @throws GitNotAuthorizedException Exception when the user doesn't the sufficient privileges
      */
-    private void handleGitException(Exception gitException, Path targetPath) throws GitCloneUriException, GitNotAuthorizedException {
+    private void handleGitException(Exception gitException, Path targetPath, boolean isStoredLocally) throws GitCloneUriException, GitNotAuthorizedException {
         if (gitException instanceof JGitInternalException) {
             try {
                 FileUtil.delete(targetPath);
@@ -295,25 +296,30 @@ public class RepositoryManager {
         }
         if (gitException instanceof NoRemoteRepositoryException) {
             try {
-                FileUtil.delete(targetPath);
+                if (!isStoredLocally) {
+                    FileUtil.delete(targetPath);
+                }
                 throw new GitCloneUriException(gitException.getMessage());
             } catch (IOException ioEx) {
             }
         }
         if (gitException instanceof InvalidRemoteException) {
             try {
-                FileUtil.delete(targetPath);
+                if (!isStoredLocally) {
+                    FileUtil.delete(targetPath);
+                }
                 throw new GitCloneUriException(gitException.getMessage());
             } catch (IOException ioEx) {
             }
         }
         if (gitException instanceof TransportException) {
             try {
-                FileUtil.delete(targetPath);
+                if (!isStoredLocally) {
+                    FileUtil.delete(targetPath);
+                }
                 throw new GitNotAuthorizedException(gitException.getMessage());
             } catch (IOException ioEx) {
             }
         }
-
     }
 }
