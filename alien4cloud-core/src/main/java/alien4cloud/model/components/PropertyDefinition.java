@@ -88,8 +88,6 @@ public class PropertyDefinition implements IValue {
             @FormType(discriminantProperty = "validValues", label = "CONSTRAINT.VALID_VALUES", implementation = ValidValuesConstraint.class) })
     private List<PropertyConstraint> constraints;
 
-    private Schema entrySchema;
-
     private boolean isPassword;
 
     public String getDefault() {

@@ -23,7 +23,7 @@ import alien4cloud.utils.FileUtil;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:tosca/archive-parser-application-context.xml")
 public class ArchiveParserTest {
-    private Path artifactsDirectory = Paths.get("/home/vuminhkh/Projects/alien4cloud/alien4cloud-rest-it/target/git");
+    private Path artifactsDirectory = Paths.get("../target/it-artifacts");
     private RepositoryManager repositoryManager = new RepositoryManager();
 
     @Resource
@@ -32,7 +32,7 @@ public class ArchiveParserTest {
     @Test
     public void parseNormativeTypesWd03() throws ParsingException, IOException {
         String localName = "tosca-normative-types";
-//        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", localName);
+        repositoryManager.cloneOrCheckout(artifactsDirectory, "https://github.com/alien4cloud/tosca-normative-types.git", "master", localName);
 
         Path normativeTypesPath = artifactsDirectory.resolve(localName);
         Path normativeTypesZipPath = artifactsDirectory.resolve(localName + ".zip");

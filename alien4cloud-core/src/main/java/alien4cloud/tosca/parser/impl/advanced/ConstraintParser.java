@@ -85,7 +85,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     @Override
     public int getDefferedOrder(ParsingContextExecution context) {
         // the deferred parser order will be :
-        // [PropertyTypeParser - 1] => [PropertyDefaultValueParser - 2] => [ConstraintParser - 3]
+        // [PropertyTypeParser - 3] => [ConstraintParser - 2] => [PropertyDefaultValueParser - 1]
         return 2;
     }
 
@@ -108,6 +108,10 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     private PropertyConstraint parseConstraint(String operator, Node keyNode, Node expressionNode, ParsingContextExecution context) {
+        PropertyDefinition propertyDefinition = null;
+        if (context.getParent() instanceof PropertyDefinition) {
+            propertyDefinition = (PropertyDefinition) context.getParent();
+        }
         ConstraintParsingInfo info = constraintBuildersMap.get(operator);
         if (info == null) {
             context.getParsingErrors().add(
@@ -123,12 +127,14 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         }
         BeanWrapper target = new BeanWrapperImpl(constraint);
         parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.expressionPropertyName, info.expressionParser));
-        validate(constraint, context, operator, keyNode);
+        // If the constraint is inside a property definition then must validate that it follows the definition
+        if (propertyDefinition != null) {
+            validate(propertyDefinition, constraint, context, operator, keyNode);
+        }
         return constraint;
     }
 
-    private void validate(PropertyConstraint constraint, ParsingContextExecution context, String operator, Node keyNode) {
-        PropertyDefinition propertyDefinition = (PropertyDefinition) context.getParent();
+    private void validate(PropertyDefinition propertyDefinition, PropertyConstraint constraint, ParsingContextExecution context, String operator, Node keyNode) {
         IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
         if (toscaType == null) {
             context.getParsingErrors().add(
@@ -139,17 +145,21 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
                 constraint.initialize(toscaType);
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
                 context.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintValidator", keyNode.getStartMark(),
+                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraint", keyNode.getStartMark(),
                                 "Constraint value do not match type " + propertyDefinition.getType(), keyNode.getEndMark(), "constraints"));
                 return;
             }
-            Set<String> definedConstraints = Sets.newHashSet();
-            for (int i = 0; i < propertyDefinition.getConstraints().size(); i++) {
-                PropertyConstraint existing = propertyDefinition.getConstraints().get(i);
-                definedConstraints.add(existing.getClass().getName());
-            }
-            if (definedConstraints.contains(constraint.getClass().getName())) {
-
+            if (propertyDefinition.getConstraints() != null) {
+                Set<String> definedConstraints = Sets.newHashSet();
+                for (int i = 0; i < propertyDefinition.getConstraints().size(); i++) {
+                    PropertyConstraint existing = propertyDefinition.getConstraints().get(i);
+                    definedConstraints.add(existing.getClass().getName());
+                }
+                if (definedConstraints.contains(constraint.getClass().getName())) {
+                    context.getParsingErrors().add(
+                            new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintDuplicate", keyNode.getStartMark(),
+                                    "Constraint duplicated", keyNode.getEndMark(), "constraints"));
+                }
             }
         }
     }

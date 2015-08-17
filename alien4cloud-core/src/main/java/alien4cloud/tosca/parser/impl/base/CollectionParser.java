@@ -3,6 +3,7 @@ package alien4cloud.tosca.parser.impl.base;
 import java.util.Collection;
 
 import lombok.AllArgsConstructor;
+import lombok.Setter;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -18,6 +19,7 @@ import alien4cloud.tosca.parser.ParsingContextExecution;
 import alien4cloud.tosca.parser.mapping.DefaultParser;
 
 @AllArgsConstructor
+@Setter
 public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
     private INodeParser<T> valueParser;
     /** The tosca type of the list. */
@@ -50,8 +52,10 @@ public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
 
     private Collection<T> doParse(SequenceNode node, ParsingContextExecution context) {
         Collection<T> collection = getCollectionInstance();
+        Object parent = context.getParent();
         for (Node valueNode : node.getValue()) {
             T value = valueParser.parse(valueNode, context);
+            context.setParent(parent);
             if (value != null) {
                 collection.add(value);
             }

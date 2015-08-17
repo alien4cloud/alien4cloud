@@ -24,7 +24,9 @@
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
 - property_type: alien4cloud.tosca.parser.impl.advanced.PropertyTypeParser
-- property_default_type: alien4cloud.tosca.parser.impl.advanced.PropertyDefaultTypeParser
+- property_default_type: alien4cloud.tosca.parser.impl.advanced.PropertyDefaultValueParser
+- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
+- constraints_type: alien4cloud.tosca.parser.impl.advanced.ConstraintsParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -121,37 +123,23 @@
     map: artifacts
     type: template_deployment_artifact
 
-- constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
-- constraint_list: list # This element must be parsed as a list
-  type: constraint # the elements in the list are constraints
-
 - attribute_definition: alien4cloud.model.components.AttributeDefinition
   description: description
   type: type
   default: default
 
-- schema: alien4cloud.model.components.Schema
-  derived_from: derivedFrom
-  constraints: constraint
-  properties:
-    map: properties
-    type: property_definition
-
 - property_definition: alien4cloud.model.components.PropertyDefinition
   type:
     reference: type
-    type: property_type_type
+    type: property_type
   required: required
   description: description
   default:
     reference: default
     type: property_default_type
   constraints:
-    list: constraints
-    type: constraint
-  entry_schema:
-    reference: entrySchema
-    type: schema
+    reference: constraints
+    type: constraints_type
 
 # capability definition supports a simple definition or more advanced.
 - capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
@@ -171,13 +159,13 @@
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
-    type: constraint_list
+    type: constraints_type
     node_is_value: false
 
 - node_filter_type: alien4cloud.model.components.NodeFilter
   properties:
     sequence_to_map: properties
-    type: constraint_list
+    type: constraints_type
     node_is_value: false
   capabilities:
     sequence_to_map: capabilities
