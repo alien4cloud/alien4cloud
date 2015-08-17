@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
@@ -88,7 +87,7 @@ public class OrchestratorService {
      */
     private synchronized void saveAndEnsureNameUnicity(Orchestrator orchestrator) {
         // check that the cloud doesn't already exists
-        if (alienDAO.count(Cloud.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
+        if (alienDAO.count(Orchestrator.class, QueryBuilders.termQuery("name", orchestrator.getName())) > 0) {
             throw new AlreadyExistException("a cloud with the given name already exists.");
         }
         alienDAO.save(orchestrator);

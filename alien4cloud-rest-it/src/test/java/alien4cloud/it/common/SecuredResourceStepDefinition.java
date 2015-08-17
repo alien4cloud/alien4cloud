@@ -18,7 +18,7 @@ public class SecuredResourceStepDefinition {
         String request = getResourceRequest(resourceTypeId, resourceName);
         String groupId = Context.getInstance().getGroupId(groupName);
         // final call
-        request += "/groupRoles/" + groupId + "/" + roleName;
+        request += "/roles/groups/" + groupId + "/" + roleName;
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().put(request));
     }
 
@@ -26,7 +26,7 @@ public class SecuredResourceStepDefinition {
     public void I_add_a_role_to_user_on_the_resource_type_named(String roleName, String userName, String resourceTypeId, String resourceName) throws Throwable {
         String request = getResourceRequest(resourceTypeId, resourceName);
         // final call
-        request += "/userRoles/" + userName + "/" + roleName;
+        request += "/roles/users/" + userName + "/" + roleName;
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().put(request));
     }
 
@@ -36,7 +36,7 @@ public class SecuredResourceStepDefinition {
         String request = getResourceRequest(resourceTypeId, resourceName);
         String groupId = Context.getInstance().getGroupId(groupName);
         // final call
-        request += "/groupRoles/" + groupId + "/" + roleName;
+        request += "/roles/groups/" + groupId + "/" + roleName;
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(request));
     }
 
@@ -45,7 +45,7 @@ public class SecuredResourceStepDefinition {
             throws Throwable {
         String request = getResourceRequest(resourceTypeId, resourceName);
         // final call
-        request += "/userRoles/" + userName + "/" + roleName;
+        request += "/roles/users/" + userName + "/" + roleName;
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().delete(request));
     }
 

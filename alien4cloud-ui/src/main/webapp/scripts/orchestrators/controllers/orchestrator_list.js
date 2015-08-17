@@ -9,7 +9,7 @@ define(function (require) {
   require('scripts/common/services/alien_resource');
   require('scripts/orchestrators/controllers/orchestrator_new');
   require('scripts/orchestrators/services/orchestrator_service');
-  require('scripts/orchestrators/controllers/orchestrator_detail');
+  require('scripts/orchestrators/controllers/orchestrator_details');
 
   states.state('admin.orchestrators', {
     url: '/orchestrators',
@@ -43,10 +43,10 @@ define(function (require) {
       $scope.search(); // initialize
 
       $scope.openOrchestrator = function(orchestratorId) {
-        $state.go('admin.orchestrators.detail', { id: orchestratorId });
+        $state.go('admin.orchestrators.details', { id: orchestratorId });
       };
       $scope.openLocation = function(orchestratorId, locationId) {
-        console.log('Open orchestrator location detail page', orchestratorId, locationId);
+        console.log('Open orchestrator location details page', orchestratorId, locationId);
       };
 
       $scope.openNewModal = function() {

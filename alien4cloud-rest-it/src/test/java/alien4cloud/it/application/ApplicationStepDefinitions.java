@@ -346,7 +346,7 @@ public class ApplicationStepDefinitions {
     public void I_add_a_role_to_user_on_the_application(String role, String username, String applicationName) throws Throwable {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().put("/rest/applications/" + CURRENT_APPLICATION.getId() + "/userRoles/" + username + "/" + role));
+                Context.getRestClientInstance().put("/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/users/" + username + "/" + role));
     }
 
     @When("^I search for \"([^\"]*)\" application$")
@@ -400,7 +400,7 @@ public class ApplicationStepDefinitions {
     public void I_remove_a_role_to_user_on_the_application(String role, String username, String applicationName) throws Throwable {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
-                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/userRoles/" + username + "/" + role));
+                Context.getRestClientInstance().delete("/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/users/" + username + "/" + role));
     }
 
     @Then("^The application should have a user \"([^\"]*)\" not having \"([^\"]*)\" role$")
@@ -452,7 +452,7 @@ public class ApplicationStepDefinitions {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().put(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/groupRoles/" + Context.getInstance().getGroupId(groupName) + "/" + role));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/groups/" + Context.getInstance().getGroupId(groupName) + "/" + role));
     }
 
     @And("^The application should have a group \"([^\"]*)\" having \"([^\"]*)\" role$")
@@ -477,7 +477,7 @@ public class ApplicationStepDefinitions {
         I_search_for_application(applicationName);
         Context.getInstance().registerRestResponse(
                 Context.getRestClientInstance().delete(
-                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/groupRoles/" + Context.getInstance().getGroupId(groupName) + "/" + role));
+                        "/rest/applications/" + CURRENT_APPLICATION.getId() + "/roles/groups/" + Context.getInstance().getGroupId(groupName) + "/" + role));
     }
 
     @And("^The application should have the group \"([^\"]*)\" not having \"([^\"]*)\" role$")

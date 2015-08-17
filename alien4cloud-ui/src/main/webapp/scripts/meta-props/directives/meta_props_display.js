@@ -12,7 +12,7 @@ define(function (require) {
       scope: {
         'properties': '=',
         'application': '=',
-        'cloud': '=',
+        'orchestrator': '=',
         'collapse': '=',
       },
       link: {}

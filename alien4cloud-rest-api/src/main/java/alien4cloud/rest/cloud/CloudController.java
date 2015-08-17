@@ -47,7 +47,6 @@ import alien4cloud.rest.model.RestErrorCode;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
 import alien4cloud.security.AuthorizationUtil;
-import alien4cloud.security.ResourceRoleService;
 import alien4cloud.security.model.CloudRole;
 import alien4cloud.security.model.Role;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
@@ -67,8 +66,6 @@ public class CloudController {
     private CloudService cloudService;
     @Resource
     private CloudImageService cloudImageService;
-    @Resource
-    private ResourceRoleService resourceRoleService;
     @Resource
     private MetaPropertiesService metaPropertiesService;
 
@@ -189,10 +186,8 @@ public class CloudController {
             provider = cloudService.getPaaSProvider(id);
             cloudService.refreshCloud(cloud, provider);
         } catch (CloudDisabledException e) {
-            return RestResponseBuilder
-                    .<CloudDTO> builder()
-                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + id
-                            + "> is disabled or not found")).build();
+            return RestResponseBuilder.<CloudDTO> builder()
+                    .error(new RestError(RestErrorCode.CLOUD_DISABLED_ERROR.getCode(), "Cloud with id <" + id + "> is disabled or not found")).build();
         } catch (PluginConfigurationException e) {
             log.error("Failed to enable cloud. PaaS provider plugin rejects the configuration of the plugin.", e);
             return RestResponseBuilder
@@ -322,83 +317,6 @@ public class CloudController {
         Cloud cloud = cloudService.getByName(cloudName);
         AuthorizationUtil.checkAuthorizationForCloud(cloud, CloudRole.CLOUD_DEPLOYER);
         return RestResponseBuilder.<Cloud> builder().data(cloud).build();
-    }
-
-    /**
-     * Add a role to a user on a specific cloud
-     *
-     * @param cloudId The cloud id.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the cloud.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a user on a specific cloud", notes = "Only user with ADMIN role can assign any role to another user.")
-    @RequestMapping(value = "/{cloudId}/userRoles/{username}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<Void> addUserRole(@PathVariable String cloudId, @PathVariable String username, @PathVariable String role) {
-
-        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        resourceRoleService.addUserRole(cloud, username, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Add a role to a group on a specific cloud
-     *
-     * @param cloudId The id of the cloud.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the group on the cloud.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Add a role to a group on a specific cloud", notes = "Only user with ADMIN role can assign any role to a group of users.")
-    @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<Void> addGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
-        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        resourceRoleService.addGroupRole(cloud, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a user on a specific cloud
-     *
-     * @param cloudId The id of the cloud.
-     * @param username The username of the user to update roles.
-     * @param role The role to add to the user on the cloud.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Remove a role to a user on a specific cloud", notes = "Only user with ADMIN role can unassign any role to another user.")
-    @RequestMapping(value = "/{cloudId}/userRoles/{username}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<Void> removeUserRole(@PathVariable String cloudId, @PathVariable String username, @PathVariable String role) {
-        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        resourceRoleService.removeUserRole(cloud, username, role);
-        return RestResponseBuilder.<Void> builder().build();
-    }
-
-    /**
-     * Remove a role from a user on a specific cloud
-     *
-     * @param cloudId The id of the cloud.
-     * @param groupId The id of the group to update roles.
-     * @param role The role to add to the user on the cloud.
-     * @return A {@link Void} {@link RestResponse}.
-     */
-    @ApiOperation(value = "Remove a role of a group on a specific cloud", notes = "Only user with ADMIN role can unassign any role to a group.")
-    @RequestMapping(value = "/{cloudId}/groupRoles/{groupId}/{role}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @Audit
-    public RestResponse<Void> removeGroupRole(@PathVariable String cloudId, @PathVariable String groupId, @PathVariable String role) {
-        AuthorizationUtil.hasOneRoleIn(Role.ADMIN);
-        Cloud cloud = cloudService.getMandatoryCloud(cloudId);
-        resourceRoleService.removeGroupRole(cloud, groupId, role);
-        return RestResponseBuilder.<Void> builder().build();
     }
 
     @ApiOperation(value = "Add a cloud image to the given cloud", notes = "Only user with ADMIN role can add a cloud image.")
