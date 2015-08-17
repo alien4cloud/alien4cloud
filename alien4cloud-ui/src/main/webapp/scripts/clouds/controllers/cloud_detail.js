@@ -16,6 +16,7 @@ define(function (require) {
   require('scripts/common/filters/bytes');
   require('scripts/common/directives/os_icon');
   require('scripts/common/directives/pagination');
+  require('scripts/common/directives/simple_modal');
   require('scripts/meta-props/directives/meta_props_display');
 
   require('scripts/clouds/controllers/new_flavor');
@@ -737,21 +738,6 @@ define(function (require) {
           pasSResourceId: paaSResourceId
         }, undefined, function(result) {
           callbackFn(result);
-        });
-      };
-
-      var ModalInstanceCtrl = ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-        $scope.title = 'CLOUDS.ADMINISTRATION.HELP.TITLE';
-        $scope.content = $filter('translate')('CLOUDS.ADMINISTRATION.HELP.CONTENT');
-        $scope.close = function () {
-          $modalInstance.dismiss('close');
-        };
-      }];
-
-      $scope.openSimpleModal = function () {
-        $modal.open({
-          templateUrl: 'views/common/simple_modal.html',
-          controller: ModalInstanceCtrl
         });
       };
 

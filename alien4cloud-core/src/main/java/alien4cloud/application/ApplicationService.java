@@ -16,16 +16,16 @@ import org.elasticsearch.mapping.QueryHelper;
 import org.elasticsearch.mapping.QueryHelper.SearchQueryHelperBuilder;
 import org.springframework.stereotype.Service;
 
-import alien4cloud.model.common.Tag;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
 import alien4cloud.model.application.Application;
+import alien4cloud.model.common.Tag;
 import alien4cloud.model.deployment.Deployment;
 import alien4cloud.paas.exception.CloudDisabledException;
-import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.security.AuthorizationUtil;
+import alien4cloud.security.model.ApplicationRole;
 import alien4cloud.utils.MapUtil;
 
 import com.google.common.collect.Lists;
@@ -155,9 +155,10 @@ public class ApplicationService {
         if (result.getData().length > 0) {
             return false;
         }
+
+        // delete the application
         applicationVersionService.deleteByApplication(applicationId);
         applicationEnvironmentService.deleteByApplication(applicationId);
-        // delete the application
         alienDAO.delete(Application.class, applicationId);
         return true;
     }

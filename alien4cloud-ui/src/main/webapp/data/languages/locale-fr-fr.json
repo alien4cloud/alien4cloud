@@ -38,7 +38,8 @@
     "TITLE": {
       "PROPERTY": "Description de la propriété",
       "REQUIREMENT": "Description du pré-requis",
-      "CAPABILITY": "Description de la capacité"
+      "CAPABILITY": "Description de la capacité",
+      "CUSTOM_COMMAND": "Description de l'opération"
     }
   },
   "NAVADMIN": {
@@ -310,6 +311,7 @@
   },
   "APPLICATIONS": {
     "APPLICATION": "Application",
+    "SHOW_DEPLOYED_APP": "Afficher seulement les applications déployées.",
     "APPLICATION_ROLES": "Rôles d'application",
     "NEW": "Nouvelle Application",
     "NAME": "Nom",

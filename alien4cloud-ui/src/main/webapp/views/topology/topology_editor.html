@@ -235,14 +235,7 @@
                     </property-display>
                   </td>
                   <td>
-                    <button id="btn-description-{{propEntry.key}}"
-                            ng-if="properties.getPropertyDescription(propEntry.key)"
-                            ng-click="openSimpleModal('MODAL.TITLE.PROPERTY', properties.getPropertyDescription(propEntry.key))"
-                            class="btn btn-default btn-xs"
-                            tooltip="{{ 'MODAL.TITLE.PROPERTY' | translate}}"
-                            tooltip-append-to-body="true">
-                      <i class="fa fa-question-circle"></i>
-                    </button>
+                    <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{properties.getPropertyDescription(propEntry.key)}}" key="{{propEntry.key}}"> </simple-modal>
                   </td>
                 </tr>
               </table>
@@ -317,13 +310,7 @@
                           {{requirementEntry.value.lowerBound}}..{{requirementEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                           ({{requirementEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                       </span>
-                      <button id="btn-component-description-{{requirementEntry.key}}"
-                              ng-if="reqComp.data.description"
-                              ng-click="openSimpleModal('MODAL.TITLE.REQUIREMENT', reqComp.data.description)"
-                              class="btn btn-default btn-xs" tooltip="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}"
-                              tooltip-append-to-body="true">
-                        <i class="fa fa-question-circle"></i>
-                      </button>
+                      <simple-modal title="{{ 'MODAL.TITLE.REQUIREMENT' | translate}}" content="{{reqComp.data.description}}" key="{{requirementEntry.key}}"> </simple-modal>
                       <button id="btn-expose-{{requirementEntry.key}}"
                               ng-disabled="!requirementEntry.value.canAddRel.yes"
                               ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
@@ -394,14 +381,7 @@
                           {{capabilityEntry.value.upperBound | replaceAll:'unbounded':'&infin;' }}
                           ({{capabilityEntry.value.canAddRel.remaining | replaceAll:'unbounded':'&infin;' }})
                       </span>
-                      <button id="btn-description-{{capabilityEntry.value.type}}"
-                              ng-if="capaComp.data.description"
-                              ng-click="openSimpleModal('MODAL.TITLE.CAPABILITY', capaComp.data.description)"
-                              class="btn btn-default btn-xs"
-                              tooltip="{{ 'MODAL.TITLE.CAPABILITY' | translate}}"
-                              tooltip-append-to-body="true">
-                        <i class="fa fa-question-circle"></i>
-                      </button>
+                      <simple-modal title="{{ 'MODAL.TITLE.CAPABILITY' | translate}}" content="{{capaComp.data.description}}" key="{{capabilityEntry.value.type}}"> </simple-modal>
                       <button id="btn-expose-{{capabilityEntry.value.type}}"
                               ng-if="isTopologyTemplate && topology.topology.substitutionMapping && topology.topology.substitutionMapping.substitutionType"
                               ng-click="substitution.exposeCapability(capabilityEntry.key); $event.stopPropagation()"
@@ -467,6 +447,9 @@
                         editable="true"
                         condensed="condensed">
                       </property-display>
+                    </td>
+                    <td>
+                      <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{topology.capabilityTypes[capabilityEntry.value.type].propertiesMap[propertyEntry.key].value.description}}" key="{{propertyEntry.key}}"> </simple-modal>
                     </td>
                   </tr>
                 </table>
@@ -547,7 +530,7 @@
                               </ul>
                             </div>
                           </td>
-                          <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-11">
+                          <td ng-init="propertyEntry.value.name=propertyEntry.key" class="col-md-10">
                             <property-display
                               ng-if="properties.isInputRelationshipProperty(relationshipEntry.key, propertyEntry.key)"
                               ng-init="condensed = true"
@@ -566,6 +549,9 @@
                               editable="true"
                               condensed="condensed">
                             </property-display>
+                          </td>
+                          <td class="col-md-1">
+                            <simple-modal title="{{ 'MODAL.TITLE.PROPERTY' | translate}}" content="{{propertyEntry.value.description}}" key="{{propertyEntry.key}}"> </simple-modal>
                           </td>
                         </tr>
                       </table>
