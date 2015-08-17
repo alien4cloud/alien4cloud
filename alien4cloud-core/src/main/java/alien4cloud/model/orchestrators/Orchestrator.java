@@ -8,10 +8,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.elasticsearch.annotation.ESObject;
-import org.elasticsearch.annotation.Id;
-import org.elasticsearch.annotation.NestedObject;
-import org.elasticsearch.annotation.StringField;
+import org.elasticsearch.annotation.*;
 import org.elasticsearch.annotation.query.FetchContext;
 import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
@@ -50,8 +47,9 @@ public class Orchestrator implements ISecuredResource {
     @NotBlank
     @StringField(indexType = IndexType.not_analyzed)
     private String pluginBean;
-    @StringField(indexType = IndexType.not_analyzed)
-    private String providerName;
+    @BooleanField(index = IndexType.no)
+    private boolean isMultipleLocations;
+
     /** Last known status of the orchestrators. */
     @TermFilter
     @StringField(indexType = IndexType.not_analyzed)

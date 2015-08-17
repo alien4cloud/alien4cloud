@@ -34,4 +34,9 @@ public class MockOrchestratorFactory implements IOrchestratorFactory<MockOrchest
     public Class<ProviderConfig> getConfigurationType() {
         return ProviderConfig.class;
     }
+
+    @Override
+    public boolean isMultipleLocations() {
+        return true;
+    }
 }

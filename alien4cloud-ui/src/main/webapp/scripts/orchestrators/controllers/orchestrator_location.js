@@ -20,9 +20,10 @@ define(function (require) {
   });
 
   modules.get('a4c-orchestrators', ['ui.router', 'ui.bootstrap','a4c-common']).controller('OrchestratorLocationsCtrl',
-    ['$scope', 'searchServiceFactory', '$modal', '$state', 'orchestratorService',
-    function($scope, searchServiceFactory, $modal, $state, orchestratorService) {
-      $scope.isMultipleLocations = false;
+    ['$scope', 'orchestrator',
+    function($scope, orchestrator) {
+      $scope.orchestrator = orchestrator;
+      
     }
   ]); // controller
 }); // define

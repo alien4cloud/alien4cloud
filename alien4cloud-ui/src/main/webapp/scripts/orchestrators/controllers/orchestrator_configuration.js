@@ -24,12 +24,10 @@ define(function (require) {
   modules.get('a4c-orchestrators').controller('OrchestratorConfigurationCtrl',
     ['$scope', '$http', 'orchestrator', 'orchestratorConfigurationService',
     function($scope, $http, orchestrator, orchestratorConfigurationService) {
-      $scope.configuration = {};
       orchestratorConfigurationService.get({orchestratorId: orchestrator.id},
         function(response) {
-          console.log('received configuration response', response);
           if (_.defined(response.data)) {
-            $scope.configuration = response.data;
+            $scope.configuration = response.data.configuration;
           }
         }
       );
@@ -40,18 +38,15 @@ define(function (require) {
       });
 
       $scope.saveConfiguration = function(newConfiguration) {
-        console.log('updating configuration', newConfiguration);
-      //   return cloudServices.config.update({
-      //     id: cloudId
-      //   }, angular.toJson(newConfiguration), function success(response) {
-      //     $scope.cloudConfig = newConfiguration;
-      //     if (_.defined(response.error)) {
-      //       var errorsHandle = $q.defer();
-      //       return errorsHandle.resolve(response.error);
-      //     } else {
-      //       refreshCloud();
-      //     }
-      //   }).$promise;
+        return orchestratorConfigurationService.update({
+          orchestratorId: orchestrator.id
+        }, angular.toJson(newConfiguration), function success(response) {
+          $scope.configuration = newConfiguration;
+          if (_.defined(response.error)) {
+            var errorsHandle = $q.defer();
+            return errorsHandle.resolve(response.error);
+          }
+        }).$promise;
       };
 
     }

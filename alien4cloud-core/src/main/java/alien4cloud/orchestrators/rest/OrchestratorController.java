@@ -31,7 +31,7 @@ import com.wordnik.swagger.annotations.Authorization;
  */
 @RestController
 @RequestMapping(value = "/rest/orchestrators", produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "Orchestrators", description = "Manages orchestrators.", authorizations = { @Authorization("ADMIN") })
+@Api(value = "Orchestrators", description = "Manages orchestrators.", authorizations = { @Authorization("ADMIN") }, position = 4300)
 public class OrchestratorController {
     @Resource
     private OrchestratorService orchestratorService;

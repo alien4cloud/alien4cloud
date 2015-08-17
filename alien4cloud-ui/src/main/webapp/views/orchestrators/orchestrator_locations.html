@@ -1,8 +1,29 @@
 <div>
-  <div ng-if="isMultipleLocations">
-
+  <div ng-if="orchestrator.multipleLocations" class="row">
+    <div class="col-md-4">
+      <button id="new-location-button" class="btn btn-success" ng-click="openNewModal()">
+        <i class="fa fa-plus-circle"></i> New Location
+      </button>
+    </div>
+    <div class="col-md-4">
+      <select class="form-control" ng-model="location" ng-options="loc for loc in locations"></select>
+    </div>
+    <div class="col-md-4">
+      <button id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
+        <i class="fa fa-plus-circle"></i> Delete Location
+      </button>
+    </div>
   </div>
-  <div>
-
+  <hr class="separator-h">
+  <div class="row">
+    <div class="col-md-4">
+      name
+    </div>
+    <div class="col-md-4">
+      infrastructure type:
+    </div>
+    <div class="col-md-4">
+      environment type:
+    </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 <div>
-  <h2>Orchestrator configuration</h2>
-  <generic-form ng-if="configuration && configurationDefinition" root-object="configuration" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="configurationDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
-  </generic-form>
+  <div ng-if="configuration && configurationDefinition">
+    <generic-form root-object="configuration" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="configurationDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
+    </generic-form>
+  </div>
 </div>

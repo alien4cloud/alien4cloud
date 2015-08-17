@@ -32,8 +32,9 @@
           <tbody>
             <tr ng-repeat-start="orchestrator in orchestrators" id='orchestrator_{{orchestrator.id}}' ng-click="openOrchestrator(orchestrator.id)" ng-init="islocationCollapsed = false">
               <td>
-                <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"
-                  ng-click="islocationCollapsed = !islocationCollapsed"></i>
+                <a class="btn btn-default" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
+                  <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i>
+                </a>
                 <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"
                   tooltip="{{'CLOUDS.ENABLED_' + orchestrator.enabled | translate }}"></i>
               </td>

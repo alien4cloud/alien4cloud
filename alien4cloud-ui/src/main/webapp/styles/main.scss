@@ -151,7 +151,7 @@ a.accordion-toggle[ng-click] {
 
 .facet-option .nav > li > a:hover {
   background-color: transparent;
-  border-left: 1px solid #428bca;
+  border-left: 1px solid $brand-primary;
   padding-left: 4px;
   text-decoration: none;
 }
@@ -181,7 +181,7 @@ a.accordion-toggle[ng-click] {
 }
 
 fieldset legend {
-  border-bottom: 1px solid #428bca;
+  border-bottom: 1px solid $brand-primary;
 }
 
 .detail-bloc > div {
@@ -193,7 +193,7 @@ fieldset legend {
 }
 
 .separator-h {
-  border-top: 1px solid #428bca;
+  border-top: 1px solid $brand-primary;
 }
 
 #sideBar {
@@ -207,7 +207,7 @@ fieldset legend {
 }
 
 .starHover {
-  color: #428bca;
+  color: $brand-primary;
 }
 
 .searchModal .modal-dialog {
@@ -346,7 +346,7 @@ img.icon_32 {
 }
 
 .title-border {
-  border-bottom: 1px solid #428BCA;
+  border-bottom: 1px solid $brand-primary;
 }
 
 .padding-right {
