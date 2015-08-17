@@ -15,10 +15,17 @@
       </span>
     </div>
   </div>
+  <div class="col-md-12">
+    <meta-properties-display
+      properties="orchestratorProperties"
+      ng-if="orchestratorProperties"
+      orchestrator="context.orchestrator"
+      collapse="false">
+    </meta-properties-display>
+  </div>
   <h3>Orchestrator info</h3>
   TODO list:
   <ul>
     <li>Display an icon of the orchestrator if the IOrchestrator plugin provides one.</li>
-    <li>Manage meta-properties for the orchestrator</li>
   </ul>
 </div>

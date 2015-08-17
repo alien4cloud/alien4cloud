@@ -17,9 +17,14 @@ import org.elasticsearch.annotation.query.TermFilter;
 import org.elasticsearch.mapping.IndexType;
 import org.hibernate.validator.constraints.NotBlank;
 
+import alien4cloud.model.common.IMetaProperties;
 import alien4cloud.security.ISecuredResource;
 import alien4cloud.security.model.CloudRole;
-import alien4cloud.utils.jackson.*;
+import alien4cloud.utils.jackson.ConditionalAttributes;
+import alien4cloud.utils.jackson.ConditionalOnAttribute;
+import alien4cloud.utils.jackson.JSonMapEntryArrayDeSerializer;
+import alien4cloud.utils.jackson.JSonMapEntryArraySerializer;
+import alien4cloud.utils.jackson.NotAnalyzedTextMapEntry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -35,7 +40,7 @@ import com.wordnik.swagger.annotations.ApiModel;
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ESObject
 @ApiModel(value = "Orchestrator.", description = "An orchestrators represents the basic.")
-public class Orchestrator implements ISecuredResource {
+public class Orchestrator implements ISecuredResource, IMetaProperties {
     @Id
     private String id;
     @NotBlank
@@ -73,8 +78,12 @@ public class Orchestrator implements ISecuredResource {
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
+    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    private Map<String, String> metaProperties;
+
     @Override
     public Class<CloudRole> roleEnum() {
         return CloudRole.class;
     }
+
 }

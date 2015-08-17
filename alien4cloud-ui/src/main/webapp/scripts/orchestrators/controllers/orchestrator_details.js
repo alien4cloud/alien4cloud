@@ -7,6 +7,7 @@ define(function (require) {
   var _ = require('lodash');
 
   require('scripts/orchestrators/services/orchestrator_service');
+  require('scripts/orchestrators/services/orchestrator_properties_service');
   require('scripts/orchestrators/controllers/orchestrator_artifacts');
   require('scripts/orchestrators/controllers/orchestrator_configuration');
   require('scripts/orchestrators/controllers/orchestrator_location');
@@ -47,13 +48,32 @@ define(function (require) {
   states.forward('admin.orchestrators.details', 'admin.orchestrators.details.info');
 
   modules.get('a4c-orchestrators').controller('OrchestratorArtifactsCtrl',
-    ['$scope', '$modal', '$state', 'orchestratorService', 'orchestrator',
-    function($scope, $modal, $state, orchestratorService, orchestrator) {
-      $scope.updateOrchestrator = function(name){
+    ['$scope', '$modal', '$state', 'orchestratorService', 'orchestrator', 'metapropConfServices',
+    function($scope, $modal, $state, orchestratorService, orchestrator, metapropConfServices) {
+      $scope.updateOrchestrator = function(name) {
         if (name !== orchestrator.name) {
           orchestratorService.update({orchestratorId: orchestrator.id}, name).$promise.then(function(result){ return result.data; });
         }
       }
+
+      $scope.loadConfigurationTag = function() {
+        // filter only by target 'orchestrator'
+        var filterOrchestrator = {};
+        filterOrchestrator.target = [];
+        filterOrchestrator.target.push('orchestrator');
+
+        var searchRequestObject = {
+          'query': '',
+          'filters': filterOrchestrator,
+          'from': 0,
+          'size': 50
+        };
+
+        metapropConfServices.search([], angular.toJson(searchRequestObject), function(successResult) {
+          $scope.orchestratorProperties = successResult.data.data;
+        });
+      };
+      $scope.loadConfigurationTag();
     }
   ]); // controller
 }); // define

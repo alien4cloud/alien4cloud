@@ -4,8 +4,8 @@ define(function (require) {
   var modules = require('modules');
   var _ = require('lodash');
 
-  modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'applicationServices', 'cloudServices',
-    function($scope, propertiesServices, $translate, applicationServices, cloudServices) {
+  modules.get('a4c-metas').controller('MetaPropertiesCtrl', ['$scope', 'propertiesServices', '$translate', 'applicationServices', 'orchestratorPropertiesServices',
+    function($scope, propertiesServices, $translate, applicationServices, orchestratorPropertiesServices) {
 
       var updateApplicationMetaProperty = function(updateApplicationPropertyObject) {
         return applicationServices.upsertProperty({
@@ -17,15 +17,15 @@ define(function (require) {
         }).$promise;
       };
 
-      var updateCloudMetaProperty = function(updateApplicationPropertyObject) {
-        return cloudServices.upsertProperty({
-          cloudId: $scope.cloud.id
-        }, angular.toJson(updateApplicationPropertyObject), function(response) {
+      var updateOrchestratorMetaProperty = function(updateOrchestratorPropertyObject) {
+        return orchestratorPropertiesServices.upsertProperty({
+          id: $scope.orchestrator.id
+        }, angular.toJson(updateOrchestratorPropertyObject), function(response) {
           if (!response.error) {
-            if (!$scope.cloud.hasOwnProperty('metaProperties')) {
-              $scope.cloud.metaProperties = {};
+            if (!$scope.orchestrator.hasOwnProperty('metaProperties')) {
+              $scope.orchestrator.metaProperties = {};
             }
-            $scope.cloud.metaProperties[updateApplicationPropertyObject.definitionId] = updateApplicationPropertyObject.value;
+            $scope.orchestrator.metaProperties[updateOrchestratorPropertyObject.definitionId] = updateOrchestratorPropertyObject.value;
           }
         }).$promise;
       };
@@ -39,8 +39,8 @@ define(function (require) {
         // In future, we need to add component here
         if (_.defined($scope.application)) {
           return updateApplicationMetaProperty(updateApplicationPropertyObject);
-        } else if (_.defined($scope.cloud)) {
-          return updateCloudMetaProperty(updateApplicationPropertyObject);
+        } else if (_.defined($scope.orchestrator)) {
+          return updateOrchestratorMetaProperty(updateApplicationPropertyObject);
         }
       };
 
@@ -48,8 +48,8 @@ define(function (require) {
       $scope.getPropertyValue = function(metaPropId) {
         if (_.defined($scope.application) && _.defined($scope.application.metaProperties)) {
           return $scope.application.metaProperties[metaPropId];
-        } else if (_.defined($scope.cloud) && _.defined($scope.cloud.metaProperties)) {
-          return $scope.cloud.metaProperties[metaPropId];
+        } else if (_.defined($scope.orchestrator) && _.defined($scope.orchestrator.metaProperties)) {
+          return $scope.orchestrator.metaProperties[metaPropId];
         }
       };
 

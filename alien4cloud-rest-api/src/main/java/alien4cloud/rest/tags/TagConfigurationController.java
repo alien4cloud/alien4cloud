@@ -73,7 +73,6 @@ public class TagConfigurationController {
             ensureNameAndTypeUnicity(configuration.getName(), configuration.getTarget(), configuration.getId());
         }
         if (configuration.getId() == null) {
-            // Save or update
             configuration.setId(UUID.randomUUID().toString());
         }
         Set<ConstraintViolation<MetaPropConfiguration>> violations = validator.validate(configuration);
