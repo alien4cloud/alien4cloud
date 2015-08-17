@@ -37,7 +37,8 @@ define(function (require) {
           'username': csarGit.username,
           'password': csarGit.password,
           'repositoryUrl': csarGit.url,
-          'importLocations': locations
+          'importLocations': locations,
+          'storedLocally': csarGit.isStoredLocally
         };
         $modalInstance.close(csargitDTO);
       };
@@ -156,21 +157,22 @@ define(function (require) {
       $scope.handleResult = function(result,url){
         var state = statesToClasses.progress;
         var progress = 100;
-        var isCollapsed=false;
+        var isCollapsed = false;
         var index = $scope.uploadErrors.length;
+        console.log(result.data.data);
           for(var j=0;j<result.data.data.length;j++){
             if(result.data.data[j].context.parsingErrors.length >0){
-              state = statesToClasses.error;
+                state = statesToClasses.error;
+                isCollapsed = true;
             }
             else{
               state = statesToClasses.success;
               isCollapsed = true;
-
             }
         }
         $scope.uploadErrors.push({
           'url': url,
-          'isErrorBlocCollapsed': isCollapsed,
+          'isErrorBlocCollapsed':isCollapsed,
           'data': result.data,
           'infoType': state,
           'progress': progress
@@ -237,7 +239,7 @@ define(function (require) {
               toaster.pop('error', title, errorMessage.message, 4000, 'trustedHtml', null);
             }
            $scope.searchCsarsGit();
-           $scope.id=0;
+           $scope.id = 0;
           });
         });
       };
@@ -254,7 +256,7 @@ define(function (require) {
           }
         });
         modalInstance.result.then(function(DTOObject) {
-          var JsonId=angular.toJson(DTOObject.id);
+          var JsonId = angular.toJson(DTOObject.id);
           csarGitService.update({id: DTOObject.id },angular.toJson(DTOObject.dto), function(successResponse) {
               var errorMessage = successResponse;
               if (errorMessage.error != null) {
