@@ -8,9 +8,12 @@ import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
+import org.yaml.snakeyaml.nodes.SequenceNode;
 
+import alien4cloud.exception.InvalidArgumentException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -61,6 +64,35 @@ public final class ParserUtils {
             String k = ((ScalarNode) entry.getKeyNode()).getValue();
             String v = ((ScalarNode) entry.getValueNode()).getValue();
             result.put(k, v);
+        }
+        return result;
+    }
+
+    public static Object parse(Node node) {
+        if (node instanceof ScalarNode) {
+            return ((ScalarNode) node).getValue();
+        } else if (node instanceof SequenceNode) {
+            return parseSequence((SequenceNode) node);
+        } else if (node instanceof MappingNode) {
+            return parseMap((MappingNode) node);
+        } else {
+            throw new InvalidArgumentException("Unknown type of node " + node.getClass().getName());
+        }
+    }
+
+    public static List<Object> parseSequence(SequenceNode sequenceNode) {
+        List<Object> result = Lists.newArrayList();
+        for (Node node : sequenceNode.getValue()) {
+            result.add(parse(node));
+        }
+        return result;
+    }
+
+    public static Map<String, Object> parseMap(MappingNode mappingNode) {
+        Map<String, Object> result = Maps.newHashMap();
+        for (NodeTuple entry : mappingNode.getValue()) {
+            String key = ((ScalarNode) entry.getKeyNode()).getValue();
+            result.put(key, parse(entry.getValueNode()));
         }
         return result;
     }

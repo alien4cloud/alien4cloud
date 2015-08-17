@@ -1,6 +1,5 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -65,10 +64,10 @@ public class TopologyChecker implements IChecker<Topology> {
         }
 
         ArchiveRoot archiveRoot = (ArchiveRoot) context.getRoot().getWrappedInstance();
-
-        Set<CSARDependency> topologyDeps = new HashSet<CSARDependency>(archiveRoot.getArchive().getDependencies());
-        instance.setDependencies(topologyDeps);
-
+        Set<CSARDependency> dependencies = archiveRoot.getArchive().getDependencies();
+        if (dependencies != null) {
+            instance.setDependencies(dependencies);
+        }
         // here we need to check that the group members really exist
         if (instance.getGroups() != null && !instance.getGroups().isEmpty()) {
             int i = 0;
