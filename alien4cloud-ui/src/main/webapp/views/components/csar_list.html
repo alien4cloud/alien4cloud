@@ -77,7 +77,7 @@
             <button class="btn btn-success" ng-disabled="isImporting" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
               <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
             </button>
-            <button class="btn ng-binding"  id="IMPORT_ALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
+            <button class="btn ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
               <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
             </button>
           </div>
@@ -111,7 +111,7 @@
               </td>
               <td>
                 <button class=" btn-sm btn ng-binding" ng-disabled="isImporting" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id,csar.repositoryUrl)">
-                  <i class="fa fa-download fa-lg"></i>
+                  <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
                 </button>
                 <button class=" btn-sm btn ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>

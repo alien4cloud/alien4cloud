@@ -91,7 +91,7 @@ public class CsarGitService {
      * @throws IOException
      * @throws GitCloneUriException
      * @throws GitNotAuthorizedException
-     * @throws NotFoundException
+     * @throws NotFoundException-
      * @throws RevisionSyntaxException
      * @throws NoHeadException
      * @throws GitAPIException

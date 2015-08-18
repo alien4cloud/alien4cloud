@@ -38,6 +38,7 @@ import alien4cloud.tosca.parser.ParsingException;
 import alien4cloud.tosca.parser.ParsingResult;
 import alien4cloud.utils.FileUtil;
 
+import com.google.common.io.Files;
 import com.wordnik.swagger.annotations.ApiOperation;
 
 @RestController

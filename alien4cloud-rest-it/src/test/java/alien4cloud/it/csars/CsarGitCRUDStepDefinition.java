@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.junit.Assert;
 
 import alien4cloud.it.Context;
+import alien4cloud.rest.csar.CreateCsarGitRequest;
 import alien4cloud.rest.csar.CreateCsarGithubRequest;
 import alien4cloud.rest.csar.UpdateCsarGitWithUrlRequest;
 import alien4cloud.rest.model.RestResponse;
@@ -23,14 +24,36 @@ import cucumber.api.java.en.When;
 
 public class CsarGitCRUDStepDefinition {
     private CsarGitRepository CSAR_GIT_REPOSITORY;
-    private CreateCsarGithubRequest request;
+    private CreateCsarGitRequest request;
 
-    @Given("^I have a csargit with the url \"([^\"]*)\" with username \"([^\"]*)\" and password \"([^\"]*)\"$")
-    public void I_Create_a_new_csargit(String url, String username, String password) throws JsonProcessingException, IOException {
-        request = new CreateCsarGithubRequest();
+    @Given("^I get an unexisting CsarGitRepository with id \"([^\"]*)\"$")
+    public void I_get_a_csargit_by_id(String id) throws IOException {
+        String response = Context.getRestClientInstance().get("/rest/csarsgit/" + id);
+        Context.getInstance().registerRestResponse(response);
+    }
+    
+    @Given("^I get an unexisting CsarGitRepository with url \"([^\"]*)\"$")
+    public void I_get_a_csargit_by_url(String url) throws IOException {
+        String response = Context.getRestClientInstance().postJSon("/rest/csarsgit/get", JsonUtil.toString(url));
+        Context.getInstance().registerRestResponse(response);
+    }
+
+    @Given("^I have a csargit with the url \"([^\"]*)\" with username \"([^\"]*)\" and stored \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Create_a_new_csargit(String url, String username, String password, String storedLocally) throws JsonProcessingException, IOException {
+        request = new CreateCsarGitRequest();
         request.setUsername(username);
         request.setPassword(password);
         request.setRepositoryUrl(url);
+        request.setStoredLocally(false);
+    }
+
+    @Given("^I have a csargit with the url \"([^\"]*)\" with username \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void I_Create_a_new_csargit_with_saving(String url, String username, String password) throws JsonProcessingException, IOException {
+        request = new CreateCsarGitRequest();
+        request.setUsername(username);
+        request.setPassword(password);
+        request.setRepositoryUrl(url);
+        request.setStoredLocally(true);
     }
 
     @And("^I add locations to the csar$")
@@ -143,7 +166,6 @@ public class CsarGitCRUDStepDefinition {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/import/:id", url));
         RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
         Assert.assertNotNull(restResponse);
-        Assert.assertNotNull(restResponse.getError());
     }
 
     @When("I update a csargit with url \"([^\"]*)\" and username \"([^\"]*)\" and password \"([^\"]*)\" and target url \"([^\"]*)\"$")
