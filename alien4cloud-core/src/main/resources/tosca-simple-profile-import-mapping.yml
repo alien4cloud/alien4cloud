@@ -1,0 +1,17 @@
+# Mapping definitions for tosca simple profile working draft 03.
+
+# declare custom parsers for complex types that requires specific parser.
+- scalar: alien4cloud.tosca.parser.impl.base.ScalarParser
+- import_definition: alien4cloud.tosca.parser.impl.advanced.ImportParser
+# declare standard mapping based parsers
+- definition: alien4cloud.tosca.model.ArchiveRoot
+  tosca_definitions_version: archive.toscaDefinitionsVersion
+  tosca_default_namespace: archive.toscaDefaultNamespace
+  template_name: archive.name
+  template_author: archive.templateAuthor
+  template_version: archive.version
+  description: archive.description
+  imports:
+    set: archive.dependencies
+    type: import_definition
+ 

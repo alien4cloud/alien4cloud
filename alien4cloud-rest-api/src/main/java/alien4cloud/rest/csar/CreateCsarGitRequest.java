@@ -24,7 +24,7 @@ public class CreateCsarGitRequest {
 
     private String password;
     
-    //private boolean saveCredentials;
+    private boolean storedLocally;
     
     List<CsarGitCheckoutLocation> importLocations;
 }

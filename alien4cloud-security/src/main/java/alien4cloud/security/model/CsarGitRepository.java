@@ -42,9 +42,16 @@ public class CsarGitRepository {
 
     private List<CsarGitCheckoutLocation> importLocations;
 
+    private boolean storedLocally;
+
+    private String lastCommitHash;
+
+    private String checkedOutLocation;
+
     public CsarGitRepository() {
         this.id = UUID.randomUUID().toString();
     }
+
 
     public void setId() {
         // Do nothing, technical id was set at creation
