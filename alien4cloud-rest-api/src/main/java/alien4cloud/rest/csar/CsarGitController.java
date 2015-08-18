@@ -66,6 +66,10 @@ public class CsarGitController {
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("id cannot be null").build()).build();
         }
         CsarGitRepository csargit = alienDAO.findById(CsarGitRepository.class, id);
+        if (csargit == null) {
+            return RestResponseBuilder.<CsarGitRepository> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("id cannot be null").build()).build();
+        }
         return RestResponseBuilder.<CsarGitRepository> builder().data(csargit).build();
     }
 
@@ -85,6 +89,10 @@ public class CsarGitController {
                     .error(RestErrorBuilder.builder(RestErrorCode.ILLEGAL_PARAMETER).message("Url cannot be null or empty").build()).build();
         }
         CsarGitRepository csargit = csarGitService.getCsargitByUrl(url);
+        if (csargit == null) {
+            return RestResponseBuilder.<CsarGitRepository> builder()
+                    .error(RestErrorBuilder.builder(RestErrorCode.NOT_FOUND_ERROR).message("url cannot be null").build()).build();
+        }
         return RestResponseBuilder.<CsarGitRepository> builder().data(csargit).build();
     }
 

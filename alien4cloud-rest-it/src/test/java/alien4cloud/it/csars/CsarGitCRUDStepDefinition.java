@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
+import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class CsarGitCRUDStepDefinition {
@@ -94,6 +95,13 @@ public class CsarGitCRUDStepDefinition {
         Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
         int sizeAfter = Remove_CsarGitList(url);
         Assert.assertNotEquals(sizeAfter, sizeBefore);
+    }
+    
+    @Given("I delete a csargit with empty url \"([^\"]*)\"")
+    public void I_Delete_a_csargit_with_empty_url(String url) throws Throwable {
+        Context.getInstance().registerRestResponse(Context.getRestClientInstance().postJSon("/rest/csarsgit/delete/:url", url));
+        RestResponse<?> restResponse = JsonUtil.read(Context.getInstance().getRestResponse());
+        Assert.assertNotNull(restResponse.getError());
     }
 
     @And("I delete a csargit with wrong url \"([^\"]*)\"")

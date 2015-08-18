@@ -3,6 +3,30 @@ Feature: Csargit crud feature
   Background: 
     Given I am authenticated with "ADMIN" role
 
+  Scenario: Get an unexisting CsarGitRepository
+    Given I get an unexisting CsarGitRepository with id "01"
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Get a CsarGitRepository with empty id
+    Given I get an unexisting CsarGitRepository with id ""
+    Then I should receive a RestResponse with an error code 500
+
+  Scenario: Get an unexisting CsarGitRepository by url
+    Given I get an unexisting CsarGitRepository with url "https://test"
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Get an unexisting CsarGitRepository by url
+    Given I get an unexisting CsarGitRepository with url ""
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Adding locations to an unexisting CsarGitRepository
+    Given I get an unexisting CsarGitRepository with url "https://test"
+    Then I should receive a RestResponse with an error code 504
+
+  Scenario: Removing an unexisting CsarGitRepository by url
+    Given I delete a csargit with empty url "eee"
+    Then I should receive a RestResponse with an error code 504
+
   Scenario: Create a new csargit
     Given I have a csargit with the url "https://github.com/alien4cloud/samples" with username "admin" and stored "false" and password "admin"
     And I add locations to the csar
