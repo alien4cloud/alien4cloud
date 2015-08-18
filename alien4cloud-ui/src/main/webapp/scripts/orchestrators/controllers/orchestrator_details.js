@@ -57,7 +57,11 @@ define(function (require) {
       };
 
       $scope.removeOrchestrator = function() {
-        orchestratorService.remove({orchestratorId: orchestrator.id, id: orchestrator.id}).$promise.then(function(result){ return result.data; });
+        orchestratorService.remove({orchestratorId: orchestrator.id}).$promise.then(function(result) {
+          if (!result.error) {
+            $state.go('admin.orchestrators.list');
+          }
+         });
       };
 
       $scope.loadConfigurationTag = function() {
