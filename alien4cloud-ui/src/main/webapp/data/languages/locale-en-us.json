@@ -37,6 +37,7 @@
   "MODAL": {
     "TITLE": {
       "PROPERTY": "Property description",
+      "META_PROPERTY": "Meta-property description",
       "REQUIREMENT": "Requirement description",
       "CAPABILITY": "Capability description",
       "CUSTOM_COMMAND": "Custom command description"

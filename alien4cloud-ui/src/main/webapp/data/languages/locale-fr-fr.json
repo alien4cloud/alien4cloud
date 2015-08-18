@@ -37,6 +37,7 @@
   "MODAL": {
     "TITLE": {
       "PROPERTY": "Description de la propriété",
+      "META_PROPERTY": "Description de la méta-propriété",
       "REQUIREMENT": "Description du pré-requis",
       "CAPABILITY": "Description de la capacité",
       "CUSTOM_COMMAND": "Description de l'opération"
