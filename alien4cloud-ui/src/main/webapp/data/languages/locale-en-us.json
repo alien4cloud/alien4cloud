@@ -178,14 +178,14 @@
     "ID":"Id",
     "AJOUT": "The archive has been imported",
     "LEGEND":"Csars added",
-    "IMPORTALL":"Import all",
+    "IMPORT_ALL":"Import all",
     "IMPORT_SUCCESS":"CSAR have been imported",
     "FROMGIT":"Imported from Git",
     "ACTIONS":"Operations",
     "URL": "Repository URL",
     "BRANCHESLIST": "Branches list",
     "BRANCHE":"Branche",
-    "ARCHIVE":"Archive's name",
+    "ARCHIVE":"Archive's folder",
     "ARCHIVELIST":"Archive list",
     "ARCHIVE_TO_IMPORT":"Archive(s) to import",
     "BRANCHE_TO_IMPORT":"On branch",
@@ -203,6 +203,7 @@
     "DETAILS_TITLE": "CSAR details",
     "TEST_TOPOLOGY": "Test topology's status",
     "AUTHOR": "Author",
+    "SAVE_LOCALLY":"Save the repository locally",
     "DETAILS": {
       "BUTTON_ADD_NODE_TYPE": "Add new component",
       "ARCHIVE_COMPONENTS": "Archive's component",
@@ -217,6 +218,7 @@
         "CSAR_TEXT": "CSAR details",
         "APP_TEXT": "Application details",
         "TOPOLOGY_TEXT": "Topology template details"
+        }
       },
       "DELETE": "Deleted",
       "ERRORS": {
@@ -229,7 +231,6 @@
           "BODY":"Please add a new CSAR from a Git location"
         }
       }
-    }
   },
   "GENERIC_FORM": {
     "SAVE": "Save",
@@ -868,8 +869,9 @@
     "611": "An application environment must necessarily have an application version.",
     "612": "Cloud of an application environment cannot be updated when it's deployed.",
     "613": "Conflict detected on the generated deployment PaaS Id. Check your applications names. (see <a target='_blank' href = 'http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html'>http://alien4cloud.github.io/#/documentation/user_guide/cloud_management.html, naming policy</a> for specific details) ",
-    "615": "The Git repository url Git doesn't exists or isn't a correct one.",
+    "615": "The Git repository url doesn't exists or isn't a correct one.",
     "616": "You are not authorized to clone this Git repository. Please check your credentials.",
+    "617": "No modification have been detected since the last import process",
     "650": "At least two of your Compute have a conflict name.",
     "651": "A BlockStorage can not have a VolumeID when the cloud has the 'deletable' option to set.",
     "800": {

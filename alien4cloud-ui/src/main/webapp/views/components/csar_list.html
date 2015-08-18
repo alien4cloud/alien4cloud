@@ -74,11 +74,11 @@
       </div>
         <div class="row-fluid">
           <div class="span4 text-left">
-            <button class="btn btn-success" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
+            <button class="btn btn-success" ng-disabled="isImporting" id="MODAL_NEWCSAR" ng-click="openNewCsarGitTemplate()">
               <i class="fa fa fa-plus-circle"></i>  {{ 'CSAR.MODAL_NEWCSAR' | translate}}
             </button>
-            <button class="btn ng-binding"  id="IMPORTALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
-              <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"> </i>  {{'CSAR.IMPORTALL' | translate}}
+            <button class="btn ng-binding"  id="IMPORT_ALL_CSARGIT"  ng-disabled="isImporting" ng-click="triggerImportAllCsarGit(csarGitSearchResult.data.data)">
+              <i class="fa fa-download fa-lg"> </i>  {{'CSAR.IMPORT_ALL' | translate}}
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@
           <tbody>
             <tr ng-repeat="csar in csarGitSearchResult.data.data"  id="csar_{{csar.id}}" name="csar_{{csar.id}}" >
               <td>
-                <i class="pull-left media-object fa fa-lg fa-code-fork fa-2x"></i>
+                <i class="pull-left media-object fa fa-lg fa-code-fork fa-2x"></i
               </td>
               <td>{{csar.repositoryUrl}}</td>
               <td>
@@ -111,12 +111,12 @@
               </td>
               <td>
                 <button class=" btn-sm btn ng-binding" ng-disabled="isImporting" tooltip="{{ 'CSAR.IMPORTTOOLTIP' | translate}}" ng bssize="btn-sm" position="left" id="IMPORT_CSARGIT" ng-click="triggerImport(csar.id,csar.repositoryUrl)">
-                  <i class="fa fa-download fa-lg" ng-class="{'fa-download fa-lg': !isImporting, 'fa-spinner fa-spin': isImporting}"></i>
+                  <i class="fa fa-download fa-lg"></i>
                 </button>
-                <button class=" btn-sm btn ng-binding" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
+                <button class=" btn-sm btn ng-binding"  ng-disabled="isImporting" ng bssize="btn-sm" tooltip="{{ 'CSAR.EDITTOOLTIP' | translate}}" position="left" id="UPDATE_CSARGIT" ng-click="openCsarGit(csar)">
                   <i class="fa fa-pencil-square-o fa-lg" ></i>
                 </button>
-                <delete-confirm id="delete-csargit" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
+                <delete-confirm id="delete-csargit" ng-disabled="isImporting" func="removeCsarGit(csar.id);" position="left" bssize="btn-sm" fastyle="fa-trash-o"></delete-confirm>
               </td>
             </tr>
           </tbody>
@@ -223,8 +223,8 @@
             </label>
             <input type="url" class="form-control"  id="csargit_url" ng-model="csarGit.url" name="url" required="" placeholder="{{'CSAR.URL' | translate}}">
           </div>
-          <div class="form-group" >
-            <label for="csargit_credentials" class="control-label">
+          <div class="form-group">
+            <label for="csargit_credentials" class="control-label" >
               {{'CSAR.CREDENTIALS' | translate}}
             </label>
             <div class="input-group">
@@ -236,7 +236,6 @@
             <span class="help-block">
               <i class="fa fa-question-circle"></i><i>  {{'CSAR.CREDENTIALSINFO' | translate}}</i>
             </span>
-          </div>
             <div class="form-group">
               <table class="table table-condensed" style="width: auto;" align="center">
                 <thead>
@@ -279,6 +278,11 @@
                 </tbody>
               </table>
             </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" ng-model="csarGit.isStoredLocally" ng-init="csarGit.isStoredLocally=false"/> {{'CSAR.SAVE_LOCALLY' | translate}}
+              </label>
+            </div>
           </div>
         <div class="modal-footer">
           <button id="btn-create" ng-disabled="!csarGit.url || !importLocation.length >0" ng-click="create(csarGit)" class="btn btn-primary">{{'CREATE' | translate}}</button>
@@ -286,8 +290,6 @@
         </div>
       </form>
   </script>
-
-
   <script type="text/ng-template" id="editCsarGit.html">
     <form name="CsarGitEdited" class="form" role="form" novalidate>
         <div class="modal-header">
