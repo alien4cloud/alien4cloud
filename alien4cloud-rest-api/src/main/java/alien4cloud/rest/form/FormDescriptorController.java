@@ -5,8 +5,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
-import alien4cloud.orchestrators.services.OrchestratorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import alien4cloud.cloud.CloudService;
-import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.common.MetaPropConfiguration;
+import alien4cloud.model.components.IndexedNodeType;
+import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.plugin.PluginManager;
 import alien4cloud.rest.model.RestResponse;
 import alien4cloud.rest.model.RestResponseBuilder;
@@ -36,7 +35,7 @@ public class FormDescriptorController {
     @Resource
     private CloudService cloudService;
     @Resource
-    private OrchestratorConfigurationService orchestratorService;
+    private OrchestratorConfigurationService orchestratorConfigurationService;
 
     @ApiIgnore
     @RequestMapping(value = "/nodetype", method = RequestMethod.GET, produces = "application/json")
@@ -75,7 +74,7 @@ public class FormDescriptorController {
     @RequestMapping(value = "/orchestratorConfig/{orchestratorId:.+}", method = RequestMethod.GET, produces = "application/json")
     @PreAuthorize("hasAuthority('ADMIN')")
     public RestResponse<Map<String, Object>> getOrchestratorConfigurationFormDescriptor(@PathVariable String orchestratorId) throws IntrospectionException {
-        Class<?> configurationClass = orchestratorService.getConfigurationType(orchestratorId);
+        Class<?> configurationClass = orchestratorConfigurationService.getConfigurationType(orchestratorId);
         if (configurationClass != null) {
             return RestResponseBuilder.<Map<String, Object>> builder().data(formDescriptorGenerator.generateDescriptor(configurationClass)).build();
         }

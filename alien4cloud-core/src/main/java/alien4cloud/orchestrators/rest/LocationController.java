@@ -63,7 +63,8 @@ public class LocationController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasAuthority('ADMIN')")
     @Audit
-    public void delete(@ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable @Valid @NotEmpty String id) {
+    public void delete(@ApiParam(value = "Id of the orchestrator for which to get all locations.", required = true) @PathVariable String orchestratorId,
+            @ApiParam(value = "Id of the orchestrators to delete.", required = true) @PathVariable String id) {
         locationService.delete(id);
     }
 
