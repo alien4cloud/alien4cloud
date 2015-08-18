@@ -47,6 +47,7 @@
     "MENU_PLUGINS": "Plugins",
     "MENU_TAGS": "Meta-properties",
     "MENU_CLOUDS": "Clouds",
+    "MENU_ORCHESTRATORS": "Orchestrators",
     "MENU_METRICS": "Metrics",
     "MENU_CLOUD_IMAGES": "Cloud Images",
     "MENU_AUDIT": "Audit"
@@ -625,6 +626,26 @@
     "ENABLED_false": "Disabled",
     "TYPES": {
       "IPAASPROVIDER": "Provider PaaS"
+    }
+  },
+  "ORCHESTRATORS": {
+    "NEW": "New orchestrator",
+    "STATE": "State",
+    "NAME": "Name",
+    "PLUGIN": "Plugin",
+    "NAV": {
+      "INFO": "Informations",
+      "DEPLOYMENTS": "Deployments",
+      "CONFIGURATION": "Configuration",
+      "LOCATIONS": "Location(s)",
+      "ARTIFACTS": "Artifacts",
+      "AUTHORIZATIONS": "Authorizations"
+    },
+    "LOCATIONS": {
+      "CONFIGURATION_RESOURCES": "Configuration resources",
+      "ON_DEMAND_RESOURCES": "On demand resources",
+      "SERVICES": "Services",
+      "POLICIES": "Policies"
     }
   },
   "CLOUD_IMAGES": {

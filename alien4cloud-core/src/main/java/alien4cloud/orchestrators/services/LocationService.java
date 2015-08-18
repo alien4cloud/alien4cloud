@@ -1,14 +1,19 @@
 package alien4cloud.orchestrators.services;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.model.orchestrators.locations.LocationResource;
-import alien4cloud.utils.MapUtil;
+import java.util.List;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.exception.NotFoundException;
+import alien4cloud.model.orchestrators.locations.Location;
+import alien4cloud.model.orchestrators.locations.LocationResource;
+import alien4cloud.utils.MapUtil;
 
 /**
  * Manages a locations.
@@ -21,17 +26,38 @@ public class LocationService {
     /**
      * Add a new locations for a given orchestrators.
      */
-    public void create(String orchestratorId) {
+    public String create(String orchestratorId, String locationName, String infrastructureType) {
+        // get the orchestrator plugin
 
+        // checks that the infrastructure type is valid
+        Location location = new Location();
+        location.setId(UUID.randomUUID().toString());
+
+        return location.getId();
     }
 
     /**
-     * Get a specific locations based on it's id.
-     * 
-     * @param id The id of the locations to get.
+     * Get the location matching the given id or throw a NotFoundException
+     *
+     * @param id If of the location that we want to get.
+     * @return An instance of the location.
      */
-    public Location get(String id) {
-        return alienDAO.findById(Location.class, id);
+    public Location getOrFail(String id) {
+        Location location = alienDAO.findById(Location.class, id);
+        if (location == null) {
+            throw new NotFoundException("Location [" + id + "] doesn't exists.");
+        }
+        return location;
+    }
+
+    /**
+     * Return all locations for a given orchestrator.
+     *
+     * @param orchestratorId The id of the orchestrator for which to get locations.
+     * @return
+     */
+    public List<Location> getAll(String orchestratorId) {
+        return alienDAO.customFindAll(Location.class, QueryBuilders.termQuery("orchestratorId", orchestratorId));
     }
 
     /**
@@ -40,6 +66,7 @@ public class LocationService {
      * @param id id of the locations to delete.
      */
     public void delete(String id) {
+        // TODO IMPORTANT ensure that no deployment use the location
         // delete all location resources for the given location
         alienDAO.delete(LocationResource.class, QueryBuilders.termQuery("locationId", id));
         // delete the location

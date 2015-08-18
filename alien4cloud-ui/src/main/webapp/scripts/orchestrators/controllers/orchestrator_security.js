@@ -13,7 +13,7 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators.security',
       state: 'admin.orchestrators.details.security',
-      key: 'NAVBAR.MENU_APPS',
+      key: 'ORCHESTRATORS.NAV.AUTHORIZATIONS',
       icon: 'fa fa-users',
       priority: 600
     }

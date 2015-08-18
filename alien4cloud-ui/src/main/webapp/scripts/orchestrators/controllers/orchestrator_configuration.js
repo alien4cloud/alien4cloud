@@ -15,8 +15,8 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators.configuration',
       state: 'admin.orchestrators.details.configuration',
-      key: 'NAVBAR.MENU_APPS',
-      icon: 'fa fa-cog',
+      key: 'ORCHESTRATORS.NAV.CONFIGURATION',
+      icon: 'fa fa-wrench',
       priority: 300
     }
   });

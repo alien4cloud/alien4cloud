@@ -10,7 +10,7 @@ define(function (require) {
   require('scripts/orchestrators/services/orchestrator_properties_service');
   require('scripts/orchestrators/controllers/orchestrator_artifacts');
   require('scripts/orchestrators/controllers/orchestrator_configuration');
-  require('scripts/orchestrators/controllers/orchestrator_location');
+  require('scripts/orchestrators/controllers/orchestrator_locations');
   require('scripts/orchestrators/controllers/orchestrator_deployments');
   require('scripts/orchestrators/controllers/orchestrator_security');
 
@@ -39,7 +39,7 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators.info',
       state: 'admin.orchestrators.details.info',
-      key: 'NAVBAR.MENU_APPS',
+      key: 'ORCHESTRATORS.NAV.INFO',
       icon: 'fa fa-info',
       priority: 100
     }

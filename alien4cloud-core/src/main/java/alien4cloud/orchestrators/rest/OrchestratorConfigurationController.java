@@ -3,6 +3,7 @@ package alien4cloud.orchestrators.rest;
 import javax.annotation.Resource;
 
 import alien4cloud.audit.annotation.Audit;
+import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.paas.exception.PluginConfigurationException;
 import alien4cloud.rest.model.RestErrorBuilder;
 import alien4cloud.rest.model.RestErrorCode;
@@ -29,7 +30,7 @@ import java.io.IOException;
 @Api(value = "Orchestrator Configuration", description = "Get and update orchestrator configuration.", authorizations = { @Authorization("ADMIN") }, position = 4310)
 public class OrchestratorConfigurationController {
     @Resource
-    private OrchestratorService orchestratorService;
+    private OrchestratorConfigurationService orchestratorService;
 
     @ApiOperation(value = "Get an orchestrator configuration.", authorizations = { @Authorization("ADMIN") })
     @RequestMapping(method = RequestMethod.GET)

@@ -13,7 +13,7 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators.artifacts',
       state: 'admin.orchestrators.details.artifacts',
-      key: 'NAVBAR.MENU_APPS',
+      key: 'ORCHESTRATORS.NAV.ARTIFACTS',
       icon: 'fa fa-file-text-o',
       priority: 500
     }

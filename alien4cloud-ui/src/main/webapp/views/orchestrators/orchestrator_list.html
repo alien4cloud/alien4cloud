@@ -2,7 +2,7 @@
   <div class="row" style="margin-bottom: 10px;">
     <div class="col-md-9">
       <button id="new-cloud-button" class="btn btn-success" ng-click="openNewModal()">
-        <i class="fa fa-plus-circle"></i> New orchestrator
+        <i class="fa fa-plus-circle"></i> {{'ORCHESTRATORS.NEW' | translate}}
       </button>
     </div>
     <div class="col-md-3 pull-right">
@@ -23,9 +23,9 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>{{ 'CLOUDS.STATE' | translate}}</th>
-              <th>{{ 'CLOUDS.NAME' | translate}}</th>
-              <th>{{ 'CLOUDS.PAAS_PROVIDER' | translate}}</th>
+              <th>{{ 'ORCHESTRATORS.STATE' | translate}}</th>
+              <th>{{ 'ORCHESTRATORS.NAME' | translate}}</th>
+              <th>{{ 'ORCHESTRATORS.PLUGIN' | translate}}</th>
               <th></th>
             </tr>
           </thead>

@@ -13,7 +13,7 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators.deployments',
       state: 'admin.orchestrators.details.deployments',
-      key: 'NAVBAR.MENU_APPS',
+      key: 'ORCHESTRATORS.NAV.DEPLOYMENTS',
       icon: 'fa fa-rocket',
       priority: 200
     }

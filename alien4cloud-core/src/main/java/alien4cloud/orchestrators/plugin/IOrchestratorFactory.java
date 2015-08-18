@@ -43,4 +43,11 @@ public interface IOrchestratorFactory<T extends IOrchestrator<V>, V> {
      * @return true if the orchestrator created by this factory supports multiple locations, false if not.
      */
     boolean isMultipleLocations();
+
+    /**
+     * Return a list of supported infrastructure types (OpenStack, Amazon, BYON, BareMetal etc.)
+     *
+     * @return A list of infrastructure types that the orchestrator supports.
+     */
+    String[] supportedInfrastructureTypes();
 }

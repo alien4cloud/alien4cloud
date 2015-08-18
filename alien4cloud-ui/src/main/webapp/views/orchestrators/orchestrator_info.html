@@ -9,12 +9,15 @@
             'fa-spinner fa-spin' : context.orchestrator.status == 'DEPLOYMENT_IN_PROGRESS' || context.orchestrator.status == 'UNDEPLOYMENT_IN_PROGRESS'
           }">
     </i>
-    <div class="h2" style="display: inline-block;" id="app-name">
+    <div class="h2" style="display: inline-block;" id="orchestrator-name">
       <span editable-text="context.orchestrator.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateOrchestrator($data)" blur="submit">
         {{context.orchestrator.name}} <i class="fa fa-edit"></i>
       </span>
     </div>
   </div>
+</div>
+<hr class="separator-h">
+<div class="row">
   <div class="col-md-12">
     <meta-properties-display
       properties="orchestratorProperties"
@@ -23,9 +26,12 @@
       collapse="false">
     </meta-properties-display>
   </div>
-  <h3>Orchestrator info</h3>
+</div>
+<hr class="separator-h">
+<div class="row">
   TODO list:
   <ul>
     <li>Display an icon of the orchestrator if the IOrchestrator plugin provides one.</li>
+    <li>Add an help icon for meta-properties that display the documentation.</li>
   </ul>
 </div>

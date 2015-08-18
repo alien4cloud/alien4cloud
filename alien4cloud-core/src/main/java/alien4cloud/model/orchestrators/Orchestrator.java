@@ -47,18 +47,18 @@ public class Orchestrator implements ISecuredResource, IMetaProperties {
     /** Informations on the plugin used to communicate with the orchestrators. */
     @NotBlank
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String pluginId;
     @NotBlank
-    @StringField(indexType = IndexType.not_analyzed)
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
     private String pluginBean;
-    @BooleanField(index = IndexType.no)
+    @BooleanField(index = IndexType.no, includeInAll = false)
     private boolean isMultipleLocations;
 
     /** Last known status of the orchestrators. */
     @TermFilter
-    @StringField(indexType = IndexType.not_analyzed)
-    private OrchestratorStatus status;
+    @StringField(indexType = IndexType.not_analyzed, includeInAll = false)
+    private OrchestratorState state;
 
     @TermFilter(paths = { "key", "value" })
     @NestedObject(nestedClass = NotAnalyzedTextMapEntry.class)
@@ -76,12 +76,11 @@ public class Orchestrator implements ISecuredResource, IMetaProperties {
     @FetchContext(contexts = { DEPLOYMENT }, include = { true })
     private Map<String, Set<String>> groupRoles;
 
-    @StringField(includeInAll = true, indexType = IndexType.analyzed)
+    @StringField(indexType = IndexType.analyzed, includeInAll = true)
     private Map<String, String> metaProperties;
 
     @Override
     public Class<CloudRole> roleEnum() {
         return CloudRole.class;
     }
-
 }

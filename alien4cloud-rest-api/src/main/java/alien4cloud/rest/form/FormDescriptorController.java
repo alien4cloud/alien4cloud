@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import alien4cloud.orchestrators.services.OrchestratorConfigurationService;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class FormDescriptorController {
     @Resource
     private CloudService cloudService;
     @Resource
-    private OrchestratorService orchestratorService;
+    private OrchestratorConfigurationService orchestratorService;
 
     @ApiIgnore
     @RequestMapping(value = "/nodetype", method = RequestMethod.GET, produces = "application/json")

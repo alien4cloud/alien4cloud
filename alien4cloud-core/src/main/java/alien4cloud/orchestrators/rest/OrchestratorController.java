@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import alien4cloud.audit.annotation.Audit;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.model.orchestrators.OrchestratorStatus;
+import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.orchestrators.rest.model.CreateOrchestratorRequest;
 import alien4cloud.orchestrators.services.OrchestratorService;
 import alien4cloud.rest.model.RestResponse;
@@ -79,7 +79,7 @@ public class OrchestratorController {
             @ApiParam(value = "Query from the given index.") @RequestParam(required = false, defaultValue = "0") int from,
             @ApiParam(value = "Maximum number of results to retrieve.") @RequestParam(required = false, defaultValue = "20") int size) {
         FilterBuilder authorizationFilter = AuthorizationUtil.getResourceAuthorizationFilters();
-        OrchestratorStatus filterStatus = connectedOnly ? OrchestratorStatus.CONNECTED : null;
+        OrchestratorState filterStatus = connectedOnly ? OrchestratorState.CONNECTED : null;
         GetMultipleDataResult<Orchestrator> result = orchestratorService.search(query, filterStatus, from, size, authorizationFilter);
         return RestResponseBuilder.<GetMultipleDataResult<Orchestrator>> builder().data(result).build();
     }
@@ -92,5 +92,21 @@ public class OrchestratorController {
         Orchestrator orchestrator = orchestratorService.getOrFail(id);
         AuthorizationUtil.checkAuthorizationForCloud(orchestrator, CloudRole.CLOUD_DEPLOYER);
         return RestResponseBuilder.<Orchestrator> builder().data(orchestrator).build();
+    }
+
+    @ApiOperation(value = "Enable an orchestrator.", authorizations = { @Authorization("ADMIN") })
+    @RequestMapping(value = "/{id}/enable", method = RequestMethod.PUT)
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public RestResponse<Void> get(
+            @ApiParam(value = "Id of the orchestrator to enable", required = true) @PathVariable String id,
+            @ApiParam(value = "If true the orchestrator will be initialized and will try to connect. If false the orchestrator will be disabled", required = false) @RequestParam(required = false, defaultValue = "true") boolean enable,
+            @ApiParam(value = "This parameter is useful only when trying to disable the orchestrator, if deployments are performed using this orchestrator disable "
+                    + "operation will fail unnless the force flag is true", required = false) @RequestParam(required = false, defaultValue = "false") boolean force) {
+        if (enable) {
+            // orchestratorService.
+        } else {
+
+        }
+        return RestResponseBuilder.<Void> builder().build();
     }
 }

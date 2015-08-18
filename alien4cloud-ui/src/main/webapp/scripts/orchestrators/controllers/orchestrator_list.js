@@ -17,7 +17,7 @@ define(function (require) {
     menu: {
       id: 'menu.orchestrators',
       state: 'admin.orchestrators',
-      key: 'NAVBAR.MENU_APPS',
+      key: 'NAVADMIN.MENU_ORCHESTRATORS',
       icon: 'fa fa-magic',
       priority: 301
     }

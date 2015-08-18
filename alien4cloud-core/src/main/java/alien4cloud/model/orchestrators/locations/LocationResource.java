@@ -1,10 +1,14 @@
 package alien4cloud.model.orchestrators.locations;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.wordnik.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.Setter;
+
 import org.elasticsearch.annotation.ESObject;
+
+import alien4cloud.model.components.IndexedNodeType;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.wordnik.swagger.annotations.ApiModel;
 
 @Getter
 @Setter
@@ -16,4 +20,6 @@ public class LocationResource {
     private String id;
     private String locationId;
     private LocationResourceType locationResourceType;
+    /** The node type that represents the resource. */
+    private IndexedNodeType type;
 }

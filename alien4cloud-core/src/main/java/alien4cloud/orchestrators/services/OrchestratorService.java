@@ -1,6 +1,5 @@
 package alien4cloud.orchestrators.services;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,14 +14,11 @@ import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.exception.AlreadyExistException;
 import alien4cloud.exception.NotFoundException;
-import alien4cloud.model.cloud.Cloud;
 import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
-import alien4cloud.model.orchestrators.OrchestratorStatus;
+import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
 import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
-import alien4cloud.paas.exception.PluginConfigurationException;
-import alien4cloud.rest.utils.JsonUtil;
 import alien4cloud.utils.MapUtil;
 
 /**
@@ -54,7 +50,7 @@ public class OrchestratorService {
         orchestrator.setPluginId(pluginId);
         orchestrator.setPluginBean(pluginBean);
         // by default clouds are disabled as it should be configured before being enabled.
-        orchestrator.setStatus(OrchestratorStatus.DISABLED);
+        orchestrator.setState(OrchestratorState.DISABLED);
 
         // get default configuration for the orchestrators.
         IOrchestratorFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
@@ -134,93 +130,11 @@ public class OrchestratorService {
      * @param authorizationFilter authorization filter
      * @return A {@link GetMultipleDataResult} that contains Orchestrator objects.
      */
-    public GetMultipleDataResult<Orchestrator> search(String query, OrchestratorStatus status, int from, int size, FilterBuilder authorizationFilter) {
+    public GetMultipleDataResult<Orchestrator> search(String query, OrchestratorState status, int from, int size, FilterBuilder authorizationFilter) {
         Map<String, String[]> filters = null;
         if (status != null) {
             filters = MapUtil.newHashMap(new String[] { "status" }, new String[][] { new String[] { status.toString() } });
         }
         return alienDAO.search(Orchestrator.class, query, filters, authorizationFilter, null, from, size);
-    }
-
-    /**
-     * Return the type of configuration for a given orchestrator.
-     * 
-     * @param id Id of the orchestrator for which to get configuration.
-     * @return The type of the orchestrator.
-     */
-    public Class<?> getConfigurationType(String id) {
-        Orchestrator orchestrator = getOrFail(id);
-        return getConfigurationType(orchestrator);
-    }
-
-    /**
-     * Return the type of configuration for a given orchestrator.
-     *
-     * @param orchestrator Orchestrator for which to get configuration.
-     * @return The type of the orchestrator.
-     */
-    private Class<?> getConfigurationType(Orchestrator orchestrator) {
-        return orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean()).getConfigurationType();
-    }
-
-    /**
-     * Get the configuration for a given orchestrator.
-     *
-     * @param id Id of the orchestrator for which to get the configuration.
-     * @return the instance of configuration for the given orchestrator
-     */
-    public OrchestratorConfiguration getConfigurationOrFail(String id) {
-        OrchestratorConfiguration configuration = alienDAO.findById(OrchestratorConfiguration.class, id);
-        if (configuration == null) {
-            throw new NotFoundException("Orchestrator Configuration for id [" + id + "] doesn't exists.");
-        }
-        return configuration;
-    }
-
-    /**
-     * Ensure that the configuration object parsed from json without typing is valid based on the orchestrator configuration type and return a valid typed
-     * object.
-     *
-     * @param id if of the orchestrator.
-     * @param configurationAsMap Configuration object (that may be a map parsed from json).
-     * @return A typed configuration object.
-     */
-    public Object configurationAsValidObject(String id, Object configurationAsMap) throws IOException, PluginConfigurationException {
-        Orchestrator orchestrator = getOrFail(id);
-        return configurationAsValidObject(orchestrator, configurationAsMap);
-    }
-
-    /**
-     * Ensure that the configuration object parsed from json without typing is valid based on the orchestrator configuration type and return a valid typed
-     * object.
-     *
-     * @param orchestrator Orchestrator for which to validated and compute a type configuration object.
-     * @param configurationAsMap Configuration object (that may be a map parsed from json).
-     * @return A typed configuration object.
-     */
-    private Object configurationAsValidObject(Orchestrator orchestrator, Object configurationAsMap) throws PluginConfigurationException, IOException {
-        Class<?> configurationType = getConfigurationType(orchestrator);
-        if (configurationType == null) {
-            String message = "Orchestrator <" + orchestrator.getId() + "> using plugin <" + orchestrator.getPluginId() + "> <" + orchestrator.getPluginBean()
-                    + "> cannot have configuration set (plugin has no configuration type).";
-            throw new PluginConfigurationException(message);
-        }
-
-        return JsonUtil.readObject(JsonUtil.toString(configurationAsMap), configurationType);
-    }
-
-    /**
-     * Update the configuration for the given cloud.
-     *
-     * @param id Id of the orchestrator for which to update the configuration.
-     * @param newConfiguration The new configuration.
-     */
-    public synchronized void updateConfiguration(String id, Object newConfiguration) {
-        OrchestratorConfiguration configuration = alienDAO.findById(OrchestratorConfiguration.class, id);
-        if (configuration == null) {
-            throw new NotFoundException("No configuration exists for cloud [" + id + "].");
-        }
-        configuration.setConfiguration(newConfiguration);
-        alienDAO.save(configuration);
     }
 }

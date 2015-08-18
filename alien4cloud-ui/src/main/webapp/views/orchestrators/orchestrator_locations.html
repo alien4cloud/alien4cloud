@@ -1,29 +1,50 @@
 <div>
   <div ng-if="orchestrator.multipleLocations" class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <button id="new-location-button" class="btn btn-success" ng-click="openNewModal()">
         <i class="fa fa-plus-circle"></i> New Location
       </button>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
       <select class="form-control" ng-model="location" ng-options="loc for loc in locations"></select>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <button id="delete-location-button" class="btn btn-danger pull-right" ng-click="openNewModal()">
         <i class="fa fa-plus-circle"></i> Delete Location
       </button>
     </div>
   </div>
   <hr class="separator-h">
-  <div class="row">
-    <div class="col-md-4">
-      name
+  <div ng-if="location">
+    <div class="row">
+      <div class="col-md-4">
+        <span editable-text="location.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateOrchestrator($data)" blur="submit">
+          {{location.name}} <i class="fa fa-edit"></i>
+        </span>
+      </div>
+      <div class="col-md-4">
+        <b>infrastructure type</b>
+        <select ng-model="location.environmentType" ng-change="updateLocation({'environmentType': location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
+      </div>
+      <div class="col-md-4">
+        <b>environment type</b>
+        <select ng-model="location.environmentType" ng-change="updateLocation({'environmentType': location.environmentType})" ng-options="'CLOUDS.ENVIRONMENT.'+env | translate for env in envTypes"></select> <i class="fa" assass="{'fa-spinner fa-spin': saving, 'text-success fa-check': savedSuccess, 'text-danger fa-times': savedError}"></i>
+      </div>
     </div>
-    <div class="col-md-4">
-      infrastructure type:
-    </div>
-    <div class="col-md-4">
-      environment type:
+    <div class="row">
+      <div class="col-md-12">
+        <ul class="nav nav-tabs">
+          <li role="presentation" ng-repeat="menuItem in menu" ui-sref-active="active">
+            <a id="{{menuItem.id}}"
+               ng-click="onItemClick($event, menuItem)"
+               ui-sref="{{menuItem.state}}"
+               ng-class="{'disabled' : menuItem.disabled}">
+              <i class="{{menuItem.icon}}" ng-show="menuItem.icon" ng-class="{'text-muted' : menuItem.disabled}"></i> {{menuItem.key | translate}}
+            </a>
+          </li>
+        </ul>
+        <div class="tab-pane" ui-view></div>
+      </div>
     </div>
   </div>
 </div>
