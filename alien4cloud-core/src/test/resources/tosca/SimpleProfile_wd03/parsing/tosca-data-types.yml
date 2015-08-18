@@ -15,7 +15,7 @@ node_types:
         constraints:
           - greater_than: 0
       client:
-        type: alien.test.Person
+        type: alien.test.Client
 
 data_types:
 

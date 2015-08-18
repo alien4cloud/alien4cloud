@@ -6,7 +6,7 @@
 	http://www.mockito.org/spring/mockito http://www.mockito.org/spring/mockito.xsd">
 
     <context:annotation-config/>
-    <context:component-scan base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*">
+    <context:component-scan base-package="alien4cloud.topology, alien4cloud.tosca.parser, alien4cloud.tosca.parser.*, alien4cloud.utils.services">
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyValidationService"/>
         <context:exclude-filter type="regex" expression="alien4cloud.topology.TopologyTemplateVersionService"/>

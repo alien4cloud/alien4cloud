@@ -1,15 +1,22 @@
 package alien4cloud.utils.services;
 
 import java.beans.IntrospectionException;
+import java.util.Map;
+
+import javax.annotation.Resource;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 
+import alien4cloud.component.ICSARRepositorySearchService;
+import alien4cloud.model.components.IndexedDataType;
 import alien4cloud.model.components.PropertyConstraint;
 import alien4cloud.model.components.PropertyDefinition;
+import alien4cloud.tosca.model.ArchiveRoot;
 import alien4cloud.tosca.normative.IPropertyType;
 import alien4cloud.tosca.normative.ToscaType;
+import alien4cloud.tosca.parser.ToscaParsingUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil;
 import alien4cloud.tosca.properties.constraints.ConstraintUtil.ConstraintInformation;
 import alien4cloud.tosca.properties.constraints.exception.ConstraintTechnicalException;
@@ -29,47 +36,74 @@ import alien4cloud.utils.version.InvalidVersionException;
 @Service
 public class ConstraintPropertyService {
 
+    @Resource
+    private ICSARRepositorySearchService csarService;
+
     /**
      * Check constraints defined on a property for a specified value
      * 
      * @param propertyName Property name (mainly used to create a comprehensive error message)
-     * @param propertyValue Tested property value
+     * @param stringValue Tested property value
      * @param propertyDefinition Full property definition with type, constraints, default value,...
      * @throws ConstraintViolationException
      * @throws ConstraintValueDoNotMatchPropertyTypeException
      */
-    public void checkPropertyConstraint(final String propertyName, final String propertyValue, final PropertyDefinition propertyDefinition)
+    public void checkPropertyConstraint(final String propertyName, final String stringValue, final PropertyDefinition propertyDefinition)
             throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
-
-        // get property definition
-        if (propertyDefinition != null) {
-            ConstraintInformation consInformation = null;
-            if (propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty()) {
-                for (PropertyConstraint constraint : propertyDefinition.getConstraints()) {
-                    IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
-                    try {
-                        consInformation = ConstraintUtil.getConstraintInformation(constraint);
-                        constraint.initialize(toscaType);
-                        constraint.validate(toscaType, propertyValue);
-                    } catch (ConstraintViolationException e) {
-                        throw new ConstraintViolationException(e.getMessage(), e, consInformation);
-                    } catch (IntrospectionException | ConstraintValueDoNotMatchPropertyTypeException e) {
-                        // ConstraintValueDoNotMatchPropertyTypeException is not supposed to be raised here (only in constraint definition validation)
-                        log.error("Constraint violation introspection error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
-                        throw new ConstraintTechnicalException("Unable to get constraint informations for property <" + propertyName + ">");
-                    }
-                }
-            } else {
-                // check any property definition without constraints (type/value)
+        ConstraintInformation consInformation = null;
+        if (propertyDefinition.getConstraints() != null && !propertyDefinition.getConstraints().isEmpty()) {
+            for (PropertyConstraint constraint : propertyDefinition.getConstraints()) {
+                IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
                 try {
-                    checkBasicType(propertyDefinition, propertyName, propertyValue);
-                } catch (NumberFormatException | InvalidVersionException e) {
-                    log.error("Basic type check failed", e);
-                    consInformation = new ConstraintInformation(propertyName, null, propertyValue, propertyDefinition.getType());
-                    throw new ConstraintValueDoNotMatchPropertyTypeException(e.getMessage(), e, consInformation);
+                    consInformation = ConstraintUtil.getConstraintInformation(constraint);
+                    constraint.initialize(toscaType);
+                    constraint.validate(toscaType, stringValue);
+                } catch (ConstraintViolationException e) {
+                    throw new ConstraintViolationException(e.getMessage(), e, consInformation);
+                } catch (IntrospectionException | ConstraintValueDoNotMatchPropertyTypeException e) {
+                    // ConstraintValueDoNotMatchPropertyTypeException is not supposed to be raised here (only in constraint definition validation)
+                    log.error("Constraint violation introspection error for property <" + propertyName + "> with value <" + stringValue + ">", e);
+                    throw new ConstraintTechnicalException("Unable to get constraint informations for property <" + propertyName + ">");
                 }
             }
+        } else {
+            // check any property definition without constraints (type/value)
+            try {
+                checkBasicType(propertyDefinition, propertyName, stringValue);
+            } catch (NumberFormatException | InvalidVersionException e) {
+                log.error("Basic type check failed", e);
+                consInformation = new ConstraintInformation(propertyName, null, stringValue, propertyDefinition.getType());
+                throw new ConstraintValueDoNotMatchPropertyTypeException(e.getMessage(), e, consInformation);
+            }
+        }
+    }
 
+    /**
+     *
+     * @param propertyName
+     * @param complexPropertyValue
+     * @param propertyDefinition
+     * @param archive
+     * @throws ConstraintViolationException
+     * @throws ConstraintValueDoNotMatchPropertyTypeException
+     */
+    public void checkComplexPropertyConstraint(String propertyName, Map<String, Object> complexPropertyValue, PropertyDefinition propertyDefinition,
+            ArchiveRoot archive) throws ConstraintViolationException, ConstraintValueDoNotMatchPropertyTypeException {
+        IndexedDataType dataType = ToscaParsingUtil.getDataTypeFromArchiveOrDependencies(propertyDefinition.getType(), archive, csarService);
+        for (Map.Entry<String, Object> complexPropertyValueEntry : complexPropertyValue.entrySet()) {
+            if (dataType.getProperties() == null || !dataType.getProperties().containsKey(complexPropertyValueEntry.getKey())) {
+                throw new ConstraintViolationException("Complex type " + propertyDefinition.getType() + " do not have nested property with name "
+                        + complexPropertyValueEntry.getKey() + " for property " + propertyName);
+            } else {
+                Object nestedPropertyValue = complexPropertyValueEntry.getValue();
+                PropertyDefinition nestedPropertyDefinition = dataType.getProperties().get(complexPropertyValueEntry.getKey());
+                if (nestedPropertyValue instanceof String) {
+                    checkPropertyConstraint(complexPropertyValueEntry.getKey(), (String) nestedPropertyValue, nestedPropertyDefinition);
+                } else {
+                    checkComplexPropertyConstraint(complexPropertyValueEntry.getKey(), (Map<String, Object>) nestedPropertyValue, nestedPropertyDefinition,
+                            archive);
+                }
+            }
         }
     }
 

@@ -88,6 +88,11 @@ public final class ConstraintUtil {
         private Object reference;
         private String value;
         private String type;
+
+        @Override
+        public String toString() {
+            return "Constraint {" + "name='" + name + '\'' + ", reference=" + reference + ", value='" + value + '\'' + ", type='" + type + '\'' + '}';
+        }
     }
 
     public static ConstraintInformation getConstraintInformation(Object constraint) throws IntrospectionException {

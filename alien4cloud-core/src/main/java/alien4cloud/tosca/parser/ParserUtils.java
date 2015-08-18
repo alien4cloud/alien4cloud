@@ -69,7 +69,9 @@ public final class ParserUtils {
     }
 
     public static Object parse(Node node) {
-        if (node instanceof ScalarNode) {
+        if (node == null) {
+            return null;
+        } else if (node instanceof ScalarNode) {
             return ((ScalarNode) node).getValue();
         } else if (node instanceof SequenceNode) {
             return parseSequence((SequenceNode) node);
