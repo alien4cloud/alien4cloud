@@ -21,7 +21,7 @@ public class ConstraintsParser extends ListParser<PropertyConstraint> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         return 3;
     }
 }

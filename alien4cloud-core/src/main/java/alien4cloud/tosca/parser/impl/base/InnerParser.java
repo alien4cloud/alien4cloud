@@ -32,12 +32,12 @@ public class InnerParser implements INodeParser<Object> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         if (deferredOrder > 0) {
             return deferredOrder;
         } else {
             INodeParser<?> innerNodeParser = getParser(context);
-            return innerNodeParser.getDefferedOrder(context);
+            return innerNodeParser.getDeferredOrder(context);
         }
     }
 

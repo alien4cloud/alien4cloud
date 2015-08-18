@@ -41,7 +41,7 @@ public class PropertyTypeParser extends DefaultDeferredParser<String> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         return 1;
     }
 }

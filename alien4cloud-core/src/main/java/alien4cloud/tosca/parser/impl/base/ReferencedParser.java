@@ -37,9 +37,9 @@ public class ReferencedParser<T> implements INodeParser<T> {
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         INodeParser<?> delegate = context.getRegistry().get(typeName);
-        return delegate.getDefferedOrder(context);
+        return delegate.getDeferredOrder(context);
     }
 
 }

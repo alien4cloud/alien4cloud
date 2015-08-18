@@ -83,7 +83,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     @Override
-    public int getDefferedOrder(ParsingContextExecution context) {
+    public int getDeferredOrder(ParsingContextExecution context) {
         // the deferred parser order will be :
         // [PropertyTypeParser - 3] => [ConstraintParser - 2] => [PropertyDefaultValueParser - 1]
         return 2;
@@ -146,7 +146,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
             } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
                 context.getParsingErrors().add(
                         new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraint", keyNode.getStartMark(),
-                                "Constraint value do not match type " + propertyDefinition.getType(), keyNode.getEndMark(), "constraints"));
+                                "Constraint value do not match type " + propertyDefinition.getType(), keyNode.getEndMark(), operator));
                 return;
             }
             if (propertyDefinition.getConstraints() != null) {
@@ -158,7 +158,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
                 if (definedConstraints.contains(constraint.getClass().getName())) {
                     context.getParsingErrors().add(
                             new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintDuplicate", keyNode.getStartMark(),
-                                    "Constraint duplicated", keyNode.getEndMark(), "constraints"));
+                                    "Constraint duplicated", keyNode.getEndMark(), operator));
                 }
             }
         }
