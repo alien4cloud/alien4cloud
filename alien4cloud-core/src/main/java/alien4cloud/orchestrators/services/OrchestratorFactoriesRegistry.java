@@ -3,7 +3,7 @@ package alien4cloud.orchestrators.services;
 import alien4cloud.dao.IGenericSearchDAO;
 import alien4cloud.dao.model.GetMultipleDataResult;
 import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.plugin.AbstractPluginLinker;
 import alien4cloud.plugin.model.PluginUsage;
 import alien4cloud.utils.MapUtil;
@@ -17,7 +17,7 @@ import java.util.List;
  * Keeps track of the orchestrators plugins and usages.
  */
 @Component
-public class OrchestratorFactoriesRegistry extends AbstractPluginLinker<IOrchestratorFactory> {
+public class OrchestratorFactoriesRegistry extends AbstractPluginLinker<IOrchestratorPluginFactory> {
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
 

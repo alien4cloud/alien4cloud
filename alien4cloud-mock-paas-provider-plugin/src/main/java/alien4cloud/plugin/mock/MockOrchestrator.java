@@ -1,6 +1,6 @@
 package alien4cloud.plugin.mock;
 
-import alien4cloud.orchestrators.plugin.IOrchestrator;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class MockOrchestrator implements IOrchestrator<ProviderConfig> {
+public class MockOrchestrator implements IOrchestratorPlugin<ProviderConfig> {
 
 }

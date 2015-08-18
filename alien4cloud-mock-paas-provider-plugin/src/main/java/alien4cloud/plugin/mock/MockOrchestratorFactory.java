@@ -5,14 +5,14 @@ import javax.annotation.Resource;
 import alien4cloud.model.cloud.IaaSType;
 import org.springframework.beans.factory.BeanFactory;
 
-import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import org.springframework.stereotype.Component;
 
 /**
  * Factory for Mock implementation of orchestrator instance.
  */
 @Component("mock-orchestrator-factory")
-public class MockOrchestratorFactory implements IOrchestratorFactory<MockOrchestrator, ProviderConfig> {
+public class MockOrchestratorFactory implements IOrchestratorPluginFactory<MockOrchestrator, ProviderConfig> {
     @Resource
     private BeanFactory beanFactory;
 

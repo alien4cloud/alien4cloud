@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.paas.PaaSProviderService;
 import org.springframework.stereotype.Service;
 
 import alien4cloud.dao.IGenericSearchDAO;
@@ -24,6 +26,8 @@ public class OrchestratorConfigurationService {
     private IGenericSearchDAO alienDAO;
     @Resource
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
+    @Resource
+    private PaaSProviderService paaSProviderService;
 
     /**
      * Return the type of configuration for a given orchestrator.
@@ -98,14 +102,18 @@ public class OrchestratorConfigurationService {
      * @param id Id of the orchestrator for which to update the configuration.
      * @param newConfiguration The new configuration.
      */
-    public synchronized void updateConfiguration(String id, Object newConfiguration) {
+    public synchronized void updateConfiguration(String id, Object newConfiguration) throws PluginConfigurationException {
         OrchestratorConfiguration configuration = alienDAO.findById(OrchestratorConfiguration.class, id);
         if (configuration == null) {
             throw new NotFoundException("No configuration exists for cloud [" + id + "].");
         }
         configuration.setConfiguration(newConfiguration);
 
-        // TODO trigger update of the orchestrator's configuration if enabled / but we should warn the user that updates a config if cloud is enabled.
+        // Trigger update of the orchestrator's configuration if enabled.
+        IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.getPaaSProvider(id);
+        if (orchestratorInstance != null) {
+            orchestratorInstance.setConfiguration(newConfiguration);
+        }
 
         alienDAO.save(configuration);
     }

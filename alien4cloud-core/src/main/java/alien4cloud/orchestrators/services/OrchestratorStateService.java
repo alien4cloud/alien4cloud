@@ -1,35 +1,49 @@
 package alien4cloud.orchestrators.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import alien4cloud.dao.IGenericSearchDAO;
-import alien4cloud.orchestrators.plugin.IOrchestrator;
-import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
-import alien4cloud.paas.IConfigurablePaaSProviderFactory;
-import alien4cloud.paas.IPaaSProviderFactory;
-import lombok.extern.slf4j.Slf4j;
-import alien4cloud.dao.model.GetMultipleDataResult;
-import alien4cloud.model.cloud.Cloud;
-import alien4cloud.model.orchestrators.Orchestrator;
-import alien4cloud.model.orchestrators.OrchestratorState;
-import alien4cloud.paas.IPaaSProvider;
-import alien4cloud.paas.exception.PluginConfigurationException;
-
 import javax.annotation.Resource;
+
+import alien4cloud.dao.model.GetMultipleDataResult;
+import alien4cloud.model.deployment.Deployment;
+import alien4cloud.utils.MapUtil;
+import lombok.extern.slf4j.Slf4j;
+
+import org.elasticsearch.index.query.QueryBuilders;
+
+import alien4cloud.cloud.DeploymentService;
+import alien4cloud.dao.IGenericSearchDAO;
+import alien4cloud.model.orchestrators.Orchestrator;
+import alien4cloud.model.orchestrators.OrchestratorConfiguration;
+import alien4cloud.model.orchestrators.OrchestratorState;
+import alien4cloud.orchestrators.plugin.IOrchestratorPlugin;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
+import alien4cloud.paas.PaaSProviderService;
+import alien4cloud.paas.exception.PluginConfigurationException;
+import org.elasticsearch.mapping.QueryHelper;
 
 /**
  * Service to manage state of an orchestrator
  */
 @Slf4j
 public class OrchestratorStateService {
+    @Resource
+    private QueryHelper queryHelper;
     @Resource(name = "alien-es-dao")
     private IGenericSearchDAO alienDAO;
     @Resource
+    private OrchestratorConfigurationService orchestratorConfigurationService;
+    @Resource
     private OrchestratorFactoriesRegistry orchestratorFactoriesRegistry;
+    @Resource
+    private PaaSProviderService paaSProviderService;
+    @Resource
+    private DeploymentService deploymentService;
 
     /**
      * Initialize all orchestrator that have a non-disabled state.
@@ -40,89 +54,109 @@ public class OrchestratorStateService {
     public List<Future<?>> initialize() {
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<Future<?>> futures = new ArrayList<Future<?>>();
-        int from = 0;
-        long totalResult;
-        do {
-            GetMultipleDataResult<Orchestrator> enabledOrchestrators = get(null, true, from, 20, null);
-            if (enabledOrchestrators.getData() == null) {
-                return futures;
-            }
+        // get all the orchestrators that are not disabled
+        List<Orchestrator> enabledOrchestrators = alienDAO.customFindAll(Orchestrator.class, QueryBuilders.termsQuery("state",
+                OrchestratorState.CONNECTED.toString(), OrchestratorState.CONNECTING.toString(), OrchestratorState.DISCONNECTED.toString()));
 
-            for (final Orchestrator orchestrator : enabledOrchestrators.getData()) {
-                // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
-                Future<?> future = executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            enable(orchestrator);
-                        } catch (Throwable t) {
-                            // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
-                            disableOnInitFailure(orchestrator, t);
-                        }
+        for (final Orchestrator orchestrator : enabledOrchestrators) {
+            // error in initialization and timeouts should not impact startup time of Alien 4 cloud and other PaaS Providers.
+            Future<?> future = executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        load(orchestrator);
+                    } catch (Throwable t) {
+                        // we have to catch everything as we don't know what a plugin can do here and cannot interrupt startup.
                     }
-                });
-                futures.add(future);
-            }
-            from += enabledOrchestrators.getData().length;
-            totalResult = enabledOrchestrators.getTotalResults();
-        } while (from < totalResult);
+                }
+            });
+            futures.add(future);
+        }
         return futures;
-    }
-
-    private void disableOnInitFailure(Orchestrator orchestrator, Throwable t) {
-        log.error("Failed to start cloud Enable cloud <" + orchestrator.getId() + "> <" + orchestrator.getName() + "> - will switch it to disabled", t);
-        disable(orchestrator, true);
     }
 
     /**
      * Enable an orchestrator.
-     * 
+     *
      * @param orchestrator The orchestrator to enable.
      */
-    public synchronized void enable(Orchestrator orchestrator) {
+    public synchronized void enable(Orchestrator orchestrator) throws PluginConfigurationException {
         if (orchestrator.getState().equals(OrchestratorState.DISABLED)) {
-
+            load(orchestrator);
         } else {
             log.debug("Request to enable ignored: orchestrator {} (id: {}) is already enabled", orchestrator.getName(), orchestrator.getId());
         }
     }
 
     /**
+     * Load and connect the given orchestrator.
      *
+     * @param orchestrator the orchestrator to load and connect.
      */
-    private void load(Orchestrator orchestrator) {
+    private void load(Orchestrator orchestrator) throws PluginConfigurationException {
         log.info("Loading and connecting orchestrator {} (id: {})", orchestrator.getName(), orchestrator.getId());
         // switch the state to connecting
         orchestrator.setState(OrchestratorState.CONNECTING);
         alienDAO.save(orchestrator);
 
-        IOrchestratorFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
-        IOrchestrator orchestratorInstance = orchestratorFactory.newInstance();
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        IOrchestratorPlugin orchestratorInstance = orchestratorFactory.newInstance();
 
-        
-
-        // get a PaaSProvider bean and configure it.
-        IPaaSProviderFactory passProviderFactory = paaSProviderFactoriesService.getPluginBean(cloud.getPaasPluginId(), cloud.getPaasPluginBean());
-        // create and configure a IPaaSProvider instance.
-        IPaaSProvider provider = null;
-        if (passProviderFactory instanceof IConfigurablePaaSProviderFactory) {
-            provider = ((IConfigurablePaaSProviderFactory<Object>) passProviderFactory).newInstance();
-        } else {
-            provider = passProviderFactory.newInstance();
+        // Set the configuration for the provider
+        OrchestratorConfiguration orchestratorConfiguration = orchestratorConfigurationService.getConfigurationOrFail(orchestrator.getId());
+        try {
+            Object configuration = orchestratorConfigurationService.configurationAsValidObject(orchestrator.getId(),
+                    orchestratorConfiguration.getConfiguration());
+            orchestratorInstance.setConfiguration(configuration);
+        } catch (IOException e) {
+            throw new PluginConfigurationException("Failed convert configuration json in object.", e);
         }
-        refreshCloud(cloud, provider);
-        provider.init(deploymentService.getCloudActiveDeploymentContexts(cloud.getId()));
-        // register the IPaaSProvider for the cloud.
-        paaSProviderService.register(cloud.getId(), provider);
+
+        // connect the orchestrator
+        orchestratorInstance.init(deploymentService.getCloudActiveDeploymentContexts(orchestrator.getId()));
+        // register the orchestrator instance to be polled for updates
+        paaSProviderService.register(orchestrator.getId(), orchestratorInstance);
     }
 
     /**
      * Disable an orchestrator.
-     * 
+     *
      * @param orchestrator The orchestrator to disable.
      * @param force If true the orchestrator is disabled even if some deployments are currently running.
      */
-    public synchronized void disable(Orchestrator orchestrator, boolean force) {
+    public synchronized boolean disable(Orchestrator orchestrator, boolean force) {
+        if (force == false) {
+            QueryHelper.SearchQueryHelperBuilder searchQueryHelperBuilder = queryHelper
+                    .buildSearchQuery(alienDAO.getIndexForType(Deployment.class))
+                    .types(Deployment.class)
+                    .filters(
+                            MapUtil.newHashMap(new String[] { "cloudId", "endDate" }, new String[][] { new String[] { orchestrator.getId() },
+                                    new String[] { null } })).fieldSort("_timestamp", true);
+            // If there is at least one active deployment.
+            GetMultipleDataResult<Object> result = alienDAO.search(searchQueryHelperBuilder, 0, 1);
 
+            // TODO place a lock to avoid deployments during disablement of the orchestrator.
+            if (result.getData().length > 0) {
+                return false;
+            }
+        }
+
+        try {
+            // un-register the orchestrator.
+            IOrchestratorPlugin orchestratorInstance = (IOrchestratorPlugin) paaSProviderService.unregister(orchestrator.getId());
+            if (orchestratorInstance != null) {
+                IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(),
+                        orchestrator.getPluginBean());
+                orchestratorFactory.destroy(orchestratorInstance);
+            }
+        } catch (Exception e) {
+            log.info("Unable to destroy orchestrator, it may not be created yet", e);
+        } finally {
+            // Mark the cloud as disabled
+            orchestrator.setState(OrchestratorState.DISABLED);
+            alienDAO.save(orchestrator);
+        }
+
+        return true;
     }
 }

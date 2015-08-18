@@ -18,7 +18,7 @@ import alien4cloud.model.orchestrators.Orchestrator;
 import alien4cloud.model.orchestrators.OrchestratorConfiguration;
 import alien4cloud.model.orchestrators.OrchestratorState;
 import alien4cloud.model.orchestrators.locations.Location;
-import alien4cloud.orchestrators.plugin.IOrchestratorFactory;
+import alien4cloud.orchestrators.plugin.IOrchestratorPluginFactory;
 import alien4cloud.utils.MapUtil;
 
 /**
@@ -53,7 +53,7 @@ public class OrchestratorService {
         orchestrator.setState(OrchestratorState.DISABLED);
 
         // get default configuration for the orchestrators.
-        IOrchestratorFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
+        IOrchestratorPluginFactory orchestratorFactory = orchestratorFactoriesRegistry.getPluginBean(orchestrator.getPluginId(), orchestrator.getPluginBean());
         OrchestratorConfiguration configuration = new OrchestratorConfiguration(orchestrator.getId(), orchestratorFactory.getDefaultConfiguration());
 
         orchestrator.setMultipleLocations(orchestratorFactory.isMultipleLocations());

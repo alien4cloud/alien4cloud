@@ -8,7 +8,7 @@ package alien4cloud.orchestrators.plugin;
  * @param <T> Type of the orchestrator that this factory creates.
  * @param <V> Type of the configuration of the orchestrator that the factory creates.
  */
-public interface IOrchestratorFactory<T extends IOrchestrator<V>, V> {
+public interface IOrchestratorPluginFactory<T extends IOrchestratorPlugin<V>, V> {
     /**
      * Create a new IOrchestrator instance.
      * 
