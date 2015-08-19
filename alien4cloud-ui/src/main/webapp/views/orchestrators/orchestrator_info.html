@@ -1,35 +1,34 @@
 <div class="row">
-  <div class="col-md-12">
-    <i class="fa fa-2x ng-scope fa-circle text-muted" tooltip="Undeployed" tooltip-append-to-body="true" ng-class="{
-            'fa-circle text-success' : context.orchestrator.status == 'DEPLOYED',
-            'fa-circle text-muted' : context.orchestrator.status == 'DISABLED',
-            'fa-warning text-warning' : context.orchestrator.status == 'WARNING',
-            'fa-circle text-danger' : context.orchestrator.status == 'FAILURE',
-            'fa-question-circle text-muted' : context.orchestrator.status == 'UNKNOWN',
-            'fa-spinner fa-spin' : context.orchestrator.status == 'DEPLOYMENT_IN_PROGRESS' || context.orchestrator.status == 'UNDEPLOYMENT_IN_PROGRESS'
-          }">
-    </i>
-    <div class="h2" style="display: inline-block;" id="orchestrator-name">
+  <div class="col-sm-2">
+    <i class="fa fa-2x ng-scope" ng-class="{
+      'fa-circle text-success' : context.orchestrator.state == 'CONNECTED',
+      'fa-circle text-muted' : context.orchestrator.state == 'DISABLED',
+      'fa-question-circle text-danger' : context.orchestrator.state == 'DISCONNECTED',
+      'fa-spinner fa-spin' : context.orchestrator.state == 'CONNECTING'
+    }"></i>
+    {{'ORCHESTRATORS.STATES.' + context.orchestrator.state | translate }}
+  </div>
+  <div class="col-sm-8">
+    <div class="h2" style="margin: 0px" id="orchestrator-name">
       <span editable-text="context.orchestrator.name" buttons="no" e-required e-class="input-lg" onbeforesave="updateOrchestrator($data)" blur="submit">
         {{context.orchestrator.name}} <i class="fa fa-edit"></i>
       </span>
     </div>
-    <div class="pull-right">
-      <delete-confirm id="btn-delete-app" func="removeOrchestrator()" position="left" bssize="btn-sm" fastyle="fa-trash-o">
-      </delete-confirm>
-    </div>
+  </div>
+  <div class="col-sm-2">
+    <delete-confirm id="btn-delete-app" func="removeOrchestrator()" position="left" fastyle="fa-trash-o" text="{{'DELETE' | translate}}"></delete-confirm>
   </div>
 </div>
 <div class="row" ng-if="orchestratorProperties">
   <div class="col-md-12">
     <hr class="separator-h">
     <meta-properties-display
-      properties="orchestratorProperties"
-      ng-if="orchestratorProperties"
-      orchestrator="context.orchestrator"
-      collapsable="false">
-    </meta-properties-display>
-  </div>
+    properties="orchestratorProperties"
+    ng-if="orchestratorProperties"
+    orchestrator="context.orchestrator"
+    collapsable="false">
+  </meta-properties-display>
+</div>
 </div>
 <hr class="separator-h">
 <div class="row">

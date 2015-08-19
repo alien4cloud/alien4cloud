@@ -1,4 +1,11 @@
 <div>
+  TODO list:
+  <ul>
+    <li>There is no more refresh option to update the configuration on a running orchestrator, configuration is applied at any change.
+      The configuration UI should (in case of an enabled orchestrator only) be locked with a button to unlock and a message that warns the user that he may break connection. More in case the orchestrator is running, the user should be force to SAVE (rather than the auto-save)</li>
+  </ul>
+</div>
+<div>
   <div ng-if="configuration && configurationDefinition">
     <generic-form root-object="configuration" form-title="{{'CLOUDS.ADMINISTRATION.DRIVER.TITLE' | translate}}" type="configurationDefinition" form-style="window" suggest="suggest(searchConfiguration, text)" save="saveConfiguration(object)" automatic-save="true">
     </generic-form>

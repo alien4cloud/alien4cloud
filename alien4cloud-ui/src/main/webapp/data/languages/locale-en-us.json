@@ -633,6 +633,12 @@
   "ORCHESTRATORS": {
     "NEW": "New orchestrator",
     "STATE": "State",
+    "STATES": {
+      "DISABLED": "Disabled",
+      "CONNECTING": "Connecting",
+      "CONNECTED": "Connected",
+      "DISCONNECTED": "Disconnected"
+    },
     "NAME": "Name",
     "PLUGIN": "Plugin",
     "NAV": {

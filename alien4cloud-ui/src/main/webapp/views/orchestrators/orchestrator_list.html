@@ -35,8 +35,12 @@
                 <a class="btn btn-default" id="clone_cloud_{{cloud.name}}" ng-click="$event.stopPropagation(); islocationCollapsed = !islocationCollapsed;">
                   <i class="fa" ng-class="{'fa-chevron-down' : !islocationCollapsed, 'fa-chevron-right': islocationCollapsed}"></i>
                 </a>
-                <i class="fa fa-circle fa-2x" ng-class="{'text-success': orchestrator.enabled,'text-danger': !orchestrator.enabled}"
-                  tooltip="{{'CLOUDS.ENABLED_' + orchestrator.enabled | translate }}"></i>
+                <i class="fa fa-2x ng-scope" tooltip="{{'ORCHESTRATORS.STATES.' + orchestrator.state}}" ng-class="{
+                  'fa-circle text-success' : orchestrator.state == 'CONNECTED',
+                  'fa-circle text-muted' : orchestrator.state == 'DISABLED',
+                  'fa-question-circle text-danger' : orchestrator.state == 'DISCONNECTED',
+                  'fa-spinner fa-spin' : orchestrator.state == 'CONNECTING'
+                }"></i> {{'ORCHESTRATORS.STATES.' + orchestrator.state | translate }}
               </td>
               <td>{{orchestrator.name  || '---' }}</td>
               <td>{{orchestrator.pluginName || '---' }}</td>
