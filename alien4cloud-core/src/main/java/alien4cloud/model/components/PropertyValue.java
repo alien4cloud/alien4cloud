@@ -1,8 +1,7 @@
 package alien4cloud.model.components;
 
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MapPropertyValue {
-    private Map<String, Object> value;
+@EqualsAndHashCode
+public class PropertyValue<T> extends AbstractPropertyValue {
+    protected T value;
 }

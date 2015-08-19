@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractPropertyValue implements IValue {
+
     @Override
     public boolean isDefinition() {
         return false;

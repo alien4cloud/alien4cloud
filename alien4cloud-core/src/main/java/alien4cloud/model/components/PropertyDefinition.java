@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import alien4cloud.json.deserializer.PropertyConstraintDeserializer;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
@@ -49,18 +50,21 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(of = { "type", "required", "description", "defaultValue", "constraints" })
+@EqualsAndHashCode(of = { "type", "required", "description", "defaultValue", "constraints", "entrySchema" })
 @SuppressWarnings("PMD.UnusedPrivateField")
 @ToscaPropertyDefaultValueType
 @ToscaPropertyConstraint
 @ToscaPropertyDefaultValueConstraints(groups = { ToscaPropertyPostValidationGroup.class })
 @JsonIgnoreProperties(ignoreUnknown = true)
 @FormProperties({ "type", "required", "default", "description" })
+@ToString
 public class PropertyDefinition implements IValue {
     @ToscaPropertyType
     @FormValidValues({ "boolean", "string", "float", "integer", "version" })
     @NotNull
     private String type;
+
+    private PropertyDefinition entrySchema;
 
     @NotNull
     private boolean required = true;

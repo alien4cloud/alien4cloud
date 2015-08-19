@@ -171,7 +171,7 @@ public class DeploymentSetupService {
         for (Map.Entry<String, String> inputPropertyEntry : inputProperties.entrySet()) {
             PropertyDefinition definition = inputDefinitions.get(inputPropertyEntry.getKey());
             if (definition != null) {
-                constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                         inputDefinitions.get(inputPropertyEntry.getKey()));
             }
         }
@@ -204,7 +204,7 @@ public class DeploymentSetupService {
                         changed = true;
                     } else {
                         try {
-                            constraintPropertyService.checkPropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
+                            constraintPropertyService.checkSimplePropertyConstraint(inputPropertyEntry.getKey(), inputPropertyEntry.getValue(),
                                     inputDefinitions.get(inputPropertyEntry.getKey()));
                         } catch (ConstraintViolationException | ConstraintValueDoNotMatchPropertyTypeException e) {
                             // Property is not valid anymore for the input, remove the old value

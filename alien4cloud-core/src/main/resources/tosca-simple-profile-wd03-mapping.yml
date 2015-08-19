@@ -23,10 +23,7 @@
 - group_policy_parser: alien4cloud.tosca.parser.impl.advanced.GroupPolicyParser
 - artifact_ref_parser: alien4cloud.tosca.parser.impl.advanced.ArtifactReferenceParser
 - sustitution_mapping_parser: alien4cloud.tosca.parser.impl.advanced.SustitutionMappingParser
-- property_type: alien4cloud.tosca.parser.impl.advanced.PropertyTypeParser
-- property_default_type: alien4cloud.tosca.parser.impl.advanced.PropertyDefaultValueParser
 - constraint: alien4cloud.tosca.parser.impl.advanced.ConstraintParser
-- constraints_type: alien4cloud.tosca.parser.impl.advanced.ConstraintsParser
 
 # declare standard mapping based parsers
 - definition: alien4cloud.tosca.model.ArchiveRoot
@@ -62,7 +59,7 @@
     type: artifact_type
     # inputs:
   topology_template:
-    inner: topology
+    reference: topology
     deferred: true
     deferredOrder: 1000 # we want this to be the last executed
     type: topology_template_type
@@ -71,7 +68,7 @@
   description: .topologyTemplateDescription # mapped to a root's property
   inputs:
     map: inputs
-    type: property_definition
+    type: non_deferred_property_definition
   input_artifacts:
     map: inputArtifacts
     type: template_deployment_artifact
@@ -82,7 +79,7 @@
     map: nodeTemplates
     type: node_template
   outputs:
-    inner: void # means : do the parsing but do not set anything
+    reference: void # means : do the parsing but do not set anything
     deferred: true
     deferredOrder: 1001 # we want this to be the very last executed
     type: outputs_type
@@ -113,10 +110,10 @@
     map: properties
     type: node_template_property
   requirements:
-    inner: relationships
+    reference: relationships
     type: relationship_templates_type
   capabilities:
-    inner: void
+    reference: void
     deferred: true
     type: nodetemplate_capabilities_type
   artifacts:
@@ -128,18 +125,22 @@
   type: type
   default: default
 
-- property_definition: alien4cloud.model.components.PropertyDefinition
-  type:
-    reference: type
-    type: property_type
+- property_definition: __reference
+  deferred: true
+  deferredOrder: 1
+  type: non_deferred_property_definition
+
+- non_deferred_property_definition: alien4cloud.model.components.PropertyDefinition|propertyDefinitionChecker
+  type: type
+  entry_schema:
+    reference: entrySchema
+    type: non_deferred_property_definition
   required: required
   description: description
-  default:
-    reference: default
-    type: property_default_type
+  default: default
   constraints:
-    reference: constraints
-    type: constraints_type
+    list: constraints
+    type: constraint
 
 # capability definition supports a simple definition or more advanced.
 - capability_definition: alien4cloud.tosca.parser.impl.advanced.CapabilityDefinitionParser
@@ -155,17 +156,20 @@
     map: properties
     type: template_property
 
+- constraint_list: list # This element must be parsed as a list
+  type: constraint # the elements in the list are constraints
+
 # Node filter related types
 - filter_definition: alien4cloud.model.components.FilterDefinition
   properties:
     sequence_to_map: properties
-    type: constraints_type
+    type: constraint_list
     node_is_value: false
 
 - node_filter_type: alien4cloud.model.components.NodeFilter
   properties:
     sequence_to_map: properties
-    type: constraints_type
+    type: constraint_list
     node_is_value: false
   capabilities:
     sequence_to_map: capabilities

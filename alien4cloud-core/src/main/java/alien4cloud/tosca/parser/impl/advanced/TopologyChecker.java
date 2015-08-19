@@ -14,13 +14,12 @@ import org.yaml.snakeyaml.nodes.Node;
 import alien4cloud.component.ICSARRepositorySearchService;
 import alien4cloud.model.components.AbstractPropertyValue;
 import alien4cloud.model.components.CSARDependency;
-import alien4cloud.model.components.ComplexPropertyValue;
 import alien4cloud.model.components.FunctionPropertyValue;
 import alien4cloud.model.components.IndexedInheritableToscaElement;
 import alien4cloud.model.components.IndexedModelUtils;
 import alien4cloud.model.components.IndexedNodeType;
 import alien4cloud.model.components.PropertyDefinition;
-import alien4cloud.model.components.ScalarPropertyValue;
+import alien4cloud.model.components.PropertyValue;
 import alien4cloud.model.topology.NodeGroup;
 import alien4cloud.model.topology.NodeTemplate;
 import alien4cloud.model.topology.Topology;
@@ -137,15 +136,10 @@ public class TopologyChecker implements IChecker<Topology> {
                                                 node.getEndMark(), propertyName));
                             }
                         }
-                    } else {
+                    } else if (propertyValue instanceof PropertyValue<?>) {
                         try {
-                            if (propertyValue instanceof ScalarPropertyValue) {
-                                constraintPropertyService.checkPropertyConstraint(propertyName, ((ScalarPropertyValue) propertyValue).getValue(),
-                                        propertyDefinition);
-                            } else if (propertyValue instanceof ComplexPropertyValue) {
-                                constraintPropertyService.checkComplexPropertyConstraint(propertyName, ((ComplexPropertyValue) propertyValue).getValue(),
-                                        propertyDefinition, archiveRoot);
-                            }
+                            constraintPropertyService.checkPropertyConstraint(propertyName, ((PropertyValue<?>) propertyValue).getValue(), propertyDefinition,
+                                    archiveRoot);
                         } catch (ConstraintValueDoNotMatchPropertyTypeException | ConstraintViolationException e) {
                             StringBuilder problem = new StringBuilder("Validation issue ");
                             if (e.getConstraintInformation() != null) {

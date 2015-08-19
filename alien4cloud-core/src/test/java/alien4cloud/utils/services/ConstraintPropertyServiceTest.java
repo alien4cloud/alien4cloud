@@ -26,51 +26,51 @@ public class ConstraintPropertyServiceTest {
     public void testValidStringProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("string");
-        constraintPropertyService.checkPropertyConstraint("test", "value", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "value", propertyDefinition);
     }
 
     @Test
     public void testValidIntegerProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("integer");
-        constraintPropertyService.checkPropertyConstraint("test", "128", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "128", propertyDefinition);
     }
 
     @Test
     public void testValidFloatProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("float");
-        constraintPropertyService.checkPropertyConstraint("test", "128", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "128.34", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "128", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "128.34", propertyDefinition);
     }
 
     @Test
     public void testValidBooleanProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("boolean");
-        constraintPropertyService.checkPropertyConstraint("test", "true", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "false", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "1", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "0", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "TRUE", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "FALSE", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "true", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "false", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "1", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "0", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "TRUE", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "FALSE", propertyDefinition);
         // in fact anything can be used for boolean
-        constraintPropertyService.checkPropertyConstraint("test", "anything", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "anything", propertyDefinition);
     }
 
     @Test
     public void testValidTimestampProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("timestamp");
-        constraintPropertyService.checkPropertyConstraint("test", "2015-01-15 00:00:00", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "2015-01-15 00:00:00", propertyDefinition);
     }
 
     @Test
     public void testValidVersionProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("version");
-        constraintPropertyService.checkPropertyConstraint("test", "2.0", propertyDefinition);
-        constraintPropertyService.checkPropertyConstraint("test", "1.0.0-SNAPSHOT", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "2.0", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "1.0.0-SNAPSHOT", propertyDefinition);
     }
 
     // invalid value tests
@@ -79,21 +79,21 @@ public class ConstraintPropertyServiceTest {
     public void testInvalidIntegerProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("integer");
-        constraintPropertyService.checkPropertyConstraint("test", "aaaa128", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "aaaa128", propertyDefinition);
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
     public void testInvalidFloatProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("float");
-        constraintPropertyService.checkPropertyConstraint("test", "aaaa128", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "aaaa128", propertyDefinition);
     }
 
     @Test(expected = ConstraintValueDoNotMatchPropertyTypeException.class)
     public void testInvalidVersionProperty() throws Exception {
         PropertyDefinition propertyDefinition = new PropertyDefinition();
         propertyDefinition.setType("version");
-        constraintPropertyService.checkPropertyConstraint("test", "anything", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "anything", propertyDefinition);
     }
 
     // constraint test
@@ -106,7 +106,7 @@ public class ConstraintPropertyServiceTest {
         lengthConstraint.setLength(3);
         propertyDefinition.getConstraints().add(lengthConstraint);
 
-        constraintPropertyService.checkPropertyConstraint("test", "val", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "val", propertyDefinition);
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -118,7 +118,7 @@ public class ConstraintPropertyServiceTest {
         lengthConstraint.setLength(3);
         propertyDefinition.getConstraints().add(lengthConstraint);
 
-        constraintPropertyService.checkPropertyConstraint("test", "value", propertyDefinition);
+        constraintPropertyService.checkSimplePropertyConstraint("test", "value", propertyDefinition);
     }
 
 }

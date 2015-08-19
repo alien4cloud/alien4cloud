@@ -1,7 +1,6 @@
 package alien4cloud.tosca.parser.impl.advanced;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -16,7 +15,6 @@ import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import alien4cloud.model.components.PropertyConstraint;
-import alien4cloud.model.components.PropertyDefinition;
 import alien4cloud.model.components.constraints.EqualConstraint;
 import alien4cloud.model.components.constraints.GreaterOrEqualConstraint;
 import alien4cloud.model.components.constraints.GreaterThanConstraint;
@@ -28,8 +26,6 @@ import alien4cloud.model.components.constraints.MaxLengthConstraint;
 import alien4cloud.model.components.constraints.MinLengthConstraint;
 import alien4cloud.model.components.constraints.PatternConstraint;
 import alien4cloud.model.components.constraints.ValidValuesConstraint;
-import alien4cloud.tosca.normative.IPropertyType;
-import alien4cloud.tosca.normative.ToscaType;
 import alien4cloud.tosca.parser.AbstractTypeNodeParser;
 import alien4cloud.tosca.parser.INodeParser;
 import alien4cloud.tosca.parser.MappingTarget;
@@ -41,10 +37,8 @@ import alien4cloud.tosca.parser.ParsingTechnicalException;
 import alien4cloud.tosca.parser.impl.ErrorCode;
 import alien4cloud.tosca.parser.impl.base.ListParser;
 import alien4cloud.tosca.parser.impl.base.ScalarParser;
-import alien4cloud.tosca.properties.constraints.exception.ConstraintValueDoNotMatchPropertyTypeException;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Parse a constraint based on the specified operator
@@ -79,14 +73,12 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
 
     @Override
     public boolean isDeferred(ParsingContextExecution context) {
-        return true;
+        return false;
     }
 
     @Override
     public int getDeferredOrder(ParsingContextExecution context) {
-        // the deferred parser order will be :
-        // [PropertyTypeParser - 3] => [ConstraintParser - 2] => [PropertyDefaultValueParser - 1]
-        return 2;
+        return 0;
     }
 
     @Override
@@ -108,10 +100,6 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
     }
 
     private PropertyConstraint parseConstraint(String operator, Node keyNode, Node expressionNode, ParsingContextExecution context) {
-        PropertyDefinition propertyDefinition = null;
-        if (context.getParent() instanceof PropertyDefinition) {
-            propertyDefinition = (PropertyDefinition) context.getParent();
-        }
         ConstraintParsingInfo info = constraintBuildersMap.get(operator);
         if (info == null) {
             context.getParsingErrors().add(
@@ -127,41 +115,7 @@ public class ConstraintParser extends AbstractTypeNodeParser implements INodePar
         }
         BeanWrapper target = new BeanWrapperImpl(constraint);
         parseAndSetValue(target, null, expressionNode, context, new MappingTarget(info.expressionPropertyName, info.expressionParser));
-        // If the constraint is inside a property definition then must validate that it follows the definition
-        if (propertyDefinition != null) {
-            validate(propertyDefinition, constraint, context, operator, keyNode);
-        }
         return constraint;
-    }
-
-    private void validate(PropertyDefinition propertyDefinition, PropertyConstraint constraint, ParsingContextExecution context, String operator, Node keyNode) {
-        IPropertyType<?> toscaType = ToscaType.fromYamlTypeName(propertyDefinition.getType());
-        if (toscaType == null) {
-            context.getParsingErrors().add(
-                    new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.INVALID_CONSTRAINT, "Constraint parsing issue", keyNode.getStartMark(),
-                            "Constraint invalid for type " + propertyDefinition.getType(), keyNode.getEndMark(), operator));
-        } else {
-            try {
-                constraint.initialize(toscaType);
-            } catch (ConstraintValueDoNotMatchPropertyTypeException e) {
-                context.getParsingErrors().add(
-                        new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraint", keyNode.getStartMark(),
-                                "Constraint value do not match type " + propertyDefinition.getType(), keyNode.getEndMark(), operator));
-                return;
-            }
-            if (propertyDefinition.getConstraints() != null) {
-                Set<String> definedConstraints = Sets.newHashSet();
-                for (int i = 0; i < propertyDefinition.getConstraints().size(); i++) {
-                    PropertyConstraint existing = propertyDefinition.getConstraints().get(i);
-                    definedConstraints.add(existing.getClass().getName());
-                }
-                if (definedConstraints.contains(constraint.getClass().getName())) {
-                    context.getParsingErrors().add(
-                            new ParsingError(ParsingErrorLevel.ERROR, ErrorCode.VALIDATION_ERROR, "ToscaPropertyConstraintDuplicate", keyNode.getStartMark(),
-                                    "Constraint duplicated", keyNode.getEndMark(), operator));
-                }
-            }
-        }
     }
 
     @AllArgsConstructor

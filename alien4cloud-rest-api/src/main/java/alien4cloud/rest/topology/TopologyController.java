@@ -548,7 +548,7 @@ public class TopologyController {
             return null;
         }
         try {
-            constraintPropertyService.checkPropertyConstraint(propertyName, propertyValue, propertyDefinition);
+            constraintPropertyService.checkSimplePropertyConstraint(propertyName, propertyValue, propertyDefinition);
         } catch (ConstraintViolationException e) {
             log.error("Constraint violation error for property <" + propertyName + "> with value <" + propertyValue + ">", e);
             return RestResponseBuilder.<ConstraintInformation> builder().data(e.getConstraintInformation())

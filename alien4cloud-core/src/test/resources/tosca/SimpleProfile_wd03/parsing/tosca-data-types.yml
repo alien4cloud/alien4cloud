@@ -40,6 +40,26 @@ data_types:
         type: string
       address:
         type: alien.test.Address
+      friends:
+        type: list
+        entry_schema:
+          type: alien.test.Person
+      emails:
+        type: list
+        entry_schema:
+          type: string
+          constraints:
+            - pattern: ".+@.+"
+      misc:
+        type: map
+        entry_schema:
+          type: string
+          constraints:
+            - min_length: 10
+      hierarchy:
+        type: map
+        entry_schema:
+          type: alien.test.Person
 
   alien.test.Client:
     derived_from: alien.test.Person
@@ -64,3 +84,27 @@ topology_template:
             street: Peupliers
             city: Issy Les Moulineaux
             country: France
+          emails:
+            - hello@hi.com
+            - goodbye@hi.com
+          friends:
+            - name: big alien
+              address:
+                number: 2
+                street: Peupliers
+                city: Issy Les Moulineaux
+                country: France
+            - name: little alien
+              address:
+                number: 3
+                street: Peupliers
+                city: Issy Les Moulineaux
+                country: France
+          misc:
+            favorite_song: I like to move it move it
+            dog_name: Milou milou milou
+          hierarchy:
+            n_plug_one:
+              name: chief alien
+            n_plus_two:
+              name: chief predator

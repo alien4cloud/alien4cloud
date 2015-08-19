@@ -28,6 +28,16 @@ public abstract class CollectionParser<T> extends DefaultParser<Collection<T>> {
     private String keyPath;
 
     @Override
+    public boolean isDeferred(ParsingContextExecution context) {
+        return valueParser.isDeferred(context);
+    }
+
+    @Override
+    public int getDeferredOrder(ParsingContextExecution context) {
+        return valueParser.getDeferredOrder(context);
+    }
+
+    @Override
     public Collection<T> parse(Node node, ParsingContextExecution context) {
         if (node instanceof MappingNode) {
             return doParseFromMap((MappingNode) node, context);
